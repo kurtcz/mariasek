@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,21 +14,31 @@ namespace Mariasek.Engine.New.Logger
         }
         public void Debug(object message)
         {
+            System.Diagnostics.Debug.WriteLine(message);
         }
         public void Debug(object message, Exception exception)
         {
+            System.Diagnostics.Debug.WriteLine(message);
+            System.Diagnostics.Debug.WriteLine(exception.Message);
+            System.Diagnostics.Debug.WriteLine(exception.StackTrace);
         }
         public void DebugFormat(string format, params object[] args)
         {
+            Error(string.Format(format, args));
         }
         public void Error(object message)
         {
+            System.Diagnostics.Debug.WriteLine(message);
         }
         public void Error(object message, Exception exception)
         {
+            System.Diagnostics.Debug.WriteLine(message);
+            System.Diagnostics.Debug.WriteLine(exception.Message);
+            System.Diagnostics.Debug.WriteLine(exception.StackTrace);
         }
         public void ErrorFormat(string format, params object[] args)
         {
+            Error(string.Format(format, args));
         }
         public void Fatal(object message)
         {
@@ -40,12 +51,17 @@ namespace Mariasek.Engine.New.Logger
         }
         public void Info(object message)
         {
+            System.Diagnostics.Debug.WriteLine(message);
         }
         public void Info(object message, Exception exception)
         {
+            System.Diagnostics.Debug.WriteLine(message);
+            System.Diagnostics.Debug.WriteLine(exception.Message);
+            System.Diagnostics.Debug.WriteLine(exception.StackTrace);
         }
         public void InfoFormat(string format, params object[] args)
         {
+            Error(string.Format(format, args));
         }
         public void Warn(object message)
         {

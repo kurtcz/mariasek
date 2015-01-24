@@ -63,6 +63,7 @@
     <Compile Include="Game.cs" />
     <Compile Include="GameComputationResult.cs" />
     <Compile Include="GameFlavour.cs" />
+    <Compile Include="GameFlavourChosenEventArgs.cs" />
     <Compile Include="GameTypeChosenEventArgs.cs" />
     <Compile Include="HandExtensions.cs" />
     <Compile Include="Hra.cs" />

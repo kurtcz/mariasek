@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml.Serialization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +7,8 @@ using System.Threading.Tasks;
 
 namespace Mariasek.Engine.New
 {
+    [XmlInclude(typeof(AddingMoneyCalculator))]
+    [XmlRoot(ElementName="Money")]
     public abstract class MoneyCalculatorBase
     {
         protected Hra _gameType;
@@ -38,7 +41,13 @@ namespace Mariasek.Engine.New
         public bool BetlWon { get; private set; }
         public bool DurchWon { get; private set; }
 
+        [XmlArray]
         public int[] MoneyWon { get; protected set; }
+
+        //Default constructor for XmlSerialize purposes
+        public MoneyCalculatorBase()
+        {
+        }
 
         protected MoneyCalculatorBase(Game g)
         {

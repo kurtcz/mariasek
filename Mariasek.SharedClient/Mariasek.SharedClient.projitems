@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>{CF067FA9-C4F1-483C-852E-CF6272BFDB91}</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Mariasek.SharedClient</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)GameComponents\" />
+    <Folder Include="$(MSBuildThisFileDirectory)BmFont\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)MariasekMonoGame.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Button.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Hand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Sprite.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\GameComponent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\RectangleShape.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\SpriteButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BmFont\FontSerializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\TouchControlBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Scene.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Label.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\FontRenderer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TestScene.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MainScene.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HumanPlayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\TextBox.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Dialog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\CardButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ToggleButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ClickableArea.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MenuScene.cs" />
+  </ItemGroup>
+</Project>

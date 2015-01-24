@@ -16,7 +16,12 @@ namespace Mariasek.Engine.New
         private const int QuietHundredValue = 2;
         private const int BetlValue = 5;
         private const int DurchValue = 10;
-        
+
+        //Default constructor for XmlSerialize purposes
+        public AddingMoneyCalculator()
+        {
+        }
+
         public AddingMoneyCalculator(Game g)
             : base(g)
         {

@@ -228,7 +228,7 @@ namespace Mariasek.Engine.New
                     else if ((e.BidMade & (Hra.Hra | Hra.Kilo)) != 0 &&
                                 (e.BidMade & Hra.Sedma) != 0)
                     {
-                        e.Description = "Støíhat a holit";
+                        e.Description = "StÅ™Ã­Â­hat a holit";
                     }
                     else if ((e.BidMade & (Hra.Hra | Hra.Kilo)) != 0)
                     {
@@ -240,7 +240,7 @@ namespace Mariasek.Engine.New
                             }
                             else
                             {
-                                e.Description = "Na hru vejš";
+                                e.Description = "Na hru vejÅ¡";
                             }
                         }
                         else
@@ -262,7 +262,7 @@ namespace Mariasek.Engine.New
                     }
                     else if (e.BidMade == 0)
                     {
-                        e.Description = "Dobrý";
+                        e.Description = "DobrÃ½";
                     }
                     else
                     {
@@ -279,15 +279,15 @@ namespace Mariasek.Engine.New
                 }
                 if ((e.BidMade & (Hra.Sedma | Hra.SedmaProti)) != 0)
                 {
-                    sb.AppendFormat("{0}Na sedmu vejš", sb.Length > 0 ? "\n" : "");
+                    sb.AppendFormat("{0}Na sedmu vejÅ¡", sb.Length > 0 ? "\n" : "");
                 }
                 if ((e.BidMade & Hra.KiloProti) != 0)
                 {
-                    sb.AppendFormat("{0}Na kilo vejš", sb.Length > 0 ? "\n" : "");
+                    sb.AppendFormat("{0}Na kilo vejÅ¡", sb.Length > 0 ? "\n" : "");
                 }
                 if (e.BidMade == 0)
                 {
-                    e.Description = "Dobrý";
+                    e.Description = "DobrÃ½";
                 }
                 else
                 {
@@ -298,7 +298,7 @@ namespace Mariasek.Engine.New
             return e;
         }
 
-        private static string MultiplierToString(int multiplier)
+        public static string MultiplierToString(int multiplier)
         {
             switch (multiplier)
             {
@@ -313,7 +313,7 @@ namespace Mariasek.Engine.New
                 case 32:
                     return "Kalhoty";
                 default:
-                    return "Na hru vejš";
+                    return "Na hru vejÅ¡";
             }
         }
     }

@@ -55,6 +55,16 @@ namespace Mariasek.Engine.New
 
         #region Events and delegates
 
+        public delegate void GameFlavourChosenEventHandler(object sender, GameFlavourChosenEventArgs e);
+        public event GameFlavourChosenEventHandler GameFlavourChosen;
+        protected virtual void OnGameFlavourChosen(GameFlavourChosenEventArgs e)
+        {
+            if (GameFlavourChosen != null)
+            {
+                GameFlavourChosen(this, e);
+            }
+        }
+
         public delegate void GameTypeChosenEventHandler(object sender, GameTypeChosenEventArgs e);
         public event GameTypeChosenEventHandler GameTypeChosen;
         protected virtual void OnGameTypeChosen(GameTypeChosenEventArgs e)
@@ -563,6 +573,11 @@ namespace Mariasek.Engine.New
             //volba hry
             var minimalBid = Hra.Betl;
             var gameFlavour = GameStartingPlayer.ChooseGameFlavour();
+            OnGameFlavourChosen(new GameFlavourChosenEventArgs
+            {
+                PlayerIndex = GameStartingPlayer.PlayerIndex,
+                Flavour = gameFlavour
+            });
             if (gameFlavour == GameFlavour.Good)
             {
                 var player2 = players[(GameStartingPlayerIndex + 1) % NumPlayers];
@@ -570,6 +585,11 @@ namespace Mariasek.Engine.New
 
                 //hrac1: barva?
                 gameFlavour = player2.ChooseGameFlavour();
+                OnGameFlavourChosen(new GameFlavourChosenEventArgs
+                {
+                    PlayerIndex = player2.PlayerIndex,
+                    Flavour = gameFlavour
+                });
                 if (gameFlavour == GameFlavour.Bad)
                 {
                     //hrac: spatna
@@ -596,6 +616,11 @@ namespace Mariasek.Engine.New
                 {
                     //hrac1: barva? nebo hrac2: betl?/durch?
                     gameFlavour = player3.ChooseGameFlavour();
+                    OnGameFlavourChosen(new GameFlavourChosenEventArgs
+                    {
+                        PlayerIndex = player3.PlayerIndex,
+                        Flavour = gameFlavour
+                    });
                     if (gameFlavour == GameFlavour.Bad)
                     {
                         //hrac3: spatny
