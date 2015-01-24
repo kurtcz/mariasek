@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{2995CFDA-CA2E-41F8-8E09-BAB02CFC40FC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Mariasek.Engine</RootNamespace>
+    <AssemblyName>Mariasek.Engine</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>dll\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AbstractPlayer.cs" />
+    <Compile Include="AiPlayer.cs" />
+    <Compile Include="AiStrategy.cs" />
+    <Compile Include="BrutePlayer.cs" />
+    <Compile Include="Card.cs" />
+    <Compile Include="CardPlayerEventArgs.cs" />
+    <Compile Include="GameComputationResult.cs" />
+    <Compile Include="GameTypeEventArgs.cs" />
+    <Compile Include="HandExtensions.cs" />
+    <Compile Include="HandInfo.cs" />
+    <Compile Include="HandCandidate.cs" />
+    <Compile Include="AiRule.cs" />
+    <Compile Include="Hra.cs" />
+    <Compile Include="IPlayerStats.cs" />
+    <Compile Include="LinqExtensions.cs" />
+    <Compile Include="Logger\ILogExtensions.cs" />
+    <Compile Include="Logger\LoggerSetupHelper.cs" />
+    <Compile Include="Logger\NotifyAppender.cs" />
+    <Compile Include="PlayerDebugInfo.cs" />
+    <Compile Include="Probability.cs" />
+    <Compile Include="Profiling.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="RandomMT.cs" />
+    <Compile Include="RoundFinishedEventArgs.cs" />
+    <Compile Include="Score.cs" />
+    <Compile Include="TalonEventArgs.cs" />
+    <Compile Include="CardEventArgs.cs" />
+    <Compile Include="Deck.cs" />
+    <Compile Include="DummyPlayer.cs" />
+    <Compile Include="Game.cs" />
+    <Compile Include="GameFinishedEventArgs.cs" />
+    <Compile Include="Player.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Round.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Logger\LoggerSetup.xml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

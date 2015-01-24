@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Hra Kolo="5" Zacina="Hrac1" Trumf="zaludy" Voli="Hrac1">
+  <Hrac1>
+    <Karta Barva="Kule" Hodnota="Eso" />
+    <Karta Barva="Kule" Hodnota="Sedma" />
+    <Karta Barva="Zaludy" Hodnota="Eso" />
+    <Karta Barva="Zaludy" Hodnota="Kral" />
+    <Karta Barva="Zaludy" Hodnota="Spodek" />
+    <Karta Barva="Zaludy" Hodnota="Devitka" />
+  </Hrac1>
+  <Hrac2>
+    <Karta Barva="Kule" Hodnota="Desitka" />
+    <Karta Barva="Kule" Hodnota="Kral" />
+    <Karta Barva="Kule" Hodnota="Spodek" />
+    <Karta Barva="Kule" Hodnota="Devitka" />
+    <Karta Barva="Zaludy" Hodnota="Desitka" />
+    <Karta Barva="Zaludy" Hodnota="Svrsek" />
+  </Hrac2>
+  <Hrac3>
+    <Karta Barva="Zeleny" Hodnota="Desitka" />
+    <Karta Barva="Zeleny" Hodnota="Devitka" />
+    <Karta Barva="Zeleny" Hodnota="Osma" />
+    <Karta Barva="Kule" Hodnota="Svrsek" />
+    <Karta Barva="Kule" Hodnota="Osma" />
+    <Karta Barva="Zaludy" Hodnota="Osma" />
+  </Hrac3>
+</Hra>

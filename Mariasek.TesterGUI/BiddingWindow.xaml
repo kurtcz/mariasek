@@ -1,0 +1,11 @@
+﻿<Window x:Class="Mariasek.TesterGUI.BiddingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Co ty na to?" Height="105" Width="265" ResizeMode="NoResize" Closing="Window_Closing" Loaded="Window_Loaded" Background="#FFA7B2BA">
+    <Grid>
+        <Button x:Name="okBtn" Content="OK" Margin="85,40,0,0" HorizontalAlignment="Left" Width="80" Click="Button_Click" Height="22" VerticalAlignment="Top"/>
+        <ToggleButton x:Name="flekBtn" Content="Flek" Margin="10,10,0,0" HorizontalAlignment="Left" Width="78" Height="22" Focusable="False" IsTabStop="False" VerticalAlignment="Top"/>
+        <ToggleButton x:Name="sedmaBtn" Content="Na sedmu" Margin="88,10,0,0" HorizontalAlignment="Left" Width="78" Height="22" Focusable="False" IsTabStop="False" VerticalAlignment="Top"/>
+        <ToggleButton x:Name="kiloBtn" Content="Kilo proti" Margin="166,10,0,0" HorizontalAlignment="Left" Width="78" Height="22" Focusable="False" IsTabStop="False" VerticalAlignment="Top"/>
+    </Grid>
+</Window>

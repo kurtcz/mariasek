@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Hrac1 zahajuje spodkem.
+Hrac2 musi mazat desitku aby mu v pristim kole nezbyla
+-->
+<Hra Kolo="9" Zacina="Hrac1" Trumf="cerveny" Voli="Hrac1">
+  <Hrac1 Jmeno="Human">
+    <Karta Barva="kule" Hodnota="eso" />
+    <Karta Barva="zaludy" Hodnota="spodek" />
+  </Hrac1>
+  <Hrac2>
+    <Karta Barva="kule" Hodnota="desitka" />
+    <Karta Barva="kule" Hodnota="spodek" />
+  </Hrac2>
+  <Hrac3>
+    <Karta Barva="zaludy" Hodnota="sedma" />
+    <Karta Barva="zaludy" Hodnota="devitka" />
+  </Hrac3>
+</Hra>

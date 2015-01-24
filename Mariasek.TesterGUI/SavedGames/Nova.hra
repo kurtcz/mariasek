@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Hra Kolo="0" Zacina="Hrac1">
+  <Hrac1 Jmeno="Human">
+    <Karta Barva="kule" Hodnota="desitka" />
+    <Karta Barva="kule" Hodnota="devitka" />
+    <Karta Barva="kule" Hodnota="osma" />
+    <Karta Barva="zeleny" Hodnota="eso" />
+    <Karta Barva="zeleny" Hodnota="kral" />
+    <Karta Barva="zeleny" Hodnota="svrsek" />
+    <Karta Barva="cerveny" Hodnota="sedma" />
+    <Karta Barva="cerveny" Hodnota="osma" />
+    <Karta Barva="cerveny" Hodnota="devitka" />
+    <Karta Barva="zaludy" Hodnota="eso" />
+    <Karta Barva="zaludy" Hodnota="desitka" />
+    <Karta Barva="zaludy" Hodnota="kral" />
+  </Hrac1>
+  <Hrac2>
+    <Karta Barva="kule" Hodnota="sedma" />
+    <Karta Barva="kule" Hodnota="spodek" />
+    <Karta Barva="kule" Hodnota="svrsek" />
+    <Karta Barva="zeleny" Hodnota="spodek" />
+    <Karta Barva="zeleny" Hodnota="desitka" />
+    <Karta Barva="zeleny" Hodnota="devitka" />
+    <Karta Barva="cerveny" Hodnota="desitka" />
+    <Karta Barva="cerveny" Hodnota="spodek" />
+    <Karta Barva="cerveny" Hodnota="svrsek" />
+    <Karta Barva="zaludy" Hodnota="svrsek" />
+  </Hrac2>
+  <Hrac3>
+    <Karta Barva="kule" Hodnota="kral" />
+    <Karta Barva="kule" Hodnota="eso" />
+    <Karta Barva="zeleny" Hodnota="osma" />
+    <Karta Barva="zeleny" Hodnota="sedma" />
+    <Karta Barva="cerveny" Hodnota="kral" />
+    <Karta Barva="cerveny" Hodnota="eso" />
+    <Karta Barva="zaludy" Hodnota="spodek" />
+    <Karta Barva="zaludy" Hodnota="devitka" />
+    <Karta Barva="zaludy" Hodnota="osma" />
+    <Karta Barva="zaludy" Hodnota="sedma" />
+  </Hrac3>
+</Hra>

@@ -1,0 +1,15 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Mariasek.Engine.New
+{
+    public class BidEventArgs
+    {
+        public AbstractPlayer Player { get; set; }
+        public Hra BidMade { get; set; }
+        public string Description { get; set; }
+    }
+}

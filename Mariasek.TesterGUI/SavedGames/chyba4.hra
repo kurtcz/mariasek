@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Hra Kolo="7" Zacina="Hrac1" Trumf="Zaludy" Voli="Hrac1">
+  <Hrac1>
+    <Karta Barva="Zeleny" Hodnota="Svrsek" />
+    <Karta Barva="Zaludy" Hodnota="Eso" />
+    <Karta Barva="Zaludy" Hodnota="Desitka" />
+    <Karta Barva="Zaludy" Hodnota="Kral" />
+  </Hrac1>
+  <Hrac2>
+    <Karta Barva="Zeleny" Hodnota="Spodek" />
+    <Karta Barva="Kule" Hodnota="Osma" />
+    <Karta Barva="Zaludy" Hodnota="Sedma" />
+    <Karta Barva="Zaludy" Hodnota="Spodek" />
+  </Hrac2>
+  <Hrac3>
+    <Karta Barva="Kule" Hodnota="Eso" />
+    <Karta Barva="Kule" Hodnota="Devitka" />
+    <Karta Barva="Kule" Hodnota="Sedma" />
+    <Karta Barva="Zaludy" Hodnota="Devitka" />
+  </Hrac3>
+  <Talon>
+    <Karta Barva="Kule" Hodnota="Spodek" />
+    <Karta Barva="Kule" Hodnota="Svrsek" />
+  </Talon>
+  <Stychy>
+    <Stych Kolo="1" Zacina="Hrac1">
+      <Hrac1 Barva="Zeleny" Hodnota="Eso" />
+      <Hrac2 Barva="Zeleny" Hodnota="Kral" />
+      <Hrac3 Barva="Zeleny" Hodnota="Devitka" />
+    </Stych>
+    <Stych Kolo="2" Zacina="Hrac1">
+      <Hrac1 Barva="Zeleny" Hodnota="Sedma" />
+      <Hrac2 Barva="Zeleny" Hodnota="Desitka" />
+      <Hrac3 Barva="Zeleny" Hodnota="Osma" />
+    </Stych>
+    <Stych Kolo="3" Zacina="Hrac2">
+      <Hrac2 Barva="Cerveny" Hodnota="Desitka" />
+      <Hrac3 Barva="Cerveny" Hodnota="Spodek" />
+      <Hrac1 Barva="Cerveny" Hodnota="Sedma" />
+    </Stych>
+    <Stych Kolo="4" Zacina="Hrac2">
+      <Hrac2 Barva="Cerveny" Hodnota="Devitka" />
+      <Hrac3 Barva="Cerveny" Hodnota="Osma" />
+      <Hrac1 Barva="Cerveny" Hodnota="Svrsek" Hlas="1" />
+    </Stych>
+    <Stych Kolo="5" Zacina="Hrac1">
+      <Hrac1 Barva="Cerveny" Hodnota="Kral" />
+      <Hrac2 Barva="Cerveny" Hodnota="Eso" />
+      <Hrac3 Barva="Zaludy" Hodnota="Osma" />
+    </Stych>
+    <Stych Kolo="6" Zacina="Hrac3">
+      <Hrac3 Barva="Kule" Hodnota="Desitka" />
+      <Hrac1 Barva="Zaludy" Hodnota="Svrsek" Hlas="1" />
+      <Hrac2 Barva="Kule" Hodnota="Kral" />
+    </Stych>
+  </Stychy>
+  <Zuctovani>
+    <Hrac1 Body="80" Zisk="" />
+    <Hrac2 Body="20" Zisk="" />
+    <Hrac3 Body="10" Zisk="" />
+  </Zuctovani>
+</Hra>

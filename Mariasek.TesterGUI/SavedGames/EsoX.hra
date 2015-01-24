@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Hra Kolo="8" Zacina="Hrac2" Trumf="cerveny" Voli="Hrac1">
+  <Hrac1 Jmeno="Human">
+    <Karta Barva="zeleny" Hodnota="spodek" />
+    <Karta Barva="zeleny" Hodnota="eso" />
+    <Karta Barva="kule" Hodnota="desitka" />
+  </Hrac1>
+  <Hrac2>
+    <Karta Barva="zeleny" Hodnota="kral" />
+    <Karta Barva="zeleny" Hodnota="desitka" />
+    <Karta Barva="kule" Hodnota="eso" />
+  </Hrac2>
+  <Hrac3>
+    <Karta Barva="zeleny" Hodnota="sedma" />
+    <Karta Barva="zeleny" Hodnota="osma" />
+    <Karta Barva="zaludy" Hodnota="sedma" />
+  </Hrac3>
+</Hra>

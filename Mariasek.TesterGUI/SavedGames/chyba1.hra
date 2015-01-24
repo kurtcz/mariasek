@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+V 7. kole Hrac2 hral kulovou 7 (vytlac trumf ze soupere) cimz vytlacil ze spoluhrace X kterou jsem sebral trumfem
+Chtelo by to podminene prahovat i pravidla kde tlacim bodovanou kartu ze spoluhrace.
+-->
+<Hra Kolo="7" Zacina="Hrac2" Trumf="Zeleny" Voli="Hrac1">
+  <Hrac1>
+      <Karta Barva="Zeleny" Hodnota="Kral" />
+      <Karta Barva="Zeleny" Hodnota="Eso" />
+      <Karta Barva="Zaludy" Hodnota="Kral" />
+      <Karta Barva="Zeleny" Hodnota="Sedma" />
+  </Hrac1>
+  <Hrac2>
+      <Karta Barva="Kule" Hodnota="Sedma" />
+      <Karta Barva="Zeleny" Hodnota="Svrsek" />
+      <Karta Barva="Zaludy" Hodnota="Sedma" />
+      <Karta Barva="Zeleny" Hodnota="Osma" />
+  </Hrac2>
+  <Hrac3>
+      <Karta Barva="Kule" Hodnota="Desitka" />
+      <Karta Barva="Zeleny" Hodnota="Desitka" />
+      <Karta Barva="Cerveny" Hodnota="Spodek" />
+      <Karta Barva="Cerveny" Hodnota="Sedma" />
+  </Hrac3>
+  <Stychy>
+    <Stych Kolo="1" Zacina="Hrac1">
+      <Hrac1 Barva="Cerveny" Hodnota="Devitka" />
+      <Hrac2 Barva="Cerveny" Hodnota="Eso" />
+      <Hrac3 Barva="Cerveny" Hodnota="Desitka" />
+    </Stych>
+    <Stych Kolo="2" Zacina="Hrac2">
+      <Hrac2 Barva="Kule" Hodnota="Svrsek" />
+      <Hrac3 Barva="Kule" Hodnota="Eso" />
+      <Hrac1 Barva="Zeleny" Hodnota="Devitka" />
+    </Stych>
+    <Stych Kolo="3" Zacina="Hrac1">
+      <Hrac1 Barva="Cerveny" Hodnota="Kral" />
+      <Hrac2 Barva="Cerveny" Hodnota="Osma" />
+      <Hrac3 Barva="Cerveny" Hodnota="Svrsek" />
+    </Stych>
+    <Stych Kolo="4" Zacina="Hrac1">
+      <Hrac1 Barva="Zaludy" Hodnota="Osma" />
+      <Hrac2 Barva="Zaludy" Hodnota="Svrsek" />
+      <Hrac3 Barva="Zaludy" Hodnota="Desitka" />
+    </Stych>
+    <Stych Kolo="5" Zacina="Hrac3">
+      <Hrac3 Barva="Kule" Hodnota="Osma" />
+      <Hrac1 Barva="Zeleny" Hodnota="Spodek" />
+      <Hrac2 Barva="Kule" Hodnota="Kral" />
+    </Stych>
+    <Stych Kolo="6" Zacina="Hrac1">
+      <Hrac1 Barva="Zaludy" Hodnota="Devitka" />
+      <Hrac2 Barva="Zaludy" Hodnota="Eso" />
+      <Hrac3 Barva="Zaludy" Hodnota="Spodek" />
+    </Stych>
+  </Stychy>
+  <Zuctovani>
+    <Hrac1 Body="40" Zisk="" />
+    <Hrac2 Body="50" Zisk="" />
+    <Hrac3 Body="10" Zisk="" />
+  </Zuctovani>
+</Hra>

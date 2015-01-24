@@ -1,0 +1,237 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+//using System.Security.Policy;
+using System.Text;
+using Mariasek.Engine.New.Configuration;
+
+namespace Mariasek.Engine.New
+{
+    public interface IPlayer
+    {
+        Card ChooseTrump();
+        List<Card> ChooseTalon();
+        Hra ChooseGameType(Hra minimalBid = Hra.Hra);
+        void Init();
+        Card PlayCard(Round r);
+    }
+
+    //public abstract class AbstractPlayer : /*MarshalByRefObject,*/ IPlayer
+    public abstract class AbstractPlayer : IPlayer
+    {
+        protected Game _g;
+
+        public string Name { get; set; }
+        public int PlayerIndex { get { return Array.IndexOf(_g.players, this); } }
+
+        public int TeamMateIndex
+        {
+            get
+            {
+                if (PlayerIndex == _g.GameStartingPlayerIndex)
+                {
+                    return -1;
+                }
+                return _g.players.First(i => i != this && i != _g.GameStartingPlayer).PlayerIndex;
+            }
+        }
+
+        public List<Card> Hand { get; set; }
+        public int Hlasy { get; set; }
+        /// <summary>
+        /// For debuggin only: show info about the rule that the player used to make a certain move
+        /// </summary>
+        public PlayerDebugInfo DebugInfo { get; set; }
+
+        public abstract Card ChooseTrump();
+        public abstract List<Card> ChooseTalon();
+        public abstract GameFlavour ChooseGameFlavour();
+        public abstract Hra ChooseGameType(Hra minimalBid = Hra.Hra);
+        public abstract Hra GetBidsAndDoubles(Bidding bidding);
+        
+        /// <summary>
+        /// This method will be called before the 1st round has been played. Override this method to initialize the player's ai model.
+        /// </summary>
+        public abstract void Init();
+
+        public abstract Card PlayCard(Round r); //r obsahuje kontext (ktere karty uz nekdo hral prede mnou a jestli byly zahrany nejake hlasy)
+
+        protected AbstractPlayer(Game g)
+        {
+            _g = g;
+            Hand = new List<Card>();
+            DebugInfo = new PlayerDebugInfo();
+        }
+
+        protected AbstractPlayer(Game g, ParameterConfigurationElementCollection parameters) : this(g)
+        {
+            
+        }
+
+        private static Renonc IsCardValid(List<Card> hand, Barva trump, Hra gameType, int teamMateIndex, Card c)
+        {
+            //Hrali jsme krale kdyz mame v ruce hlasku?
+            if (c.Value == Hodnota.Kral && hand.HasQ(c.Suit))
+            {
+                return Renonc.HrajSvrska;
+            }
+            else if (teamMateIndex == -1 &&
+                     (gameType & Hra.Sedma) != 0 &&
+                     c.Value == Hodnota.Sedma &&
+                     c.Suit == trump &&
+                     hand.HasAtLeastNCardsOfSuit(trump, 2))
+            {
+                return Renonc.NehrajSedmu;
+            }
+            else
+            {
+                return Renonc.Ok;
+            }
+        }
+
+        private static Renonc IsCardValid(List<Card> hand, Barva trump, Hra gameType, int teamMateIndex, Card c, Card first)
+        {
+            //priznana barva
+            if (c.Suit == first.Suit)
+            {
+                //sli jsme vejs - ok
+                if (c.Value > first.Value)
+                {
+                    return IsCardValid(hand, trump, gameType, teamMateIndex, c);
+                }
+                //sli jsme niz: nemame v ruce vyssi v barve?
+                if (hand.Exists(i => i.Suit == first.Suit && i.Value > first.Value))
+                {
+                    return Renonc.JdiVejs;
+                }
+                else
+                {
+                    return IsCardValid(hand, trump, gameType, teamMateIndex, c);
+                }
+            }
+            else
+            {
+                //nepriznali jsme barvu: je to ok?
+                if (hand.HasSuit(first.Suit))
+                {
+                    return Renonc.PriznejBarvu;
+                }
+
+                if (c.Suit == trump)
+                {
+                    return IsCardValid(hand, trump, gameType, teamMateIndex, c);
+                }
+
+                //nehrali jsme trumf. Nemame ho v ruce?
+                if (hand.HasSuit(trump))
+                {
+                    return Renonc.HrajTrumf;
+                }
+                else
+                {
+                    return IsCardValid(hand, trump, gameType, teamMateIndex, c);
+                }
+            }
+        }
+
+        private static Renonc IsCardValid(List<Card> hand, Barva trump, Hra gameType, int teamMateIndex, Card c, Card first, Card second)
+        {
+            //porovnej kartu s tou nejvyssi hranou v tomhle kole
+            if (first.IsHigherThan(second, trump))
+            {
+                //prvni karta je nejvyssi
+                return IsCardValid(hand, trump, gameType, teamMateIndex, c, first);
+            }
+            else
+            {
+                //druha karta prebiji prvni
+                if (first.Suit == second.Suit)
+                {
+                    return IsCardValid(hand, trump, gameType, teamMateIndex, c, second);
+                }
+                else
+                {
+                    //druha karta je trumf
+                    if (c.Suit == trump)
+                    {
+                        //my jsme hrali taky trumf, je to ok?
+                        if (hand.HasSuit(first.Suit))
+                        {
+                            return Renonc.PriznejBarvu;
+                        }
+                        else
+                        {
+                            return IsCardValid(hand, trump, gameType, teamMateIndex, c, second);
+                        }
+                    }
+                    else if (c.Suit == first.Suit)
+                    {
+                        //my jsme nehrali trumf, ale ctili jsme barvu
+                        return IsCardValid(hand, trump, gameType, teamMateIndex, c);
+                    }
+                    else
+                    {
+                        //nehrali jsme trumf a nectili jsme barvu, je to ok? (tzn. nemame ani barvu ani trumf)
+                        if (hand.HasSuit(first.Suit))
+                        {
+                            return Renonc.PriznejBarvu;
+                        }
+                        else if (hand.HasSuit(trump))
+                        {
+                            return Renonc.HrajTrumf;
+                        }
+                        else
+                        {
+                            return IsCardValid(hand, trump, gameType, teamMateIndex, c);
+                        }
+                    }
+                }
+            }
+        }
+
+        protected Renonc IsCardValid(Card c)
+        {
+            return IsCardValid(Hand, _g.trump, _g.GameType, TeamMateIndex, c);
+        }
+
+        protected Renonc IsCardValid(Card c, Card first)
+        {
+            return IsCardValid(Hand, _g.trump, _g.GameType, TeamMateIndex, c, first);
+        }
+
+        protected Renonc IsCardValid(Card c, Card first, Card second)
+        {
+            return IsCardValid(Hand, _g.trump, _g.GameType, TeamMateIndex, c, first, second);
+        }
+
+        public static List<Card> ValidCards(List<Card> hand, Barva trump, Hra gameType, int teamMateIndex)
+        {
+            return hand.Where(c => IsCardValid(hand, trump, gameType, teamMateIndex, c) == Renonc.Ok).ToList();
+        }
+
+        public static List<Card> ValidCards(List<Card> hand, Barva trump, Hra gameType, int teamMateIndex, Card first)
+        {
+            return hand.Where(c => IsCardValid(hand, trump, gameType, teamMateIndex, c, first) == Renonc.Ok).ToList();
+        }
+
+        public static List<Card> ValidCards(List<Card> hand, Barva trump, Hra gameType, int teamMateIndex, Card first, Card second)
+        {
+            return hand.Where(c => IsCardValid(hand, trump, gameType, teamMateIndex, c, first, second) == Renonc.Ok).ToList();
+        }
+
+        protected List<Card> ValidCards()
+        {
+            return ValidCards(Hand, _g.trump, _g.GameType, TeamMateIndex);
+        }
+
+        protected List<Card> ValidCards(Card first)
+        {
+            return ValidCards(Hand, _g.trump, _g.GameType, TeamMateIndex, first);
+        }
+
+        protected List<Card> ValidCards(Card first, Card second)
+        {
+            return ValidCards(Hand, _g.trump, _g.GameType, TeamMateIndex, first, second);
+        }
+    }
+}

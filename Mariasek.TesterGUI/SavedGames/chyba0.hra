@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Hra Kolo="3" Zacina="Hrac2" Trumf="Zaludy" Voli="Hrac1">
+  <Hrac1>
+    <Karta Barva="Cerveny" Hodnota="Desitka" />
+    <Karta Barva="Cerveny" Hodnota="Kral" />
+    <Karta Barva="Cerveny" Hodnota="Svrsek" />
+    <Karta Barva="Cerveny" Hodnota="Spodek" />
+    <Karta Barva="Cerveny" Hodnota="Devitka" />
+    <Karta Barva="Zaludy" Hodnota="Eso" />
+    <Karta Barva="Zaludy" Hodnota="Spodek" />
+    <Karta Barva="Zaludy" Hodnota="Osma" />
+  </Hrac1>
+  <Hrac2>
+    <Karta Barva="Cerveny" Hodnota="Eso" />
+    <Karta Barva="Cerveny" Hodnota="Sedma" />
+    <Karta Barva="Zeleny" Hodnota="Svrsek" />
+    <Karta Barva="Kule" Hodnota="Desitka" />
+    <Karta Barva="Kule" Hodnota="Svrsek" />
+    <Karta Barva="Zaludy" Hodnota="Kral" />
+    <Karta Barva="Zaludy" Hodnota="Svrsek" />
+    <Karta Barva="Zaludy" Hodnota="Devitka" />
+  </Hrac2>
+  <Hrac3>
+    <Karta Barva="Cerveny" Hodnota="Osma" />
+    <Karta Barva="Zeleny" Hodnota="Devitka" />
+    <Karta Barva="Kule" Hodnota="Eso" />
+    <Karta Barva="Kule" Hodnota="Kral" />
+    <Karta Barva="Kule" Hodnota="Devitka" />
+    <Karta Barva="Kule" Hodnota="Osma" />
+    <Karta Barva="Kule" Hodnota="Sedma" />
+    <Karta Barva="Zaludy" Hodnota="Desitka" />
+  </Hrac3>
+  <Stychy>
+    <Stych Kolo="1" Zacina="Hrac1">
+      <Hrac1 Barva="Zeleny" Hodnota="Osma" />
+      <Hrac2 Barva="Zeleny" Hodnota="Desitka" />
+      <Hrac3 Barva="Zeleny" Hodnota="Sedma" />
+    </Stych>
+    <Stych Kolo="2" Zacina="Hrac2">
+      <Hrac2 Barva="Zeleny" Hodnota="Eso" />
+      <Hrac3 Barva="Zeleny" Hodnota="Spodek" />
+      <Hrac1 Barva="Zaludy" Hodnota="Sedma" />
+    </Stych>
+  </Stychy>
+  <Zuctovani>
+    <Hrac1 Body="0" Zisk="" />
+    <Hrac2 Body="10" Zisk="" />
+    <Hrac3 Body="0" Zisk="" />
+  </Zuctovani>
+</Hra>

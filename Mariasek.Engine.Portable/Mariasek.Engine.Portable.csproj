@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3F101FD1-DACF-4C22-A77C-AC393BDC6B20}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Mariasek.Engine.Portable</RootNamespace>
+    <AssemblyName>Mariasek.Engine.Portable</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile32</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;PORTABLE;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;PORTABLE;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- A reference to the entire .NET Framework is automatically included -->
+  </ItemGroup>
+  <ItemGroup>
+    <TargetPlatform Include="WindowsPhoneApp, Version=8.1" />
+    <TargetPlatform Include="Windows, Version=8.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Mariasek.Engine.New\AbstractPlayer.cs">
+      <Link>AbstractPlayer.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\AddingMoneyCalculator.cs">
+      <Link>AddingMoneyCalculator.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\AiPlayer.cs">
+      <Link>AiPlayer.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\AiPlayerSettings.cs">
+      <Link>AiPlayerSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\AiRule.cs">
+      <Link>AiRule.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\AiStrategy.cs">
+      <Link>AiStrategy.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Bidding.cs">
+      <Link>Bidding.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\BidEventArgs.cs">
+      <Link>BidEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Card.cs">
+      <Link>Card.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Configuration\IPlayerSettingsReader.cs">
+      <Link>Configuration\IPlayerSettingsReader.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Configuration\ParameterConfigurationElement.cs">
+      <Link>Configuration\ParameterConfigurationElement.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Configuration\ParameterConfigurationElementCollection.cs">
+      <Link>Configuration\ParameterConfigurationElementCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Configuration\PlayerConfigurationElement.cs">
+      <Link>Configuration\PlayerConfigurationElement.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Configuration\PlayersConfigurationSection.cs">
+      <Link>Configuration\PlayersConfigurationSection.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Deck.cs">
+      <Link>Deck.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\DummyPlayer.cs">
+      <Link>DummyPlayer.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Extensions.cs">
+      <Link>Extensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Game.cs">
+      <Link>Game.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\GameComputationResult.cs">
+      <Link>GameComputationResult.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\GameFlavour.cs">
+      <Link>GameFlavour.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\GameTypeChosenEventArgs.cs">
+      <Link>GameTypeChosenEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\HandExtensions.cs">
+      <Link>HandExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Hra.cs">
+      <Link>Hra.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\IStatsPlayer.cs">
+      <Link>IStatsPlayer.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Logger\DummyLogWrapper.cs">
+      <Link>Logger\DummyLogWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Logger\ILog.cs">
+      <Link>Logger\ILog.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Logger\ILogExtensions.ToBeDeleted.cs">
+      <Link>Logger\ILogExtensions.ToBeDeleted.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Logger\LogManager.cs">
+      <Link>Logger\LogManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Logger\LogWrapper.cs">
+      <Link>Logger\LogWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Logger\NotifyAppender.cs">
+      <Link>Logger\NotifyAppender.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\MoneyCalculatorBase.cs">
+      <Link>MoneyCalculatorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\PlayerDebugInfo.cs">
+      <Link>PlayerDebugInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\PortableMockups.cs">
+      <Link>PortableMockups.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Probability.cs">
+      <Link>Probability.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\RandomMT.cs">
+      <Link>RandomMT.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Renonc.cs">
+      <Link>Renonc.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Round.cs">
+      <Link>Round.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\RoundContext.cs">
+      <Link>RoundContext.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Schema\GameDto.cs">
+      <Link>Schema\GameDto.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

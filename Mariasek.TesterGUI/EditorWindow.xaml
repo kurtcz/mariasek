@@ -1,0 +1,121 @@
+﻿<Window x:Class="Mariasek.TesterGUI.EditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Name="MyEditorWindow"
+        Title="Editor" Height="430" Width="350" WindowStyle="ToolWindow" Activated="MyEditorWindow_Activated" >
+    <Grid Name="EditorGrid" SizeChanged="EditorGrid_SizeChanged">
+        <Grid.LayoutTransform>
+            <ScaleTransform x:Name="ApplicationScaleTransform"
+                        CenterX="0"
+                        CenterY="0"
+                        ScaleX="{Binding ElementName=MyEditorWindow, Path=ScaleValue}"
+                        ScaleY="{Binding ElementName=MyEditorWindow, Path=ScaleValue}" />
+        </Grid.LayoutTransform>
+        <ComboBox x:Name="HandComboBox" HorizontalAlignment="Right" Width="122" SelectedIndex="0" SelectionChanged="HandComboBox_SelectionChanged" Height="22" VerticalAlignment="Top" Margin="0,0,10,0"/>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="10,26,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgCervenyEso" Stretch="Fill" Source="Images/karty/cervenyeso.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="50,26,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgCervenyDesitka" Stretch="Fill" Source="Images/karty/cerveny10.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="90,26,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgCervenyKral" Stretch="Fill" Source="Images/karty/cervenykral.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="130,26,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgCervenySvrsek" Stretch="Fill" Source="Images/karty/cervenysvrsek.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="170,26,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgCervenySpodek" Stretch="Fill" Source="Images/karty/cervenyspodek.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="210,26,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgCervenyDevitka" Stretch="Fill" Source="Images/karty/cerveny9.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="250,26,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgCervenyOsma" Stretch="Fill" Source="Images/karty/cerveny8.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="290,26,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgCervenySedma" Stretch="Fill" Source="Images/karty/cerveny7.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="10,86,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgZelenyEso" Stretch="Fill" Source="Images/karty/zelenyeso.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="50,86,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgZelenyDesitka" Stretch="Fill" Source="Images/karty/zeleny10.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="90,86,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgZelenyKral" Stretch="Fill" Source="Images/karty/zelenykral.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="130,86,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgZelenySvrsek" Stretch="Fill" Source="Images/karty/zelenysvrsek.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="170,86,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgZelenySpodek" Stretch="Fill" Source="Images/karty/zelenyspodek.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="210,86,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgZelenyDevitka" Stretch="Fill" Source="Images/karty/zeleny9.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="250,86,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgZelenyOsma" Stretch="Fill" Source="Images/karty/zeleny8.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="290,86,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgZelenySedma" Stretch="Fill" Source="Images/karty/zeleny7.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="10,146,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgKuleEso" Stretch="Fill" Source="Images/karty/kuleeso.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="50,146,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgKuleDesitka" Stretch="Fill" Source="Images/karty/kule10.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="90,146,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgKuleKral" Stretch="Fill" Source="Images/karty/kulekral.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="130,146,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgKuleSvrsek" Stretch="Fill" Source="Images/karty/kulesvrsek.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="170,146,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgKuleSpodek" Stretch="Fill" Source="Images/karty/kulespodek.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="210,146,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgKuleDevitka" Stretch="Fill" Source="Images/karty/kule9.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="250,146,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgKuleOsma" Stretch="Fill" Source="Images/karty/kule8.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="290,146,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgKuleSedma" Stretch="Fill" Source="Images/karty/kule7.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="10,206,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgZaludyEso" Stretch="Fill" Source="Images/karty/zaludyeso.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="50,206,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgZaludyDesitka" Stretch="Fill" Source="Images/karty/zaludy10.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="90,206,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgZaludyKral" Stretch="Fill" Source="Images/karty/zaludykral.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="130,206,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgZaludySvrsek" Stretch="Fill" Source="Images/karty/zaludysvrsek.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="170,206,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgZaludySpodek" Stretch="Fill" Source="Images/karty/zaludyspodek.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="210,206,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgZaludyDevitka" Stretch="Fill" Source="Images/karty/zaludy9.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="250,206,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgZaludyOsma" Stretch="Fill" Source="Images/karty/zaludy8.png" />
+        </Button>
+        <Button Style="{DynamicResource NoChromeButton}" Height="60" HorizontalAlignment="Left" Margin="290,206,0,0" VerticalAlignment="Top" Width="40" Click="Card_Click">
+            <Image x:Name="imgZaludySedma" Stretch="Fill" Source="Images/karty/zaludy7.png" />
+        </Button>
+        <Button x:Name="clearButton" Content="Odebrat karty" HorizontalAlignment="Left" Margin="10,-1,0,0" VerticalAlignment="Top" Width="120" Click="clearButton_Click" Height="23"/>
+        <Button x:Name="saveButton" Content="Uložit" HorizontalAlignment="Left" Margin="90,372,0,0" VerticalAlignment="Top" Width="160" Click="saveButton_Click"/>
+        <Label x:Name="cardCountLabel" Content="cardCountLabel" HorizontalAlignment="Left" Margin="10,271,0,0" VerticalAlignment="Top" Width="160"/>
+        <Label Content="Trumfy volí" HorizontalAlignment="Left" Margin="12,297,0,0" VerticalAlignment="Top" Width="158"/>
+        <Label Content="Kolo začíná" HorizontalAlignment="Left" Margin="12,319,0,0" VerticalAlignment="Top" Width="158"/>
+        <Label Content="Trumfy" HorizontalAlignment="Left" Margin="12,341,0,0" VerticalAlignment="Top" Width="158"/>
+        <ComboBox x:Name="GameStarterComboBox" HorizontalAlignment="Right" Width="122" SelectedIndex="0" SelectionChanged="HandComboBox_SelectionChanged" Height="22" VerticalAlignment="Top" Margin="0,301,12,0" RenderTransformOrigin="0.473,3.207"/>
+        <ComboBox x:Name="RoundStarterComboBox" HorizontalAlignment="Right" Width="122" SelectedIndex="0" SelectionChanged="HandComboBox_SelectionChanged" Height="22" VerticalAlignment="Top" Margin="0,323,12,0" RenderTransformOrigin="0.473,3.207"/>
+        <ComboBox x:Name="TrumpComboBox" HorizontalAlignment="Right" Width="122" SelectedIndex="0" SelectionChanged="HandComboBox_SelectionChanged" Height="22" VerticalAlignment="Top" Margin="0,345,12,0" RenderTransformOrigin="0.473,3.207"/>
+    </Grid>
+</Window>

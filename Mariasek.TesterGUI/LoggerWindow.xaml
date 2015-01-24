@@ -1,0 +1,35 @@
+﻿<Window x:Class="Mariasek.TesterGUI.LoggerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:logger="clr-namespace:Mariasek.Engine.New.Logger;assembly=Mariasek.Engine.New"
+        Name="LogWindow"
+        Title="Log" Height="600" Width="800" Closing="Window_Closing" WindowStyle="None" Opacity="0.75" AllowsTransparency="True" KeyDown="Window_KeyDown" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <logger:NotifyAppender x:Key="Log" />
+    </Window.Resources>
+    <!--<Grid DataContext="{StaticResource Log}">-->
+    <Grid Name="Grid" DataContext="{Binding ElementName=LogWindow, Path=MyAppender}">
+    <!--<Grid>-->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="28" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="2" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="2" />
+        </Grid.ColumnDefinitions>
+        <TextBox x:Name="textBox" Grid.Column="1" Grid.Row="1" Text="{Binding Path=Notification, Mode=Default}" FontFamily="Consolas" FontSize="10" Background="#000000" IsReadOnly="True" Foreground="#FFFFFFFF" TextChanged="TextBox_TextChanged" IsReadOnlyCaretVisible="True" />
+        <!--<TextBox x:Name="textBox" Grid.Column="1" Grid.Row="1" FontFamily="Consolas" FontSize="10" Background="#000000" IsReadOnly="True" Foreground="#FFFFFFFF" TextChanged="TextBox_TextChanged" IsReadOnlyCaretVisible="True" />-->
+        <Rectangle Grid.Column="0" Grid.Row="0" x:Name="topLeft" Fill="#FFF4F4F5" MouseEnter="DisplayResizeCursor" MouseLeave="ResetCursor" PreviewMouseDown="Resize"/>
+        <Rectangle Grid.Column="1" Grid.Row="0" x:Name="top" Fill="#FFF4F4F5" MouseEnter="DisplayDragCursor" MouseLeave="ResetCursor" PreviewMouseDown="Drag" />
+        <Label Grid.Column="1" Grid.Row="0" Content="{Binding ElementName=LogWindow, Path=Title}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0" />
+        <Rectangle Grid.Column="2" Grid.Row="0" x:Name="topRight" Fill="#FFF4F4F5" Width="10" MouseEnter="DisplayResizeCursor" MouseLeave="ResetCursor" PreviewMouseDown="Resize"/>
+        <Rectangle Grid.Column="0" Grid.Row="1" x:Name="left" Fill="#FFF4F4F5" MouseEnter="DisplayResizeCursor" MouseLeave="ResetCursor" PreviewMouseDown="Resize"/>
+        <Rectangle Grid.Column="2" Grid.Row="1" x:Name="right" Fill="#FFF4F4F5" MouseEnter="DisplayResizeCursor" MouseLeave="ResetCursor" PreviewMouseDown="Resize"/>
+        <Rectangle Grid.Column="0" Grid.Row="2" x:Name="bottomLeft" Fill="#FFF4F4F5" MouseEnter="DisplayResizeCursor" MouseLeave="ResetCursor" PreviewMouseDown="Resize"/>
+        <Rectangle Grid.Column="1" Grid.Row="2" x:Name="bottom" Fill="#FFF4F4F5" MouseEnter="DisplayResizeCursor" MouseLeave="ResetCursor" PreviewMouseDown="Resize"/>
+        <Rectangle Grid.Column="2" Grid.Row="2" x:Name="bottomRight" Fill="#FFF4F4F5" MouseEnter="DisplayResizeCursor" MouseLeave="ResetCursor" PreviewMouseDown="Resize"/>
+    </Grid>
+</Window>

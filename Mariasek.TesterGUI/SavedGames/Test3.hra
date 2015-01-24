@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Hrac 3 musi s esem pockat az Hrac1 vynese desitku
+-->
+<Hra Kolo="9" Zacina="Hrac1" Trumf="cerveny" Voli="Hrac1">
+  <Hrac1 Jmeno="Human">
+    <Karta Barva="kule" Hodnota="desitka" />
+    <Karta Barva="kule" Hodnota="devitka" />
+  </Hrac1>
+  <Hrac2>
+    <Karta Barva="zaludy" Hodnota="spodek" />
+    <Karta Barva="zaludy" Hodnota="devitka" />
+  </Hrac2>
+  <Hrac3>
+    <Karta Barva="kule" Hodnota="eso" />
+    <Karta Barva="kule" Hodnota="spodek" />
+  </Hrac3>
+</Hra>
