@@ -38,6 +38,7 @@ namespace Mariasek.SharedClient.GameComponents
             TextColor = Color.White;
             Opacity = 1f;
             TextRenderer = Game.FontRenderers["BM2Font"];
+            //TextRenderer = Game.FontRenderers["LuckiestGuy32Outl"];
             Text = Name;
         }
 

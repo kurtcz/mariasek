@@ -416,6 +416,7 @@ namespace Mariasek.Engine.New
                 return;
             }
 
+            //TODO: Adjust probabilities (7, Kilo, 107)
             for (var i = 0; i < Game.NumPlayers + 1; i++)
             {
                 _cardProbabilityForPlayer[i][e.TrumpCard.Suit][e.TrumpCard.Value] = i == e.GameStartingPlayerIndex ? 1f : 0f;

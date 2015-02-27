@@ -135,6 +135,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Width = _buttonShape.Width,
                 Height = _buttonShape.Height,
                 TextRenderer = Game.FontRenderers["BMFont"]
+                //TextRenderer = Game.FontRenderers["LuckiestGuy32Outl"]
             };
         }
 

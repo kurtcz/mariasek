@@ -22,7 +22,12 @@ namespace Mariasek.Engine.New
 
         private List<Card> _talon;
         private Hand[] _hands = new Hand[Game.NumPlayers];
-        private new List<GameComputationResult> _scores;
+        private List<AddingMoneyCalculator> _moneyCalculations;
+        private int _gamesBalance;
+        private int _hundredsBalance;
+        private int _hundredsAgainstBalance;
+        private int _sevensBalance;
+        private int _sevensAgainstBalance;
  
         public Probability Probabilities { get; set; }
         public AiPlayerSettings Settings { get; set; }
@@ -35,8 +40,8 @@ namespace Mariasek.Engine.New
                 RoundsToCompute = 1,
                 CardSelectionStrategy = CardSelectionStrategy.MaxCount,
                 SimulationsPerRound = 50,
-                RuleThreshold = 80,
-                GameThreshold = 80
+                RuleThreshold = 0.8f,
+                GameThresholds = new [] { 0.7f, 0.8f, 0.9f }
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
@@ -53,7 +58,9 @@ namespace Mariasek.Engine.New
             Settings.CardSelectionStrategy = (CardSelectionStrategy)Enum.Parse(typeof(CardSelectionStrategy), parameters["CardSelectionStrategy"].Value);
             Settings.SimulationsPerRound = int.Parse(parameters["SimulationsPerRound"].Value);
             Settings.RuleThreshold = int.Parse(parameters["RuleThreshold"].Value) / 100f;
-            Settings.GameThreshold = int.Parse(parameters["GameThreshold"].Value) / 100f;
+
+            var gameThresholds = parameters["GameThreshold"].Value.Split('|');
+            Settings.GameThresholds = gameThresholds.Select(i => int.Parse(i) / 100f).ToArray();
         }
 
         private int GetSuitScoreForTrumpChoice(Barva b)
@@ -157,21 +164,18 @@ namespace Mariasek.Engine.New
             return GameFlavour.Good;
         }
 
-        public override Hra ChooseGameType(Hra minimalBid = Hra.Hra)
+        private void RunGameSimulations(Bidding bidding)
         {
-            //tohle je docasne dokud neumime betl a durch
-            if (minimalBid >= Hra.Betl)
-                return minimalBid;
-
             //nasimuluj hry pro kazdeho vaznejsiho kandidata na trumfy (skore >= n)
             var cardScores = new Dictionary<Card, List<GameComputationResult>>();
 
             //rozhodnout se kde delat inicializaci (asi driv pred vyberem typu hry)
             //            if (Probabilities == null)
             //{
-                Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
+            Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
             //}
 
+            _log.DebugFormat("Running game simulations for {0} ...", Name);
             for (int i = 0; i < Settings.SimulationsPerRound; i++)
             {
                 _hands = Probabilities.GenerateHands(1, PlayerIndex);
@@ -189,51 +193,66 @@ namespace Mariasek.Engine.New
 
             //vyber vhodnou hru podle vysledku simulace
             var opponent = TeamMateIndex == (PlayerIndex + 1) % Game.NumPlayers
-                                                                ? (PlayerIndex + 2) % Game.NumPlayers : (PlayerIndex + 1) % Game.NumPlayers;
-            _scores = cardScores.SelectMany(i => i.Value).ToList();
-            //sgrupuj simulace podle vysledku skore
-            var myScores = _scores.GroupBy(i => i.Score[PlayerIndex])
-                                .Select(g => new
-                                {
-                                    Score = g.Key,
-                                    Count = g.Count()
-                                });
-            var finalSevens = cardScores.SelectMany(i => i.Value)
-                                        .Where(i => i.Final7Won.HasValue)
-                                        .GroupBy(i => i.Final7Won)
-                                        .ToDictionary(k => k.Key.Value, v => v.Count());
-            if (!finalSevens.ContainsKey(true))
+                ? (PlayerIndex + 2) % Game.NumPlayers : (PlayerIndex + 1) % Game.NumPlayers;
+            _moneyCalculations = cardScores.SelectMany(i => i.Value)
+                                              .Select(i =>
             {
-                finalSevens.Add(true, 0);
-            }
-            if (!finalSevens.ContainsKey(false))
-            {
-                finalSevens.Add(false, 0);
-            }
-            foreach (var score in myScores)
-            {
-                _log.DebugFormat("simulated score: {0} pts {1} times ({2}%)", score.Score, score.Count, score.Count * 100 / myScores.Sum(i => i.Count));
-            }
+                var calc = new AddingMoneyCalculator(_g, bidding, i);
 
-            //najdi nejmensi skore
-            //var minScore = scores.OrderBy(i => i.Score).First();
-            //var gameType = minScore.Score < 100 ? Hra.Hra : Hra.Kilo;
+                calc.CalculateMoney();
 
-            //hledej nejvyssi pocet bodu s prahem vyssim nez je parametr
-            var count = 0;
-            var minScore = 0;
-            foreach (var score in myScores.OrderByDescending(i => i.Score))
-            {
-                minScore = score.Score;
-                count += score.Count;
-                if (count >= Settings.GameThreshold / Settings.SimulationsPerRound)
+                return calc;
+            }).ToList();
+            _gamesBalance = PlayerIndex == _g.GameStartingPlayerIndex
+                            ? _moneyCalculations.Count(i => i.GameWon)
+                            : _moneyCalculations.Count(i => !i.GameWon);
+            _hundredsBalance = PlayerIndex == _g.GameStartingPlayerIndex
+                                ? _moneyCalculations.Count(i => i.HundredWon)
+                                : _moneyCalculations.Count(i => !i.HundredWon);
+            _hundredsAgainstBalance = PlayerIndex == _g.GameStartingPlayerIndex
+                                        ? _moneyCalculations.Count(i => i.QuietHundredAgainstWon)
+                                        : _moneyCalculations.Count(i => !i.QuietHundredAgainstWon);
+            _sevensBalance = PlayerIndex == _g.GameStartingPlayerIndex
+                                ? _moneyCalculations.Count(i => i.SevenWon)
+                                : _moneyCalculations.Count(i => !i.SevenWon);
+            _sevensAgainstBalance = PlayerIndex == _g.GameStartingPlayerIndex
+                                        ? _moneyCalculations.Count(i => i.SevenAgainstWon)
+                                        : _moneyCalculations.Count(i => !i.SevenAgainstWon);
+            _log.DebugFormat("Game {0} by {1} {2} times ({3}%)", PlayerIndex == _g.GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
+                _gamesBalance, 100 * _gamesBalance / Settings.SimulationsPerRound);
+            _log.DebugFormat("Hundred {0} by {1} {2} times ({3}%)", PlayerIndex == _g.GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
+                _hundredsBalance, 100 * _hundredsBalance / Settings.SimulationsPerRound);            //sgrupuj simulace podle vysledku skore
+            _log.DebugFormat("Hundred against won {0} times ({1}%)",
+                _hundredsAgainstBalance, 100f * _hundredsAgainstBalance / Settings.SimulationsPerRound);            //sgrupuj simulace podle vysledku skore
+            _log.DebugFormat("Seven {0} by {1} {2} times ({3}%)", PlayerIndex == _g.GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
+                _sevensBalance, 100 * _sevensBalance / Settings.SimulationsPerRound);            //sgrupuj simulace podle vysledku skore
+            _log.DebugFormat("Seven against won {0} times ({1}%)",
+                _sevensAgainstBalance, 100 * _sevensAgainstBalance / Settings.SimulationsPerRound);            //sgrupuj simulace podle vysledku skore
+            var scores = _moneyCalculations.GroupBy(i => i.PointsWon)
+                .Select(g => new
                 {
-                    break;
-                }
+                    Score = g.Key,
+                    Items = g.ToList()
+                });
+            foreach (var score in scores)
+            {
+                _log.DebugFormat("simulated score: {0} pts {1} times ({2}%)", score.Score, score.Items.Count(), score.Items.Count() * 100 / scores.Sum(i => i.Items.Count()));
             }
-            var gameType = minScore < 100 ? Hra.Hra : Hra.Kilo;
+        }
 
-            if (finalSevens[true] > finalSevens[false])
+        public override Hra ChooseGameType(Hra minimalBid = Hra.Hra)
+        {
+            //tohle je docasne dokud neumime betl a durch
+            if (minimalBid >= Hra.Betl)
+                return minimalBid;
+
+            var bidding = new Bidding(_g);
+            //TODO: do i need to initialize bidding to something?
+            RunGameSimulations(bidding);
+
+            var gameType = _hundredsBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound
+                            ? Hra.Kilo : Hra.Hra;
+            if (_sevensBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
             {
                 gameType |= Hra.Sedma;
             };
@@ -248,26 +267,47 @@ namespace Mariasek.Engine.New
         public override Hra GetBidsAndDoubles(Bidding bidding)
         {
             //1x flekujeme hru, jinak mlcime
-            if (_numberOfDoubles++ == 0)
+//            if (_numberOfDoubles++ == 0)
+//            {
+//                return bidding.Bids & Hra.Hra;
+//            }
+//            return 0;
+
+            var gameThreshold = Settings.GameThresholds[Math.Min(Settings.GameThresholds.Length - 1, _numberOfDoubles++)] / 100f;
+
+            if (_moneyCalculations == null)
+            {
+                RunGameSimulations(bidding);
+            }            
+            if (_gamesBalance / Settings.SimulationsPerRound >= gameThreshold)
             {
                 return bidding.Bids & Hra.Hra;
             }
-            return 0;
-
-            var money = _scores.Select(i =>
+            if (_sevensBalance / Settings.SimulationsPerRound >= gameThreshold)
             {
-                var calc = new AddingMoneyCalculator(_g, bidding, i);
-
-                calc.CalculateMoney();
-
-                return calc.MoneyWon[PlayerIndex];
-            }).ToArray();
-
-            var percentWon = (float) money.Count(i => i > 0) / money.Count();
-
-            if (percentWon > (100 - Settings.GameThreshold)/money.Count()*_numberOfDoubles)
+                return bidding.Bids & Hra.Sedma;
+            }
+            if (_hundredsBalance / Settings.SimulationsPerRound >= gameThreshold)
             {
-                return Hra.Hra;
+                return bidding.Bids & Hra.Kilo;
+            }
+            if (_sevensAgainstBalance / Settings.SimulationsPerRound >= gameThreshold)
+            {
+                if (_numberOfDoubles == 1 && PlayerIndex != _g.GameStartingPlayerIndex)
+                {
+                    //v prvnim kole muze souper zahlasit sedmu proti
+                    return bidding.Bids | Hra.SedmaProti;
+                }
+                return bidding.Bids & Hra.SedmaProti;
+            }
+            if (_hundredsAgainstBalance / Settings.SimulationsPerRound >= gameThreshold)
+            {
+                if (_numberOfDoubles == 1 && PlayerIndex != _g.GameStartingPlayerIndex)
+                {
+                    //v prvnim kole muze souper zahlasit kilo proti
+                    return bidding.Bids | Hra.KiloProti;
+                }
+                return bidding.Bids & Hra.KiloProti;
             }
             return 0;
         }
@@ -454,6 +494,8 @@ namespace Mariasek.Engine.New
             var result = new GameComputationResult
             {
                 Score = new int[Game.NumPlayers],
+                BasicScore = new int[Game.NumPlayers],
+                MaxHlasScore = new int[Game.NumPlayers],
                 Final7Won = null
             };
             for (var i = 0; i < Game.NumRounds && _g.rounds[i] != null; i++)
@@ -461,6 +503,21 @@ namespace Mariasek.Engine.New
                 result.Score[_g.rounds[i].player1.PlayerIndex] += _g.rounds[i].points1;
                 result.Score[_g.rounds[i].player2.PlayerIndex] += _g.rounds[i].points2;
                 result.Score[_g.rounds[i].player3.PlayerIndex] += _g.rounds[i].points3;
+                result.BasicScore[_g.rounds[i].player1.PlayerIndex] += _g.rounds[i].basicPoints1;
+                result.BasicScore[_g.rounds[i].player2.PlayerIndex] += _g.rounds[i].basicPoints1;
+                result.BasicScore[_g.rounds[i].player3.PlayerIndex] += _g.rounds[i].basicPoints1;
+                var hlasScore1 = _g.rounds[i].hlas1 
+                                    ? (_g.rounds[i].c1.Suit == _g.trump ? 40 : 20)
+                                    : 0;
+                var hlasScore2 = _g.rounds[i].hlas2
+                                    ? (_g.rounds[i].c2.Suit == _g.trump ? 40 : 20)
+                                    : 0;
+                var hlasScore3 = _g.rounds[i].hlas3
+                                    ? (_g.rounds[i].c3.Suit == _g.trump ? 40 : 20)
+                                    : 0;
+                result.MaxHlasScore[_g.rounds[i].player1.PlayerIndex] = Math.Max(hlasScore1, result.MaxHlasScore[_g.rounds[i].player1.PlayerIndex]);
+                result.MaxHlasScore[_g.rounds[i].player2.PlayerIndex] = Math.Max(hlasScore2, result.MaxHlasScore[_g.rounds[i].player2.PlayerIndex]);
+                result.MaxHlasScore[_g.rounds[i].player3.PlayerIndex] = Math.Max(hlasScore3, result.MaxHlasScore[_g.rounds[i].player3.PlayerIndex]);
             }
             var firstTime = true;
             int player1;
@@ -561,19 +618,43 @@ namespace Mariasek.Engine.New
                 player2 = (aiStrategy.MyIndex + 1) % Game.NumPlayers;
                 player3 = (aiStrategy.MyIndex + 2) % Game.NumPlayers;
                 result.Score[roundWinnerIndex] += roundScore;
+                result.BasicScore[roundWinnerIndex] += roundScore;
                 if (c1.Value == Hodnota.Svrsek && _hands[roundStarterIndex].HasK(c1.Suit))
-                    result.Score[roundStarterIndex] += c1.Suit == _g.trump ? 40 : 20;
+                {
+                    var hlas = c1.Suit == _g.trump ? 40 : 20;
+                    result.Score[roundStarterIndex] += hlas;
+                    result.MaxHlasScore[roundStarterIndex] = Math.Max(hlas, result.MaxHlasScore[roundStarterIndex]);
+                }
                 if (c2.Value == Hodnota.Svrsek && _hands[(roundStarterIndex + 1) % Game.NumPlayers].HasK(c2.Suit))
-                    result.Score[(roundStarterIndex + 1) % Game.NumPlayers] += c2.Suit == _g.trump ? 40 : 20;
+                {
+                    var hlas = c2.Suit == _g.trump ? 40 : 20;
+                    result.Score[(roundStarterIndex + 1) % Game.NumPlayers] += hlas;
+                    result.MaxHlasScore[(roundStarterIndex + 1) % Game.NumPlayers] = Math.Max(hlas, result.MaxHlasScore[(roundStarterIndex + 1) % Game.NumPlayers]);
+                }
                 if (c3.Value == Hodnota.Svrsek && _hands[(roundStarterIndex + 2) % Game.NumPlayers].HasK(c3.Suit))
-                    result.Score[(roundStarterIndex + 2) % Game.NumPlayers] += c3.Suit == _g.trump ? 40 : 20;
-
+                {
+                    var hlas = c3.Suit == _g.trump ? 40 : 20;
+                    result.Score[(roundStarterIndex + 2) % Game.NumPlayers] += hlas;
+                    result.MaxHlasScore[(roundStarterIndex + 2) % Game.NumPlayers] = Math.Max(hlas, result.MaxHlasScore[(roundStarterIndex + 2) % Game.NumPlayers]);
+                }
                 if (c1.Value == Hodnota.Kral && _hands[roundStarterIndex].HasQ(c1.Suit))
-                    result.Score[roundStarterIndex] += c1.Suit == _g.trump ? 40 : 20;
+                {
+                    var hlas = c1.Suit == _g.trump ? 40 : 20;
+                    result.Score[roundStarterIndex] += hlas;
+                    result.MaxHlasScore[roundStarterIndex] = Math.Max(hlas, result.MaxHlasScore[roundStarterIndex]);
+                }
                 if (c2.Value == Hodnota.Kral && _hands[(roundStarterIndex + 1) % Game.NumPlayers].HasQ(c2.Suit))
-                    result.Score[(roundStarterIndex + 1) % Game.NumPlayers] += c2.Suit == _g.trump ? 40 : 20;
+                {
+                    var hlas = c2.Suit == _g.trump ? 40 : 20;
+                    result.Score[(roundStarterIndex + 1) % Game.NumPlayers] += hlas;
+                    result.MaxHlasScore[(roundStarterIndex + 1) % Game.NumPlayers] = Math.Max(hlas, result.MaxHlasScore[(roundStarterIndex + 1) % Game.NumPlayers]);
+                }
                 if (c3.Value == Hodnota.Kral && _hands[(roundStarterIndex + 2) % Game.NumPlayers].HasQ(c3.Suit))
-                    result.Score[(roundStarterIndex + 2) % Game.NumPlayers] += c3.Suit == _g.trump ? 40 : 20;
+                {
+                    var hlas = c3.Suit == _g.trump ? 40 : 20;
+                    result.Score[(roundStarterIndex + 2) % Game.NumPlayers] += hlas;
+                    result.MaxHlasScore[(roundStarterIndex + 2) % Game.NumPlayers] = Math.Max(hlas, result.MaxHlasScore[(roundStarterIndex + 2) % Game.NumPlayers]);
+                }
 
                 _log.TraceFormat("Score: {0}/{1}/{2}", result.Score[0], result.Score[1], result.Score[2]);
             }

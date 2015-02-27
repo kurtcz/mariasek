@@ -83,6 +83,10 @@
     <AndroidAsset Include="Assets\Content\SegoeUI40Outl_2.png" />
     <AndroidAsset Include="Assets\Content\SegoeUI40Outl_1.png" />
     <AndroidAsset Include="Assets\Content\SegoeUI40Outl_0.png" />
+    <AndroidAsset Include="Assets\Content\LuckiestGuy32Outl_0.png" />
+    <AndroidAsset Include="Assets\Content\LuckiestGuy32Outl_1.png" />
+    <AndroidAsset Include="Assets\Content\LuckiestGuy32Outl_2.png" />
+    <AndroidAsset Include="Assets\Content\LuckiestGuy32Outl.fnt" />
   </ItemGroup>
   <Import Project="..\Mariasek.SharedClient\Mariasek.SharedClient.projitems" Label="Shared" Condition="Exists('..\Mariasek.SharedClient\Mariasek.SharedClient.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />

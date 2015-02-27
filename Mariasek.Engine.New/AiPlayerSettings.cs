@@ -25,7 +25,7 @@ namespace Mariasek.Engine.New
         public int SimulationsPerRound { get; set; }
         public int RoundsToCompute { get; set; }
         public float RuleThreshold { get; set; }
-        public float GameThreshold { get; set; }
+        public float[] GameThresholds { get; set; }
 
 #if !PORTABLE
         public override string ToString()

@@ -133,13 +133,18 @@ namespace Mariasek.Engine.New
         {
             _gameType = g.GameType;
             _trump = g.trump;
-            _bidding = bidding;
+            _bidding = g.Bidding;
+            _gameStartingPlayerIndex = g.GameStartingPlayerIndex;
 
             if (GoodGame)
             {
                 PointsWon = res.Score[_gameStartingPlayerIndex];
                 PointsLost = res.Score[(_gameStartingPlayerIndex + 1) % Game.NumPlayers] + res.Score[(_gameStartingPlayerIndex + 2) % Game.NumPlayers];
-
+                BasicPointsWon = res.BasicScore[_gameStartingPlayerIndex];
+                BasicPointsLost = res.BasicScore[(_gameStartingPlayerIndex + 1) % Game.NumPlayers] + res.BasicScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers];
+                MaxHlasWon = res.MaxHlasScore[_gameStartingPlayerIndex];
+                MaxHlasLost = res.MaxHlasScore[(_gameStartingPlayerIndex + 1) % Game.NumPlayers] + res.MaxHlasScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers];
+                GameWon = PointsWon > PointsLost;
                 SevenWon = res.Final7Won.HasValue && res.Final7Won.Value;
 
                 //Not implemented:
@@ -156,6 +161,7 @@ namespace Mariasek.Engine.New
             {
                 throw new NotImplementedException();
             }
+            MoneyWon = new int[Game.NumPlayers];
         }
 
         private Card GetGameStarterLastCard(Round finalRound, AbstractPlayer gameStartingPlayer)
