@@ -604,13 +604,15 @@ namespace Mariasek.Engine.New
                 player3 = PlayerIndex;
             }
 
-            var aiStrategy = new AiStrategy(trump.HasValue ? trump.Value : _g.trump, gameType.HasValue ? gameType.Value : _g.GameType, _hands)
-            {
-                MyIndex = PlayerIndex,
-                MyName = Name,
-                TeamMateIndex = TeamMateIndex,
-                RoundNumber = initialRoundNumber.HasValue ? initialRoundNumber.Value : _g.RoundNumber
-            };
+            //var aiStrategy = new AiStrategy(trump.HasValue ? trump.Value : _g.trump, gameType.HasValue ? gameType.Value : _g.GameType, _hands)
+            //{
+            //    MyIndex = PlayerIndex,
+            //    MyName = Name,
+            //    TeamMateIndex = TeamMateIndex,
+            //    RoundNumber = initialRoundNumber.HasValue ? initialRoundNumber.Value : _g.RoundNumber
+            //};
+            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, _hands, Name, PlayerIndex, TeamMateIndex, initialRoundNumber);
+            
             _log.DebugFormat("Round {0}. Starting simulation for {1}", _g.RoundNumber, _g.players[PlayerIndex].Name);
             if (c1 != null) _log.DebugFormat("First card: {0}", c1);
             if (c2 != null) _log.DebugFormat("Second card: {0}", c2);

@@ -13,7 +13,7 @@ using Mariasek.Engine.New.Logger;
 
 namespace Mariasek.Engine.New
 {
-    public class AiStrategy
+    public class AiStrategy : AiStrategyBase
     {
 #if !PORTABLE
         private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -30,12 +30,9 @@ namespace Mariasek.Engine.New
         public int TeamMateIndex { get; set; }
         public int RoundNumber { get; set; }
 
-        //public AiStrategy(Game g, List<Card>[] hands)
         public AiStrategy(Barva trump, Hra gameType, Hand[] hands)
+            :base(trump, gameType, hands)
         {
-            _trump = trump;
-            _hands = hands;
-            _gameType = gameType;
         }
 
         //: - souper
@@ -43,8 +40,8 @@ namespace Mariasek.Engine.New
         //: c libovolna karta
         //: X desitka
         //: A eso
-        
-        private IEnumerable<AiRule> GetRules1(Hand[] hands)
+
+        protected override IEnumerable<AiRule> GetRules1(Hand[] hands)
         {
             var player2 = (MyIndex + 1) % Game.NumPlayers;
             var player3 = (MyIndex + 2) % Game.NumPlayers;
@@ -724,7 +721,7 @@ namespace Mariasek.Engine.New
             };
         }
 
-        private IEnumerable<AiRule> GetRules2(Hand[] hands)
+        protected override IEnumerable<AiRule> GetRules2(Hand[] hands)
         {
             var player3 = (MyIndex + 1) % Game.NumPlayers;
             var player1 = (MyIndex + 2) % Game.NumPlayers;
@@ -1176,7 +1173,7 @@ namespace Mariasek.Engine.New
             };
         }
 
-        private IEnumerable<AiRule> GetRules3(Hand[] hands)
+        protected override IEnumerable<AiRule> GetRules3(Hand[] hands)
         {
             var player1 = (MyIndex + 1) % Game.NumPlayers;
             var player2 = (MyIndex + 2) % Game.NumPlayers;
@@ -1491,116 +1488,6 @@ namespace Mariasek.Engine.New
                     return cardsToPlay.ToList().RandomOneOrDefault();
                 }
             };
-        }
-
-        private List<Card> ValidCards(Card c, Hand hand)
-        {
-            return AbstractPlayer.ValidCards(hand, _trump, _gameType, TeamMateIndex, c);
-        }
-
-        private List<Card> ValidCards(Card c1, Card c2, Hand hand)
-        {
-            return AbstractPlayer.ValidCards(hand, _trump, _gameType, TeamMateIndex, c1, c2);
-        }
-
-        public Card PlayCard1(out AiRule selectedRule)
-        {
-            if (((List<Card>)_hands[MyIndex]).Count() == 1)
-            {
-                var cardToPlay = ((List<Card>)_hands[MyIndex]).First();
-
-                selectedRule = AiRule.PlayTheOnlyValidCard;
-                _hands[MyIndex].Remove(cardToPlay);
-                return cardToPlay;
-            }
-
-            var t0 = DateTime.Now;
-            foreach (var rule in GetRules1(_hands))
-            {
-                var cardToPlay = rule.ChooseCard1();
-                if (cardToPlay != null)
-                {
-                    if (cardToPlay.Value == Hodnota.Kral)
-                    {
-                        var svrsek = _hands[MyIndex].FirstOrDefault(i => i.Value == Hodnota.Svrsek && i.Suit == cardToPlay.Suit);
-                        cardToPlay =  svrsek ?? cardToPlay;
-                    }
-                    _hands[MyIndex].Remove(cardToPlay);
-                    _log.TraceFormat("{0}: {1} - {2}", MyName, cardToPlay, rule.Description);
-                    selectedRule = rule;
-                    return cardToPlay;
-                }
-            }
-            selectedRule = null;
-            return null;
-        }
-
-        public Card PlayCard2(Card c1, out AiRule selectedRule)
-        {
-            var validCards = ValidCards(c1, _hands[MyIndex]);
-
-            if (validCards.Count == 1)
-            {
-                var cardToPlay = validCards.First();
-
-                selectedRule = AiRule.PlayTheOnlyValidCard;
-                _hands[MyIndex].Remove(cardToPlay);
-                return cardToPlay;
-            }
-
-            foreach (var rule in GetRules2(_hands))
-            {
-                var t0 = DateTime.Now;
-                var cardToPlay = rule.ChooseCard2(c1);
-                if (cardToPlay != null)
-                {
-                    if (cardToPlay.Value == Hodnota.Kral)
-                    {
-                        var svrsek = _hands[MyIndex].FirstOrDefault(i => i.Value == Hodnota.Svrsek && i.Suit == cardToPlay.Suit);
-                        cardToPlay = svrsek ?? cardToPlay;
-                    }
-                    _hands[MyIndex].Remove(cardToPlay);
-                    _log.TraceFormat("{0}: {1} - {2}", MyName, cardToPlay, rule.Description);
-                    selectedRule = rule;
-                    return cardToPlay;
-                }
-            }
-            selectedRule = null;
-            return null;
-        }
-
-        public Card PlayCard3(Card c1, Card c2, out AiRule selectedRule)
-        {
-            var validCards = ValidCards(c1, c2, _hands[MyIndex]);
-
-            if (validCards.Count == 1)
-            {
-                var cardToPlay = validCards.First();
-
-                selectedRule = AiRule.PlayTheOnlyValidCard;
-                _hands[MyIndex].Remove(cardToPlay);
-                return cardToPlay;
-            }
-
-            foreach (var rule in GetRules3(_hands))
-            {
-                var t0 = DateTime.Now;
-                var cardToPlay = rule.ChooseCard3(c1, c2);
-                if (cardToPlay != null)
-                {
-                    if (cardToPlay.Value == Hodnota.Kral)
-                    {
-                        var svrsek = _hands[MyIndex].FirstOrDefault(i => i.Value == Hodnota.Svrsek && i.Suit == cardToPlay.Suit);
-                        cardToPlay = svrsek ?? cardToPlay;
-                    }
-                    _hands[MyIndex].Remove(cardToPlay);
-                    _log.TraceFormat("{0}: {1} - {2}", MyName, cardToPlay, rule.Description);
-                    selectedRule = rule;
-                    return cardToPlay;
-                }
-            }
-            selectedRule = null;
-            return null;
         }
     }
 }

@@ -45,10 +45,14 @@
   <ItemGroup>
     <Compile Include="AbstractPlayer.cs" />
     <Compile Include="AddingMoneyCalculator.cs" />
+    <Compile Include="AiBetlStrategy.cs" />
+    <Compile Include="AiDurchStrategy.cs" />
     <Compile Include="AiPlayer.cs" />
     <Compile Include="AiPlayerSettings.cs" />
     <Compile Include="AiRule.cs" />
     <Compile Include="AiStrategy.cs" />
+    <Compile Include="AiStrategyBase.cs" />
+    <Compile Include="AiStrategyFactory.cs" />
     <Compile Include="Bidding.cs" />
     <Compile Include="BidEventArgs.cs" />
     <Compile Include="Card.cs" />

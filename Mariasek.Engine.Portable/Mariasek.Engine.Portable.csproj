@@ -47,6 +47,12 @@
     <Compile Include="..\Mariasek.Engine.New\AddingMoneyCalculator.cs">
       <Link>AddingMoneyCalculator.cs</Link>
     </Compile>
+    <Compile Include="..\Mariasek.Engine.New\AiBetlStrategy.cs">
+      <Link>AiBetlStrategy.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\AiDurchStrategy.cs">
+      <Link>AiDurchStrategy.cs</Link>
+    </Compile>
     <Compile Include="..\Mariasek.Engine.New\AiPlayer.cs">
       <Link>AiPlayer.cs</Link>
     </Compile>
@@ -58,6 +64,12 @@
     </Compile>
     <Compile Include="..\Mariasek.Engine.New\AiStrategy.cs">
       <Link>AiStrategy.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\AiStrategyBase.cs">
+      <Link>AiStrategyBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\AiStrategyFactory.cs">
+      <Link>AiStrategyFactory.cs</Link>
     </Compile>
     <Compile Include="..\Mariasek.Engine.New\Bidding.cs">
       <Link>Bidding.cs</Link>
