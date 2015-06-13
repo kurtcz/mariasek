@@ -43,8 +43,7 @@ namespace Mariasek.Engine.New
         //: c libovolna karta
         //: X desitka
         //: A eso
-
-        //private IEnumerable<AiRule> GetRules1(List<Card>[] hands)
+        
         private IEnumerable<AiRule> GetRules1(Hand[] hands)
         {
             var player2 = (MyIndex + 1) % Game.NumPlayers;
@@ -164,15 +163,46 @@ namespace Mariasek.Engine.New
                                                                               ValidCards(i, hands[player2]).All(j =>                    //a nektere moje trumfy jsou vetsi nez vsechny trumfy soupere
                                                                                   ValidCards(i, j, hands[player3]).All(k => 
                                                                                       Round.WinningCard(i, j, k, _trump) == i)) &&
-                                                                              (hands[MyIndex].Any(j => j.Suit != _trump &&              //a navic mam jeste nejake A, X v jine barve
+                                                                              ((hands[MyIndex].Has7(_trump)) ||                         //a navic muzu uhrat sedmu nakonec 
+                                                                               (hands[MyIndex].Any(j => j.Suit != _trump &&             //nebo mam a muzu uhrat nejake A, X v jine barve
                                                                                                        (j.Value == Hodnota.Eso ||
-                                                                                                        j.Value == Hodnota.Desitka))));
+                                                                                                        j.Value == Hodnota.Desitka)))));
                                       if (cardsToPlay.Count() <
                                           Math.Max(hands[player2].CardCount(_trump),
                                                    hands[player3].CardCount(_trump)))
                                       {
                                           //nemam dost trumfu vyssich nez souperovy trumfy
-                                          cardsToPlay = Enumerable.Empty<Card>();
+                                          if ((_gameType & Hra.Sedma) == 0)
+                                          {
+                                              cardsToPlay = Enumerable.Empty<Card>();
+                                          }
+                                          else if (hands[MyIndex].CardCount(_trump) >
+                                                   Math.Max(hands[player2].CardCount(_trump),
+                                                   hands[player3].CardCount(_trump)))
+                                          {
+                                              //hraju sedmu a mam vic trumfu nez souperi
+                                              //ale nekdo z nich ma vetsi trumf nez ja -
+                                              //pokud ho nemohu vytlacit jinou barvou, tak ho vytahnu
+                                              var muzuVytlacitTrumf = false;
+
+                                              foreach(var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                                              {
+                                                  if(b != _trump &&
+                                                     hands[MyIndex].HasSuit(b) && 
+                                                      ((!hands[player2].HasSuit(b) && hands[player2].HasSuit(_trump)) ||
+                                                       (!hands[player3].HasSuit(b) && hands[player3].HasSuit(_trump))))
+                                                  {
+                                                      muzuVytlacitTrumf = true;
+                                                      break;
+                                                  }
+                                              }
+                                              if (!muzuVytlacitTrumf)
+                                              {
+                                                  cardsToPlay = hands[MyIndex].Where(i => i.Suit == _trump && i.Value != Hodnota.Sedma);
+                                              }
+
+                                              return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                                          }
                                       }
                                   }
 
@@ -435,10 +465,10 @@ namespace Mariasek.Engine.New
                                                                  (!hands[player3].HasSuit(i.Suit) &&    //3. hrac nezna barvu a ma max. stejne trumfu jako ja tlacnych
                                                                   hands[player3].HasSuit(_trump) &&
                                                                   hands[player3].HasAtMostNCardsOfSuit(_trump, hands[MyIndex].CardCount(i.Suit))) ||
-                                                                 (!hands[player2].HasSuit(i.Suit) &&    //2.hrac nezna barva a ma trumfy a 3.hrac ma max stejne karet v barve jako ja
+                                                                 (!hands[player2].HasSuit(i.Suit) &&    //2.hrac nezna barvu a ma trumfy a 3.hrac ma max stejne karet v barve jako ja
                                                                   hands[player2].HasSuit(_trump) &&
                                                                   hands[player3].HasAtMostNCardsOfSuit(i.Suit, hands[MyIndex].CardCount(i.Suit))) ||
-                                                                 (!hands[player3].HasSuit(i.Suit) &&    //3.hrac nezna barva a ma trumfy a 2.hrac ma max stejne karet v barve jako ja
+                                                                 (!hands[player3].HasSuit(i.Suit) &&    //3.hrac nezna barvu a ma trumfy a 2.hrac ma max stejne karet v barve jako ja
                                                                   hands[player3].HasSuit(_trump) &&
                                                                   hands[player2].HasAtMostNCardsOfSuit(i.Suit, hands[MyIndex].CardCount(i.Suit)))));
                     }
@@ -694,7 +724,6 @@ namespace Mariasek.Engine.New
             };
         }
 
-        //private IEnumerable<AiRule> GetRules2(List<Card>[] hands)
         private IEnumerable<AiRule> GetRules2(Hand[] hands)
         {
             var player3 = (MyIndex + 1) % Game.NumPlayers;
@@ -1147,7 +1176,6 @@ namespace Mariasek.Engine.New
             };
         }
 
-        //private IEnumerable<AiRule> GetRules3(List<Card>[] hands)
         private IEnumerable<AiRule> GetRules3(Hand[] hands)
         {
             var player1 = (MyIndex + 1) % Game.NumPlayers;

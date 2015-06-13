@@ -70,10 +70,14 @@ namespace Mariasek.Console
         {
             if (r.c3 != null)
             {
-                System.Console.WriteLine("{0}: {1}{2}{3}", r.player3.Name, 
+                var debugInfo = string.Format(": {0} {1}x", g.players[r.player3.PlayerIndex].DebugInfo.Rule,
+                                                g.players[r.player3.PlayerIndex].DebugInfo.RuleCount);
+
+                System.Console.WriteLine("{0}: {1}{2}{3} {4}", r.player3.Name, 
                                                            r.c3, 
                                                            r.c3.Suit == g.trump ? "*" : string.Empty, 
-                                                           r.hlas3 ? " (hlas)" : string.Empty);
+                                                           r.hlas3 ? " (hlas)" : string.Empty,
+                                                           debugInfo ?? string.Empty);
                 foreach (var player in g.players)
                 {
                     System.Console.WriteLine("{0}: {1}", player.Name, new Hand(player.Hand));
@@ -82,18 +86,26 @@ namespace Mariasek.Console
             }
             else if (r.c2 != null)
             {
-                System.Console.WriteLine("{0}: {1}{2}{3}", r.player2.Name,
+                var debugInfo = string.Format(": {0} {1}x", g.players[r.player2.PlayerIndex].DebugInfo.Rule,
+                                                g.players[r.player2.PlayerIndex].DebugInfo.RuleCount);
+
+                System.Console.WriteLine("{0}: {1}{2}{3} {4}", r.player2.Name,
                                                            r.c2,
                                                            r.c2.Suit == g.trump ? "*" : string.Empty,
-                                                           r.hlas2 ? " (hlas)" : string.Empty);
+                                                           r.hlas2 ? " (hlas)" : string.Empty,
+                                                           debugInfo ?? string.Empty);
             }
             else
             {
+                var debugInfo = string.Format(": {0} {1}x", g.players[r.player1.PlayerIndex].DebugInfo.Rule,
+                                                g.players[r.player1.PlayerIndex].DebugInfo.RuleCount);
+
                 System.Console.WriteLine("Round {0}", r.number);
-                System.Console.WriteLine("{0}: {1}{2}{3}", r.player1.Name,
+                System.Console.WriteLine("{0}: {1}{2}{3} {4}", r.player1.Name,
                                                            r.c1,
                                                            r.c1.Suit == g.trump ? "*" : string.Empty,
-                                                           r.hlas1 ? " (hlas)" : string.Empty);
+                                                           r.hlas1 ? " (hlas)" : string.Empty,
+                                                           debugInfo ?? string.Empty);
             }
         }
 

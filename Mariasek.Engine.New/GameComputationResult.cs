@@ -7,6 +7,8 @@ namespace Mariasek.Engine.New
 {
     public class GameComputationResult
     {
+        public Hand[] Hands;                    //for debugging purposees
+        public List<RoundDebugContext> Rounds;  //for debugging purposees
         public Card CardToPlay { get; set; }
         public int[] Score { get; set; }
         public int[] BasicScore { get; set; }

@@ -9,36 +9,36 @@
     <Karta Barva="Zaludy" Hodnota="Devitka" />
     <Karta Barva="Zaludy" Hodnota="Svrsek" />
     <Karta Barva="Zaludy" Hodnota="Kral" />
+    <Karta Barva="Zaludy" Hodnota="Eso" />
     <Karta Barva="Kule" Hodnota="Sedma" />
-    <Karta Barva="Cerveny" Hodnota="Svrsek" />
   </Hrac1>
   <Hrac2>
-    <Karta Barva="Cerveny" Hodnota="Eso" />
     <Karta Barva="Cerveny" Hodnota="Desitka" />
+    <Karta Barva="Cerveny" Hodnota="Kral" />
     <Karta Barva="Cerveny" Hodnota="Spodek" />
-    <Karta Barva="Cerveny" Hodnota="Devitka" />
     <Karta Barva="Cerveny" Hodnota="Osma" />
     <Karta Barva="Cerveny" Hodnota="Sedma" />
-    <Karta Barva="Zeleny" Hodnota="Kral" />
-    <Karta Barva="Zeleny" Hodnota="Svrsek" />
-    <Karta Barva="Zeleny" Hodnota="Spodek" />
-    <Karta Barva="Zeleny" Hodnota="Sedma" />
-    <Karta Barva="Kule" Hodnota="Eso" />
-    <Karta Barva="Zaludy" Hodnota="Eso" />
-  </Hrac2>
-  <Hrac3>
-    <Karta Barva="Zeleny" Hodnota="Osma" />
-    <Karta Barva="Zeleny" Hodnota="Devitka" />
-    <Karta Barva="Kule" Hodnota="Osma" />
-    <Karta Barva="Kule" Hodnota="Devitka" />
-    <Karta Barva="Zaludy" Hodnota="Sedma" />
-    <Karta Barva="Zeleny" Hodnota="Eso" />
     <Karta Barva="Zeleny" Hodnota="Desitka" />
-    <Karta Barva="Cerveny" Hodnota="Kral" />
+    <Karta Barva="Zeleny" Hodnota="Kral" />
     <Karta Barva="Zaludy" Hodnota="Desitka" />
     <Karta Barva="Zaludy" Hodnota="Spodek" />
+    <Karta Barva="Kule" Hodnota="Devitka" />
+  </Hrac2>
+  <Hrac3>
+    <Karta Barva="Cerveny" Hodnota="Eso" />
+    <Karta Barva="Cerveny" Hodnota="Svrsek" />
+    <Karta Barva="Cerveny" Hodnota="Devitka" />
+    <Karta Barva="Zeleny" Hodnota="Eso" />
+    <Karta Barva="Zeleny" Hodnota="Svrsek" />
+    <Karta Barva="Zeleny" Hodnota="Devitka" />
+    <Karta Barva="Zeleny" Hodnota="Osma" />
+    <Karta Barva="Zaludy" Hodnota="Sedma" />
+    <Karta Barva="Kule" Hodnota="Eso" />
+    <Karta Barva="Kule" Hodnota="Osma" />
   </Hrac3>
   <Talon>
+    <Karta Barva="Zeleny" Hodnota="Spodek" />
+    <Karta Barva="Zeleny" Hodnota="Sedma" />
   </Talon>
   <Stychy />
 </Hra>

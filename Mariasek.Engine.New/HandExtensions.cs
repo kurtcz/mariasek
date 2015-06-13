@@ -65,6 +65,11 @@ namespace Mariasek.Engine.New
             return hand.Any(i => i.Value == Hodnota.Svrsek && i.Suit == suit);
         }
 
+        public static bool Has7(this List<Card> hand, Barva suit)
+        {
+            return hand.Any(i => i.Value == Hodnota.Sedma && i.Suit == suit);
+        }
+
         public static int CardCount(this List<Card> hand, Barva suit)
         {
             return hand.Count(i => i.Suit == suit);
@@ -80,6 +85,7 @@ namespace Mariasek.Engine.New
         private readonly Dictionary<Barva, bool> _hasX = new Dictionary<Barva, bool>();
         private readonly Dictionary<Barva, bool> _hasK = new Dictionary<Barva, bool>();
         private readonly Dictionary<Barva, bool> _hasQ = new Dictionary<Barva, bool>();
+        private readonly Dictionary<Barva, bool> _has7 = new Dictionary<Barva, bool>();
 
         public Hand(IEnumerable<Card> hand)
         {
@@ -149,6 +155,7 @@ namespace Mariasek.Engine.New
                 _hasX[suit] = _hand.Any(i => i.Value == Hodnota.Desitka && i.Suit == suit);
                 _hasK[suit] = _hand.Any(i => i.Value == Hodnota.Kral && i.Suit == suit);
                 _hasQ[suit] = _hand.Any(i => i.Value == Hodnota.Svrsek && i.Suit == suit);
+                _has7[suit] = _hand.Any(i => i.Value == Hodnota.Sedma && i.Suit == suit);
             }
         }
 
@@ -190,6 +197,11 @@ namespace Mariasek.Engine.New
         public bool HasQ(Barva suit)
         {
             return _hasQ[suit];
+        }
+
+        public bool Has7(Barva suit)
+        {
+            return _has7[suit];
         }
 
         public int CardCount(Barva suit)

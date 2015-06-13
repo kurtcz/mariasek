@@ -82,6 +82,7 @@
     <Compile Include="Renonc.cs" />
     <Compile Include="Round.cs" />
     <Compile Include="RoundContext.cs" />
+    <Compile Include="RoundDebugContext.cs" />
     <Compile Include="Schema\GameDto.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

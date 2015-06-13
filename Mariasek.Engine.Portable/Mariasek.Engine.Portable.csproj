@@ -155,6 +155,9 @@
     <Compile Include="..\Mariasek.Engine.New\RoundContext.cs">
       <Link>RoundContext.cs</Link>
     </Compile>
+    <Compile Include="..\Mariasek.Engine.New\RoundDebugContext.cs">
+      <Link>RoundDebugContext.cs</Link>
+    </Compile>
     <Compile Include="..\Mariasek.Engine.New\Schema\GameDto.cs">
       <Link>Schema\GameDto.cs</Link>
     </Compile>

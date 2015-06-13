@@ -138,6 +138,9 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="bidtest\__107neuhratelna.hra" />
+    <None Include="bidtest\__107uhratelna.hra" />
+    <None Include="bidtest\__sedma.hra" />
     <None Include="SavedGames\Desitka.hra" />
     <None Include="SavedGames\Desitka2.hra" />
     <None Include="SavedGames\EsoX.hra" />

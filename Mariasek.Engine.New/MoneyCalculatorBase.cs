@@ -133,7 +133,7 @@ namespace Mariasek.Engine.New
         {
             _gameType = g.GameType;
             _trump = g.trump;
-            _bidding = g.Bidding;
+            _bidding = bidding;
             _gameStartingPlayerIndex = g.GameStartingPlayerIndex;
 
             if (GoodGame)
