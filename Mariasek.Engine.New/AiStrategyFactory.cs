@@ -15,7 +15,7 @@ namespace Mariasek.Engine.New
             switch(gt)
             {
                 case Hra.Durch:
-                    return new AiDurchStrategy(trump.HasValue ? trump.Value : g.trump, gameType.HasValue ? gameType.Value : g.GameType, hands)
+                    return new AiDurchStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands)
                     {
                         MyIndex = playerIndex,
                         MyName = name,
@@ -23,7 +23,7 @@ namespace Mariasek.Engine.New
                         RoundNumber = initialRoundNumber.HasValue ? initialRoundNumber.Value : g.RoundNumber
                     };
                 case Hra.Betl:
-                    return new AiBetlStrategy(trump.HasValue ? trump.Value : g.trump, gameType.HasValue ? gameType.Value : g.GameType, hands)
+                    return new AiBetlStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands)
                     {
                         MyIndex = playerIndex,
                         MyName = name,
@@ -31,7 +31,7 @@ namespace Mariasek.Engine.New
                         RoundNumber = initialRoundNumber.HasValue ? initialRoundNumber.Value : g.RoundNumber
                     };
                 default:
-                    return new AiStrategy(trump.HasValue ? trump.Value : g.trump, gameType.HasValue ? gameType.Value : g.GameType, hands)
+                    return new AiStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands)
                     {
                         MyIndex = playerIndex,
                         MyName = name,

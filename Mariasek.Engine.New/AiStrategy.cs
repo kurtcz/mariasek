@@ -30,7 +30,7 @@ namespace Mariasek.Engine.New
         public int TeamMateIndex { get; set; }
         public int RoundNumber { get; set; }
 
-        public AiStrategy(Barva trump, Hra gameType, Hand[] hands)
+        public AiStrategy(Barva? trump, Hra gameType, Hand[] hands)
             :base(trump, gameType, hands)
         {
         }
@@ -976,7 +976,7 @@ namespace Mariasek.Engine.New
                         cardsToPlay =
                             ValidCards(c1, hands[MyIndex])
                                 .Where(i => i.Value == Hodnota.Eso &&                                                   //hraj vitezne eso kdyz
-                                            !c1.IsHigherThan(i, _trump) &&
+                                            c1.IsLowerThan(i, _trump) &&
                                             ValidCards(c1, i, hands[player3]).All(j => i.Value == Hodnota.Desitka));    //3. hrac ma plonkovou desitku
                     }
                     else if (TeamMateIndex == player1)
@@ -1004,7 +1004,7 @@ namespace Mariasek.Engine.New
                     {
                         //: -X- oX-
                         cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
-                                                                                !c1.IsHigherThan(i, _trump) &&
+                                                                                c1.IsLowerThan(i, _trump) &&
                                                                                 i.Suit != _trump && 
                                                                                 hands[MyIndex].HasX(i.Suit) &&
                                                                                 hands[player3].HasA(i.Suit) && //souper ma eso a ja mam kartu na kterou ho musi zahrat
@@ -1078,7 +1078,7 @@ namespace Mariasek.Engine.New
                         cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value != Hodnota.Eso && 
                                                                                 i.Value != Hodnota.Desitka &&
                                                                                 i.Suit != _trump &&
-                                                                                !c1.IsHigherThan(i, _trump));
+                                                                                c1.IsLowerThan(i, _trump));
                     }
                     else
                     {

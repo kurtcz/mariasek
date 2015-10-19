@@ -17,7 +17,7 @@ namespace Mariasek.Engine.New
 #else
         protected static readonly ILog _log = new DummyLogWrapper();
 #endif   
-        protected Barva _trump;
+        protected Barva? _trump;
         protected Hra _gameType;
         protected Hand[] _hands; 
         public int MyIndex { get; set; }
@@ -25,7 +25,7 @@ namespace Mariasek.Engine.New
         public int TeamMateIndex { get; set; }
         public int RoundNumber { get; set; }
 
-        public AiStrategyBase(Barva trump, Hra gameType, Hand[] hands)
+        public AiStrategyBase(Barva? trump, Hra gameType, Hand[] hands)
         {
             _trump = trump;
             _hands = hands;

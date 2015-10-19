@@ -105,8 +105,14 @@ namespace Mariasek.Engine.New
             return _hand.Where(predicate);
         }
 
+        public IEnumerable<IGrouping<TKey, Card>> GroupBy<TKey>(Func<Card, TKey> predicate)
+        {
+            return _hand.GroupBy<Card, TKey>(predicate);
+        }
+
         public bool Any(Func<Card, bool> predicate)
         {
+            var x = _hand.GroupBy(g => g.Suit);
             return _hand.Any(predicate);
         }
 
@@ -118,6 +124,28 @@ namespace Mariasek.Engine.New
         public int Count(Func<Card, bool> predicate)
         {
             return _hand.Count(predicate);
+        }
+
+        public Hodnota Min(Barva suit, Barva? trump)
+        {
+            var cards = _hand.Where(c => c.Suit == suit);
+
+            if(cards.Any())
+            {
+                return cards.Aggregate((i, j) => i.IsHigherThan(j, trump) ? j : i).Value;
+            }
+            return (Hodnota)(int.MaxValue);
+        }
+
+        public Hodnota Max(Barva suit, Barva? trump)
+        {
+            var cards = _hand.Where(c => c.Suit == suit);
+
+            if (cards.Any())
+            {
+                return cards.Aggregate((i, j) => i.IsHigherThan(j, trump) ? i : j).Value;
+            }
+            return (Hodnota)(int.MinValue);
         }
 
         public Card First(Func<Card, bool> predicate)

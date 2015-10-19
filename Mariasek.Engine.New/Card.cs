@@ -101,18 +101,38 @@ namespace Mariasek.Engine.New
             return string.Format("{0} {1}", Value, Suit);
         }
 
-        public bool IsHigherThan(Card second, Barva trump)
+        public bool IsHigherThan(Card second, Barva? trump)
         {
             if (Suit != second.Suit)
             {
                 //nepriznana barva. Je to trumf?
-                return second.Suit != trump;
+                return !trump.HasValue || second.Suit != trump.Value;
             }         
             else
             {
                 //priznana barva, je vetsi nez prvni?
-                return Value > second.Value;
+                if (trump != null || (Value != Hodnota.Desitka && second.Value != Hodnota.Desitka))
+                {
+                    return Value > second.Value;
+                }
+                else
+                {
+                    //betl nebo durch, porovnavam desitku
+                    if (Value == Hodnota.Desitka)
+                    {
+                        return Hodnota.Devitka >= second.Value;
+                    }
+                    else //second.Value == Hodnota.Desitka
+                    {
+                        return Value > Hodnota.Devitka;
+                    }
+                }
             }
+        }
+
+        public bool IsLowerThan(Card second, Barva? trump)
+        {
+            return !IsHigherThan(second, trump);
         }
 
         public static Card HigherCard(Card first, Card second, Barva trump)

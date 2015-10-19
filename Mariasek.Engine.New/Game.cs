@@ -463,6 +463,10 @@ namespace Mariasek.Engine.New
                     roundWinner = r.PlayRound();
 
                     OnRoundFinished(r);
+                    if(CanStopPlaying(r))
+                    {
+                        break;
+                    }
                 }
 
                 //zakonceni hry
@@ -509,6 +513,10 @@ namespace Mariasek.Engine.New
             var deck = new List<Card>();
             foreach (var r in rounds)
             {
+                if(r == null)
+                {
+                    break;
+                }
                 if (!r.hlas1)
                 {
                     deck.Insert(0, r.c1);
@@ -526,6 +534,10 @@ namespace Mariasek.Engine.New
             {
                 foreach (var r in rounds)
                 {
+                    if (r == null)
+                    {
+                        break;
+                    }
                     if (r.hlas1 && r.player1 == player)
                     {
                         deck.Insert(0, r.c1);
@@ -539,6 +551,7 @@ namespace Mariasek.Engine.New
                         deck.Insert(0, r.c3);
                     }
                 }
+                deck.InsertRange(0, player.Hand);
             }
             deck.InsertRange(0, talon);
 
@@ -555,16 +568,25 @@ namespace Mariasek.Engine.New
 
         #region Private methods
 
+        private bool CanStopPlaying(Round r)
+        {
+            if ((GameType == Hra.Betl && r.roundWinner == GameStartingPlayer) ||
+                (GameType == Hra.Durch && r.roundWinner != GameStartingPlayer))
+            {
+                return true;
+            }
+            return false;
+        }
 
         private void ChooseGame()
         {
             var trumpCard = GameStartingPlayer.ChooseTrump();
             GameStartingPlayer.Hand.Sort();
 
-            if (trumpCard == null)
-            {
-                throw new NotImplementedException("Betl a durch nejsou implementovany");
-            }
+            //if (trumpCard == null)
+            //{
+            //    throw new NotImplementedException("Betl a durch nejsou implementovany");
+            //}
             trump = trumpCard.Suit;
             talon = GameStartingPlayer.ChooseTalon();
             GameStartingPlayer.Hand.Remove(talon[0]);

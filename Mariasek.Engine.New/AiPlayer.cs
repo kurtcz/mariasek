@@ -107,10 +107,21 @@ namespace Mariasek.Engine.New
             return card;
         }
 
-        public override List<Card> ChooseTalon()
+        private List<Card> ChooseBetlTalon()
+        {
+            throw new NotImplementedException();
+        }
+
+        private List<Card> ChooseDurchTalon()
+        {
+            throw new NotImplementedException();
+        }
+
+        private List<Card> ChooseNormalTalon()
         {
             //TODO: promyslet poradne jak na to (v kombinaci s hlasy apod.)
             var talon = new List<Card>();
+
             //nejdriv zkus vzit karty v barve kde krom esa nemam nic jineho (neber krale ani svrska)
             var b = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                         .Where(barva => barva != _g.trump &&
@@ -153,7 +164,20 @@ namespace Mariasek.Engine.New
                 }
             }
 
+            return talon;
+        }
+
+        public override List<Card> ChooseTalon()
+        {
+            var talon = ChooseNormalTalon();
+            var btalon = ChooseBetlTalon();
+            var dtalon = ChooseDurchTalon();
+
+            //TODO: sjet simulaci betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
+            //Zapamatovat si vysledek a pouzit ho v ChooseGameFlavour() a ChooseGameType()
+
             _talon = new List<Card>(talon);
+
             _log.DebugFormat("Talon chosen: {0} {1}", talon[0], talon[1]);
             return talon;
         }
@@ -753,7 +777,7 @@ namespace Mariasek.Engine.New
             }
 
             if (TeamMateIndex == player3 &&
-                !first.IsHigherThan(validCards.First(), _g.trump) &&
+                first.IsLowerThan(validCards.First(), _g.trump) &&
                 validCards.Any(c => c.Value == Hodnota.Desitka))
             {
                 //: -co

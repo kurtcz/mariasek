@@ -124,7 +124,21 @@ namespace Mariasek.Engine.New
             }
             else //bad game
             {
-                throw new NotImplementedException();
+                foreach(var r in g.rounds)
+                {
+                    if (r == null)
+                    { 
+                        break; 
+                    }
+                    if(g.GameType == Hra.Betl)
+                    {
+                        BetlWon = r.roundWinner != g.GameStartingPlayer;
+                    }
+                    else
+                    {
+                        DurchWon = r.roundWinner == g.GameStartingPlayer;
+                    }
+                }
             }
             MoneyWon = new int[Game.NumPlayers];
         }

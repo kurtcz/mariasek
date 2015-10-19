@@ -68,18 +68,18 @@ namespace Mariasek.Engine.New
             
         }
 
-        private static Renonc IsCardValid(List<Card> hand, Barva trump, Hra gameType, int teamMateIndex, Card c)
+        private static Renonc IsCardValid(List<Card> hand, Barva? trump, Hra gameType, int teamMateIndex, Card c)
         {
             //Hrali jsme krale kdyz mame v ruce hlasku?
-            if (c.Value == Hodnota.Kral && hand.HasQ(c.Suit))
+            if (c.Value == Hodnota.Kral && hand.HasQ(c.Suit) && (gameType & (Hra.Betl | Hra.Durch)) == 0)
             {
                 return Renonc.HrajSvrska;
             }
             else if (teamMateIndex == -1 &&
                      (gameType & Hra.Sedma) != 0 &&
                      c.Value == Hodnota.Sedma &&
-                     c.Suit == trump &&
-                     hand.HasAtLeastNCardsOfSuit(trump, 2))
+                     c.Suit == trump.Value &&
+                     hand.HasAtLeastNCardsOfSuit(trump.Value, 2))
             {
                 return Renonc.NehrajSedmu;
             }
@@ -89,18 +89,20 @@ namespace Mariasek.Engine.New
             }
         }
 
-        private static Renonc IsCardValid(List<Card> hand, Barva trump, Hra gameType, int teamMateIndex, Card c, Card first)
+        private static Renonc IsCardValid(List<Card> hand, Barva? trump, Hra gameType, int teamMateIndex, Card c, Card first)
         {
             //priznana barva
             if (c.Suit == first.Suit)
             {
                 //sli jsme vejs - ok
-                if (c.Value > first.Value)
+                //if (c.Value > first.Value)
+                if(first.IsLowerThan(c, trump))
                 {
                     return IsCardValid(hand, trump, gameType, teamMateIndex, c);
                 }
                 //sli jsme niz: nemame v ruce vyssi v barve?
-                if (hand.Exists(i => i.Suit == first.Suit && i.Value > first.Value))
+                //if (hand.Exists(i => i.Suit == first.Suit && i.Value > first.Value))
+                if (hand.Exists(i => i.Suit == first.Suit && first.IsLowerThan(i, trump)))
                 {
                     return Renonc.JdiVejs;
                 }
@@ -123,7 +125,7 @@ namespace Mariasek.Engine.New
                 }
 
                 //nehrali jsme trumf. Nemame ho v ruce?
-                if (hand.HasSuit(trump))
+                if (trump.HasValue && hand.HasSuit(trump.Value))
                 {
                     return Renonc.HrajTrumf;
                 }
@@ -134,7 +136,7 @@ namespace Mariasek.Engine.New
             }
         }
 
-        private static Renonc IsCardValid(List<Card> hand, Barva trump, Hra gameType, int teamMateIndex, Card c, Card first, Card second)
+        private static Renonc IsCardValid(List<Card> hand, Barva? trump, Hra gameType, int teamMateIndex, Card c, Card first, Card second)
         {
             //porovnej kartu s tou nejvyssi hranou v tomhle kole
             if (first.IsHigherThan(second, trump))
@@ -176,7 +178,7 @@ namespace Mariasek.Engine.New
                         {
                             return Renonc.PriznejBarvu;
                         }
-                        else if (hand.HasSuit(trump))
+                        else if (trump.HasValue && hand.HasSuit(trump.Value))
                         {
                             return Renonc.HrajTrumf;
                         }
@@ -191,30 +193,33 @@ namespace Mariasek.Engine.New
 
         protected Renonc IsCardValid(Card c)
         {
-            return IsCardValid(Hand, _g.trump, _g.GameType, TeamMateIndex, c);
+            var trump = (_g.GameType & (Hra.Betl | Hra.Durch)) == 0 ? _g.trump : (Barva?)null;
+            return IsCardValid(Hand, trump, _g.GameType, TeamMateIndex, c);
         }
 
         protected Renonc IsCardValid(Card c, Card first)
         {
-            return IsCardValid(Hand, _g.trump, _g.GameType, TeamMateIndex, c, first);
+            var trump = (_g.GameType & (Hra.Betl | Hra.Durch)) == 0 ? _g.trump : (Barva?)null;
+            return IsCardValid(Hand, trump, _g.GameType, TeamMateIndex, c, first);
         }
 
         protected Renonc IsCardValid(Card c, Card first, Card second)
         {
-            return IsCardValid(Hand, _g.trump, _g.GameType, TeamMateIndex, c, first, second);
+            var trump = (_g.GameType & (Hra.Betl | Hra.Durch)) == 0 ? _g.trump : (Barva?)null;
+            return IsCardValid(Hand, trump, _g.GameType, TeamMateIndex, c, first, second);
         }
 
-        public static List<Card> ValidCards(List<Card> hand, Barva trump, Hra gameType, int teamMateIndex)
+        public static List<Card> ValidCards(List<Card> hand, Barva? trump, Hra gameType, int teamMateIndex)
         {
             return hand.Where(c => IsCardValid(hand, trump, gameType, teamMateIndex, c) == Renonc.Ok).ToList();
         }
 
-        public static List<Card> ValidCards(List<Card> hand, Barva trump, Hra gameType, int teamMateIndex, Card first)
+        public static List<Card> ValidCards(List<Card> hand, Barva? trump, Hra gameType, int teamMateIndex, Card first)
         {
             return hand.Where(c => IsCardValid(hand, trump, gameType, teamMateIndex, c, first) == Renonc.Ok).ToList();
         }
 
-        public static List<Card> ValidCards(List<Card> hand, Barva trump, Hra gameType, int teamMateIndex, Card first, Card second)
+        public static List<Card> ValidCards(List<Card> hand, Barva? trump, Hra gameType, int teamMateIndex, Card first, Card second)
         {
             return hand.Where(c => IsCardValid(hand, trump, gameType, teamMateIndex, c, first, second) == Renonc.Ok).ToList();
         }
