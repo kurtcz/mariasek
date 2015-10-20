@@ -153,7 +153,7 @@ namespace Mariasek.Engine.New
                 //v prvnim kole muzou souperi hlasit 100/7 proti
                 if (j < Game.NumPlayers && _g.players[i].TeamMateIndex != -1)
                 {
-                    if (_g.players[i].Hand.Contains(new Card(_g.trump, Hodnota.Sedma)))
+                    if (_g.players[i].Hand.Contains(new Card(_g.trump.Value, Hodnota.Sedma)))
                     {
                         Bids |= Hra.SedmaProti;
                     }
@@ -186,24 +186,24 @@ namespace Mariasek.Engine.New
                     if ((_g.GameType & Hra.Hra) != 0 &&
                         (_g.GameType & Hra.Sedma) != 0)
                     {
-                        e.Description = string.Format("Sedma {0}", _g.trump.Description());
+                        e.Description = string.Format("Sedma {0}", _g.trump.Value.Description());
                     }
                     else if ((_g.GameType & Hra.Kilo) != 0 &&
                                 (_g.GameType & Hra.Sedma) != 0)
                     {
-                        e.Description = string.Format("Stosedm {0}", _g.trump.Description());
+                        e.Description = string.Format("Stosedm {0}", _g.trump.Value.Description());
                     }
                     else if ((_g.GameType & Hra.Kilo) != 0)
                     {
-                        e.Description = string.Format("Kilo {0}", _g.trump.Description());
+                        e.Description = string.Format("Kilo {0}", _g.trump.Value.Description());
                     }
                     else if ((_g.GameType & Hra.Sedma) != 0)
                     {
-                        e.Description = string.Format("Sedma {0}", _g.trump.Description());
+                        e.Description = string.Format("Sedma {0}", _g.trump.Value.Description());
                     }
                     else if ((_g.GameType & Hra.Hra) != 0)
                     {
-                        e.Description = string.Format("Hra {0}", _g.trump.Description());
+                        e.Description = string.Format("Hra {0}", _g.trump.Value.Description());
                     }
                     else if ((_g.GameType & Hra.Betl) != 0)
                     {

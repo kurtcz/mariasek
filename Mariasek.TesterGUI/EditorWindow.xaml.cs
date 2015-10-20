@@ -179,7 +179,7 @@ namespace Mariasek.TesterGUI
                 {
                     RoundStarterComboBox.SelectedIndex = 0;
                 }
-                TrumpComboBox.SelectedIndex = (int)g.trump;
+                TrumpComboBox.SelectedIndex = (int)g.trump.Value;
             }                        
         }
 

@@ -20,19 +20,19 @@ namespace Mariasek.Engine.New
 
         public override List<Card> ChooseTalon()
         {
-            var talon = Hand.Where(i => i.Suit != _g.trump &&
+            var talon = Hand.Where(i => i.Suit != _g.trump.Value &&
                                    i.Value < Hodnota.Svrsek)
                             .Take(2)
                             .ToList();
             if (talon.Count < 2)
             {
-                talon.AddRange(Hand.Where(i => i.Suit != _g.trump &&
+                talon.AddRange(Hand.Where(i => i.Suit != _g.trump.Value &&
                                        i.Value < Hodnota.Desitka)
                                    .Take(2 - talon.Count)
                                    .ToList());
                 if (talon.Count < 2)
                 {
-                    talon.AddRange(Hand.Where(i => i.Suit != _g.trump)
+                    talon.AddRange(Hand.Where(i => i.Suit != _g.trump.Value)
                                        .Take(2 - talon.Count)
                                        .ToList());
                 }

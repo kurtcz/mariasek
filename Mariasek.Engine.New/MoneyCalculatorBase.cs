@@ -103,17 +103,17 @@ namespace Mariasek.Engine.New
                 FinalCardWon = finalRound.roundWinner == g.GameStartingPlayer;
 
                 SevenWon = FinalCardWon &&
-                           lastWinningCard.Suit == g.trump &&
+                           lastWinningCard.Suit == g.trump.Value &&
                            lastWinningCard.Value == Hodnota.Sedma;
 
                 SevenAgainstWon = !FinalCardWon &&
-                                  lastWinningCard.Suit == g.trump &&
+                                  lastWinningCard.Suit == g.trump.Value &&
                                   lastWinningCard.Value == Hodnota.Sedma;
 
                 var gameStarterLastCard = GetGameStarterLastCard(finalRound, g.GameStartingPlayer);
 
                 KilledSeven = finalRound.roundWinner != g.GameStartingPlayer &&
-                              gameStarterLastCard.Suit == g.trump &&
+                              gameStarterLastCard.Suit == g.trump.Value &&
                               gameStarterLastCard.Value == Hodnota.Sedma;
 
                 QuietHundredWon = PointsWon >= 100;

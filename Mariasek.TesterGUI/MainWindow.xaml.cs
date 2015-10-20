@@ -526,7 +526,7 @@ namespace Mariasek.TesterGUI
             sb.AppendFormat("{0} {1} hru ({2} {3}). Skóre {4}:{5}",
                 g.GameStartingPlayer.Name,
                 g.Results.GameWon ? "vyhrál" : "prohrál",
-                g.GameType, g.trump, g.Results.PointsWon, g.Results.PointsLost);
+                g.GameType, g.trump.HasValue ? g.trump.Value.Description() : "", g.Results.PointsWon, g.Results.PointsLost);
             if ((g.GameType & Hra.Sedma) != 0)
             {
                 sb.AppendFormat("\n{0} {1} sedmu.", g.GameStartingPlayer.Name,
@@ -705,7 +705,7 @@ namespace Mariasek.TesterGUI
                     var imgSrcConverter = new ImageSourceConverter();
                     imgs[e.GameStartingPlayerIndex].SetValue(Image.SourceProperty, imgSrcConverter.ConvertFromString(source) as ImageSource);
                 }
-                lblTrump.Content = string.Format("{0}: {1} {2}", g.GameStartingPlayer.Name, g.GameType, g.trump.Description());
+                lblTrump.Content = string.Format("{0}: {1} {2}", g.GameStartingPlayer.Name, g.GameType, g.trump.HasValue? g.trump.Value.Description() : "");
             }, null);
         }
 
@@ -850,7 +850,7 @@ namespace Mariasek.TesterGUI
                         g.RoundStarted += RoundStarted;
                         g.RoundFinished += RoundFinished;
                         g.GameFinished += GameFinished;
-                        lblTrump.Content = string.Format("{0} {1}", g.GameType, g.trump.Description());
+                        lblTrump.Content = string.Format("{0} {1}", g.GameType, g.trump.HasValue ? g.trump.Value.Description() : "");
                         if (g.RoundNumber > 0)
                         {
                             UpdateHands();

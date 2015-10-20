@@ -84,7 +84,7 @@ namespace Mariasek.TesterGUI
             }
             else
             {
-                Probabilities.UpdateProbabilities(r.number, r.player1.PlayerIndex, r.c1, r.hlas1, _g.trump);
+                Probabilities.UpdateProbabilities(r.number, r.player1.PlayerIndex, r.c1, r.hlas1);
             }
         }
     }

@@ -21,12 +21,12 @@ namespace Mariasek.Engine.New
         
         private int _myIndex;
         private int _gameStarterIndex;
-        private Barva _trump;
+        private Barva? _trump;
         private readonly Dictionary<Barva, Dictionary<Hodnota, float>>[] _cardProbabilityForPlayer;
         //private static Random r = new Random();
         private static RandomMT mt = new RandomMT((ulong)(DateTime.Now - DateTime.MinValue).TotalMilliseconds);
 
-        public Probability(int myIndex, int gameStarterIndex, Hand myHand, Barva trump, List<Card> talon = null)
+        public Probability(int myIndex, int gameStarterIndex, Hand myHand, Barva? trump, List<Card> talon = null)
         {
             _myIndex = myIndex;
             _gameStarterIndex = gameStarterIndex;
@@ -55,7 +55,7 @@ namespace Mariasek.Engine.New
                         }
                         else
                         {
-                            if (i == 3 && (h == Hodnota.Eso || h == Hodnota.Desitka || b == trump))
+                            if (i == 3 && (h == Hodnota.Eso || h == Hodnota.Desitka || (trump.HasValue && b == trump.Value)))
                             {
                                 //karty co nemohou byt v talonu
                                 _cardProbabilityForPlayer[i][b].Add(h, 0f);
@@ -69,13 +69,13 @@ namespace Mariasek.Engine.New
                     }
                 }
             }
-            UpdateUncertainCardsProbability(0, trump);
+            UpdateUncertainCardsProbability(0);
         }
 
         /// <summary>
         /// Changes the probability of uncertain cards from 0.5 to the actual probability
         /// </summary>
-        private void UpdateUncertainCardsProbability(int roundNumber, Barva? trump = null) //trumfy jsou kvuli talonu a staci pouze poprve
+        private void UpdateUncertainCardsProbability(int roundNumber)
         {
             var uncertainCardNumbers = new int[Game.NumPlayers + 1];
             var certainCardNumbers = new int[Game.NumPlayers + 1];
@@ -87,9 +87,6 @@ namespace Mariasek.Engine.New
                 certainCardNumbers[i] = _cardProbabilityForPlayer[i].SelectMany(b => b.Value.Where(c => c.Value == 1f)).Count();
                 uncertainCardNumbers[i] = _cardProbabilityForPlayer[i].SelectMany(b => b.Value.Where(c => c.Value > 0f && c.Value < 1f)).Count();
             }
-
-            //var totalUncertainCards = uncertainCardNumbers.Sum(n => n);
-            //var totalUncertainAXCards = _cardProbabilityForPlayer.SelectMany(i => i.SelectMany(b => b.Value.Where(c => c.Value > 0f && c.Value < 1f))).Count();
 
             for (var i = 0; i < Game.NumPlayers + 1; i++)
             {
@@ -113,15 +110,6 @@ namespace Mariasek.Engine.New
                             }
                         }
                         _cardProbabilityForPlayer[i][b][h] = (float)uncertainCardNumbers[i] / totalUncertainCards;
-                        /*if (h == Hodnota.Eso || h == Hodnota.Desitka || (trump.HasValue && b == trump.Value))
-                        {
-                            //v talonu nemuzou byt desitky a esa
-                            _cardProbabilityForPlayer[i][b][h] = (float)uncertainCardNumbers[i] / (totalUncertainCards - uncertainCardNumbers[3]);
-                        }
-                        else
-                        {
-                            _cardProbabilityForPlayer[i][b][h] = (float)uncertainCardNumbers[i] / totalUncertainCards;
-                        }*/
                     }
                 }
             }
@@ -238,7 +226,7 @@ namespace Mariasek.Engine.New
                         reduced = true;
                     }
                 }
-                //opkuju tak dlouho dokud odebirame
+                //opakuju tak dlouho dokud odebirame
                 if (!reduced)
                 {
                     break;
@@ -427,7 +415,7 @@ namespace Mariasek.Engine.New
             }
         }
 
-        public void UpdateProbabilities(int roundNumber, int roundStarterIndex, Card c1, bool hlas1, Barva trump)
+        public void UpdateProbabilities(int roundNumber, int roundStarterIndex, Card c1, bool hlas1)
         {
             for (var i = 0; i < Game.NumPlayers + 1; i++)
             {
@@ -440,7 +428,7 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Kral] = 0f;
             }
             ReduceUcertainCardSet();
-            UpdateUncertainCardsProbability(roundNumber, trump);
+            UpdateUncertainCardsProbability(roundNumber);
         }
 
         public void UpdateProbabilities(int roundNumber, int roundStarterIndex, Card c1, Card c2, bool hlas2)
@@ -456,7 +444,7 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c2.Suit][Hodnota.Kral] = 0f;
             }
             //ReduceUcertainCardSet();
-            if (c2.Suit != c1.Suit || c2.Value < c1.Value)
+            if (c2.Suit != c1.Suit || c2.IsLowerThan(c1, _trump))
             {
                 if (c2.Suit == c1.Suit)
                 {
@@ -465,9 +453,9 @@ namespace Mariasek.Engine.New
                 else
                 {
                     SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 1) % Game.NumPlayers, new Card(c1.Suit, Hodnota.Sedma));
-                    if (c2.Suit != _trump)
+                    if (_trump.HasValue && c2.Suit != _trump.Value)
                     {
-                        SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 1) % Game.NumPlayers, new Card(_trump, Hodnota.Sedma));
+                        SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 1) % Game.NumPlayers, new Card(_trump.Value, Hodnota.Sedma));
                     }
                 }
             }
@@ -489,14 +477,14 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Kral] = 1f;
             }
             ReduceUcertainCardSet();
-            if (c2.Suit != c1.Suit || c2.Value < c1.Value)
+            if (c2.Suit != c1.Suit || c2.IsLowerThan(c1, _trump))
             {
                 //druhy hrac nepriznal barvu nebo nesel vejs
-                if (c3.Suit != c1.Suit || c3.Value < c1.Value)
+                if (c3.Suit != c1.Suit || c3.IsLowerThan(c1, _trump))
                 {
                     if (c3.Suit == c1.Suit)
                     {
-                        if (c2.Suit != _trump)
+                        if (_trump.HasValue && c2.Suit != _trump.Value)
                         {
                             //druhy hrac nehral trumf a treti hrac nesel vejs
                             SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 2) % Game.NumPlayers, c1);
@@ -506,12 +494,12 @@ namespace Mariasek.Engine.New
                     {
                         //treti hrac nepriznal barvu
                         SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 2) % Game.NumPlayers, new Card(c1.Suit, Hodnota.Sedma));
-                        if (c3.Suit != _trump)
+                        if (_trump.HasValue && c3.Suit != _trump.Value)
                         {
                             //a navic nehral trumfem
-                            SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 2) % Game.NumPlayers, new Card(_trump, Hodnota.Sedma));
+                            SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 2) % Game.NumPlayers, new Card(_trump.Value, Hodnota.Sedma));
                         }
-                        else if (c2.Suit == _trump && c3.Value < c2.Value)
+                        else if (c2.Suit == _trump && c3.IsLowerThan(c2, _trump))
                         {
                             //druhy i treti hrac hrali trumfem ale treti hrac hral mensim trumfem nez druhy hrac
                             SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 2) % Game.NumPlayers, c2);
@@ -522,7 +510,7 @@ namespace Mariasek.Engine.New
             else
             {
                 //druhy hrac priznal barvu a sel vejs
-                if (c3.Suit != c2.Suit || c3.Value < c2.Value)
+                if (c3.Suit != c2.Suit || c3.IsLowerThan(c2, _trump))
                 {
                     if (c3.Suit == c2.Suit)
                     {
@@ -531,9 +519,9 @@ namespace Mariasek.Engine.New
                     else
                     {
                         SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 2) % Game.NumPlayers, new Card(c1.Suit, Hodnota.Sedma));
-                        if (c3.Suit != _trump)
+                        if (_trump.HasValue && c3.Suit != _trump.Value)
                         {
-                            SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 2) % Game.NumPlayers, new Card(_trump, Hodnota.Sedma));
+                            SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 2) % Game.NumPlayers, new Card(_trump.Value, Hodnota.Sedma));
                         }
                     }
                 }

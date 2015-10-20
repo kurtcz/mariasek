@@ -109,8 +109,7 @@ namespace Mariasek.Engine.New
 
         private void CalculateRoundScore()
         {
-            var trump = (_g.GameType & (Hra.Betl | Hra.Durch)) == 0 ? _g.trump : (Barva?)null;
-            var winningCard = Round.WinningCard(c1, c2, c3, trump);
+            var winningCard = Round.WinningCard(c1, c2, c3, _g.trump);
 
             if (winningCard == c1)
             {
@@ -132,9 +131,9 @@ namespace Mariasek.Engine.New
             basicPoints2 = points2;
             basicPoints3 = points3;
 
-            points1 += hlas1 ? (c1.Suit == _g.trump ? 40 : 20) : 0;
-            points2 += hlas2 ? (c2.Suit == _g.trump ? 40 : 20) : 0;
-            points3 += hlas3 ? (c3.Suit == _g.trump ? 40 : 20) : 0;
+            points1 += hlas1 ? (c1.Suit == _g.trump.Value ? 40 : 20) : 0;
+            points2 += hlas2 ? (c2.Suit == _g.trump.Value ? 40 : 20) : 0;
+            points3 += hlas3 ? (c3.Suit == _g.trump.Value ? 40 : 20) : 0;
         }
 
         public static Card WinningCard(Card c1, Card c2, Card c3, Barva? trump)

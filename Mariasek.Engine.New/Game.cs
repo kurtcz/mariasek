@@ -44,7 +44,7 @@ namespace Mariasek.Engine.New
 
         public bool SkipBidding { get; set; }
         public Hra GameType { get; private set; }
-        public Barva trump { get; private set; }
+        public Barva? trump { get; private set; }
         public List<Card> talon { get; private set; }
         public Round[] rounds { get; private set; }
         public Round CurrentRound { get { return RoundNumber > 0  && RoundNumber <= 10 ? rounds[RoundNumber - 1] : null; } }
@@ -272,10 +272,7 @@ namespace Mariasek.Engine.New
                 var gameData = (GameDto)serializer.Deserialize(fileStream);
 
                 RoundNumber = 0;
-                if (gameData.Trumf.HasValue)
-                {
-                    trump = gameData.Trumf.Value;
-                }
+                trump = gameData.Trumf;
                 if (gameData.Typ.HasValue)
                 {
                     GameType = gameData.Typ.Value;
@@ -340,7 +337,7 @@ namespace Mariasek.Engine.New
             {
                 Kolo = CurrentRound != null ? RoundNumber + 1 : 0,
                 Voli = (Hrac) GameStartingPlayerIndex,
-                Trumf = RoundNumber > 0 ? (Barva?) trump : null,
+                Trumf = RoundNumber > 0 ? trump : null,
                 Typ = RoundNumber > 0 ? (Hra?) GameType : null,
                 Zacina = (Hrac) (CurrentRound != null ? CurrentRound.roundWinner.PlayerIndex : GameStartingPlayerIndex),
                 Hrac1 = players[0].Hand
