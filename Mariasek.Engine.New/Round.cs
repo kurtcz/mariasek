@@ -82,21 +82,21 @@ namespace Mariasek.Engine.New
         {
             //musim nejak overit, ze karty jsou validni a pokud ne tak to hraci oznamit a akci opakovat
             c1 = player1.PlayCard(this);
-            hlas1 = c1.Value == Hodnota.Svrsek && player1.Hand.HasK(c1.Suit);
+            hlas1 = _g.trump.HasValue && c1.Value == Hodnota.Svrsek && player1.Hand.HasK(c1.Suit);
             if (hlas1) player1.Hlasy++;
             player1.Hand.Remove(c1);
             _g.ThrowIfCancellationRequested();
             _g.OnCardPlayed(this);
             
             c2 = player2.PlayCard(this);
-            hlas2 = c2.Value == Hodnota.Svrsek && player2.Hand.HasK(c2.Suit);
+            hlas2 = _g.trump.HasValue && c2.Value == Hodnota.Svrsek && player2.Hand.HasK(c2.Suit);
             if (hlas2) player2.Hlasy++;
             player2.Hand.Remove(c2);
             _g.ThrowIfCancellationRequested(); 
             _g.OnCardPlayed(this);
             
             c3 = player3.PlayCard(this);
-            hlas3 = c3.Value == Hodnota.Svrsek && player3.Hand.HasK(c3.Suit);
+            hlas3 = _g.trump.HasValue && c3.Value == Hodnota.Svrsek && player3.Hand.HasK(c3.Suit);
             if (hlas3) player3.Hlasy++;
             player3.Hand.Remove(c3);
             _g.ThrowIfCancellationRequested(); 
@@ -131,9 +131,12 @@ namespace Mariasek.Engine.New
             basicPoints2 = points2;
             basicPoints3 = points3;
 
-            points1 += hlas1 ? (c1.Suit == _g.trump.Value ? 40 : 20) : 0;
-            points2 += hlas2 ? (c2.Suit == _g.trump.Value ? 40 : 20) : 0;
-            points3 += hlas3 ? (c3.Suit == _g.trump.Value ? 40 : 20) : 0;
+            if (_g.trump.HasValue)
+            {
+                points1 += hlas1 ? (c1.Suit == _g.trump.Value ? 40 : 20) : 0;
+                points2 += hlas2 ? (c2.Suit == _g.trump.Value ? 40 : 20) : 0;
+                points3 += hlas3 ? (c3.Suit == _g.trump.Value ? 40 : 20) : 0;
+            }
         }
 
         public static Card WinningCard(Card c1, Card c2, Card c3, Barva? trump)

@@ -149,11 +149,11 @@ namespace Mariasek.Engine.New
             {
                 if ((_gameType & Hra.Betl) != 0)
                 {
-                    money = BetlValue * _bidding.BetlDurchMultiplier;
+                    money = BetlValue * _bidding.BetlDurchMultiplier * (BetlWon ? 1 : -1);
                 }
                 else
                 {
-                    money = DurchValue * _bidding.BetlDurchMultiplier;
+                    money = DurchValue * _bidding.BetlDurchMultiplier * (DurchWon ? 1 : -1);
                 }
             }
 

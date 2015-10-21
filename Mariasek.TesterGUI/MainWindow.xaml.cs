@@ -523,10 +523,20 @@ namespace Mariasek.TesterGUI
             var sb = new StringBuilder();
             var baseBet = AppSettings.GetFloat("BaseBet", 1f);
 
-            sb.AppendFormat("{0} {1} hru ({2} {3}). Skóre {4}:{5}",
-                g.GameStartingPlayer.Name,
-                g.Results.GameWon ? "vyhrál" : "prohrál",
-                g.GameType, g.trump.HasValue ? g.trump.Value.Description() : "", g.Results.PointsWon, g.Results.PointsLost);
+            if (!g.trump.HasValue)
+            {
+                sb.AppendFormat("{0} {1} {2}.",
+                    g.GameStartingPlayer.Name,
+                    (((g.GameType & Hra.Betl) != 0 && g.Results.BetlWon) || g.Results.DurchWon) ? "vyhrál" : "prohrál",
+                    g.GameType);
+            }
+            else
+            {
+                sb.AppendFormat("{0} {1} hru ({2} {3}). Skóre {4}:{5}",
+                    g.GameStartingPlayer.Name,
+                    g.Results.GameWon ? "vyhrál" : "prohrál",
+                    g.GameType, g.trump.Value.Description(), g.Results.PointsWon, g.Results.PointsLost);
+            }
             if ((g.GameType & Hra.Sedma) != 0)
             {
                 sb.AppendFormat("\n{0} {1} sedmu.", g.GameStartingPlayer.Name,
@@ -717,7 +727,10 @@ namespace Mariasek.TesterGUI
 
         private void CardPlayed(object sender, Round r)
         {
-            ShowThinkingMessage();
+            if(r.number < 10 || r.c3 == null)
+            {
+                ShowThinkingMessage();
+            }
             g.ThrowIfCancellationRequested();
             _synchronizationContext.Send(_ =>
             {
@@ -748,13 +761,14 @@ namespace Mariasek.TesterGUI
 
         private void RoundFinished(object sender, Round r)
         {
+            if (r.number == 10)
+            {
+                return;
+            }
             g.ThrowIfCancellationRequested();
             _synchronizationContext.Send(_ =>
             {
-                if (r.number < 10)
-                {
-                    ShowMsgLabel("Klikni na libovolnou kartu", false);
-                }
+                ShowMsgLabel("Klikni na libovolnou kartu", false);
                 _state = GameState.RoundFinished;
                 CanSaveGame = true;
                 CanRewind = true;

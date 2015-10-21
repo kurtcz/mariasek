@@ -134,6 +134,18 @@ namespace Mariasek.Engine.New
                     return cardsToPlay.FirstOrDefault();
                 }
             };
+
+            yield return new AiRule()
+            {
+                Order = 3,
+                Description = "hrat nejmensi kartu",
+                ChooseCard2 = (Card c1) =>
+                {
+                    var cardsToPlay = ValidCards(c1, hands[MyIndex]);
+
+                    return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                }
+            };
         }
 
         protected override IEnumerable<AiRule> GetRules3(Hand[] hands)
@@ -193,6 +205,18 @@ namespace Mariasek.Engine.New
                     }
 
                     return cardsToPlay.FirstOrDefault();
+                }
+            };
+
+            yield return new AiRule()
+            {
+                Order = 3,
+                Description = "hrat nejmensi kartu",
+                ChooseCard3 = (Card c1, Card c2) =>
+                {
+                    var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]);
+
+                    return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
                 }
             };
         }
