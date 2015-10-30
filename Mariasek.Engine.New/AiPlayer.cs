@@ -170,8 +170,8 @@ namespace Mariasek.Engine.New
         public override List<Card> ChooseTalon()
         {
             var talon = ChooseNormalTalon();
-            var btalon = ChooseBetlTalon();
-            var dtalon = ChooseDurchTalon();
+            //var btalon = ChooseBetlTalon();
+            //var dtalon = ChooseDurchTalon();
 
             //TODO: sjet simulaci betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
             //Zapamatovat si vysledek a pouzit ho v ChooseGameFlavour() a ChooseGameType()
@@ -184,25 +184,25 @@ namespace Mariasek.Engine.New
 
         public override GameFlavour ChooseGameFlavour()
         {
-            //TODO: rozhodnout kdy hrat betl a durch
+            //TODO: hrat normalni hry, betl nebo durch az na zaklade vysledku RunGameSimulations()
+            //TODO: ulozit si vysledek a v ChooseGameType uz nic nepocitat
             return GameFlavour.Good;
         }
 
+        //vola se jak pro voliciho hrace tak pro oponenty 
         private void RunGameSimulations(Bidding bidding)
         {
             //nasimuluj hry pro kazdeho vaznejsiho kandidata na trumfy (skore >= n)
             var cardScores = new Dictionary<Card, List<GameComputationResult>>();
 
-            //rozhodnout se kde delat inicializaci (asi driv pred vyberem typu hry)
-            //            if (Probabilities == null)
-            //{
             Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
-            //}
 
             _log.DebugFormat("Running game simulations for {0} ...", Name);
             for (int i = 0; i < Settings.SimulationsPerRound; i++)
             {
                 _hands = Probabilities.GenerateHands(1, PlayerIndex);
+                //TODO: nasimulovat i betl a durch
+                //TODO: vybrat talon podle trumfu/typu hry (ne nahodne)
                 var gameComputationResult = ComputeGame(null, null, _g.trump, Hra.Sedma, 10, 1);
 
                 if (cardScores.ContainsKey(gameComputationResult.CardToPlay))
@@ -264,6 +264,7 @@ namespace Mariasek.Engine.New
             }
         }
 
+        //vola se z enginu
         public override Hra ChooseGameType(Hra minimalBid = Hra.Hra)
         {
             //tohle je docasne dokud neumime betl a durch
@@ -271,7 +272,7 @@ namespace Mariasek.Engine.New
                 return minimalBid;
 
             var bidding = new Bidding(_g);
-            //TODO: do i need to initialize bidding to something?
+            
             RunGameSimulations(bidding);
 
             var gameType = _hundredsBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound
@@ -288,15 +289,9 @@ namespace Mariasek.Engine.New
 
         private int _numberOfDoubles = 0;
 
+        //V tehle funkci muzeme dat flek nebo hlasit protihru
         public override Hra GetBidsAndDoubles(Bidding bidding)
         {
-            //1x flekujeme hru, jinak mlcime
-//            if (_numberOfDoubles++ == 0)
-//            {
-//                return bidding.Bids & Hra.Hra;
-//            }
-//            return 0;
-
             var gameThreshold = Settings.GameThresholds[Math.Min(Settings.GameThresholds.Length - 1, _numberOfDoubles++)] / 100f;
 
             if (_moneyCalculations == null)
@@ -628,6 +623,13 @@ namespace Mariasek.Engine.New
                 player3 = PlayerIndex;
             }
 
+            if(!trump.HasValue || !gameType.HasValue || !initialRoundNumber.HasValue || !roundsToCompute.HasValue)
+            {
+                trump = _g.trump;
+                gameType = _g.GameType;
+                initialRoundNumber = _g.RoundNumber;
+                roundsToCompute = Settings.RoundsToCompute;
+            }
             //var aiStrategy = new AiStrategy(trump.HasValue ? trump.Value : _g.trump, gameType.HasValue ? gameType.Value : _g.GameType, _hands)
             //{
             //    MyIndex = PlayerIndex,
@@ -643,9 +645,7 @@ namespace Mariasek.Engine.New
             _log.TraceFormat("{0}: {1} cerveny, {2} zeleny, {3} kule, {4} zaludy", _g.players[player2].Name, _hands[player2].Count(i => i.Suit == Barva.Cerveny), _hands[player2].Count(i => i.Suit == Barva.Zeleny), _hands[player2].Count(i => i.Suit == Barva.Kule), _hands[player2].Count(i => i.Suit == Barva.Zaludy));
             _log.TraceFormat("{0}: {1} cerveny, {2} zeleny, {3} kule, {4} zaludy", _g.players[player3].Name, _hands[player3].Count(i => i.Suit == Barva.Cerveny), _hands[player3].Count(i => i.Suit == Barva.Zeleny), _hands[player3].Count(i => i.Suit == Barva.Kule), _hands[player3].Count(i => i.Suit == Barva.Zaludy));
             for (initialRoundNumber = aiStrategy.RoundNumber;
-                 aiStrategy.RoundNumber < initialRoundNumber + (roundsToCompute.HasValue
-                                                                ? roundsToCompute.Value
-                                                                : Settings.RoundsToCompute);
+                 aiStrategy.RoundNumber < initialRoundNumber + roundsToCompute;
                  aiStrategy.RoundNumber++)
             {
                 if (aiStrategy.RoundNumber > 10) break;

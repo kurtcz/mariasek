@@ -436,8 +436,8 @@ namespace Mariasek.Engine.New
                 if (RoundNumber == 0)
                 {
                     GameType = Hra.Hra; //docasne nastavena nejaka minimalni hra
-                    Bidding = new Bidding(this);
                     ChooseGame();
+                    Bidding = new Bidding(this);
                     if (!SkipBidding)
                     {
                         GameType = Bidding.StartBidding();

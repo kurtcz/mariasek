@@ -20,15 +20,7 @@ namespace Mariasek.Engine.New
 #else
         private static readonly ILog _log = new DummyLogWrapper();
 #endif   
-        //private Game _g;
-        private Barva _trump;
-        private Hra _gameType;
-        //private List<Card>[] _hands; 
-        private Hand[] _hands; 
-        public int MyIndex { get; set; }
-        public string MyName { get; set; }
-        public int TeamMateIndex { get; set; }
-        public int RoundNumber { get; set; }
+        private new Barva _trump { get { return base._trump.Value; } } //dirty
 
         public AiStrategy(Barva? trump, Hra gameType, Hand[] hands)
             :base(trump, gameType, hands)
