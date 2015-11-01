@@ -94,6 +94,12 @@ namespace Mariasek.Engine.New
             Update();
         }
 
+        public void AddRange(List<Card> list)
+        {
+            _hand.AddRange(list);
+            Update();
+        }
+
         public void Remove(Card c)
         {
             _hand.Remove(c);

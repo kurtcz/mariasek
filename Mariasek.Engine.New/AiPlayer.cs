@@ -19,7 +19,7 @@ namespace Mariasek.Engine.New
 #else
         private static readonly ILog _log = new DummyLogWrapper();
 #endif   
-
+        private Barva? _trump;
         private List<Card> _talon;
         private Hand[] _hands = new Hand[Game.NumPlayers];
         private List<AddingMoneyCalculator> _moneyCalculations;
@@ -28,6 +28,8 @@ namespace Mariasek.Engine.New
         private int _hundredsAgainstBalance;
         private int _sevensBalance;
         private int _sevensAgainstBalance;
+        private int _betlBalance;
+        private int _durchBalance;
  
         public Probability Probabilities { get; set; }
         public AiPlayerSettings Settings { get; set; }
@@ -103,34 +105,100 @@ namespace Mariasek.Engine.New
             var card = Hand.FirstOrDefault(i => i.Suit == trump && i.Value > Hodnota.Sedma && i.Value < Hodnota.Svrsek) ??
                        Hand.OrderBy(i => i.Value).FirstOrDefault(i => i.Suit == trump);
 
+            _trump = card.Suit;
             _log.DebugFormat("Trump chosen: {0}", card);
             return card;
         }
 
-        private List<Card> ChooseBetlTalon()
+        private List<Card> ChooseBetlTalon(List<Card> hand)
         {
-            throw new NotImplementedException();
+            var holesByCard = hand.Select(i => {
+                //pro kazdou kartu spocitej diry (mensi karty v barve ktere nemam)
+                var holes = 0;
+
+                foreach(var h in Enum.GetValues(typeof(Hodnota))
+                                     .Cast<Hodnota>()
+                                     .Where(h => i.IsHigherThan(new Card(i.Suit, h), null)))
+                {
+                    if(!hand.Any(j => j.Suit == i.Suit && j.Value == h))
+                    {
+                        holes++;
+                    }
+                }
+
+                return new Tuple<Barva, Card, int>(i.Suit, i, holes);
+            }).Where(i => i.Item3 > 0)
+              .GroupBy(i => i.Item1);
+            //radime podle poctu karet v barve vzestupne
+            //a potom podle poctu der sestupne
+            var talon = holesByCard.OrderBy(i => i.Count())
+                                   .ThenByDescending(i => i.Max(j => j.Item3))
+                                   .SelectMany(i => i.Select(j => j.Item2))
+                                   .Take(2)
+                                   .ToList();
+            var count = talon.Count();
+            
+            //pokud je potreba, doplnime o nejake nizke karty (abych zhorsil talon na durcha)
+            if(count < 2)
+            {
+                talon.AddRange(hand.OrderBy(i => i.Value).Take(2 - count));
+            }
+
+            return talon;
         }
 
-        private List<Card> ChooseDurchTalon()
+        private List<Card> ChooseDurchTalon(List<Card> hand)
         {
-            throw new NotImplementedException();
+            var holesByCard = hand.Select(i =>
+            {
+                //pro kazdou kartu spocitej diry (vetsi karty v barve ktere nemam)
+                var holes = 0;
+
+                foreach (var h in Enum.GetValues(typeof(Hodnota))
+                                     .Cast<Hodnota>()
+                                     .Where(h => i.IsLowerThan(new Card(i.Suit, h), null)))
+                {
+                    if (!hand.Any(j => j.Suit == i.Suit && j.Value == h))
+                    {
+                        holes++;
+                    }
+                }
+
+                return new Tuple<Card, int>(i, holes);
+            }).Where(i => i.Item2 > 0);
+
+            var talon = holesByCard.OrderByDescending(i => i.Item2)
+                                   .ThenBy(i => i.Item1.Value)
+                                   .Select(i => i.Item1)
+                                   .Take(2)
+                                   .ToList();
+            var count = talon.Count();
+
+            //pokud je potreba, doplnime o nejake nizke karty
+            if (count < 2)
+            {
+                talon.AddRange(hand.OrderBy(i => i.Value).Take(2 - count));
+            }
+
+            //mozna by stacilo negrupovat podle barev ale jen sestupne podle hodnot a vzit prvni dve?
+            return talon;
         }
 
-        private List<Card> ChooseNormalTalon()
+        private List<Card> ChooseNormalTalon(List<Card> hand)
         {
+            //_trump = trumf ktery zacinajici hrac vybral pred vyberem typu hry
             //TODO: promyslet poradne jak na to (v kombinaci s hlasy apod.)
             var talon = new List<Card>();
 
             //nejdriv zkus vzit karty v barve kde krom esa nemam nic jineho (neber krale ani svrska)
             var b = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                        .Where(barva => barva != _g.trump.Value &&
-                                        Hand.Count(i => i.Suit == barva &&
+                        .Where(barva => barva != _trump.Value &&
+                                        hand.Count(i => i.Suit == barva &&
                                                         i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka) <= 2 &&
-                                        !Hand.HasX(barva) &&
-                                        !(Hand.HasK(barva) && Hand.HasQ(barva)));
+                                        !hand.HasX(barva) &&
+                                        !(hand.HasK(barva) && hand.HasQ(barva)));
 
-            talon.AddRange(Hand.Where(i => b.Contains(i.Suit) &&
+            talon.AddRange(hand.Where(i => b.Contains(i.Suit) &&
                                       i.Value != Hodnota.Eso &&
                                       i.Value != Hodnota.Desitka)
                                .Take(2)
@@ -138,13 +206,13 @@ namespace Mariasek.Engine.New
             if (talon.Count < 2)
             {
                 b = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                        .Where(barva => barva != _g.trump.Value &&
+                        .Where(barva => barva != _trump.Value &&
                                         (talon.Count == 0 || barva != talon.First().Suit) &&
-                                        Hand.Count(i => i.Suit == barva &&
+                                        hand.Count(i => i.Suit == barva &&
                                                         i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka) <= 2 &&
-                                        !Hand.HasX(barva));
+                                        !hand.HasX(barva));
 
-                talon.AddRange(Hand.Where(i => b.Contains(i.Suit) &&
+                talon.AddRange(hand.Where(i => b.Contains(i.Suit) &&
                                           i.Value != Hodnota.Eso &&
                                           i.Value != Hodnota.Desitka)
                                    .Take(2 - talon.Count)
@@ -153,9 +221,9 @@ namespace Mariasek.Engine.New
                 if (talon.Count < 2)
                 {
                     b = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                            .Where(barva => barva != _g.trump.Value &&
+                            .Where(barva => barva != _trump.Value &&
                                             (talon.Count == 0 || barva != talon.First().Suit));
-                    talon.AddRange(Hand.Where(i => b.Contains(i.Suit) &&
+                    talon.AddRange(hand.Where(i => b.Contains(i.Suit) &&
                                               i.Value != Hodnota.Eso &&
                                               i.Value != Hodnota.Desitka)
                                        .OrderBy(i => i.Value)
@@ -169,64 +237,148 @@ namespace Mariasek.Engine.New
 
         public override List<Card> ChooseTalon()
         {
-            var talon = ChooseNormalTalon();
-            //var btalon = ChooseBetlTalon();
-            //var dtalon = ChooseDurchTalon();
+            //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
+            //Zapamatujeme si vysledek a pouzijeme ho i v ChooseGameFlavour() a ChooseGameType()
+            var bidding = new Bidding(_g);
 
-            //TODO: sjet simulaci betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
-            //Zapamatovat si vysledek a pouzit ho v ChooseGameFlavour() a ChooseGameType()
+            _talon = new List<Card>();
+            RunGameSimulations(bidding, true, true);
+            if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+            {
+                _talon = ChooseDurchTalon(Hand);
+            }
+            else if (_betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+            {
+                _talon = ChooseBetlTalon(Hand);
+            }
+            else
+            {
+                _talon = ChooseNormalTalon(Hand);
+            }
 
-            _talon = new List<Card>(talon);
+            _log.DebugFormat("Talon chosen: {0} {1}", _talon[0], _talon[1]);
+            Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
+            Probabilities.UpdateProbabilitiesAfterTalon(_talon);
 
-            _log.DebugFormat("Talon chosen: {0} {1}", talon[0], talon[1]);
-            return talon;
+            return _talon;
         }
 
         public override GameFlavour ChooseGameFlavour()
         {
-            //TODO: hrat normalni hry, betl nebo durch az na zaklade vysledku RunGameSimulations()
-            //TODO: ulozit si vysledek a v ChooseGameType uz nic nepocitat
+            if(_g.GameStartingPlayerIndex == PlayerIndex)
+            {
+                //simulace uz probehly v ChooseTalon()
+            }
+            else
+            {
+                var bidding = new Bidding(_g);
+
+                RunGameSimulations(bidding, false, true);
+            }
+
+            if ((_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound) ||
+                (_betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound))
+            {
+                return GameFlavour.Bad;
+            }
+
             return GameFlavour.Good;
         }
 
-        //vola se jak pro voliciho hrace tak pro oponenty 
-        private void RunGameSimulations(Bidding bidding)
+        private void UpdateGeneratedHandsByChoosingTalon(Func<List<Card>, List<Card>> chooseTalonFunc)
         {
-            //nasimuluj hry pro kazdeho vaznejsiho kandidata na trumfy (skore >= n)
-            var cardScores = new Dictionary<Card, List<GameComputationResult>>();
+            const int talonIndex = 3;
 
-            Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
+            //volicimu hraci dame i to co je v talonu, aby mohl vybrat skutecny talon
+            _hands[_g.GameStartingPlayerIndex].AddRange(_hands[3]);
+
+            var talon = chooseTalonFunc(_hands[_g.GameStartingPlayerIndex]);
+
+            _hands[_g.GameStartingPlayerIndex].Remove(talon[0]);
+            _hands[_g.GameStartingPlayerIndex].Remove(talon[1]);
+            _hands[talonIndex] = new Hand(talon);
+        }
+
+        //vola se jak pro voliciho hrace tak pro oponenty 
+        private void RunGameSimulations(Bidding bidding, bool simulateGoodGames, bool simulateBadGames)
+        {
+            var gameComputationResults = new List<GameComputationResult>();
+            var durchComputationResults = new List<GameComputationResult>();
+            var betlComputationResults = new List<GameComputationResult>();
+
+            //pokud volim hru tak se ted rozhoduju jaky typ hry hrat (hra, betl, durch)
+            //pokud nevolim hru, tak bud simuluju betl a durch nebo konkretni typ hry
+            //tak ci tak nevim co je/bude v talonu
 
             _log.DebugFormat("Running game simulations for {0} ...", Name);
-            for (int i = 0; i < Settings.SimulationsPerRound; i++)
+            if (simulateGoodGames)
             {
-                _hands = Probabilities.GenerateHands(1, PlayerIndex);
-                //TODO: nasimulovat i betl a durch
-                //TODO: vybrat talon podle trumfu/typu hry (ne nahodne)
-                var gameComputationResult = ComputeGame(null, null, _g.trump, Hra.Sedma, 10, 1);
+                //pokud volim hru tak uz znam trumfy, pokud nevolim hru tak uz je ted znam taky
+                var probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _trump, _talon);
 
-                if (cardScores.ContainsKey(gameComputationResult.CardToPlay))
+                //nasimuluj hry v barve
+                for (int i = 0; i < Settings.SimulationsPerRound; i++)
                 {
-                    cardScores[gameComputationResult.CardToPlay].Add(gameComputationResult);
+                    _hands = probabilities.GenerateHands(1, PlayerIndex);
+                    UpdateGeneratedHandsByChoosingTalon(ChooseNormalTalon);
+
+                    var gameComputationResult = ComputeGame(null, null, _trump ?? _g.trump, Hra.Sedma, 10, 1);
+
+                    gameComputationResults.Add(gameComputationResult);                    
                 }
-                else
+            }
+            if(simulateBadGames)
+            {
+                var probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), null, _talon);
+
+                //nasimuluj durchy
+                for (int i = 0; i < Settings.SimulationsPerRound; i++)
                 {
-                    cardScores.Add(gameComputationResult.CardToPlay, new List<GameComputationResult> { gameComputationResult });
+                    _hands = probabilities.GenerateHands(1, PlayerIndex);
+                    UpdateGeneratedHandsByChoosingTalon(ChooseDurchTalon);
+
+                    var durchComputationResult = ComputeGame(null, null, null, Hra.Durch, 10, 1);
+
+                    durchComputationResults.Add(durchComputationResult);
+                }
+                //nasimuluj betly
+                probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), null, _talon);
+                for (int i = 0; i < Settings.SimulationsPerRound; i++)
+                {
+                    _hands = probabilities.GenerateHands(1, PlayerIndex);
+                    UpdateGeneratedHandsByChoosingTalon(ChooseBetlTalon);
+
+                    var betlComputationResult = ComputeGame(null, null, null, Hra.Betl, 10, 1);
+
+                    betlComputationResults.Add(betlComputationResult);
                 }
             }
 
             //vyber vhodnou hru podle vysledku simulace
             var opponent = TeamMateIndex == (PlayerIndex + 1) % Game.NumPlayers
                 ? (PlayerIndex + 2) % Game.NumPlayers : (PlayerIndex + 1) % Game.NumPlayers;
-            _moneyCalculations = cardScores.SelectMany(i => i.Value)
-                                              .Select(i =>
+            _moneyCalculations = gameComputationResults.Select(i =>
             {
-                var calc = new AddingMoneyCalculator(_g, bidding, i);
+                var calc = new AddingMoneyCalculator(Hra.Sedma, _g.trump, _g.GameStartingPlayerIndex, bidding, i);
 
                 calc.CalculateMoney();
 
                 return calc;
-            }).ToList();
+            }).Union(durchComputationResults.Select(i =>
+            {
+                var calc = new AddingMoneyCalculator(Hra.Durch, null, _g.GameStartingPlayerIndex, bidding, i);
+
+                calc.CalculateMoney();
+
+                return calc;
+            })).Union(betlComputationResults.Select(i =>
+            {
+                var calc = new AddingMoneyCalculator(Hra.Betl, null, _g.GameStartingPlayerIndex, bidding, i);
+
+                calc.CalculateMoney();
+
+                return calc;
+            })).ToList();
             _gamesBalance = PlayerIndex == _g.GameStartingPlayerIndex
                             ? _moneyCalculations.Count(i => i.GameWon)
                             : _moneyCalculations.Count(i => !i.GameWon);
@@ -242,6 +394,12 @@ namespace Mariasek.Engine.New
             _sevensAgainstBalance = PlayerIndex == _g.GameStartingPlayerIndex
                                         ? _moneyCalculations.Count(i => i.SevenAgainstWon)
                                         : _moneyCalculations.Count(i => !i.SevenAgainstWon);
+            _durchBalance = PlayerIndex == _g.GameStartingPlayerIndex
+                                ? _moneyCalculations.Count(i => i.DurchWon)
+                                : _moneyCalculations.Count(i => !i.DurchWon);
+            _betlBalance = PlayerIndex == _g.GameStartingPlayerIndex
+                                ? _moneyCalculations.Count(i => i.BetlWon)
+                                : _moneyCalculations.Count(i => !i.BetlWon);
             _log.DebugFormat("** Game {0} by {1} {2} times ({3}%)", PlayerIndex == _g.GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
                 _gamesBalance, 100 * _gamesBalance / Settings.SimulationsPerRound);
             _log.DebugFormat("** Hundred {0} by {1} {2} times ({3}%)", PlayerIndex == _g.GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
@@ -252,6 +410,10 @@ namespace Mariasek.Engine.New
                 _sevensBalance, 100 * _sevensBalance / Settings.SimulationsPerRound);            //sgrupuj simulace podle vysledku skore
             _log.DebugFormat("** Seven against won {0} times ({1}%)",
                 _sevensAgainstBalance, 100 * _sevensAgainstBalance / Settings.SimulationsPerRound);            //sgrupuj simulace podle vysledku skore
+            _log.DebugFormat("** Durch won {0} times ({1}%)",
+                _durchBalance, 100 * _durchBalance / Settings.SimulationsPerRound);            //sgrupuj simulace podle vysledku skore
+            _log.DebugFormat("** Betl won {0} times ({1}%)",
+                _betlBalance, 100 * _betlBalance / Settings.SimulationsPerRound);            //sgrupuj simulace podle vysledku skore
             var scores = _moneyCalculations.GroupBy(i => i.PointsWon)
                 .Select(g => new
                 {
@@ -267,21 +429,26 @@ namespace Mariasek.Engine.New
         //vola se z enginu
         public override Hra ChooseGameType(Hra minimalBid = Hra.Hra)
         {
-            //tohle je docasne dokud neumime betl a durch
-            if (minimalBid >= Hra.Betl)
-                return minimalBid;
+            //TODO: urcit typ hry podle zisku ne podle pradepodobnosti
+            Hra gameType;
 
-            var bidding = new Bidding(_g);
-            
-            RunGameSimulations(bidding);
-
-            var gameType = _hundredsBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound
-                            ? Hra.Kilo : Hra.Hra;
-            if (_sevensBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+            if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
             {
-                gameType |= Hra.Sedma;
-            };
-
+                gameType = Hra.Durch;
+            }
+            else if (_betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+            {
+                gameType = Hra.Betl;
+            }
+            else
+            {
+                gameType = _hundredsBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound
+                             ? Hra.Kilo : Hra.Hra;
+                if (_sevensBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                {
+                    gameType |= Hra.Sedma;
+                };
+            }
             _log.DebugFormat("Selected game type: {0}", gameType);
 
             return gameType;
@@ -296,7 +463,16 @@ namespace Mariasek.Engine.New
 
             if (_moneyCalculations == null)
             {
-                RunGameSimulations(bidding);
+                if (bidding.BetlDurchMultiplier == 0)
+                {
+                    //mame flekovat hru
+                    RunGameSimulations(bidding, true, false);
+                }
+                else
+                {
+                    //mame flekovat betl nebo durch
+                    RunGameSimulations(bidding, false, true);
+                }
             }            
             if (_gamesBalance / Settings.SimulationsPerRound >= gameThreshold)
             {
@@ -333,11 +509,17 @@ namespace Mariasek.Engine.New
 
         public override void Init()
         {
+            _trump = null;
+            _talon = null;
             Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
         }
 
         private void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
         {
+            if (PlayerIndex != _g.GameStartingPlayerIndex)
+            {
+                Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
+            }
             Probabilities.UpdateProbabilitiesAfterGameTypeChosen(e);
         }
 
@@ -623,12 +805,15 @@ namespace Mariasek.Engine.New
                 player3 = PlayerIndex;
             }
 
-            if(!trump.HasValue || !gameType.HasValue || !initialRoundNumber.HasValue || !roundsToCompute.HasValue)
+            if(!gameType.HasValue || !initialRoundNumber.HasValue || !roundsToCompute.HasValue)
             {
-                trump = _g.trump;
                 gameType = _g.GameType;
                 initialRoundNumber = _g.RoundNumber;
                 roundsToCompute = Settings.RoundsToCompute;
+            }
+            if(!trump.HasValue && (gameType & (Hra.Betl | Hra.Durch)) != 0)
+            {
+                trump = _g.trump;
             }
             //var aiStrategy = new AiStrategy(trump.HasValue ? trump.Value : _g.trump, gameType.HasValue ? gameType.Value : _g.GameType, _hands)
             //{
@@ -684,7 +869,7 @@ namespace Mariasek.Engine.New
 
                 if (c1 == null || c2 == null || c3 == null)
                     c3 = c3; //investigate
-                var roundWinnerCard = Round.WinningCard(c1, c2, c3, _g.trump);
+                var roundWinnerCard = Round.WinningCard(c1, c2, c3, trump);
                 var roundWinnerIndex = roundWinnerCard == c1 ? roundStarterIndex : (roundWinnerCard == c2 ? (roundStarterIndex + 1) % Game.NumPlayers : (roundStarterIndex + 2) % Game.NumPlayers);
                 var roundScore = Round.ComputePointsWon(c1, c2, c3, aiStrategy.RoundNumber);
 
@@ -696,7 +881,8 @@ namespace Mariasek.Engine.New
                     c3 = c3,
                     r1 = r1 != null ? r1.Description : null,
                     r2 = r2 != null ? r2.Description : null,
-                    r3 = r3 != null ? r3.Description : null
+                    r3 = r3 != null ? r3.Description : null,
+                    RoundWinnerIndex = roundWinnerIndex
                 });
                 _log.TraceFormat("Simulation round {2} won by {0}. Points won: {1}", _g.players[roundWinnerIndex].Name, roundScore, aiStrategy.RoundNumber);
                 if (firstTime)
@@ -705,9 +891,9 @@ namespace Mariasek.Engine.New
                     result.Rule = r3;
                     firstTime = false;
                 }
-                if (aiStrategy.RoundNumber == 10 && _g.trump.HasValue)
+                if (aiStrategy.RoundNumber == 10 && trump.HasValue)
                 {
-                    result.Final7Won = roundWinnerCard.Suit == _g.trump.Value && roundWinnerCard.Value == Hodnota.Sedma && roundWinnerIndex == _g.GameStartingPlayerIndex;
+                    result.Final7Won = roundWinnerCard.Suit == trump.Value && roundWinnerCard.Value == Hodnota.Sedma && roundWinnerIndex == _g.GameStartingPlayerIndex;
                 }
                 aiStrategy.MyIndex = roundWinnerIndex;
                 aiStrategy.TeamMateIndex = _g.players[roundWinnerIndex].TeamMateIndex;

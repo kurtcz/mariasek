@@ -7,6 +7,7 @@ using System.Collections.Generic;
 namespace Mariasek.Engine.Tests
 {
     [TestClass]
+    //[Ignore]
     public class AiPlayerTests
     {
         private ParameterConfigurationElementCollection _aiConfig;
@@ -34,7 +35,7 @@ namespace Mariasek.Engine.Tests
             _aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "SimulationsPerRound",
-                Value = "50"
+                Value = "100"
             });
             _aiConfig.Add("RuleThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -44,7 +45,7 @@ namespace Mariasek.Engine.Tests
             _aiConfig.Add("GameThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold",
-                Value = "75"
+                Value = "51"
             });
         }
 
@@ -66,6 +67,9 @@ namespace Mariasek.Engine.Tests
             //typeof(Game).GetProperty("trump").SetValue(g, trump);
             g.LoadGame(filename);
 
+            var trump = aiPlayer.ChooseTrump();
+            var talon = aiPlayer.ChooseTalon();
+            var flavour = aiPlayer.ChooseGameFlavour();
             var hra = aiPlayer.ChooseGameType();
             props = aiPlayer.ToPropertyDictionary();
 
@@ -99,6 +103,24 @@ namespace Mariasek.Engine.Tests
             var hra = ChooseGameType(@"Scenarios\ChooseGame\__sedma.hra", out props);
 
             Assert.IsTrue((hra & Hra.Sedma) != 0, "Ai mel zavolit sedmu");
+        }
+
+        [TestMethod]
+        public void ChooseBetl()
+        {
+            Dictionary<string, object> props;
+            var hra = ChooseGameType(@"Scenarios\ChooseGame\Betl.hra", out props);
+
+            Assert.IsTrue((hra & Hra.Betl) != 0, "Ai mel zavolit betla");
+        }
+
+        [TestMethod]
+        public void ChooseDurch()
+        {
+            Dictionary<string, object> props;
+            var hra = ChooseGameType(@"Scenarios\ChooseGame\Durch.hra", out props);
+
+            Assert.IsTrue((hra & Hra.Durch) != 0, "Ai mel zavolit durcha");
         }
     }
 }

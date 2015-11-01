@@ -20,8 +20,6 @@
     <Karta Barva="Cerveny" Hodnota="Sedma" />
     <Karta Barva="Zeleny" Hodnota="Desitka" />
     <Karta Barva="Zeleny" Hodnota="Kral" />
-    <Karta Barva="Zeleny" Hodnota="Spodek" />
-    <Karta Barva="Zeleny" Hodnota="Sedma" />
     <Karta Barva="Zaludy" Hodnota="Desitka" />
     <Karta Barva="Zaludy" Hodnota="Spodek" />
     <Karta Barva="Kule" Hodnota="Devitka" />
@@ -39,6 +37,8 @@
     <Karta Barva="Cerveny" Hodnota="Devitka" />
   </Hrac3>
   <Talon>
+    <Karta Barva="Zeleny" Hodnota="Spodek" />
+    <Karta Barva="Zeleny" Hodnota="Sedma" />
   </Talon>
   <Stychy />
 </Hra>

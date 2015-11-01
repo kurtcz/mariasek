@@ -144,11 +144,16 @@ namespace Mariasek.Engine.New
         }
 
         protected MoneyCalculatorBase(Game g, Bidding bidding, GameComputationResult res)
+            :this(g.GameType, g.trump, g.GameStartingPlayerIndex, bidding, res)
         {
-            _gameType = g.GameType;
-            _trump = g.trump;
+        }
+
+        protected MoneyCalculatorBase(Hra gameType, Barva? trump, int gameStartingPlayerIndex, Bidding bidding, GameComputationResult res)
+        {
+            _gameType = gameType;
+            _trump = trump;
             _bidding = bidding;
-            _gameStartingPlayerIndex = g.GameStartingPlayerIndex;
+            _gameStartingPlayerIndex = gameStartingPlayerIndex;
 
             if (GoodGame)
             {
@@ -173,7 +178,8 @@ namespace Mariasek.Engine.New
             }
             else
             {
-                throw new NotImplementedException();
+                DurchWon = res.Rounds.All(i => i.RoundWinnerIndex == _gameStartingPlayerIndex);
+                BetlWon = res.Rounds.All(i => i.RoundWinnerIndex != _gameStartingPlayerIndex);
             }
             MoneyWon = new int[Game.NumPlayers];
         }

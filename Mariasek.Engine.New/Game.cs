@@ -435,6 +435,7 @@ namespace Mariasek.Engine.New
                 //zahajeni hry
                 if (RoundNumber == 0)
                 {
+                    InitPlayers();
                     GameType = Hra.Hra; //docasne nastavena nejaka minimalni hra
                     ChooseGame();
                     Bidding = new Bidding(this);
@@ -580,15 +581,10 @@ namespace Mariasek.Engine.New
             var trumpCard = GameStartingPlayer.ChooseTrump();
             GameStartingPlayer.Hand.Sort();
 
-            //if (trumpCard == null)
-            //{
-            //    throw new NotImplementedException("Betl a durch nejsou implementovany");
-            //}
             trump = trumpCard.Suit;
             talon = GameStartingPlayer.ChooseTalon();
             GameStartingPlayer.Hand.Remove(talon[0]);
             GameStartingPlayer.Hand.Remove(talon[1]);
-            InitPlayers();
 
             //volba hry
             var minimalBid = Hra.Betl;

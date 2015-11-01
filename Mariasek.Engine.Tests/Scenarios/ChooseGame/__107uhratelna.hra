@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<Hra Kolo="0" Zacina="Hrac2" Voli="Hrac2" Trumf="Cerveny">
+<Hra Kolo="0" Zacina="Hrac2" Voli="Hrac2">
   <Hrac1>
     <Karta Barva="Kule" Hodnota="Sedma" />
     <Karta Barva="Kule" Hodnota="Spodek" />
@@ -21,6 +21,8 @@
     <Karta Barva="Zeleny" Hodnota="Desitka" />
     <Karta Barva="Zeleny" Hodnota="Kral" />
     <Karta Barva="Zeleny" Hodnota="Svrsek" />
+    <Karta Barva="Zeleny" Hodnota="Spodek" />
+    <Karta Barva="Zeleny" Hodnota="Sedma" />
     <Karta Barva="Kule" Hodnota="Eso" />
     <Karta Barva="Zaludy" Hodnota="Eso" />
   </Hrac2>
@@ -36,9 +38,6 @@
     <Karta Barva="Cerveny" Hodnota="Kral" />
     <Karta Barva="Cerveny" Hodnota="Osma" />
   </Hrac3>
-  <Talon>
-    <Karta Barva="Zeleny" Hodnota="Spodek" />
-    <Karta Barva="Zeleny" Hodnota="Sedma" />
-  </Talon>
+  <Talon />
   <Stychy />
 </Hra>

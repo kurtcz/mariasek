@@ -15,5 +15,6 @@ namespace Mariasek.Engine.New
         public string r1;
         public string r2;
         public string r3;
+        public int RoundWinnerIndex;
     }
 }
