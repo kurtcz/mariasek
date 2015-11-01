@@ -70,6 +70,9 @@
     <Compile Include="BiddingWindow.xaml.cs">
       <DependentUpon>BiddingWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CommentWindow.xaml.cs">
+      <DependentUpon>CommentWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="DependencyObjectExtensions.cs" />
     <Compile Include="EditorWindow.xaml.cs">
       <DependentUpon>EditorWindow.xaml</DependentUpon>
@@ -87,6 +90,10 @@
     <Compile Include="WindowExtensions.cs" />
     <Compile Include="WindowResizer.cs" />
     <Page Include="BiddingWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CommentWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

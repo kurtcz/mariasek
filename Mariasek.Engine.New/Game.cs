@@ -50,6 +50,7 @@ namespace Mariasek.Engine.New
         public Round CurrentRound { get { return RoundNumber > 0  && RoundNumber <= 10 ? rounds[RoundNumber - 1] : null; } }
         public int RoundNumber { get; private set; }
         public Bidding Bidding { get; private set; }
+        public string Comment { get; set; }
 
         #endregion
 
@@ -227,6 +228,7 @@ namespace Mariasek.Engine.New
 #endif
             _log.InfoFormat("**Starting game**\n");
 
+            Comment = null;
             for (int i = 0; i < 12; i++)
             {
                 GameStartingPlayer.Hand.Add(deck.TakeOne());
@@ -281,6 +283,7 @@ namespace Mariasek.Engine.New
                 OriginalGameStartingPlayerIndex = GameStartingPlayerIndex;
                 _roundStartingPlayer = players[(int)gameData.Zacina];
 
+                Comment = gameData.Komentar;
                 players[0].Hand.AddRange(gameData.Hrac1.Select(i => new Card(i.Barva, i.Hodnota)));
                 players[1].Hand.AddRange(gameData.Hrac2.Select(i => new Card(i.Barva, i.Hodnota)));
                 players[2].Hand.AddRange(gameData.Hrac3.Select(i => new Card(i.Barva, i.Hodnota)));
@@ -340,6 +343,7 @@ namespace Mariasek.Engine.New
                 Trumf = RoundNumber > 0 ? trump : null,
                 Typ = RoundNumber > 0 ? (Hra?) GameType : null,
                 Zacina = (Hrac) (CurrentRound != null ? CurrentRound.roundWinner.PlayerIndex : GameStartingPlayerIndex),
+                Komentar = Comment,
                 Hrac1 = players[0].Hand
                     .Select(i => new Karta
                     {
@@ -610,6 +614,7 @@ namespace Mariasek.Engine.New
                 {
                     //hrac: spatna
                     player2.Hand.AddRange(talon);
+                    trump = null;
                     talon.Clear();
                     talon = player2.ChooseTalon();
                     player2.Hand.Remove(talon[0]);
@@ -641,6 +646,7 @@ namespace Mariasek.Engine.New
                     {
                         //hrac3: spatny
                         player3.Hand.AddRange(talon);
+                        trump = null;
                         talon.Clear();
                         talon = player3.ChooseTalon();
                         player3.Hand.Remove(talon[0]);
@@ -672,6 +678,7 @@ namespace Mariasek.Engine.New
             {
                 //hrac1: spatna barva
                 GameType = GameStartingPlayer.ChooseGameType(minimalBid: minimalBid);
+                trump = null;
                 OnGameTypeChosen(new GameTypeChosenEventArgs
                 {
                     GameStartingPlayerIndex = GameStartingPlayerIndex,

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<!-- -->
 <Hra Kolo="0" Voli="Hrac2" Zacina="Hrac2">
   <Hrac1 Jmeno="Human">
     <Karta Barva="Zaludy" Hodnota="Svrsek" />

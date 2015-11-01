@@ -54,6 +54,8 @@ namespace Mariasek.Engine.New.Schema
         }
         [XmlAttribute]
         public Hrac Voli;
+        [XmlElement]
+        public string Komentar;
         [XmlArray]
         public Karta[] Hrac1;
         [XmlArray]

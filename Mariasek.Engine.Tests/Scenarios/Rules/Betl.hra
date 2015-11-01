@@ -1,5 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<Hra Kolo="0" Voli="Hrac2" Zacina="Hrac2">
+<Hra Kolo="1" Voli="Hrac2" Zacina="Hrac2" Typ="Betl">
+  <Komentar>
+Hrac 2 ma zvolit betla.
+V prvnim kole by Hrac 2 mel zahrat Krale nebo Svrska zaludovyho, human bere esem,
+ve druhem kole human ponese zelenou a Hrac 2 by si mel odmazat zbyvajici zaludu
+  </Komentar>
   <Hrac1 Jmeno="Human">
     <Karta Barva="Kule" Hodnota="Devitka" />
     <Karta Barva="Kule" Hodnota="Desitka" />
@@ -21,8 +26,6 @@
     <Karta Barva="Cerveny" Hodnota="Svrsek" />
     <Karta Barva="Cerveny" Hodnota="Kral" />
     <Karta Barva="Cerveny" Hodnota="Eso" />
-    <Karta Barva="Kule" Hodnota="Sedma" />
-	<Karta Barva="Kule" Hodnota="Osma" />
     <Karta Barva="Zaludy" Hodnota="Svrsek" />
     <Karta Barva="Zaludy" Hodnota="Kral" />
   </Hrac2>
@@ -38,7 +41,8 @@
     <Karta Barva="Zaludy" Hodnota="Desitka" />
     <Karta Barva="Zaludy" Hodnota="Spodek" />
   </Hrac3>
-  <Talon />
-    <Karta Barva="Zeleny" Hodnota="Spodek" />
-    <Karta Barva="Zeleny" Hodnota="Sedma" />
+  <Talon>
+    <Karta Barva="Kule" Hodnota="Sedma" />
+	<Karta Barva="Kule" Hodnota="Osma" />
+  </Talon>
 </Hra>

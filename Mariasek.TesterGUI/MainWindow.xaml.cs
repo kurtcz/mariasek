@@ -60,11 +60,13 @@ namespace Mariasek.TesterGUI
         private bool CanRewind;
         private bool CanEdit;
         private bool CanShowProbabilities;
+        private bool CanShowComment;
 
         private readonly HandWindow[] hw;
         private readonly ProbabilityWindow pw;
         private readonly SettingsWindow settingsWindow;
         private LoggerWindow loggerWindow;
+        private CommentWindow commentWindow;
         private readonly Button[] gtButtons;
 
         #endregion
@@ -690,6 +692,7 @@ namespace Mariasek.TesterGUI
                 }
                 CanSaveGame = false;
                 CanRewind = true;
+                CanShowComment = true;
             }, null);
             WaitForUIThread(); 
             return _cardClicked;
@@ -811,6 +814,12 @@ namespace Mariasek.TesterGUI
                     //UpdateHands();
                     CanEdit = true;
                     CanSaveGame = true;
+                    if (commentWindow != null)
+                    {
+                        commentWindow.Close();
+                    }
+                    commentWindow = new CommentWindow(g.Comment);
+                    CanShowComment = true;
                     var logVisible = loggerWindow != null && loggerWindow.IsVisible;
                     if (logVisible)
                     {
@@ -871,6 +880,12 @@ namespace Mariasek.TesterGUI
                         }
                         CanEdit = true;
                         CanSaveGame = true;
+                        if (commentWindow != null)
+                        {
+                            commentWindow.Close();
+                        }
+                        commentWindow = new CommentWindow(g.Comment);
+                        CanShowComment = true;
                         if (loggerWindow != null)
                         {
                             loggerWindow.Close();
@@ -1081,6 +1096,17 @@ namespace Mariasek.TesterGUI
                 }, null);
                 _gameTask = Task.Run(() => g.PlayGame(_cancellationTokenSource.Token), _cancellationTokenSource.Token);
             });
+        }
+
+        private void OnCanShowComment(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = CanShowComment;
+        }
+
+        private void OnShowComment(object sender, ExecutedRoutedEventArgs e)
+        {
+            commentWindow.ShowDialog();
+            g.Comment = commentWindow.Comment;
         }
 
         private void OnCanShowHands(object sender, CanExecuteRoutedEventArgs e)

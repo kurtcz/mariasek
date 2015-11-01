@@ -14,6 +14,7 @@
         <CommandBinding Command="testerGui:Commands.Editor" CanExecute="OnCanEdit" Executed="OnEdit" />
         <CommandBinding Command="testerGui:Commands.Log" CanExecute="OnCanLog" Executed="OnLog" />
         <CommandBinding Command="testerGui:Commands.ShowHands" CanExecute="OnCanShowHands" Executed="OnShowHands" />
+        <CommandBinding Command="testerGui:Commands.Comment" CanExecute="OnCanShowComment" Executed="OnShowComment" />
         <CommandBinding Command="testerGui:Commands.Probabilities" CanExecute="OnCanShowProbabilities" Executed="OnShowProbabilities" />
     </Window.CommandBindings>
     <Window.Resources>
@@ -64,6 +65,7 @@
                 <MenuItem Header="Všechny karty" Command="testerGui:Commands.ShowHands" IsCheckable="True" IsChecked="{Binding ElementName=TesterMainWindow, Path=ShowAllCards, Mode=OneWay}" Name="showHandsMenuItem" />
                 <MenuItem Header="Editor" Command="testerGui:Commands.Editor" />
                 <MenuItem Header="Pravděpodobnosti" Command="testerGui:Commands.Probabilities" IsCheckable="True" Name="probabilitiesMenuItem" />
+                <MenuItem Header="Komentář" Command="testerGui:Commands.Comment" IsCheckable="True" Name="commentMenuItem" />
                 <MenuItem Header="Log" Command="testerGui:Commands.Log" IsCheckable="True" Name="logMenuItem" />
             </MenuItem>
         </Menu>
