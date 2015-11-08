@@ -83,6 +83,7 @@
     <Compile Include="LoggerWindow.xaml.cs">
       <DependentUpon>LoggerWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MailSettings.cs" />
     <Compile Include="NotificationArgs.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>

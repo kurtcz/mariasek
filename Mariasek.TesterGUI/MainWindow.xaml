@@ -8,6 +8,7 @@
         <CommandBinding Command="testerGui:Commands.NewGame" Executed="OnNewGame" />
         <CommandBinding Command="testerGui:Commands.LoadGame" Executed="OnLoadGame" />
         <CommandBinding Command="testerGui:Commands.SaveGame" CanExecute="OnCanSaveGame" Executed="OnSaveGame" />
+        <CommandBinding Command="testerGui:Commands.SendGame" Executed="OnSendGame" />
         <CommandBinding Command="testerGui:Commands.EndGame" Executed="OnEndGame" />
         <CommandBinding Command="testerGui:Commands.DisplaySettings" Executed="OnSettings" />
         <CommandBinding Command="testerGui:Commands.Rewind" CanExecute="OnCanRewind" Executed="OnRewind" />
@@ -55,6 +56,7 @@
                 <MenuItem Header="Nová hra" Command="testerGui:Commands.NewGame" />
                 <MenuItem Header="Nahrát" Command="testerGui:Commands.LoadGame" />
                 <MenuItem Header="Uložit" Command="testerGui:Commands.SaveGame" />
+                <MenuItem Header="Odeslat emailem" Command="testerGui:Commands.SendGame" />
                 <MenuItem Header="Zpět" Command="testerGui:Commands.Rewind" />
                 <Separator />
                 <MenuItem Header="Nastavení" Command="testerGui:Commands.DisplaySettings" />

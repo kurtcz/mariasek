@@ -18,6 +18,10 @@ using Mariasek.Engine.New;
 using Mariasek.Engine.New.Configuration;
 using Mariasek.Engine.New.Schema;
 using Microsoft.Win32;
+using System.Net.Mail;
+using System.Net;
+using System.IO;
+using System.Net.Configuration;
 
 namespace Mariasek.TesterGUI
 {
@@ -183,6 +187,10 @@ namespace Mariasek.TesterGUI
 
             if (aiSettings == null)
                 return;
+
+            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            settingsWindow.EmailAddress.Text = MailSettings.UserName;// MailSettings.Email;
+            settingsWindow.Password.Password = MailSettings.Password;
 
             settingsWindow.AiCheating.IsChecked = bool.Parse(aiSettings.Parameters["AiCheating"].Value);
             settingsWindow.SkipBidding.IsChecked = AppSettings.GetBool("SkipBidding", false);
@@ -925,6 +933,43 @@ namespace Mariasek.TesterGUI
             }
         }
 
+        private void OnSendGame(object sender, ExecutedRoutedEventArgs e)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+
+            dlg.DefaultExt = ".hra";
+            dlg.Filter = "Mariasek files (*.hra)|*.hra";
+
+            Nullable<bool> res = dlg.ShowDialog();
+            if (res == true)
+            {
+                SendGame(dlg.FileName);
+            }
+        }
+
+        private void SendGame(string filename)
+        {
+            var client = new SmtpClient();
+            client.Credentials = new NetworkCredential(MailSettings.UserName, MailSettings.Password);
+            try
+            {
+                var from = string.IsNullOrEmpty(MailSettings.Email) ? MailSettings.UserName : MailSettings.Email; 
+                var msg = new MailMessage();
+                
+                msg.To.Add("tnemec78@gmail.com");
+                msg.Subject = string.Format("Mariasek: {0}", from);
+                msg.Body = string.Format("Tester {0} odeslal ulozenou hru. (viz priloha)", from);
+                msg.Attachments.Add(new Attachment(filename));                
+                client.Send(msg);
+                _log.Info("Email sent");
+            }
+            catch(Exception e)
+            {
+                MessageBox.Show(e.Message, "Nepovedlo se odeslat email", MessageBoxButton.OK, MessageBoxImage.Error);
+                _log.Error("Cannot send email", e);
+            }
+        }
+
         private void OnEndGame(object sender, ExecutedRoutedEventArgs e)
         {
             Application.Current.Shutdown();
@@ -939,8 +984,12 @@ namespace Mariasek.TesterGUI
             AppSettings.Set("RotateStartingPlayer", settingsWindow.RotateStartingPlayer.IsChecked);
             AppSettings.SetInt("StartingPlayerIndex", settingsWindow.StartingPlayerComboBox.SelectedIndex);
             AppSettings.Set("ShuffleCards", settingsWindow.ShuffleCards.IsChecked);
+            AppSettings.Set("Email", settingsWindow.EmailAddress.Text);
             AppSettings.Save();
-
+            MailSettings.Open();
+            MailSettings.Email = settingsWindow.EmailAddress.Text;
+            MailSettings.Password = settingsWindow.Password.Password;
+            MailSettings.Save();
             var config = ConfigurationManager.OpenExeConfiguration(Assembly.GetEntryAssembly().Location);
             var playersSection = config.GetSection("players") as Mariasek.WinSettings.PlayersConfigurationSection;
             var playersSettings = new[] { playersSection.Player1, playersSection.Player2, playersSection.Player3 };

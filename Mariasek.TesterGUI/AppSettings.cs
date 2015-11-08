@@ -140,7 +140,7 @@ namespace Mariasek.TesterGUI
 
         public static void Save()
         {
-                _config.Save(ConfigurationSaveMode.Modified);
+            _config.Save(ConfigurationSaveMode.Modified);
         }
     }
 }
