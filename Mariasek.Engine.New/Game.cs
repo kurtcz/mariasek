@@ -45,6 +45,7 @@ namespace Mariasek.Engine.New
         public bool SkipBidding { get; set; }
         public Hra GameType { get; private set; }
         public Barva? trump { get; private set; }
+        public Card TrumpCard { get; private set; }
         public List<Card> talon { get; private set; }
         public Round[] rounds { get; private set; }
         public Round CurrentRound { get { return RoundNumber > 0  && RoundNumber <= 10 ? rounds[RoundNumber - 1] : null; } }
@@ -331,6 +332,10 @@ namespace Mariasek.Engine.New
                 }
                 players[(GameStartingPlayerIndex + 1) % NumPlayers].Hand.Sort();
                 players[(GameStartingPlayerIndex + 2) % NumPlayers].Hand.Sort();
+                if(RoundNumber == 10)
+                {
+                    Rewind();
+                }
             }
         }
 
@@ -582,10 +587,10 @@ namespace Mariasek.Engine.New
 
         private void ChooseGame()
         {
-            var trumpCard = GameStartingPlayer.ChooseTrump();
+            TrumpCard = GameStartingPlayer.ChooseTrump();
             GameStartingPlayer.Hand.Sort();
 
-            trump = trumpCard.Suit;
+            trump = TrumpCard.Suit;
             talon = GameStartingPlayer.ChooseTalon();
             GameStartingPlayer.Hand.Remove(talon[0]);
             GameStartingPlayer.Hand.Remove(talon[1]);
@@ -615,6 +620,7 @@ namespace Mariasek.Engine.New
                     //hrac: spatna
                     player2.Hand.AddRange(talon);
                     trump = null;
+                    TrumpCard = null;
                     talon.Clear();
                     talon = player2.ChooseTalon();
                     player2.Hand.Remove(talon[0]);
@@ -647,6 +653,7 @@ namespace Mariasek.Engine.New
                         //hrac3: spatny
                         player3.Hand.AddRange(talon);
                         trump = null;
+                        TrumpCard = null;
                         talon.Clear();
                         talon = player3.ChooseTalon();
                         player3.Hand.Remove(talon[0]);
@@ -670,7 +677,7 @@ namespace Mariasek.Engine.New
                     {
                         GameStartingPlayerIndex = GameStartingPlayerIndex,
                         GameType = GameType,
-                        TrumpCard = trumpCard
+                        TrumpCard = TrumpCard
                     });
                 }
             }
@@ -679,6 +686,7 @@ namespace Mariasek.Engine.New
                 //hrac1: spatna barva
                 GameType = GameStartingPlayer.ChooseGameType(minimalBid: minimalBid);
                 trump = null;
+                TrumpCard = null;
                 OnGameTypeChosen(new GameTypeChosenEventArgs
                 {
                     GameStartingPlayerIndex = GameStartingPlayerIndex,

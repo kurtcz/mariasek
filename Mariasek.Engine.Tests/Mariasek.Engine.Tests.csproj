@@ -67,6 +67,9 @@
   <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Scenarios\Bidding\__107proti.hra">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Scenarios\ChooseGame\Betl.hra">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

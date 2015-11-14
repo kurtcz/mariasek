@@ -75,8 +75,8 @@ namespace Mariasek.Engine.New
             {
                 return Renonc.HrajSvrska;
             }
-            else if (teamMateIndex == -1 &&
-                     (gameType & Hra.Sedma) != 0 &&
+            else if (trump.HasValue &&
+                     (gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
                      c.Value == Hodnota.Sedma &&
                      c.Suit == trump.Value &&
                      hand.HasAtLeastNCardsOfSuit(trump.Value, 2))

@@ -21,6 +21,7 @@ namespace Mariasek.Engine.New
             get { return (_gameType & Hra.Betl) == 0 && (_gameType & Hra.Durch) == 0; }
         }
 
+        public Hra GameType { get { return _gameType; } }
         public int PointsWon { get; private set; }
         public int PointsLost { get; private set; }
         public int BasicPointsWon { get; private set; }
@@ -49,6 +50,7 @@ namespace Mariasek.Engine.New
         {
         }
 
+        //vola se na konci hry
         protected MoneyCalculatorBase(Game g)
         {
             _gameType = g.GameType;
@@ -148,6 +150,7 @@ namespace Mariasek.Engine.New
         {
         }
 
+        //vola se na konci simulace
         protected MoneyCalculatorBase(Hra gameType, Barva? trump, int gameStartingPlayerIndex, Bidding bidding, GameComputationResult res)
         {
             _gameType = gameType;
@@ -166,8 +169,13 @@ namespace Mariasek.Engine.New
                 GameWon = PointsWon > PointsLost;
                 SevenWon = res.Final7Won.HasValue && res.Final7Won.Value;
 
+                var finalRound = res.Rounds[Game.NumRounds - 1];
+                var lastWinningCard = Round.WinningCard(finalRound.c1, finalRound.c2, finalRound.c3, trump);
+
+                SevenAgainstWon = !FinalCardWon &&
+                                  lastWinningCard.Suit == trump.Value &&
+                                  lastWinningCard.Value == Hodnota.Sedma;
                 //Not implemented:
-                //SevenAgainstWon
                 //KilledSeven
 
                 QuietHundredWon = PointsWon >= 100;

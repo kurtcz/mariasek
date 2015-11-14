@@ -243,7 +243,7 @@ namespace Mariasek.Engine.New
             return _hand.Count(i => i.Suit == suit);
         }
 
-        public void Sort(bool ascending = false)
+        public void Sort(bool ascending = false, bool badGameSorting = false)
         {
             _hand.Sort((c1, c2) =>
                        {
@@ -252,8 +252,18 @@ namespace Mariasek.Engine.New
                            int s2 = Convert.ToInt16(c2.Suit);
 
                            if (s1 == s2)
-                               return sign*(Convert.ToInt16(c2.Value) - Convert.ToInt16(c1.Value));
-                            
+                           {
+                               if (!badGameSorting)
+                               {
+                                   //normalni trideni
+                                   return sign * (Convert.ToInt16(c2.Value) - Convert.ToInt16(c1.Value));
+                               }
+                               else
+                               {
+                                   //betl a durch
+                               }
+                           }
+                           
                            return sign*(s1 - s2);
                        });
         }

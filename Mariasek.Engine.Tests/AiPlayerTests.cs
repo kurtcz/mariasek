@@ -76,6 +76,39 @@ namespace Mariasek.Engine.Tests
             return hra;
         }
 
+        private Hra GetOpponentsBidsAndDoubles(string filename, out Dictionary<string, object> props)
+        {
+            var g = new Game()
+            {
+                SkipBidding = false
+            };
+            var player1 = new DummyPlayer(g);
+            var aiPlayer = new AiPlayer(g, _aiConfig);
+            var player3 = new DummyPlayer(g);
+
+            g.RegisterPlayers(
+                    player1,
+                    aiPlayer,
+                    player3);
+
+            g.LoadGame(filename);
+            
+            var bidding = new Bidding(g);
+
+            g.InvokeMethod("OnGameTypeChosen", new GameTypeChosenEventArgs
+            {
+                GameStartingPlayerIndex = g.GameStartingPlayerIndex, 
+                GameType = g.GameType, 
+                TrumpCard = g.TrumpCard
+            });
+            var hra = aiPlayer.GetBidsAndDoubles(bidding);
+
+            props = aiPlayer.ToPropertyDictionary();
+
+            return hra;
+        }
+
+        #region Game choice tests
         [TestMethod]
         public void Choose107()
         {
@@ -122,5 +155,18 @@ namespace Mariasek.Engine.Tests
 
             Assert.IsTrue((hra & Hra.Durch) != 0, "Ai mel zavolit durcha");
         }
+        #endregion
+
+        #region Bidding tests
+        [TestMethod]
+        public void Call107Against()
+        {
+            Dictionary<string, object> props;
+            var hra = GetOpponentsBidsAndDoubles(@"Scenarios\Bidding\__107proti.hra", out props);
+
+            Assert.IsTrue((hra & Hra.KiloProti) != 0, "Ai mel hlasit kilo proti");
+            Assert.IsTrue((hra & Hra.SedmaProti) != 0, "Ai mel hlasit sedmu proti");
+        }
+        #endregion
     }
 }

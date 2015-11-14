@@ -36,6 +36,11 @@ namespace Mariasek.Engine.New
         protected abstract IEnumerable<AiRule> GetRules2(Hand[] hands);
         protected abstract IEnumerable<AiRule> GetRules3(Hand[] hands);
 
+        protected List<Card> ValidCards(Hand hand)
+        {
+            return AbstractPlayer.ValidCards(hand, _trump, _gameType, TeamMateIndex);
+        }
+
         protected List<Card> ValidCards(Card c, Hand hand)
         {
             return AbstractPlayer.ValidCards(hand, _trump, _gameType, TeamMateIndex, c);
