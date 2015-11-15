@@ -466,7 +466,7 @@ namespace Mariasek.Engine.New
         public override Hra GetBidsAndDoubles(Bidding bidding)
         {
             Hra bid = 0;
-            var gameThreshold = Settings.GameThresholds[Math.Min(Settings.GameThresholds.Length - 1, _numberOfDoubles++)] / 100f;
+            var gameThreshold = Settings.GameThresholds[Math.Min(Settings.GameThresholds.Length - 1, _numberOfDoubles++)];
 
             if (_moneyCalculations == null)
             {
@@ -510,6 +510,14 @@ namespace Mariasek.Engine.New
                     bid |= bidding.Bids | Hra.KiloProti;
                 }
                 bid |= bidding.Bids & Hra.KiloProti;
+            }
+            if (_durchBalance / Settings.SimulationsPerRound >= gameThreshold)
+            {
+                bid |= bidding.Bids & Hra.Durch;
+            }
+            if (_betlBalance / Settings.SimulationsPerRound >= gameThreshold)
+            {
+                bid |= bidding.Bids & Hra.Betl;
             }
             return bid;
         }
@@ -825,13 +833,6 @@ namespace Mariasek.Engine.New
             {
                 trump = _g.trump;
             }
-            //var aiStrategy = new AiStrategy(trump.HasValue ? trump.Value : _g.trump, gameType.HasValue ? gameType.Value : _g.GameType, _hands)
-            //{
-            //    MyIndex = PlayerIndex,
-            //    MyName = Name,
-            //    TeamMateIndex = TeamMateIndex,
-            //    RoundNumber = initialRoundNumber.HasValue ? initialRoundNumber.Value : _g.RoundNumber
-            //};
             var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, _hands, Name, PlayerIndex, TeamMateIndex, initialRoundNumber);
             
             _log.DebugFormat("Round {0}. Starting simulation for {1}", _g.RoundNumber, _g.players[PlayerIndex].Name);

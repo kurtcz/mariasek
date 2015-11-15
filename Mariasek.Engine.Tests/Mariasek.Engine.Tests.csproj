@@ -53,6 +53,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="AbstractPlayerTests.cs" />
     <Compile Include="AiPlayerTests.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="ProbabilitiesTests.cs" />
@@ -64,10 +65,20 @@
       <Name>Mariasek.Engine.New</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Scenarios\Bidding\__betlflek.hra">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Scenarios\Bidding\__107flek.hra">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Scenarios\Bidding\__107proti.hra">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Scenarios\Bidding\__durchflek.hra">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Scenarios\ChooseGame\Betl.hra">

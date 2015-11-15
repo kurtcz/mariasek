@@ -51,6 +51,8 @@ namespace Mariasek.Engine.New
         public Round CurrentRound { get { return RoundNumber > 0  && RoundNumber <= 10 ? rounds[RoundNumber - 1] : null; } }
         public int RoundNumber { get; private set; }
         public Bidding Bidding { get; private set; }
+        public string Author { get; set; }
+        public static Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
         public string Comment { get; set; }
 
         #endregion
@@ -284,6 +286,7 @@ namespace Mariasek.Engine.New
                 OriginalGameStartingPlayerIndex = GameStartingPlayerIndex;
                 _roundStartingPlayer = players[(int)gameData.Zacina];
 
+                Author = gameData.Autor;
                 Comment = gameData.Komentar;
                 players[0].Hand.AddRange(gameData.Hrac1.Select(i => new Card(i.Barva, i.Hodnota)));
                 players[1].Hand.AddRange(gameData.Hrac2.Select(i => new Card(i.Barva, i.Hodnota)));
@@ -348,6 +351,8 @@ namespace Mariasek.Engine.New
                 Trumf = RoundNumber > 0 ? trump : null,
                 Typ = RoundNumber > 0 ? (Hra?) GameType : null,
                 Zacina = (Hrac) (CurrentRound != null ? CurrentRound.roundWinner.PlayerIndex : GameStartingPlayerIndex),
+                Autor = Author,
+                Verze = Version.ToString(),
                 Komentar = Comment,
                 Hrac1 = players[0].Hand
                     .Select(i => new Karta

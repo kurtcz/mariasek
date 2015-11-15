@@ -922,6 +922,7 @@ namespace Mariasek.TesterGUI
             {
                 var gameDto = e.Parameter as GameDto;
 
+                g.Author = AppSettings.GetString("Email");
                 if (gameDto != null)
                 {
                     gameDto.SaveGame(dlg.FileName);

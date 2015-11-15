@@ -11,12 +11,14 @@ using System.Text;
 using log4net;
 using log4net.Appender;
 using log4net.Core;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Mariasek.Engine.New.Logger
 {
     /// <summary>
     /// The appender we are going to bind to for our logging.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class NotifyAppender : AppenderSkeleton, INotifyPropertyChanged
     {
         #region Members and events

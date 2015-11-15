@@ -17,6 +17,7 @@ namespace Mariasek.Engine.New
         public Hra[] PlayerBids { get; private set; }
         /// <summary>
         /// When a AbstractPlayer.GetBidsAndDoubles() is called this property holds valid bids for that player.
+        /// This property is set before each call to GetBidsAndDoubles() inside the StartBidding() method
         /// </summary>
         public Hra Bids { get; private set; }
 
@@ -132,33 +133,7 @@ namespace Mariasek.Engine.New
                 {
                     break;
                 }
-                if(_g.players[i].TeamMateIndex != -1)
-                {
-                    //zajistime aby 2. souper nemohl znovu flekovat co uz fleknul 1. souper
-                    if (_g.players[(i + 2) % Game.NumPlayers].TeamMateIndex != -1)
-                    {
-                        Bids = PlayerBids[_g.GameStartingPlayerIndex] & ((Hra)~0 ^ PlayerBids[(i + 2) % Game.NumPlayers]);
-                    }
-                    else
-                    {
-                        //1. souper muze flekovat jen hry a fleky hrace co volil
-                        Bids = PlayerBids[_g.GameStartingPlayerIndex];
-                    }
-                }
-                else
-                {
-                    //hrac co volil muze flekovat jen souperovy hry a fleky
-                    Bids = PlayerBids[(i + 1)%Game.NumPlayers] | PlayerBids[(i + 2)%Game.NumPlayers];
-                }
-                //v prvnim kole muzou souperi hlasit 100/7 proti
-                if (j < Game.NumPlayers && _g.players[i].TeamMateIndex != -1)
-                {
-                    if (_g.players[i].Hand.Contains(new Card(_g.trump.Value, Hodnota.Sedma)))
-                    {
-                        Bids |= Hra.SedmaProti;
-                    }
-                    Bids |= Hra.KiloProti;
-                }
+                AdjustValidBidsForPlayer(i, j);
                 var bid = _g.players[i].GetBidsAndDoubles(this);
                 //nastav priznak co hrac hlasil a flekoval
                 SetLastBidder(_g.players[i], bid);
@@ -169,6 +144,42 @@ namespace Mariasek.Engine.New
             }
 
             return gameType;
+        }
+
+        /// <summary>
+        /// Sets valid Bids for a given player before a call to AbstractPlayer.GetBidsAndDoubles() is made
+        /// </summary>
+        /// <param name="playerIndex">Player's index in the game</param>
+        /// <param name="bidNumber">Zero based sequential bid number (increments with each bid made, each round grows by Game.NumPlayers)</param>
+        private void AdjustValidBidsForPlayer(int playerIndex, int bidNumber)
+        {
+            if (_g.players[playerIndex].TeamMateIndex != -1)
+            {
+                //zajistime aby 2. souper nemohl znovu flekovat co uz fleknul 1. souper
+                if (_g.players[(playerIndex + 2) % Game.NumPlayers].TeamMateIndex != -1)
+                {
+                    Bids = PlayerBids[_g.GameStartingPlayerIndex] & ((Hra)~0 ^ PlayerBids[(playerIndex + 2) % Game.NumPlayers]);
+                }
+                else
+                {
+                    //1. souper muze flekovat jen hry a fleky hrace co volil
+                    Bids = PlayerBids[_g.GameStartingPlayerIndex];
+                }
+            }
+            else
+            {
+                //hrac co volil muze flekovat jen souperovy hry a fleky
+                Bids = PlayerBids[(playerIndex + 1) % Game.NumPlayers] | PlayerBids[(playerIndex + 2) % Game.NumPlayers];
+            }
+            //v prvnim kole muzou souperi hlasit 100/7 proti
+            if (_g.trump.HasValue && bidNumber < Game.NumPlayers && _g.players[playerIndex].TeamMateIndex != -1)
+            {
+                if (_g.players[playerIndex].Hand.Contains(new Card(_g.trump.Value, Hodnota.Sedma)))
+                {
+                    Bids |= Hra.SedmaProti;
+                }
+                Bids |= Hra.KiloProti;
+            }
         }
 
         private BidEventArgs GetEventArgs(AbstractPlayer player, Hra bid, Hra previousBid)

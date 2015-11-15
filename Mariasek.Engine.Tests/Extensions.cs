@@ -33,13 +33,30 @@ namespace Mariasek.Engine.Tests
             return dict;
         }
 
+        internal static void SetProperty<T>(this object obj, string propertyName, T value)
+        {
+            var prop = obj.GetType().GetProperty(propertyName,
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, 
+                null,
+                typeof(T),
+                new Type[0],
+                null);
+
+            prop.SetValue(obj, value);
+        }
+
         /// <summary>
         /// Invokes object's method even if it is not public.
         /// </summary>
         internal static T InvokeMethod<T>(this object obj, string methodName, params object[] methodParams)
         {
+            var types = methodParams.Select(i => i.GetType()).ToArray();
+
             MethodInfo dynMethod = obj.GetType().GetMethod(methodName,
-                BindingFlags.NonPublic | BindingFlags.Instance);
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                null,
+                types,
+                null);
             T result = (T)dynMethod.Invoke(obj, methodParams);
 
             return result;
@@ -47,8 +64,14 @@ namespace Mariasek.Engine.Tests
 
         internal static void InvokeMethod(this object obj, string methodName, params object[] methodParams)
         {
+            var types = methodParams.Select(i => i.GetType()).ToArray();
+
             MethodInfo dynMethod = obj.GetType().GetMethod(methodName,
-                BindingFlags.NonPublic | BindingFlags.Instance);
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                null,
+                types,
+                null);
+
             dynMethod.Invoke(obj, methodParams);
         }
     }

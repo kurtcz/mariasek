@@ -7,9 +7,11 @@ using System.Text;
 using System.IO;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Mariasek.Engine.New.Logger
 {
+    [ExcludeFromCodeCoverage]
     public class LogWrapper : ILog
     {
         private readonly Type _type;

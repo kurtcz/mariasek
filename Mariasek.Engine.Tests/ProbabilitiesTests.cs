@@ -65,7 +65,7 @@ namespace Mariasek.Engine.Tests
             {
                 var hands = probabilities.GenerateHands(roundNumber, gameStarterIndex);
 
-                for (int i = 0; i < Game.NumPlayers; i++)
+                for (int i = 0; i < Game.NumPlayers + 1; i++)
                 {
                     if (i == gameStarterIndex)
                     {
@@ -86,6 +86,7 @@ namespace Mariasek.Engine.Tests
             }
         }
 
+        [TestCategory("Probability tests")]
         [TestMethod]
         public void Hand10Talon0()
         {
@@ -108,6 +109,7 @@ namespace Mariasek.Engine.Tests
             CardProbabilityTest(1, 0, hand, trump, talon);
         }
 
+        [TestCategory("Probability tests")]
         [TestMethod]
         public void Hand10Talon2()
         {
@@ -132,6 +134,7 @@ namespace Mariasek.Engine.Tests
             CardProbabilityTest(0, 0, hand, trump, talon);
         }
 
+        [TestCategory("Probability tests")]
         [TestMethod]
         public void Hand12Talon0()
         {
@@ -156,6 +159,7 @@ namespace Mariasek.Engine.Tests
             CardProbabilityTest(0, 0, hand, trump, talon);
         }
 
+        [TestCategory("Probability tests")]
         [TestMethod]
         public void Hand10NullTalon()
         {

@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Mariasek.Engine.New.Logger
 {
+    [ExcludeFromCodeCoverage]
     public class DummyLogWrapper : ILog
     {
         public void Init()

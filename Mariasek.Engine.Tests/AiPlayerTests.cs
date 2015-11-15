@@ -7,7 +7,6 @@ using System.Collections.Generic;
 namespace Mariasek.Engine.Tests
 {
     [TestClass]
-    //[Ignore]
     public class AiPlayerTests
     {
         private ParameterConfigurationElementCollection _aiConfig;
@@ -101,6 +100,8 @@ namespace Mariasek.Engine.Tests
                 GameType = g.GameType, 
                 TrumpCard = g.TrumpCard
             });
+            bidding.InvokeMethod("AdjustValidBidsForPlayer", 1, 0);
+
             var hra = aiPlayer.GetBidsAndDoubles(bidding);
 
             props = aiPlayer.ToPropertyDictionary();
@@ -109,6 +110,7 @@ namespace Mariasek.Engine.Tests
         }
 
         #region Game choice tests
+        [TestCategory("Game choice tests")]
         [TestMethod]
         public void Choose107()
         {
@@ -119,6 +121,7 @@ namespace Mariasek.Engine.Tests
             Assert.IsTrue((hra & Hra.Sedma) != 0, "Ai mel zavolit sedmu");
         }
 
+        [TestCategory("Game choice tests")]
         [TestMethod]
         public void DoNotChoose107()
         {
@@ -129,6 +132,7 @@ namespace Mariasek.Engine.Tests
             Assert.IsTrue((hra & Hra.Sedma) != 0, "Ai mel zavolit sedmu");
         }
 
+        [TestCategory("Game choice tests")]
         [TestMethod]
         public void Choose7()
         {
@@ -138,6 +142,7 @@ namespace Mariasek.Engine.Tests
             Assert.IsTrue((hra & Hra.Sedma) != 0, "Ai mel zavolit sedmu");
         }
 
+        [TestCategory("Game choice tests")]
         [TestMethod]
         public void ChooseBetl()
         {
@@ -147,6 +152,7 @@ namespace Mariasek.Engine.Tests
             Assert.IsTrue((hra & Hra.Betl) != 0, "Ai mel zavolit betla");
         }
 
+        [TestCategory("Game choice tests")]
         [TestMethod]
         public void ChooseDurch()
         {
@@ -158,6 +164,7 @@ namespace Mariasek.Engine.Tests
         #endregion
 
         #region Bidding tests
+        [TestCategory("Bidding tests")]
         [TestMethod]
         public void Call107Against()
         {
@@ -166,6 +173,37 @@ namespace Mariasek.Engine.Tests
 
             Assert.IsTrue((hra & Hra.KiloProti) != 0, "Ai mel hlasit kilo proti");
             Assert.IsTrue((hra & Hra.SedmaProti) != 0, "Ai mel hlasit sedmu proti");
+        }
+
+        [TestCategory("Bidding tests")]
+        [TestMethod]
+        public void Flek107()
+        {
+            Dictionary<string, object> props;
+            var hra = GetOpponentsBidsAndDoubles(@"Scenarios\Bidding\__107flek.hra", out props);
+
+            Assert.IsTrue((hra & Hra.Kilo) != 0, "Ai mel flekovat kilo");
+            Assert.IsTrue((hra & Hra.Sedma) != 0, "Ai mel flekovat sedmu");
+        }
+
+        [TestCategory("Bidding tests")]
+        [TestMethod]
+        public void FlekBetl()
+        {
+            Dictionary<string, object> props;
+            var hra = GetOpponentsBidsAndDoubles(@"Scenarios\Bidding\__betlflek.hra", out props);
+
+            Assert.IsTrue((hra & Hra.Betl) != 0, "Ai mel flekovat betla");
+        }
+
+        [TestCategory("Bidding tests")]
+        [TestMethod]
+        public void FlekDurch()
+        {
+            Dictionary<string, object> props;
+            var hra = GetOpponentsBidsAndDoubles(@"Scenarios\Bidding\__durchflek.hra", out props);
+
+            Assert.IsTrue((hra & Hra.Durch) != 0, "Ai mel flekovat durch");
         }
         #endregion
     }
