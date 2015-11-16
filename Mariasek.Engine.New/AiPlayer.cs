@@ -441,20 +441,31 @@ namespace Mariasek.Engine.New
             if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
             {
                 gameType = Hra.Durch;
+                DebugInfo.RuleCount = _durchBalance;
             }
             else if (_betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
             {
                 gameType = Hra.Betl;
+                DebugInfo.RuleCount = _betlBalance;
             }
             else
             {
-                gameType = _hundredsBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound
-                             ? Hra.Kilo : Hra.Hra;
+                if (_hundredsBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                {
+                    gameType = Hra.Kilo;
+                    DebugInfo.RuleCount = _hundredsBalance;
+                }
+                else
+                {
+                    gameType = Hra.Hra;
+                    DebugInfo.RuleCount = _gamesBalance;
+                }
                 if (_sevensBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
                 {
                     gameType |= Hra.Sedma;
                 };
             }
+            DebugInfo.Rule = (gameType & (Hra.Betl | Hra.Durch)) == 0 ? string.Format("{0} {1}", gameType, _trump) : gameType.ToString();
             _log.DebugFormat("Selected game type: {0}", gameType);
 
             return gameType;

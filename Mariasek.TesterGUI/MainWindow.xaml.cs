@@ -716,6 +716,7 @@ namespace Mariasek.TesterGUI
             _synchronizationContext.Send(_ =>
             {
                 Image[] imgs = { imgPlayer1Hlas1, imgPlayer2Hlas1, imgPlayer3Hlas1 };
+                Label[] rules = { null, lblRule2, lblRule3 };
                 var source = e.TrumpCard != null
                                 ? string.Format("pack://application:,,,/Mariasek.TesterGUI;component/Images/karty/{0}",
                                     CardResources.Images[e.TrumpCard.Num])
@@ -727,6 +728,8 @@ namespace Mariasek.TesterGUI
                     imgs[e.GameStartingPlayerIndex].SetValue(Image.SourceProperty, imgSrcConverter.ConvertFromString(source) as ImageSource);
                 }
                 lblTrump.Content = string.Format("{0}: {1} {2}", g.GameStartingPlayer.Name, g.GameType, g.trump.HasValue? g.trump.Value.Description() : "");
+                rules[g.GameStartingPlayerIndex].Dispatch((o, p1, p2) => o.SetValue(p1, p2), ContentProperty, string.Format("{0}x", g.GameStartingPlayer.DebugInfo.RuleCount));
+
             }, null);
         }
 
