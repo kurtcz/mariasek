@@ -497,20 +497,22 @@ namespace Mariasek.Engine.New
                     //mame flekovat betl nebo durch
                     RunGameSimulations(bidding, false, true);
                 }
-            }            
+            }
+            //Flekovani se u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah),
+            //ostatni flekujeme pouze pokud zvolenou hru volici hrac nemuze uhrat
             if (_gamesBalance / Settings.SimulationsPerRound >= gameThreshold)
             {
                 bid |= bidding.Bids & Hra.Hra;
             }
-            if (_sevensBalance / Settings.SimulationsPerRound >= gameThreshold)
+            if (_sevensBalance == Settings.SimulationsPerRound)
             {
                 bid |=bidding.Bids & Hra.Sedma;
             }
-            if (_hundredsBalance / Settings.SimulationsPerRound >= gameThreshold)
+            if (_hundredsBalance == Settings.SimulationsPerRound)
             {
                 bid |= bidding.Bids & Hra.Kilo;
             }
-            if (_sevensAgainstBalance / Settings.SimulationsPerRound >= gameThreshold)
+            if (_sevensAgainstBalance == Settings.SimulationsPerRound)
             {
                 if (_numberOfDoubles == 1 && PlayerIndex != _g.GameStartingPlayerIndex)
                 {
@@ -519,7 +521,7 @@ namespace Mariasek.Engine.New
                 }
                 bid |= bidding.Bids & Hra.SedmaProti;
             }
-            if (_hundredsAgainstBalance / Settings.SimulationsPerRound >= gameThreshold)
+            if (_hundredsAgainstBalance == Settings.SimulationsPerRound)
             {
                 if (_numberOfDoubles == 1 && PlayerIndex != _g.GameStartingPlayerIndex)
                 {
@@ -528,11 +530,11 @@ namespace Mariasek.Engine.New
                 }
                 bid |= bidding.Bids & Hra.KiloProti;
             }
-            if (_durchBalance / Settings.SimulationsPerRound >= gameThreshold)
+            if (_durchBalance == Settings.SimulationsPerRound)
             {
                 bid |= bidding.Bids & Hra.Durch;
             }
-            if (_betlBalance / Settings.SimulationsPerRound >= gameThreshold)
+            if (_betlBalance == Settings.SimulationsPerRound)
             {
                 bid |= bidding.Bids & Hra.Betl;
             }

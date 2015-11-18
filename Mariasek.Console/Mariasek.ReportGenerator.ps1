@@ -1,7 +1,8 @@
 ﻿param(
 	[string]$inputDir = "GameResults",
 	[string]$configDir = "ConfigFiles",
-	[string]$output = ".\_report.json"
+	[string]$output = ".\_report.json",
+	[string]$format = "json"
 )
 
 #Include the common functions
@@ -113,10 +114,26 @@ $count = $games.Count
 Write-Host $count games found in $inputDir/
 PopulateGameData $games
 
-Write-Host Writing JSON Data to $output
-$json = ConvertTo-Json $gameData
-Set-Content -Path $output $json
-
+#Serialize game data to file
+switch($format)
+{
+	"json"
+	{
+		Write-Host Writing JSON Data to $output
+		$str = $gameData | ExpandProperties | ConvertTo-Json
+	}
+	"xml"
+	{
+		Write-Host Writing XML Data to $output
+		$str = $gameData | ExpandProperties | ConvertTo-Xml -As String -NoTypeInformation
+	}
+	"csv"
+	{
+		Write-Host Writing CSV Data to $output
+		$str = $gameData | ExpandProperties | ConvertTo-Csv -NoTypeInformation
+	}
+}
+Set-Content -Path $output $str
 
 $elapsedTime = $(Get-Date) - $startTime
 Write-Host Finished in ("{0:hh\:mm\:ss}" -f $elapsedTime)

@@ -80,6 +80,7 @@ namespace Mariasek.Console
         private static void PlayGame()
         {
             g.GameTypeChosen += GameTypeChosen;
+            g.BidMade += BidMade;
             g.CardPlayed += CardPlayed;
             g.RoundFinished += RoundFinished;
             g.PlayGame();
@@ -134,6 +135,11 @@ namespace Mariasek.Console
                 System.Console.WriteLine("{0}: {1}", player.Name, new Hand(player.Hand));
             }
             System.Console.WriteLine("{0}: {1} {2}\nTalon: {3} {4}\n", g.GameStartingPlayer.Name, e.GameType, e.TrumpCard, g.talon[0], g.talon[1]);
+        }
+
+        private static void BidMade(object sender, BidEventArgs e)
+        {
+            System.Console.WriteLine("{0}: {1}", e.Player.Name, e.BidMade == 0 ? "dobry" : string.Format("vejs na {0}", e.BidMade));
         }
 
         private static void CardPlayed(object sender, Round r)
