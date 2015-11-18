@@ -44,7 +44,8 @@ namespace Mariasek.Engine.New
                 CardSelectionStrategy = CardSelectionStrategy.MaxCount,
                 SimulationsPerRound = 50,
                 RuleThreshold = 0.8f,
-                GameThresholds = new [] { 0.7f, 0.8f, 0.9f }
+                GameThresholds = new [] { 0.7f, 0.8f, 0.9f },
+                MaxDoubleCount = 5
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
@@ -479,6 +480,11 @@ namespace Mariasek.Engine.New
             Hra bid = 0;
             var gameThreshold = Settings.GameThresholds[Math.Min(Settings.GameThresholds.Length - 1, _numberOfDoubles++)];
 
+            if (bidding.MaxDoubleCount > Settings.MaxDoubleCount)
+            {
+                //uz stacilo
+                return bid;
+            }
             if (_moneyCalculations == null)
             {
                 if (bidding.BetlDurchMultiplier == 0)

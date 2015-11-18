@@ -46,6 +46,11 @@ namespace Mariasek.Engine.Tests
                 Name = "GameThreshold",
                 Value = "51"
             });
+            _aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "MaxDoubleCount",
+                Value = "5"
+            });
         }
 
         private Hra ChooseGameType(string filename, out Dictionary<string, object> props)

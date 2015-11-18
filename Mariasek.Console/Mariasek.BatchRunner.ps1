@@ -4,18 +4,8 @@
 	[string]$configDir = "ConfigFiles"
 )
 
-function ExitIfNoDirectoryExists
-{
-	param(
-		[string]$directory
-	)
-	if(!(Test-Path -Path $directory))
-	{
-		$error = "Error: $directory/ does not exist."
-		$Host.UI.WriteErrorLine($error)
-		exit -1
-	}
-}
+#Include the common functions
+. .\Mariasek.Common.ps1
 
 $startTime = $(Get-Date)
 ExitIfNoDirectoryExists $inputDir
@@ -35,9 +25,10 @@ foreach($game in $games)
 	{
 		$gameResult = "{0}-{1}.hra" -f $game.BaseName, $config.BaseName
 		$filename = $game.FullName
-		& ./Mariasek.Console.exe load -FileName="$filename" -Result="$outputDir/$gameResult" | Out-Null
+		& .\Mariasek.Console.exe load -FileName="$filename" -Result="$outputDir/$gameResult" | Out-Null
 		Write-Host $gameResult saved to $outputDir/
 	}
 }
+
 $elapsedTime = $(Get-Date) - $startTime
 Write-Host Finished in ("{0:hh\:mm\:ss}" -f $elapsedTime)

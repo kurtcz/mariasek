@@ -40,6 +40,20 @@ namespace Mariasek.Engine.New
         public int SevenAgainstMultiplier { get { return _sevenAgainstFlek > 0 ? 1 << (_sevenAgainstFlek - 1) : 0; } }
         public int HundredAgainstMultiplier { get { return _hundredAgainstFlek > 0 ? 1 << (_hundredAgainstFlek - 1) : 0; } }
         public int BetlDurchMultiplier { get { return _betlDurchFlek > 0 ? 1 << (_betlDurchFlek - 1) : 0; } }
+        public int MaxDoubleCount
+        {
+            get
+            {
+                var maxFlek = 0;
+                if (_gameFlek > maxFlek) { maxFlek = _gameFlek; }
+                if (_sevenFlek > maxFlek) { maxFlek = _sevenFlek; }
+                if (_sevenAgainstFlek > maxFlek) { maxFlek = _sevenAgainstFlek; }
+                if (_hundredAgainstFlek > maxFlek) { maxFlek = _hundredAgainstFlek; }
+                if (_betlDurchFlek > maxFlek) { maxFlek = _betlDurchFlek; }
+
+                return maxFlek;
+            }
+        }
 
         public Bidding(Game g)
         {
