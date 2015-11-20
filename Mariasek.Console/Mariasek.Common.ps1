@@ -19,6 +19,18 @@ function ExitIfNoDirectoryExists
 	}
 }
 
+function EnsureDirectoryExists
+{
+	param(
+		[string]$directory
+	)
+	if(!(Test-Path -Path $directory))
+	{
+		Write-Host Creating directory $directory/
+		New-Item $directory -Type Directory | Out-Null
+	}
+}
+
 function ExpandProperties
 {
 	process {
@@ -41,4 +53,43 @@ function ExpandProperties
 			}                 
 		Write-Output $properties
 	}
+}
+
+function PlayerConfigToHashTable
+{
+	param(
+		[System.Xml.XmlElement]$xml
+	)
+
+	$config = @{
+		'Name' = $xml.Name;
+		'Position' = $xml.get_Name();
+		'Type' = $xml.type;
+		'Assembly' = $xml.assembly;
+		'AiCheating' = $xml.selectSingleNode("./parameter[@name='AiCheating']/@value").get_innerXml();
+		'RoundsToCompute' = $xml.selectSingleNode("./parameter[@name='RoundsToCompute']/@value").get_innerXml();
+		'CardSelectionStrategy' = $xml.selectSingleNode("./parameter[@name='CardSelectionStrategy']/@value").get_innerXml();
+		'SimulationsPerRound' = $xml.selectSingleNode("./parameter[@name='SimulationsPerRound']/@value").get_innerXml();
+		'RuleThreshold' = $xml.selectSingleNode("./parameter[@name='RuleThreshold']/@value").get_innerXml();
+		'GameThreshold' = $xml.selectSingleNode("./parameter[@name='GameThreshold']/@value").get_innerXml();
+	}
+
+	return New-Object PSObject -Property $config
+}
+
+function LoadPlayerConfig
+{
+	param(
+		[string]$file
+	)
+	
+	#Write-Host Reading config file $file
+	[xml]$xml = Get-Content -Path $file
+	$playerConfigData = @(
+		PlayerConfigToHashTable $xml.configuration.players.player1;
+		PlayerConfigToHashTable $xml.configuration.players.player2;
+		PlayerConfigToHashTable $xml.configuration.players.player3;
+	)
+
+	return $playerConfigData
 }

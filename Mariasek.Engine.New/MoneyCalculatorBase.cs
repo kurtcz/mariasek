@@ -71,20 +71,29 @@ namespace Mariasek.Engine.New
                     score[r.player3.PlayerIndex] += r.points3;
 
                     basicScore[r.player1.PlayerIndex] += r.basicPoints1;
-                    basicScore[r.player2.PlayerIndex] += r.basicPoints1;
-                    basicScore[r.player3.PlayerIndex] += r.basicPoints1;
+                    basicScore[r.player2.PlayerIndex] += r.basicPoints2;
+                    basicScore[r.player3.PlayerIndex] += r.basicPoints3;
 
-                    if(score[r.player1.PlayerIndex] - basicScore[r.player1.PlayerIndex] > maxHlasScore[r.player1.PlayerIndex])
+                    if(r.hlas1)
                     {
-                        maxHlasScore[r.player1.PlayerIndex] = score[r.player1.PlayerIndex] - basicScore[r.player1.PlayerIndex];
+                        if(r.hlasPoints1 > maxHlasScore[r.player1.PlayerIndex])
+                        {
+                            maxHlasScore[r.player1.PlayerIndex] = r.hlasPoints1;
+                        }
                     }
-                    if (score[r.player2.PlayerIndex] - basicScore[r.player2.PlayerIndex] > maxHlasScore[r.player2.PlayerIndex])
+                    if (r.hlas2)
                     {
-                        maxHlasScore[r.player2.PlayerIndex] = score[r.player2.PlayerIndex] - basicScore[r.player2.PlayerIndex];
+                        if (r.hlasPoints2 > maxHlasScore[r.player2.PlayerIndex])
+                        {
+                            maxHlasScore[r.player2.PlayerIndex] = r.hlasPoints2;
+                        }
                     }
-                    if (score[r.player3.PlayerIndex] - basicScore[r.player3.PlayerIndex] > maxHlasScore[r.player3.PlayerIndex])
+                    if (r.hlas3)
                     {
-                        maxHlasScore[r.player3.PlayerIndex] = score[r.player3.PlayerIndex] - basicScore[r.player3.PlayerIndex];
+                        if (r.hlasPoints3 > maxHlasScore[r.player3.PlayerIndex])
+                        {
+                            maxHlasScore[r.player3.PlayerIndex] = r.hlasPoints3;
+                        }
                     }
                 }
 
@@ -95,7 +104,7 @@ namespace Mariasek.Engine.New
                 BasicPointsLost = basicScore[(_gameStartingPlayerIndex + 1) % Game.NumPlayers] + basicScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers];
 
                 MaxHlasWon = maxHlasScore[_gameStartingPlayerIndex];
-                MaxHlasLost = maxHlasScore[(_gameStartingPlayerIndex + 1) % Game.NumPlayers] + maxHlasScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers];
+                MaxHlasLost = Math.Max(maxHlasScore[(_gameStartingPlayerIndex + 1) % Game.NumPlayers], maxHlasScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers]);
 
                 GameWon = PointsWon > PointsLost;
 

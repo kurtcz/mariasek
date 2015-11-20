@@ -166,6 +166,22 @@ namespace Mariasek.Engine.New
             return (float)CNK(n, totalCards - certainCards) / CNK(uncertainCards, totalCards - certainCards);
         }
 
+        public float HlasProbability(int playerIndex)
+        {
+            var p = new float[Game.NumSuits];
+
+            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            {
+                p[(int)b] = _cardProbabilityForPlayer[playerIndex][b][Hodnota.Kral] *
+                            _cardProbabilityForPlayer[playerIndex][b][Hodnota.Svrsek];
+            }
+
+            return + p[0] + p[1] + p[2] + p[3]
+                   - p[0] * p[1] - p[0] * p[2] - p[0] * p[3] - p[1] * p[2] - p[1] * p[3] - p[2] * p[3]
+                   + p[0] * p[1] * p[2] + p[0] * p[1] * p[3] + p[0] * p[2] * p[3] + p[1] * p[2] * p[3]
+                   - p[0] * p[1] * p[2] * p[3];
+        }
+
         private long CNK(int n, int k)
         {
             long numerator = 1;

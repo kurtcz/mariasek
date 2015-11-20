@@ -472,14 +472,17 @@ namespace Mariasek.Engine.New
             return gameType;
         }
 
-        private int _numberOfDoubles = 0;
-
         //V tehle funkci muzeme dat flek nebo hlasit protihru
         public override Hra GetBidsAndDoubles(Bidding bidding)
         {
             Hra bid = 0;
-            var gameThreshold = Settings.GameThresholds[Math.Min(Settings.GameThresholds.Length - 1, _numberOfDoubles++)];
-
+            var gameThreshold = bidding._gameFlek < Settings.GameThresholds.Length ? Settings.GameThresholds[bidding._gameFlek] : 1f;
+            var sevenThreshold = bidding._sevenFlek < Settings.GameThresholds.Length ? Settings.GameThresholds[bidding._sevenFlek] : 1f;
+            var hundredThreshold = bidding._gameFlek < Settings.GameThresholds.Length ? Settings.GameThresholds[bidding._gameFlek] : 1f;
+            var sevenAgainstThreshold = bidding._sevenAgainstFlek < Settings.GameThresholds.Length ? Settings.GameThresholds[bidding._sevenAgainstFlek] : 1f;
+            var hundredAgainstThreshold = bidding._hundredAgainstFlek < Settings.GameThresholds.Length ? Settings.GameThresholds[bidding._hundredAgainstFlek] : 1f;
+            var betlDurchThreshold = bidding._betlDurchFlek < Settings.GameThresholds.Length ? Settings.GameThresholds[bidding._betlDurchFlek] : 1f;
+            
             if (bidding.MaxDoubleCount > Settings.MaxDoubleCount)
             {
                 //uz stacilo
@@ -500,41 +503,63 @@ namespace Mariasek.Engine.New
             }
             //Flekovani se u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah),
             //ostatni flekujeme pouze pokud zvolenou hru volici hrac nemuze uhrat
-            if (_gamesBalance / Settings.SimulationsPerRound >= gameThreshold)
+            if (_gamesBalance / (float)Settings.SimulationsPerRound >= gameThreshold)
             {
                 bid |= bidding.Bids & Hra.Hra;
             }
-            if (_sevensBalance == Settings.SimulationsPerRound)
+            //sedmu flekuju jen pokud jsem volil sam sedmu a v simulacich jsem ji uhral dost casto
+            //nebo pokud jsem nevolil a v simulacich ani jednou nevysla
+            if ((PlayerIndex == _g.GameStartingPlayerIndex && _sevensBalance / (float)Settings.SimulationsPerRound >= sevenThreshold) ||
+                (PlayerIndex != _g.GameStartingPlayerIndex && _sevensBalance == Settings.SimulationsPerRound))
             {
                 bid |=bidding.Bids & Hra.Sedma;
             }
-            if (_hundredsBalance == Settings.SimulationsPerRound)
+            //kilo flekuju jen pokud jsem volil sam kilo a v simulacich jsem ho uhral dost casto
+            //nebo pokud jsem nevolil a je nemozne aby mel volici hrac kilo (nema hlas)
+            //?! Pokud bych chtel simulovat sance na to, ze volici hrac hlasene kilo neuhraje, tak musim nejak generovat "karty na kilo" (aspon 1 hlas) a ne nahodne karty
+            if ((PlayerIndex == _g.GameStartingPlayerIndex && _hundredsBalance / (float)Settings.SimulationsPerRound >= gameThreshold) ||
+                (PlayerIndex != _g.GameStartingPlayerIndex && Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0))
             {
                 bid |= bidding.Bids & Hra.Kilo;
             }
-            if (_sevensAgainstBalance == Settings.SimulationsPerRound)
+            //sedmu proti flekuju jen pokud jsem hlasil sam sedmu proti a v simulacich jsem ji uhral dost casto
+            //nebo pokud jsem volil trumf a v simulacich ani jednou nevysla
+            //?! Pokud bych chtel simulovat sance na to, ze volici hrac hlasenou sedmu neuhraje, tak musim nejak generovat "karty na sedmu" (aspon 4-5 trumfu) a ne nahodne karty
+            if ((PlayerIndex != _g.GameStartingPlayerIndex && _sevensAgainstBalance / (float)Settings.SimulationsPerRound >= sevenAgainstThreshold) ||
+                (PlayerIndex == _g.GameStartingPlayerIndex && _sevensAgainstBalance == Settings.SimulationsPerRound))
             {
-                if (_numberOfDoubles == 1 && PlayerIndex != _g.GameStartingPlayerIndex)
-                {
-                    //v prvnim kole muze souper zahlasit sedmu proti
-                    bid |= bidding.Bids | Hra.SedmaProti;
-                }
+                //if (_numberOfDoubles == 1 && PlayerIndex != _g.GameStartingPlayerIndex)
+                //{
+                //    //v prvnim kole muze souper zahlasit sedmu proti
+                //    bid |= bidding.Bids | Hra.SedmaProti;
+                //}
                 bid |= bidding.Bids & Hra.SedmaProti;
             }
-            if (_hundredsAgainstBalance == Settings.SimulationsPerRound)
+            //kilo proti flekuju jen pokud jsem hlasil sam kilo proti a v simulacich jsem ho uhral dost casto
+            //nebo pokud jsem volil trumf a je nemozne aby meli protihraci kilo (nemaji hlas)
+            if ((PlayerIndex != _g.GameStartingPlayerIndex && _hundredsAgainstBalance / (float)Settings.SimulationsPerRound >= hundredAgainstThreshold) ||
+                (PlayerIndex == _g.GameStartingPlayerIndex && //_hundredsAgainstBalance == Settings.SimulationsPerRound))); //never monte carlu, dej na pravdepodobnost
+                                                              (Probabilities.HlasProbability((PlayerIndex + 1) % Game.NumPlayers) == 0) &&
+                                                              (Probabilities.HlasProbability((PlayerIndex + 2) % Game.NumPlayers) == 0)))
             {
-                if (_numberOfDoubles == 1 && PlayerIndex != _g.GameStartingPlayerIndex)
-                {
-                    //v prvnim kole muze souper zahlasit kilo proti
-                    bid |= bidding.Bids | Hra.KiloProti;
-                }
+                //if (_numberOfDoubles == 1 && PlayerIndex != _g.GameStartingPlayerIndex)
+                //{
+                //    //v prvnim kole muze souper zahlasit kilo proti
+                //    bid |= bidding.Bids | Hra.KiloProti;
+                //}
                 bid |= bidding.Bids & Hra.KiloProti;
             }
-            if (_durchBalance == Settings.SimulationsPerRound)
+            //durch flekuju jen pokud jsem volil sam durch a v simulacich jsem ho uhral dost casto
+            //nebo pokud jsem nevolil a v simulacich ani jednou nevysel            
+            if ((PlayerIndex == _g.GameStartingPlayerIndex && _durchBalance / (float)Settings.SimulationsPerRound >= betlDurchThreshold) ||
+                (PlayerIndex != _g.GameStartingPlayerIndex && _durchBalance == Settings.SimulationsPerRound))
             {
                 bid |= bidding.Bids & Hra.Durch;
             }
-            if (_betlBalance == Settings.SimulationsPerRound)
+            //betla flekuju jen pokud jsem volil sam betla a v simulacich jsem ho uhral dost casto
+            //nebo pokud jsem nevolil a v simulacich ani jednou nevysel            
+            if ((PlayerIndex == _g.GameStartingPlayerIndex && _betlBalance / (float)Settings.SimulationsPerRound >= betlDurchThreshold) ||
+                (PlayerIndex != _g.GameStartingPlayerIndex && _betlBalance == Settings.SimulationsPerRound))
             {
                 bid |= bidding.Bids & Hra.Betl;
             }
@@ -756,18 +781,9 @@ namespace Mariasek.Engine.New
                 result.BasicScore[_g.rounds[i].player1.PlayerIndex] += _g.rounds[i].basicPoints1;
                 result.BasicScore[_g.rounds[i].player2.PlayerIndex] += _g.rounds[i].basicPoints1;
                 result.BasicScore[_g.rounds[i].player3.PlayerIndex] += _g.rounds[i].basicPoints1;
-                var hlasScore1 = _g.rounds[i].hlas1
-                                    ? (_g.rounds[i].c1.Suit == _g.trump.Value ? 40 : 20)
-                                    : 0;
-                var hlasScore2 = _g.rounds[i].hlas2
-                                    ? (_g.rounds[i].c2.Suit == _g.trump.Value ? 40 : 20)
-                                    : 0;
-                var hlasScore3 = _g.rounds[i].hlas3
-                                    ? (_g.rounds[i].c3.Suit == _g.trump.Value ? 40 : 20)
-                                    : 0;
-                result.MaxHlasScore[_g.rounds[i].player1.PlayerIndex] = Math.Max(hlasScore1, result.MaxHlasScore[_g.rounds[i].player1.PlayerIndex]);
-                result.MaxHlasScore[_g.rounds[i].player2.PlayerIndex] = Math.Max(hlasScore2, result.MaxHlasScore[_g.rounds[i].player2.PlayerIndex]);
-                result.MaxHlasScore[_g.rounds[i].player3.PlayerIndex] = Math.Max(hlasScore3, result.MaxHlasScore[_g.rounds[i].player3.PlayerIndex]);
+                result.MaxHlasScore[_g.rounds[i].player1.PlayerIndex] = Math.Max(_g.rounds[i].hlasPoints1, result.MaxHlasScore[_g.rounds[i].player1.PlayerIndex]);
+                result.MaxHlasScore[_g.rounds[i].player2.PlayerIndex] = Math.Max(_g.rounds[i].hlasPoints2, result.MaxHlasScore[_g.rounds[i].player2.PlayerIndex]);
+                result.MaxHlasScore[_g.rounds[i].player3.PlayerIndex] = Math.Max(_g.rounds[i].hlasPoints3, result.MaxHlasScore[_g.rounds[i].player3.PlayerIndex]);
             }
 
             return result;

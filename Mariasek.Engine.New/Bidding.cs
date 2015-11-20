@@ -29,11 +29,11 @@ namespace Mariasek.Engine.New
 
         public int Round { get; private set; }
 
-        private int _gameFlek;
-        private int _sevenFlek;
-        private int _sevenAgainstFlek;
-        private int _hundredAgainstFlek;
-        private int _betlDurchFlek;
+        public int _gameFlek;
+        public int _sevenFlek;
+        public int _sevenAgainstFlek;
+        public int _hundredAgainstFlek;
+        public int _betlDurchFlek;
 
         public int GameMultiplier { get { return _gameFlek > 0 ? 1 << (_gameFlek - 1) : 0; } }
         public int SevenMultiplier { get { return _sevenFlek > 0 ? 1 << (_sevenFlek - 1) : 0; } }

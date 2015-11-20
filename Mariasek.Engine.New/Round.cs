@@ -29,9 +29,13 @@ namespace Mariasek.Engine.New
         public Card c2 { get; private set; }
         public Card c3 { get; private set; }
 
-        public bool hlas1 { get; private set; }
-        public bool hlas2 { get; private set; }
-        public bool hlas3 { get; private set; }
+        public int hlasPoints1 { get; private set; }
+        public int hlasPoints2 { get; private set; }
+        public int hlasPoints3 { get; private set; }
+
+        public bool hlas1 { get { return hlasPoints1 != 0; } }
+        public bool hlas2 { get { return hlasPoints2 != 0; } }
+        public bool hlas3 { get { return hlasPoints3 != 0; } }
 
         public int points1 { get; private set; }
         public int points2 { get; private set; }
@@ -58,19 +62,28 @@ namespace Mariasek.Engine.New
             player3 = _g.players[(roundStarter.PlayerIndex + 2) % Game.NumPlayers];
 
             this.c1 = c1;
-            hlas1 = c1.Value == Hodnota.Svrsek && player1.Hand.HasK(c1.Suit);
+            if(_g.trump.HasValue && c1.Value == Hodnota.Svrsek && player1.Hand.HasK(c1.Suit))
+            {
+                hlasPoints1 = c1.Suit == _g.trump.Value ? 40 : 20;
+            }
             if (hlas1) player1.Hlasy++;
             player1.Hand.Remove(c1);
             _g.OnCardPlayed(this);
             
             this.c2 = c2;
-            hlas2 = c2.Value == Hodnota.Svrsek && player2.Hand.HasK(c2.Suit);
+            if (_g.trump.HasValue && c2.Value == Hodnota.Svrsek && player2.Hand.HasK(c2.Suit))
+            {
+                hlasPoints2 = c2.Suit == _g.trump.Value ? 40 : 20;
+            }
             if (hlas2) player1.Hlasy++;
             player2.Hand.Remove(c2);
             _g.OnCardPlayed(this);
 
             this.c3 = c3;
-            hlas3 = c3.Value == Hodnota.Svrsek && player3.Hand.HasK(c3.Suit);
+            if (_g.trump.HasValue && c3.Value == Hodnota.Svrsek && player3.Hand.HasK(c3.Suit))
+            {
+                hlasPoints3 = c3.Suit == _g.trump.Value ? 40 : 20;
+            }
             if (hlas3) player1.Hlasy++;
             player3.Hand.Remove(c3);
             _g.OnCardPlayed(this);
@@ -82,21 +95,30 @@ namespace Mariasek.Engine.New
         {
             //musim nejak overit, ze karty jsou validni a pokud ne tak to hraci oznamit a akci opakovat
             c1 = player1.PlayCard(this);
-            hlas1 = _g.trump.HasValue && c1.Value == Hodnota.Svrsek && player1.Hand.HasK(c1.Suit);
+            if (_g.trump.HasValue && c1.Value == Hodnota.Svrsek && player1.Hand.HasK(c1.Suit))
+            {
+                hlasPoints1 = c1.Suit == _g.trump.Value ? 40 : 20;
+            }
             if (hlas1) player1.Hlasy++;
             player1.Hand.Remove(c1);
             _g.ThrowIfCancellationRequested();
             _g.OnCardPlayed(this);
             
             c2 = player2.PlayCard(this);
-            hlas2 = _g.trump.HasValue && c2.Value == Hodnota.Svrsek && player2.Hand.HasK(c2.Suit);
+            if (_g.trump.HasValue && c2.Value == Hodnota.Svrsek && player2.Hand.HasK(c2.Suit))
+            {
+                hlasPoints2 = c2.Suit == _g.trump.Value ? 40 : 20;
+            }
             if (hlas2) player2.Hlasy++;
             player2.Hand.Remove(c2);
             _g.ThrowIfCancellationRequested(); 
             _g.OnCardPlayed(this);
             
             c3 = player3.PlayCard(this);
-            hlas3 = _g.trump.HasValue && c3.Value == Hodnota.Svrsek && player3.Hand.HasK(c3.Suit);
+            if (_g.trump.HasValue && c3.Value == Hodnota.Svrsek && player3.Hand.HasK(c3.Suit))
+            {
+                hlasPoints3 = c3.Suit == _g.trump.Value ? 40 : 20;
+            }
             if (hlas3) player3.Hlasy++;
             player3.Hand.Remove(c3);
             _g.ThrowIfCancellationRequested(); 
@@ -133,9 +155,9 @@ namespace Mariasek.Engine.New
 
             if (_g.trump.HasValue)
             {
-                points1 += hlas1 ? (c1.Suit == _g.trump.Value ? 40 : 20) : 0;
-                points2 += hlas2 ? (c2.Suit == _g.trump.Value ? 40 : 20) : 0;
-                points3 += hlas3 ? (c3.Suit == _g.trump.Value ? 40 : 20) : 0;
+                points1 += hlasPoints1;
+                points2 += hlasPoints2;
+                points3 += hlasPoints3;
             }
         }
 

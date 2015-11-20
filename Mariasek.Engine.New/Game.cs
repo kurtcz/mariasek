@@ -33,6 +33,7 @@ namespace Mariasek.Engine.New
 
         public const int NumPlayers = 3;
         public const int NumRounds = 10;
+        public const int NumSuits = 4;
 
         public AbstractPlayer[] players { get; private set; }
 

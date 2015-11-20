@@ -17,5 +17,9 @@ namespace Mariasek.Engine.New
                                                              {
                                                                  Description = "Hraj jedinou moznou kartu"
                                                              };
+        public override string ToString()
+        {
+            return Description ?? base.ToString();
+        }
     }
 }

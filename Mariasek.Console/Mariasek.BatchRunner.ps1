@@ -1,23 +1,21 @@
 ﻿param(
 	[string]$inputDir = "GameDefinitions",
 	[string]$outputDir = "GameResults",
-	[string]$configDir = "ConfigFiles"
+	[string]$configDir = "ConfigFiles",
+	[string]$reportDir = $null,
+	[string]$scenario = ""
 )
 
-#Include the common functions
+#Include common functions
 . .\Mariasek.Common.ps1
 
 $startTime = $(Get-Date)
 ExitIfNoDirectoryExists $inputDir
 ExitIfNoDirectoryExists $configDir
 
-if(!(Test-Path -Path $outputDir))
-{
-	Write-Host Creating directory $outputDir/
-	New-Item $outputDir -Type Directory | Out-Null
-}
 $games = Get-ChildItem $inputDir
 $configs = Get-ChildItem $configDir/* -Include "*.config"
+EnsureDirectoryExists $outputDir
 Write-Host Playing $games.Count games from $inputDir/, using $configs.Count config files and saving to $outputDir/ ...
 foreach($game in $games)
 {
@@ -32,3 +30,8 @@ foreach($game in $games)
 
 $elapsedTime = $(Get-Date) - $startTime
 Write-Host Finished in ("{0:hh\:mm\:ss}" -f $elapsedTime)
+
+if($reportDir)
+{
+	& .\Mariasek.ReportGenerator.ps1 -InputDir $outputDir -ConfigDir $configDir -Output $reportDir/report$scenario.json -CfgOutput $reportDir/cfg$scenario.json
+}

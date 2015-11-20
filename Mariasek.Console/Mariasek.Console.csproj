@@ -56,6 +56,9 @@
     <None Include="Mariasek.Common.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Mariasek.ConfigGenerator.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Mariasek.ReportGenerator.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

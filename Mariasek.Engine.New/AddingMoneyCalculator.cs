@@ -115,7 +115,7 @@ namespace Mariasek.Engine.New
                     }
                     else
                     {
-                        money -= HundredValue * _bidding.GameMultiplier * (110 - PointsWon) / 10;
+                        money -= HundredValue * _bidding.GameMultiplier * (100 - BasicPointsWon - MaxHlasWon) / 10;
                     }
                 }
                 else
@@ -130,11 +130,11 @@ namespace Mariasek.Engine.New
                 {
                     if (HundredAgainstWon)
                     {
-                        money -= HundredValue * _bidding.GameMultiplier * (PointsLost - 90) / 10;
+                        money -= HundredValue * _bidding.GameMultiplier * (BasicPointsLost - 90) / 10;
                     }
                     else
                     {
-                        money += HundredValue * _bidding.GameMultiplier * (110 - PointsLost) / 100;
+                        money += HundredValue * _bidding.GameMultiplier * (100 - BasicPointsLost - MaxHlasLost) / 100;
                     }
                 }
                 else

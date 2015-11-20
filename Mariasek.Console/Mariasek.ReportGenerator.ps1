@@ -2,59 +2,14 @@
 	[string]$inputDir = "GameResults",
 	[string]$configDir = "ConfigFiles",
 	[string]$output = ".\_report.json",
+	[string]$cfgoutput = ".\_cfg.json",
 	[string]$format = "json"
 )
 
-#Include the common functions
+#Include common functions
 . .\Mariasek.Common.ps1
 
 $gameData = {@()}.Invoke()
-
-function PlayerConfigToHashTable
-{
-	param(
-		[System.Xml.XmlElement]$xml
-	)
-
-	$config = @{
-		'Name' = $xml.Name;
-		'Position' = $xml.get_Name();
-		'Type' = $xml.type;
-		'Assembly' = $xml.assembly;
-		'AiCheating' = $xml.selectSingleNode("./parameter[@name='AiCheating']/@value").get_innerXml();
-		'RoundsToCompute' = $xml.selectSingleNode("./parameter[@name='RoundsToCompute']/@value").get_innerXml();
-		'CardSelectionStrategy' = $xml.selectSingleNode("./parameter[@name='CardSelectionStrategy']/@value").get_innerXml();
-		'SimulationsPerRound' = $xml.selectSingleNode("./parameter[@name='SimulationsPerRound']/@value").get_innerXml();
-		'RuleThreshold' = $xml.selectSingleNode("./parameter[@name='RuleThreshold']/@value").get_innerXml();
-		'GameThreshold' = $xml.selectSingleNode("./parameter[@name='GameThreshold']/@value").get_innerXml();
-	}
-
-	return New-Object PSObject -Property $config
-}
-
-function LoadPlayerConfigForGame
-{
-	param(
-		[System.IO.FileInfo]$file
-	)
-	
-	$baseName = $file.BaseName.Split("-")
-	
-	if ($baseName.Count -lt 2)
-	{
-		TerminateWithError ("Cannot parse configuration name out of game file {0}" -f $file.FullName)
-	}
-	$configName = "{0}/{1}.config" -f $configDir, $baseName[1]
-	Write-Host Reading config file $configName
-	[xml]$xml = Get-Content -Path $configName
-	$playerConfigData = @(
-		PlayerConfigToHashTable $xml.configuration.players.player1;
-		PlayerConfigToHashTable $xml.configuration.players.player2;
-		PlayerConfigToHashTable $xml.configuration.players.player3;
-	)
-
-	return $playerConfigData
-}
 
 function PopulateGameData
 {
@@ -64,14 +19,25 @@ function PopulateGameData
 
 	foreach($game in $games)
 	{
-		$playerConfigData = LoadPlayerConfigForGame $game.FullName
-		[xml]$xml = Get-Content -Path $game.FullName
+		#Filename has the following pattern: <GameId>-<ConfigId>.hra
+		$gameIds = $game.BaseName.Split("-")
+		Write-Host ("Populating game data for {0}{1}" -f $game.BaseName, $game.Extension)
+	
+		if ($gameIds.Count -lt 2)
+		{
+			TerminateWithError ("Cannot parse configuration name out of game file {0}" -f $file.FullName)
+		}
+		$configPath = "{0}/{1}.config" -f $configDir, $gameIds[1]
+
+		$playerConfigData = LoadPlayerConfig $configPath
 		$player1 = $playerConfigData | Where-Object { $_.Position -eq 'player1' }
 		$player2 = $playerConfigData | Where-Object { $_.Position -eq 'player2' }
 		$player3 = $playerConfigData | Where-Object { $_.Position -eq 'player3' }
 
+		[xml]$xml = Get-Content -Path $game.FullName
 		$player1Data = New-Object PSObject -Property @{
-			'GameId' = $game.BaseName.Split("-")[0];
+			'GameId' = $gameIds[0];
+			'ConfigId' = $gameIds[1];
 			'Typ' = $xml.Hra.Typ;
 			'Player' = $player1.Name;
 			'Position' = $player1.Position;
@@ -80,7 +46,8 @@ function PopulateGameData
 		}
 		$gameData.Add($player1Data)
 		$player2Data = New-Object PSObject -Property @{
-			'GameId' = $game.BaseName.Split("-")[0];
+			'GameId' = $gameIds[0];
+			'ConfigId' = $gameIds[1];
 			'Typ' = $xml.Hra.Typ;
 			'Player' = $player2.Name;
 			'Position' = $player2.Position;
@@ -89,7 +56,8 @@ function PopulateGameData
 		}
 		$gameData.Add($player2Data)
 		$player3Data = New-Object PSObject -Property @{
-			'GameId' = $game.BaseName.Split("-")[0];
+			'GameId' = $gameIds[0];
+			'ConfigId' = $gameIds[1];
 			'Typ' = $xml.Hra.Typ;
 			'Player' = $player3.Name;
 			'Position' = $player3.Position;
@@ -105,10 +73,12 @@ ExitIfNoDirectoryExists $inputDir
 ExitIfNoDirectoryExists $configDir
 
 Write-Host Generating report ...
-$configs = Get-ChildItem $configDir/* -Include "*.config"
-$count = $configs.Count
-Write-Host $count configs found in $configDir/
-
+#$configs = Get-ChildItem $configDir/* -Include "*.config"
+#$count = $configs.Count
+#Write-Host $count configs found in $configDir/
+$configPath = "{0}/abc.config" -f $configDir
+$playerConfigData = LoadPlayerConfig $configPath
+ 
 $games = Get-ChildItem $inputDir/* -Include "*.hra"
 $count = $games.Count
 Write-Host $count games found in $inputDir/
@@ -119,21 +89,25 @@ switch($format)
 {
 	"json"
 	{
-		Write-Host Writing JSON Data to $output
+		Write-Host Writing JSON Data to $output and $cfgoutput
 		$str = $gameData | ExpandProperties | ConvertTo-Json
+		$cfg = $playerConfigData | ConvertTo-Json
 	}
 	"xml"
 	{
-		Write-Host Writing XML Data to $output
+		Write-Host Writing XML Data to $output and $cfgoutput
 		$str = $gameData | ExpandProperties | ConvertTo-Xml -As String -NoTypeInformation
+		$cfg = $playerConfigData | ConvertTo-Xml -As String -NoTypeInformation
 	}
 	"csv"
 	{
-		Write-Host Writing CSV Data to $output
+		Write-Host Writing CSV Data to $output and $cfgoutput
 		$str = $gameData | ExpandProperties | ConvertTo-Csv -NoTypeInformation
+		$cfg = $playerConfigData | ConvertTo-Csv -NoTypeInformation
 	}
 }
 Set-Content -Path $output $str
+Set-Content -Path $cfgoutput $cfg
 
 $elapsedTime = $(Get-Date) - $startTime
 Write-Host Finished in ("{0:hh\:mm\:ss}" -f $elapsedTime)
