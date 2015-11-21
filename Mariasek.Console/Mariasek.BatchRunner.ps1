@@ -23,7 +23,7 @@ foreach($game in $games)
 	{
 		$gameResult = "{0}-{1}.hra" -f $game.BaseName, $config.BaseName
 		$filename = $game.FullName
-		& .\Mariasek.Console.exe load -FileName="$filename" -Result="$outputDir/$gameResult" | Out-Null
+		& .\Mariasek.Console.exe load -FileName="$filename" -config="$config.FullName" -Result="$outputDir/$gameResult" | Out-Null
 		Write-Host $gameResult saved to $outputDir/
 	}
 }

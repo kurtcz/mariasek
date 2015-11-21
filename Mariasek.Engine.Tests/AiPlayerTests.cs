@@ -44,7 +44,7 @@ namespace Mariasek.Engine.Tests
             _aiConfig.Add("GameThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold",
-                Value = "51"
+                Value = "51|52"
             });
             _aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {

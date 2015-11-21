@@ -252,7 +252,7 @@ namespace Mariasek.Engine.New
             {
                 bool reduced = false;
 
-                for (int j = 0; j < Game.NumPlayers; j++)
+                for (int j = 0; j < Game.NumPlayers + 1; j++)
                 {
                     if (uncertainCards[j].Any() && totalCards[j] - hands[j].Count() == uncertainCards[j].Count())
                     {
@@ -389,8 +389,27 @@ namespace Mariasek.Engine.New
             var sb = new StringBuilder();
             for (var i = 0; i < Game.NumPlayers; i++)
             {
-                sb.AppendFormat(" Player {0}: ", i + 1);
+                sb.AppendFormat("\nPlayer {0}: ", i + 1);
                 sb.Append(result[i].ToString());
+            }
+            sb.AppendFormat("\nTalon: {0}", result[talonIndex].ToString());
+            //zkontroluj vysledek
+            var check = true;
+            for (int i = 0; i < Game.NumPlayers; i++)
+            {
+                if (hands[i].Count != 10 - roundNumber + 1 && roundNumber == 1 && hands[i].Count != 12)
+                {
+                    check = false;
+                    break;
+                }
+            }
+            if(hands[talonIndex].Count != 0 && hands[talonIndex].Count != 2)
+            {
+                check = false;
+            }
+            if (!check)
+            {
+                throw new Exception(string.Format("Badly generated hands for player {0}, round {1}:{2}", _myIndex + 1, roundNumber, sb.ToString()));
             }
             _log.DebugFormat("Finished generating hands for player{0}\n{1}", _myIndex + 1, sb.ToString());
             
@@ -415,6 +434,7 @@ namespace Mariasek.Engine.New
                 return;
             }
 
+            _trump = e.TrumpCard.Suit;
             //TODO: Adjust probabilities (7, Kilo, 107)
             for (var i = 0; i < Game.NumPlayers + 1; i++)
             {

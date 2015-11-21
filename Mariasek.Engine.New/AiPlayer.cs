@@ -237,42 +237,45 @@ namespace Mariasek.Engine.New
 
         public override List<Card> ChooseTalon()
         {
-            //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
-            //Zapamatujeme si vysledek a pouzijeme ho i v ChooseGameFlavour() a ChooseGameType()
-            var bidding = new Bidding(_g);
-
-            _talon = new List<Card>();
-            if (PlayerIndex == _g.GameStartingPlayerIndex)
-            {
-                RunGameSimulations(bidding, true, true);
-            }
-            else
-            {
-                RunGameSimulations(bidding, false, true);
-            }
-            if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
-            {
-                _talon = ChooseDurchTalon(Hand);
-            }
-            else if (_betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
-            {
-                _talon = ChooseBetlTalon(Hand);
-            }
-            else
-            {
-                _talon = ChooseNormalTalon(Hand);
-            }
-
             _log.DebugFormat("Talon chosen: {0} {1}", _talon[0], _talon[1]);
-            Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
-            Probabilities.UpdateProbabilitiesAfterTalon(_talon);
-
+            
             return _talon;
         }
 
         public override GameFlavour ChooseGameFlavour()
         {
-            //simulace uz probehly v ChooseTalon()
+            //mame simulovat betl nebo durch
+
+            //pokud volim hru tak mam 12 karet a nechci generovat talon,
+            //jinak mam 10 karet a talon si necham nagenerovat a potom ho vymenim za talon zvoleny podle logiky
+            _talon = PlayerIndex == _g.GameStartingPlayerIndex ? new List<Card>() : null;
+            Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, _talon);
+
+            var bidding = new Bidding(_g);
+            if (PlayerIndex == _g.OriginalGameStartingPlayerIndex)
+            {
+                //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
+                //Zapamatujeme si vysledek a pouzijeme ho i v ChooseGameFlavour() a ChooseGameType()
+                RunGameSimulations(bidding, PlayerIndex, true, true);
+                if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                {
+                    _talon = ChooseDurchTalon(Hand);
+                }
+                else if (_betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                {
+                    _talon = ChooseBetlTalon(Hand);
+                }
+                else
+                {
+                    _talon = ChooseNormalTalon(Hand);
+                }
+                Probabilities.UpdateProbabilitiesAfterTalon(_talon);
+            }
+            else
+            {
+                RunGameSimulations(bidding, PlayerIndex, false, true);
+            }
+            _moneyCalculations = null; //abychom v GetBidsAndDoubles znovu sjeli simulaci normalni hry
 
             if ((_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound) ||
                 (_betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound))
@@ -283,22 +286,22 @@ namespace Mariasek.Engine.New
             return GameFlavour.Good;
         }
 
-        private void UpdateGeneratedHandsByChoosingTalon(Func<List<Card>, List<Card>> chooseTalonFunc)
+        private void UpdateGeneratedHandsByChoosingTalon(Func<List<Card>, List<Card>> chooseTalonFunc, int GameStartingPlayerIndex)
         {
             const int talonIndex = 3;
 
             //volicimu hraci dame i to co je v talonu, aby mohl vybrat skutecny talon
-            _hands[_g.GameStartingPlayerIndex].AddRange(_hands[3]);
+            _hands[GameStartingPlayerIndex].AddRange(_hands[3]);
 
             var talon = chooseTalonFunc(_hands[_g.GameStartingPlayerIndex]);
 
-            _hands[_g.GameStartingPlayerIndex].Remove(talon[0]);
-            _hands[_g.GameStartingPlayerIndex].Remove(talon[1]);
+            _hands[GameStartingPlayerIndex].Remove(talon[0]);
+            _hands[GameStartingPlayerIndex].Remove(talon[1]);
             _hands[talonIndex] = new Hand(talon);
         }
 
         //vola se jak pro voliciho hrace tak pro oponenty 
-        private void RunGameSimulations(Bidding bidding, bool simulateGoodGames, bool simulateBadGames)
+        private void RunGameSimulations(Bidding bidding, int GameStartingPlayerIndex, bool simulateGoodGames, bool simulateBadGames)
         {
             var gameComputationResults = new List<GameComputationResult>();
             var durchComputationResults = new List<GameComputationResult>();
@@ -311,52 +314,34 @@ namespace Mariasek.Engine.New
             _log.DebugFormat("Running game simulations for {0} ...", Name);
             if (simulateGoodGames)
             {
-                //pokud volim hru tak uz znam trumfy, pokud nevolim hru tak uz je ted znam taky
-                var probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _trump, _talon);
-
                 //nasimuluj hry v barve
                 for (int i = 0; i < Settings.SimulationsPerRound; i++)
                 {
-                    _hands = probabilities.GenerateHands(1, PlayerIndex);
-                    if (_talon != null) //pokud jsme talon nesimulovali nahodne, tak ho ted vybereme podle algoritmu
-                    {
-                        UpdateGeneratedHandsByChoosingTalon(ChooseNormalTalon);
-                    }
+                    _hands = Probabilities.GenerateHands(1, PlayerIndex);
+                    UpdateGeneratedHandsByChoosingTalon(ChooseNormalTalon, GameStartingPlayerIndex);
 
-                    var gameComputationResult = ComputeGame(null, null, _trump ?? _g.trump, (_gameType | Hra.SedmaProti) ?? Hra.Sedma, 10, 1);
-
+                    var gameComputationResult = ComputeGame(null, null, _trump ?? _g.trump, (_gameType | Hra.SedmaProti) ?? Hra.Sedma, 10, 1); // to ?? vypada chybne
                     gameComputationResults.Add(gameComputationResult);                    
                 }
             }
             if(simulateBadGames)
             {
-                var probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), null, _talon);
-
                 //nasimuluj durchy
                 for (int i = 0; i < Settings.SimulationsPerRound; i++)
                 {
-                    _hands = probabilities.GenerateHands(1, PlayerIndex);
-                    if (_talon != null) //pokud jsme talon nesimulovali nahodne, tak ho ted vybereme podle algoritmu
-                    {
-                        UpdateGeneratedHandsByChoosingTalon(ChooseDurchTalon);
-                    }
+                    _hands = Probabilities.GenerateHands(1, PlayerIndex);
+                    UpdateGeneratedHandsByChoosingTalon(ChooseDurchTalon, GameStartingPlayerIndex);
 
-                    var durchComputationResult = ComputeGame(null, null, null, Hra.Durch, 10, 1);
-
+                    var durchComputationResult = ComputeGame(null, null, null, Hra.Durch, 10, 1, true);
                     durchComputationResults.Add(durchComputationResult);
                 }
                 //nasimuluj betly
-                probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), null, _talon);
                 for (int i = 0; i < Settings.SimulationsPerRound; i++)
                 {
-                    _hands = probabilities.GenerateHands(1, PlayerIndex);
-                    if (_talon != null) //pokud jsme talon nesimulovali nahodne, tak ho ted vybereme podle algoritmu
-                    {
-                        UpdateGeneratedHandsByChoosingTalon(ChooseBetlTalon);
-                    }
+                    _hands = Probabilities.GenerateHands(1, PlayerIndex);
+                    UpdateGeneratedHandsByChoosingTalon(ChooseBetlTalon, GameStartingPlayerIndex);
 
-                    var betlComputationResult = ComputeGame(null, null, null, Hra.Betl, 10, 1);
-
+                    var betlComputationResult = ComputeGame(null, null, null, Hra.Betl, 10, 1, true);
                     betlComputationResults.Add(betlComputationResult);
                 }
             }
@@ -366,54 +351,54 @@ namespace Mariasek.Engine.New
                 ? (PlayerIndex + 2) % Game.NumPlayers : (PlayerIndex + 1) % Game.NumPlayers;
             _moneyCalculations = gameComputationResults.Select(i =>
             {
-                var calc = new AddingMoneyCalculator(Hra.Sedma, _trump ?? _g.trump, _g.GameStartingPlayerIndex, bidding, i);
+                var calc = new AddingMoneyCalculator(Hra.Sedma, _trump ?? _g.trump, GameStartingPlayerIndex, bidding, i);
 
                 calc.CalculateMoney();
 
                 return calc;
             }).Union(durchComputationResults.Select(i =>
             {
-                var calc = new AddingMoneyCalculator(Hra.Durch, null, _g.GameStartingPlayerIndex, bidding, i);
+                var calc = new AddingMoneyCalculator(Hra.Durch, null, GameStartingPlayerIndex, bidding, i);
 
                 calc.CalculateMoney();
 
                 return calc;
             })).Union(betlComputationResults.Select(i =>
             {
-                var calc = new AddingMoneyCalculator(Hra.Betl, null, _g.GameStartingPlayerIndex, bidding, i);
+                var calc = new AddingMoneyCalculator(Hra.Betl, null, GameStartingPlayerIndex, bidding, i);
 
                 calc.CalculateMoney();
 
                 return calc;
             })).ToList();
-            _gamesBalance = PlayerIndex == _g.GameStartingPlayerIndex
+            _gamesBalance = PlayerIndex == GameStartingPlayerIndex
                             ? _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.GameWon)
                             : _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.GameWon);
-            _hundredsBalance = PlayerIndex == _g.GameStartingPlayerIndex
+            _hundredsBalance = PlayerIndex == GameStartingPlayerIndex
                                 ? _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.HundredWon)
                                 : _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.HundredWon);
-            _hundredsAgainstBalance = PlayerIndex == _g.GameStartingPlayerIndex
+            _hundredsAgainstBalance = PlayerIndex == GameStartingPlayerIndex
                                         ? _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.QuietHundredAgainstWon)
                                         : _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.QuietHundredAgainstWon);
-            _sevensBalance = PlayerIndex == _g.GameStartingPlayerIndex
+            _sevensBalance = PlayerIndex == GameStartingPlayerIndex
                                 ? _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.SevenWon)
                                 : _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.SevenWon);
-            _sevensAgainstBalance = PlayerIndex == _g.GameStartingPlayerIndex
+            _sevensAgainstBalance = PlayerIndex == GameStartingPlayerIndex
                                         ? _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.SevenAgainstWon)
                                         : _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.SevenAgainstWon);
-            _durchBalance = PlayerIndex == _g.GameStartingPlayerIndex
+            _durchBalance = PlayerIndex == GameStartingPlayerIndex
                                 ? _moneyCalculations.Where(i => (i.GameType & Hra.Durch) != 0).Count(i => i.DurchWon)
                                 : _moneyCalculations.Where(i => (i.GameType & Hra.Durch) != 0).Count(i => !i.DurchWon);
-            _betlBalance = PlayerIndex == _g.GameStartingPlayerIndex
+            _betlBalance = PlayerIndex == GameStartingPlayerIndex
                                 ? _moneyCalculations.Where(i => (i.GameType & Hra.Betl) != 0).Count(i => i.BetlWon)
                                 : _moneyCalculations.Where(i => (i.GameType & Hra.Betl) != 0).Count(i => !i.BetlWon);
-            _log.DebugFormat("** Game {0} by {1} {2} times ({3}%)", PlayerIndex == _g.GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
+            _log.DebugFormat("** Game {0} by {1} {2} times ({3}%)", PlayerIndex == GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
                 _gamesBalance, 100 * _gamesBalance / Settings.SimulationsPerRound);
-            _log.DebugFormat("** Hundred {0} by {1} {2} times ({3}%)", PlayerIndex == _g.GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
+            _log.DebugFormat("** Hundred {0} by {1} {2} times ({3}%)", PlayerIndex == GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
                 _hundredsBalance, 100 * _hundredsBalance / Settings.SimulationsPerRound);            //sgrupuj simulace podle vysledku skore
             _log.DebugFormat("** Hundred against won {0} times ({1}%)",
                 _hundredsAgainstBalance, 100f * _hundredsAgainstBalance / Settings.SimulationsPerRound);            //sgrupuj simulace podle vysledku skore
-            _log.DebugFormat("** Seven {0} by {1} {2} times ({3}%)", PlayerIndex == _g.GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
+            _log.DebugFormat("** Seven {0} by {1} {2} times ({3}%)", PlayerIndex == GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
                 _sevensBalance, 100 * _sevensBalance / Settings.SimulationsPerRound);            //sgrupuj simulace podle vysledku skore
             _log.DebugFormat("** Seven against won {0} times ({1}%)",
                 _sevensAgainstBalance, 100 * _sevensAgainstBalance / Settings.SimulationsPerRound);            //sgrupuj simulace podle vysledku skore
@@ -493,12 +478,12 @@ namespace Mariasek.Engine.New
                 if (bidding.BetlDurchMultiplier == 0)
                 {
                     //mame flekovat hru
-                    RunGameSimulations(bidding, true, false);
+                    RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, false);
                 }
                 else
                 {
                     //mame flekovat betl nebo durch
-                    RunGameSimulations(bidding, false, true);
+                    RunGameSimulations(bidding, _g.GameStartingPlayerIndex, false, true);
                 }
             }
             //Flekovani se u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah),
@@ -571,7 +556,7 @@ namespace Mariasek.Engine.New
             _trump = null;
             _talon = null;
             _gameType = null;
-            Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
+            Probabilities = null;
         }
 
         private void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
@@ -831,7 +816,7 @@ namespace Mariasek.Engine.New
             }
         }
 
-        private GameComputationResult ComputeGame(Card c1, Card c2, Barva? trump = null, Hra? gameType = null, int? roundsToCompute = null, int? initialRoundNumber = null)
+        private GameComputationResult ComputeGame(Card c1, Card c2, Barva? trump = null, Hra? gameType = null, int? roundsToCompute = null, int? initialRoundNumber = null, bool ImpersonateGameStartingPlayer = false)
         {
             var result = InitGameComputationResult();
             var firstTime = true;
@@ -868,7 +853,7 @@ namespace Mariasek.Engine.New
             {
                 trump = _g.trump;
             }
-            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, _hands, Name, PlayerIndex, TeamMateIndex, initialRoundNumber);
+            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, _hands, Name, PlayerIndex, ImpersonateGameStartingPlayer ? -1 : TeamMateIndex, initialRoundNumber);
             
             _log.DebugFormat("Round {0}. Starting simulation for {1}", _g.RoundNumber, _g.players[PlayerIndex].Name);
             if (c1 != null) _log.DebugFormat("First card: {0}", c1);

@@ -250,11 +250,11 @@ namespace Mariasek.Engine.New
             players[(GameStartingPlayerIndex + 2) % NumPlayers].Hand.Sort();
 
             talon = new List<Card>();
-
+            InitPlayers();
 #if !PORTABLE
             var programFolder = System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
             SaveGame(System.IO.Path.Combine(programFolder, "_temp.hra"));
-#endif
+#endif        
         }
 
 #if !PORTABLE
@@ -450,7 +450,7 @@ namespace Mariasek.Engine.New
                 //zahajeni hry
                 if (RoundNumber == 0)
                 {
-                    InitPlayers();
+                    //InitPlayers();
                     GameType = Hra.Hra; //docasne nastavena nejaka minimalni hra
                     ChooseGame();
                     Bidding = new Bidding(this);
@@ -593,51 +593,45 @@ namespace Mariasek.Engine.New
 
         private void ChooseGame()
         {
+            GameFlavour gameFlavour;
+            var minimalBid = Hra.Hra;
+            var gameTypeForPlayer = new Hra[] { Hra.Hra, 0, 0};
+            var nextPlayer = GameStartingPlayer;
+            
             TrumpCard = GameStartingPlayer.ChooseTrump();
-            GameStartingPlayer.Hand.Sort();
-
             trump = TrumpCard.Suit;
-            talon = GameStartingPlayer.ChooseTalon();
-            GameStartingPlayer.Hand.Remove(talon[0]);
-            GameStartingPlayer.Hand.Remove(talon[1]);
-
-            //volba hry
-            var minimalBid = Hra.Betl;
-            var gameFlavour = GameStartingPlayer.ChooseGameFlavour();
-            OnGameFlavourChosen(new GameFlavourChosenEventArgs
+            GameStartingPlayer.Hand.Sort();
+            GameType = 0;
+            talon = new List<Card>();
+            while(GameType < Hra.Durch)
             {
-                PlayerIndex = GameStartingPlayer.PlayerIndex,
-                Flavour = gameFlavour
-            });
-            if (gameFlavour == GameFlavour.Good)
-            {
-                var player2 = players[(GameStartingPlayerIndex + 1) % NumPlayers];
-                var player3 = players[(GameStartingPlayerIndex + 2) % NumPlayers];
-
-                //hrac1: barva?
-                gameFlavour = player2.ChooseGameFlavour();
+                if(gameTypeForPlayer.All(i => i == 0))
+                {
+                    break;
+                }
+                gameFlavour = nextPlayer.ChooseGameFlavour();
                 OnGameFlavourChosen(new GameFlavourChosenEventArgs
                 {
-                    PlayerIndex = player2.PlayerIndex,
+                    PlayerIndex = nextPlayer.PlayerIndex,
                     Flavour = gameFlavour
                 });
-                if (gameFlavour == GameFlavour.Bad)
+                if(gameFlavour == GameFlavour.Bad)
                 {
-                    //hrac: spatna
-                    player2.Hand.AddRange(talon);
+                    GameStartingPlayerIndex = nextPlayer.PlayerIndex;                    
+                    GameStartingPlayer.Hand.AddRange(talon);
+                    talon.Clear();
                     trump = null;
                     TrumpCard = null;
-                    talon.Clear();
-                    talon = player2.ChooseTalon();
-                    player2.Hand.Remove(talon[0]);
-                    player2.Hand.Remove(talon[1]);
-                    GameStartingPlayerIndex = player2.PlayerIndex;
-                    //hrac1 vybira hru
-                    GameType = player2.ChooseGameType(minimalBid: minimalBid);
-                    if (GameType == Hra.Betl)
+                    talon = GameStartingPlayer.ChooseTalon();
+                    GameStartingPlayer.Hand.Remove(talon[0]);
+                    GameStartingPlayer.Hand.Remove(talon[1]);
+                    if(minimalBid == Hra.Hra)
                     {
-                        minimalBid = Hra.Durch;
+                        minimalBid = Hra.Betl;
                     }
+                    GameType = GameStartingPlayer.ChooseGameType(minimalBid); //TODO: zkontrolovat ze hrac nezvolil nelegalni variantu
+                    minimalBid = Hra.Durch;
+                    gameTypeForPlayer[GameStartingPlayerIndex] = GameType;
                     OnGameTypeChosen(new GameTypeChosenEventArgs
                     {
                         GameStartingPlayerIndex = GameStartingPlayerIndex,
@@ -645,59 +639,21 @@ namespace Mariasek.Engine.New
                         TrumpCard = null
                     });
                 }
-                if (GameType < Hra.Durch)
-                {
-                    //hrac1: barva? nebo hrac2: betl?/durch?
-                    gameFlavour = player3.ChooseGameFlavour();
-                    OnGameFlavourChosen(new GameFlavourChosenEventArgs
-                    {
-                        PlayerIndex = player3.PlayerIndex,
-                        Flavour = gameFlavour
-                    });
-                    if (gameFlavour == GameFlavour.Bad)
-                    {
-                        //hrac3: spatny
-                        player3.Hand.AddRange(talon);
-                        trump = null;
-                        TrumpCard = null;
-                        talon.Clear();
-                        talon = player3.ChooseTalon();
-                        player3.Hand.Remove(talon[0]);
-                        player3.Hand.Remove(talon[1]);
-                        GameStartingPlayerIndex = player3.PlayerIndex;
-                        //hrac3 vybira hru
-                        GameType = player3.ChooseGameType(minimalBid: minimalBid);
-                        OnGameTypeChosen(new GameTypeChosenEventArgs
-                        {
-                            GameStartingPlayerIndex = GameStartingPlayerIndex,
-                            GameType = GameType,
-                            TrumpCard = null
-                        });
-                    }
-                }
-                if (GameStartingPlayerIndex == OriginalGameStartingPlayerIndex)
-                {
-                    //hrac1 vybira hru
-                    GameType = GameStartingPlayer.ChooseGameType();
-                    OnGameTypeChosen(new GameTypeChosenEventArgs
-                    {
-                        GameStartingPlayerIndex = GameStartingPlayerIndex,
-                        GameType = GameType,
-                        TrumpCard = TrumpCard
-                    });
-                }
+                nextPlayer = players[(nextPlayer.PlayerIndex + 1) % Game.NumPlayers];
+                gameTypeForPlayer[nextPlayer.PlayerIndex] = 0;
             }
-            else
+            if (GameType == 0)
             {
-                //hrac1: spatna barva
-                GameType = GameStartingPlayer.ChooseGameType(minimalBid: minimalBid);
-                trump = null;
-                TrumpCard = null;
+                //hrac1 vybira hru
+                talon = GameStartingPlayer.ChooseTalon();
+                GameStartingPlayer.Hand.Remove(talon[0]);
+                GameStartingPlayer.Hand.Remove(talon[1]);
+                GameType = GameStartingPlayer.ChooseGameType();
                 OnGameTypeChosen(new GameTypeChosenEventArgs
                 {
                     GameStartingPlayerIndex = GameStartingPlayerIndex,
                     GameType = GameType,
-                    TrumpCard = null
+                    TrumpCard = TrumpCard
                 });
             }
             _roundStartingPlayer = GameStartingPlayer;
