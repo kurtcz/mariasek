@@ -591,13 +591,40 @@ namespace Mariasek.Engine.New
             return false;
         }
 
+        public Hra GetValidGameTypesForPlayer(AbstractPlayer player, GameFlavour gameFlavour, Hra minimalBid)
+        {
+            Hra validGameTypes;
+
+            if(gameFlavour == GameFlavour.Good)
+            {
+                validGameTypes = Hra.Hra | Hra.Kilo;
+                if(player.Hand.Contains(new Card(trump.Value, Hodnota.Sedma)))
+                {
+                    validGameTypes |= Hra.Sedma;
+                }
+            }
+            else //GameFlavour.Bad
+            {
+                validGameTypes = Hra.Durch;
+                if(minimalBid == Hra.Betl)
+                {
+                    validGameTypes |= Hra.Betl;
+                }
+            }
+
+            return validGameTypes;
+        }
+
         private void ChooseGame()
         {
             GameFlavour gameFlavour;
+            Hra validGameTypes = 0;
             var minimalBid = Hra.Hra;
-            var gameTypeForPlayer = new Hra[] { Hra.Hra, 0, 0};
+            var gameTypeForPlayer = new Hra[] {0, 0, 0};
             var nextPlayer = GameStartingPlayer;
-            
+            var firstTime = true;
+
+            gameTypeForPlayer[GameStartingPlayerIndex] = Hra.Hra;
             TrumpCard = GameStartingPlayer.ChooseTrump();
             trump = TrumpCard.Suit;
             GameStartingPlayer.Hand.Sort();
@@ -610,12 +637,19 @@ namespace Mariasek.Engine.New
                     break;
                 }
                 gameFlavour = nextPlayer.ChooseGameFlavour();
+                validGameTypes = GetValidGameTypesForPlayer(nextPlayer, gameFlavour, minimalBid);
                 OnGameFlavourChosen(new GameFlavourChosenEventArgs
                 {
-                    PlayerIndex = nextPlayer.PlayerIndex,
+                    Player = nextPlayer,
                     Flavour = gameFlavour
                 });
-                if(gameFlavour == GameFlavour.Bad)
+                if(gameFlavour == GameFlavour.Good && firstTime)
+                {
+                    talon = GameStartingPlayer.ChooseTalon();
+                    GameStartingPlayer.Hand.Remove(talon[0]);
+                    GameStartingPlayer.Hand.Remove(talon[1]);
+                }
+                else if(gameFlavour == GameFlavour.Bad)
                 {
                     GameStartingPlayerIndex = nextPlayer.PlayerIndex;                    
                     GameStartingPlayer.Hand.AddRange(talon);
@@ -629,7 +663,7 @@ namespace Mariasek.Engine.New
                     {
                         minimalBid = Hra.Betl;
                     }
-                    GameType = GameStartingPlayer.ChooseGameType(minimalBid); //TODO: zkontrolovat ze hrac nezvolil nelegalni variantu
+                    GameType = GameStartingPlayer.ChooseGameType(validGameTypes); //TODO: zkontrolovat ze hrac nezvolil nelegalni variantu
                     minimalBid = Hra.Durch;
                     gameTypeForPlayer[GameStartingPlayerIndex] = GameType;
                     OnGameTypeChosen(new GameTypeChosenEventArgs
@@ -641,14 +675,12 @@ namespace Mariasek.Engine.New
                 }
                 nextPlayer = players[(nextPlayer.PlayerIndex + 1) % Game.NumPlayers];
                 gameTypeForPlayer[nextPlayer.PlayerIndex] = 0;
+                firstTime = false;
             }
             if (GameType == 0)
             {
                 //hrac1 vybira hru
-                talon = GameStartingPlayer.ChooseTalon();
-                GameStartingPlayer.Hand.Remove(talon[0]);
-                GameStartingPlayer.Hand.Remove(talon[1]);
-                GameType = GameStartingPlayer.ChooseGameType();
+                GameType = GameStartingPlayer.ChooseGameType(validGameTypes);
                 OnGameTypeChosen(new GameTypeChosenEventArgs
                 {
                     GameStartingPlayerIndex = GameStartingPlayerIndex,

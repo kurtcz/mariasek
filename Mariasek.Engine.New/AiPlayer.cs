@@ -419,7 +419,7 @@ namespace Mariasek.Engine.New
         }
 
         //vola se z enginu
-        public override Hra ChooseGameType(Hra minimalBid = Hra.Hra)
+        public override Hra ChooseGameType(Hra validGameTypes)
         {
             //TODO: urcit typ hry podle zisku ne podle pradepodobnosti
             Hra gameType;

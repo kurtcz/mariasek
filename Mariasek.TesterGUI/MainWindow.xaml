@@ -166,6 +166,8 @@
         <Image Height="120" HorizontalAlignment="Center" Margin="597,334,101,0" Name="imgPlayer1Hlas2" Stretch="Fill" VerticalAlignment="Top" Width="80" />
         <Image Height="120" HorizontalAlignment="Center" Margin="624,360,74,0" Name="imgPlayer1Hlas3" Stretch="Fill" VerticalAlignment="Top" Width="80" />
         <Image Height="120" HorizontalAlignment="Center" Margin="648,386,50,0" Name="imgPlayer1Hlas4" Stretch="Fill" VerticalAlignment="Top" Width="80" />
+        <Button x:Name ="gfDobryButton" Content="Dobrý" Height="23" Margin="312,396,401.6,0" VerticalAlignment="Top" Click="gfButton_Click" Visibility="Hidden" />
+        <Button x:Name ="gfSpatnyButton" Content="Špatný" Height="23" Margin="392,396,321.6,0" VerticalAlignment="Top" Click="gfButton_Click" Visibility="Hidden" />
         <Button x:Name ="gtHraButton" Content="Hra" Height="23" Margin="152,396,561.6,0" VerticalAlignment="Top" Click="gtButton_Click" Visibility="Hidden" />
         <Button x:Name ="gt7Button" Content="Sedma" Height="23" Margin="232,396,481.6,0" VerticalAlignment="Top" Click="gtButton_Click" Visibility="Hidden" />
         <Button x:Name ="gt100Button" Content="Kilo" Height="23" Margin="312,396,401.6,0" VerticalAlignment="Top" Click="gtButton_Click" Visibility="Hidden" />

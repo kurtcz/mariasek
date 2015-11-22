@@ -7,6 +7,9 @@ namespace Mariasek.TesterGUI
     public class HumanPlayer : AbstractPlayer, IStatsPlayer
     {
         private MainWindow _window;
+        private Barva _trump;
+        private bool firstTimeChoosingFlavour;
+        private Hra _gameType;
 
         public Probability Probabilities { get; set; }
 
@@ -20,12 +23,17 @@ namespace Mariasek.TesterGUI
 
         public override void Init()
         {
+            _gameType = 0;
+            firstTimeChoosingFlavour = true;
             Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _g.talon);
         }
 
         public override Card ChooseTrump()
         {
-            return _window.ChooseTrump();
+            var trumpCard = _window.ChooseTrump();
+            _trump = trumpCard.Suit;
+
+            return trumpCard;
         }
 
         public override List<Card> ChooseTalon()
@@ -35,12 +43,41 @@ namespace Mariasek.TesterGUI
 
         public override GameFlavour ChooseGameFlavour()
         {
+            if (firstTimeChoosingFlavour)
+            {
+                firstTimeChoosingFlavour = false;
+                //poprve volici hrac nehlasi dobra/spatna ale vybira z typu her, cimz se dobra/spatna implicitne zvoli
+                if (PlayerIndex == _g.GameStartingPlayerIndex)
+                {
+                    var validGameTypes = Hra.Hra | Hra.Kilo | Hra.Betl | Hra.Durch;
+
+                    if (Hand.Contains(new Card(_trump, Hodnota.Sedma)))
+                    {
+                        validGameTypes |= Hra.Sedma;
+                    }
+                    _gameType = _window.ChooseGameType(validGameTypes);
+                    if ((_gameType & (Hra.Betl | Hra.Durch)) != 0)
+                    {
+                        return GameFlavour.Bad;
+                    }
+                    else
+                    {
+                        return GameFlavour.Good;
+                    }
+                }
+            }
+            _gameType = 0;
+
             return _window.ChooseGameFlavour();
         }
 
-        public override Hra ChooseGameType(Hra minimalBid = Hra.Hra)
+        public override Hra ChooseGameType(Hra validGameTypes)
         {
-            return _window.ChooseGameType(minimalBid);
+            if(_gameType != 0)
+            {
+                return _gameType;
+            }
+            return _window.ChooseGameType(validGameTypes);
         }
 
         public override Hra GetBidsAndDoubles(Bidding bidding)

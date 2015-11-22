@@ -45,6 +45,7 @@ namespace Mariasek.TesterGUI
         private Game g;
         private Card _cardClicked;
         private List<Card> _talon;
+        private GameFlavour _gameFlavourChosen;
         private Hra _gameTypeChosen;
         private Hra _bid;
         private GameState _state = GameState.NotPlaying;
@@ -52,6 +53,7 @@ namespace Mariasek.TesterGUI
         private int _bubbleTime;
         private int _currentStartingPlayerIndex;
         private Deck _deck;
+        private bool _firstTimeGameFlavourChosen;
 
         public bool ShowAllCards
         {
@@ -71,6 +73,7 @@ namespace Mariasek.TesterGUI
         private readonly SettingsWindow settingsWindow;
         private LoggerWindow loggerWindow;
         private CommentWindow commentWindow;
+        private readonly Button[] gfButtons;
         private readonly Button[] gtButtons;
 
         #endregion
@@ -98,6 +101,9 @@ namespace Mariasek.TesterGUI
             Width *=  scaleFactor;
             Height *= scaleFactor;
             ShowAllCards = AppSettings.GetBool("Cheat", true);
+            gfButtons = new[] { gfDobryButton, gfSpatnyButton };
+            gfDobryButton.Tag = GameFlavour.Good;
+            gfSpatnyButton.Tag = GameFlavour.Bad;
             gtButtons = new[] { gtHraButton, gt7Button, gt100Button, gt107Button, gtBetlButton, gtDurchButton };
             gtHraButton.Tag = Hra.Hra;
             gt7Button.Tag = Hra.Hra | Hra.Sedma;
@@ -237,6 +243,14 @@ namespace Mariasek.TesterGUI
                               msgLabel.Visibility = Visibility.Hidden;
                               okButton.Visibility = Visibility.Hidden;
                           });
+        }
+
+        private void HideGameFlavourButtons()
+        {
+            foreach (var gfButton in gfButtons)
+            {
+                gfButton.Visibility = Visibility.Hidden;
+            }
         }
 
         private void ClearHand()
@@ -630,11 +644,23 @@ namespace Mariasek.TesterGUI
 
         public GameFlavour ChooseGameFlavour()
         {
-            //TODO: betl a durch
-            return GameFlavour.Good;
+            g.ThrowIfCancellationRequested();
+            _synchronizationContext.Send(_ =>
+            {
+                UpdateHands(); //abych nevidel karty co jsem hodil do talonu                
+                foreach (var gfButton in gfButtons)
+                {
+                    gfButton.Visibility = Visibility.Visible;
+                }
+                ShowMsgLabel("Co řekneš?", false);
+                _state = GameState.ChooseGameFlavour;
+                CanRewind = false;
+            }, null);
+            WaitForUIThread();
+            return _gameFlavourChosen;
         }
 
-        public Hra ChooseGameType(Hra minimalBid)
+        public Hra ChooseGameType(Hra validGameTypes)
         {
             g.ThrowIfCancellationRequested();
             _synchronizationContext.Send(_ =>
@@ -642,7 +668,7 @@ namespace Mariasek.TesterGUI
                 UpdateHands(); //abych nevidel karty co jsem hodil do talonu
                 foreach (var gtButton in gtButtons)
                 {
-                    gtButton.IsEnabled = (Hra)gtButton.Tag >= minimalBid && (Hra)gtButton.Tag < Hra.Betl;
+                    gtButton.IsEnabled = ((Hra)gtButton.Tag & validGameTypes) != 0;
                     gtButton.Visibility = Visibility.Visible;
                 }
                 ShowMsgLabel("Co budeš hrát?", false);
@@ -661,7 +687,7 @@ namespace Mariasek.TesterGUI
             Task.WaitAll(new[] { _bubble1Task, _bubble2Task, _bubble3Task }.Where(i => i != null).ToArray());
             _synchronizationContext.Send(_ =>
             {
-                UpdateHands();
+                UpdateHands(); //abych nevidel karty co jsem hodil do talonu
                 var biddingWnd = new BiddingWindow(bidding);
                 biddingWnd.ShowDialog();
                 _bid = biddingWnd.Bid;
@@ -710,6 +736,24 @@ namespace Mariasek.TesterGUI
 
         #region Game event handlers
 
+        private void GameFlavourChosen(object sender, GameFlavourChosenEventArgs e)
+        {
+            _log.DebugFormat("Game flavour chosen: {0} {1}", e.Player.Name, e.Flavour.Description());
+            UpdateHands(); //abych nevidel karty co jsem hodil do talonu
+            if (_firstTimeGameFlavourChosen && e.Flavour == GameFlavour.Good && g.GameStartingPlayerIndex != 0)
+            {
+                //prvni zobrazeni: dobra barva pocitac zobrazuje hlasku tady, clovek az po kliknuti na ok po vyberu talonu
+                //prvni zobrazeni: spatna barva nezobrazujeme, misto toho zobrazime rovnou druh spatne hry
+                ShowBubble(e.Player.PlayerIndex, "Barva?");
+            }
+            else if (!_firstTimeGameFlavourChosen)
+            {
+                //druhe a dalsi zobrazeni
+                ShowBubble(e.Player.PlayerIndex, e.Flavour.Description());
+            }
+            _firstTimeGameFlavourChosen = false;
+        }
+
         private void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
         {
             g.ThrowIfCancellationRequested();
@@ -728,7 +772,10 @@ namespace Mariasek.TesterGUI
                     imgs[e.GameStartingPlayerIndex].SetValue(Image.SourceProperty, imgSrcConverter.ConvertFromString(source) as ImageSource);
                 }
                 lblTrump.Content = string.Format("{0}: {1} {2}", g.GameStartingPlayer.Name, g.GameType, g.trump.HasValue? g.trump.Value.Description() : "");
-                rules[g.GameStartingPlayerIndex].Dispatch((o, p1, p2) => o.SetValue(p1, p2), ContentProperty, string.Format("{0}x", g.GameStartingPlayer.DebugInfo.RuleCount));
+                if (rules[g.GameStartingPlayerIndex] != null)
+                {
+                    rules[g.GameStartingPlayerIndex].Dispatch((o, p1, p2) => o.SetValue(p1, p2), ContentProperty, string.Format("{0}x", g.GameStartingPlayer.DebugInfo.RuleCount));
+                }
 
             }, null);
         }
@@ -736,6 +783,7 @@ namespace Mariasek.TesterGUI
         private void BidMade(object sender, BidEventArgs e)
         {
             _log.DebugFormat("Bidding task: bid made: {0} {1}", e.Player.Name, e.Description);
+            UpdateHands(); //abych nevidel karty co jsem hodil do talonu
             ShowBubble(e.Player.PlayerIndex, e.Description);
         }
 
@@ -815,6 +863,7 @@ namespace Mariasek.TesterGUI
                 {
                     g.RegisterPlayers(_playerSettingsReader);
                     g.NewGame(_currentStartingPlayerIndex, AppSettings.GetBool("ShuffleCards", true) ? null : _deck);
+                    g.GameFlavourChosen += GameFlavourChosen;
                     g.GameTypeChosen += GameTypeChosen;
                     g.BidMade += BidMade;
                     g.CardPlayed += CardPlayed;
@@ -825,6 +874,9 @@ namespace Mariasek.TesterGUI
                     //UpdateHands();
                     CanEdit = true;
                     CanSaveGame = true;
+                    _firstTimeGameFlavourChosen = true;
+                    HideMsgLabel();
+                    HideGameFlavourButtons();
                     if (commentWindow != null)
                     {
                         commentWindow.Close();
@@ -840,7 +892,7 @@ namespace Mariasek.TesterGUI
                     if (logVisible)
                     {
                         loggerWindow.Show();
-                    }
+                    }                    
                     //var binding = new Binding {Source = NotifyAppender.Instance.Notification};
                     //var binding = new Binding("Notification");
                     //loggerWindow.LogWindow.textBox.DataContext = NotifyAppender.Instance;
@@ -891,6 +943,9 @@ namespace Mariasek.TesterGUI
                         }
                         CanEdit = true;
                         CanSaveGame = true;
+                        _firstTimeGameFlavourChosen = true;
+                        HideMsgLabel();
+                        HideGameFlavourButtons();
                         if (commentWindow != null)
                         {
                             commentWindow.Close();
@@ -1042,6 +1097,10 @@ namespace Mariasek.TesterGUI
         {
             HideMsgLabel();
             okButton.Visibility = Visibility.Hidden;
+            if(_state == GameState.ChooseTalon && _gameFlavourChosen == GameFlavour.Good && g.OriginalGameStartingPlayerIndex == 0)
+            {
+                ShowBubble(0, "Barva?");
+            }
             _state = GameState.NotPlaying;
             _evt.Set();
         }
@@ -1101,9 +1160,20 @@ namespace Mariasek.TesterGUI
             }
         }
 
+        private void gfButton_Click(object sender, RoutedEventArgs e)
+        {
+            _gameFlavourChosen = (GameFlavour)(sender as Button).Tag;
+            HideMsgLabel();
+            HideGameFlavourButtons();
+            okButton.Visibility = Visibility.Hidden;
+            _state = GameState.NotPlaying;
+            _evt.Set();
+        }
+
         private void gtButton_Click(object sender, RoutedEventArgs e)
         {
             _gameTypeChosen = (Hra)(sender as Button).Tag;
+            _gameFlavourChosen = (_gameTypeChosen & (Hra.Betl | Hra.Durch)) == 0 ? GameFlavour.Good : GameFlavour.Bad;
             HideMsgLabel();
             foreach (var gtButton in gtButtons)
             {

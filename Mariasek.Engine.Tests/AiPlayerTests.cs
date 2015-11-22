@@ -74,7 +74,7 @@ namespace Mariasek.Engine.Tests
             var trump = aiPlayer.ChooseTrump();
             var talon = aiPlayer.ChooseTalon();
             var flavour = aiPlayer.ChooseGameFlavour();
-            var hra = aiPlayer.ChooseGameType();
+            var hra = aiPlayer.ChooseGameType(0);
             props = aiPlayer.ToPropertyDictionary();
 
             return hra;

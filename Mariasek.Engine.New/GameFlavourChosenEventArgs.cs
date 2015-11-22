@@ -8,7 +8,7 @@ namespace Mariasek.Engine.New
 {
     public class GameFlavourChosenEventArgs
     {
-        public int PlayerIndex;
+        public AbstractPlayer Player;
         public GameFlavour Flavour;
     }
 }

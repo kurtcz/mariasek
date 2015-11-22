@@ -46,9 +46,9 @@ namespace Mariasek.Engine.New
             return GameFlavour.Good;
         }
 
-        public override Hra ChooseGameType(Hra minimalBid = Hra.Hra)
+        public override Hra ChooseGameType(Hra validGameTypes)
         {
-            return minimalBid;
+            return Hra.Hra;
         }
 
         private int _numberOfDoubles = 0;

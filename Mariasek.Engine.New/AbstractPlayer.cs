@@ -46,7 +46,7 @@ namespace Mariasek.Engine.New
         public abstract Card ChooseTrump();
         public abstract List<Card> ChooseTalon();
         public abstract GameFlavour ChooseGameFlavour();
-        public abstract Hra ChooseGameType(Hra minimalBid = Hra.Hra);
+        public abstract Hra ChooseGameType(Hra validGameTypes);
         public abstract Hra GetBidsAndDoubles(Bidding bidding);
         
         /// <summary>

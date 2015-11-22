@@ -5,6 +5,7 @@
         NotPlaying,
         ChooseTalon,
         ChooseTrump,
+        ChooseGameFlavour,
         ChooseGameType,
         Play,
         RoundFinished,
