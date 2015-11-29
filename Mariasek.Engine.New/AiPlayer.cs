@@ -50,9 +50,9 @@ namespace Mariasek.Engine.New
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
             DebugInfo = new PlayerDebugInfo();
+            g.GameLoaded += GameLoaded;
             g.GameTypeChosen += GameTypeChosen;
             g.CardPlayed += CardPlayed;
-            //g.RoundFinished += RoundFinished;
         }
 
         public AiPlayer(Game g, ParameterConfigurationElementCollection parameters) : this(g)
@@ -557,6 +557,15 @@ namespace Mariasek.Engine.New
             _talon = null;
             _gameType = null;
             Probabilities = null;
+        }
+
+        public void GameLoaded(object sender)
+        {
+            if(PlayerIndex == _g.GameStartingPlayerIndex)
+            {
+                _talon = _g.talon;
+            }
+            Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
         }
 
         private void GameTypeChosen(object sender, GameTypeChosenEventArgs e)

@@ -60,6 +60,16 @@ namespace Mariasek.Engine.New
 
         #region Events and delegates
 
+        public delegate void GameLoadedEventHandler(object sender);
+        public event GameLoadedEventHandler GameLoaded;
+        protected virtual void OnGameLoaded()
+        {
+            if (GameLoaded != null)
+            {
+                GameLoaded(this);
+            }
+        }
+
         public delegate void GameFlavourChosenEventHandler(object sender, GameFlavourChosenEventArgs e);
         public event GameFlavourChosenEventHandler GameFlavourChosen;
         protected virtual void OnGameFlavourChosen(GameFlavourChosenEventArgs e)
@@ -309,6 +319,7 @@ namespace Mariasek.Engine.New
                 players[2].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac3 != null).Select(i => new Card(i.Hrac3.Barva, i.Hrac3.Hodnota)));
 
                 InitPlayers();
+                OnGameLoaded();
 
                 rounds = new Round[NumRounds];
                 foreach (var stych in gameData.Stychy.Where(i => i.Hrac1 != null && i.Hrac2 != null && i.Hrac3 != null).OrderBy(i => i.Kolo))
@@ -345,13 +356,28 @@ namespace Mariasek.Engine.New
 
         public void SaveGame(string filename)
         {
+            var startingPlayerIndex = GameStartingPlayerIndex;
+            if(CurrentRound != null)
+            {
+                if (CurrentRound.roundWinner == null)
+                {
+                    //save after an exception (unfinished round)
+                    startingPlayerIndex = CurrentRound.player1.PlayerIndex;
+                    Comment = string.Format("Exception has been thrown at round {0}", CurrentRound.number);
+                    RoundNumber--;
+                }
+                else
+                {
+                    startingPlayerIndex = CurrentRound.roundWinner.PlayerIndex;
+                }
+            }
             var gameDto = new GameDto
             {
                 Kolo = CurrentRound != null ? RoundNumber + 1 : 0,
                 Voli = (Hrac) GameStartingPlayerIndex,
                 Trumf = RoundNumber > 0 ? trump : null,
                 Typ = RoundNumber > 0 ? (Hra?) GameType : null,
-                Zacina = (Hrac) (CurrentRound != null ? CurrentRound.roundWinner.PlayerIndex : GameStartingPlayerIndex),
+                Zacina = (Hrac) startingPlayerIndex,
                 Autor = Author,
                 Verze = Version.ToString(),
                 Komentar = Comment,
@@ -595,7 +621,7 @@ namespace Mariasek.Engine.New
         {
             Hra validGameTypes;
 
-            if(gameFlavour == GameFlavour.Good)
+            if(minimalBid == Hra.Hra)
             {
                 validGameTypes = Hra.Hra | Hra.Kilo;
                 if(player.Hand.Contains(new Card(trump.Value, Hodnota.Sedma)))

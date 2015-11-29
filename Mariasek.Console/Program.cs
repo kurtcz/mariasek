@@ -122,7 +122,7 @@ namespace Mariasek.Console
 
         static void Main(string[] args)
         {
-            Parser.Run<Program>(args);
+            Parser.RunConsole<Program>(args);
         }
 
         #region Event handlers

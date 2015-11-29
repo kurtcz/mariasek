@@ -62,12 +62,7 @@ namespace Mariasek.Engine.New
             Hand = new List<Card>();
             DebugInfo = new PlayerDebugInfo();
         }
-/*
-        protected AbstractPlayer(Game g, ParameterConfigurationElementCollection parameters) : this(g)
-        {
-            
-        }
-*/
+
         private static Renonc IsCardValid(List<Card> hand, Barva? trump, Hra gameType, int teamMateIndex, Card c)
         {
             //Hrali jsme krale kdyz mame v ruce hlasku?
