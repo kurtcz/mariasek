@@ -65,7 +65,7 @@ Batch Run Analysis
 
 To test different AI settings there are a few useful scripts.
 
-**Marisek.GameGerator**
+**Marisek.GameGenerator**
 This script generates a number of random games and saves their definitions to a chosen directory.
 
 ```

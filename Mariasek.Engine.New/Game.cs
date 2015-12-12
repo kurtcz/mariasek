@@ -663,7 +663,6 @@ namespace Mariasek.Engine.New
                     break;
                 }
                 gameFlavour = nextPlayer.ChooseGameFlavour();
-                validGameTypes = GetValidGameTypesForPlayer(nextPlayer, gameFlavour, minimalBid);
                 OnGameFlavourChosen(new GameFlavourChosenEventArgs
                 {
                     Player = nextPlayer,
@@ -689,6 +688,7 @@ namespace Mariasek.Engine.New
                     {
                         minimalBid = Hra.Betl;
                     }
+                    validGameTypes = GetValidGameTypesForPlayer(nextPlayer, gameFlavour, minimalBid);
                     GameType = GameStartingPlayer.ChooseGameType(validGameTypes); //TODO: zkontrolovat ze hrac nezvolil nelegalni variantu
                     minimalBid = Hra.Durch;
                     gameTypeForPlayer[GameStartingPlayerIndex] = GameType;
@@ -706,6 +706,7 @@ namespace Mariasek.Engine.New
             if (GameType == 0)
             {
                 //hrac1 vybira hru
+                validGameTypes = GetValidGameTypesForPlayer(GameStartingPlayer, GameFlavour.Good, minimalBid);
                 GameType = GameStartingPlayer.ChooseGameType(validGameTypes);
                 OnGameTypeChosen(new GameTypeChosenEventArgs
                 {

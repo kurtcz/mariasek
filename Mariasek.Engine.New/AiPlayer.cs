@@ -31,6 +31,7 @@ namespace Mariasek.Engine.New
         private int _sevensAgainstBalance;
         private int _betlBalance;
         private int _durchBalance;
+        private bool _initialSimulation;
  
         public Probability Probabilities { get; set; }
         public AiPlayerSettings Settings { get; set; }
@@ -252,38 +253,59 @@ namespace Mariasek.Engine.New
             Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, _talon);
 
             var bidding = new Bidding(_g);
-            if (PlayerIndex == _g.OriginalGameStartingPlayerIndex)
+            if (_initialSimulation)
             {
-                //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
-                //Zapamatujeme si vysledek a pouzijeme ho i v ChooseGameFlavour() a ChooseGameType()
-                RunGameSimulations(bidding, PlayerIndex, true, true);
-                if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                if (PlayerIndex == _g.OriginalGameStartingPlayerIndex)
                 {
-                    _talon = ChooseDurchTalon(Hand);
-                }
-                else if (_betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
-                {
-                    _talon = ChooseBetlTalon(Hand);
+                    //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
+                    //Zapamatujeme si vysledek a pouzijeme ho i v ChooseGameFlavour() a ChooseGameType()
+                    RunGameSimulations(bidding, PlayerIndex, true, true);
+                    if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                    {
+                        _talon = ChooseDurchTalon(Hand);
+                    }
+                    else if (_betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                    {
+                        _talon = ChooseBetlTalon(Hand);
+                    }
+                    else
+                    {
+                        _talon = ChooseNormalTalon(Hand);
+                    }
+                    Probabilities.UpdateProbabilitiesAfterTalon(_talon);
                 }
                 else
                 {
-                    _talon = ChooseNormalTalon(Hand);
+                    RunGameSimulations(bidding, PlayerIndex, false, true);
                 }
-                Probabilities.UpdateProbabilitiesAfterTalon(_talon);
-            }
-            else
-            {
-                RunGameSimulations(bidding, PlayerIndex, false, true);
+                _initialSimulation = false;
             }
             _moneyCalculations = null; //abychom v GetBidsAndDoubles znovu sjeli simulaci normalni hry
 
-            if ((_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound) ||
-                (_betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound))
+            //byla uz zavolena nejaka hra?
+            if (_gameType == Hra.Durch)
             {
-                return GameFlavour.Bad;
+                return GameFlavour.Good;
             }
+            else if (_gameType == Hra.Betl)
+            {
+                if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                {
+                    return GameFlavour.Bad;
+                }
 
-            return GameFlavour.Good;
+                return GameFlavour.Good;
+            }
+            else
+            {
+                if ((_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound) ||
+                    (_betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound))
+                {
+                    return GameFlavour.Bad;
+                }
+
+                return GameFlavour.Good;
+            }
         }
 
         private void UpdateGeneratedHandsByChoosingTalon(Func<List<Card>, List<Card>> chooseTalonFunc, int GameStartingPlayerIndex)
@@ -557,6 +579,7 @@ namespace Mariasek.Engine.New
             _talon = null;
             _gameType = null;
             Probabilities = null;
+            _initialSimulation = true;
         }
 
         public void GameLoaded(object sender)
