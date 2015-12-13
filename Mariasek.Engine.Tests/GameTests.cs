@@ -104,6 +104,7 @@ namespace Mariasek.Engine.Tests
         {
             player1.Setup(m => m.ChooseTrump()).Returns(trumpCard);
             player1.Setup(m => m.ChooseGameFlavour()).Returns(GameFlavour.Good);
+            player1.Setup(m => m.ChooseTalon()).Returns(talon());
 
             player2.Setup(m => m.ChooseGameFlavour()).Returns(GameFlavour.Good);
 
@@ -150,6 +151,7 @@ namespace Mariasek.Engine.Tests
             
             player1.Setup(m => m.ChooseTrump()).Returns(trumpCard);
             player1.Setup(m => m.ChooseGameFlavour()).Returns(GameFlavour.Good);
+            player1.Setup(m => m.ChooseTalon()).Returns(talon());
 
             player2.Setup(m => m.ChooseGameFlavour()).Returns(() => player2GameFlavours.Dequeue());
             player2.Setup(m => m.ChooseTalon()).Returns(talon());

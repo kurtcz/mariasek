@@ -68,12 +68,12 @@ namespace Mariasek.Engine.Tests
                     aiPlayer,
                     player3);
             
-            //typeof(Game).GetProperty("trump").SetValue(g, trump);
             g.LoadGame(filename);
 
             var trump = aiPlayer.ChooseTrump();
-            var talon = aiPlayer.ChooseTalon();
             var flavour = aiPlayer.ChooseGameFlavour();
+            var talon = aiPlayer.ChooseTalon();
+            aiPlayer.Hand.RemoveAll(i => talon.Contains(i));
             var hra = aiPlayer.ChooseGameType(0);
             props = aiPlayer.ToPropertyDictionary();
 

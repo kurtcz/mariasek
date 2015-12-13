@@ -317,8 +317,7 @@ namespace Mariasek.Engine.New
 
             var talon = chooseTalonFunc(_hands[_g.GameStartingPlayerIndex]);
 
-            _hands[GameStartingPlayerIndex].Remove(talon[0]);
-            _hands[GameStartingPlayerIndex].Remove(talon[1]);
+            _hands[GameStartingPlayerIndex].RemoveAll(i => talon.Contains(i));
             _hands[talonIndex] = new Hand(talon);
         }
 

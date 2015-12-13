@@ -106,6 +106,11 @@ namespace Mariasek.Engine.New
             Update();
         }
 
+        public int RemoveAll(Predicate<Card> predicate)
+        {
+            return _hand.RemoveAll(predicate);
+        }
+
         public IEnumerable<Card> Where(Func<Card, bool> predicate)
         {
             return _hand.Where(predicate);

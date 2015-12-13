@@ -671,8 +671,7 @@ namespace Mariasek.Engine.New
                 if(gameFlavour == GameFlavour.Good && firstTime)
                 {
                     talon = GameStartingPlayer.ChooseTalon();
-                    GameStartingPlayer.Hand.Remove(talon[0]);
-                    GameStartingPlayer.Hand.Remove(talon[1]);
+                    GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
                 }
                 else if(gameFlavour == GameFlavour.Bad)
                 {
@@ -682,8 +681,7 @@ namespace Mariasek.Engine.New
                     trump = null;
                     TrumpCard = null;
                     talon = GameStartingPlayer.ChooseTalon();
-                    GameStartingPlayer.Hand.Remove(talon[0]);
-                    GameStartingPlayer.Hand.Remove(talon[1]);
+                    GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
                     if(minimalBid == Hra.Hra)
                     {
                         minimalBid = Hra.Betl;
