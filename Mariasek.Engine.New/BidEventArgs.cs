@@ -10,6 +10,7 @@ namespace Mariasek.Engine.New
     {
         public AbstractPlayer Player { get; set; }
         public Hra BidMade { get; set; }
+        public int BidNumber { get; set; }
         public string Description { get; set; }
     }
 }

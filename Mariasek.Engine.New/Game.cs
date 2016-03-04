@@ -479,11 +479,11 @@ namespace Mariasek.Engine.New
                     //InitPlayers();
                     GameType = Hra.Hra; //docasne nastavena nejaka minimalni hra
                     ChooseGame();
-                    Bidding = new Bidding(this);
-                    if (!SkipBidding)
-                    {
-                        GameType = Bidding.StartBidding();
-                    }
+                    //Bidding = new Bidding(this);
+                    //if (!SkipBidding)
+                    //{
+                    //    GameType = Bidding.StartBidding();
+                    //}
                     RoundNumber++;
                 }
                 else
@@ -647,8 +647,12 @@ namespace Mariasek.Engine.New
             Hra validGameTypes = 0;
             var minimalBid = Hra.Hra;
             var gameTypeForPlayer = new Hra[] {0, 0, 0};
+            var bidForPlayer = new Hra[] { 0, 0, 0 };
             var nextPlayer = GameStartingPlayer;
             var firstTime = true;
+            var bidNumber = 0;
+            var canChooseFlavour = true;
+            var canRaiseBid = false;
 
             gameTypeForPlayer[GameStartingPlayerIndex] = Hra.Hra;
             TrumpCard = GameStartingPlayer.ChooseTrump();
@@ -658,24 +662,54 @@ namespace Mariasek.Engine.New
             talon = new List<Card>();
             while(GameType < Hra.Durch)
             {
-                if(gameTypeForPlayer.All(i => i == 0))
+                if(gameTypeForPlayer.All(i => i == 0) && !canRaiseBid)
                 {
                     break;
                 }
-                gameFlavour = nextPlayer.ChooseGameFlavour();
-                OnGameFlavourChosen(new GameFlavourChosenEventArgs
+                if(!firstTime && nextPlayer == GameStartingPlayer)
                 {
-                    Player = nextPlayer,
-                    Flavour = gameFlavour
-                });
+                    canChooseFlavour = false;
+                }
+                if (canChooseFlavour)
+                {
+                    gameFlavour = nextPlayer.ChooseGameFlavour();
+                    OnGameFlavourChosen(new GameFlavourChosenEventArgs
+                    {
+                        Player = nextPlayer,
+                        Flavour = gameFlavour
+                    });
+                }
+                else
+                {
+                    gameFlavour = GameFlavour.Good;
+                }
                 if(gameFlavour == GameFlavour.Good && firstTime)
                 {
                     talon = GameStartingPlayer.ChooseTalon();
                     GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
                 }
+                else if(gameFlavour == GameFlavour.Good && GameType > Hra.Hra)
+                {
+                    //u betlu a durchu muzou hraci jeste navic flekovat
+                    if(!SkipBidding)
+                    {
+                        Bidding.Round = (Bidding.Round + 1) % Game.NumPlayers;
+                        bidForPlayer[nextPlayer.PlayerIndex] = Bidding.GetBidsForPlayer(GameType, players[nextPlayer.PlayerIndex], bidNumber++);
+                        
+                        if(bidForPlayer[nextPlayer.PlayerIndex] != 0)
+                        {
+                            canRaiseBid = true;
+                        }
+                        else if (nextPlayer.TeamMateIndex == -1 || bidForPlayer[nextPlayer.TeamMateIndex] == 0)
+                        {
+                            //pokud jsem nic neflekoval ani ja ani muj spoluhrac (pokud ho mam) tak uz nemuzeme dal flekovat
+                            canRaiseBid = false;
+                        }
+                    }
+                }
                 else if(gameFlavour == GameFlavour.Bad)
                 {
-                    GameStartingPlayerIndex = nextPlayer.PlayerIndex;                    
+                    GameStartingPlayerIndex = nextPlayer.PlayerIndex;
                     GameStartingPlayer.Hand.AddRange(talon);
                     talon.Clear();
                     trump = null;
@@ -696,14 +730,25 @@ namespace Mariasek.Engine.New
                         GameType = GameType,
                         TrumpCard = null
                     });
+                    if (!SkipBidding)
+                    {
+                        bidNumber = 0;
+                        Bidding = new Bidding(this);
+                        Bidding.StartBidding(GameType);
+                    }
+                }
+                if (nextPlayer.TeamMateIndex != -1)
+                {
+                    bidForPlayer[nextPlayer.TeamMateIndex] = 0;
                 }
                 nextPlayer = players[(nextPlayer.PlayerIndex + 1) % Game.NumPlayers];
                 gameTypeForPlayer[nextPlayer.PlayerIndex] = 0;
+                bidForPlayer[nextPlayer.PlayerIndex] = 0;
                 firstTime = false;
             }
             if (GameType == 0)
             {
-                //hrac1 vybira hru
+                //hrac1 vybira normalni hru
                 validGameTypes = GetValidGameTypesForPlayer(GameStartingPlayer, GameFlavour.Good, minimalBid);
                 GameType = GameStartingPlayer.ChooseGameType(validGameTypes);
                 OnGameTypeChosen(new GameTypeChosenEventArgs
@@ -712,6 +757,11 @@ namespace Mariasek.Engine.New
                     GameType = GameType,
                     TrumpCard = TrumpCard
                 });
+                if(!SkipBidding)
+                {
+                    Bidding = new Bidding(this);
+                    GameType = Bidding.CompleteBidding();
+                }
             }
             _roundStartingPlayer = GameStartingPlayer;
         }

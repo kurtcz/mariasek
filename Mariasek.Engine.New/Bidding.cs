@@ -27,7 +27,7 @@ namespace Mariasek.Engine.New
         public AbstractPlayer HundredAgainstLastBidder { get; private set; }
         public AbstractPlayer BetlDurchLastBidder { get; private set; }
 
-        public int Round { get; private set; }
+        public int Round { get; set; }
 
         public int _gameFlek;
         public int _sevenFlek;
@@ -128,12 +128,21 @@ namespace Mariasek.Engine.New
             }
         }
 
-        public Hra StartBidding()
+        public void StartBidding(Hra gameType)
         {
+            Round = 0;
+            var e = GetEventArgs(_g.GameStartingPlayer, gameType, 0);
+            _log.DebugFormat("Bidding: {0}: {1} ({2})", e.Player.Name, e.Description, Bids);
+            _g.OnBidMade(e);
+        }
+
+        public Hra CompleteBidding()
+        {
+            //vola se pokud hrajeme normalni hru. U betla a durcha se flekuje rovnou
             var gameType = PlayerBids[_g.GameStartingPlayerIndex];
 
             Round = 0;
-            var e = GetEventArgs(_g.GameStartingPlayer, Bids, 0);
+            var e = GetEventArgs(_g.GameStartingPlayer, gameType, 0);
             _log.DebugFormat("Bidding: {0}: {1} ({2})", e.Player.Name, e.Description, Bids);
             _g.OnBidMade(e);
 
@@ -158,6 +167,23 @@ namespace Mariasek.Engine.New
             }
 
             return gameType;
+        }
+
+        public Hra GetBidsForPlayer(Hra gameType, AbstractPlayer player, int bidNumber)
+        {
+            AdjustValidBidsForPlayer(player.PlayerIndex, bidNumber);
+
+            var bid = player.GetBidsAndDoubles(this);
+            var e = GetEventArgs(player, bid, Bids);
+            
+            //nastav priznak co hrac hlasil a flekoval
+            SetLastBidder(player, bid);
+            gameType |= bid;
+            _log.DebugFormat("Bidding: {0}: {1} ({2})", e.Player.Name, e.Description, bid);
+            _g.OnBidMade(GetEventArgs(player, bid, Bids));
+
+            //return gameType;
+            return bid;
         }
 
         /// <summary>
@@ -232,18 +258,39 @@ namespace Mariasek.Engine.New
                     }
                     else if ((_g.GameType & Hra.Betl) != 0)
                     {
-                        e.Description = "Betl";
+                        if (e.BidMade != 0)
+                        {
+                            if (BetlDurchMultiplier == 1)
+                            {
+                                e.Description = "Betl";
+                            }
+                            else
+                            {
+                                e.Description = MultiplierToString(BetlDurchMultiplier);
+                            }
+                        }
+                        else
+                        {
+                            e.Description = "Dobrý";
+                        }
                     }
                     else if ((_g.GameType & Hra.Durch) != 0)
                     {
-                        e.Description = "Durch";
+                        if (BetlDurchMultiplier == 1)
+                        {
+                            e.Description = "Durch";
+                        }
+                        else
+                        {
+                            e.Description = MultiplierToString(BetlDurchMultiplier);
+                        }
                     }
                     else
                     {
                         e.Description = string.Format(_g.GameType.ToString());
                     }
                 }
-                else
+                else //player != _g.GameStartingPlayer
                 {
                     if ((e.BidMade & (Hra.Hra | Hra.Kilo)) != 0 &&
                         (e.BidMade & Hra.SedmaProti) != 0)
@@ -267,23 +314,32 @@ namespace Mariasek.Engine.New
                             {
                                 e.Description = "Na hru vejš";
                             }
+                            e.BidNumber = GameMultiplier;
                         }
                         else
                         {
-                            e.Description = MultiplierToString(GameMultiplier);
+                            e.Description = MultiplierToString(GameMultiplier, "Na hru vejš");
                         }
                     }
                     else if ((e.BidMade & (Hra.Sedma)) != 0)
                     {
                         e.Description = "Flek na sedmu";
+                        e.BidNumber = SevenMultiplier;
                     }
                     else if ((e.BidMade & Hra.SedmaProti) != 0)
                     {
                         e.Description = "Sedma proti";
+                        e.BidNumber = SevenAgainstMultiplier;
                     }
                     else if ((e.BidMade & Hra.KiloProti) != 0)
                     {
                         e.Description = "Kilo proti";
+                        e.BidNumber = HundredAgainstMultiplier;
+                    }
+                    else if ((e.BidMade & (Hra.Betl | Hra.Durch)) != 0)
+                    {
+                        e.Description = MultiplierToString(BetlDurchMultiplier);
+                        e.BidNumber = BetlDurchMultiplier;
                     }
                     else if (e.BidMade == 0)
                     {
@@ -300,15 +356,36 @@ namespace Mariasek.Engine.New
                 var sb = new StringBuilder();
                 if ((e.BidMade & (Hra.Hra | Hra.Kilo)) != 0)
                 {
-                    sb.AppendFormat("{0}", MultiplierToString(GameMultiplier));
+                    sb.AppendFormat("{0}", MultiplierToString(GameMultiplier, "Na hru vejš"));
+                    e.BidNumber = GameMultiplier;
                 }
                 if ((e.BidMade & (Hra.Sedma | Hra.SedmaProti)) != 0)
                 {
                     sb.AppendFormat("{0}Na sedmu vejš", sb.Length > 0 ? "\n" : "");
+                    if ((e.BidMade & Hra.Sedma) != 0)
+                    {
+                        e.BidNumber = SevenMultiplier;
+                    }
+                    else
+                    {
+                        e.BidNumber = SevenAgainstMultiplier;
+                    }
                 }
                 if ((e.BidMade & Hra.KiloProti) != 0)
                 {
                     sb.AppendFormat("{0}Na kilo vejš", sb.Length > 0 ? "\n" : "");
+                    e.BidNumber = HundredAgainstMultiplier;
+                }
+                if ((e.BidMade & (Hra.Betl | Hra.Durch)) != 0)
+                {
+                    if (BetlDurchMultiplier == 1)
+                    {
+                        sb.Append(e.BidMade.ToString());
+                    }
+                    else
+                    {
+                        sb.Append(MultiplierToString(BetlDurchMultiplier));
+                    }
                 }
                 if (e.BidMade == 0)
                 {
@@ -323,7 +400,7 @@ namespace Mariasek.Engine.New
             return e;
         }
 
-        public static string MultiplierToString(int multiplier)
+        public static string MultiplierToString(int multiplier, string defaultString = null)
         {
             switch (multiplier)
             {
@@ -338,7 +415,7 @@ namespace Mariasek.Engine.New
                 case 32:
                     return "Kalhoty";
                 default:
-                    return "Na hru vejš";
+                    return defaultString ?? "Vejš";
             }
         }
     }

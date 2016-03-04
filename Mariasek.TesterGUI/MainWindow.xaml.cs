@@ -46,6 +46,7 @@ namespace Mariasek.TesterGUI
         private Card _cardClicked;
         private List<Card> _talon;
         private GameFlavour _gameFlavourChosen;
+        private GameFlavourChosenEventArgs _gameFlavourChosenEventArgs;
         private Hra _gameTypeChosen;
         private Hra _bid;
         private GameState _state = GameState.NotPlaying;
@@ -738,19 +739,36 @@ namespace Mariasek.TesterGUI
 
         private void GameFlavourChosen(object sender, GameFlavourChosenEventArgs e)
         {
+            _gameFlavourChosenEventArgs = e;
             _log.DebugFormat("Game flavour chosen: {0} {1}", e.Player.Name, e.Flavour.Description());
             UpdateHands(); //abych nevidel karty co jsem hodil do talonu
-            if (_firstTimeGameFlavourChosen && e.Flavour == GameFlavour.Good && g.GameStartingPlayerIndex != 0)
+            //bubliny ukazeme az po zavoladni BidMade()
+            if (_firstTimeGameFlavourChosen)
             {
-                //prvni zobrazeni: dobra barva pocitac zobrazuje hlasku tady, clovek az po kliknuti na ok po vyberu talonu
-                //prvni zobrazeni: spatna barva nezobrazujeme, misto toho zobrazime rovnou druh spatne hry
-                ShowBubble(e.Player.PlayerIndex, "Barva?");
+                if (g.GameStartingPlayerIndex != 0)
+                {
+                    //prvni zobrazeni: dobra barva pocitac zobrazuje hlasku tady, clovek az po kliknuti na ok po vyberu talonu
+                    //prvni zobrazeni: spatna barva nezobrazujeme, misto toho zobrazime rovnou druh spatne hry
+                    if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Good)
+                    {
+                        ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, "Barva?");
+                    }
+                    else
+                    {
+                        ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, _gameFlavourChosenEventArgs.Flavour.Description());
+                    }
+                }
             }
-            else if (!_firstTimeGameFlavourChosen)
+            else if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Bad || g.GameType == 0)
             {
-                //druhe a dalsi zobrazeni
-                ShowBubble(e.Player.PlayerIndex, e.Flavour.Description());
+                //pokud je zahlasen betl nebo durch, pak:
+                //druhe a dalsi zobrazeni - "dobra" nezobrazujeme
+                //druhe a dalsi zobrazeni - "spatna" zobrazime
+
+                //jinak zobrazujeme vse
+                ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, _gameFlavourChosenEventArgs.Flavour.Description());
             }
+
             _firstTimeGameFlavourChosen = false;
         }
 
@@ -784,6 +802,8 @@ namespace Mariasek.TesterGUI
         {
             _log.DebugFormat("Bidding task: bid made: {0} {1}", e.Player.Name, e.Description);
             UpdateHands(); //abych nevidel karty co jsem hodil do talonu
+
+            //zobrazime "dobry" nebo "flek"
             ShowBubble(e.Player.PlayerIndex, e.Description);
         }
 

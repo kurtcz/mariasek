@@ -3,9 +3,9 @@ namespace Mariasek.Engine.New
 {
     public enum GameFlavour
     {
-        [Description("Dobrý")]
+        [Description("Dobrá")]
         Good,
-        [Description("Špatný")]
+        [Description("Špatná")]
         Bad
     }
 }

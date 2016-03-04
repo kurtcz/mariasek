@@ -238,6 +238,18 @@ namespace Mariasek.Engine.New
 
         public override List<Card> ChooseTalon()
         {
+            if(_talon == null)
+            {
+                //pokud jsme hlasili spatnou barvu
+                if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                {
+                    _talon = ChooseDurchTalon(Hand);
+                }
+                else
+                {
+                    _talon = ChooseBetlTalon(Hand);
+                }
+            }
             _log.DebugFormat("Talon chosen: {0} {1}", _talon[0], _talon[1]);
             
             return _talon;
@@ -445,15 +457,18 @@ namespace Mariasek.Engine.New
             //TODO: urcit typ hry podle zisku ne podle pradepodobnosti
             Hra gameType;
 
-            if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+            if ((validGameTypes & (Hra.Betl | Hra.Durch)) != 0)
             {
-                gameType = Hra.Durch;
-                DebugInfo.RuleCount = _durchBalance;
-            }
-            else if (_betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
-            {
-                gameType = Hra.Betl;
-                DebugInfo.RuleCount = _betlBalance;
+                if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                {
+                    gameType = Hra.Durch;
+                    DebugInfo.RuleCount = _durchBalance;
+                }
+                else //if (_betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                {
+                    gameType = Hra.Betl;
+                    DebugInfo.RuleCount = _betlBalance;
+                }
             }
             else
             {
