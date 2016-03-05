@@ -14,6 +14,7 @@ namespace Mariasek.TesterGUI
             DisplaySettings = new RoutedUICommand("_Settings", "DisplaySettings", typeof(Commands));
             Rewind = new RoutedUICommand("_Rewind", "Rewind", typeof(Commands), new InputGestureCollection() { new KeyGesture(Key.Z, ModifierKeys.Control, "Ctrl-Z") });
             ShowHands = new RoutedUICommand("Show _Hands", "ShowHands", typeof(Commands), new InputGestureCollection() { new KeyGesture(Key.H, ModifierKeys.Control, "Ctrl-H") });
+            ShowTactics = new RoutedUICommand("Show _Tactics", "ShowTactics", typeof(Commands), new InputGestureCollection() { new KeyGesture(Key.T, ModifierKeys.Control, "Ctrl-T") });
             Editor = new RoutedUICommand("_Editor", "Editor", typeof(Commands), new InputGestureCollection() { new KeyGesture(Key.E, ModifierKeys.Control, "Ctrl-E") });
             Comment = new RoutedUICommand("_Comment", "ShowComment", typeof(Commands), new InputGestureCollection() { new KeyGesture(Key.K, ModifierKeys.Control, "Ctrl-K") });
             Log = new RoutedUICommand("Lo_g", "Log", typeof(Commands), new InputGestureCollection() { new KeyGesture(Key.Tab, ModifierKeys.None, "Tab") });
@@ -28,6 +29,7 @@ namespace Mariasek.TesterGUI
         public static RoutedUICommand DisplaySettings { get; private set; }
         public static RoutedUICommand Rewind { get; private set; }
         public static RoutedUICommand ShowHands { get; private set; }
+        public static RoutedUICommand ShowTactics { get; private set; }
         public static RoutedUICommand Editor { get; private set; }
         public static RoutedUICommand Comment { get; private set; }
         public static RoutedUICommand Log { get; private set; }

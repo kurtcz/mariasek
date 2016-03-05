@@ -62,7 +62,13 @@ namespace Mariasek.TesterGUI
             set { SetValue(ShowAllCardsProperty, value); }
         }
         public static readonly DependencyProperty ShowAllCardsProperty = DependencyProperty.Register("ShowAllCards", typeof(bool), typeof(MainWindow), new UIPropertyMetadata(false));
-        
+        public bool ShowTactics
+        {
+            get { return (bool)GetValue(ShowTacticsProperty); }
+            set { SetValue(ShowTacticsProperty, value); }
+        }
+        public static readonly DependencyProperty ShowTacticsProperty = DependencyProperty.Register("ShowTactics", typeof(bool), typeof(MainWindow), new UIPropertyMetadata(false));
+
         private bool CanSaveGame;
         private bool CanRewind;
         private bool CanEdit;
@@ -102,6 +108,7 @@ namespace Mariasek.TesterGUI
             Width *=  scaleFactor;
             Height *= scaleFactor;
             ShowAllCards = AppSettings.GetBool("Cheat", true);
+            ShowTactics = AppSettings.GetBool("ShowTactics", true);
             gfButtons = new[] { gfDobryButton, gfSpatnyButton };
             gfDobryButton.Tag = GameFlavour.Good;
             gfSpatnyButton.Tag = GameFlavour.Bad;
@@ -1262,7 +1269,6 @@ namespace Mariasek.TesterGUI
             if (e != null)
             {
                 //only change the value if not called from within UpdateHands()
-                ShowAllCards = !ShowAllCards;
                 AppSettings.Open();
                 AppSettings.Set("Cheat", ShowAllCards);
                 AppSettings.Save();
@@ -1297,6 +1303,13 @@ namespace Mariasek.TesterGUI
                 return;
             }
             UpdateHands();
+        }
+
+        private void OnShowTactics(object sender, ExecutedRoutedEventArgs e)
+        {
+            AppSettings.Open();
+            AppSettings.Set("ShowTactics", ShowTactics);
+            AppSettings.Save();
         }
 
         private void OnCanEdit(object sender, CanExecuteRoutedEventArgs e)

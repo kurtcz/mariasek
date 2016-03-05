@@ -15,6 +15,7 @@
         <CommandBinding Command="testerGui:Commands.Editor" CanExecute="OnCanEdit" Executed="OnEdit" />
         <CommandBinding Command="testerGui:Commands.Log" CanExecute="OnCanLog" Executed="OnLog" />
         <CommandBinding Command="testerGui:Commands.ShowHands" CanExecute="OnCanShowHands" Executed="OnShowHands" />
+        <CommandBinding Command="testerGui:Commands.ShowTactics" CanExecute="OnCanShowHands" Executed="OnShowTactics" />
         <CommandBinding Command="testerGui:Commands.Comment" CanExecute="OnCanShowComment" Executed="OnShowComment" />
         <CommandBinding Command="testerGui:Commands.Probabilities" CanExecute="OnCanShowProbabilities" Executed="OnShowProbabilities" />
     </Window.CommandBindings>
@@ -42,6 +43,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <testerGui:BoolToVisibilityConverter x:Key="boolToVisibilityConverter" />
     </Window.Resources>
     <Grid Name="MainGrid" SizeChanged="MainGrid_SizeChanged">
         <Grid.LayoutTransform>
@@ -64,7 +66,8 @@
                 <MenuItem Header="Konec" Command="testerGui:Commands.EndGame" />
             </MenuItem>
             <MenuItem Header="Zobraz">
-                <MenuItem Header="Všechny karty" Command="testerGui:Commands.ShowHands" IsCheckable="True" IsChecked="{Binding ElementName=TesterMainWindow, Path=ShowAllCards, Mode=OneWay}" Name="showHandsMenuItem" />
+                <MenuItem Header="Všechny karty" Command="testerGui:Commands.ShowHands" IsCheckable="True" IsChecked="{Binding ElementName=TesterMainWindow, Path=ShowAllCards, Mode=TwoWay}" Name="showHandsMenuItem" />
+                <MenuItem Header="Taktiku" Command="testerGui:Commands.ShowTactics" IsCheckable="True" IsChecked="{Binding ElementName=TesterMainWindow, Path=ShowTactics, Mode=TwoWay}" Name="showTacticsMenuItem" />
                 <MenuItem Header="Editor" Command="testerGui:Commands.Editor" />
                 <MenuItem Header="Pravděpodobnosti" Command="testerGui:Commands.Probabilities" IsCheckable="True" Name="probabilitiesMenuItem" />
                 <MenuItem Header="Komentář" Command="testerGui:Commands.Comment" IsCheckable="True" Name="commentMenuItem" />
@@ -152,8 +155,8 @@
         <Label Height="28" HorizontalAlignment="Left" Margin="12,29,0,0" Name="lblName2" VerticalAlignment="Top" />
         <Label Height="28" HorizontalAlignment="Right" Margin="0,29,12,0" Name="lblName3" VerticalAlignment="Top" />
         <Label Height="28" HorizontalAlignment="Center" Margin="0,29,0,0" Name="lblTrump" VerticalAlignment="Top" ToolTip="Hello" />
-        <Label HorizontalAlignment="Left" Margin="12,42,0,0" Name="lblRule2" VerticalAlignment="Top" />
-        <Label HorizontalAlignment="Right" Margin="0,42,12,0" Name="lblRule3" VerticalAlignment="Top" />
+        <Label HorizontalAlignment="Left" Margin="12,42,0,0" Name="lblRule2" VerticalAlignment="Top" Visibility="{Binding ElementName=TesterMainWindow, Path=ShowTactics, Converter={StaticResource boolToVisibilityConverter}}" />
+        <Label HorizontalAlignment="Right" Margin="0,42,12,0" Name="lblRule3" VerticalAlignment="Top" Visibility="{Binding ElementName=TesterMainWindow, Path=ShowTactics, Converter={StaticResource boolToVisibilityConverter}}" />
         <Image Height="120" HorizontalAlignment="Center" Margin="571,67,127,0" Name="imgPlayer3Hlas1" Stretch="Fill" VerticalAlignment="Top" Width="80" />
         <Image Height="120" HorizontalAlignment="Center" Margin="597,96,101,0" Name="imgPlayer3Hlas2" Stretch="Fill" VerticalAlignment="Top" Width="80" />
         <Image Height="120" HorizontalAlignment="Center" Margin="624,122,74,0" Name="imgPlayer3Hlas3" Stretch="Fill" VerticalAlignment="Top" Width="80" />

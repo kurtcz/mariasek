@@ -70,6 +70,7 @@
     <Compile Include="BiddingWindow.xaml.cs">
       <DependentUpon>BiddingWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="BoolToVisibilityConverter.cs" />
     <Compile Include="CommentWindow.xaml.cs">
       <DependentUpon>CommentWindow.xaml</DependentUpon>
     </Compile>
