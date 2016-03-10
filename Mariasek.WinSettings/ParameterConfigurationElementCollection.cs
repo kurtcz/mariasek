@@ -44,7 +44,7 @@ namespace Mariasek.WinSettings
         //    }
         //}
 
-        public ParameterConfigurationElement this[string key]
+        public new ParameterConfigurationElement this[string key]
         {
             get { return (ParameterConfigurationElement)BaseGet(key); }
             set

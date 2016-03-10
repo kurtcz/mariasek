@@ -5,7 +5,7 @@ namespace Mariasek.WinSettings
     public class PlayerConfigurationElement : ParameterConfigurationElement
     {
         [ConfigurationProperty("name")]
-        public string Name
+        public override string Name
         {
             get { return (string)this["name"]; }
             set { this["name"] = value; }

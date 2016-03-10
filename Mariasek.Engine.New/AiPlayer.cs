@@ -944,8 +944,8 @@ namespace Mariasek.Engine.New
                 }
                 var c3 = aiStrategy.PlayCard3(c1, c2, out r3);
 
-                if (c1 == null || c2 == null || c3 == null)
-                    c3 = c3; //investigate
+                //if (c1 == null || c2 == null || c3 == null)
+                //    c3 = c3; //investigate
                 var roundWinnerCard = Round.WinningCard(c1, c2, c3, trump);
                 var roundWinnerIndex = roundWinnerCard == c1 ? roundStarterIndex : (roundWinnerCard == c2 ? (roundStarterIndex + 1) % Game.NumPlayers : (roundStarterIndex + 2) % Game.NumPlayers);
                 var roundScore = Round.ComputePointsWon(c1, c2, c3, aiStrategy.RoundNumber);

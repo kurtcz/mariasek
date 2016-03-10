@@ -16,7 +16,7 @@ namespace Mariasek.Engine.New
     public class AiStrategy : AiStrategyBase
     {
 #if !PORTABLE
-        private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly new ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 #else
         private static readonly ILog _log = new DummyLogWrapper();
 #endif   

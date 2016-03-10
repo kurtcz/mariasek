@@ -4,7 +4,7 @@ namespace Mariasek.Engine.New.Configuration
 {
     public class ParameterConfigurationElementCollection : Dictionary<string, ParameterConfigurationElement>
     {
-        public ParameterConfigurationElement this[string key]
+        public new ParameterConfigurationElement this[string key]
         {
             get
             {

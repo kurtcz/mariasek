@@ -65,7 +65,6 @@ namespace Mariasek.Engine.New
             _hundredAgainstFlek = 0;
             _betlDurchFlek = 0;
             PlayerBids = new Hra[Game.NumPlayers];
-            var x = Hra.Hra | Hra.Sedma;
             SetLastBidder(_g.GameStartingPlayer, _g.GameType);
         }
 

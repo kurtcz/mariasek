@@ -5,14 +5,14 @@ namespace Mariasek.WinSettings
     public class ParameterConfigurationElement : ConfigurationElement
     {
         [ConfigurationProperty("name")]
-        public string Name
+        public virtual string Name
         {
             get { return (string)this["name"]; }
             set { this["name"] = value; }
         }
 
         [ConfigurationProperty("value")]
-        public string Value
+        public virtual string Value
         {
             get { return (string)this["value"]; }
             set { this["value"] = value; }

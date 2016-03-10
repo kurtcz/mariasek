@@ -439,7 +439,7 @@ namespace Mariasek.Engine.New
                     };
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
             }
             if (Results != null)

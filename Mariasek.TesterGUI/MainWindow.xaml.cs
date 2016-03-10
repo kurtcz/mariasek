@@ -687,7 +687,6 @@ namespace Mariasek.TesterGUI
             return _gameTypeChosen;
         }
 
-        private int _numberOfDoubles = 0;
 
         public Hra GetBidsAndDoubles(Bidding bidding)
         {
