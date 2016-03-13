@@ -330,6 +330,8 @@ namespace Mariasek.TesterGUI
             }
             lblRule2.ClearValue(ContentProperty);
             lblRule3.ClearValue(ContentProperty);
+            allRules2.ItemsSource = null;
+            allRules3.ItemsSource = null;
         }
 
         private void UpdateHands()
@@ -423,6 +425,7 @@ namespace Mariasek.TesterGUI
 
             Image[] imgs = { imgCardPlayed1, imgCardPlayed2, imgCardPlayed3 };
             Label[] rules = { null, lblRule2, lblRule3 };
+            ListBox[] allRules = { null, allRules2, allRules3 };
             Image[,] hlasy =
             {
                 {imgPlayer1Hlas1, imgPlayer1Hlas2, imgPlayer1Hlas3, imgPlayer1Hlas4},
@@ -450,6 +453,10 @@ namespace Mariasek.TesterGUI
                 var debugInfo = string.Format("{0}\n{1}x", g.players[lastPlayer.PlayerIndex].DebugInfo.Rule,
                                                                 g.players[lastPlayer.PlayerIndex].DebugInfo.RuleCount);
                 rules[lastPlayer.PlayerIndex].Dispatch((o, p1, p2) => o.SetValue(p1, p2), ContentProperty, debugInfo);
+            }
+            if (allRules[lastPlayer.PlayerIndex] != null)
+            {
+                allRules[lastPlayer.PlayerIndex].ItemsSource = g.players[lastPlayer.PlayerIndex].DebugInfo.AllChoices;
             }
         }
 
@@ -785,6 +792,7 @@ namespace Mariasek.TesterGUI
             {
                 Image[] imgs = { imgPlayer1Hlas1, imgPlayer2Hlas1, imgPlayer3Hlas1 };
                 Label[] rules = { null, lblRule2, lblRule3 };
+                ListBox[] allRules = { null, allRules2, allRules3 };
                 var source = e.TrumpCard != null
                                 ? string.Format("pack://application:,,,/Mariasek.TesterGUI;component/Images/karty/{0}",
                                     CardResources.Images[e.TrumpCard.Num])
@@ -800,7 +808,10 @@ namespace Mariasek.TesterGUI
                 {
                     rules[g.GameStartingPlayerIndex].Dispatch((o, p1, p2) => o.SetValue(p1, p2), ContentProperty, string.Format("{0}x", g.GameStartingPlayer.DebugInfo.RuleCount));
                 }
-
+                if(allRules[g.GameStartingPlayerIndex] != null)
+                {
+                    allRules[g.GameStartingPlayerIndex].ItemsSource = g.GameStartingPlayer.DebugInfo.AllChoices;
+                }
             }, null);
         }
 

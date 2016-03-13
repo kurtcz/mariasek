@@ -488,7 +488,40 @@ namespace Mariasek.Engine.New
                     gameType |= Hra.Sedma;
                 };
             }
+            DebugInfo.TotalRuleCount = Settings.SimulationsPerRound;
             DebugInfo.Rule = (gameType & (Hra.Betl | Hra.Durch)) == 0 ? string.Format("{0} {1}", gameType, _trump) : gameType.ToString();
+            var allChoices = new List<RuleDebugInfo> ();
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = string.Format("{0} {1}", Hra.Hra, _trump),
+                RuleCount = _gamesBalance,
+                TotalRuleCount = Settings.SimulationsPerRound
+            });
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = string.Format("{0} {1}", Hra.Hra | Hra.Sedma, _trump),
+                RuleCount = _sevensBalance,
+                TotalRuleCount = Settings.SimulationsPerRound
+            });
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = string.Format("{0} {1}", Hra.Kilo, _trump),
+                RuleCount = _hundredsBalance,
+                TotalRuleCount = Settings.SimulationsPerRound
+            });
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = Hra.Betl.ToString(),
+                RuleCount = _betlBalance,
+                TotalRuleCount = Settings.SimulationsPerRound
+            });
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = Hra.Durch.ToString(),
+                RuleCount = _durchBalance,
+                TotalRuleCount = Settings.SimulationsPerRound
+            });
+            DebugInfo.AllChoices = allChoices.OrderByDescending(i => i.RuleCount).ToArray();
             _log.DebugFormat("Selected game type: {0}", gameType);
 
             return gameType;
@@ -728,24 +761,52 @@ namespace Mariasek.Engine.New
                         kvp = cardScores.OrderByDescending(i => i.Value.Count)
                             .FirstOrDefault(i => i.Value.Any(j => j.Rule.UseThreshold));
                         cardToPlay = kvp.Key;
+                        DebugInfo.Card = kvp.Key;
                         DebugInfo.Rule = kvp.Value.First().Rule.Description;
                         DebugInfo.RuleCount = kvp.Value.Count;
+                        DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count);
+                        DebugInfo.AllChoices = cardScores.Where(i => i.Value.Any(j => j.Rule.UseThreshold))
+                                                         .OrderByDescending(i => i.Value.Count).Select(i => new RuleDebugInfo
+                        {
+                            Card = i.Key,
+                            Rule = string.Format("{0}: {1}", i.Value.First().CardToPlay, i.Value.First().Rule.Description),
+                            RuleCount = i.Value.Count,
+                            TotalRuleCount = DebugInfo.TotalRuleCount
+                        }).ToArray();
                     }
                     if (cardToPlay == null)
                     {
                         _log.DebugFormat("Threshold condition has not been met");
                         kvp = cardScores.OrderByDescending(i => i.Value.Count(j => !j.Rule.UseThreshold)).FirstOrDefault();
                         cardToPlay = kvp.Key;
+                        DebugInfo.Card = kvp.Key;
                         DebugInfo.Rule = kvp.Value.First().Rule.Description;
                         DebugInfo.RuleCount = kvp.Value.Count;
+                        DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count);
+                        DebugInfo.AllChoices = cardScores.OrderByDescending(i => i.Value.Count(j => !j.Rule.UseThreshold)).Select(i => new RuleDebugInfo
+                        {
+                            Card = i.Key,
+                            Rule = string.Format("{0}: {1}", i.Value.First().CardToPlay, i.Value.First().Rule.Description),
+                            RuleCount = i.Value.Count,
+                            TotalRuleCount = DebugInfo.TotalRuleCount
+                        }).ToArray();
                     }
                     if (cardToPlay == null)
                     {
                         _log.DebugFormat("No rule without a threshold found");
                         kvp = cardScores.OrderByDescending(i => i.Value.Count).First();
                         cardToPlay = kvp.Key;
+                        DebugInfo.Card = kvp.Key;
                         DebugInfo.Rule = kvp.Value.First().Rule.Description;
                         DebugInfo.RuleCount = kvp.Value.Count;
+                        DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count);
+                        DebugInfo.AllChoices = cardScores.OrderByDescending(i => i.Value.Count).Select(i => new RuleDebugInfo
+                        {
+                            Card = i.Key,
+                            Rule = string.Format("{0}: {1}", i.Value.First().CardToPlay, i.Value.First().Rule.Description),
+                            RuleCount = i.Value.Count,
+                            TotalRuleCount = DebugInfo.TotalRuleCount
+                        }).ToArray();
                     }
                     break;
                 case CardSelectionStrategy.MinScore:
@@ -766,8 +827,17 @@ namespace Mariasek.Engine.New
                                   i.Value.Score[(PlayerIndex + 2)%Game.NumPlayers]
                                 : i.Value.Score[opponent]).First();
                     cardToPlay = kvp2.Key;
+                    DebugInfo.Card = cardToPlay;
                     DebugInfo.Rule = kvp2.Value.Rule.Description;
                     DebugInfo.RuleCount = cardScores.Count(i => i.Key == cardToPlay);
+                    DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count);
+                    DebugInfo.AllChoices = cardScores.OrderByDescending(i => i.Value.Count).Select(i => new RuleDebugInfo
+                    {
+                        Card = i.Key,
+                        Rule = string.Format("{0}: {1}", i.Value.First().CardToPlay, i.Value.First().Rule.Description),
+                        RuleCount = i.Value.Count,
+                        TotalRuleCount = DebugInfo.TotalRuleCount
+                    }).ToArray();
                     break;
                 case CardSelectionStrategy.AverageScore:
                     kvp =
@@ -776,8 +846,17 @@ namespace Mariasek.Engine.New
                                 ? j.Score[PlayerIndex]
                                 : j.Score[PlayerIndex] + j.Score[TeamMateIndex])).First();
                     cardToPlay = kvp.Key;
+                    DebugInfo.Card = cardToPlay;
                     DebugInfo.Rule = kvp.Value.First().Rule.Description;
                     DebugInfo.RuleCount = kvp.Value.Count;
+                    DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count);
+                    DebugInfo.AllChoices = cardScores.OrderByDescending(i => i.Value.Count).Select(i => new RuleDebugInfo
+                    {
+                        Card = i.Key,
+                        Rule = string.Format("{0}: {1}", i.Value.First().CardToPlay, i.Value.First().Rule.Description),
+                        RuleCount = i.Value.Count,
+                        TotalRuleCount = DebugInfo.TotalRuleCount
+                    }).ToArray();
                     break;
                 default:
                     throw new Exception("Unknown card selection strategy");

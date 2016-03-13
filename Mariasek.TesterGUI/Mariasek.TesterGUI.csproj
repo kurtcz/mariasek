@@ -67,6 +67,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AppSettings.cs" />
+    <Compile Include="RuleDebugInfoBarWidthConverter.cs" />
     <Compile Include="BiddingWindow.xaml.cs">
       <DependentUpon>BiddingWindow.xaml</DependentUpon>
     </Compile>
@@ -86,6 +87,7 @@
     </Compile>
     <Compile Include="MailSettings.cs" />
     <Compile Include="NotificationArgs.cs" />
+    <Compile Include="RuleDebugInfoConverter.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
