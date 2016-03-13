@@ -652,7 +652,6 @@ namespace Mariasek.Engine.New
             var firstTime = true;
             var bidNumber = 0;
             var canChooseFlavour = true;
-            var canRaiseBid = false;
 
             gameTypeForPlayer[GameStartingPlayerIndex] = Hra.Hra;
             TrumpCard = GameStartingPlayer.ChooseTrump();
@@ -662,7 +661,7 @@ namespace Mariasek.Engine.New
             talon = new List<Card>();
             while(GameType < Hra.Durch)
             {
-                if(gameTypeForPlayer.All(i => i == 0) && !canRaiseBid)
+                if(gameTypeForPlayer.All(i => i == 0) && bidForPlayer.All(i => i == 0))
                 {
                     break;
                 }
@@ -694,17 +693,9 @@ namespace Mariasek.Engine.New
                     if(!SkipBidding)
                     {
                         Bidding.Round = (Bidding.Round + 1) % Game.NumPlayers;
-                        bidForPlayer[nextPlayer.PlayerIndex] = Bidding.GetBidsForPlayer(GameType, players[nextPlayer.PlayerIndex], bidNumber++);
-                        
-                        if(bidForPlayer[nextPlayer.PlayerIndex] != 0)
-                        {
-                            canRaiseBid = true;
-                        }
-                        else if (nextPlayer.TeamMateIndex == -1 || bidForPlayer[nextPlayer.TeamMateIndex] == 0)
-                        {
-                            //pokud jsem nic neflekoval ani ja ani muj spoluhrac (pokud ho mam) tak uz nemuzeme dal flekovat
-                            canRaiseBid = false;
-                        }
+
+                        //zapis novy flek
+                        bidForPlayer[nextPlayer.PlayerIndex] = Bidding.GetBidsForPlayer(GameType, players[nextPlayer.PlayerIndex], bidNumber++);                        
                     }
                 }
                 else if(gameFlavour == GameFlavour.Bad)
@@ -737,13 +728,16 @@ namespace Mariasek.Engine.New
                         Bidding.StartBidding(GameType);
                     }
                 }
-                if (nextPlayer.TeamMateIndex != -1)
-                {
-                    bidForPlayer[nextPlayer.TeamMateIndex] = 0;
-                }
                 nextPlayer = players[(nextPlayer.PlayerIndex + 1) % Game.NumPlayers];
                 gameTypeForPlayer[nextPlayer.PlayerIndex] = 0;
-                bidForPlayer[nextPlayer.PlayerIndex] = 0;
+                if (players[(nextPlayer.PlayerIndex + 2) % Game.NumPlayers].PlayerIndex != nextPlayer.TeamMateIndex)
+                {
+                    bidForPlayer[nextPlayer.PlayerIndex] = 0;
+                    if (nextPlayer.TeamMateIndex != -1)
+                    {
+                        bidForPlayer[nextPlayer.TeamMateIndex] = 0;
+                    }
+                }
                 firstTime = false;
             }
             if (GameType == 0)

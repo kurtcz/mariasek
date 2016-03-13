@@ -14,24 +14,24 @@
   </Hrac1>
   <Hrac2>
     <Karta Barva="Kule" Hodnota="Sedma" />
-	<Karta Barva="Kule" Hodnota="Osma" />
+    <Karta Barva="Kule" Hodnota="Osma" />
     <Karta Barva="Kule" Hodnota="Devitka" />
     <Karta Barva="Kule" Hodnota="Desitka" />
     <Karta Barva="Kule" Hodnota="Spodek" />
-    <Karta Barva="Kule" Hodnota="Svrsek" />
-	<Karta Barva="Kule" Hodnota="Kral" />
+    <Karta Barva="Kule" Hodnota="Kral" />
     <Karta Barva="Kule" Hodnota="Eso" />
-	<Karta Barva="Cerveny" Hodnota="Devitka" />
+    <Karta Barva="Cerveny" Hodnota="Devitka" />
     <Karta Barva="Cerveny" Hodnota="Spodek" />
-    <Karta Barva="Cerveny" Hodnota="Svrsek" />
+    <Karta Barva="Cerveny" Hodnota="Kral" />
     <Karta Barva="Cerveny" Hodnota="Eso" />
+    <Karta Barva="Zeleny" Hodnota="Eso" />
   </Hrac2>
   <Hrac3>
-    <Karta Barva="Cerveny" Hodnota="Kral" />
+    <Karta Barva="Kule" Hodnota="Svrsek" />
     <Karta Barva="Zeleny" Hodnota="Spodek" />
     <Karta Barva="Zeleny" Hodnota="Svrsek" />
     <Karta Barva="Zeleny" Hodnota="Kral" />
-    <Karta Barva="Zeleny" Hodnota="Eso" />
+    <Karta Barva="Cerveny" Hodnota="Svrsek" />
     <Karta Barva="Zaludy" Hodnota="Sedma" />
     <Karta Barva="Zaludy" Hodnota="Osma" />
     <Karta Barva="Zaludy" Hodnota="Devitka" />

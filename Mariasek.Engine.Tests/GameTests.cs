@@ -163,7 +163,6 @@ namespace Mariasek.Engine.Tests
             Assert.AreEqual(Hra.Durch, g.GameType);
         }
 
-
         [TestCategory("Game Flavour and Type Choice Tests")]
         [TestMethod]
         public void Player3ChoosesBetlPlayer2Durch()
@@ -192,5 +191,92 @@ namespace Mariasek.Engine.Tests
             Assert.AreEqual(player2.Object, g.GameStartingPlayer);
             Assert.AreEqual(Hra.Durch, g.GameType);
         }
+
+        [TestCategory("Game Flavour and Type Choice Tests")]
+        [TestMethod]
+        public void Player3ChoosesBetlPlayer1Flek()
+        {
+            player1.Setup(m => m.ChooseTrump()).Returns(trumpCard);
+            player1.Setup(m => m.ChooseGameFlavour()).Returns(GameFlavour.Good);
+            player1.Setup(m => m.ChooseTalon()).Returns(talon());
+            player1.Setup(m => m.GetBidsAndDoubles(It.IsAny<Bidding>())).Returns(Hra.Betl);
+
+            player2.Setup(m => m.ChooseGameFlavour()).Returns(GameFlavour.Good);
+            player2.Setup(m => m.ChooseTalon()).Returns(talon());
+            player2.Setup(m => m.ChooseGameType(It.IsAny<Hra>())).Returns(Hra.Durch);
+            player2.Setup(m => m.GetBidsAndDoubles(It.IsAny<Bidding>())).Returns(0);
+
+            player3.Setup(m => m.ChooseGameFlavour()).Returns(GameFlavour.Bad);
+            player3.Setup(m => m.ChooseTalon()).Returns(talon());
+            player3.Setup(m => m.ChooseGameType(It.IsAny<Hra>())).Returns(Hra.Betl);
+            player3.Setup(m => m.GetBidsAndDoubles(It.IsAny<Bidding>())).Returns(0);
+
+            g.InvokeMethod("ChooseGame");
+
+            Assert.AreEqual(player3.Object, g.GameStartingPlayer);
+            Assert.AreEqual(Hra.Betl, g.GameType);
+            player1.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Once);
+            player2.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Once);
+            player3.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Once);
+        }
+
+        [TestCategory("Game Flavour and Type Choice Tests")]
+        [TestMethod]
+        public void Player3ChoosesBetlPlayer2Flek()
+        {
+            player1.Setup(m => m.ChooseTrump()).Returns(trumpCard);
+            player1.Setup(m => m.ChooseGameFlavour()).Returns(GameFlavour.Good);
+            player1.Setup(m => m.ChooseTalon()).Returns(talon());
+            player1.Setup(m => m.GetBidsAndDoubles(It.IsAny<Bidding>())).Returns(0);
+
+            player2.Setup(m => m.ChooseGameFlavour()).Returns(GameFlavour.Good);
+            player2.Setup(m => m.ChooseTalon()).Returns(talon());
+            player2.Setup(m => m.ChooseGameType(It.IsAny<Hra>())).Returns(Hra.Durch);
+            player2.Setup(m => m.GetBidsAndDoubles(It.IsAny<Bidding>())).Returns(Hra.Betl);
+
+            player3.Setup(m => m.ChooseGameFlavour()).Returns(GameFlavour.Bad);
+            player3.Setup(m => m.ChooseTalon()).Returns(talon());
+            player3.Setup(m => m.ChooseGameType(It.IsAny<Hra>())).Returns(Hra.Betl);
+            player3.Setup(m => m.GetBidsAndDoubles(It.IsAny<Bidding>())).Returns(0);
+
+            g.InvokeMethod("ChooseGame");
+
+            Assert.AreEqual(player3.Object, g.GameStartingPlayer);
+            Assert.AreEqual(Hra.Betl, g.GameType);
+            player1.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Once);
+            player2.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Once);
+            player3.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Once);
+        }
+
+        [TestCategory("Game Flavour and Type Choice Tests")]
+        [TestMethod]
+        public void Player3ChoosesBetlPlayer2FlekPlayer3Re()
+        {
+            var player2BidsAndDoubles = new Queue<Hra>(new Hra[] { Hra.Betl, 0 });
+
+            player1.Setup(m => m.ChooseTrump()).Returns(trumpCard);
+            player1.Setup(m => m.ChooseGameFlavour()).Returns(GameFlavour.Good);
+            player1.Setup(m => m.ChooseTalon()).Returns(talon());
+            player1.Setup(m => m.GetBidsAndDoubles(It.IsAny<Bidding>())).Returns(0);
+
+            player2.Setup(m => m.ChooseGameFlavour()).Returns(GameFlavour.Good);
+            player2.Setup(m => m.ChooseTalon()).Returns(talon());
+            player2.Setup(m => m.ChooseGameType(It.IsAny<Hra>())).Returns(Hra.Durch);
+            player2.Setup(m => m.GetBidsAndDoubles(It.IsAny<Bidding>())).Returns(() => player2BidsAndDoubles.Dequeue());
+
+            player3.Setup(m => m.ChooseGameFlavour()).Returns(GameFlavour.Bad);
+            player3.Setup(m => m.ChooseTalon()).Returns(talon());
+            player3.Setup(m => m.ChooseGameType(It.IsAny<Hra>())).Returns(Hra.Betl);
+            player3.Setup(m => m.GetBidsAndDoubles(It.IsAny<Bidding>())).Returns(Hra.Betl);
+
+            g.InvokeMethod("ChooseGame");
+
+            Assert.AreEqual(player3.Object, g.GameStartingPlayer);
+            Assert.AreEqual(Hra.Betl, g.GameType);
+            player1.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Exactly(2));
+            player2.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Exactly(2));
+            player3.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Once);
+        }
+
     }
 }

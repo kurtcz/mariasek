@@ -74,7 +74,10 @@ namespace Mariasek.Engine.Tests
             var flavour = aiPlayer.ChooseGameFlavour();
             var talon = aiPlayer.ChooseTalon();
             aiPlayer.Hand.RemoveAll(i => talon.Contains(i));
-            var hra = aiPlayer.ChooseGameType(0);
+            var validGameTypes = flavour == GameFlavour.Good
+                                    ? Hra.Hra | Hra.Sedma | Hra.Kilo
+                                    : Hra.Betl | Hra.Durch;
+            var hra = aiPlayer.ChooseGameType(validGameTypes);
             props = aiPlayer.ToPropertyDictionary();
 
             return hra;
@@ -122,8 +125,8 @@ namespace Mariasek.Engine.Tests
             Dictionary<string, object> props;
             var hra = ChooseGameType(@"Scenarios\ChooseGame\__107uhratelna.hra", out props);
 
-            Assert.IsTrue((hra & Hra.Kilo) != 0, "Ai mel zavolit kilo");
-            Assert.IsTrue((hra & Hra.Sedma) != 0, "Ai mel zavolit sedmu");
+            Assert.IsTrue((hra & Hra.Kilo) != 0, string.Format("Ai mel zavolit kilo ale zvolil {0}", hra));
+            Assert.IsTrue((hra & Hra.Sedma) != 0, string.Format("Ai mel zavolit sedmu ale zvolil {0}", hra));
         }
 
         [TestCategory("Game choice tests")]
@@ -133,8 +136,8 @@ namespace Mariasek.Engine.Tests
             Dictionary<string, object> props;
             var hra = ChooseGameType(@"Scenarios\ChooseGame\__107neuhratelna.hra", out props);
 
-            Assert.IsTrue((hra & Hra.Kilo) == 0, "Ai nemel zavolit kilo");
-            Assert.IsTrue((hra & Hra.Sedma) != 0, "Ai mel zavolit sedmu");
+            Assert.IsTrue((hra & Hra.Kilo) == 0, string.Format("Ai nemel zavolit kilo ale zvolil {0}", hra));
+            Assert.IsTrue((hra & Hra.Sedma) != 0, string.Format("Ai mel zavolit sedmu ale zvolil {0}", hra));
         }
 
         [TestCategory("Game choice tests")]
@@ -144,7 +147,7 @@ namespace Mariasek.Engine.Tests
             Dictionary<string, object> props;
             var hra = ChooseGameType(@"Scenarios\ChooseGame\__sedma.hra", out props);
 
-            Assert.IsTrue((hra & Hra.Sedma) != 0, "Ai mel zavolit sedmu");
+            Assert.IsTrue((hra & Hra.Sedma) != 0, string.Format("Ai mel zavolit sedmu ale zvolil {0}", hra));
         }
 
         [TestCategory("Game choice tests")]
@@ -154,7 +157,7 @@ namespace Mariasek.Engine.Tests
             Dictionary<string, object> props;
             var hra = ChooseGameType(@"Scenarios\ChooseGame\Betl.hra", out props);
 
-            Assert.IsTrue((hra & Hra.Betl) != 0, "Ai mel zavolit betla");
+            Assert.IsTrue((hra & Hra.Betl) != 0, string.Format("Ai mel zavolit betla ale zvolil {0}", hra));
         }
 
         [TestCategory("Game choice tests")]
@@ -164,7 +167,7 @@ namespace Mariasek.Engine.Tests
             Dictionary<string, object> props;
             var hra = ChooseGameType(@"Scenarios\ChooseGame\Durch.hra", out props);
 
-            Assert.IsTrue((hra & Hra.Durch) != 0, "Ai mel zavolit durcha");
+            Assert.IsTrue((hra & Hra.Durch) != 0, string.Format("Ai mel zavolit durcha, ale zvolil {0}", hra));
         }
         #endregion
 

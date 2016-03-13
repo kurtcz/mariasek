@@ -66,6 +66,7 @@ namespace Mariasek.Engine.New
 
             var gameThresholds = parameters["GameThreshold"].Value.Split('|');
             Settings.GameThresholds = gameThresholds.Select(i => int.Parse(i) / 100f).ToArray();
+            Settings.MaxDoubleCount = int.Parse(parameters["MaxDoubleCount"].Value);
         }
 
         private int GetSuitScoreForTrumpChoice(Barva b)
