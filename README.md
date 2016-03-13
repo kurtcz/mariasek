@@ -89,7 +89,7 @@ C:\Mariasek> run.cmd .\Mariasek.BatchRunner.ps1 -InputDir GameDefinitions -Outpu
 
 **Mariasek.ReportGenerator**
 This script is being called from the previous one. Should you want to create a report in a different format you can run the tool directly as follows.
-Supported formats are JSON, XML can CSV. 
+Supported formats are JSON, XML and CSV. 
 ```
 C:\Mariasek> run.cmd .\Mariasek.ReportGenerator.ps1 -InputDir GameResults -Output Reports\report.xml -CfgOutput Reports\cfg.xml ConfigFiles -Format XML
 ```

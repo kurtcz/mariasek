@@ -106,6 +106,10 @@ switch($format)
 		$cfg = $playerConfigData | ConvertTo-Csv -NoTypeInformation
 	}
 }
+$outputDir = Split-Path $output
+$cfgOutputDir = Split-Path $cfgoutput
+EnsureDirectoryExists $outputDir
+EnsureDirectoryExists $cfgOutputDir
 Set-Content -Path $output $str
 Set-Content -Path $cfgoutput $cfg
 
