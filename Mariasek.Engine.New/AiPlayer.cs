@@ -9,6 +9,8 @@ using System.Threading;
 //using log4net;
 using Mariasek.Engine.New.Logger;
 using Mariasek.Engine.New.Configuration;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace Mariasek.Engine.New
 {
@@ -22,7 +24,6 @@ namespace Mariasek.Engine.New
         private Barva? _trump;
         private Hra? _gameType;
         private List<Card> _talon;
-        private Hand[] _hands = new Hand[Game.NumPlayers];
         private List<AddingMoneyCalculator> _moneyCalculations;
         private int _gamesBalance;
         private int _hundredsBalance;
@@ -321,25 +322,25 @@ namespace Mariasek.Engine.New
             }
         }
 
-        private void UpdateGeneratedHandsByChoosingTalon(Func<List<Card>, List<Card>> chooseTalonFunc, int GameStartingPlayerIndex)
+        private void UpdateGeneratedHandsByChoosingTalon(Hand[] hands, Func<List<Card>, List<Card>> chooseTalonFunc, int GameStartingPlayerIndex)
         {
             const int talonIndex = 3;
 
             //volicimu hraci dame i to co je v talonu, aby mohl vybrat skutecny talon
-            _hands[GameStartingPlayerIndex].AddRange(_hands[3]);
+            hands[GameStartingPlayerIndex].AddRange(hands[3]);
 
-            var talon = chooseTalonFunc(_hands[_g.GameStartingPlayerIndex]);
+            var talon = chooseTalonFunc(hands[_g.GameStartingPlayerIndex]);
 
-            _hands[GameStartingPlayerIndex].RemoveAll(i => talon.Contains(i));
-            _hands[talonIndex] = new Hand(talon);
+            hands[GameStartingPlayerIndex].RemoveAll(i => talon.Contains(i));
+            hands[talonIndex] = new Hand(talon);
         }
 
         //vola se jak pro voliciho hrace tak pro oponenty 
         private void RunGameSimulations(Bidding bidding, int GameStartingPlayerIndex, bool simulateGoodGames, bool simulateBadGames)
         {
-            var gameComputationResults = new List<GameComputationResult>();
-            var durchComputationResults = new List<GameComputationResult>();
-            var betlComputationResults = new List<GameComputationResult>();
+            var gameComputationResults = new ConcurrentQueue<GameComputationResult>();
+            var durchComputationResults = new ConcurrentQueue<GameComputationResult>();
+            var betlComputationResults = new ConcurrentQueue<GameComputationResult>();
 
             //pokud volim hru tak se ted rozhoduju jaky typ hry hrat (hra, betl, durch)
             //pokud nevolim hru, tak bud simuluju betl a durch nebo konkretni typ hry
@@ -349,35 +350,32 @@ namespace Mariasek.Engine.New
             if (simulateGoodGames)
             {
                 //nasimuluj hry v barve
-                for (int i = 0; i < Settings.SimulationsPerRound; i++)
+                Parallel.ForEach(Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound), hands =>
                 {
-                    _hands = Probabilities.GenerateHands(1, PlayerIndex);
-                    UpdateGeneratedHandsByChoosingTalon(ChooseNormalTalon, GameStartingPlayerIndex);
+                    UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
 
-                    var gameComputationResult = ComputeGame(null, null, _trump ?? _g.trump, (_gameType | Hra.SedmaProti) ?? Hra.Sedma, 10, 1); // to ?? vypada chybne
-                    gameComputationResults.Add(gameComputationResult);                    
-                }
+                    var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, (_gameType | Hra.SedmaProti) ?? Hra.Sedma, 10, 1); // to ?? vypada chybne
+                    gameComputationResults.Enqueue(gameComputationResult);
+                });
             }
             if(simulateBadGames)
             {
                 //nasimuluj durchy
-                for (int i = 0; i < Settings.SimulationsPerRound; i++)
+                Parallel.ForEach(Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound), hands =>
                 {
-                    _hands = Probabilities.GenerateHands(1, PlayerIndex);
-                    UpdateGeneratedHandsByChoosingTalon(ChooseDurchTalon, GameStartingPlayerIndex);
+                    UpdateGeneratedHandsByChoosingTalon(hands, ChooseDurchTalon, GameStartingPlayerIndex);
 
-                    var durchComputationResult = ComputeGame(null, null, null, Hra.Durch, 10, 1, true);
-                    durchComputationResults.Add(durchComputationResult);
-                }
+                    var durchComputationResult = ComputeGame(hands, null, null, null, Hra.Durch, 10, 1, true);
+                    durchComputationResults.Enqueue(durchComputationResult);
+                });
                 //nasimuluj betly
-                for (int i = 0; i < Settings.SimulationsPerRound; i++)
+                Parallel.ForEach(Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound), hands =>
                 {
-                    _hands = Probabilities.GenerateHands(1, PlayerIndex);
-                    UpdateGeneratedHandsByChoosingTalon(ChooseBetlTalon, GameStartingPlayerIndex);
+                    UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, GameStartingPlayerIndex);
 
-                    var betlComputationResult = ComputeGame(null, null, null, Hra.Betl, 10, 1, true);
-                    betlComputationResults.Add(betlComputationResult);
-                }
+                    var betlComputationResult = ComputeGame(hands, null, null, null, Hra.Betl, 10, 1, true);
+                    betlComputationResults.Enqueue(betlComputationResult);
+                });
             }
 
             //vyber vhodnou hru podle vysledku simulace
@@ -670,12 +668,12 @@ namespace Mariasek.Engine.New
         {
             var roundStarterIndex = r.player1.PlayerIndex;
             Card cardToPlay = null;
-            var cardScores = new Dictionary<Card, List<GameComputationResult>>();
+            var cardScores = new ConcurrentDictionary<Card, ConcurrentQueue<GameComputationResult>>();
 
             if (Settings.Cheat)
             {
-                _hands = _g.players.Select(i => new Hand(i.Hand)).ToArray();
-                var computationResult = ComputeGame(r.c1, r.c2);
+                var hands = _g.players.Select(i => new Hand(i.Hand)).ToArray();
+                var computationResult = ComputeGame(hands, r.c1, r.c2);
 
                 cardToPlay = computationResult.CardToPlay;
                 DebugInfo.Rule = computationResult.Rule.Description;
@@ -688,36 +686,25 @@ namespace Mariasek.Engine.New
                 {
                     _log.DebugFormat("{0}'s probabilities for {1}:\n{2}", Name, _g.players[i].Name, Probabilities.FriendlyString(i, _g.RoundNumber));
                 }
-                //TODO: Consider using:
-                //Parallel.For(0, Settings.MinSimulationsPerRound || (i < Settings.MaxSimulationsPerRound && !ruleWithoutTresholdFound), (i, loopState) => {
-                //   if(breaking_condition) {
-                //       loopState.Stop();
-                //   }
-                //});
-                for (var i = 0; i < Settings.SimulationsPerRound; i++)
+                Parallel.ForEach(Probabilities.GenerateHands(_g.RoundNumber, roundStarterIndex, Settings.SimulationsPerRound), (hands, loopState) =>
                 {
-                    _hands = Probabilities.GenerateHands(_g.RoundNumber, roundStarterIndex);
-                    var computationResult = ComputeGame(r.c1, r.c2);
+                    var computationResult = ComputeGame(hands, r.c1, r.c2);
 
-                    if (cardScores.ContainsKey(computationResult.CardToPlay))
+                    if (!cardScores.TryAdd(computationResult.CardToPlay, new ConcurrentQueue<GameComputationResult>(new[] { computationResult })))
                     {
-                        cardScores[computationResult.CardToPlay].Add(computationResult);
-                    }
-                    else
-                    {
-                        cardScores.Add(computationResult.CardToPlay, new List<GameComputationResult> { computationResult });
+                        cardScores[computationResult.CardToPlay].Enqueue(computationResult);
                     }
 
                     if (computationResult.Rule == AiRule.PlayTheOnlyValidCard || canSkipSimulations)    //We have only one card to play, so there is really no need to compute anything
                     {
-                        break;
+                        loopState.Stop();
                     }
-                }
+                });
                 if (canSkipSimulations)
                 {
                     _log.InfoFormat("Other simulations have been skipped");
                 }
-                cardToPlay = ChooseCardToPlay(cardScores);
+                cardToPlay = ChooseCardToPlay(cardScores.ToDictionary(k => k.Key, v => new List<GameComputationResult>(v.Value)));
             }
 
             _log.InfoFormat("{0} plays card: {1}", Name, cardToPlay);
@@ -864,7 +851,7 @@ namespace Mariasek.Engine.New
             return cardToPlay;
         }
 
-        private GameComputationResult InitGameComputationResult()
+        private GameComputationResult InitGameComputationResult(Hand[] hands)
         {
             var result = new GameComputationResult
             {
@@ -880,7 +867,7 @@ namespace Mariasek.Engine.New
             {
                 var h = new List<Card>();
 
-                h.AddRange((List<Card>)_hands[i]);
+                h.AddRange((List<Card>)hands[i]);
                 result.Hands[i] = new Hand(h);
             }
 
@@ -900,41 +887,41 @@ namespace Mariasek.Engine.New
             return result;
         }
 
-        private void AmendGameComputationResult(GameComputationResult result, int roundStarterIndex, int roundWinnerIndex, int roundScore, Card c1, Card c2, Card c3)
+        private void AmendGameComputationResult(GameComputationResult result, int roundStarterIndex, int roundWinnerIndex, int roundScore, Hand[] hands, Card c1, Card c2, Card c3)
         {
             result.Score[roundWinnerIndex] += roundScore;
             result.BasicScore[roundWinnerIndex] += roundScore;
-            if (c1.Value == Hodnota.Svrsek && _hands[roundStarterIndex].HasK(c1.Suit))
+            if (c1.Value == Hodnota.Svrsek && hands[roundStarterIndex].HasK(c1.Suit))
             {
                 var hlas = _g.trump.HasValue && c1.Suit == _g.trump.Value ? 40 : 20;
                 result.Score[roundStarterIndex] += hlas;
                 result.MaxHlasScore[roundStarterIndex] = Math.Max(hlas, result.MaxHlasScore[roundStarterIndex]);
             }
-            if (c2.Value == Hodnota.Svrsek && _hands[(roundStarterIndex + 1) % Game.NumPlayers].HasK(c2.Suit))
+            if (c2.Value == Hodnota.Svrsek && hands[(roundStarterIndex + 1) % Game.NumPlayers].HasK(c2.Suit))
             {
                 var hlas = _g.trump.HasValue && c2.Suit == _g.trump.Value ? 40 : 20;
                 result.Score[(roundStarterIndex + 1) % Game.NumPlayers] += hlas;
                 result.MaxHlasScore[(roundStarterIndex + 1) % Game.NumPlayers] = Math.Max(hlas, result.MaxHlasScore[(roundStarterIndex + 1) % Game.NumPlayers]);
             }
-            if (c3.Value == Hodnota.Svrsek && _hands[(roundStarterIndex + 2) % Game.NumPlayers].HasK(c3.Suit))
+            if (c3.Value == Hodnota.Svrsek && hands[(roundStarterIndex + 2) % Game.NumPlayers].HasK(c3.Suit))
             {
                 var hlas = _g.trump.HasValue && c3.Suit == _g.trump.Value ? 40 : 20;
                 result.Score[(roundStarterIndex + 2) % Game.NumPlayers] += hlas;
                 result.MaxHlasScore[(roundStarterIndex + 2) % Game.NumPlayers] = Math.Max(hlas, result.MaxHlasScore[(roundStarterIndex + 2) % Game.NumPlayers]);
             }
-            if (c1.Value == Hodnota.Kral && _hands[roundStarterIndex].HasQ(c1.Suit))
+            if (c1.Value == Hodnota.Kral && hands[roundStarterIndex].HasQ(c1.Suit))
             {
                 var hlas = _g.trump.HasValue && c1.Suit == _g.trump.Value ? 40 : 20;
                 result.Score[roundStarterIndex] += hlas;
                 result.MaxHlasScore[roundStarterIndex] = Math.Max(hlas, result.MaxHlasScore[roundStarterIndex]);
             }
-            if (c2.Value == Hodnota.Kral && _hands[(roundStarterIndex + 1) % Game.NumPlayers].HasQ(c2.Suit))
+            if (c2.Value == Hodnota.Kral && hands[(roundStarterIndex + 1) % Game.NumPlayers].HasQ(c2.Suit))
             {
                 var hlas = _g.trump.HasValue && c2.Suit == _g.trump.Value ? 40 : 20;
                 result.Score[(roundStarterIndex + 1) % Game.NumPlayers] += hlas;
                 result.MaxHlasScore[(roundStarterIndex + 1) % Game.NumPlayers] = Math.Max(hlas, result.MaxHlasScore[(roundStarterIndex + 1) % Game.NumPlayers]);
             }
-            if (c3.Value == Hodnota.Kral && _hands[(roundStarterIndex + 2) % Game.NumPlayers].HasQ(c3.Suit))
+            if (c3.Value == Hodnota.Kral && hands[(roundStarterIndex + 2) % Game.NumPlayers].HasQ(c3.Suit))
             {
                 var hlas = _g.trump.HasValue && c3.Suit == _g.trump.Value ? 40 : 20;
                 result.Score[(roundStarterIndex + 2) % Game.NumPlayers] += hlas;
@@ -942,9 +929,9 @@ namespace Mariasek.Engine.New
             }
         }
 
-        private GameComputationResult ComputeGame(Card c1, Card c2, Barva? trump = null, Hra? gameType = null, int? roundsToCompute = null, int? initialRoundNumber = null, bool ImpersonateGameStartingPlayer = false)
+        private GameComputationResult ComputeGame(Hand[] hands, Card c1, Card c2, Barva? trump = null, Hra? gameType = null, int? roundsToCompute = null, int? initialRoundNumber = null, bool ImpersonateGameStartingPlayer = false)
         {
-            var result = InitGameComputationResult();
+            var result = InitGameComputationResult(hands);
             var firstTime = true;
             int player1;
             int player2;
@@ -979,13 +966,13 @@ namespace Mariasek.Engine.New
             {
                 trump = _g.trump;
             }
-            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, _hands, Name, PlayerIndex, ImpersonateGameStartingPlayer ? -1 : TeamMateIndex, initialRoundNumber);
+            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, Name, PlayerIndex, ImpersonateGameStartingPlayer ? -1 : TeamMateIndex, initialRoundNumber);
             
             _log.DebugFormat("Round {0}. Starting simulation for {1}", _g.RoundNumber, _g.players[PlayerIndex].Name);
             if (c1 != null) _log.DebugFormat("First card: {0}", c1);
             if (c2 != null) _log.DebugFormat("Second card: {0}", c2);
-            _log.TraceFormat("{0}: {1} cerveny, {2} zeleny, {3} kule, {4} zaludy", _g.players[player2].Name, _hands[player2].Count(i => i.Suit == Barva.Cerveny), _hands[player2].Count(i => i.Suit == Barva.Zeleny), _hands[player2].Count(i => i.Suit == Barva.Kule), _hands[player2].Count(i => i.Suit == Barva.Zaludy));
-            _log.TraceFormat("{0}: {1} cerveny, {2} zeleny, {3} kule, {4} zaludy", _g.players[player3].Name, _hands[player3].Count(i => i.Suit == Barva.Cerveny), _hands[player3].Count(i => i.Suit == Barva.Zeleny), _hands[player3].Count(i => i.Suit == Barva.Kule), _hands[player3].Count(i => i.Suit == Barva.Zaludy));
+            _log.TraceFormat("{0}: {1} cerveny, {2} zeleny, {3} kule, {4} zaludy", _g.players[player2].Name, hands[player2].Count(i => i.Suit == Barva.Cerveny), hands[player2].Count(i => i.Suit == Barva.Zeleny), hands[player2].Count(i => i.Suit == Barva.Kule), hands[player2].Count(i => i.Suit == Barva.Zaludy));
+            _log.TraceFormat("{0}: {1} cerveny, {2} zeleny, {3} kule, {4} zaludy", _g.players[player3].Name, hands[player3].Count(i => i.Suit == Barva.Cerveny), hands[player3].Count(i => i.Suit == Barva.Zeleny), hands[player3].Count(i => i.Suit == Barva.Kule), hands[player3].Count(i => i.Suit == Barva.Zaludy));
             for (initialRoundNumber = aiStrategy.RoundNumber;
                  aiStrategy.RoundNumber < initialRoundNumber + roundsToCompute;
                  aiStrategy.RoundNumber++)
@@ -1057,7 +1044,7 @@ namespace Mariasek.Engine.New
                 player1 = aiStrategy.MyIndex;
                 player2 = (aiStrategy.MyIndex + 1) % Game.NumPlayers;
                 player3 = (aiStrategy.MyIndex + 2) % Game.NumPlayers;
-                AmendGameComputationResult(result, roundStarterIndex, roundWinnerIndex, roundScore, c1, c2, c3);
+                AmendGameComputationResult(result, roundStarterIndex, roundWinnerIndex, roundScore, hands, c1, c2, c3);
                 _log.TraceFormat("Score: {0}/{1}/{2}", result.Score[0], result.Score[1], result.Score[2]);
             }
 

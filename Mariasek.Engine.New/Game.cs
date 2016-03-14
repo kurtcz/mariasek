@@ -669,6 +669,11 @@ namespace Mariasek.Engine.New
                 {
                     canChooseFlavour = false;
                 }
+                if (firstTime)
+                {
+                    talon = GameStartingPlayer.ChooseTalon();
+                    GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
+                }
                 if (canChooseFlavour)
                 {
                     gameFlavour = nextPlayer.ChooseGameFlavour();
@@ -682,12 +687,7 @@ namespace Mariasek.Engine.New
                 {
                     gameFlavour = GameFlavour.Good;
                 }
-                if(gameFlavour == GameFlavour.Good && firstTime)
-                {
-                    talon = GameStartingPlayer.ChooseTalon();
-                    GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
-                }
-                else if(gameFlavour == GameFlavour.Good && GameType > Hra.Hra)
+                if(!firstTime && gameFlavour == GameFlavour.Good && GameType > Hra.Hra)
                 {
                     //u betlu a durchu muzou hraci jeste navic flekovat
                     if(!SkipBidding)

@@ -306,6 +306,14 @@ namespace Mariasek.Engine.New
             }
         }
 
+        public IEnumerable<Hand[]> GenerateHands(int roundNumber, int roundStarterIndex, int maxGenerations)
+        {
+            for(var i = 0; i < maxGenerations; i++)
+            {
+                yield return GenerateHands(roundNumber, roundStarterIndex);
+            }
+        }
+
         public Hand[] GenerateHands(int roundNumber, int roundStarterIndex)
         {
             //Pozor!!!: u vsech techto lokalnich promennych plati, ze index 0 == ja ale u _cardProbabilityForPlayer je _myIndex == ja

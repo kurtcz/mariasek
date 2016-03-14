@@ -63,7 +63,7 @@ The SMTP username and password can be set from the settings window.
 Batch Run Analysis
 ------------------
 
-To test different AI settings there are a few useful scripts.
+To test different AI settings there are a few useful scripts. (Requires PowerShell 4.0+)
 
 **Marisek.GameGenerator**
 This script generates a number of random games and saves their definitions to a chosen directory.
