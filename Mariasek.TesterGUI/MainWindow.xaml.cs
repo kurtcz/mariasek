@@ -587,7 +587,11 @@ namespace Mariasek.TesterGUI
                 sb.AppendFormat("\n{0}: {1}", g.players[i].Name,
                     (g.Results.MoneyWon[i] * baseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
             }
-            ShowMsgLabel(sb.ToString(), false);
+            _synchronizationContext.Post(_ =>
+            {
+                ShowMsgLabel(sb.ToString(), false);
+                ClearTable();
+            }, null);
             CanRewind = true;
             CanSaveGame = true;
             var programFolder = System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
