@@ -242,15 +242,21 @@ namespace Mariasek.Engine.New
         {
             if(_talon == null)
             {
-                //pokud jsme hlasili spatnou barvu
-                if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                //zacinajici hrac nejprve vybira talon a az pak rozhoduje jakou hru bude hrat (my mame oboje implementovane uvnitr ChooseGameFlavour())
+                if (PlayerIndex == _g.GameStartingPlayerIndex)
                 {
-                    _talon = ChooseDurchTalon(Hand);
+                    ChooseGameFlavour();
+                    return _talon;
                 }
-                else
-                {
-                    _talon = ChooseBetlTalon(Hand);
-                }
+                ////pokud jsme hlasili spatnou barvu
+                //if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                //{
+                //    _talon = ChooseDurchTalon(Hand);
+                //}
+                //else
+                //{
+                //    _talon = ChooseBetlTalon(Hand);
+                //}
             }
             _log.DebugFormat("Talon chosen: {0} {1}", _talon[0], _talon[1]);
             
@@ -350,7 +356,8 @@ namespace Mariasek.Engine.New
             if (simulateGoodGames)
             {
                 //nasimuluj hry v barve
-                Parallel.ForEach(Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound), hands =>
+                var source = Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound);
+                Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
                 {
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
 
@@ -361,7 +368,8 @@ namespace Mariasek.Engine.New
             if(simulateBadGames)
             {
                 //nasimuluj durchy
-                Parallel.ForEach(Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound), hands =>
+                var source = Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound);
+                Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
                 {
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseDurchTalon, GameStartingPlayerIndex);
 
@@ -369,7 +377,8 @@ namespace Mariasek.Engine.New
                     durchComputationResults.Enqueue(durchComputationResult);
                 });
                 //nasimuluj betly
-                Parallel.ForEach(Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound), hands =>
+                source = Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound);
+                Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
                 {
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, GameStartingPlayerIndex);
 
@@ -686,7 +695,8 @@ namespace Mariasek.Engine.New
                 {
                     _log.DebugFormat("{0}'s probabilities for {1}:\n{2}", Name, _g.players[i].Name, Probabilities.FriendlyString(i, _g.RoundNumber));
                 }
-                Parallel.ForEach(Probabilities.GenerateHands(_g.RoundNumber, roundStarterIndex, Settings.SimulationsPerRound), (hands, loopState) =>
+                var source = Probabilities.GenerateHands(_g.RoundNumber, roundStarterIndex, Settings.SimulationsPerRound);
+                Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), (hands, loopState) =>
                 {
                     var computationResult = ComputeGame(hands, r.c1, r.c2);
 
