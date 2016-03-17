@@ -165,7 +165,7 @@ namespace Mariasek.SharedClient.GameComponents
         public override void Show()
         {
             base.Show();
-            foreach (var sprite in _sprites)
+            foreach (var sprite in _sprites.Where(i => i != null))
             {
                 sprite.Show();
             }
@@ -174,7 +174,7 @@ namespace Mariasek.SharedClient.GameComponents
         public override void Hide()
         {
             base.Hide();
-            foreach (var sprite in _sprites)
+            foreach (var sprite in _sprites.Where(i => i != null))
             {
                 sprite.Hide();
             }

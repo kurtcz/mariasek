@@ -351,17 +351,17 @@ namespace Mariasek.Engine.New
             //pokud volim hru tak se ted rozhoduju jaky typ hry hrat (hra, betl, durch)
             //pokud nevolim hru, tak bud simuluju betl a durch nebo konkretni typ hry
             //tak ci tak nevim co je/bude v talonu
-
             _log.DebugFormat("Running game simulations for {0} ...", Name);
             if (simulateGoodGames)
             {
                 //nasimuluj hry v barve
                 var source = Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound);
-                Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
+                //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
+                Parallel.ForEach(source.ToArray(), hands =>
                 {
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
 
-                    var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, (_gameType | Hra.SedmaProti) ?? Hra.Sedma, 10, 1); // to ?? vypada chybne
+                        var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : Hra.Sedma, 10, 1); // to ?? vypada chybne
                     gameComputationResults.Enqueue(gameComputationResult);
                 });
             }
@@ -369,7 +369,8 @@ namespace Mariasek.Engine.New
             {
                 //nasimuluj durchy
                 var source = Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound);
-                Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
+                //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
+                Parallel.ForEach(source.ToArray(), hands =>
                 {
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseDurchTalon, GameStartingPlayerIndex);
 
@@ -378,7 +379,8 @@ namespace Mariasek.Engine.New
                 });
                 //nasimuluj betly
                 source = Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound);
-                Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
+                //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
+                Parallel.ForEach(source.ToArray(), hands =>
                 {
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, GameStartingPlayerIndex);
 
@@ -696,7 +698,8 @@ namespace Mariasek.Engine.New
                     _log.DebugFormat("{0}'s probabilities for {1}:\n{2}", Name, _g.players[i].Name, Probabilities.FriendlyString(i, _g.RoundNumber));
                 }
                 var source = Probabilities.GenerateHands(_g.RoundNumber, roundStarterIndex, Settings.SimulationsPerRound);
-                Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), (hands, loopState) =>
+                //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), (hands, loopState) =>
+                Parallel.ForEach(source.ToArray(), (hands, loopState) =>
                 {
                     var computationResult = ComputeGame(hands, r.c1, r.c2);
 

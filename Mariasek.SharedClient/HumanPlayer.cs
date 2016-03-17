@@ -8,6 +8,9 @@ namespace Mariasek.SharedClient
     public class HumanPlayer : AbstractPlayer, IStatsPlayer
     {
         private MainScene _scene;
+        private bool firstTimeChoosingFlavour;
+        private Hra _gameType;
+        private Barva _trump;
 
         public Probability Probabilities { get; set; }
 
@@ -15,19 +18,23 @@ namespace Mariasek.SharedClient
             : base(g)
         {
             _scene = scene;
-            g.GameFlavourChosen += GameFlavourChosen;
             g.GameTypeChosen += GameTypeChosen;
             g.CardPlayed += CardPlayed;
         }
 
         public override void Init()
         {
+            _gameType = 0;
+            firstTimeChoosingFlavour = true;
             Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _g.talon);
         }
 
         public override Card ChooseTrump()
         {
-            return _scene.ChooseTrump();
+            var trumpCard = _scene.ChooseTrump();
+
+            _trump = trumpCard.Suit;
+            return trumpCard;
         }
 
         public override List<Card> ChooseTalon()
@@ -37,12 +44,41 @@ namespace Mariasek.SharedClient
 
         public override GameFlavour ChooseGameFlavour()
         {
+            if (firstTimeChoosingFlavour)
+            {
+                firstTimeChoosingFlavour = false;
+                //poprve volici hrac nehlasi dobra/spatna ale vybira z typu her, cimz se dobra/spatna implicitne zvoli
+                if (PlayerIndex == _g.GameStartingPlayerIndex)
+                {
+                    var validGameTypes = Hra.Hra | Hra.Kilo | Hra.Betl | Hra.Durch;
+
+                    if (Hand.Contains(new Card(_trump, Hodnota.Sedma)))
+                    {
+                        validGameTypes |= Hra.Sedma;
+                    }
+                    _gameType = _scene.ChooseGameType(validGameTypes);
+                    if ((_gameType & (Hra.Betl | Hra.Durch)) != 0)
+                    {
+                        return GameFlavour.Bad;
+                    }
+                    else
+                    {
+                        return GameFlavour.Good;
+                    }
+                }
+            }
+            _gameType = 0;
+
             return _scene.ChooseGameFlavour();
         }
 
-        public override Hra ChooseGameType(Hra minimalBid = Hra.Hra)
+        public override Hra ChooseGameType(Hra validGameTypes)
         {
-            return _scene.ChooseGameType(minimalBid);
+            if(_gameType != 0)
+            {
+                return _gameType;
+            }
+            return _scene.ChooseGameType(validGameTypes);
         }
 
         public override Hra GetBidsAndDoubles(Bidding bidding)
@@ -69,11 +105,6 @@ namespace Mariasek.SharedClient
             return card;
         }
 
-        private void GameFlavourChosen(object sender, GameFlavourChosenEventArgs e)
-        {
-            _scene.GameFlavourChosen(sender, e);
-        }
-
         private void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
         {
             Probabilities.UpdateProbabilitiesAfterGameTypeChosen(e);
@@ -91,7 +122,7 @@ namespace Mariasek.SharedClient
             }
             else
             {
-                Probabilities.UpdateProbabilities(r.number, r.player1.PlayerIndex, r.c1, r.hlas1, _g.trump);
+                Probabilities.UpdateProbabilities(r.number, r.player1.PlayerIndex, r.c1, r.hlas1);
             }
         }
     }

@@ -53,7 +53,9 @@ namespace Mariasek.Engine.New
         public int RoundNumber { get; private set; }
         public Bidding Bidding { get; private set; }
         public string Author { get; set; }
+#if !PORTABLE
         public static Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
+#endif
         public string Comment { get; set; }
 
         #endregion
@@ -701,12 +703,14 @@ namespace Mariasek.Engine.New
                 else if(gameFlavour == GameFlavour.Bad)
                 {
                     GameStartingPlayerIndex = nextPlayer.PlayerIndex;
-                    GameStartingPlayer.Hand.AddRange(talon);
-                    talon.Clear();
                     trump = null;
                     TrumpCard = null;
-                    talon = GameStartingPlayer.ChooseTalon();
-                    GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
+                    if (!firstTime)
+                    {
+                        GameStartingPlayer.Hand.AddRange(talon);
+                        talon = GameStartingPlayer.ChooseTalon();
+                        GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
+                    }
                     if(minimalBid == Hra.Hra)
                     {
                         minimalBid = Hra.Betl;

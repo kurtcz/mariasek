@@ -84,6 +84,8 @@ namespace Mariasek.SharedClient
         private volatile Bidding _bidding;
         private volatile Hra _gameTypeChosen;
         private volatile GameFlavour _gameFlavourChosen;
+        private GameFlavourChosenEventArgs _gameFlavourChosenEventArgs;
+        private bool _firstTimeGameFlavourChosen;
         private volatile Hra _bid;
         private volatile Card _cardClicked;
         private volatile Card _trumpCardChosen;
@@ -122,7 +124,12 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "GameThreshold",
-                    Value = "80"
+                    Value = "80|90|95"
+                });
+            _aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                {
+                    Name = "MaxDoubleCount",
+                    Value = "3"
                 });
         }
 
@@ -254,8 +261,7 @@ namespace Mariasek.SharedClient
             {
                 Text = "Špatná",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f + 5, Game.VirtualScreenHeight / 2f - 100),
-                Tag = GameFlavour.Bad,
-                IsEnabled = false
+                Tag = GameFlavour.Bad
             };
             gfSpatnaButton.Click += GfButtonClicked;
             gfSpatnaButton.Hide();
@@ -455,24 +461,24 @@ namespace Mariasek.SharedClient
             _gameTask = Task.Run(() => {
                 g = new Mariasek.Engine.New.Game()
                     {
-                        SkipBidding = false//true
+                        SkipBidding = false
                     };
                 g.RegisterPlayers(
-                    //new DummyPlayer(g) { Name = "Hráč 1" },
                     new HumanPlayer(g, this) { Name = "Hráč 1" },
-                    //new DummyPlayer(g) { Name = "Hráč 2" },
-                    //new DummyPlayer(g) { Name = "Hráč 3" }
                     new AiPlayer(g, _aiConfig) { Name = "Hráč 2" },
                     new AiPlayer(g, _aiConfig) { Name = "Hráč 3" }
                 );
                 _currentStartingPlayerIndex = (_currentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers;
                 g.NewGame(_currentStartingPlayerIndex, null);
+                g.GameFlavourChosen += GameFlavourChosen;
                 g.GameTypeChosen += GameTypeChosen;
                 g.BidMade += BidMade;
                 g.CardPlayed += CardPlayed;
                 g.RoundStarted += RoundStarted;
                 g.RoundFinished += RoundFinished;
                 g.GameFinished += GameFinished;
+                _firstTimeGameFlavourChosen = true;
+                _trumpCardChosen = null;
 
                 _state = GameState.NotPlaying;
                 ClearTable(true);
@@ -521,29 +527,39 @@ namespace Mariasek.SharedClient
                     //TODO: animate revealing of the trump card to the opponents
                     var origPosition = _hlasy[0][0].Position;
                     _hlasy[0][0].Position = button.Position;
-                    _hlasy[0][0].MoveTo(origPosition, 1000);
-                    if (button.Sprite.IsVisible)
+                    if (!button.Sprite.IsVisible)
                     {
                         _hlasy[0][0].Texture = Game.CardTextures;
                         _hlasy[0][0].SpriteRectangle = _cardClicked.ToTextureRect();
+                        _hlasy[0][0].Show();
+                        Task.Run(() =>
+                            {
+                                Thread.Sleep(2000);
+                                _hlasy[0][0].MoveTo(origPosition, 1000);
+                                _hlasy[0][0].Texture = Game.ReverseTexture;
+                                _hlasy[0][0].SpriteRectangle = Game.ReverseTexture.Bounds;
+                                while (_hlasy[0][0].Position != origPosition)
+                                {
+                                    Thread.Sleep(100);
+                                }
+                                _evt.Set();
+                            });
                     }
                     else
                     {
                         _hlasy[0][0].Texture = Game.ReverseTexture;
                         _hlasy[0][0].SpriteRectangle = Game.ReverseTexture.Bounds;
+                        _hlasy[0][0].Show();
+                        _hlasy[0][0].MoveTo(origPosition, 1000);
+                        Task.Run(() => {
+                            while(_hlasy[0][0].Position != origPosition)
+                            {
+                                Thread.Sleep(100);
+                            }
+                            _evt.Set();
+                        });
                     }
-                    _hlasy[0][0].Show();
                     button.Hide();
-                    Task.Run(() => {
-                        while(_hlasy[0][0].Position != origPosition)
-                        {
-                            Thread.Sleep(100);
-                        }
-                        _hlasy[0][0].Texture = Game.CardTextures;
-                        _hlasy[0][0].SpriteRectangle = _cardClicked.ToTextureRect();
-                        _evt.Set();
-                    });
-                    //_evt.Set();
                     break;
                 //case GameState.ChooseGameType:
                 case GameState.Play:
@@ -551,15 +567,28 @@ namespace Mariasek.SharedClient
                         return;
                     _state = GameState.NotPlaying;
                     HideMsgLabel();
+                    origPosition = _cardsPlayed[0].Position;
+                    _cardsPlayed[0].Position = button.Position;
+                    _cardsPlayed[0].MoveTo(origPosition, 1000);
+                    _cardsPlayed[0].Texture = Game.CardTextures;
+                    _cardsPlayed[0].SpriteRectangle = _cardClicked.ToTextureRect();
+                    _cardsPlayed[0].Show();
+                    button.Hide();
+                    Task.Run(() => {
+                        while(_cardsPlayed[0].Position != origPosition)
+                        {
+                            Thread.Sleep(100);
+                        }
+                        _evt.Set();
+                    });
+                    //_evt.Set();
+                    break;
+                case GameState.RoundFinished:
+                    _state = GameState.NotPlaying;
+                    ClearTable();
+                    HideMsgLabel();
                     _evt.Set();
                     break;
-//                case GameState.RoundFinished:
-//                    button.IsSelected = false;
-//                    _state = GameState.NotPlaying;
-//                    ClearTable();
-//                    HideMsgLabel();
-//                    _evt.Set();
-//                    break;
                 case GameState.GameFinished:
                     _state = GameState.NotPlaying;
                     ClearTable(true);
@@ -653,69 +682,48 @@ namespace Mariasek.SharedClient
         public GameFlavour ChooseGameFlavour()
         {
             g.ThrowIfCancellationRequested();
-            if (g.GameStartingPlayerIndex == 0)
+            _synchronizationContext.Send(_ =>
             {
-                //Pokud zacinam, tak se logika zjednodusuje a dobrou/spatnou hru vybiram pomoci konkretni hry
-                _synchronizationContext.Send(_ =>
-                    {
-                        ChooseGameTypeInternal(Hra.Hra);
-                    }, null);
-                WaitForUIThread();
-                if (_gameTypeChosen != Hra.Betl && _gameTypeChosen != Hra.Durch)
+                UpdateHand(); //abych nevidel karty co jsem hodil do talonu                
+                foreach (var gfButton in gfButtons)
                 {
-                    return GameFlavour.Good;
+                        gfButton.Show();
                 }
-                else
-                {
-                    return GameFlavour.Bad;
-                }
-            }
-            else
-            {
-                //Pokud nezacinam, tak musim odpovedet
-                _synchronizationContext.Send(_ =>
-                    {
-                        UpdateHand();
-                        foreach (var gfButton in gfButtons)
-                        {
-                            gfButton.Show();
-                        }
-                        _state = GameState.ChooseGameFlavour;
-                    }, null);
-                WaitForUIThread();
-                return _gameFlavourChosen;
-            }
+                ShowMsgLabel("Co řekneš?", false);
+                _state = GameState.ChooseGameFlavour;
+            }, null);
+            WaitForUIThread();
+            return _gameFlavourChosen;
         }
 
-        private void ChooseGameTypeInternal(Hra minimalBid)
+        private void ChooseGameTypeInternal(Hra validGameTypes)
         {
+            g.ThrowIfCancellationRequested();
             UpdateHand(cardToHide: _trumpCardChosen); //abych nevidel karty co jsem hodil do talonu
             foreach (var gtButton in gtButtons)
             {
-                gtButton.IsEnabled = (Hra)gtButton.Tag >= minimalBid && (Hra)gtButton.Tag < Hra.Betl;
+                gtButton.IsEnabled = ((Hra)gtButton.Tag & validGameTypes) != 0;
                 gtButton.Show();
             }
             ShowMsgLabel("Co budeš hrát?", false);
             _state = GameState.ChooseGameType;
         }
 
-        public Hra ChooseGameType(Hra minimalBid)
+        public Hra ChooseGameType(Hra validGameTypes)
         {
             g.ThrowIfCancellationRequested();
-            //pokud zacinam, tak jsem typ hry uz vybral v ChooseGameFlavour() jinak zobrazit tlacitka a cekat na volbu
-            if (g.GameStartingPlayerIndex != 0)
-            {
-                _synchronizationContext.Send(_ =>
-                    {
-                        ChooseGameTypeInternal(minimalBid);
-                    }, null);
-                WaitForUIThread();
-            }
+            _synchronizationContext.Send(_ =>
+                {
+                    ChooseGameTypeInternal(validGameTypes);
+                }, null);
+            WaitForUIThread();
             Task.WaitAll(new[] { _bubble1Task, _bubble2Task, _bubble3Task }.Where(i => i != null).ToArray());
+            _synchronizationContext.Send(_ =>
+                {
+                    ShowThinkingMessage();
+                }, null);
             return _gameTypeChosen;
         }
-
-        private int _numberOfDoubles = 0;
 
         public Hra GetBidsAndDoubles(Bidding bidding)
         {
@@ -775,21 +783,54 @@ namespace Mariasek.SharedClient
 
         public void GameFlavourChosen(object sender, GameFlavourChosenEventArgs e)
         {
-            if (e.PlayerIndex == _currentStartingPlayerIndex)
+            g.ThrowIfCancellationRequested();
+
+            _gameFlavourChosenEventArgs = e;
+            if(_firstTimeGameFlavourChosen)
             {
-                if (e.Flavour == GameFlavour.Good)
+                if (g.GameStartingPlayerIndex != 0)
                 {
-                    ShowBubble(e.PlayerIndex, "Barva");
+                    if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Good)
+                    {
+                        ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, "Barva?");
+                    }
+                    else
+                    {
+                        var str = _gameFlavourChosenEventArgs.Flavour == GameFlavour.Good ? "Dobrá" : "Špatná";
+                        ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, str);
+                    }
                 }
                 else
                 {
-                    //zacinajici hrac vybral spatnou barvu - nezobrazujeme nic, pozswji zobrazime konkretni typ spatne hry
+                    if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Good)
+                    {
+                        ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, "Barva?");
+                    }
+                    else
+                    {
+                        _trumpCardChosen = null;
+                    }
                 }
             }
-            else
+            else if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Bad || g.GameType == 0)
             {
-                ShowBubble(e.PlayerIndex, e.Flavour.ToDescription());
+                var str = _gameFlavourChosenEventArgs.Flavour == GameFlavour.Good ? "Dobrá" : "Špatná";
+                ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, str);
             }
+            _synchronizationContext.Send(_ =>
+                {
+                    if(e.Player.PlayerIndex == 2)
+                    {
+                        HideMsgLabel();
+                    }
+                    else if(e.Player.PlayerIndex == 1)
+                    {
+                        ShowThinkingMessage();
+                    }
+                    UpdateHand(cardToHide: _trumpCardChosen);
+                }, null);
+
+            _firstTimeGameFlavourChosen = false;
         }
 
         public void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
@@ -801,20 +842,45 @@ namespace Mariasek.SharedClient
                         {
                             _hlasy[0][0], _hlasy[1][0], _hlasy[2][0]
                         };
-                    _trumpLabels[_currentStartingPlayerIndex].Text = string.Format("{0} {1}", e.GameType, e.TrumpCard.Suit.ToDescription());
+                    _trumpLabels[e.GameStartingPlayerIndex].Text = string.Format("{0} {1}", e.GameType, e.TrumpCard != null ? e.TrumpCard.Suit.ToDescription() : "");
                     foreach(var trumpLabel in _trumpLabels)
                     {
                         trumpLabel.Hide();
                     }
-                    _trumpLabels[_currentStartingPlayerIndex].Show();
-                    imgs[e.GameStartingPlayerIndex].SpriteRectangle = e.TrumpCard.ToTextureRect();
-                    imgs[e.GameStartingPlayerIndex].Show();
+                    _trumpLabels[e.GameStartingPlayerIndex].Show();
+                    if(e.TrumpCard != null)
+                    {
+                        imgs[e.GameStartingPlayerIndex].Texture = Game.CardTextures;
+                        imgs[e.GameStartingPlayerIndex].SpriteRectangle = e.TrumpCard.ToTextureRect();
+                        imgs[e.GameStartingPlayerIndex].Show();
+                    }
+                    else if(e.GameStartingPlayerIndex == 0)
+                    {
+                        imgs[e.GameStartingPlayerIndex].Hide();
+                    }
+                    if(e.GameStartingPlayerIndex != 2)
+                    {
+                        ShowThinkingMessage();
+                    }
+                    else
+                    {
+                        HideMsgLabel();
+                    }
                 }, null);
         }
 
         public void BidMade(object sender, BidEventArgs e)
         {
+            UpdateHand(cardToHide: _trumpCardChosen);
             ShowBubble(e.Player.PlayerIndex, e.Description);
+            if(e.Player.PlayerIndex != 2)
+            {
+                ShowThinkingMessage();
+            }
+            else
+            {
+                HideMsgLabel();
+            }
         }
 
         public void CardPlayed(object sender, Round r)
@@ -897,10 +963,20 @@ namespace Mariasek.SharedClient
             Game.Money.Add(results);
             SaveHistory();
 
-            sb.AppendFormat("{0} {1} hru ({2} {3}). Skóre {4}:{5}",
+            if (!g.trump.HasValue)
+            {
+                sb.AppendFormat("{0} {1} {2}.",
+                    g.GameStartingPlayer.Name,
+                    (((g.GameType & Hra.Betl) != 0 && g.Results.BetlWon) || g.Results.DurchWon) ? "vyhrál" : "prohrál",
+                    g.GameType);
+            }
+            else
+            {
+                sb.AppendFormat("{0} {1} hru ({2} {3}). Skóre {4}:{5}",
                 g.GameStartingPlayer.Name,
                 g.Results.GameWon ? "vyhrál" : "prohrál",
-                g.GameType, g.trump.ToDescription(), g.Results.PointsWon, g.Results.PointsLost);
+                g.GameType, g.trump.Value.ToDescription(), g.Results.PointsWon, g.Results.PointsLost);
+            }
             if ((g.GameType & Hra.Sedma) != 0)
             {
                 sb.AppendFormat("\n{0} {1} sedmu.", g.GameStartingPlayer.Name,
@@ -914,6 +990,7 @@ namespace Mariasek.SharedClient
             }
             _newGameBtn.IsEnabled = true;
             ClearTable(true);
+            _hand.UpdateHand(new Card[0]);
             ShowMsgLabel(sb.ToString(), false);
         }
 
@@ -935,10 +1012,10 @@ namespace Mariasek.SharedClient
                         g.ThrowIfCancellationRequested();
                         System.Diagnostics.Debug.WriteLine(string.Format("BubbleTask: Showing message '{0}'", message));
                         _synchronizationContext.Send(_ =>
-                            {
-                                tb.Text = message;
-                                tb.Show();
-                            }, null);
+                        {
+                            tb.Text = message;
+                            tb.Show();
+                        }, null);
                         if (!autoHide)
                         {
                             return;

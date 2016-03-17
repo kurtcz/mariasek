@@ -8,7 +8,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Mariasek.Engine.New.Logger
 {
+#if !PORTABLE
     [ExcludeFromCodeCoverage]
+#endif
     public class DummyLogWrapper : ILog
     {
         public void Init()
