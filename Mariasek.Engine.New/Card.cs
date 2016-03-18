@@ -88,6 +88,12 @@ namespace Mariasek.Engine.New
             get { return CharCodes[(int)Value]; }
         }
 
+        //default constructor for XmlSerializer
+        public Card()
+            :this (Barva.Cerveny, Hodnota.Sedma)
+        {
+        }
+
         public Card(Barva suit, Hodnota value)
         {
             Suit = suit;

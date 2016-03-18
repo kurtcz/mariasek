@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace Mariasek.Engine.New
 {
@@ -79,6 +81,18 @@ namespace Mariasek.Engine.New
         public bool IsEmpty()
         {
             return _cards == null || _cards.Count == 0;
+        }
+
+        public void LoadDeck(Stream stream)
+        {
+            var xml = new XmlSerializer(typeof(List<Card>));
+            _cards = (List<Card>)xml.Deserialize(stream);
+        }
+
+        public void SaveDeck(Stream stream)
+        {
+            var xml = new XmlSerializer(typeof(List<Card>));
+            xml.Serialize(stream, _cards);
         }
     }
 }

@@ -41,11 +41,13 @@ namespace Mariasek.SharedClient
 
         //TODO:Add child components here
         private GameComponents.Hand _hand;
+        private Deck _deck;
         private Sprite[] _cardsPlayed;
         private Sprite[][] _hlasy;
         private ClickableArea _overlay;
         private Button _newGameBtn;
         private Button _menuBtn;
+        private Button _shuffleBtn;
         private Button _okBtn;
         private Button[] gtButtons, gfButtons, bidButtons;
         private Button gtHraButton;
@@ -79,6 +81,9 @@ namespace Mariasek.SharedClient
         private string _historyFilePath = Path.Combine (
             Environment.GetFolderPath (Environment.SpecialFolder.Personal),
             "Mariasek.history");
+        private string _deckFilePath = Path.Combine (
+            Environment.GetFolderPath (Environment.SpecialFolder.Personal),
+            "Mariasek.deck");
 
         private GameState _state;
         private volatile Bidding _bidding;
@@ -185,10 +190,16 @@ namespace Mariasek.SharedClient
                     Position = new Vector2(10, 10)                
                 };
             _newGameBtn.Click += NewGameBtnClicked;
+            _shuffleBtn = new Button(this)
+                {
+                    Text = "Zamíchat",
+                    Position = new Vector2(10, 70)
+                };
+            _shuffleBtn.Click += ShuffleBtnClicked;
             _menuBtn = new Button(this)
                 {
                     Text = "Menu",
-                    Position = new Vector2(10, 70)
+                    Position = new Vector2(10, 130)
                 };
             _menuBtn.Click += MenuBtnClicked;
             _okBtn = new Button(this)
@@ -416,6 +427,38 @@ namespace Mariasek.SharedClient
             }
         }
 
+        public void LoadDeck()
+        {
+            _deck = new Deck();
+            try
+            {
+                using (var fs = File.Open(_deckFilePath, FileMode.Open))
+                {
+                    _deck.LoadDeck(fs);
+                }
+            }
+            catch(Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("Cannot load deck\n{0}", e.Message));
+                _deck.Shuffle();
+            }
+        }
+
+        public void SaveDeck()
+        {
+            try
+            {
+                using (var fs = File.Open(_deckFilePath, FileMode.Create))
+                {
+                    _deck.SaveDeck(fs);
+                }
+            }
+            catch(Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("Cannot save deck\n{0}", e.Message));
+            }
+        }
+
         private void CancelRunningTask()
         {
             if (_gameTask != null && _gameTask.Status == TaskStatus.Running)
@@ -456,7 +499,8 @@ namespace Mariasek.SharedClient
 
         public void NewGameBtnClicked(object sender)
         {
-            _newGameBtn.IsEnabled = false;
+            //_newGameBtn.IsEnabled = false;
+            _shuffleBtn.IsEnabled = false;
             CancelRunningTask();
             _gameTask = Task.Run(() => {
                 g = new Mariasek.Engine.New.Game()
@@ -469,7 +513,19 @@ namespace Mariasek.SharedClient
                     new AiPlayer(g, _aiConfig) { Name = "Hráč 3" }
                 );
                 _currentStartingPlayerIndex = (_currentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers;
-                g.NewGame(_currentStartingPlayerIndex, null);
+                if (_deck == null)
+                {
+                    LoadDeck();
+                }
+                else if (_deck.IsEmpty())
+                {
+                    _deck = g.GetDeckFromLastGame();
+                    if(_deck.IsEmpty())
+                    {
+                        LoadDeck();
+                    }
+                }
+                g.NewGame(_currentStartingPlayerIndex, _deck);
                 g.GameFlavourChosen += GameFlavourChosen;
                 g.GameTypeChosen += GameTypeChosen;
                 g.BidMade += BidMade;
@@ -492,9 +548,15 @@ namespace Mariasek.SharedClient
             Game.MenuScene.SetActive();
         }
 
+        public void ShuffleBtnClicked(object sender)
+        {
+            _deck.Shuffle();
+        }
+
         public void CardClicked(object sender)
         {
             var button = sender as CardButton;
+            Sprite targetSprite;
 
             _cardClicked = (Card)button.Tag;
             System.Diagnostics.Debug.WriteLine(string.Format("{0} clicked", _cardClicked));
@@ -567,15 +629,23 @@ namespace Mariasek.SharedClient
                         return;
                     _state = GameState.NotPlaying;
                     HideMsgLabel();
-                    origPosition = _cardsPlayed[0].Position;
-                    _cardsPlayed[0].Position = button.Position;
-                    _cardsPlayed[0].MoveTo(origPosition, 1000);
-                    _cardsPlayed[0].Texture = Game.CardTextures;
-                    _cardsPlayed[0].SpriteRectangle = _cardClicked.ToTextureRect();
-                    _cardsPlayed[0].Show();
+                    if (_cardClicked.Value == Hodnota.Svrsek && g.players[0].Hand.HasK(_cardClicked.Suit))
+                    {
+                        targetSprite = _hlasy[0][g.players[0].Hlasy];
+                    }
+                    else
+                    {
+                        targetSprite = _cardsPlayed[0];
+                    }
+                    origPosition = targetSprite.Position;
+                    targetSprite.Position = button.Position;
+                    targetSprite.MoveTo(origPosition, 1000);
+                    targetSprite.Texture = Game.CardTextures;
+                    targetSprite.SpriteRectangle = _cardClicked.ToTextureRect();
+                    targetSprite.Show();
                     button.Hide();
                     Task.Run(() => {
-                        while(_cardsPlayed[0].Position != origPosition)
+                        while(targetSprite.Position != origPosition)
                         {
                             Thread.Sleep(100);
                         }
@@ -988,10 +1058,13 @@ namespace Mariasek.SharedClient
                 sb.AppendFormat("\n{0}: {1}", g.players[i].Name,
                     (g.Results.MoneyWon[i] * baseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
             }
-            _newGameBtn.IsEnabled = true;
+            //_newGameBtn.IsEnabled = true;
+            _shuffleBtn.IsEnabled = true;
             ClearTable(true);
             _hand.UpdateHand(new Card[0]);
             ShowMsgLabel(sb.ToString(), false);
+            _deck = g.GetDeckFromLastGame();
+            SaveDeck();
         }
 
         #endregion
