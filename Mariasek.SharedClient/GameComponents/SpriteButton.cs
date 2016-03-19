@@ -120,6 +120,11 @@ namespace Mariasek.SharedClient.GameComponents
             Sprite.ScaleTo(targetScale, scalingSpeed);
         }
 
+        public virtual void Slerp(Vector2 targetPosition, float targetAngle, float targetScale, float speed = 100f, float rotationSpeed = 1f, float scalingSpeed = 1f)
+        {
+            Sprite.Slerp(targetPosition, targetAngle, targetScale, speed, rotationSpeed, scalingSpeed);
+        }
+
         /// <summary>
         /// Allows the game component to update itself.
         /// </summary>

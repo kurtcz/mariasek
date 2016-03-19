@@ -218,8 +218,9 @@ namespace Mariasek.SharedClient.GameComponents
                 var targetPosition = new Vector2(Centre.X + r * (float)Math.Cos(angle),
                                                  Centre.Y + r * 0.75f - r * (float)Math.Sin(angle));
 
-                hh[i].MoveTo(targetPosition, 400);
-                hh[i].RotateTo(rotationAngle, 2);
+                //hh[i].MoveTo(targetPosition, 400);
+                //hh[i].RotateTo(rotationAngle, 2);
+                hh[i].Slerp(targetPosition, rotationAngle, 1f, 400, 2f, 1f);
             }
             IsStraight = false;
             AnimationEvent.Reset();
@@ -265,8 +266,9 @@ namespace Mariasek.SharedClient.GameComponents
                 var targetPosition = new Vector2(Centre.X + x_offset, Centre.Y + y_offset);
                 var targetAngle = 0f;
 
-                hh[i].MoveTo(targetPosition, 400);
-                hh[i].RotateTo(targetAngle, 2);
+                //hh[i].MoveTo(targetPosition, 400);
+                //hh[i].RotateTo(targetAngle, 2);
+                hh[i].Slerp(targetPosition, targetAngle, 1f, 400, 2f, 1f);
             }
             IsStraight = true;
             AnimationEvent.Reset();

@@ -302,7 +302,7 @@ namespace Mariasek.SharedClient.GameComponents
                         position.X += Width;
                         break;
                 }
-                System.Diagnostics.Debug.WriteLine(string.Format("VSO {0}", VerticalScrollOffset));
+                //System.Diagnostics.Debug.WriteLine(string.Format("VSO {0}", VerticalScrollOffset));
                 position.Y += VerticalScrollOffset;
 
                 _backgroundShape.Draw(gameTime);

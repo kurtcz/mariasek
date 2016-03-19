@@ -52,21 +52,21 @@ namespace Mariasek.SharedClient
         {
             base.Initialize();
 
-//            var cards = new []
-//            {
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Eso),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Desitka),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Kral),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Svrsek),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Spodek),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Devitka),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Osma),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Sedma),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Cerveny, Mariasek.Engine.New.Hodnota.Eso),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Cerveny, Mariasek.Engine.New.Hodnota.Desitka),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Cerveny, Mariasek.Engine.New.Hodnota.Kral),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Cerveny, Mariasek.Engine.New.Hodnota.Svrsek)
-//            };
+            var cards = new []
+            {
+                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Eso),
+                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Desitka),
+                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Kral),
+                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Svrsek),
+                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Spodek),
+                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Devitka),
+                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Osma),
+                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Sedma),
+                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Cerveny, Mariasek.Engine.New.Hodnota.Eso),
+                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Cerveny, Mariasek.Engine.New.Hodnota.Desitka),
+                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Cerveny, Mariasek.Engine.New.Hodnota.Kral),
+                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Cerveny, Mariasek.Engine.New.Hodnota.Svrsek)
+            };
 //            spriteButton0 = new SpriteButton(this,
 //                new Sprite(this, Game.CardTextures)
 //                {
@@ -87,7 +87,7 @@ namespace Mariasek.SharedClient
 //                    Name = "sb",
 //                    Position = new Vector2(Game.VirtualScreenWidth / 2f + 200, Game.VirtualScreenHeight / 2f)
 //                };
-//            hand = new Hand(this, cards) { Centre = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight - 60) };
+            hand = new Hand(this, cards) { Centre = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight - 60) };
 /*            rect = new RectangleShape(this)
                 {
                     Position = new Vector2(Game.VirtualScreenWidth - 300, 60),
@@ -176,7 +176,7 @@ namespace Mariasek.SharedClient
         {
             base.Update(gameTime);
 
-            /*
+
             if (!hand.IsMoving)
             {
                 if (t == null || t.Status == TaskStatus.RanToCompletion)
@@ -195,7 +195,7 @@ namespace Mariasek.SharedClient
                         });
                 }
             }
-*/
+
         }
     }
 }

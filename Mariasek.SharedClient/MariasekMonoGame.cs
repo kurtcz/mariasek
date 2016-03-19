@@ -128,9 +128,9 @@ namespace Mariasek.SharedClient
                 Restarted += kvp.Value.GameRestarted;
             }
 
-            //TestScene = new TestScene(this);
-            //TestScene.Initialize();
-            //TestScene.SetActive();
+//            TestScene = new TestScene(this);
+//            TestScene.Initialize();
+//            TestScene.SetActive();
             MenuScene = new MenuScene(this);
             MenuScene.Initialize();
 

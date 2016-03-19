@@ -1,6 +1,6 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Android.4790723fdf391054" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Mariasek.Engine.New/Deck.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Mariasek.SharedClient/MainScene.cs">
     <Files>
       <File FileName="Mariasek.SharedClient/GameComponents/Button.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/Label.cs" Line="1" Column="1" />
@@ -8,29 +8,29 @@
       <File FileName="Mariasek.Engine.New/AddingMoneyCalculator.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/Probability.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/Game.cs" Line="20" Column="20" />
-      <File FileName="Mariasek.SharedClient/MainScene.cs" Line="35" Column="35" />
+      <File FileName="Mariasek.SharedClient/MainScene.cs" Line="80" Column="80" />
       <File FileName="Mariasek.SharedClient/HumanPlayer.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/GameComponents/TextBox.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/GameComponents/TextBox.cs" Line="27" Column="27" />
       <File FileName="Mariasek.Engine.New/HandExtensions.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/Extensions.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/AbstractPlayer.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/GameComponents/CardButton.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/GameComponents/CardButton.cs" Line="22" Column="22" />
       <File FileName="Mariasek.SharedClient/GameComponents/GameComponent.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/GameComponents/Hand.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/GameComponents/Sprite.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/GameComponents/SpriteButton.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/GameComponents/Hand.cs" Line="9" Column="9" />
+      <File FileName="Mariasek.SharedClient/GameComponents/SpriteButton.cs" Line="104" Column="104" />
       <File FileName="Mariasek.SharedClient/Extensions.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/MenuScene.cs" Line="48" Column="48" />
       <File FileName="Mariasek.SharedClient/GameComponents/Scene.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/MariasekMonoGame.cs" Line="67" Column="67" />
-      <File FileName="Mariasek.Engine.New/Deck.cs" Line="35" Column="35" />
+      <File FileName="Mariasek.SharedClient/MariasekMonoGame.cs" Line="13" Column="13" />
+      <File FileName="Mariasek.Engine.New/Deck.cs" Line="18" Column="18" />
       <File FileName="Mariasek.SharedClient/GameComponents/FontRenderer.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.Engine.New/Card.cs" Line="10" Column="10" />
+      <File FileName="Mariasek.SharedClient/TestScene.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/GameComponents/Sprite.cs" Line="159" Column="159" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/kurt/git/mariasek/Mariasek.SharedClient/MainScene.cs" line="490" column="1" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

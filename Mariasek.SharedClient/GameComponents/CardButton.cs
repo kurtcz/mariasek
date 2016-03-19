@@ -100,6 +100,12 @@ namespace Mariasek.SharedClient.GameComponents
             _reverseSprite.ScaleTo(targetScale, scalingSpeed);
         }
 
+        public override void Slerp(Vector2 targetPosition, float targetAngle, float targetScale, float speed = 100f, float rotationSpeed = 1f, float scalingSpeed = 1f)
+        {
+            base.Slerp(targetPosition, targetAngle, targetScale, speed, rotationSpeed, scalingSpeed);
+            _reverseSprite.Slerp(targetPosition, targetAngle, targetScale, speed, rotationSpeed, scalingSpeed);
+        }
+
         protected override void OnTouchDown(TouchLocation tl)
         {
             base.OnTouchDown(tl);

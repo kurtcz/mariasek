@@ -613,15 +613,17 @@ namespace Mariasek.SharedClient
                         _hlasy[0][0].SpriteRectangle = Game.ReverseTexture.Bounds;
                         _hlasy[0][0].Show();
                         _hlasy[0][0].MoveTo(origPosition, 1000);
-                        Task.Run(() => {
-                            while(_hlasy[0][0].Position != origPosition)
+                        Task.Run(() =>
                             {
-                                Thread.Sleep(100);
-                            }
-                            _evt.Set();
-                        });
+                                while (_hlasy[0][0].Position != origPosition)
+                                {
+                                    Thread.Sleep(100);
+                                }
+                                _evt.Set();
+                            });
                     }
                     button.Hide();
+                    _hand.IsEnabled = false;
                     break;
                 //case GameState.ChooseGameType:
                 case GameState.Play:
@@ -651,18 +653,21 @@ namespace Mariasek.SharedClient
                         }
                         _evt.Set();
                     });
+                    _hand.IsEnabled = false;
                     //_evt.Set();
                     break;
                 case GameState.RoundFinished:
                     _state = GameState.NotPlaying;
                     ClearTable();
                     HideMsgLabel();
+                    _hand.IsEnabled = false;
                     _evt.Set();
                     break;
                 case GameState.GameFinished:
                     _state = GameState.NotPlaying;
                     ClearTable(true);
                     HideMsgLabel();
+                    _hand.IsEnabled = false;
                     NewGameBtnClicked(this);
                     return;
                 default:
@@ -724,6 +729,7 @@ namespace Mariasek.SharedClient
         public Card ChooseTrump()
         {
             g.ThrowIfCancellationRequested();
+            _hand.IsEnabled = true;
             _synchronizationContext.Send(_ =>
                 {
                     ShowMsgLabel("Vyber trumfovou kartu", false);
@@ -737,6 +743,7 @@ namespace Mariasek.SharedClient
         public List<Card> ChooseTalon()
         {
             g.ThrowIfCancellationRequested();
+            _hand.IsEnabled = true;
             _synchronizationContext.Send(_ =>
                 {
                     _talon = new List<Card>();
@@ -752,6 +759,7 @@ namespace Mariasek.SharedClient
         public GameFlavour ChooseGameFlavour()
         {
             g.ThrowIfCancellationRequested();
+            _hand.IsEnabled = false;
             _synchronizationContext.Send(_ =>
             {
                 UpdateHand(); //abych nevidel karty co jsem hodil do talonu                
@@ -782,6 +790,7 @@ namespace Mariasek.SharedClient
         public Hra ChooseGameType(Hra validGameTypes)
         {
             g.ThrowIfCancellationRequested();
+            _hand.IsEnabled = false;
             _synchronizationContext.Send(_ =>
                 {
                     ChooseGameTypeInternal(validGameTypes);
@@ -798,6 +807,7 @@ namespace Mariasek.SharedClient
         public Hra GetBidsAndDoubles(Bidding bidding)
         {
             g.ThrowIfCancellationRequested();
+            _hand.IsEnabled = false;
             Task.WaitAll(new[] { _bubble1Task, _bubble2Task, _bubble3Task }.Where(i => i != null).ToArray());
             _synchronizationContext.Send(_ =>
                 {
@@ -817,6 +827,7 @@ namespace Mariasek.SharedClient
         public Card PlayCard(Renonc validationState)
         {
             g.ThrowIfCancellationRequested();
+            _hand.IsEnabled = true;
             _synchronizationContext.Send(_ =>
                 {
                     _state = GameState.Play;
@@ -992,7 +1003,10 @@ namespace Mariasek.SharedClient
                         _cardsPlayed[lastPlayer.PlayerIndex].Show();
                     }
 
-                    UpdateHand();
+                    if(lastPlayer.PlayerIndex == 0)
+                    {
+                        UpdateHand();
+                    }
                     _hand.ShowArc((float)Math.PI / 2);
                 }, null);
         }
