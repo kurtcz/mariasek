@@ -72,6 +72,7 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     Sprite.Position = _position;
                 }
+                //if sprite is moving its position will be adjusted inside Update()
             }
         }
             
@@ -105,26 +106,34 @@ namespace Mariasek.SharedClient.GameComponents
             base.OnClick();
         }
 */
-        public virtual void MoveTo(Vector2 targetPosition, float speed = 100f)
+        public SpriteButton MoveTo(Vector2 targetPosition, float speed = 100f)
         {
             Sprite.MoveTo(targetPosition, speed);
+
+            return this;
         }
 
-        public virtual void RotateTo(float targetAngle, float rotationSpeed = 1f)
+        public SpriteButton RotateTo(float targetAngle, float rotationSpeed = 1f)
         {
             Sprite.RotateTo(targetAngle, rotationSpeed);
+
+            return this;
         }
 
-        public virtual void ScaleTo(float targetScale, float scalingSpeed = 1f)
+        public SpriteButton ScaleTo(float targetScale, float scalingSpeed = 1f)
         {
             Sprite.ScaleTo(targetScale, scalingSpeed);
+
+            return this;
         }
 
-        public virtual void Slerp(Vector2 targetPosition, float targetAngle, float targetScale, float speed = 100f, float rotationSpeed = 1f, float scalingSpeed = 1f)
+        public SpriteButton Slerp(Vector2 targetPosition, float targetAngle, float targetScale, float speed = 100f, float rotationSpeed = 1f, float scalingSpeed = 1f)
         {
             Sprite.Slerp(targetPosition, targetAngle, targetScale, speed, rotationSpeed, scalingSpeed);
-        }
 
+            return this;
+        }
+            
         /// <summary>
         /// Allows the game component to update itself.
         /// </summary>

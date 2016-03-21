@@ -35,5 +35,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ToggleButton.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ClickableArea.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MenuScene.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\FluentExtensions.cs" />
   </ItemGroup>
 </Project>

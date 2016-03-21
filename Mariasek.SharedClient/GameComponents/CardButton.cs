@@ -18,6 +18,7 @@ namespace Mariasek.SharedClient.GameComponents
     public class CardButton : SpriteButton
     {
         private Sprite _reverseSprite;
+        private bool _doneFlipping = true;
 
         private bool _isSelected;
         public bool IsSelected
@@ -63,9 +64,7 @@ namespace Mariasek.SharedClient.GameComponents
 
         public override void Show()
         {
-            _reverseSprite.Hide();
-            Sprite.Show();
-            base.Show();
+            ShowFrontSide();
         }
                    
         public override void Hide()
@@ -75,35 +74,125 @@ namespace Mariasek.SharedClient.GameComponents
             base.Hide();
         }
 
-        public void ShowBackside()
+        public void ShowFrontSide()
+        {
+            base.Show();
+            Sprite.Show();
+            _reverseSprite.Hide();
+        }
+
+        public void ShowBackSide()
         {
             base.Show();
             _reverseSprite.Show();
             Sprite.Hide();
         }
 
-        public override void MoveTo(Vector2 targetPosition, float speed = 100f)
+        public CardButton FlipToFront(float speed = 2f)
+        {
+            var slim = new Vector2
+            {
+                X = 0,
+                Y = 1
+            };
+            this.Invoke(() =>
+                {
+                    Sprite
+                    .WaitUntil(() => _doneFlipping)
+                    .Invoke(() =>
+                            {
+                                _doneFlipping = false;
+                                Sprite.Hide();
+                                _reverseSprite.Show();
+                                _reverseSprite
+                                .ScaleTo(slim, speed)
+                                .Invoke(() => _doneFlipping = true);
+                            })
+                    .WaitUntil(() => _doneFlipping)
+                    .Invoke(() =>
+                            {
+                                _doneFlipping = false;
+                                _reverseSprite.Hide();
+                                Sprite.Scale = slim;
+                                Sprite.Show();
+                            })
+                    .ScaleTo(Vector2.One, speed)
+                    .Invoke(() =>
+                            {
+                                _reverseSprite.Scale = Vector2.One;
+                                _doneFlipping = true;
+                            });
+                })
+            .WaitUntil(() => _doneFlipping);
+            return this;
+        }
+
+        public CardButton FlipToBack(float speed = 2f)
+        {
+            var slim = new Vector2
+                {
+                    X = 0,
+                    Y = 1
+                };
+            this.Invoke(() =>
+                {
+                    Sprite
+                    .WaitUntil(() => _doneFlipping)
+                    .Invoke(() =>
+                        {
+                            _doneFlipping = false;
+                            _reverseSprite.Hide();
+                            Sprite.Show();
+                        })
+                    .ScaleTo(slim, speed)
+                    .Invoke(() =>
+                        {
+                            Sprite.Hide();
+                            _reverseSprite.Scale = slim;
+                            _reverseSprite.Show();
+                            _reverseSprite
+                                .ScaleTo(Vector2.One, speed)
+                                .Invoke(() =>
+                                {
+                                    Sprite.Scale = Vector2.One;
+                                    _doneFlipping = true;
+                                });
+                        });
+                })
+            .WaitUntil(() => _doneFlipping);
+            return this;
+        }
+
+        public CardButton MoveTo(Vector2 targetPosition, float speed = 100f)
         {
             base.MoveTo(targetPosition, speed);
             _reverseSprite.MoveTo(targetPosition, speed);
+
+            return this;
         }
 
-        public override void RotateTo(float targetAngle, float rotationSpeed = 1f)
+        public CardButton RotateTo(float targetAngle, float rotationSpeed = 1f)
         {
             base.RotateTo(targetAngle, rotationSpeed);
             _reverseSprite.RotateTo(targetAngle, rotationSpeed);
+
+            return this;
         }
 
-        public override void ScaleTo(float targetScale, float scalingSpeed = 1f)
+        public CardButton ScaleTo(float targetScale, float scalingSpeed = 1f)
         {
             base.ScaleTo(targetScale, scalingSpeed);
             _reverseSprite.ScaleTo(targetScale, scalingSpeed);
+
+            return this;
         }
 
-        public override void Slerp(Vector2 targetPosition, float targetAngle, float targetScale, float speed = 100f, float rotationSpeed = 1f, float scalingSpeed = 1f)
+        public CardButton Slerp(Vector2 targetPosition, float targetAngle, float targetScale, float speed = 100f, float rotationSpeed = 1f, float scalingSpeed = 1f)
         {
             base.Slerp(targetPosition, targetAngle, targetScale, speed, rotationSpeed, scalingSpeed);
             _reverseSprite.Slerp(targetPosition, targetAngle, targetScale, speed, rotationSpeed, scalingSpeed);
+
+            return this;
         }
 
         protected override void OnTouchDown(TouchLocation tl)

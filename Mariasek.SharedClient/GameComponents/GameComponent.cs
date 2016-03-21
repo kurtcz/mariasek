@@ -2,18 +2,37 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Concurrent;
 
 namespace Mariasek.SharedClient
 {
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public class GameComponent : Microsoft.Xna.Framework.GameComponent
+    public partial class GameComponent : Microsoft.Xna.Framework.GameComponent
     {
         private GameComponent _parent;
 
         protected new MariasekMonoGame Game;
         protected List<GameComponent> Children = new List<GameComponent>();
+        protected ConcurrentQueue<GameComponentOperation> ScheduledOperations = new ConcurrentQueue<GameComponentOperation>();
+        protected class GameComponentOperation
+        {
+            public int OperationType;
+            public Action ActionHandler;
+            public Func<bool> ConditionFunc;
+            public int WaitMs;
+            public Vector2 Position { get; set; }
+            public float Speed { get; set; }
+        }
+        protected class GameComponentOperationType
+        {
+            public const int Action = 1;
+            public const int Condition = 2;
+            public const int Wait = 4;
+            public const int Move = 8;
+        }
+        private DateTime? _waitEnd;
 
         public string Name { get; set; }
         public virtual bool IsEnabled { get; set; }
@@ -35,6 +54,8 @@ namespace Mariasek.SharedClient
             }
         }
         public virtual Vector2 Position { get; set; }
+        public virtual bool IsBusy { get; protected set; }
+        public virtual bool IsMoving { get; private set; }
         public object Tag { get; set; }
 
         /// <summary>
@@ -88,15 +109,129 @@ namespace Mariasek.SharedClient
             return false;
         }
 
+        public GameComponent WaitUntilImpl(Func<bool> condition)
+        {
+            ScheduledOperations.Enqueue(new GameComponentOperation
+                {
+                    OperationType = GameComponentOperationType.Condition,
+                    ConditionFunc = condition
+                });
+
+            return this;
+        }
+
+        public GameComponent InvokeImpl(Action handler)
+        {
+            ScheduledOperations.Enqueue(new GameComponentOperation
+                {
+                    OperationType = GameComponentOperationType.Action,
+                    ActionHandler = handler
+                });
+
+            return this;
+        }
+
+        public GameComponent WaitImpl(int milliseconds)
+        {
+            ScheduledOperations.Enqueue(new GameComponentOperation
+                {
+                    OperationType = GameComponentOperationType.Wait,
+                    WaitMs = milliseconds
+                });
+
+            return this;
+        }
+
+        public GameComponent MoveToImpl(Vector2 targetPosition, float speed = 100f)
+        {
+            ScheduledOperations.Enqueue(new GameComponentOperation
+                {
+                    OperationType = GameComponentOperationType.Move,
+                    Position = targetPosition,
+                    Speed = speed
+                });
+
+            return this;
+        }
+
+
+        public void ClearOperations()
+        {
+            GameComponentOperation dummy;
+
+            while(ScheduledOperations.Count > 0)
+            {
+                ScheduledOperations.TryDequeue(out dummy);
+            }
+        }
+
         /// <summary>
         /// Allows the game component to update itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
-            // TODO: Add your update code here
-
             base.Update(gameTime);
+
+            GameComponentOperation operation;
+
+            if (ScheduledOperations.TryPeek(out operation))
+            {
+                var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                var moveVector = Vector2.Subtract(operation.Position, Position);
+                var normalizedDirection = moveVector.Length() == 0 ? moveVector : Vector2.Normalize(moveVector);
+                var positionDiff = operation.Speed * deltaTime * normalizedDirection;
+
+                if (operation.OperationType == GameComponentOperationType.Wait)
+                {
+                    if (!_waitEnd.HasValue)
+                    {
+                        _waitEnd = DateTime.Now.AddMilliseconds(operation.WaitMs);
+                    }
+                    if (DateTime.Now > _waitEnd.Value)
+                    {
+                        _waitEnd = null;
+                        ScheduledOperations.TryDequeue(out operation);
+                    }
+                }
+                else if (operation.OperationType == GameComponentOperationType.Condition)
+                {
+                    if (operation.ConditionFunc == null || operation.ConditionFunc())
+                    {
+                        ScheduledOperations.TryDequeue(out operation);
+                    }
+                }
+                else if (operation.OperationType == GameComponentOperationType.Action)
+                {
+                    if (operation.ActionHandler != null)
+                    {
+                        operation.ActionHandler();
+                    }
+                    ScheduledOperations.TryDequeue(out operation);
+                }
+                else if (operation.OperationType == GameComponentOperationType.Move)
+                {
+                    if (positionDiff != Vector2.Zero)
+                    {
+                        if (positionDiff.Length() > moveVector.Length())
+                        {
+                            Position = operation.Position;
+                        }
+                        else
+                        {
+                            Position += positionDiff;
+                        }
+                    }
+                }
+                var moveFinished = operation.OperationType == GameComponentOperationType.Move && positionDiff == Vector2.Zero;
+                if (moveFinished)
+                {
+                    ScheduledOperations.TryDequeue(out operation);
+                }
+                IsMoving = (operation.OperationType & GameComponentOperationType.Move) != 0 && positionDiff != Vector2.Zero;
+            }
+            IsBusy = ScheduledOperations.Count > 0;
 
             foreach (var child in Children)
             {

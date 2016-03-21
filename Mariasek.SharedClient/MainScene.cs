@@ -43,7 +43,7 @@ namespace Mariasek.SharedClient
         private GameComponents.Hand _hand;
         private Deck _deck;
         private Sprite[] _cardsPlayed;
-        private Sprite[][] _hlasy;
+        private CardButton[][] _hlasy;
         private ClickableArea _overlay;
         private Button _newGameBtn;
         private Button _menuBtn;
@@ -157,24 +157,24 @@ namespace Mariasek.SharedClient
             {
                 new []
                 {
-                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f) },
-                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth - 150, Game.VirtualScreenHeight / 2f) },
-                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth - 200, Game.VirtualScreenHeight / 2f) },
-                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth - 250, Game.VirtualScreenHeight / 2f) },
+                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f), IsEnabled = false },
+                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 150, Game.VirtualScreenHeight / 2f), IsEnabled = false },
+                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 200, Game.VirtualScreenHeight / 2f), IsEnabled = false },
+                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 250, Game.VirtualScreenHeight / 2f), IsEnabled = false },
                 },
                 new []
                 {
-                    new Sprite(this, Game.CardTextures) { Position = new Vector2(100, 130) },
-                    new Sprite(this, Game.CardTextures) { Position = new Vector2(150, 130) },
-                    new Sprite(this, Game.CardTextures) { Position = new Vector2(200, 130) },
-                    new Sprite(this, Game.CardTextures) { Position = new Vector2(250, 130) },
+                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(100, 130), IsEnabled = false },
+                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(150, 130), IsEnabled = false },
+                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(200, 130), IsEnabled = false },
+                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(250, 130), IsEnabled = false },
                 },
                 new []
                 {
-                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth - 100, 130) },
-                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth - 150, 130) },
-                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth - 200, 130) },
-                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth - 250, 130) },
+                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 100, 130), IsEnabled = false },
+                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 150, 130), IsEnabled = false },
+                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 200, 130), IsEnabled = false },
+                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 250, 130), IsEnabled = false },
                 }
             };
             _overlay = new ClickableArea(this)
@@ -586,43 +586,28 @@ namespace Mariasek.SharedClient
                     _trumpCardChosen = _cardClicked;
                     _state = GameState.NotPlaying;
                     HideMsgLabel();
-                    //TODO: animate revealing of the trump card to the opponents
+                    button.IsSelected = false; //aby karta nebyla pri animaci tmava
                     var origPosition = _hlasy[0][0].Position;
                     _hlasy[0][0].Position = button.Position;
                     if (!button.Sprite.IsVisible)
                     {
-                        _hlasy[0][0].Texture = Game.CardTextures;
-                        _hlasy[0][0].SpriteRectangle = _cardClicked.ToTextureRect();
-                        _hlasy[0][0].Show();
-                        Task.Run(() =>
-                            {
-                                Thread.Sleep(2000);
-                                _hlasy[0][0].MoveTo(origPosition, 1000);
-                                _hlasy[0][0].Texture = Game.ReverseTexture;
-                                _hlasy[0][0].SpriteRectangle = Game.ReverseTexture.Bounds;
-                                while (_hlasy[0][0].Position != origPosition)
-                                {
-                                    Thread.Sleep(100);
-                                }
-                                _evt.Set();
-                            });
+                        button
+                            .FlipToFront()
+                            .Wait(1000);
                     }
-                    else
-                    {
-                        _hlasy[0][0].Texture = Game.ReverseTexture;
-                        _hlasy[0][0].SpriteRectangle = Game.ReverseTexture.Bounds;
-                        _hlasy[0][0].Show();
-                        _hlasy[0][0].MoveTo(origPosition, 1000);
-                        Task.Run(() =>
-                            {
-                                while (_hlasy[0][0].Position != origPosition)
+                    button
+                        .FlipToBack()
+                        .Invoke(() =>
+                        {
+                            _hlasy[0][0].ShowBackSide();
+                            button.Hide();
+                            _hlasy[0][0]
+                                .MoveTo(origPosition, 1000)
+                                .Invoke(() =>
                                 {
-                                    Thread.Sleep(100);
-                                }
-                                _evt.Set();
-                            });
-                    }
-                    button.Hide();
+                                    _evt.Set();
+                                });
+                        });
                     _hand.IsEnabled = false;
                     break;
                 //case GameState.ChooseGameType:
@@ -633,7 +618,7 @@ namespace Mariasek.SharedClient
                     HideMsgLabel();
                     if (_cardClicked.Value == Hodnota.Svrsek && g.players[0].Hand.HasK(_cardClicked.Suit))
                     {
-                        targetSprite = _hlasy[0][g.players[0].Hlasy];
+                        targetSprite = _hlasy[0][g.players[0].Hlasy].Sprite;
                     }
                     else
                     {
@@ -641,18 +626,16 @@ namespace Mariasek.SharedClient
                     }
                     origPosition = targetSprite.Position;
                     targetSprite.Position = button.Position;
-                    targetSprite.MoveTo(origPosition, 1000);
-                    targetSprite.Texture = Game.CardTextures;
+                    //targetSprite.Texture = Game.CardTextures;
                     targetSprite.SpriteRectangle = _cardClicked.ToTextureRect();
                     targetSprite.Show();
                     button.Hide();
-                    Task.Run(() => {
-                        while(targetSprite.Position != origPosition)
+                    targetSprite
+                        .MoveTo(origPosition, 1000)
+                        .Invoke(() =>
                         {
-                            Thread.Sleep(100);
-                        }
-                        _evt.Set();
-                    });
+                            _evt.Set();
+                        });
                     _hand.IsEnabled = false;
                     //_evt.Set();
                     break;
@@ -931,9 +914,10 @@ namespace Mariasek.SharedClient
                     _trumpLabels[e.GameStartingPlayerIndex].Show();
                     if(e.TrumpCard != null)
                     {
-                        imgs[e.GameStartingPlayerIndex].Texture = Game.CardTextures;
-                        imgs[e.GameStartingPlayerIndex].SpriteRectangle = e.TrumpCard.ToTextureRect();
-                        imgs[e.GameStartingPlayerIndex].Show();
+                        //imgs[e.GameStartingPlayerIndex].Texture = Game.CardTextures;
+                        imgs[e.GameStartingPlayerIndex].Sprite.SpriteRectangle = e.TrumpCard.ToTextureRect();
+                        imgs[e.GameStartingPlayerIndex].ShowBackSide();
+                        imgs[e.GameStartingPlayerIndex].FlipToFront();
                     }
                     else if(e.GameStartingPlayerIndex == 0)
                     {
@@ -994,7 +978,7 @@ namespace Mariasek.SharedClient
                     rect = lastCard.ToTextureRect();
                     if (lastHlas)
                     {
-                        _hlasy[lastPlayer.PlayerIndex][lastPlayer.Hlasy - 1].SpriteRectangle = rect;
+                        _hlasy[lastPlayer.PlayerIndex][lastPlayer.Hlasy - 1].Sprite.SpriteRectangle = rect;
                         _hlasy[lastPlayer.PlayerIndex][lastPlayer.Hlasy - 1].Show();
                     }
                     else
@@ -1090,67 +1074,23 @@ namespace Mariasek.SharedClient
             _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
         }
 
-        private void RunBubbleTask(TextBox tb, string message, bool autoHide, out Task t)
-        {
-            t = Task.Run(() =>
-                {
-                    try
-                    {
-                        g.ThrowIfCancellationRequested();
-                        System.Diagnostics.Debug.WriteLine(string.Format("BubbleTask: Showing message '{0}'", message));
-                        _synchronizationContext.Send(_ =>
-                        {
-                            tb.Text = message;
-                            tb.Show();
-                        }, null);
-                        if (!autoHide)
-                        {
-                            return;
-                        }
-                        System.Diagnostics.Debug.WriteLine(string.Format("BubbleTask: Waiting"));
-                        for (var i = 0; i < _bubbleTime; i += 100)
-                        {
-                            g.ThrowIfCancellationRequested();
-                            Thread.Sleep(100);
-                        }
-                            System.Diagnostics.Debug.WriteLine(string.Format("BubbleTask: Hiding message '{0}'", message));
-                        _synchronizationContext.Send(_ =>
-                            {
-                                tb.Hide();
-                            }, null);
-                    }
-                    catch (TaskCanceledException)
-                    {
-                        System.Diagnostics.Debug.WriteLine(string.Format("BubbleTask: TaskCanceledException caught"));
-                    }
-                }, _cancellationTokenSource.Token);
-        }
-
         private void ShowBubble(int bubbleNo, string message, bool autoHide = true)
         {
-            switch (bubbleNo)
+            TextBox[] bubbles = { _bubble1, _bubble2, _bubble3 };
+
+            bubbles[bubbleNo].Invoke(() =>
+                {
+                    bubbles[bubbleNo].Text = message;
+                    bubbles[bubbleNo].Show();
+                });
+            if (autoHide)
             {
-                case 0:
-                    if (_bubble3Task != null)
-                    {
-                        Task.WaitAll(new [] { _bubble3Task });
-                    }
-                    RunBubbleTask(_bubble1, message, autoHide, out _bubble1Task);
-                    break;
-                case 1:
-                    if (_bubble1Task != null)
-                    {
-                        Task.WaitAll(new[] { _bubble1Task });
-                    }
-                    RunBubbleTask(_bubble2, message, autoHide, out _bubble2Task);
-                    break;
-                case 2:
-                    if (_bubble2Task != null)
-                    {
-                        Task.WaitAll(new[] { _bubble2Task });
-                    }
-                    RunBubbleTask(_bubble3, message, autoHide, out _bubble3Task);
-                    break;
+                bubbles[bubbleNo]
+                    .Wait(_bubbleTime)
+                    .Invoke(() =>
+                        {
+                            bubbles[bubbleNo].Hide();
+                        });
             }
         }
 
@@ -1240,13 +1180,6 @@ namespace Mariasek.SharedClient
             _evt.Reset();
             _evt.WaitOne();
             g.ThrowIfCancellationRequested();
-        }
-
-        public override void Update(GameTime gameTime)
-        {
-            base.Update(gameTime);
-
-            //TODO
         }
     }
 }

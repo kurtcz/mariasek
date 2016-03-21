@@ -18,64 +18,28 @@ namespace Mariasek.SharedClient.GameComponents
 {
     public class Sprite : GameComponent
     {
-        enum TransformationType
+        protected class SpriteOperationType : GameComponentOperationType
         {
-            Move = 1,
-            Rotate = 2,
-            Scale = 4
+            public const int Rotate = 16;
+            public const int Scale = 32;
         }
-        class Transformation
+        class SpriteOperation : GameComponentOperation
         {
-            public TransformationType TransformationType;
-            public Vector2 Position { get; set; }
             public float Angle { get; set; }
             public Vector2 Scale { get; set; }
-            public float Speed { get; set; }
             public float RotationSpeed { get; set; }
             public float ScalingSpeed { get; set; }
         }
 
-        public override Vector2 Position
-        {
-            get { return _position; }
-            set
-            { 
-                Transformation top; 
-
-                _position = value;
-                if (_transformations.TryPeek(out top) && (top.TransformationType & TransformationType.Move) != 0)
-                {
-                    top.Position = value;
-                }
-            }
-        }
         public Vector2 Scale
         {
             get { return _scale; }
-            set
-            {
-                Transformation top; 
-
-                _scale = value;
-                if (_transformations.TryPeek(out top) && (top.TransformationType & TransformationType.Scale) != 0)
-                {
-                    top.Scale = value;
-                }
-            }
+            set { _scale = value; }
         }
         public float RotationAngle
         {
             get { return _rotationAngle; }
-            set
-            {
-                Transformation top; 
-
-                _rotationAngle = value;
-                if (_transformations.TryPeek(out top) && (top.TransformationType &= TransformationType.Rotate) != 0)
-                {
-                    top.Angle = value;
-                }
-            }
+            set { _rotationAngle = value; }
         }
         public Texture2D Texture
         {
@@ -96,15 +60,21 @@ namespace Mariasek.SharedClient.GameComponents
                     (_spriteRectangle.Top + _spriteRectangle.Bottom) / 2f);
             } 
         }
-        public bool IsMoving { get; private set; }
+        private bool _isMoving;
+        public override bool IsMoving 
+        { 
+            get { return _isMoving; } 
+            private set { _isMoving = value; } 
+        }
 
         private Texture2D _spriteTexture;
-        private Vector2 _position;
+        //private Vector2 _position;
         private Vector2 _scale;
         private float _rotationAngle;
+        //private DateTime? _waitEnd;
         private Rectangle _spriteRectangle;
 
-        private ConcurrentQueue<Transformation> _transformations = new ConcurrentQueue<Transformation>();
+        //private ConcurrentQueue<SpriteOperation> _transformations = new ConcurrentQueue<SpriteOperation>();
 
         //TODO: Call parent constructor
         public Sprite(GameComponent parent, Texture2D texture, Rectangle? spriteRectangle = null, Vector2? rotationOrigin = null)
@@ -142,10 +112,7 @@ namespace Mariasek.SharedClient.GameComponents
                     : new Rectangle());
             _scale = Vector2.One;//1f;
             _rotationAngle = 0f;
-            _position = new Vector2();
-            //_targetPosition = _position;
-            //_targetAngle = _rotationAngle;
-            //_targetScale = _scale;
+            Position = new Vector2();
             Opacity = 1f;
             Tint = Color.White;
             //by default set the rotation origin to the center point
@@ -162,44 +129,28 @@ namespace Mariasek.SharedClient.GameComponents
             Name = ToString();
         }
 
-        public void MoveTo(Vector2 targetPosition, float speed = 100f)
+        public Sprite RotateToImpl(float targetAngle, float rotationSpeed = 1f)
         {
-            //_targetPosition = targetPosition;
-            //_speed = speed;
-            _transformations.Enqueue(new Transformation
+            ScheduledOperations.Enqueue(new SpriteOperation
                 {
-                    TransformationType = TransformationType.Move,
-                    Position = targetPosition,
-                    Speed = speed
-                });
-        }
-
-        public Sprite RotateTo(float targetAngle, float rotationSpeed = 1f)
-        {
-            //_targetAngle = targetAngle;
-            //_rotationSpeed = rotationSpeed;
-            _transformations.Enqueue(new Transformation
-                {
-                    TransformationType = TransformationType.Rotate,
+                    OperationType = SpriteOperationType.Rotate,
                     Angle = targetAngle,
                     RotationSpeed = rotationSpeed
                 });
 
             return this;
         }
-
-        public Sprite ScaleTo(float targetScale, float scalingSpeed = 1f)
+            
+        public Sprite ScaleToImpl(float targetScale, float scalingSpeed = 1f)
         {
-            return ScaleTo(new Vector2(targetScale), scalingSpeed);
+            return ScaleToImpl(new Vector2(targetScale), scalingSpeed);
         }
 
-        public Sprite ScaleTo(Vector2 targetScale, float scalingSpeed = 1f)
+        public Sprite ScaleToImpl(Vector2 targetScale, float scalingSpeed = 1f)
         {
-            //_targetScale = targetScale;
-            //_scalingSpeed = scalingSpeed;
-            _transformations.Enqueue(new Transformation
+            ScheduledOperations.Enqueue(new SpriteOperation
                 {
-                    TransformationType = TransformationType.Scale,
+                    OperationType = SpriteOperationType.Scale,
                     Scale = targetScale,
                     ScalingSpeed = scalingSpeed
                 });
@@ -207,14 +158,11 @@ namespace Mariasek.SharedClient.GameComponents
             return this;
         }
 
-        public Sprite Slerp(Vector2 targetPosition, float targetAngle, float targetScale, float speed = 100f, float rotationSpeed = 1f, float scalingSpeed = 1f)
+        public Sprite SlerpImpl(Vector2 targetPosition, float targetAngle, float targetScale, float speed = 100f, float rotationSpeed = 1f, float scalingSpeed = 1f)
         {
-            //MoveTo(targetPosition, speed);
-            //RotateTo(targetAngle, rotationSpeed);
-            //ScaleTo(targetScale, scalingSpeed);
-            _transformations.Enqueue(new Transformation
+            ScheduledOperations.Enqueue(new SpriteOperation
                 {
-                    TransformationType = TransformationType.Move | TransformationType.Rotate | TransformationType.Scale,
+                    OperationType = SpriteOperationType.Move | SpriteOperationType.Rotate | SpriteOperationType.Scale,
                     Position = targetPosition,
                     Speed = speed,
                     Angle = targetAngle,
@@ -226,98 +174,96 @@ namespace Mariasek.SharedClient.GameComponents
             return this;
         }
 
-        public void StopMoving()
-        {
-            Transformation dummy;
-
-            while(_transformations.Count > 0)
-            {
-                _transformations.TryDequeue(out dummy);
-            }
-        }
-
         /// <summary>
         /// Updates sprite's properties during movement, rotation or scaling. This method is always called from the UI thread
         /// </summary>
         public override void Update(GameTime gameTime)
         {
-            Transformation transformation;
+            GameComponentOperation operation;
+            SpriteOperation transformation;
 
-            if (!_transformations.TryPeek(out transformation))
-            //if(transformation == null)
+            if (!ScheduledOperations.TryPeek(out operation))
             {
                 return;
             }
-
-            var wasMoving = IsMoving;
-            var deltaTime = (float) gameTime.ElapsedGameTime.TotalSeconds;
-
-            var moveVector = Vector2.Subtract(transformation.Position, _position);
-            var normalizedDirection = moveVector.Length() == 0 ? moveVector : Vector2.Normalize(moveVector);
-            var positionDiff = transformation.Speed * deltaTime * normalizedDirection;
-
-            var rotationDirection = Math.Sign(transformation.Angle - RotationAngle);
-            var angleDiff = transformation.RotationSpeed * deltaTime * rotationDirection;
-
-            var scalingXDirection = Math.Sign(transformation.Scale.X - Scale.X);
-            var scalingYDirection = Math.Sign(transformation.Scale.Y - Scale.Y);
-            var scaleXDiff = transformation.ScalingSpeed * deltaTime * scalingXDirection;
-            var scaleYDiff = transformation.ScalingSpeed * deltaTime * scalingYDirection;
-
-            if ((transformation.TransformationType & TransformationType.Move) != 0 && positionDiff != Vector2.Zero)
+            transformation = operation as SpriteOperation;
+            if (transformation != null)
             {
-                if (positionDiff.Length() > moveVector.Length())
+                var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                var moveVector = Vector2.Subtract(operation.Position, Position);
+                var normalizedDirection = moveVector.Length() == 0 ? moveVector : Vector2.Normalize(moveVector);
+                var positionDiff = operation.Speed * deltaTime * normalizedDirection;
+
+                var rotationDirection = Math.Sign(transformation.Angle - RotationAngle);
+                var angleDiff = transformation.RotationSpeed * deltaTime * rotationDirection;
+
+                var scalingXDirection = Math.Sign(transformation.Scale.X - Scale.X);
+                var scalingYDirection = Math.Sign(transformation.Scale.Y - Scale.Y);
+                var scaleXDiff = transformation.ScalingSpeed * deltaTime * scalingXDirection;
+                var scaleYDiff = transformation.ScalingSpeed * deltaTime * scalingYDirection;
+
+                if ((transformation.OperationType & SpriteOperationType.Move) != 0 && positionDiff != Vector2.Zero)
                 {
-                    _position = transformation.Position;
-                }
-                else
-                {
-                    _position += positionDiff;
-                }
-            }
-            if ((transformation.TransformationType & TransformationType.Rotate) != 0 && angleDiff != 0)
-            {
-                if (angleDiff > Math.Abs(transformation.Angle - _rotationAngle))
-                {
-                    _rotationAngle = transformation.Angle;
-                }
-                else
-                {
-                    _rotationAngle += angleDiff;
-                }
-            }
-            if ((transformation.TransformationType & TransformationType.Scale) != 0)
-            {
-                if (scaleXDiff != 0)
-                {
-                    if (scaleXDiff > Math.Abs(transformation.Scale.X - _scale.X))
+                    if (positionDiff.Length() > moveVector.Length())
                     {
-                        _scale.X = transformation.Scale.X;
+                        Position = operation.Position;
                     }
                     else
                     {
-                        _scale.X += scaleXDiff;
+                        Position += positionDiff;
                     }
                 }
-                if (scaleYDiff != 0)
+
+                if ((transformation.OperationType & SpriteOperationType.Rotate) != 0 && angleDiff != 0)
                 {
-                    if (scaleYDiff > Math.Abs(transformation.Scale.Y - _scale.Y))
+                    if (angleDiff > Math.Abs(transformation.Angle - _rotationAngle))
                     {
-                        _scale.Y = transformation.Scale.Y;
+                        _rotationAngle = transformation.Angle;
                     }
                     else
                     {
-                        _scale.Y += scaleYDiff;
+                        _rotationAngle += angleDiff;
                     }
                 }
-            }
+
+                if ((transformation.OperationType & SpriteOperationType.Scale) != 0)
+                {
+                    if (scaleXDiff != 0)
+                    {
+                        if (scaleXDiff > Math.Abs(transformation.Scale.X - _scale.X))
+                        {
+                            _scale.X = transformation.Scale.X;
+                        }
+                        else
+                        {
+                            _scale.X += scaleXDiff;
+                        }
+                    }
+                    if (scaleYDiff != 0)
+                    {
+                        if (scaleYDiff > Math.Abs(transformation.Scale.Y - _scale.Y))
+                        {
+                            _scale.Y = transformation.Scale.Y;
+                        }
+                        else
+                        {
+                            _scale.Y += scaleYDiff;
+                        }
+                    }
+                }
                 
-            var moveFinished = positionDiff == Vector2.Zero && angleDiff == 0 && scaleXDiff == 0 && scaleYDiff == 0;
-            if (moveFinished)
-            {
-                _transformations.TryDequeue(out transformation);
+                var moveFinished = (transformation.OperationType & (SpriteOperationType.Move | SpriteOperationType.Rotate | SpriteOperationType.Scale)) != 0 &&
+                    positionDiff == Vector2.Zero && angleDiff == 0 && scaleXDiff == 0 && scaleYDiff == 0;
+                if (moveFinished)
+                {
+                    ScheduledOperations.TryDequeue(out operation);
+                }
+                _isMoving = (transformation.OperationType & (SpriteOperationType.Move | SpriteOperationType.Rotate | SpriteOperationType.Scale)) != 0 &&
+                    (positionDiff != Vector2.Zero || angleDiff != 0 || scaleXDiff != 0 || scaleYDiff != 0);
             }
-            IsMoving = _transformations.Count > 0;
+
+            base.Update(gameTime);
         }
 
         public override void Draw(GameTime gameTime)

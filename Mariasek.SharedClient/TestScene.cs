@@ -33,6 +33,8 @@ namespace Mariasek.SharedClient
         private SpriteButton spriteButton;
         private SpriteButton spriteButton0;
         private TextBox box;
+        private CardButton cb;
+        private bool firstTime = true;
 
         #pragma warning restore 414
         #endregion
@@ -67,6 +69,12 @@ namespace Mariasek.SharedClient
                     new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Cerveny, Mariasek.Engine.New.Hodnota.Kral),
                     new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Cerveny, Mariasek.Engine.New.Hodnota.Svrsek)
             };
+            cb = new CardButton(this, new Sprite(this, Game.CardTextures, cards[0].ToTextureRect()){ Name = "FrontSprite" })
+            {
+                    Name = "cb",
+                    Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f)
+            };
+//            cb.Click += CardButtonClick;
 //            spriteButton0 = new SpriteButton(this,
 //                new Sprite(this, Game.CardTextures)
 //                {
@@ -87,7 +95,7 @@ namespace Mariasek.SharedClient
 //                    Name = "sb",
 //                    Position = new Vector2(Game.VirtualScreenWidth / 2f + 200, Game.VirtualScreenHeight / 2f)
 //                };
-            hand = new Hand(this, cards) { Centre = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight - 60) };
+//            hand = new Hand(this, cards) { Centre = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight - 60) };
 /*            rect = new RectangleShape(this)
                 {
                     Position = new Vector2(Game.VirtualScreenWidth - 300, 60),
@@ -140,25 +148,25 @@ namespace Mariasek.SharedClient
 //            hand.ShowArc((float)Math.PI / 2);
             //hand.ShowTest();
 
-            box = new TextBox(this)
-            {
-                Position = new Vector2(100, 100),
-                Width = 400,
-                Height = 100,
-                BackgroundColor = Color.DimGray,
-//                TextColor = Color.Yellow,
-//                BorderColor = Color.Yellow,
-//                TextRenderer = Game.FontRenderers["BM2Font"],
-
-//                    Position = new Vector2(Game.VirtualScreenWidth / 2 - 75, Game.VirtualScreenHeight / 2 - 100),
-//                    Width = 150,
-//                    Height = 50,
-//                    BackgroundColor = new Color(0x40, 0x40, 0x40),
-                    TextColor = Color.Yellow,
-                    BorderColor = Color.Yellow,
-                    Opacity = 0.8f,
-                    Text = "Lajn 1\nLajn 222\nLajn 33\nLajn 4444\nLajn 5\nLajn 6\nLajn 7\nLajn 8"
-            };
+//            box = new TextBox(this)
+//            {
+//                Position = new Vector2(100, 100),
+//                Width = 400,
+//                Height = 100,
+//                BackgroundColor = Color.DimGray,
+////                TextColor = Color.Yellow,
+////                BorderColor = Color.Yellow,
+////                TextRenderer = Game.FontRenderers["BM2Font"],
+//
+////                    Position = new Vector2(Game.VirtualScreenWidth / 2 - 75, Game.VirtualScreenHeight / 2 - 100),
+////                    Width = 150,
+////                    Height = 50,
+////                    BackgroundColor = new Color(0x40, 0x40, 0x40),
+//                    TextColor = Color.Yellow,
+//                    BorderColor = Color.Yellow,
+//                    Opacity = 0.8f,
+//                    Text = "Lajn 1\nLajn 222\nLajn 33\nLajn 4444\nLajn 5\nLajn 6\nLajn 7\nLajn 8"
+//            };
 //            button = new Button(this)
 //                {
 //                    Position = new Vector2(100, 300),
@@ -176,26 +184,34 @@ namespace Mariasek.SharedClient
         {
             base.Update(gameTime);
 
-
-            if (!hand.IsMoving)
+            if (!cb.Sprite.IsBusy)
             {
-                if (t == null || t.Status == TaskStatus.RanToCompletion)
-                {
-                    t = Task.Factory.StartNew(() =>
-                        {
-                            Thread.Sleep(1000);
-                            if (hand.IsStraight)
-                            {
-                                hand.ShowArc((float)Math.PI / 2);
-                            }
-                            else
-                            {
-                                hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
-                            }
-                        });
-                }
+                cb.FlipToBack(1)
+                  .FlipToFront(1);
             }
+//            if (!hand.IsMoving)
+//            {
+//                if (t == null || t.Status == TaskStatus.RanToCompletion)
+//                {
+//                    t = Task.Factory.StartNew(() =>
+//                        {
+//                            Thread.Sleep(1000);
+//                            if (hand.IsStraight)
+//                            {
+//                                hand.ShowArc((float)Math.PI / 2);
+//                            }
+//                            else
+//                            {
+//                                hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
+//                            }
+//                        });
+//                }
+//            }
+        }
 
+        public void CardButtonClick(object sender)
+        {
+            cb.FlipToBack(1).FlipToFront(1);
         }
     }
 }

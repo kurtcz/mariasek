@@ -155,7 +155,7 @@ namespace Mariasek.SharedClient.GameComponents
                     }
                     else
                     {
-                        _sprites[i].ShowBackside();
+                        _sprites[i].ShowBackSide();
                     }
                     _sprites[i].IsSelected = false;
                 }
