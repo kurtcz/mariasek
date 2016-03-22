@@ -67,20 +67,12 @@ namespace Mariasek.Engine.Tests
                     player1,
                     aiPlayer,
                     player3);
-            
+            //zacina aiPlayer (player2)
             g.LoadGame(filename);
-
-            var trump = aiPlayer.ChooseTrump();
-            var flavour = aiPlayer.ChooseGameFlavour();
-            var talon = aiPlayer.ChooseTalon();
-            aiPlayer.Hand.RemoveAll(i => talon.Contains(i));
-            var validGameTypes = flavour == GameFlavour.Good
-                                    ? Hra.Hra | Hra.Sedma | Hra.Kilo
-                                    : Hra.Betl | Hra.Durch;
-            var hra = aiPlayer.ChooseGameType(validGameTypes);
+            g.InvokeMethod("ChooseGame");
             props = aiPlayer.ToPropertyDictionary();
 
-            return hra;
+            return g.GameType;
         }
 
         private Hra GetOpponentsBidsAndDoubles(string filename, out Dictionary<string, object> props)

@@ -439,12 +439,16 @@ namespace Mariasek.Engine.New
             {
                 check = false;
             }
+            if((roundNumber <=1 && hands.Sum(i => i.Count) != 32) || hands.Sum(i => i.Count) != 32 - (roundNumber - 1) * Game.NumPlayers)
+            {
+                check = false;
+            }
             if (!check)
             {
-                throw new Exception(string.Format("Badly generated hands for player {0}, round {1}:{2}", _myIndex + 1, roundNumber, sb.ToString()));
+                throw new InvalidOperationException(string.Format("Badly generated hands for player {0}, round {1}:{2}", _myIndex + 1, roundNumber, sb.ToString()));
             }
             _log.DebugFormat("Finished generating hands for player{0}\n{1}", _myIndex + 1, sb.ToString());
-            
+
             return result;
         }
 

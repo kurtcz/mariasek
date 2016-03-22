@@ -9,6 +9,18 @@ namespace Mariasek.Engine.Tests
 {
     internal static class Extensions
     {
+        internal static T GetProperty<T>(this object obj, string propertyName)
+        {
+            var prop = obj.GetType().GetProperty(propertyName,
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                null,
+                typeof(T),
+                new Type[0],
+                null);
+
+            return (T)prop.GetValue(obj);
+        }
+
         /// <summary>
         /// Gets all of object's public and non-public fields and properties as a dictionary
         /// </summary>
@@ -62,7 +74,7 @@ namespace Mariasek.Engine.Tests
             return result;
         }
 
-        internal static void InvokeMethod(this object obj, string methodName, params object[] methodParams)
+        internal static object InvokeMethod(this object obj, string methodName, params object[] methodParams)
         {
             var types = methodParams.Select(i => i.GetType()).ToArray();
 
@@ -72,7 +84,7 @@ namespace Mariasek.Engine.Tests
                 types,
                 null);
 
-            dynMethod.Invoke(obj, methodParams);
+            return dynMethod.Invoke(obj, methodParams);
         }
     }
 }

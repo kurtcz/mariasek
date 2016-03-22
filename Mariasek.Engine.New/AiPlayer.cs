@@ -240,23 +240,10 @@ namespace Mariasek.Engine.New
 
         public override List<Card> ChooseTalon()
         {
-            if(_talon == null)
+            //zacinajici hrac nejprve vybira talon a az pak rozhoduje jakou hru bude hrat (my mame oboje implementovane uvnitr ChooseGameFlavour())
+            if (PlayerIndex == _g.GameStartingPlayerIndex)
             {
-                //zacinajici hrac nejprve vybira talon a az pak rozhoduje jakou hru bude hrat (my mame oboje implementovane uvnitr ChooseGameFlavour())
-                if (PlayerIndex == _g.GameStartingPlayerIndex)
-                {
-                    ChooseGameFlavour();
-                    return _talon;
-                }
-                ////pokud jsme hlasili spatnou barvu
-                //if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
-                //{
-                //    _talon = ChooseDurchTalon(Hand);
-                //}
-                //else
-                //{
-                //    _talon = ChooseBetlTalon(Hand);
-                //}
+                ChooseGameFlavour();
             }
             _log.DebugFormat("Talon chosen: {0} {1}", _talon[0], _talon[1]);
             
@@ -265,16 +252,15 @@ namespace Mariasek.Engine.New
 
         public override GameFlavour ChooseGameFlavour()
         {
-            //mame simulovat betl nebo durch
-
-            //pokud volim hru tak mam 12 karet a nechci generovat talon,
-            //jinak mam 10 karet a talon si necham nagenerovat a potom ho vymenim za talon zvoleny podle logiky
-            _talon = PlayerIndex == _g.GameStartingPlayerIndex ? new List<Card>() : null;
-            Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, _talon);
-
-            var bidding = new Bidding(_g);
             if (_initialSimulation)
             {
+                var bidding = new Bidding(_g);
+
+                //pokud volim hru tak mam 12 karet a nechci generovat talon,
+                //jinak mam 10 karet a talon si necham nagenerovat a potom ho vymenim za talon zvoleny podle logiky
+                _talon = PlayerIndex == _g.GameStartingPlayerIndex ? new List<Card>() : null;
+                Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, _talon);
+
                 if (PlayerIndex == _g.OriginalGameStartingPlayerIndex)
                 {
                     //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
@@ -361,7 +347,7 @@ namespace Mariasek.Engine.New
                 {
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
 
-                        var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : Hra.Sedma, 10, 1); // to ?? vypada chybne
+                    var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : Hra.Sedma, 10, 1); // to ?? vypada chybne
                     gameComputationResults.Enqueue(gameComputationResult);
                 });
             }

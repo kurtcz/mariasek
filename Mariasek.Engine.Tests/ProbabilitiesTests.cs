@@ -88,6 +88,7 @@ namespace Mariasek.Engine.Tests
 
         [TestCategory("Probability tests")]
         [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
         public void Hand10Talon0()
         {
             var hand = new Card[] {
@@ -106,7 +107,7 @@ namespace Mariasek.Engine.Tests
             }.ToList();
             var trump = Barva.Cerveny;
 
-            CardProbabilityTest(1, 0, hand, trump, talon);
+            CardProbabilityTest(0, 0, hand, trump, talon);
         }
 
         [TestCategory("Probability tests")]
