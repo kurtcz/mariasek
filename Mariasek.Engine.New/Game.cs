@@ -282,7 +282,7 @@ namespace Mariasek.Engine.New
             const string buildConfiguration = "RELEASE";
 #endif
             _log.InfoFormat("Assembly version: {0} ({1})", version, buildConfiguration);
-            _log.InfoFormat("**Loading game**\n");
+            _log.InfoFormat("**Loading game {0}**\n", Path.GetFileName(filename));
 
             using (var fileStream = new FileStream(filename, FileMode.Open))
             {

@@ -18,7 +18,7 @@ namespace Mariasek.Engine.New
 #if !PORTABLE
         private static readonly new ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 #else
-        private static readonly ILog _log = new DummyLogWrapper();
+        private static readonly new ILog _log = new DummyLogWrapper();
 #endif   
         private new Barva _trump { get { return base._trump.Value; } } //dirty
 

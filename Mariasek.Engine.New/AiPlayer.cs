@@ -327,6 +327,16 @@ namespace Mariasek.Engine.New
             hands[talonIndex] = new Hand(talon);
         }
 
+        private Hand[] GetPlayersHandsAndTalon()
+        {
+
+            var hands = new List<Hand>(_g.players.Select(i => new Hand(i.Hand)));
+
+            hands.Add(new Hand(_g.talon));
+
+            return hands.ToArray();
+        }
+
         //vola se jak pro voliciho hrace tak pro oponenty 
         private void RunGameSimulations(Bidding bidding, int GameStartingPlayerIndex, bool simulateGoodGames, bool simulateBadGames)
         {
@@ -341,7 +351,9 @@ namespace Mariasek.Engine.New
             if (simulateGoodGames)
             {
                 //nasimuluj hry v barve
-                var source = Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound);
+                var source = Settings.Cheat
+                                ? new [] { GetPlayersHandsAndTalon() }
+                                : Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound);
                 //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
                 Parallel.ForEach(source.ToArray(), hands =>
                 {
@@ -354,7 +366,9 @@ namespace Mariasek.Engine.New
             if(simulateBadGames)
             {
                 //nasimuluj durchy
-                var source = Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound);
+                var source = Settings.Cheat
+                                ? new[] { GetPlayersHandsAndTalon() }
+                                : Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound);
                 //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
                 Parallel.ForEach(source.ToArray(), hands =>
                 {
@@ -364,7 +378,9 @@ namespace Mariasek.Engine.New
                     durchComputationResults.Enqueue(durchComputationResult);
                 });
                 //nasimuluj betly
-                source = Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound);
+                source = Settings.Cheat
+                                ? new[] { GetPlayersHandsAndTalon() }
+                                : Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound);
                 //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
                 Parallel.ForEach(source.ToArray(), hands =>
                 {
