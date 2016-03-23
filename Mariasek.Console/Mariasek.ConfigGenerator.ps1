@@ -1,4 +1,5 @@
-﻿param(
+﻿#requires -version 4.0
+param(
 	[string]$config = "Mariasek.Console.exe.config",
 	[string]$outputDir = "ConfigFiles"
 )

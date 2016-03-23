@@ -1,4 +1,5 @@
-﻿param(
+﻿#requires -version 4.0
+param(
 	[int]$gamesToGenerate = 10,
 	[string]$outputDir = "GameDefinitions"
 )

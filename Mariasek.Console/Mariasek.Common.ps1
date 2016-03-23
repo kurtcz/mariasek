@@ -1,4 +1,5 @@
-﻿function TerminateWithError
+﻿#requires -version 4.0
+function TerminateWithError
 {
 	param(
 		[string]$error

@@ -1,4 +1,5 @@
-﻿param(
+﻿#requires -version 4.0
+param(
 	[string]$inputDir = "GameResults",
 	[string]$configDir = "ConfigFiles",
 	[string]$output = ".\_report.json",

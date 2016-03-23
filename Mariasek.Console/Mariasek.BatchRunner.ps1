@@ -1,4 +1,5 @@
-﻿param(
+﻿#requires -version 4.0
+param(
 	[string]$inputDir = "GameDefinitions",
 	[string]$outputDir = "GameResults",
 	[string]$configDir = "ConfigFiles",
