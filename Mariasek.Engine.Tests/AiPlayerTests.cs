@@ -53,12 +53,22 @@ namespace Mariasek.Engine.Tests
             });
         }
 
-        private Hra ChooseGameType(string filename, out Dictionary<string, object> props)
+        private Hra ChooseGameType(string filename, out Dictionary<string, object> props, bool cheat = false)
         {
             var g = new Game()
             {
                 SkipBidding = false
             };
+
+            if(cheat)
+            {
+                _aiConfig["Cheat"] = new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                {
+                    Name = "AiCheating",
+                    Value = "true"
+                };
+            }
+
             var player1 = new DummyPlayer(g);
             var aiPlayer = new AiPlayer(g, _aiConfig);
             var player3 = new DummyPlayer(g);
@@ -108,6 +118,60 @@ namespace Mariasek.Engine.Tests
 
             return hra;
         }
+
+        #region Open Hands Game choice tests
+        [TestCategory("Open Hands Game choice tests")]
+        [TestMethod]
+        public void OpenHandsChoose107()
+        {
+            Dictionary<string, object> props;
+            var hra = ChooseGameType(@"Scenarios\ChooseGame\__107uhratelna.hra", out props, true);
+
+            Assert.IsTrue((hra & Hra.Kilo) != 0, string.Format("Ai mel zavolit kilo ale zvolil {0}", hra));
+            Assert.IsTrue((hra & Hra.Sedma) != 0, string.Format("Ai mel zavolit sedmu ale zvolil {0}", hra));
+        }
+
+        [TestCategory("Open Hands Game choice tests")]
+        [TestMethod]
+        public void OpenHandsDoNotChoose107()
+        {
+            Dictionary<string, object> props;
+            var hra = ChooseGameType(@"Scenarios\ChooseGame\__107neuhratelna.hra", out props, true);
+
+            Assert.IsTrue((hra & Hra.Kilo) == 0, string.Format("Ai nemel zavolit kilo ale zvolil {0}", hra));
+            Assert.IsTrue((hra & Hra.Sedma) != 0, string.Format("Ai mel zavolit sedmu ale zvolil {0}", hra));
+        }
+
+        [TestCategory("Open Hands Game choice tests")]
+        [TestMethod]
+        public void OpenHandsChoose7()
+        {
+            Dictionary<string, object> props;
+            var hra = ChooseGameType(@"Scenarios\ChooseGame\__sedma.hra", out props, true);
+
+            Assert.IsTrue((hra & Hra.Sedma) != 0, string.Format("Ai mel zavolit sedmu ale zvolil {0}", hra));
+        }
+
+        [TestCategory("Open Hands Game choice tests")]
+        [TestMethod]
+        public void OpenHandsChooseBetl()
+        {
+            Dictionary<string, object> props;
+            var hra = ChooseGameType(@"Scenarios\ChooseGame\Betl.hra", out props, true);
+
+            Assert.IsTrue((hra & Hra.Betl) != 0, string.Format("Ai mel zavolit betla ale zvolil {0}", hra));
+        }
+
+        [TestCategory("Open Hands Game choice tests")]
+        [TestMethod]
+        public void OpenHandsChooseDurch()
+        {
+            Dictionary<string, object> props;
+            var hra = ChooseGameType(@"Scenarios\ChooseGame\Durch.hra", out props, true);
+
+            Assert.IsTrue((hra & Hra.Durch) != 0, string.Format("Ai mel zavolit durcha, ale zvolil {0}", hra));
+        }
+        #endregion
 
         #region Game choice tests
         [TestCategory("Game choice tests")]
@@ -182,8 +246,8 @@ namespace Mariasek.Engine.Tests
             Dictionary<string, object> props;
             var hra = GetOpponentsBidsAndDoubles(@"Scenarios\Bidding\__107flek.hra", out props);
 
-            Assert.IsTrue((hra & Hra.Kilo) != 0, "Ai mel flekovat kilo");
-            Assert.IsTrue((hra & Hra.Sedma) != 0, "Ai mel flekovat sedmu");
+            Assert.IsTrue((hra & Hra.Kilo) != 0, "Ai mel flekovat kilo (ale skore bylo: {0})", props["_hundredsBalance"]);
+            Assert.IsTrue((hra & Hra.Sedma) != 0, string.Format("Ai mel flekovat sedmu (ale skore bylo: {0})", props["_sevensBalance"]));
         }
 
         [TestCategory("Bidding tests")]
@@ -193,7 +257,7 @@ namespace Mariasek.Engine.Tests
             Dictionary<string, object> props;
             var hra = GetOpponentsBidsAndDoubles(@"Scenarios\Bidding\__betlflek.hra", out props);
 
-            Assert.IsTrue((hra & Hra.Betl) != 0, "Ai mel flekovat betla");
+            Assert.IsTrue((hra & Hra.Betl) != 0, string.Format("Ai mel flekovat betla (ale skore bylo: {0})", props["_betlBalance"]));
         }
 
         [TestCategory("Bidding tests")]
@@ -203,7 +267,7 @@ namespace Mariasek.Engine.Tests
             Dictionary<string, object> props;
             var hra = GetOpponentsBidsAndDoubles(@"Scenarios\Bidding\__durchflek.hra", out props);
 
-            Assert.IsTrue((hra & Hra.Durch) != 0, "Ai mel flekovat durch");
+            Assert.IsTrue((hra & Hra.Durch) != 0, string.Format("Ai mel flekovat durch (ale skore bylo: {0})", props["_durchBalance"]));
         }
         #endregion
     }
