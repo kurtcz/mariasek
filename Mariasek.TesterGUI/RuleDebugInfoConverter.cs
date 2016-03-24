@@ -16,7 +16,7 @@ namespace Mariasek.TesterGUI
             var src = value as RuleDebugInfo;
             if (src != null)
             {
-                return String.Format("{0}: {1}%", src.Rule, 100.0 * src.RuleCount / src.TotalRuleCount);
+                return String.Format("{0}: {1:F0}%", src.Rule, 100.0 * src.RuleCount / src.TotalRuleCount);
             }
             return "";
         }
