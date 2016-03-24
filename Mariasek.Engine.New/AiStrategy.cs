@@ -300,14 +300,14 @@ namespace Mariasek.Engine.New
                     {
                         //: A--
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
-                                                                (hands[player2].HasX(i.Suit) &&     //jeden souper ma plonkovou desitku
+                                                                ((hands[player2].HasX(i.Suit) &&     //jeden souper ma plonkovou desitku
                                                                  hands[player2].HasAtMostNCardsOfSuit(i.Suit, 1) &&
                                                                  (hands[player3].HasSuit(i.Suit) || //a druhy zna barvu nebo nema trumfy
                                                                   !hands[player3].HasSuit(_trump))) ||
                                                                 (hands[player3].HasX(i.Suit) &&     //nebo obracene
                                                                  hands[player3].HasAtMostNCardsOfSuit(i.Suit, 1) &&
                                                                  (hands[player2].HasSuit(i.Suit) ||
-                                                                  !hands[player2].HasSuit(_trump))));
+                                                                  !hands[player2].HasSuit(_trump)))));
                     }
                     else if (TeamMateIndex == player2)
                     {
