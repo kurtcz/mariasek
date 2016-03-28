@@ -241,9 +241,21 @@ namespace Mariasek.Engine.New
         public override List<Card> ChooseTalon()
         {
             //zacinajici hrac nejprve vybira talon a az pak rozhoduje jakou hru bude hrat (my mame oboje implementovane uvnitr ChooseGameFlavour())
-            if (PlayerIndex == _g.GameStartingPlayerIndex)
+            if (PlayerIndex == _g.OriginalGameStartingPlayerIndex)
             {
                 ChooseGameFlavour();
+            }
+            else
+            {
+                //protihrac nejdriv sjede simulaci nanecisto (bez talonu) a potom znovu s kartami talonu a vybere novy talon
+                if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                {
+                    _talon = ChooseDurchTalon(Hand);
+                }
+                else
+                {
+                    _talon = ChooseBetlTalon(Hand);
+                }
             }
             _log.DebugFormat("Talon chosen: {0} {1}", _talon[0], _talon[1]);
             
