@@ -2,6 +2,7 @@
 
 using System.IO;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace Mariasek.Engine.New.Schema
@@ -78,14 +79,53 @@ namespace Mariasek.Engine.New.Schema
             return Zuctovani != null;
         }
 
-        public void SaveGame(string filename)
+        public void SaveGame(string filename, bool saveDebugInfo = false)
         {
             var serializer = new XmlSerializer(typeof(GameDto));
 
-            using (var fileStream = new FileStream(filename, FileMode.Create))
+            if (!saveDebugInfo)
             {
-                serializer.Serialize(fileStream, this, Namespaces);
-            }            
+                using (var fileStream = new FileStream(filename, FileMode.Create))
+                {
+                    serializer.Serialize(fileStream, this, Namespaces);
+                }
+            }
+            else
+            {
+                var xd = new XDocument();
+
+                using (var xmlWriter = xd.CreateWriter())
+                {
+                    serializer.Serialize(xmlWriter, this, Namespaces);
+                }
+
+                var i = 0;
+
+                foreach(var stych in xd.Root.Descendants("Stych"))
+                {
+                    var hrac1 = stych.Element("Hrac1");
+                    var hrac2 = stych.Element("Hrac2");
+                    var hrac3 = stych.Element("Hrac3");
+
+                    if (!string.IsNullOrEmpty(Stychy[i].Hrac1.Poznamka))
+                    {
+                        hrac1.AddAfterSelf(new XComment(Stychy[i].Hrac1.Poznamka));
+                    }
+                    if (!string.IsNullOrEmpty(Stychy[i].Hrac2.Poznamka))
+                    {
+                        hrac2.AddAfterSelf(new XComment(Stychy[i].Hrac2.Poznamka));
+                    }
+                    if (!string.IsNullOrEmpty(Stychy[i].Hrac3.Poznamka))
+                    {
+                        hrac3.AddAfterSelf(new XComment(Stychy[i].Hrac3.Poznamka));
+                    }
+                    i++;
+                }
+                using (var fileStream = new FileStream(filename, FileMode.Create))
+                {
+                    xd.Save(fileStream);
+                }
+            }
         }
     }
 
@@ -102,6 +142,8 @@ namespace Mariasek.Engine.New.Schema
         public Barva Barva;
         [XmlAttribute]
         public Hodnota Hodnota;
+        [XmlIgnore]
+        public string Poznamka;
     }
 
     public class Stych

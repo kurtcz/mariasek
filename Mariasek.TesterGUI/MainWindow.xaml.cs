@@ -595,7 +595,7 @@ namespace Mariasek.TesterGUI
             CanRewind = true;
             CanSaveGame = true;
             var programFolder = System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
-            g.SaveGame(System.IO.Path.Combine(programFolder, "_konec.hra"));
+            g.SaveGame(System.IO.Path.Combine(programFolder, "_konec.hra"), AppSettings.GetBool("SavePlayerDebugInfo", false));
             _deck = g.GetDeckFromLastGame();
         }
 
@@ -1025,11 +1025,11 @@ namespace Mariasek.TesterGUI
                 g.Author = AppSettings.GetString("Email");
                 if (gameDto != null)
                 {
-                    gameDto.SaveGame(dlg.FileName);
+                    gameDto.SaveGame(dlg.FileName, AppSettings.GetBool("SavePlayerDebugInfo", false));
                 }
                 else
                 {
-                    g.SaveGame(dlg.FileName);
+                    g.SaveGame(dlg.FileName, AppSettings.GetBool("SavePlayerDebugInfo", false));
                 }
             }
         }

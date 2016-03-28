@@ -356,7 +356,7 @@ namespace Mariasek.Engine.New
             }
         }
 
-        public void SaveGame(string filename)
+        public void SaveGame(string filename, bool saveDebugInfo = false)
         {
             var startingPlayerIndex = GameStartingPlayerIndex;
             if(CurrentRound != null)
@@ -420,24 +420,28 @@ namespace Mariasek.Engine.New
                 {
                     var r = rounds[stych.Kolo - 1];
                     var cards = new[] { r.c1, r.c2, r.c3 };
+                    var debugInfo = new[] { r.debugNote1, r.debugNote2, r.debugNote3 };
                     var playerIndices = new[] { r.player1.PlayerIndex, r.player2.PlayerIndex, r.player3.PlayerIndex };
                     int index = Array.IndexOf(playerIndices, 0);
                     stych.Hrac1 = new Karta
                     {
                         Barva = cards[index].Suit,
-                        Hodnota = cards[index].Value
+                        Hodnota = cards[index].Value,
+                        Poznamka = debugInfo[index]
                     };
                     index = Array.IndexOf(playerIndices, 1);
                     stych.Hrac2 = new Karta
                     {
                         Barva = cards[index].Suit,
-                        Hodnota = cards[index].Value
+                        Hodnota = cards[index].Value,
+                        Poznamka = debugInfo[index]
                     };
                     index = Array.IndexOf(playerIndices, 2);
                     stych.Hrac3 = new Karta
                     {
                         Barva = cards[index].Suit,
-                        Hodnota = cards[index].Value
+                        Hodnota = cards[index].Value,
+                        Poznamka = debugInfo[index]
                     };
                 }
             }
@@ -466,7 +470,7 @@ namespace Mariasek.Engine.New
                 };
             }
 
-            gameDto.SaveGame(filename);
+            gameDto.SaveGame(filename, saveDebugInfo);
         }
 #endif
 

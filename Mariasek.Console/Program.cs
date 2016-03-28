@@ -128,11 +128,11 @@ namespace Mariasek.Console
 
             if (!string.IsNullOrEmpty(resultFilename))
             {
-                g.SaveGame(resultFilename);
+                g.SaveGame(resultFilename, true);
             }
             else
             {
-                g.SaveGame(System.IO.Path.Combine(programFolder, "_konec.hra"));            
+                g.SaveGame(System.IO.Path.Combine(programFolder, "_konec.hra"), true);            
             }
 
             return !desiredGameType.HasValue || (g.GameType & desiredGameType.Value) != 0;

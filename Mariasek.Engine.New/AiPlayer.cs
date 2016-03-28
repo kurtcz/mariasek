@@ -734,7 +734,7 @@ namespace Mariasek.Engine.New
                 cardToPlay = ChooseCardToPlay(cardScores.ToDictionary(k => k.Key, v => new List<GameComputationResult>(v.Value)));
             }
 
-            _log.InfoFormat("{0} plays card: {1}", Name, cardToPlay);
+            _log.InfoFormat("{0} plays card: {1} - {2}", Name, cardToPlay, DebugInfo.Rule);
             return cardToPlay;                
         }
 
