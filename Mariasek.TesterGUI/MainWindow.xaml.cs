@@ -918,6 +918,7 @@ namespace Mariasek.TesterGUI
                     _firstTimeGameFlavourChosen = true;
                     HideMsgLabel();
                     HideGameFlavourButtons();
+                    ClearTable(true);
                     if (commentWindow != null)
                     {
                         commentWindow.Close();

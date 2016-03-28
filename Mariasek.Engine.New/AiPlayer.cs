@@ -763,6 +763,8 @@ namespace Mariasek.Engine.New
             }
             KeyValuePair<Card, List<GameComputationResult>> kvp;
             KeyValuePair<Card, GameComputationResult> kvp2;
+            bool ignoreThreshold = (_g.GameType & Hra.Kilo) != 0 && TeamMateIndex != -1;    //pokud hraju proti kilu, tak ryskuju cokoli abych snizil ztraty
+
             switch (Settings.CardSelectionStrategy)
             {
                 case CardSelectionStrategy.MaxCount:
@@ -770,16 +772,17 @@ namespace Mariasek.Engine.New
 
                     _log.DebugFormat("Threshold value: {0}", Settings.RuleThreshold);
                     _log.DebugFormat("Count of all rules with a threshold: {0}", countOfRulesWithThreshold);
-                    if (countOfRulesWithThreshold/(float) totalCount > Settings.RuleThreshold)
+                    _log.DebugFormat("Ignoring threshold: {0}", ignoreThreshold);
+                    if ((countOfRulesWithThreshold/(float) totalCount > Settings.RuleThreshold) || ignoreThreshold)
                     {
                         kvp = cardScores.OrderByDescending(i => i.Value.Count)
-                            .FirstOrDefault(i => i.Value.Any(j => j.Rule.UseThreshold));
+                            .FirstOrDefault(i => i.Value.Any(j => j.Rule.UseThreshold || ignoreThreshold));
                         cardToPlay = kvp.Key;
                         DebugInfo.Card = kvp.Key;
                         DebugInfo.Rule = kvp.Value.First().Rule.Description;
                         DebugInfo.RuleCount = kvp.Value.Count;
                         DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count);
-                        DebugInfo.AllChoices = cardScores.Where(i => i.Value.Any(j => j.Rule.UseThreshold))
+                        DebugInfo.AllChoices = cardScores.Where(i => i.Value.Any(j => j.Rule.UseThreshold || ignoreThreshold))
                                                          .OrderByDescending(i => i.Value.Count).Select(i => new RuleDebugInfo
                         {
                             Card = i.Key,
