@@ -28,7 +28,7 @@ function PopulateGameData
 		{
 			TerminateWithError ("Cannot parse configuration name out of game file {0}" -f $file.FullName)
 		}
-		$configPath = "{0}/{1}.config" -f $configDir, $gameIds[1]
+		$configPath = "{0}/{1}.config" -f $configDir, $gameIds[$gameIds.Count-1]
 
 		$playerConfigData = LoadPlayerConfig $configPath
 		$player1 = $playerConfigData | Where-Object { $_.Position -eq 'player1' }

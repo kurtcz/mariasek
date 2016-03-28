@@ -51,16 +51,32 @@ namespace Mariasek.Console
         }
 
         [Verb(Aliases="new", Description="Starts a new random game", IsDefault=true)]
-        public static void NewGame([DefaultValue(false)] bool skipGame)
+        public static void NewGame([DefaultValue(false)] bool skipGame, [DefaultValue(0)] Hra gameType)
         {
-            playerSettingsReader = new Mariasek.WinSettings.PlayerSettingsReader();
-            g = new Game();
-            g.RegisterPlayers(playerSettingsReader);
+            bool finished = false;
+            int iterations;
+            Deck deck = null;
 
-            g.NewGame(gameStartingPlayerIndex: 0); //saves the new game as _temp.hra
-            if (!skipGame)
-            { 
-                PlayGame(); 
+            for (iterations = 0; !finished; iterations++)
+            {
+                playerSettingsReader = new Mariasek.WinSettings.PlayerSettingsReader();
+                g = new Game();
+                g.RegisterPlayers(playerSettingsReader);
+
+                g.NewGame(gameStartingPlayerIndex: 0, deck: deck); //saves the new game as _temp.hra
+                if (!skipGame)
+                {
+                    finished = PlayGame(gameType == 0 ? (Hra?)null : gameType);
+                    deck = g.GetDeckFromLastGame();
+                }
+                else
+                {
+                    finished = true;
+                }
+            }
+            if (gameType != 0)
+            {
+                System.Console.WriteLine("Done generating {0}. {1} games generated in total", gameType, iterations);
             }
         }
 
@@ -77,7 +93,7 @@ namespace Mariasek.Console
 
         #endregion
 
-        private static void PlayGame()
+        private static bool PlayGame(Hra? desiredGameType = null)
         {
             g.GameTypeChosen += GameTypeChosen;
             g.BidMade += BidMade;
@@ -118,6 +134,8 @@ namespace Mariasek.Console
             {
                 g.SaveGame(System.IO.Path.Combine(programFolder, "_konec.hra"));            
             }
+
+            return !desiredGameType.HasValue || (g.GameType & desiredGameType.Value) != 0;
         }
 
         static void Main(string[] args)
