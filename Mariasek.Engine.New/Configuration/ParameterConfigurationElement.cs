@@ -5,5 +5,6 @@ namespace Mariasek.Engine.New.Configuration
     {
         public string Name { get; set; }
         public string Value { get; set; }
+        public static ParameterConfigurationElement Empty = new ParameterConfigurationElement();
     }
 }

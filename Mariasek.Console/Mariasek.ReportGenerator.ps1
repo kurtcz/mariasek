@@ -2,8 +2,8 @@
 param(
 	[string]$inputDir = "GameResults",
 	[string]$configDir = "ConfigFiles",
-	[string]$output = ".\_report.json",
-	[string]$cfgoutput = ".\_cfg.json",
+	[string]$output = ".\report.json",
+	[string]$cfgoutput = ".\cfg.json",
 	[string]$format = "json"
 )
 
@@ -37,8 +37,8 @@ function PopulateGameData
 
 		[xml]$xml = Get-Content -Path $game.FullName
 		$player1Data = New-Object PSObject -Property @{
-			'GameId' = $gameIds[0];
-			'ConfigId' = $gameIds[1];
+			'GameId' = [string]::Join("-", $gameIds, 0, $gameIds.Count-1);
+			'ConfigId' = $gameIds[$gameIds.Count-1];
 			'Typ' = $xml.Hra.Typ;
 			'Player' = $player1.Name;
 			'Position' = $player1.Position;
@@ -47,8 +47,8 @@ function PopulateGameData
 		}
 		$gameData.Add($player1Data)
 		$player2Data = New-Object PSObject -Property @{
-			'GameId' = $gameIds[0];
-			'ConfigId' = $gameIds[1];
+			'GameId' = [string]::Join("-", $gameIds, 0, $gameIds.Count-1);
+			'ConfigId' = $gameIds[$gameIds.Count-1];
 			'Typ' = $xml.Hra.Typ;
 			'Player' = $player2.Name;
 			'Position' = $player2.Position;
@@ -57,8 +57,8 @@ function PopulateGameData
 		}
 		$gameData.Add($player2Data)
 		$player3Data = New-Object PSObject -Property @{
-			'GameId' = $gameIds[0];
-			'ConfigId' = $gameIds[1];
+			'GameId' = [string]::Join("-", $gameIds, 0, $gameIds.Count-1);
+			'ConfigId' = $gameIds[$gameIds.Count-1];
 			'Typ' = $xml.Hra.Typ;
 			'Player' = $player3.Name;
 			'Position' = $player3.Position;

@@ -10,7 +10,7 @@ namespace Mariasek.Engine.New.Configuration
             {
                 if(!base.ContainsKey(key))
                 {
-                    return null;
+                    return ParameterConfigurationElement.Empty;
                 }
                 return base[key];
             }

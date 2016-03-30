@@ -161,7 +161,7 @@ namespace Mariasek.Engine.New
                                                    hands[player3].CardCount(_trump)))
                                       {
                                           //nemam dost trumfu vyssich nez souperovy trumfy
-                                          if ((_gameType & Hra.Sedma) == 0)
+                                          if ((_gameType & (Hra.Sedma | Hra.Kilo)) == 0)
                                           {
                                               cardsToPlay = Enumerable.Empty<Card>();
                                           }
@@ -169,7 +169,7 @@ namespace Mariasek.Engine.New
                                                    Math.Max(hands[player2].CardCount(_trump),
                                                    hands[player3].CardCount(_trump)))
                                           {
-                                              //hraju sedmu a mam vic trumfu nez souperi
+                                              //hraju sedmu nebo kilo a mam vic trumfu nez souperi
                                               //ale nekdo z nich ma vetsi trumf nez ja -
                                               //pokud ho nemohu vytlacit jinou barvou, tak ho vytahnu
                                               var muzuVytlacitTrumf = false;
@@ -190,7 +190,7 @@ namespace Mariasek.Engine.New
                                                   cardsToPlay = hands[MyIndex].Where(i => i.Suit == _trump && i.Value != Hodnota.Sedma);
                                               }
 
-                                              return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                                              return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
                                           }
                                       }
                                   }

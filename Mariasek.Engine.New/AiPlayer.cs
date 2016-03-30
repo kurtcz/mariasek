@@ -64,7 +64,15 @@ namespace Mariasek.Engine.New
             Settings.CardSelectionStrategy = (CardSelectionStrategy)Enum.Parse(typeof(CardSelectionStrategy), parameters["CardSelectionStrategy"].Value);
             Settings.SimulationsPerRound = int.Parse(parameters["SimulationsPerRound"].Value);
             Settings.RuleThreshold = int.Parse(parameters["RuleThreshold"].Value) / 100f;
-
+            Settings.RuleThresholdForGameType = new Dictionary<Hra, float>();
+            Settings.RuleThresholdForGameType[Hra.Kilo] = int.Parse(parameters["RuleThreshold.Kilo"].Value ?? parameters["RuleThreshold"].Value) / 100f;
+            Settings.RuleThresholdForGameType[Hra.Durch] = int.Parse(parameters["RuleThreshold.Durch"].Value ?? parameters["RuleThreshold"].Value) / 100f;
+            Settings.RuleThresholdForGameType[Hra.Betl] = int.Parse(parameters["RuleThreshold.Betl"].Value ?? parameters["RuleThreshold"].Value) / 100f;
+            Settings.SingleRuleThreshold = int.Parse(parameters["SingleRuleThreshold"].Value) / 100f;
+            Settings.SingleRuleThresholdForGameType = new Dictionary<Hra, float>();
+            Settings.SingleRuleThresholdForGameType[Hra.Kilo] = int.Parse(parameters["SingleRuleThreshold.Kilo"].Value ?? parameters["SingleRuleThreshold"].Value) / 100f;
+            Settings.SingleRuleThresholdForGameType[Hra.Durch] = int.Parse(parameters["SingleRuleThreshold.Durch"].Value ?? parameters["SingleRuleThreshold"].Value) / 100f;
+            Settings.SingleRuleThresholdForGameType[Hra.Betl] = int.Parse(parameters["SingleRuleThreshold.Betl"].Value ?? parameters["SingleRuleThreshold"].Value) / 100f;
             var gameThresholds = parameters["GameThreshold"].Value.Split('|');
             Settings.GameThresholds = gameThresholds.Select(i => int.Parse(i) / 100f).ToArray();
             Settings.MaxDoubleCount = int.Parse(parameters["MaxDoubleCount"].Value);
@@ -769,11 +777,15 @@ namespace Mariasek.Engine.New
             {
                 case CardSelectionStrategy.MaxCount:
                     var countOfRulesWithThreshold = cardScores.Sum(i => i.Value.Count(j => j.Rule.UseThreshold));
-
+                    var countOfBestRuleWithThreshold = cardScores.Select(i => i.Value.Count(j => j.Rule.UseThreshold)).OrderByDescending(i => i).FirstOrDefault();
+                    var threshold = GetRuleThreshold(singleThreshold: false);
+                    var singleThreshold = GetRuleThreshold(singleThreshold: true);
                     _log.DebugFormat("Threshold value: {0}", Settings.RuleThreshold);
                     _log.DebugFormat("Count of all rules with a threshold: {0}", countOfRulesWithThreshold);
+                    _log.DebugFormat("Count of best rule with a threshold: {0}", countOfBestRuleWithThreshold);
                     _log.DebugFormat("Ignoring threshold: {0}", ignoreThreshold);
-                    if ((countOfRulesWithThreshold/(float) totalCount > Settings.RuleThreshold) || ignoreThreshold)
+                    if (ignoreThreshold || (countOfRulesWithThreshold/(float) totalCount > Settings.RuleThreshold) &&
+                                           (countOfBestRuleWithThreshold / (float)totalCount > singleThreshold))
                     {
                         kvp = cardScores.OrderByDescending(i => i.Value.Count)
                             .FirstOrDefault(i => i.Value.Any(j => j.Rule.UseThreshold || ignoreThreshold));
@@ -879,6 +891,21 @@ namespace Mariasek.Engine.New
                     throw new Exception("Unknown card selection strategy");
             }
             return cardToPlay;
+        }
+
+        private float GetRuleThreshold(bool singleThreshold)
+        {
+            var thresholds = singleThreshold ? Settings.SingleRuleThresholdForGameType : Settings.RuleThresholdForGameType;
+            var defaultThreshold = singleThreshold ? Settings.SingleRuleThreshold : Settings.RuleThreshold;
+
+            foreach (var gameType in thresholds.Keys)
+            {
+                if((gameType & _g.GameType) != 0)
+                {
+                    return thresholds[gameType];
+                }
+            }
+            return defaultThreshold;
         }
 
         private GameComputationResult InitGameComputationResult(Hand[] hands)
