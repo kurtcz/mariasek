@@ -6,7 +6,7 @@ using System.Text;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
@@ -61,7 +61,7 @@ namespace Mariasek.SharedClient.GameComponents
             } 
         }
         private bool _isMoving;
-        public override bool IsMoving 
+        public bool IsMoving 
         { 
             get { return _isMoving; } 
             private set { _isMoving = value; } 

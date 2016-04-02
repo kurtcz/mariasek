@@ -1,21 +1,19 @@
-﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Android.MonoForAndroid_API_10" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Mariasek.SharedClient/GameComponents/GameComponent.cs">
+﻿<Properties StartupItem="Mariasek.iOSClient/Mariasek.iOSClient.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Android.Nexus S (KitKat)" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Mariasek.SharedClient/MariasekMonoGame.cs">
     <Files>
-      <File FileName="Mariasek.Engine.New/Game.cs" Line="2" Column="2" />
-      <File FileName="Mariasek.SharedClient/HumanPlayer.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/MainScene.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/GameComponents/CardButton.cs" Line="9" Column="9" />
-      <File FileName="Mariasek.SharedClient/GameComponents/Hand.cs" Line="15" Column="15" />
-      <File FileName="Mariasek.SharedClient/GameComponents/SpriteButton.cs" Line="9" Column="9" />
-      <File FileName="Mariasek.SharedClient/MenuScene.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.Engine.New/Deck.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/TestScene.cs" Line="3" Column="3" />
-      <File FileName="Mariasek.SharedClient/GameComponents/Sprite.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/MariasekMonoGame.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/MariasekMonoGame.cs" Line="39" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/FontRenderer.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/MainScene.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/TextBox.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/GameComponents/Button.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/GameComponents/Label.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/TestScene.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.iOSClient/Main.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/GameComponent.cs" Line="1" Column="1" />
+      <File FileName="packages/MonoGame.Framework.Android.3.5.1.1679/readme.txt" Line="1" Column="1" />
+      <File FileName="Mariasek.AndroidClient/MariasekActivity.cs" Line="40" Column="1" />
+      <File FileName="Mariasek.AndroidClient/Properties/AndroidManifest.xml" Line="5" Column="12" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

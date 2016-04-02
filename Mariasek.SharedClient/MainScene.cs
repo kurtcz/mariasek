@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
@@ -126,10 +126,20 @@ namespace Mariasek.SharedClient
                     Name = "RuleThreshold",
                     Value = "80"
                 });
+            _aiConfig.Add("SingleRuleThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                {
+                    Name = "SingleRuleThreshold",
+                    Value = "0"
+                });
+            _aiConfig.Add("SingleRuleThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                {
+                    Name = "SingleRuleThreshold.Kilo",
+                    Value = "95"
+                });
             _aiConfig.Add("GameThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "GameThreshold",
-                    Value = "80|90|95"
+                    Value = "75|85|95"
                 });
             _aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {

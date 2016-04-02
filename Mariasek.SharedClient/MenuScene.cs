@@ -6,7 +6,7 @@ using System.Text;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
@@ -21,6 +21,7 @@ namespace Mariasek.SharedClient
     public class MenuScene : Scene
     {
         private Button _resumeButton;
+        private Button _shuffleBtn;
         private Button _resetHistoryButton;
         private Label _header;
         private Label _footer;
@@ -49,6 +50,14 @@ namespace Mariasek.SharedClient
                 Text = "Zpět do hry"
             };
             _resumeButton.Click += ResumeClicked;
+//            _shuffleBtn = new Button(this)
+//            {
+//                Position = new Vector2(10, 70),
+//                Width = 200,
+//                Height = 50,
+//                Text = "Zamíchat karty"
+//            };
+//            _shuffleBtn.Click += Game.MainScene.ShuffleBtnClicked;
             _resetHistoryButton = new Button(this)
             {
                 Position = new Vector2(10, (int)Game.VirtualScreenHeight - 60),

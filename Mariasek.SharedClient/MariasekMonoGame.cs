@@ -45,8 +45,9 @@ namespace Mariasek.SharedClient
 			//make sure SupportedOrientations is set accordingly to ActivityAttribute.ScreenOrientation
 			Graphics.SupportedOrientations = //DisplayOrientation.Portrait |
 											 //DisplayOrientation.PortraitDown |
-											 DisplayOrientation.LandscapeLeft;// |
-											 //DisplayOrientation.LandscapeRight;	
+											 DisplayOrientation.LandscapeRight |
+											 DisplayOrientation.LandscapeLeft;	
+            Graphics.ApplyChanges();
 //            var pt = new Vector2(4, 2);
 //            var c = new Vector2(3, 3);
 //            var rt = pt.Rotate(c, (float)Math.PI / 2);
@@ -64,9 +65,11 @@ namespace Mariasek.SharedClient
             System.Diagnostics.Debug.WriteLine("Initialize()");
 			// TODO: Add your initialization logic here
 			base.Initialize ();
-				
-			var scaleX = (float)GraphicsDevice.Viewport.Width / (float)VirtualScreenWidth;
-			var scaleY = (float)GraphicsDevice.Viewport.Height / (float)VirtualScreenHeight;
+
+            var width = Math.Max(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+            var height = Math.Min(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+            var scaleX = (float)width / (float)VirtualScreenWidth;
+			var scaleY = (float)height / (float)VirtualScreenHeight;
 			var _screenScale = new Vector3(scaleX, scaleY, 1.0f);
 
 			ScaleMatrix = Matrix.CreateScale(_screenScale);
@@ -159,10 +162,12 @@ namespace Mariasek.SharedClient
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Update (GameTime gameTime)
 		{
+#if !__IOS__ &&  !__TVOS__
 			// For Mobile devices, this logic will close the Game when the Back button is pressed
 			if (GamePad.GetState (PlayerIndex.One).Buttons.Back == ButtonState.Pressed) {
 				Exit ();
 			}
+#endif
             // Transform the touch collection to show position in virtual coordinates
             TouchCollection = new TouchCollection(
                 TouchPanel.GetState()

@@ -15,7 +15,7 @@
     <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
     <AssemblyName>Mariasek</AssemblyName>
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
-    <TargetFrameworkVersion>v2.3</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -45,10 +45,7 @@
     <Reference Include="Mono.Android" />
     <Reference Include="OpenTK" />
     <Reference Include="MonoGame.Framework">
-      <HintPath>packages\MonoGame.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Lidgren.Network">
-      <HintPath>packages\Lidgren.Network.dll</HintPath>
+      <HintPath>..\packages\MonoGame.Framework.Android.3.5.1.1679\lib\MonoAndroid\MonoGame.Framework.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -89,8 +86,8 @@
     <AndroidAsset Include="Assets\Content\LuckiestGuy32Outl.fnt" />
   </ItemGroup>
   <Import Project="..\Mariasek.SharedClient\Mariasek.SharedClient.projitems" Label="Shared" Condition="Exists('..\Mariasek.SharedClient\Mariasek.SharedClient.projitems')" />
-  <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <Import Project="..\packages\MonoGame.Binaries.3.2.3-alpha\build\MonoAndroid\MonoGame.Binaries.targets" Condition="Exists('..\packages\MonoGame.Binaries.3.2.3-alpha\build\MonoAndroid\MonoGame.Binaries.targets')" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\Mariasek.Engine.Portable\Mariasek.Engine.Portable.csproj">
       <Project>{0CD59EAE-641A-4AC8-B45F-183B9A54D86F}</Project>

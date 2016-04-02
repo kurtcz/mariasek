@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.GamerServices;
+//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
@@ -28,6 +28,9 @@ namespace Mariasek.SharedClient
 
         private Hand hand;
         private Label label;
+        private Label label2;
+        private Label label3;
+        private Label label4;
         private RectangleShape rect;
         private Button button;
         private SpriteButton spriteButton;
@@ -96,10 +99,10 @@ namespace Mariasek.SharedClient
 //                    Position = new Vector2(Game.VirtualScreenWidth / 2f + 200, Game.VirtualScreenHeight / 2f)
 //                };
 //            hand = new Hand(this, cards) { Centre = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight - 60) };
-/*            rect = new RectangleShape(this)
+            rect = new RectangleShape(this)
                 {
-                    Position = new Vector2(Game.VirtualScreenWidth - 300, 60),
-                    Width = 200,
+                    Position = new Vector2(100,10),//Game.VirtualScreenWidth - 300, 60),
+                    Width = 400,
                     Height = 100,
                     BackgroundColors = new List<Color>
                         {
@@ -116,7 +119,7 @@ namespace Mariasek.SharedClient
                     //FinalShadowIntensity = 0.1f
                 };
             rect.UpdateTexture();
-            spriteButton0 = new SpriteButton(this)
+/*            spriteButton0 = new SpriteButton(this)
                 {
                     Sprite = new Sprite(this, Game.Content, "revers")
                         {
@@ -131,26 +134,56 @@ namespace Mariasek.SharedClient
                             RotationAngle = (float)Math.PI / 2 
                         },
                     Position = new Vector2(Game.VirtualScreenWidth - 300, 60)
-                };
-            button = new Button(this)
-            {
-                    Text = "Click me",
-                    Position = new Vector2(100, 200)
-            };
+                };*/
+//            button = new Button(this)
+//            {
+//                    Text = "Click me",
+//                    Position = new Vector2(100, 200)
+//            };
             label = new Label(this)
             {
                     Text = "Příliš žluťoučký kůň úpěl ďábelské ódy",
                     TextColor = Color.Yellow,
-                    Position = new Vector2(10, 10)
+                    Position = new Vector2(0, 0),
+                    Width = 500,
+                    Height = 50
             };
-*/
+            label2 = new Label(this)
+                {
+                    Text = "Příliš žluťoučký kůň úpěl ďábelské ódy",
+                    TextColor = Color.Yellow,
+                    Position = new Vector2(Game.VirtualScreenWidth - 500, 0),
+                    Width = 500,
+                    Height = 50,
+                    HorizontalAlign = HorizontalAlignment.Right
+                };
+            label3 = new Label(this)
+                {
+                    Text = "Příliš žluťoučký kůň úpěl ďábelské ódy",
+                    TextColor = Color.Yellow,
+                    Position = new Vector2(0, Game.VirtualScreenHeight - 50),
+                    Width = 500,
+                    Height = 50,
+                    VerticalAlign = VerticalAlignment.Bottom
+                };
+            label4 = new Label(this)
+                {
+                    Text = "Příliš žluťoučký kůň úpěl ďábelské ódy",
+                    TextColor = Color.Yellow,
+                    Position = new Vector2(Game.VirtualScreenWidth - 500, Game.VirtualScreenHeight - 50),
+                    Width = 500,
+                    Height = 50,
+                    HorizontalAlign = HorizontalAlignment.Right,
+                    VerticalAlign = VerticalAlignment.Bottom
+                };
+
             //hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
 //            hand.ShowArc((float)Math.PI / 2);
             //hand.ShowTest();
 
 //            box = new TextBox(this)
 //            {
-//                Position = new Vector2(100, 100),
+//                Position = new Vector2(100, 10),
 //                Width = 400,
 //                Height = 100,
 //                BackgroundColor = Color.DimGray,

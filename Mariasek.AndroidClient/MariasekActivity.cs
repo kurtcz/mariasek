@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using Android.App;
 using Android.Content;
+using Android.Content.PM;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
@@ -19,13 +20,13 @@ namespace Mariasek.AndroidClient
 		Icon = "@drawable/icon",
 		Theme = "@style/Theme.Splash",
 		AlwaysRetainTaskState = true,
-		LaunchMode = Android.Content.PM.LaunchMode.SingleInstance,
-		//ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
-		ScreenOrientation = Android.Content.PM.ScreenOrientation.Landscape,
-		//ScreenOrientation = Android.Content.PM.ScreenOrientation.Sensor,
-		ConfigurationChanges = Android.Content.PM.ConfigChanges.Orientation |
-		Android.Content.PM.ConfigChanges.KeyboardHidden |
-		Android.Content.PM.ConfigChanges.Keyboard)]
+		LaunchMode = LaunchMode.SingleInstance,
+		//ScreenOrientation = ScreenOrientation.Portrait,
+		ScreenOrientation = ScreenOrientation.Landscape,
+		//ScreenOrientation = ScreenOrientation.Sensor,
+		ConfigurationChanges = ConfigChanges.Orientation |
+		ConfigChanges.KeyboardHidden |
+		ConfigChanges.Keyboard)]
 	public class MariasekActivity : AndroidGameActivity
 	{
         MariasekMonoGame g;
@@ -36,9 +37,8 @@ namespace Mariasek.AndroidClient
 			base.OnCreate (bundle);
 
 			// Create our OpenGL view, and display it
-			MariasekMonoGame.Activity = this;
 			g = new MariasekMonoGame ();
-			SetContentView (g.Window);
+            SetContentView (g.Services.GetService<View>());
             g.Run();
 		}
 
