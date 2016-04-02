@@ -79,7 +79,7 @@ namespace Mariasek.SharedClient.GameComponents
             Game.SpriteBatch.End();
             var origClippingRectangle = Game.GraphicsDevice.ScissorRectangle;
             //we need to create a new sprite batch instance that is going to use a clipping rectangle
-            Game.GraphicsDevice.ScissorRectangle = new Rectangle((int)(Position.X*Game.ScaleMatrix.M11), (int)(Position.Y*Game.ScaleMatrix.M22), (int)(Width*Game.ScaleMatrix.M11), (int)(Height*Game.ScaleMatrix.M22));
+            Game.GraphicsDevice.ScissorRectangle = new Rectangle((int)(Game.ScaleMatrix.M41 + Position.X*Game.ScaleMatrix.M11), (int)(Game.ScaleMatrix.M42 + Position.Y*Game.ScaleMatrix.M22), (int)(Game.ScaleMatrix.M41 + Width*Game.ScaleMatrix.M11), (int)(Game.ScaleMatrix.M42 + Height*Game.ScaleMatrix.M22));
 
             Game.SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, new RasterizerState { ScissorTestEnable = true }, null, Game.ScaleMatrix);
 

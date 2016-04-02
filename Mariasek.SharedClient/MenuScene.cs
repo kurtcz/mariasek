@@ -27,7 +27,6 @@ namespace Mariasek.SharedClient
         private Label _footer;
         private TextBox _historyBox;
         private bool _useMockData;// = true;
-        private Texture2D _darkBackground;
 
         public MenuScene(MariasekMonoGame game)
             : base(game)
@@ -86,7 +85,8 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth - 230,
                 Height = 50
             };
-            _darkBackground = Game.Content.Load<Texture2D>("wood2");
+            Background = Game.Content.Load<Texture2D>("wood2");
+            BackgroundTint = Color.DimGray;
 
             PopulateControls();
         }
@@ -138,10 +138,6 @@ namespace Mariasek.SharedClient
 
         public override void Draw(GameTime gameTime)
         {
-            if (_darkBackground != null)
-            {
-                Game.SpriteBatch.Draw(_darkBackground, new Rectangle(0, 0, (int)Game.VirtualScreenWidth, (int)Game.VirtualScreenHeight), Color.DimGray);
-            }
             base.Draw(gameTime);
         }
     }

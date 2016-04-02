@@ -13,6 +13,12 @@ using Microsoft.Xna.Framework.Media;
 
 namespace Mariasek.SharedClient.GameComponents
 {
+    public enum BackgroundAlignment
+    {
+        Stretch,
+        Center
+    }
+
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
@@ -25,6 +31,8 @@ namespace Mariasek.SharedClient.GameComponents
         public GameComponent ExclusiveControl { get; set; }
         //public Texture2D LightShader { get; set; }
         public Texture2D Background { get; set; }
+        public BackgroundAlignment BackgroundAlign { get; set; }
+        public Color BackgroundTint { get; set; }
 
         public Scene(MariasekMonoGame game)
             : base(game)
@@ -33,6 +41,7 @@ namespace Mariasek.SharedClient.GameComponents
             Game = game;
             Game.Restarted += GameRestarted;
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
+            BackgroundTint = Color.White;
             Hide();
         }
 
@@ -81,7 +90,20 @@ namespace Mariasek.SharedClient.GameComponents
         {
             if (Background != null)
             {
-                Game.SpriteBatch.Draw(Background, new Rectangle(0, 0, (int)Game.VirtualScreenWidth, (int)Game.VirtualScreenHeight), Color.White);
+                switch(BackgroundAlign)
+                {
+                    case BackgroundAlignment.Stretch:
+                        Game.SpriteBatch.Draw(Background, new Rectangle(
+                                (int)(0 - Game.ScaleMatrix.M41), 
+                                (int)(0 - Game.ScaleMatrix.M42), 
+                                (int)(Game.VirtualScreenWidth + 2 * Game.ScaleMatrix.M41), 
+                                (int)(Game.VirtualScreenHeight + 2 * Game.ScaleMatrix.M42)), BackgroundTint);
+                        break;
+                    case BackgroundAlignment.Center:
+                    default:
+                        Game.SpriteBatch.Draw(Background, new Rectangle(0, 0, (int)Game.VirtualScreenWidth, (int)Game.VirtualScreenHeight), BackgroundTint);
+                        break;
+                }
             }
             base.Draw(gameTime);
         }

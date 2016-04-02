@@ -70,9 +70,25 @@ namespace Mariasek.SharedClient
             var height = Math.Min(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             var scaleX = (float)width / (float)VirtualScreenWidth;
 			var scaleY = (float)height / (float)VirtualScreenHeight;
+            var translation = Vector3.Zero;
+
+            if ((float)width / (float)height < (float)VirtualScreenWidth / (float)VirtualScreenHeight)
+            {
+                //skutecna obrazovka ma pomery sran mene sirokouhle nez virtualni
+                //vertikalni pomer upravime podle horizontalniho, obraz vertikalne posuneme na stred (vzniknou okraje nahore a dole)
+                translation = new Vector3(0, (height - VirtualScreenHeight * scaleX) / 2f, 0);
+                scaleY = scaleX;
+            }
+            else if ((float)width / (float)height > (float)VirtualScreenWidth / (float)VirtualScreenHeight)
+            {
+                //skutecna obrazovka ma pomery sran vice sirokouhle nez virtualni
+                //horizontalni pomer upravime podle vertikalniho, obraz horizontalne posuneme na stred (vzniknou okraje vlevo a vpravo)
+                translation = new Vector3((width - VirtualScreenWidth * scaleY) / 2f, 0, 0);
+                scaleX = scaleY;
+            }
 			var _screenScale = new Vector3(scaleX, scaleY, 1.0f);
 
-			ScaleMatrix = Matrix.CreateScale(_screenScale);
+            ScaleMatrix = Matrix.CreateScale(_screenScale) * Matrix.CreateTranslation(translation);
 		}
 
 //        public void ReloadContent()
@@ -175,8 +191,8 @@ namespace Mariasek.SharedClient
                                         i.Id, 
                                         i.State, 
                                         new Vector2(
-                                            i.Position.X / ScaleMatrix.M11, 
-                                            i.Position.Y / ScaleMatrix.M22)))
+                                            (i.Position.X - ScaleMatrix.M41) / ScaleMatrix.M11, 
+                                            (i.Position.Y - ScaleMatrix.M42) / ScaleMatrix.M22)))
                           .ToArray());
 			// TODO: Add your update logic here
             CurrentScene.Update(gameTime);

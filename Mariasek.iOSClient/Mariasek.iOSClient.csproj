@@ -99,6 +99,10 @@
     <BundleResource Include="Content\Icon57.png" />
     <BundleResource Include="Content\woodsplash.png" />
     <BundleResource Include="Resources\Default%402x.png" />
+    <BundleResource Include="Content\woodsplash-ipad.png" />
+    <BundleResource Include="Resources\Default-Landscape.png" />
+    <BundleResource Include="Content\woodsplash-ipad2.png" />
+    <BundleResource Include="Resources\Default-Portrait.png" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />

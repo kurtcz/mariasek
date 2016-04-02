@@ -291,8 +291,8 @@ namespace Mariasek.SharedClient
             { 
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, 5),
-                Width = 200,
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 125, 5),
+                Width = 250,
                 Height = 50
             };
             _trumpLabel1.Hide();
@@ -300,8 +300,8 @@ namespace Mariasek.SharedClient
             { 
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(120, 5),
-                Width = 200,
+                Position = new Vector2(125, 5),
+                Width = 250,
                 Height = 50
             };
             _trumpLabel2.Hide();
@@ -309,8 +309,8 @@ namespace Mariasek.SharedClient
             { 
                 HorizontalAlign = HorizontalAlignment.Right,
                 VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(Game.VirtualScreenWidth - 210, 5),
-                Width = 200,
+                Position = new Vector2(Game.VirtualScreenWidth - 260, 5),
+                Width = 250,
                 Height = 50
             };
             _trumpLabel3.Hide();
@@ -560,6 +560,10 @@ namespace Mariasek.SharedClient
 
         public void ShuffleBtnClicked(object sender)
         {
+            if (_deck == null)
+            {
+                _deck = new Deck();
+            }
             _deck.Shuffle();
         }
 
