@@ -98,11 +98,8 @@
     <BundleResource Include="GameThumbnail.png" />
     <BundleResource Include="Content\Icon57.png" />
     <BundleResource Include="Content\woodsplash.png" />
-    <BundleResource Include="Resources\Default%402x.png" />
     <BundleResource Include="Content\woodsplash-ipad.png" />
-    <BundleResource Include="Resources\Default-Landscape.png" />
     <BundleResource Include="Content\woodsplash-ipad2.png" />
-    <BundleResource Include="Resources\Default-Portrait.png" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />
@@ -133,5 +130,8 @@
     <Content Include="Content\LuckiestGuy32Outl_1.png" />
     <Content Include="Content\LuckiestGuy32Outl_2.png" />
     <Content Include="Content\wood2.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterfaceDefinition Include="Launch.storyboard" />
   </ItemGroup>
 </Project>
