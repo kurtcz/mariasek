@@ -556,26 +556,7 @@ namespace Mariasek.Engine.New
         public Deck GetDeckFromLastGame()
         {
             var deck = new List<Card>();
-            foreach (var r in rounds)
-            {
-                if(r == null)
-                {
-                    break;
-                }
-                if (!r.hlas1)
-                {
-                    deck.Insert(0, r.c1);
-                }
-                if (!r.hlas2)
-                {
-                    deck.Insert(0, r.c2);
-                }
-                if (!r.hlas3)
-                {
-                    deck.Insert(0, r.c3);
-                }
-            }
-            foreach (var player in players)
+            if (rounds != null)
             {
                 foreach (var r in rounds)
                 {
@@ -583,29 +564,50 @@ namespace Mariasek.Engine.New
                     {
                         break;
                     }
-                    if (r.hlas1 && r.player1 == player)
+                    if (!r.hlas1)
                     {
                         deck.Insert(0, r.c1);
                     }
-                    if (r.hlas2 && r.player2 == player)
+                    if (!r.hlas2)
                     {
                         deck.Insert(0, r.c2);
                     }
-                    if (r.hlas3 && r.player3 == player)
+                    if (!r.hlas3)
                     {
                         deck.Insert(0, r.c3);
                     }
                 }
-                deck.InsertRange(0, player.Hand);
+                foreach (var player in players)
+                {
+                    foreach (var r in rounds)
+                    {
+                        if (r == null)
+                        {
+                            break;
+                        }
+                        if (r.hlas1 && r.player1 == player)
+                        {
+                            deck.Insert(0, r.c1);
+                        }
+                        if (r.hlas2 && r.player2 == player)
+                        {
+                            deck.Insert(0, r.c2);
+                        }
+                        if (r.hlas3 && r.player3 == player)
+                        {
+                            deck.Insert(0, r.c3);
+                        }
+                    }
+                    deck.InsertRange(0, player.Hand);
+                }
+                deck.InsertRange(0, talon);
+
+                //sejmeme
+                var n = rand.Next(deck.Count);
+                var temp = deck.GetRange(0, n);
+                deck.RemoveRange(0, n);
+                deck.AddRange(temp);
             }
-            deck.InsertRange(0, talon);
-
-            //sejmeme
-            var n = rand.Next(deck.Count);
-            var temp = deck.GetRange(0, n);
-            deck.RemoveRange(0, n);
-            deck.AddRange(temp);
-
             return new Deck(deck);
         }
 
