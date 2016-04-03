@@ -47,9 +47,7 @@ namespace Mariasek.SharedClient
         private CardButton[] _stychy;
         private Sprite[] _stareStychy;
         private ClickableArea _overlay;
-        private Button _newGameBtn;
         private Button _menuBtn;
-        private ToggleButton _shuffleBtn;
         private Button _okBtn;
         private Button[] gtButtons, gfButtons, bidButtons;
         private Button gtHraButton;
@@ -210,21 +208,10 @@ namespace Mariasek.SharedClient
                 IsEnabled = false
             };
             _overlay.TouchUp += OverlayTouchUp;
-            _newGameBtn = new Button(this)
-                {
-                    Text = "Nová hra",
-                    Position = new Vector2(10, Game.VirtualScreenHeight - 310)
-                };
-            _newGameBtn.Click += NewGameBtnClicked;
-            _shuffleBtn = new ToggleButton(this)
-                {
-                    Text = "Zamíchat",
-                    Position = new Vector2(10, Game.VirtualScreenHeight - 250)
-                };
             _menuBtn = new Button(this)
                 {
                     Text = "Menu",
-                    Position = new Vector2(10, Game.VirtualScreenHeight - 190)
+                    Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 25)
                 };
             _menuBtn.Click += MenuBtnClicked;
             _okBtn = new Button(this)
@@ -552,10 +539,10 @@ namespace Mariasek.SharedClient
                         LoadDeck();
                     }
                 }
-                if (_shuffleBtn.IsSelected)
+                if (Game.MenuScene.ShuffleBtn.IsSelected)
                 {
                     _deck.Shuffle();
-                    _shuffleBtn.IsSelected = false;
+                    Game.MenuScene.ShuffleBtn.IsSelected = false;
                 }
                 g.NewGame(_currentStartingPlayerIndex, _deck);
                 g.GameFlavourChosen += GameFlavourChosen;
@@ -576,7 +563,6 @@ namespace Mariasek.SharedClient
 
         public void MenuBtnClicked(object sender)
         {
-            Game.MenuScene.PopulateControls();
             Game.MenuScene.SetActive();
         }
 

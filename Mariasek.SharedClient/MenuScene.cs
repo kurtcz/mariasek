@@ -20,13 +20,10 @@ namespace Mariasek.SharedClient
 {
     public class MenuScene : Scene
     {
+        private Button _newGameButton;
         private Button _resumeButton;
-        private Button _shuffleBtn;
-        private Button _resetHistoryButton;
-        private Label _header;
-        private Label _footer;
-        private TextBox _historyBox;
-        private bool _useMockData;// = true;
+        public ToggleButton ShuffleBtn;
+        private Button _historyBtn;
 
         public MenuScene(MariasekMonoGame game)
             : base(game)
@@ -41,99 +38,57 @@ namespace Mariasek.SharedClient
         {
             base.Initialize();
 
+            _newGameButton = new Button(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 120),
+                    Width = 200,
+                    Height = 50,
+                    Text = "Nová hra"
+                };
+            _newGameButton.Click += NewGameClicked;
             _resumeButton = new Button(this)
-            {
-                Position = new Vector2(10, 10),
-                Width = 200,
-                Height = 50,
-                Text = "Zpět do hry"
-            };
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 60),
+                    Width = 200,
+                    Height = 50,
+                    Text = "Zpět do hry"
+                };
             _resumeButton.Click += ResumeClicked;
-//            _shuffleBtn = new Button(this)
-//            {
-//                Position = new Vector2(10, 70),
-//                Width = 200,
-//                Height = 50,
-//                Text = "Zamíchat karty"
-//            };
-//            _shuffleBtn.Click += Game.MainScene.ShuffleBtnClicked;
-            _resetHistoryButton = new Button(this)
-            {
-                Position = new Vector2(10, (int)Game.VirtualScreenHeight - 60),
-                Width = 200,
-                Height = 50,
-                Text = "Smazat historii"
-            };
-            _resetHistoryButton.Click += ResetHistoryClicked;
-            _header = new Label(this)
-            {
-                Position = new Vector2(220, 10),
-                Width = (int)Game.VirtualScreenWidth - 180,
-                Height = 50
-            };
-            _historyBox = new TextBox(this)
-            {
-                Position = new Vector2(220, 60),
-                Width = (int)Game.VirtualScreenWidth - 230,
-                Height = (int)Game.VirtualScreenHeight - 120,
-                HorizontalAlign = HorizontalAlignment.Left,
-                VerticalAlign = VerticalAlignment.Top
-            };
-            _footer = new Label(this)
-            {
-                Position = new Vector2(220, Game.VirtualScreenHeight - 60),
-                Width = (int)Game.VirtualScreenWidth - 230,
-                Height = 50
-            };
+            ShuffleBtn = new ToggleButton(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f),
+                    Width = 200,
+                    Height = 50,
+                    Text = "Zamíchat karty"
+                };
+            _historyBtn = new Button(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f + 60),
+                    Width = 200,
+                    Height = 50,
+                    Text = "Historie"
+                };
+            _historyBtn.Click += HistoryClicked;
+            
             Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;
-
-            PopulateControls();
         }
 
-        public void PopulateControls()
-        {
-            _header.Text = string.Format("Hráč:\t\t{0}\t\t{1}\t{2}", "Hráč 1", "Hráč 2 (AI)", "Hráč 3 (AI)");
-
-            var culture = CultureInfo.CreateSpecificCulture("cs-CZ");
-            var sb = new StringBuilder();
-            if (_useMockData)
-            {
-                for (var i = 0; i < 20; i++)
-                {
-                    sb.AppendFormat("\t\t{0}\t{1}\t{2}\n", 
-                        ((i + 1) * 1f).ToString("C", culture), 
-                        ((i + 1) * -0.5f).ToString("C", culture), 
-                        ((i + 1) * -0.5f).ToString("C", culture));
-                }
-            }
-            foreach (var historyItem in Game.Money)
-            {
-                sb.AppendFormat("\t\t{0}\t{1}\t{2}\n", 
-                    historyItem.MoneyWon[0].ToString("C", culture), 
-                    historyItem.MoneyWon[1].ToString("C", culture), 
-                    historyItem.MoneyWon[2].ToString("C", culture));
-            }
-            _historyBox.Text = sb.ToString();
-
-            var sum1 = Game.Money.Sum(i => i.MoneyWon[0]).ToString("C", culture);
-            var sum2 = Game.Money.Sum(i => i.MoneyWon[1]).ToString("C", culture);
-            var sum3 = Game.Money.Sum(i => i.MoneyWon[2]).ToString("C", culture);
-
-            _footer.Text = string.Format("Součet:\t{0}\t{1}\t{2}", sum1, sum2, sum3);
-        }
-
-        private void ResetHistoryClicked(object sender)
-        {
-            _useMockData = false;
-            Game.Money.Clear();
-            PopulateControls();
-            Game.MainScene.SaveHistory();
+        private void NewGameClicked(object sender)
+        {            
+            Game.MainScene.SetActive();
+            Game.MainScene.NewGameBtnClicked(sender);
         }
 
         private void ResumeClicked(object sender)
         {
             Game.MainScene.SetActive();
+        }
+
+        private void HistoryClicked(object sender)
+        {
+            Game.HistoryScene.PopulateControls();
+            Game.HistoryScene.SetActive();
         }
 
         public override void Draw(GameTime gameTime)

@@ -26,6 +26,7 @@ namespace Mariasek.SharedClient
         public TestScene TestScene { get; private set; }
         public MainScene MainScene { get; private set; }
         public MenuScene MenuScene { get; private set; }
+        public HistoryScene HistoryScene { get; private set; }
 
         public Texture2D CardTextures { get; private set; }
         public Texture2D ReverseTexture { get; private set; }
@@ -153,9 +154,13 @@ namespace Mariasek.SharedClient
             MenuScene = new MenuScene(this);
             MenuScene.Initialize();
 
+            HistoryScene = new HistoryScene(this);
+            HistoryScene.Initialize();
+
             MainScene = new MainScene(this);
             MainScene.Initialize();
-            MainScene.SetActive();
+
+            MenuScene.SetActive();
         }
 
         public int HandlerCount { get; private set; }

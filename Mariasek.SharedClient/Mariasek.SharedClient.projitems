@@ -36,5 +36,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ClickableArea.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MenuScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\FluentExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HistoryScene.cs" />
   </ItemGroup>
 </Project>
