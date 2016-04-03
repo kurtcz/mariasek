@@ -22,6 +22,7 @@ namespace Mariasek.SharedClient
     {
         private Button _menuButton;
         private Button _resetHistoryButton;
+        private Label _stat;
         private Label _header;
         private Label _footer;
         private TextBox _historyBox;
@@ -56,6 +57,12 @@ namespace Mariasek.SharedClient
                     Text = "Smazat historii"
                 };
             _resetHistoryButton.Click += ResetHistoryClicked;
+            _stat = new Label(this)
+            {
+                    Position = new Vector2(10, 70),
+                    Width = 200,
+                    Height = (int)Game.VirtualScreenHeight - 140
+            };
             _header = new Label(this)
                 {
                     Position = new Vector2(220, 10),
@@ -83,11 +90,13 @@ namespace Mariasek.SharedClient
         }
 
         public void PopulateControls()
-        {
+        {            
             _header.Text = string.Format("Hráč:\t\t{0}\t\t{1}\t{2}", "Hráč 1", "Hráč 2 (AI)", "Hráč 3 (AI)");
 
             var culture = CultureInfo.CreateSpecificCulture("cs-CZ");
             var sb = new StringBuilder();
+            int wins = 0, total = 0;
+
             if (_useMockData)
             {
                 for (var i = 0; i < 20; i++)
@@ -104,8 +113,20 @@ namespace Mariasek.SharedClient
                     historyItem.MoneyWon[0].ToString("C", culture), 
                     historyItem.MoneyWon[1].ToString("C", culture), 
                     historyItem.MoneyWon[2].ToString("C", culture));
+                if (historyItem.MoneyWon[0] > 0)
+                {
+                    wins++;
+                }
+                total++;
             }
+            var ratio = total != 0 ? (wins * 100f / total) : 0f;
+
             _historyBox.Text = sb.ToString();
+            _stat.Text = string.Format("Odehráno her:\n{0}\nZ toho výher:\n{1}\nPoměr: {2:N0}%\nPříště začíná:\n{3}", 
+                total, wins, ratio, 
+                (Game.MainScene.g != null)
+                ? Game.MainScene.g.players[(Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers].Name
+                : string.Format("Hráč {0}", (Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers + 1));
 
             var sum1 = Game.Money.Sum(i => i.MoneyWon[0]).ToString("C", culture);
             var sum2 = Game.Money.Sum(i => i.MoneyWon[1]).ToString("C", culture);

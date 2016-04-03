@@ -164,11 +164,11 @@ namespace Mariasek.SharedClient
             MenuScene = new MenuScene(this);
             MenuScene.Initialize();
 
-            HistoryScene = new HistoryScene(this);
-            HistoryScene.Initialize();
-
             MainScene = new MainScene(this);
             MainScene.Initialize();
+
+            HistoryScene = new HistoryScene(this);
+            HistoryScene.Initialize();
 
             MenuScene.SetActive();
         }

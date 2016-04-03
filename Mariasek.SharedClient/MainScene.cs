@@ -78,7 +78,7 @@ namespace Mariasek.SharedClient
         private CancellationTokenSource _cancellationTokenSource;
         private readonly AutoResetEvent _evt = new AutoResetEvent(false);
         private int _aiMessageIndex;
-        private int _currentStartingPlayerIndex = -1;
+        public int CurrentStartingPlayerIndex = -1;
         private Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
         private string _historyFilePath = Path.Combine (
             Environment.GetFolderPath (Environment.SpecialFolder.Personal),
@@ -526,7 +526,7 @@ namespace Mariasek.SharedClient
                     new AiPlayer(g, _aiConfig) { Name = "Hráč 2" },
                     new AiPlayer(g, _aiConfig) { Name = "Hráč 3" }
                 );
-                _currentStartingPlayerIndex = (_currentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers;
+                CurrentStartingPlayerIndex = (CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers;
                 if (_deck == null)
                 {
                     LoadDeck();
@@ -544,7 +544,7 @@ namespace Mariasek.SharedClient
                     _deck.Shuffle();
                     Game.MenuScene.ShuffleBtn.IsSelected = false;
                 }
-                g.NewGame(_currentStartingPlayerIndex, _deck);
+                g.NewGame(CurrentStartingPlayerIndex, _deck);
                 g.GameFlavourChosen += GameFlavourChosen;
                 g.GameTypeChosen += GameTypeChosen;
                 g.BidMade += BidMade;
@@ -557,6 +557,10 @@ namespace Mariasek.SharedClient
 
                 _state = GameState.NotPlaying;
                 ClearTable(true);
+                if(g.GameStartingPlayerIndex != 0)
+                {
+                    ShowThinkingMessage();
+                }
                 g.PlayGame(_cancellationTokenSource.Token);
             },  _cancellationTokenSource.Token);
         }
@@ -1150,6 +1154,10 @@ namespace Mariasek.SharedClient
                 _stareStychy[0].Hide();
                 _stareStychy[1].Hide();
                 _stareStychy[2].Hide();
+
+                _trumpLabel1.Hide();
+                _trumpLabel2.Hide();
+                _trumpLabel3.Hide();
             }
 
             _msgLabel.Hide();
