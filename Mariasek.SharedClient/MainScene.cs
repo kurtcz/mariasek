@@ -65,13 +65,15 @@ namespace Mariasek.SharedClient
         private Label[] _trumpLabels;
         private Label _msgLabel;
         private TextBox _bubble1,  _bubble2,  _bubble3;
+        private ManualResetEvent _bubbleEvent1, _bubbleEvent2, _bubbleEvent3;
+        private ManualResetEvent[] _bubbleEvents;
 
         #pragma warning restore 414
         #endregion
 
         private Mariasek.Engine.New.Game g;
         private const int _bubbleTime = 1000;
-        private Task _gameTask, _bubble1Task, _bubble2Task, _bubble3Task;
+        private Task _gameTask;
         private SynchronizationContext _synchronizationContext;
         private CancellationTokenSource _cancellationTokenSource;
         private readonly AutoResetEvent _evt = new AutoResetEvent(false);
@@ -367,6 +369,10 @@ namespace Mariasek.SharedClient
                 HorizontalAlign = HorizontalAlignment.Center
             };
             _bubble3.Hide();
+            _bubbleEvent1 = new ManualResetEvent(true);
+            _bubbleEvent2 = new ManualResetEvent(true);
+            _bubbleEvent3 = new ManualResetEvent(true);
+            _bubbleEvents = new [] { _bubbleEvent1, _bubbleEvent2, _bubbleEvent3 };
             flekBtn = new ToggleButton(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 230, Game.VirtualScreenHeight / 2f - 150),
@@ -473,9 +479,9 @@ namespace Mariasek.SharedClient
             if (_gameTask != null && _gameTask.Status == TaskStatus.Running)
             {
                 _synchronizationContext.Send(_ => ClearTable(true), null);
+                WaitHandle.WaitAll(_bubbleEvents);
                 _cancellationTokenSource.Cancel();
                 _evt.Set();
-                Task.WaitAll(new[] { _gameTask, _bubble1Task, _bubble2Task, _bubble3Task }.Where(i => i != null).ToArray());
             }
             _cancellationTokenSource = new CancellationTokenSource();
         }
@@ -789,7 +795,7 @@ namespace Mariasek.SharedClient
                     ChooseGameTypeInternal(validGameTypes);
                 }, null);
             WaitForUIThread();
-            Task.WaitAll(new[] { _bubble1Task, _bubble2Task, _bubble3Task }.Where(i => i != null).ToArray());
+            WaitHandle.WaitAll(_bubbleEvents);
             _synchronizationContext.Send(_ =>
                 {
                     ShowThinkingMessage();
@@ -801,7 +807,7 @@ namespace Mariasek.SharedClient
         {
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = false;
-            Task.WaitAll(new[] { _bubble1Task, _bubble2Task, _bubble3Task }.Where(i => i != null).ToArray());
+            WaitHandle.WaitAll(_bubbleEvents);
             _synchronizationContext.Send(_ =>
                 {
                     UpdateHand(cardToHide: _trumpCardChosen);
@@ -1086,10 +1092,13 @@ namespace Mariasek.SharedClient
 
         private void ShowBubble(int bubbleNo, string message, bool autoHide = true)
         {
-            TextBox[] bubbles = { _bubble1, _bubble2, _bubble3 };
+            var bubbles = new [] { _bubble1, _bubble2, _bubble3 };
 
-            bubbles[bubbleNo].Invoke(() =>
-                {
+            WaitHandle.WaitAll(_bubbleEvents);
+            _bubbleEvents[bubbleNo].Reset();
+            bubbles[bubbleNo]
+                .Invoke(() =>
+                {                    
                     bubbles[bubbleNo].Text = message;
                     bubbles[bubbleNo].Show();
                 });
@@ -1102,6 +1111,8 @@ namespace Mariasek.SharedClient
                             bubbles[bubbleNo].Hide();
                         });
             }
+            bubbles[bubbleNo]
+                .Invoke(() => _bubbleEvents[bubbleNo].Set());
         }
 
         private void ShowThinkingMessage()
