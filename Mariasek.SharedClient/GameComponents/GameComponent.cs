@@ -54,7 +54,7 @@ namespace Mariasek.SharedClient
             }
         }
         public virtual Vector2 Position { get; set; }
-        public virtual bool IsBusy { get; protected set; }
+        public virtual bool IsBusy { get { return ScheduledOperations!= null && ScheduledOperations.Count > 0; } }
         public virtual bool IsMoving { get; private set; }
         public object Tag { get; set; }
 
@@ -231,7 +231,6 @@ namespace Mariasek.SharedClient
                 }
                 IsMoving = (operation.OperationType & GameComponentOperationType.Move) != 0 && positionDiff != Vector2.Zero;
             }
-            IsBusy = ScheduledOperations.Count > 0;
 
             foreach (var child in Children)
             {

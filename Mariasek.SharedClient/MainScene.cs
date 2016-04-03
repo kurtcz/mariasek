@@ -44,6 +44,8 @@ namespace Mariasek.SharedClient
         private Deck _deck;
         private Sprite[] _cardsPlayed;
         private CardButton[][] _hlasy;
+        private CardButton[] _stychy;
+        private Sprite[] _stareStychy;
         private ClickableArea _overlay;
         private Button _newGameBtn;
         private Button _menuBtn;
@@ -159,12 +161,6 @@ namespace Mariasek.SharedClient
             base.Initialize();
 
             _synchronizationContext = SynchronizationContext.Current;
-            _cardsPlayed = new []
-            {
-                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f - 100) },
-                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 150) },
-                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f + 100, Game.VirtualScreenHeight / 2f - 150) }
-            };
             _hlasy = new []
             {
                 new []
@@ -189,6 +185,24 @@ namespace Mariasek.SharedClient
                     new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 250, 130), IsEnabled = false },
                 }
             };
+            _stareStychy = new []
+            {
+                new Sprite(this, Game.ReverseTexture) { Position = new Vector2(Game.VirtualScreenWidth - 50, Game.VirtualScreenHeight / 2f + 50) },
+                new Sprite(this, Game.ReverseTexture) { Position = new Vector2(50, 80) },
+                new Sprite(this, Game.ReverseTexture) { Position = new Vector2(Game.VirtualScreenWidth - 50, 80) }
+            };
+            _stychy = new []
+            {
+                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 50, Game.VirtualScreenHeight / 2f + 50), IsEnabled = false },
+                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(50, 80), IsEnabled = false },
+                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 50, 80), IsEnabled = false }
+            };
+            _cardsPlayed = new []
+            {
+                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f - 100) },
+                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 150) },
+                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f + 100, Game.VirtualScreenHeight / 2f - 150) }
+            };
             _overlay = new ClickableArea(this)
             {
                 Width = Game.VirtualScreenWidth,
@@ -199,18 +213,18 @@ namespace Mariasek.SharedClient
             _newGameBtn = new Button(this)
                 {
                     Text = "Nová hra",
-                    Position = new Vector2(10, 10)                
+                    Position = new Vector2(10, Game.VirtualScreenHeight - 310)
                 };
             _newGameBtn.Click += NewGameBtnClicked;
             _shuffleBtn = new ToggleButton(this)
                 {
                     Text = "Zamíchat",
-                    Position = new Vector2(10, 70)
+                    Position = new Vector2(10, Game.VirtualScreenHeight - 250)
                 };
             _menuBtn = new Button(this)
                 {
                     Text = "Menu",
-                    Position = new Vector2(10, 130)
+                    Position = new Vector2(10, Game.VirtualScreenHeight - 190)
                 };
             _menuBtn.Click += MenuBtnClicked;
             _okBtn = new Button(this)
@@ -292,7 +306,7 @@ namespace Mariasek.SharedClient
             { 
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(Game.VirtualScreenWidth / 2f - 125, 5),
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 125, 1),
                 Width = 250,
                 Height = 50
             };
@@ -301,7 +315,7 @@ namespace Mariasek.SharedClient
             { 
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(125, 5),
+                Position = new Vector2(125, 1),
                 Width = 250,
                 Height = 50
             };
@@ -310,7 +324,7 @@ namespace Mariasek.SharedClient
             { 
                 HorizontalAlign = HorizontalAlignment.Right,
                 VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(Game.VirtualScreenWidth - 260, 5),
+                Position = new Vector2(Game.VirtualScreenWidth - 260, 1),
                 Width = 250,
                 Height = 50
             };
@@ -514,8 +528,6 @@ namespace Mariasek.SharedClient
 
         public void NewGameBtnClicked(object sender)
         {
-            //_newGameBtn.IsEnabled = false;
-            _shuffleBtn.IsEnabled = false;
             CancelRunningTask();
             _gameTask = Task.Run(() => {
                 g = new Mariasek.Engine.New.Game()
@@ -1072,8 +1084,6 @@ namespace Mariasek.SharedClient
                 sb.AppendFormat("\n{0}: {1}", g.players[i].Name,
                     (g.Results.MoneyWon[i] * baseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
             }
-            //_newGameBtn.IsEnabled = true;
-            _shuffleBtn.IsEnabled = true;
             ClearTable(true);
             _hand.UpdateHand(new Card[0]);
             ShowMsgLabel(sb.ToString(), false);
@@ -1147,6 +1157,12 @@ namespace Mariasek.SharedClient
                     _hlasy[i][2].Hide();
                     _hlasy[i][3].Hide();
                 }
+                _stychy[0].Hide();
+                _stychy[1].Hide();
+                _stychy[2].Hide();
+                _stareStychy[0].Hide();
+                _stareStychy[1].Hide();
+                _stareStychy[2].Hide();
             }
 
             _msgLabel.Hide();
@@ -1171,13 +1187,43 @@ namespace Mariasek.SharedClient
             _okBtn.Hide();
         }
 
+        private void ClearTableAfterRoundFinished()
+        {
+            var stych = _stychy[g.CurrentRound.roundWinner.PlayerIndex];
+            var origPositions = _cardsPlayed.Select(i => i.Position).ToArray();
+
+            foreach (var cardPlayed in _cardsPlayed)
+            {
+                cardPlayed.MoveTo(stych.Position, 1000);
+            }
+            stych.WaitUntil(() => _cardsPlayed.All(i => !i.IsBusy))
+                .Invoke(() =>
+                {
+                    var i = 0;
+                    foreach (var cardPlayed in _cardsPlayed)
+                    {
+                        cardPlayed.Hide();
+                        cardPlayed.Position = origPositions[i++];
+                    }
+                    stych.Sprite.SpriteRectangle = _cardsPlayed[g.CurrentRound.roundWinner.PlayerIndex].SpriteRectangle;
+                    stych.Show();
+                })
+                .FlipToBack()
+                .Invoke(() =>
+                {
+                    _stareStychy[g.CurrentRound.roundWinner.PlayerIndex].Show();
+                    _evt.Set();
+                });
+        }
+
         private void OverlayTouchUp(object sender, TouchLocation tl)
         {
             _state = GameState.NotPlaying;
-            ClearTable();
+            //ClearTable();
+            ClearTableAfterRoundFinished();
             HideMsgLabel();
             HideInvisibleClickableOverlay();
-            _evt.Set();
+            //_evt.Set();
         }
 
         private void ShowInvisibleClickableOverlay()
