@@ -55,6 +55,16 @@ namespace Mariasek.SharedClient
 //            System.Diagnostics.Debug.WriteLine(rt);
 		}
 
+        public static string Version
+        {
+            get
+            {
+                var assembly = typeof(MariasekMonoGame).Assembly;
+
+                return assembly.GetName().Version.ToString();
+            }
+        }
+
 		/// <summary>
 		/// Allows the game to perform any initialization it needs to before starting to run.
 		/// This is where it can query for any required services and load any non-graphic

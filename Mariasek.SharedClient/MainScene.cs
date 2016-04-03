@@ -71,7 +71,7 @@ namespace Mariasek.SharedClient
         #pragma warning restore 414
         #endregion
 
-        private Mariasek.Engine.New.Game g;
+        public Mariasek.Engine.New.Game g;
         private const int _bubbleTime = 1000;
         private Task _gameTask;
         private SynchronizationContext _synchronizationContext;
@@ -211,7 +211,7 @@ namespace Mariasek.SharedClient
             _menuBtn = new Button(this)
                 {
                     Text = "Menu",
-                    Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 25)
+                    Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 30)
                 };
             _menuBtn.Click += MenuBtnClicked;
             _okBtn = new Button(this)
@@ -849,6 +849,7 @@ namespace Mariasek.SharedClient
                             ShowMsgLabel("Trumfovou sedmu musíš hrát nakonec", false);
                             break;
                     }
+                    _cardsPlayed[0].Hide();
                     UpdateHand();
                 }, null);
             WaitForUIThread(); 

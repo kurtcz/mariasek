@@ -44,6 +44,7 @@ namespace Mariasek.Engine.New
         public MoneyCalculatorBase Results { get; private set; }
 
         public bool SkipBidding { get; set; }
+        public bool IsRunning { get; private set; }
         public Hra GameType { get; private set; }
         public Barva? trump { get; private set; }
         public Card TrumpCard { get; private set; }
@@ -216,6 +217,7 @@ namespace Mariasek.Engine.New
 
         public void NewGame(int gameStartingPlayerIndex, Deck deck = null)
         {
+            IsRunning = true;
             if (deck == null || deck.IsEmpty())
             {
                 deck = new Deck();
@@ -281,6 +283,7 @@ namespace Mariasek.Engine.New
 #else
             const string buildConfiguration = "RELEASE";
 #endif
+            IsRunning = true;
             _log.InfoFormat("Assembly version: {0} ({1})", version, buildConfiguration);
             _log.InfoFormat("**Loading game {0}**\n", Path.GetFileName(filename));
 
@@ -530,6 +533,10 @@ namespace Mariasek.Engine.New
                 SaveGame(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss")));
 #endif
                 throw;
+            }
+            finally
+            {
+                IsRunning = false;
             }
         }
 

@@ -24,12 +24,14 @@ namespace Mariasek.SharedClient
         private Button _resumeButton;
         public ToggleButton ShuffleBtn;
         private Button _historyBtn;
+        private Label _version;
+        private Label _author;
 
         public MenuScene(MariasekMonoGame game)
             : base(game)
         {
         }
-
+            
         /// <summary>
         /// Allows the game component to perform any initialization it needs to before starting
         /// to run.  This is where it can query for any required services and load content.
@@ -72,6 +74,22 @@ namespace Mariasek.SharedClient
             
             Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;
+
+            _version = new Label(this)
+            {
+                    Position = new Vector2(5, Game.VirtualScreenHeight - 15),
+                    Width = 200,
+                    Height = 15,
+                    Text = string.Format("v{0}", MariasekMonoGame.Version)
+            };
+            _author = new Label(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth - 405, Game.VirtualScreenHeight - 15),
+                    Width = 400,
+                    Height = 15,
+                    HorizontalAlign = HorizontalAlignment.Right,
+                    Text = "Copyright ©2016 Tomáš Němec"
+                };
         }
 
         private void NewGameClicked(object sender)
@@ -89,6 +107,12 @@ namespace Mariasek.SharedClient
         {
             Game.HistoryScene.PopulateControls();
             Game.HistoryScene.SetActive();
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+            _resumeButton.IsEnabled = Game.MainScene.g != null && Game.MainScene.g.IsRunning;
         }
 
         public override void Draw(GameTime gameTime)
