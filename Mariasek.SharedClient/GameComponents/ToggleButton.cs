@@ -21,7 +21,7 @@ namespace Mariasek.SharedClient.GameComponents
         public bool IsSelected
         { 
             get { return _isSelected; }
-            protected set
+            set
             {
                 _isSelected = value;
                 TextColor = _isSelected ? Color.Yellow : Color.White;

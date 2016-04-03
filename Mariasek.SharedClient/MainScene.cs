@@ -47,7 +47,7 @@ namespace Mariasek.SharedClient
         private ClickableArea _overlay;
         private Button _newGameBtn;
         private Button _menuBtn;
-        private Button _shuffleBtn;
+        private ToggleButton _shuffleBtn;
         private Button _okBtn;
         private Button[] gtButtons, gfButtons, bidButtons;
         private Button gtHraButton;
@@ -200,12 +200,11 @@ namespace Mariasek.SharedClient
                     Position = new Vector2(10, 10)                
                 };
             _newGameBtn.Click += NewGameBtnClicked;
-            _shuffleBtn = new Button(this)
+            _shuffleBtn = new ToggleButton(this)
                 {
                     Text = "Zamíchat",
                     Position = new Vector2(10, 70)
                 };
-            _shuffleBtn.Click += ShuffleBtnClicked;
             _menuBtn = new Button(this)
                 {
                     Text = "Menu",
@@ -535,6 +534,11 @@ namespace Mariasek.SharedClient
                         LoadDeck();
                     }
                 }
+                if (_shuffleBtn.IsSelected)
+                {
+                    _deck.Shuffle();
+                    _shuffleBtn.IsSelected = false;
+                }
                 g.NewGame(_currentStartingPlayerIndex, _deck);
                 g.GameFlavourChosen += GameFlavourChosen;
                 g.GameTypeChosen += GameTypeChosen;
@@ -558,15 +562,6 @@ namespace Mariasek.SharedClient
             Game.MenuScene.SetActive();
         }
 
-        public void ShuffleBtnClicked(object sender)
-        {
-            if (_deck == null)
-            {
-                _deck = new Deck();
-            }
-            _deck.Shuffle();
-        }
-
         public void CardClicked(object sender)
         {
             var button = sender as CardButton;
@@ -577,8 +572,9 @@ namespace Mariasek.SharedClient
             switch (_state)
             {
                 case GameState.ChooseTalon:
-                    if (_talon.Count == 2 && button.IsSelected)
+                    if (button.IsSelected && (_talon.Count == 2 || ((Card)button.Tag).Value == Hodnota.Eso || ((Card)button.Tag).Value == Hodnota.Desitka || ((Card)button.Tag).Suit == g.trump))
                     {
+                        //do talonu nemuzu pridat kdyz je plnej nebo pokud je to desitka, eso nebo trumf
                         button.IsSelected = !button.IsSelected;
                         return;
                     }
@@ -777,7 +773,7 @@ namespace Mariasek.SharedClient
             UpdateHand(cardToHide: _trumpCardChosen); //abych nevidel karty co jsem hodil do talonu
             foreach (var gtButton in gtButtons)
             {
-                gtButton.IsEnabled = ((Hra)gtButton.Tag & validGameTypes) != 0;
+                gtButton.IsEnabled = ((Hra)gtButton.Tag & validGameTypes) == (Hra)gtButton.Tag;
                 gtButton.Show();
             }
             ShowMsgLabel("Co budeš hrát?", false);
