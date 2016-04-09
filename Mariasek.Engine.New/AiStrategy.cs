@@ -138,70 +138,6 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 1,
-                Description = "vytahnout trumfy",
-                UseThreshold = true,
-                ChooseCard1 = () =>
-                              {
-                                  IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
-
-                                  if (TeamMateIndex == -1)
-                                  {
-                                      cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&                           //pokud mam trumfy
-                                                                              (hands[player2].HasSuit(_trump) ||                        //a aspon jeden ze souperu ma taky trumfy
-                                                                               hands[player3].HasSuit(_trump)) &&
-                                                                              ValidCards(i, hands[player2]).All(j =>                    //a nektere moje trumfy jsou vetsi nez vsechny trumfy soupere
-                                                                                  ValidCards(i, j, hands[player3]).All(k => 
-                                                                                      Round.WinningCard(i, j, k, _trump) == i)) &&
-                                                                              ((hands[MyIndex].Has7(_trump)) ||                         //a navic muzu uhrat sedmu nakonec 
-                                                                               (hands[MyIndex].Any(j => j.Suit != _trump &&             //nebo mam a muzu uhrat nejake A, X v jine barve
-                                                                                                       (j.Value == Hodnota.Eso ||
-                                                                                                        j.Value == Hodnota.Desitka)))));
-                                      if (cardsToPlay.Count() <
-                                          Math.Max(hands[player2].CardCount(_trump),
-                                                   hands[player3].CardCount(_trump)))
-                                      {
-                                          //nemam dost trumfu vyssich nez souperovy trumfy
-                                          if ((_gameType & (Hra.Sedma | Hra.Kilo)) == 0)
-                                          {
-                                              cardsToPlay = Enumerable.Empty<Card>();
-                                          }
-                                          else if (hands[MyIndex].CardCount(_trump) >
-                                                   Math.Max(hands[player2].CardCount(_trump),
-                                                   hands[player3].CardCount(_trump)))
-                                          {
-                                              //hraju sedmu nebo kilo a mam vic trumfu nez souperi
-                                              //ale nekdo z nich ma vetsi trumf nez ja -
-                                              //pokud ho nemohu vytlacit jinou barvou, tak ho vytahnu
-                                              var muzuVytlacitTrumf = false;
-
-                                              foreach(var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
-                                              {
-                                                  if(b != _trump &&
-                                                     hands[MyIndex].HasSuit(b) && 
-                                                      ((!hands[player2].HasSuit(b) && hands[player2].HasSuit(_trump)) ||
-                                                       (!hands[player3].HasSuit(b) && hands[player3].HasSuit(_trump))))
-                                                  {
-                                                      muzuVytlacitTrumf = true;
-                                                      break;
-                                                  }
-                                              }
-                                              if (!muzuVytlacitTrumf)
-                                              {
-                                                  cardsToPlay = hands[MyIndex].Where(i => i.Suit == _trump && i.Value != Hodnota.Sedma);
-                                              }
-
-                                              return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
-                                          }
-                                      }
-                                  }
-
-                                  return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
-                              }
-            };
-
-            yield return new AiRule()
-            {
-                Order = 2,
                 Description = "hraj viteznou X",
                 UseThreshold = true,
                 ChooseCard1 = () =>
@@ -242,7 +178,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 3,
+                Order = 2,
                 //Description = "hraj viteznou A pokud souper nema X",
                 Description = TeamMateIndex == -1 ? "hraj viteznou A" : "hraj viteznou A pokud souper nema X",
                 UseThreshold = true,
@@ -290,7 +226,74 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
+                Order = 3,
+                Description = "uhrat spoluhracovu X",
+                UseThreshold = true,
+                ChooseCard1 = () =>
+                {
+                    var cardsToPlay = Enumerable.Empty<Card>();
+
+                    if (TeamMateIndex == player2)
+                    {
+                        //: co-
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).Any(j =>
+                                                                    j.Value == Hodnota.Desitka &&
+                                                                    j.Suit != _trump &&
+                                                                    ValidCards(i, j, hands[player3]).All(k => j.IsHigherThan(k, _trump))));
+                    }
+                    else if (TeamMateIndex == player3)
+                    {
+                        //: c-o
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
+                                                                  ValidCards(i, j, hands[player3]).Any(k =>
+                                                                      k.Value == Hodnota.Desitka &&
+                                                                      j.Suit != _trump &&
+                                                                      Round.WinningCard(i, j, k, _trump) != j)));
+                    }
+
+                    return cardsToPlay.ToList().RandomOneOrDefault();
+                }
+            };
+
+            yield return new AiRule()
+            {
                 Order = 4,
+                Description = "uhrat spoluhracovo A",
+                UseThreshold = true,
+                ChooseCard1 = () =>
+                {
+                    var cardsToPlay = Enumerable.Empty<Card>();
+
+                    if (TeamMateIndex == player2)
+                    {
+                        //: co-
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).Any(j =>
+                                                                    j.Value == Hodnota.Eso &&
+                                                                    j.Suit != _trump &&
+                                                                    ValidCards(i, j, hands[player3]).All(k => Round.WinningCard(i, j, k, _trump) == j) &&
+                                                                    ((!hands[player3].HasX(j.Suit)) || //souper nema X
+                                                                     (hands[player3].HasAtMostNCardsOfSuit(j.Suit, 1) &&
+                                                                      hands[player3].HasSuit(_trump))))); //nebo ma posledni kartu v barve a navic jeste nejake trumfy
+                    }
+                    else if (TeamMateIndex == player3)
+                    {
+                        //: c-o
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
+                                                                  ValidCards(i, j, hands[player3]).Any(k =>
+                                                                        k.Value == Hodnota.Eso &&
+                                                                        Round.WinningCard(i, j, k, _trump) != j &&
+                                                                        ((!hands[player2].HasX(k.Suit)) ||      //2. hrac nema desitku nebo uz barvu nezna a navic ma jeste nejake trumfy
+                                                                         (!hands[player2].HasSuit(k.Suit) &&
+                                                                          hands[player2].HasSuit(_trump))))));
+                    }
+
+                    return cardsToPlay.ToList().RandomOneOrDefault();
+                }
+            };
+
+            yield return new AiRule()
+            {
+                Order = 5,
                 Description = "vytahnout plonkovou X",
                 ChooseCard1 = () =>
                 {
@@ -334,9 +337,8 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 5,
+                Order = 6,
                 Description = "vytlacit trumfove A nebo X",
-                UseThreshold = true,
                 ChooseCard1 = () =>
                 {
                     IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
@@ -365,7 +367,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 6,
+                Order = 7,
                 Description = "snaz se vytlacit eso",
                 ChooseCard1 = () =>
                 {
@@ -409,7 +411,71 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 7,
+                Order = 8,
+                Description = "vytahnout trumfy",
+                UseThreshold = true,
+                ChooseCard1 = () =>
+                {
+                    IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
+
+                    if (TeamMateIndex == -1)
+                    {
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&                           //pokud mam trumfy
+                                                                (hands[player2].HasSuit(_trump) ||                        //a aspon jeden ze souperu ma taky trumfy
+                                                                 hands[player3].HasSuit(_trump)) &&
+                                                                ValidCards(i, hands[player2]).All(j =>                    //a nektere moje trumfy jsou vetsi nez vsechny trumfy soupere
+                                                                    ValidCards(i, j, hands[player3]).All(k =>
+                                                                        Round.WinningCard(i, j, k, _trump) == i)) &&
+                                                                ((hands[MyIndex].Has7(_trump)) ||                         //a navic muzu uhrat sedmu nakonec 
+                                                                 (hands[MyIndex].Any(j => j.Suit != _trump &&             //nebo mam a muzu uhrat nejake A, X v jine barve
+                                                                                         (j.Value == Hodnota.Eso ||
+                                                                                          j.Value == Hodnota.Desitka)))));
+                        if (cardsToPlay.Count() <
+                            Math.Max(hands[player2].CardCount(_trump),
+                                     hands[player3].CardCount(_trump)))
+                        {
+                            //nemam dost trumfu vyssich nez souperovy trumfy
+                            if ((_gameType & (Hra.Sedma | Hra.Kilo)) == 0)
+                            {
+                                cardsToPlay = Enumerable.Empty<Card>();
+                            }
+                            else if (hands[MyIndex].CardCount(_trump) >
+                                     Math.Max(hands[player2].CardCount(_trump),
+                                     hands[player3].CardCount(_trump)))
+                            {
+                                //hraju sedmu nebo kilo a mam vic trumfu nez souperi
+                                //ale nekdo z nich ma vetsi trumf nez ja -
+                                //pokud ho nemohu vytlacit jinou barvou, tak ho vytahnu
+                                var muzuVytlacitTrumf = false;
+
+                                foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                                {
+                                    if (b != _trump &&
+                                       hands[MyIndex].HasSuit(b) &&
+                                        ((!hands[player2].HasSuit(b) && hands[player2].HasSuit(_trump)) ||
+                                         (!hands[player3].HasSuit(b) && hands[player3].HasSuit(_trump))))
+                                    {
+                                        muzuVytlacitTrumf = true;
+                                        break;
+                                    }
+                                }
+                                if (!muzuVytlacitTrumf)
+                                {
+                                    cardsToPlay = hands[MyIndex].Where(i => i.Suit == _trump && i.Value != Hodnota.Sedma);
+                                }
+
+                                return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
+                            }
+                        }
+                    }
+
+                    return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
+                }
+            };
+
+            yield return new AiRule()
+            {
+                Order = 9,
                 Description = "snaz se vytlacit trumf",
                 ChooseCard1 = () =>
                 {
@@ -477,72 +543,6 @@ namespace Mariasek.Engine.New
                                                                    hands[player3].HasAtLeastNCardsOfSuit(i.Suit, 2)) ||
                                                                  (!hands[player3].HasSuit(i.Suit) &&    //nebo nezna ani barvu ani nema trumf
                                                                   !hands[player3].HasSuit(_trump)))));
-                    }
-
-                    return cardsToPlay.ToList().RandomOneOrDefault();
-                }
-            };
-
-            yield return new AiRule()
-            {
-                Order = 8,
-                Description = "uhrat spoluhracovu X",
-                UseThreshold = true,
-                ChooseCard1 = () =>
-                {
-                    var cardsToPlay = Enumerable.Empty<Card>();
-
-                    if (TeamMateIndex == player2)
-                    {
-                        //: co-
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).Any(j => 
-                                                                    j.Value == Hodnota.Desitka &&
-                                                                    j.Suit != _trump &&
-                                                                    ValidCards(i, j, hands[player3]).All(k => j.IsHigherThan(k, _trump))));
-                    }
-                    else if (TeamMateIndex == player3)
-                    {
-                        //: c-o
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
-                                                                  ValidCards(i, j, hands[player3]).Any(k =>
-                                                                      k.Value == Hodnota.Desitka &&
-                                                                      j.Suit != _trump &&
-                                                                      Round.WinningCard(i, j, k, _trump) != j)));
-                    }
-
-                    return cardsToPlay.ToList().RandomOneOrDefault();
-                }
-            };
-
-            yield return new AiRule()
-            {
-                Order = 9,
-                Description = "uhrat spoluhracovo A",
-                ChooseCard1 = () =>
-                {
-                    var cardsToPlay = Enumerable.Empty<Card>();
-
-                    if (TeamMateIndex == player2)
-                    {
-                        //: co-
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).Any(j =>
-                                                                    j.Value == Hodnota.Eso &&
-                                                                    j.Suit != _trump &&
-                                                                    ValidCards(i, j, hands[player3]).All(k => Round.WinningCard(i, j, k, _trump) == j) &&
-                                                                    ((!hands[player3].HasX(j.Suit)) || //souper nema X
-                                                                     (hands[player3].HasAtMostNCardsOfSuit(j.Suit, 1) &&
-                                                                      hands[player3].HasSuit(_trump))))); //nebo ma posledni kartu v barve a navic jeste nejake trumfy
-                    }
-                    else if (TeamMateIndex == player3)
-                    {
-                        //: c-o
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
-                                                                  ValidCards(i, j, hands[player3]).Any(k =>
-                                                                        k.Value == Hodnota.Eso &&
-                                                                        Round.WinningCard(i, j, k, _trump) != j &&
-                                                                        ((!hands[player2].HasX(k.Suit)) ||      //2. hrac nema desitku nebo uz barvu nezna a navic ma jeste nejake trumfy
-                                                                         (!hands[player2].HasSuit(k.Suit) &&
-                                                                          hands[player2].HasSuit(_trump))))));
                     }
 
                     return cardsToPlay.ToList().RandomOneOrDefault();
@@ -793,7 +793,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule
             {
-                Order = 2,
+                Order = 1,
                 Description = "hraj viteznou X",
                 UseThreshold = TeamMateIndex != player3,
                 ChooseCard2 = (Card c1) =>
@@ -839,7 +839,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule
             {
-                Order = 3,
+                Order = 2,
                 Description = "hraj viteznou A pokud nemohu chytit souperovu X",
                 UseThreshold = true,
                 ChooseCard2 = (Card c1) =>
@@ -892,7 +892,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule
             {
-                Order = 4,
+                Order = 3,
                 Description = "vytahni plonkovou X",
                 UseThreshold = true,
                 ChooseCard2 = (Card c1) =>
@@ -915,6 +915,28 @@ namespace Mariasek.Engine.New
                             ValidCards(c1, hands[MyIndex])
                                 .Where(i => i.Value == Hodnota.Eso &&                                                   //hraj vitezne eso kdyz
                                             ValidCards(c1, i, hands[player3]).All(j => i.Value == Hodnota.Desitka));    //3. hrac ma plonkovou desitku
+                    }
+
+                    return cardsToPlay.ToList().RandomOneOrDefault();
+                }
+            };
+
+            yield return new AiRule()
+            {
+                Order = 4,
+                Description = "namazat A nebo X",
+                ChooseCard2 = (Card c1) =>
+                {
+                    var cardsToPlay = Enumerable.Empty<Card>();
+
+                    if (TeamMateIndex == player3)
+                    {
+                        //: -co
+                        cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => (i.Value == Hodnota.Eso ||
+                                                                                 i.Value == Hodnota.Desitka) &&
+                                                                                i.Suit != _trump &&
+                                                                                !hands[player1].HasSuit(i.Suit) &&
+                                                                                ValidCards(c1, i, hands[player3]).All(j => Round.WinningCard(c1, i, j, _trump) != c1));
                     }
 
                     return cardsToPlay.ToList().RandomOneOrDefault();
@@ -1026,28 +1048,6 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 8,
-                Description = "namazat A nebo X",
-                ChooseCard2 = (Card c1) =>
-                {
-                    var cardsToPlay = Enumerable.Empty<Card>();
-
-                    if (TeamMateIndex == player3)
-                    {
-                        //: -co
-                        cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => (i.Value == Hodnota.Eso ||
-                                                                                 i.Value == Hodnota.Desitka) &&
-                                                                                i.Suit != _trump &&
-                                                                                !hands[player1].HasSuit(i.Suit) &&
-                                                                                ValidCards(c1, i, hands[player3]).All(j => Round.WinningCard(c1, i, j, _trump) != c1));
-                    }
-
-                    return cardsToPlay.ToList().RandomOneOrDefault();
-                }
-            };
-
-            yield return new AiRule()
-            {
-                Order = 9,
                 Description = "hrat dlouhou barvu (mimo A, X)",
                 ChooseCard2 = (Card c1) =>
                 {
@@ -1079,7 +1079,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 10,
+                Order = 9,
                 Description = "hrat cokoli mimo A, X",
                 ChooseCard2 = (Card c1) =>
                 {
@@ -1091,7 +1091,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 11,
+                Order = 10,
                 Description = "hrat cokoli",
                 ChooseCard2 = (Card c1) =>
                 {
@@ -1204,7 +1204,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule
             {
-                Order = 2,
+                Order = 1,
                 Description = "hraj viteznou X",
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
@@ -1241,7 +1241,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule
             {
-                Order = 3,
+                Order = 2,
                 Description = "hraj vitezne A pokud nemohu chytit souperovu X",
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
@@ -1289,7 +1289,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 4,
+                Order = 3,
                 Description = "zustat ve stychu (nehrat A, X)",
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
@@ -1319,7 +1319,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 5,
+                Order = 4,
                 Description = "hrat dlouhou barvu (mimo A, X)",
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
@@ -1351,7 +1351,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 6,
+                Order = 5,
                 Description = "hrat cokoli mimo A, X",
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
@@ -1363,7 +1363,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 7,
+                Order = 6,
                 Description = "hrat cokoli",
                 ChooseCard3 = (Card c1, Card c2) =>
                 {

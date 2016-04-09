@@ -51,15 +51,18 @@ namespace Mariasek.Engine.New
             return AbstractPlayer.ValidCards(hand, _trump, _gameType, TeamMateIndex, c1, c2);
         }
 
-        public Card PlayCard1(out AiRule selectedRule)
+        public Dictionary<AiRule, Card> GetApplicableRules()
         {
+            var result = new Dictionary<AiRule, Card>();
+            
             if (((List<Card>)_hands[MyIndex]).Count() == 1)
             {
                 var cardToPlay = ((List<Card>)_hands[MyIndex]).First();
 
-                selectedRule = AiRule.PlayTheOnlyValidCard;
                 _hands[MyIndex].Remove(cardToPlay);
-                return cardToPlay;
+                result.Add(AiRule.PlayTheOnlyValidCard, cardToPlay);
+
+                return result;
             }
 
             var t0 = DateTime.Now;
@@ -73,27 +76,37 @@ namespace Mariasek.Engine.New
                         var svrsek = _hands[MyIndex].FirstOrDefault(i => i.Value == Hodnota.Svrsek && i.Suit == cardToPlay.Suit);
                         cardToPlay = svrsek ?? cardToPlay;
                     }
-                    _hands[MyIndex].Remove(cardToPlay);
+                    if (result.Count() == 0)
+                    {
+                        //if this is the 1st aplicable rule then this is the card the strategy advises us to play
+                        //remove the card so that the simulation can continue
+                        _hands[MyIndex].Remove(cardToPlay);
+                    }
                     _log.TraceFormat("{0}: {1} - {2}", MyName, cardToPlay, rule.Description);
-                    selectedRule = rule;
-                    return cardToPlay;
+                    result.Add(rule, cardToPlay);
+                    if(!rule.UseThreshold)
+                    {
+                        break; //chceme jen prvni nebodovane pravidlo
+                    }
                 }
             }
-            selectedRule = null;
-            return null;
+
+            return result;
         }
 
-        public Card PlayCard2(Card c1, out AiRule selectedRule)
+        public Dictionary<AiRule, Card> GetApplicableRules2(Card c1)
         {
             var validCards = ValidCards(c1, _hands[MyIndex]);
+            var result = new Dictionary<AiRule, Card>();
 
             if (validCards.Count == 1)
             {
                 var cardToPlay = validCards.First();
 
-                selectedRule = AiRule.PlayTheOnlyValidCard;
                 _hands[MyIndex].Remove(cardToPlay);
-                return cardToPlay;
+                result.Add(AiRule.PlayTheOnlyValidCard, cardToPlay);
+
+                return result;
             }
 
             foreach (var rule in GetRules2(_hands))
@@ -107,27 +120,37 @@ namespace Mariasek.Engine.New
                         var svrsek = _hands[MyIndex].FirstOrDefault(i => i.Value == Hodnota.Svrsek && i.Suit == cardToPlay.Suit);
                         cardToPlay = svrsek ?? cardToPlay;
                     }
-                    _hands[MyIndex].Remove(cardToPlay);
+                    if (result.Count() == 0)
+                    {
+                        //if this is the 1st aplicable rule then this is the card the strategy advises us to play
+                        //remove the card so that the simulation can continue
+                        _hands[MyIndex].Remove(cardToPlay);
+                    }
                     _log.TraceFormat("{0}: {1} - {2}", MyName, cardToPlay, rule.Description);
-                    selectedRule = rule;
-                    return cardToPlay;
+                    result.Add(rule, cardToPlay);
+                    if (!rule.UseThreshold)
+                    {
+                        break; //chceme jen prvni nebodovane pravidlo
+                    }
                 }
             }
-            selectedRule = null;
-            return null;
+
+            return result;
         }
 
-        public Card PlayCard3(Card c1, Card c2, out AiRule selectedRule)
+        public Dictionary<AiRule, Card> GetApplicableRules3(Card c1, Card c2)
         {
             var validCards = ValidCards(c1, c2, _hands[MyIndex]);
+            var result = new Dictionary<AiRule, Card>();
 
             if (validCards.Count == 1)
             {
                 var cardToPlay = validCards.First();
 
-                selectedRule = AiRule.PlayTheOnlyValidCard;
                 _hands[MyIndex].Remove(cardToPlay);
-                return cardToPlay;
+                result.Add(AiRule.PlayTheOnlyValidCard, cardToPlay);
+
+                return result;
             }
 
             foreach (var rule in GetRules3(_hands))
@@ -141,14 +164,22 @@ namespace Mariasek.Engine.New
                         var svrsek = _hands[MyIndex].FirstOrDefault(i => i.Value == Hodnota.Svrsek && i.Suit == cardToPlay.Suit);
                         cardToPlay = svrsek ?? cardToPlay;
                     }
-                    _hands[MyIndex].Remove(cardToPlay);
+                    if (result.Count() == 0)
+                    {
+                        //if this is the 1st aplicable rule then this is the card the strategy advises us to play
+                        //remove the card so that the simulation can continue
+                        _hands[MyIndex].Remove(cardToPlay);
+                    }
                     _log.TraceFormat("{0}: {1} - {2}", MyName, cardToPlay, rule.Description);
-                    selectedRule = rule;
-                    return cardToPlay;
+                    result.Add(rule, cardToPlay);
+                    if (!rule.UseThreshold)
+                    {
+                        break; //chceme jen prvni nebodovane pravidlo
+                    }
                 }
             }
-            selectedRule = null;
-            return null;
+
+            return result;
         }
     }
 }

@@ -8,14 +8,15 @@ Pravidla pro hru
 ----------------
 
 Pravidla se dělí do těchto skupin:
+
 1. Bodovaná pravidla
 	Bodovaná pravidla jsou pravidla, která vedou k zisku bodů (získání A, X). U některých pravidel hrozí ovšem riziko ztráty. Hrát kartu podle takového pravidla by se mělo pouze pokud bude riziko neúspěchu dostatečně malé. Tuto míru definuje parametr v konfiguračním souboru. V následujícím seznamu budou riziková pravidla označena hvězdičkou (*).
 
 	1.1 Uhrát poslední štych
-	!!! Vytáhnout trumfy (nepatří sem, co s tím?)
 	1.2 Uhrát vlastní X (*)
 	1.3 Uhrát vlastní A pokud nemůže chytit soupeřovu X (*)
-	1.4 Uhrát soupeřovu X
+	1.4 Uhrát soupeřovu X (*)
+	1.5 Uhrát spoluhráčovo A, X (*)
 
 2. Přípravná pravidla
 	Přípravná pravidla jsou pravidla, která připravují pozici pro uplatnění bodových pravidel v dalších kolech hry.
@@ -26,13 +27,15 @@ Pravidla se dělí do těchto skupin:
 3. Ostatní pravidla
 	Ostatní pravidla zahrnují pravidla obecně posilující hráčovu pozici.
 
-	3.1 Vytlačit soupeřův trumf
-	!!! Uhrát spoluhráčovo A, X (nepatří sem, co s tím?)
-	3.2 Zůstat ve štychu
-	3.3 Hraj dlouhou barvu (mimo trumf)
-	3.4 Hraj cokoli
+	3.1 Vytáhnout trumfy (nepatří sem, co s tím?)	
+	3.2 Vytlačit soupeřův trumf
+	3.3 Zůstat ve štychu
+	3.4 Hraj dlouhou barvu (mimo trumf)
+	3.5 Hraj cokoli mimo A, X
+	3.6 Hraj cokoli
 
 ### Účelová funkce
+
 Účelová funkce ohodnocující sílu pozice ve hře by měla zohlednit tyto faktory v následujícím pořadí důležitosti:
 1. Součet mých uhraných bodů plus bodů které skoro jistě získám (moje i soupeřovy A, X které bych měl uhrát)
 2. Počet karet kterýma soupeř bere moje A, X (sestupně)
@@ -69,9 +72,10 @@ Pravidla pro durch se liší pro volitele (vždy 1. na tahu) a pro oponenty (hra
 2.4 Hrát nejmenší kartu
 
 ### Přesnost simulací
-Pro určení míry spolehlivosti simulací (jak moc se generované hry blíží pravděpodobnostnímu rozložení) použijeme výběrovou směrodanou odchylku pro pravděpodobnost karty
+
+Pro určení míry spolehlivosti simulací (jak moc se generované hry blíží pravděpodobnostnímu rozložení) použijeme výběrovou směrodatnou odchylku pro pravděpodobnost karty
 počítáme jako s = SQRT( 1 / (N - 1) * SUM(( Xi - AVG(X) )^2) ) kde Xi je počet karet v simulaci a AVG(X) je pravděpodobnost karty.
-Výběrovou směrodatnou odchylku všech karet spočítám jako součet jednotlivých směrodatných odchylek.
+Výběrovou směrodatnou odchylku všech karet spočítám jako průměr jednotlivých směrodatných odchylek.
 Pro normální rozdělení platí, že:
 pravděpodobnost, že se náhodný výběr bude lišit od středních hodnot bude lišit od více než jednu odchylku je < 33%
 pravděpodobnost, že se náhodný výběr bude lišit od středních hodnot bude lišit od více než dvě odchylky je < 5%

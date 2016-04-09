@@ -26,9 +26,8 @@ namespace Mariasek.Engine.New
         public int RoundsToCompute { get; set; }
         public float RuleThreshold { get; set; }
         public Dictionary<Hra, float> RuleThresholdForGameType { get; set; }
-        public float SingleRuleThreshold { get; set; }
-        public Dictionary<Hra, float> SingleRuleThresholdForGameType { get; set; }
         public float[] GameThresholds { get; set; }
+        public Dictionary<Hra, float[]> GameThresholdsForGameType { get; set; }
         public int MaxDoubleCount { get; set; }
 
 #if !PORTABLE

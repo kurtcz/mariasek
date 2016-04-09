@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Hra Kolo="0" Zacina="Hrac1" Voli="Hrac1" Typ="Kilo" Trumf="Zaludy">
+  <Verze>0.5.5933.39873</Verze>
+  <Hrac1 />
+  <Hrac2 />
+  <Hrac3 />
+  <Talon>
+    <Karta Barva="Zeleny" Hodnota="Sedma" />
+    <Karta Barva="Cerveny" Hodnota="Osma" />
+  </Talon>
+  <Stychy>
+    <Stych Kolo="1" Zacina="Hrac1">
+      <Hrac1 Barva="Zaludy" Hodnota="Eso" />
+      <!--vytahnout trumfy-->
+      <Hrac2 Barva="Zaludy" Hodnota="Sedma" />
+      <!--hrat cokoli mimo A, X-->
+      <Hrac3 Barva="Zeleny" Hodnota="Osma" />
+      <!--hrat dlouhou barvu (mimo A, X)-->
+    </Stych>
+    <Stych Kolo="2" Zacina="Hrac1">
+      <Hrac1 Barva="Zaludy" Hodnota="Svrsek" />
+      <!--vytahnout trumfy-->
+      <Hrac2 Barva="Zaludy" Hodnota="Desitka" />
+      <!--Hraj jedinou moznou kartu-->
+      <Hrac3 Barva="Zeleny" Hodnota="Desitka" />
+      <!--hraj viteznou X-->
+    </Stych>
+    <Stych Kolo="3" Zacina="Hrac2">
+      <Hrac1 Barva="Zaludy" Hodnota="Osma" />
+      <!--zustat ve stychu (nehrat A, X)-->
+      <Hrac2 Barva="Zeleny" Hodnota="Eso" />
+      <!--hraj viteznou A pokud souper nema X-->
+      <Hrac3 Barva="Zeleny" Hodnota="Kral" />
+      <!--zustat ve stychu (nehrat A, X)-->
+    </Stych>
+    <Stych Kolo="4" Zacina="Hrac1">
+      <Hrac1 Barva="Zaludy" Hodnota="Kral" />
+      <!--vytahnout trumfy-->
+      <Hrac2 Barva="Zaludy" Hodnota="Spodek" />
+      <!--Hraj jedinou moznou kartu-->
+      <Hrac3 Barva="Cerveny" Hodnota="Devitka" />
+      <!--hrat dlouhou barvu (mimo A, X)-->
+    </Stych>
+    <Stych Kolo="5" Zacina="Hrac1">
+      <Hrac1 Barva="Cerveny" Hodnota="Desitka" />
+      <!--hraj viteznou X-->
+      <Hrac2 Barva="Cerveny" Hodnota="Sedma" />
+      <!--hrat dlouhou barvu (mimo A, X)-->
+      <Hrac3 Barva="Cerveny" Hodnota="Spodek" />
+      <!--hrat dlouhou barvu (mimo A, X)-->
+    </Stych>
+    <Stych Kolo="6" Zacina="Hrac1">
+      <Hrac1 Barva="Cerveny" Hodnota="Eso" />
+      <!--hraj viteznou A-->
+      <Hrac2 Barva="Cerveny" Hodnota="Svrsek" />
+      <!--Hraj jedinou moznou kartu-->
+      <Hrac3 Barva="Cerveny" Hodnota="Kral" />
+      <!--Hraj jedinou moznou kartu-->
+    </Stych>
+    <Stych Kolo="7" Zacina="Hrac1">
+      <Hrac1 Barva="Kule" Hodnota="Kral" />
+      <!--snaz se vytlacit eso-->
+      <Hrac2 Barva="Kule" Hodnota="Eso" />
+      <!--Hraj jedinou moznou kartu-->
+      <Hrac3 Barva="Kule" Hodnota="Osma" />
+      <!--zustat ve stychu (nehrat A, X)-->
+    </Stych>
+    <Stych Kolo="8" Zacina="Hrac2">
+      <Hrac1 Barva="Zaludy" Hodnota="Devitka" />
+      <!--Hraj jedinou moznou kartu-->
+      <Hrac2 Barva="Zeleny" Hodnota="Svrsek" />
+      <!--snaz se vytlacit trumf-->
+      <Hrac3 Barva="Zeleny" Hodnota="Spodek" />
+      <!--snaz se vytlacit trumf-->
+    </Stych>
+    <Stych Kolo="9" Zacina="Hrac1">
+      <Hrac1 Barva="Kule" Hodnota="Spodek" />
+      <!--hrat tak abych bral posledni stych-->
+      <Hrac2 Barva="Kule" Hodnota="Sedma" />
+      <!--hrat dlouhou barvu (mimo A, X)-->
+      <Hrac3 Barva="Kule" Hodnota="Svrsek" />
+      <!--Hraj jedinou moznou kartu-->
+    </Stych>
+    <Stych Kolo="10" Zacina="Hrac3">
+      <Hrac1 Barva="Kule" Hodnota="Desitka" />
+      <!--Hraj jedinou moznou kartu-->
+      <Hrac2 Barva="Kule" Hodnota="Devitka" />
+      <!--Hraj jedinou moznou kartu-->
+      <Hrac3 Barva="Zeleny" Hodnota="Devitka" />
+      <!--Hraj jedinou moznou kartu-->
+    </Stych>
+  </Stychy>
+  <Zuctovani>
+    <Hrac1 Body="80" Zisk="-16" />
+    <Hrac2 Body="50" Zisk="8" />
+    <Hrac3 Body="50" Zisk="8" />
+  </Zuctovani>
+</Hra>

@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<Hra Kolo="0" Zacina="Hrac1" Voli="Hrac1">
+  <Komentar>Tuhle hru AI prohraje: v 9. kole hraje tak, aby bral posledni stych, ale nepovede se mu to.
+  
+    Stych Kolo="9" Zacina="Hrac1"
+      Hrac1 Barva="Kule" Hodnota="Spodek"
+      hrat tak abych bral posledni stych
+      Hrac2 Barva="Kule" Hodnota="Sedma"
+      hrat dlouhou barvu (mimo A, X)
+      Hrac3 Barva="Kule" Hodnota="Svrsek"
+      Hraj jedinou moznou kartu
+    	
+    Stych Kolo="10" Zacina="Hrac3"
+      Hrac1 Barva="Kule" Hodnota="Desitka"
+      Hraj jedinou moznou kartu
+      Hrac2 Barva="Kule" Hodnota="Devitka"
+      Hraj jedinou moznou kartu
+      Hrac3 Barva="Zeleny" Hodnota="Devitka"
+      Hraj jedinou moznou kartu
+
+	Duvod byl, ze mu Spodek Kule vysel casteji nez Desitka Kule.
+	
+2016-03-30 22:10:39,675 [1] INFO AiPlayer: Cards to choose from: 2
+2016-03-30 22:10:39,675 [1] INFO AiPlayer: Spodek Kule: 27 times (54%) max. score: 80/30/0 avg. score 80/30/0
+2016-03-30 22:10:39,675 [1] INFO AiPlayer: Desitka Kule: 23 times (46%) max. score: 90/30/0 avg. score 90/30/0
+2016-03-30 22:10:39,675 [1] INFO AiPlayer: Alpha plays card: Spodek Kule - hrat tak abych bral posledni stych
+
+  Pritom Desitka Kule byla v tu chvili jista volba.
+  </Komentar>
+  <Verze>0.5.5927.42321</Verze>
+  <Hrac1>
+    <Karta Barva="Cerveny" Hodnota="Osma" />
+    <Karta Barva="Cerveny" Hodnota="Eso" />
+    <Karta Barva="Cerveny" Hodnota="Desitka" />
+    <Karta Barva="Kule" Hodnota="Kral" />
+    <Karta Barva="Zaludy" Hodnota="Devitka" />
+    <Karta Barva="Zaludy" Hodnota="Kral" />
+    <Karta Barva="Zaludy" Hodnota="Svrsek" />
+    <Karta Barva="Zaludy" Hodnota="Eso" />
+    <Karta Barva="Zeleny" Hodnota="Sedma" />
+    <Karta Barva="Kule" Hodnota="Spodek" />
+    <Karta Barva="Kule" Hodnota="Desitka" />
+    <Karta Barva="Zaludy" Hodnota="Osma" />
+  </Hrac1>
+  <Hrac2>
+    <Karta Barva="Cerveny" Hodnota="Sedma" />
+    <Karta Barva="Cerveny" Hodnota="Svrsek" />
+    <Karta Barva="Zeleny" Hodnota="Svrsek" />
+    <Karta Barva="Zeleny" Hodnota="Eso" />
+    <Karta Barva="Kule" Hodnota="Sedma" />
+    <Karta Barva="Kule" Hodnota="Devitka" />
+    <Karta Barva="Kule" Hodnota="Eso" />
+    <Karta Barva="Zaludy" Hodnota="Sedma" />
+    <Karta Barva="Zaludy" Hodnota="Spodek" />
+    <Karta Barva="Zaludy" Hodnota="Desitka" />
+  </Hrac2>
+  <Hrac3>
+    <Karta Barva="Cerveny" Hodnota="Devitka" />
+    <Karta Barva="Cerveny" Hodnota="Spodek" />
+    <Karta Barva="Cerveny" Hodnota="Kral" />
+    <Karta Barva="Zeleny" Hodnota="Osma" />
+    <Karta Barva="Zeleny" Hodnota="Devitka" />
+    <Karta Barva="Zeleny" Hodnota="Spodek" />
+    <Karta Barva="Zeleny" Hodnota="Kral" />
+    <Karta Barva="Zeleny" Hodnota="Desitka" />
+    <Karta Barva="Kule" Hodnota="Osma" />
+    <Karta Barva="Kule" Hodnota="Svrsek" />
+  </Hrac3>
+  <Talon />
+  <Stychy />
+</Hra>

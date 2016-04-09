@@ -611,7 +611,14 @@ namespace Mariasek.TesterGUI
                 _cancellationTokenSource.Cancel();
                 _evt.Set();
                 _log.Debug("Waiting for task to cancel");
-                Task.WaitAll(new[] { _gameTask, _bubble1Task, _bubble2Task, _bubble3Task }.Where(i => i != null).ToArray());
+                try
+                {
+                    Task.WaitAll(new[] { _gameTask, _bubble1Task, _bubble2Task, _bubble3Task }.Where(i => i != null).ToArray());
+                }
+                catch(AggregateException)
+                {
+                    //ignore Task cancelled exceptions
+                }
                 _log.DebugFormat("Finished waiting for task. Game task status: {0}", _gameTask.Status);
             }
             _cancellationTokenSource = new CancellationTokenSource();
@@ -826,6 +833,21 @@ namespace Mariasek.TesterGUI
 
             //zobrazime "dobry" nebo "flek"
             ShowBubble(e.Player.PlayerIndex, e.Description);
+
+            _synchronizationContext.Send(_ =>
+            {
+                Label[] rules = { null, lblRule2, lblRule3 };
+                ListBox[] allRules = { null, allRules2, allRules3 };
+
+                if (rules[e.Player.PlayerIndex] != null)
+                {
+                    rules[e.Player.PlayerIndex].Dispatch((o, p1, p2) => o.SetValue(p1, p2), ContentProperty, string.Format("{0}x", e.Player.DebugInfo.RuleCount));
+                }
+                if (allRules[e.Player.PlayerIndex] != null)
+                {
+                    allRules[e.Player.PlayerIndex].ItemsSource = e.Player.DebugInfo.AllChoices;
+                }
+            }, null);
         }
 
         private void CardPlayed(object sender, Round r)

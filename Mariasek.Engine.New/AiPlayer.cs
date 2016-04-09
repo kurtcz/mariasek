@@ -46,8 +46,17 @@ namespace Mariasek.Engine.New
                 CardSelectionStrategy = CardSelectionStrategy.MaxCount,
                 SimulationsPerRound = 50,
                 RuleThreshold = 0.8f,
-                GameThresholds = new [] { 0.7f, 0.8f, 0.9f },
-                MaxDoubleCount = 5
+                RuleThresholdForGameType = new Dictionary<Hra, float> {{ Hra.Hra, 0.8f }, { Hra.Sedma, 0.8f }, { Hra.Kilo, 0.8f }, { Hra.Betl, 0.8f }, { Hra.Durch, 0.8f }},
+                GameThresholds = new [] { 0.7f, 0.8f, 0.9f, 0.95f },
+                GameThresholdsForGameType = new Dictionary<Hra, float[]>
+                                            {
+                                                { Hra.Hra,   new[] { 0.5f, 0.7f, 0.85f, 0.95f } },
+                                                { Hra.Sedma, new[] { 0.7f, 0.8f, 0.9f, 0.95f } },
+                                                { Hra.Kilo,  new[] { 0.7f, 0.8f, 0.9f, 0.95f } },
+                                                { Hra.Betl,  new[] { 0.7f, 0.8f, 0.9f, 0.95f } },
+                                                { Hra.Durch, new[] { 0.7f, 0.8f, 0.9f, 0.95f } }
+                                            },
+                MaxDoubleCount = 4
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
@@ -65,16 +74,24 @@ namespace Mariasek.Engine.New
             Settings.SimulationsPerRound = int.Parse(parameters["SimulationsPerRound"].Value);
             Settings.RuleThreshold = int.Parse(parameters["RuleThreshold"].Value) / 100f;
             Settings.RuleThresholdForGameType = new Dictionary<Hra, float>();
+            Settings.RuleThresholdForGameType[Hra.Hra] = int.Parse(parameters["RuleThreshold.Hra"].Value ?? parameters["RuleThreshold"].Value) / 100f;
+            Settings.RuleThresholdForGameType[Hra.Sedma] = int.Parse(parameters["RuleThreshold.Sedma"].Value ?? parameters["RuleThreshold"].Value) / 100f;
             Settings.RuleThresholdForGameType[Hra.Kilo] = int.Parse(parameters["RuleThreshold.Kilo"].Value ?? parameters["RuleThreshold"].Value) / 100f;
             Settings.RuleThresholdForGameType[Hra.Durch] = int.Parse(parameters["RuleThreshold.Durch"].Value ?? parameters["RuleThreshold"].Value) / 100f;
             Settings.RuleThresholdForGameType[Hra.Betl] = int.Parse(parameters["RuleThreshold.Betl"].Value ?? parameters["RuleThreshold"].Value) / 100f;
-            Settings.SingleRuleThreshold = int.Parse(parameters["SingleRuleThreshold"].Value) / 100f;
-            Settings.SingleRuleThresholdForGameType = new Dictionary<Hra, float>();
-            Settings.SingleRuleThresholdForGameType[Hra.Kilo] = int.Parse(parameters["SingleRuleThreshold.Kilo"].Value ?? parameters["SingleRuleThreshold"].Value) / 100f;
-            Settings.SingleRuleThresholdForGameType[Hra.Durch] = int.Parse(parameters["SingleRuleThreshold.Durch"].Value ?? parameters["SingleRuleThreshold"].Value) / 100f;
-            Settings.SingleRuleThresholdForGameType[Hra.Betl] = int.Parse(parameters["SingleRuleThreshold.Betl"].Value ?? parameters["SingleRuleThreshold"].Value) / 100f;
             var gameThresholds = parameters["GameThreshold"].Value.Split('|');
             Settings.GameThresholds = gameThresholds.Select(i => int.Parse(i) / 100f).ToArray();
+            Settings.GameThresholdsForGameType = new Dictionary<Hra, float[]>();
+            var gameThresholds2 = parameters["GameThreshold.Hra"].Value;
+            Settings.GameThresholdsForGameType[Hra.Hra] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
+            gameThresholds2 = parameters["GameThreshold.Sedma"].Value;
+            Settings.GameThresholdsForGameType[Hra.Sedma] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
+            gameThresholds2 = parameters["GameThreshold.Kilo"].Value;
+            Settings.GameThresholdsForGameType[Hra.Kilo] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
+            gameThresholds2 = parameters["GameThreshold.Betl"].Value;
+            Settings.GameThresholdsForGameType[Hra.Betl] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
+            gameThresholds2 = parameters["GameThreshold.Durch"].Value;
+            Settings.GameThresholdsForGameType[Hra.Durch] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
             Settings.MaxDoubleCount = int.Parse(parameters["MaxDoubleCount"].Value);
         }
 
@@ -256,7 +273,7 @@ namespace Mariasek.Engine.New
             else
             {
                 //protihrac nejdriv sjede simulaci nanecisto (bez talonu) a potom znovu s kartami talonu a vybere novy talon
-                if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerRound)
                 {
                     _talon = ChooseDurchTalon(Hand);
                 }
@@ -286,11 +303,11 @@ namespace Mariasek.Engine.New
                     //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
                     //Zapamatujeme si vysledek a pouzijeme ho i v ChooseGameFlavour() a ChooseGameType()
                     RunGameSimulations(bidding, PlayerIndex, true, true);
-                    if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                    if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerRound)
                     {
                         _talon = ChooseDurchTalon(Hand);
                     }
-                    else if (_betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                    else if (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * Settings.SimulationsPerRound)
                     {
                         _talon = ChooseBetlTalon(Hand);
                     }
@@ -315,7 +332,7 @@ namespace Mariasek.Engine.New
             }
             else if (_gameType == Hra.Betl)
             {
-                if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerRound)
                 {
                     return GameFlavour.Bad;
                 }
@@ -324,8 +341,8 @@ namespace Mariasek.Engine.New
             }
             else
             {
-                if ((_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound) ||
-                    (_betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound))
+                if ((_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerRound) ||
+                    (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * Settings.SimulationsPerRound))
                 {
                     return GameFlavour.Bad;
                 }
@@ -375,11 +392,13 @@ namespace Mariasek.Engine.New
                                 ? new [] { GetPlayersHandsAndTalon() }
                                 : Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerRound);
                 //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
-                Parallel.ForEach(source.ToArray(), hands =>
+                var opt = new ParallelOptions { MaxDegreeOfParallelism = 1 };
+                Parallel.ForEach(source.ToArray(), opt, hands =>
                 {
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
 
-                    var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : Hra.Sedma, 10, 1); // to ?? vypada chybne
+                    // to ?? vypada chybne
+                    var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : Hra.Sedma, 10, 1); 
                     gameComputationResults.Enqueue(gameComputationResult);
                 });
             }
@@ -491,7 +510,7 @@ namespace Mariasek.Engine.New
 
             if ((validGameTypes & (Hra.Betl | Hra.Durch)) != 0)
             {
-                if (_durchBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerRound)
                 {
                     gameType = Hra.Durch;
                     DebugInfo.RuleCount = _durchBalance;
@@ -504,7 +523,7 @@ namespace Mariasek.Engine.New
             }
             else
             {
-                if (_hundredsBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                if (_hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * Settings.SimulationsPerRound)
                 {
                     gameType = Hra.Kilo;
                     DebugInfo.RuleCount = _hundredsBalance;
@@ -514,7 +533,7 @@ namespace Mariasek.Engine.New
                     gameType = Hra.Hra;
                     DebugInfo.RuleCount = _gamesBalance;
                 }
-                if (_sevensBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerRound)
+                if (_sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * Settings.SimulationsPerRound)
                 {
                     gameType |= Hra.Sedma;
                 };
@@ -562,13 +581,14 @@ namespace Mariasek.Engine.New
         public override Hra GetBidsAndDoubles(Bidding bidding)
         {
             Hra bid = 0;
-            var gameThreshold = bidding._gameFlek < Settings.GameThresholds.Length ? Settings.GameThresholds[bidding._gameFlek] : 1f;
-            var sevenThreshold = bidding._sevenFlek < Settings.GameThresholds.Length ? Settings.GameThresholds[bidding._sevenFlek] : 1f;
-            var hundredThreshold = bidding._gameFlek < Settings.GameThresholds.Length ? Settings.GameThresholds[bidding._gameFlek] : 1f;
+            var gameThreshold = bidding._gameFlek < Settings.GameThresholdsForGameType[Hra.Hra].Length ? Settings.GameThresholdsForGameType[Hra.Hra][bidding._gameFlek] : 1f;
+            var sevenThreshold = bidding._sevenFlek < Settings.GameThresholdsForGameType[Hra.Sedma].Length ? Settings.GameThresholdsForGameType[Hra.Sedma][bidding._sevenFlek] : 1f;
+            var hundredThreshold = bidding._gameFlek < Settings.GameThresholdsForGameType[Hra.Kilo].Length ? Settings.GameThresholdsForGameType[Hra.Kilo][bidding._gameFlek] : 1f;
             var sevenAgainstThreshold = bidding._sevenAgainstFlek < Settings.GameThresholds.Length ? Settings.GameThresholds[bidding._sevenAgainstFlek] : 1f;
             var hundredAgainstThreshold = bidding._hundredAgainstFlek < Settings.GameThresholds.Length ? Settings.GameThresholds[bidding._hundredAgainstFlek] : 1f;
-            var betlDurchThreshold = bidding._betlDurchFlek < Settings.GameThresholds.Length ? Settings.GameThresholds[bidding._betlDurchFlek] : 1f;
-            
+            var betlThreshold = bidding._betlDurchFlek < Settings.GameThresholdsForGameType[Hra.Betl].Length ? Settings.GameThresholdsForGameType[Hra.Betl][bidding._betlDurchFlek] : 1f;
+            var durchThreshold = bidding._betlDurchFlek < Settings.GameThresholdsForGameType[Hra.Durch].Length ? Settings.GameThresholdsForGameType[Hra.Durch][bidding._betlDurchFlek] : 1f;
+
             if (bidding.MaxDoubleCount > Settings.MaxDoubleCount)
             {
                 //uz stacilo
@@ -637,18 +657,73 @@ namespace Mariasek.Engine.New
             }
             //durch flekuju jen pokud jsem volil sam durch a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem nevolil a v simulacich ani jednou nevysel            
-            if ((PlayerIndex == _g.GameStartingPlayerIndex && _durchBalance / (float)Settings.SimulationsPerRound >= betlDurchThreshold) ||
+            if ((PlayerIndex == _g.GameStartingPlayerIndex && _durchBalance / (float)Settings.SimulationsPerRound >= durchThreshold) ||
                 (PlayerIndex != _g.GameStartingPlayerIndex && _durchBalance == Settings.SimulationsPerRound))
             {
                 bid |= bidding.Bids & Hra.Durch;
             }
             //betla flekuju jen pokud jsem volil sam betla a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem nevolil a v simulacich ani jednou nevysel            
-            if ((PlayerIndex == _g.GameStartingPlayerIndex && _betlBalance / (float)Settings.SimulationsPerRound >= betlDurchThreshold) ||
+            if ((PlayerIndex == _g.GameStartingPlayerIndex && _betlBalance / (float)Settings.SimulationsPerRound >= betlThreshold) ||
                 (PlayerIndex != _g.GameStartingPlayerIndex && _betlBalance == Settings.SimulationsPerRound))
             {
                 bid |= bidding.Bids & Hra.Betl;
             }
+            DebugInfo.TotalRuleCount = Settings.SimulationsPerRound;
+            DebugInfo.Rule = bid.ToString();
+            var allChoices = new List<RuleDebugInfo>();
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = Hra.Hra.ToString(),
+                RuleCount = _gamesBalance,
+                TotalRuleCount = Settings.SimulationsPerRound
+            });
+            if ((bid & Hra.Hra) != 0)
+            {
+                DebugInfo.RuleCount = _gamesBalance;
+            }
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = (Hra.Hra | Hra.Sedma).ToString(),
+                RuleCount = _sevensBalance,
+                TotalRuleCount = Settings.SimulationsPerRound
+            });
+            if ((bid & Hra.Sedma) != 0)
+            {
+                DebugInfo.RuleCount = _sevensBalance;
+            }
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = Hra.Kilo.ToString(),
+                RuleCount = _hundredsBalance,
+                TotalRuleCount = Settings.SimulationsPerRound
+            });
+            if ((bid & Hra.Kilo) != 0)
+            {
+                DebugInfo.RuleCount = _hundredsBalance;
+            }
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = Hra.Betl.ToString(),
+                RuleCount = _betlBalance,
+                TotalRuleCount = Settings.SimulationsPerRound
+            });
+            if ((bid & Hra.Betl) != 0)
+            {
+                DebugInfo.RuleCount = _betlBalance;
+            }
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = Hra.Durch.ToString(),
+                RuleCount = _durchBalance,
+                TotalRuleCount = Settings.SimulationsPerRound
+            });
+            if ((bid & Hra.Durch) != 0)
+            {
+                DebugInfo.RuleCount = _durchBalance;
+            }
+            DebugInfo.AllChoices = allChoices.OrderByDescending(i => i.RuleCount).ToArray();
+
             return bid;
         }
 
@@ -750,6 +825,27 @@ namespace Mariasek.Engine.New
         {
             Card cardToPlay = null;
 
+            //!!! v cardRules jsou ruly mockrat
+            //spravne mam mit pro kazdou kartu max. tolik rulu kolik je simulaci
+            var cardRules = new Dictionary<Card, List<AiRule>>();
+            var cards = cardScores.Values.SelectMany(i => i).SelectMany(i => i.ToplevelRuleDictionary.Values).Distinct();
+            foreach (var card in cards)
+            {
+                var rules = cardScores.Values.SelectMany(i => i)                                    //pro vsechny karty vezmi v kazde simulaci jedno pravidlo pro tuto kartu
+                                             .Select(i => i.ToplevelRuleDictionary
+                                                               .Where(j => j.Value == card)
+                                                               .OrderByDescending(j => j.Key.Order)
+                                                               .Select(j => j.Key)
+                                                               .FirstOrDefault())
+                                             .Where(i => i != null)
+                                             .ToList();
+                cardRules.Add(card, rules);
+            }
+            cardScores.ToDictionary(k => k.Key, v => cardScores.Values.SelectMany(i => 
+                                                            i.Select(j => 
+                                                                j.ToplevelRuleDictionary.Where(k => k.Value == v.Key)
+                                                                    .Select(k => k.Key).FirstOrDefault()))
+                                                                    .Where(k => k != null).Distinct().ToList());
             _log.InfoFormat("Cards to choose from: {0}", cardScores.Count);
             var totalCount = cardScores.Sum(i => i.Value.Count);
 
@@ -763,12 +859,17 @@ namespace Mariasek.Engine.New
                     ? i.Score[(PlayerIndex + 1)%Game.NumPlayers] + i.Score[(PlayerIndex + 2)%Game.NumPlayers]
                     : i.Score[opponent]).First();
 
-                _log.InfoFormat("{0}: {1} times ({2:0}%) max. score: {3}/{4}/{5} avg. score {6:0}/{7:0}/{8:0}",
-                    cardScore.Key, cardScore.Value.Count, cardScore.Value.Count/(float) totalCount*100,
+                _log.InfoFormat("max. score: {0}/{1}/{2} avg. score {3:0}/{4:0}/{5:0}",                    
                     maxScores.Score[0], maxScores.Score[1], maxScores.Score[2],
                     cardScore.Value.Average(i => i.Score[0]), cardScore.Value.Average(i => i.Score[1]),
                     cardScore.Value.Average(i => i.Score[2]));
             }
+            foreach(var cardRule in cardRules)
+            {
+                var count = cardRule.Value.Count();
+                _log.InfoFormat("{0}: {1} times ({2:0}%)", cardRule.Key, count, count / (float)totalCount * 100);
+            }
+            KeyValuePair<Card, List<AiRule>> kv;
             KeyValuePair<Card, List<GameComputationResult>> kvp;
             KeyValuePair<Card, GameComputationResult> kvp2;
             bool ignoreThreshold = (_g.GameType & Hra.Kilo) != 0 && TeamMateIndex != -1;    //pokud hraju proti kilu, tak ryskuju cokoli abych snizil ztraty
@@ -776,46 +877,47 @@ namespace Mariasek.Engine.New
             switch (Settings.CardSelectionStrategy)
             {
                 case CardSelectionStrategy.MaxCount:
-                    var countOfRulesWithThreshold = cardScores.Sum(i => i.Value.Count(j => j.Rule.UseThreshold));
-                    var countOfBestRuleWithThreshold = cardScores.Select(i => i.Value.Count(j => j.Rule.UseThreshold)).OrderByDescending(i => i).FirstOrDefault();
-                    var threshold = GetRuleThreshold(singleThreshold: false);
-                    var singleThreshold = GetRuleThreshold(singleThreshold: true);
+                    var countOfBestRuleWithThreshold = cardRules.Select(i => i.Value.Count(j => j.UseThreshold)).OrderByDescending(i => i).FirstOrDefault();
+                    var threshold = GetRuleThreshold();
+
                     _log.DebugFormat("Threshold value: {0}", Settings.RuleThreshold);
-                    _log.DebugFormat("Count of all rules with a threshold: {0}", countOfRulesWithThreshold);
                     _log.DebugFormat("Count of best rule with a threshold: {0}", countOfBestRuleWithThreshold);
                     _log.DebugFormat("Ignoring threshold: {0}", ignoreThreshold);
-                    if (ignoreThreshold || (countOfRulesWithThreshold/(float) totalCount > Settings.RuleThreshold) &&
-                                           (countOfBestRuleWithThreshold / (float)totalCount > singleThreshold))
+                    if (ignoreThreshold || countOfBestRuleWithThreshold / (float) totalCount > threshold)
                     {
-                        kvp = cardScores.OrderByDescending(i => i.Value.Count)
-                            .FirstOrDefault(i => i.Value.Any(j => j.Rule.UseThreshold || ignoreThreshold));
-                        cardToPlay = kvp.Key;
-                        DebugInfo.Card = kvp.Key;
-                        DebugInfo.Rule = kvp.Value.First().Rule.Description;
-                        DebugInfo.RuleCount = kvp.Value.Count;
-                        DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count);
-                        DebugInfo.AllChoices = cardScores.Where(i => i.Value.Any(j => j.Rule.UseThreshold || ignoreThreshold))
-                                                         .OrderByDescending(i => i.Value.Count).Select(i => new RuleDebugInfo
+                        var bestRuleWithThreshold = cardRules.Where(i => i.Value.Any(j => j.UseThreshold))
+                                                                .OrderByDescending(i => i.Value.Count).FirstOrDefault();
+
+                        cardToPlay = bestRuleWithThreshold.Key;
+                        if (cardToPlay != null)
                         {
-                            Card = i.Key,
-                            Rule = string.Format("{0}: {1}", i.Value.First().CardToPlay, i.Value.First().Rule.Description),
-                            RuleCount = i.Value.Count,
-                            TotalRuleCount = DebugInfo.TotalRuleCount
-                        }).ToArray();
+                            DebugInfo.Card = bestRuleWithThreshold.Key;
+                            DebugInfo.Rule = bestRuleWithThreshold.Value.First().Description;
+                            DebugInfo.RuleCount = bestRuleWithThreshold.Value.Count;
+                            DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count); //tohle by se melo rovnat poctu simulaci
+                            DebugInfo.AllChoices = cardRules.Where(i => i.Value.Any(j => j.UseThreshold))
+                                                                .OrderByDescending(i => i.Value.Count).Select(i => new RuleDebugInfo
+                                                                {
+                                                                    Card = i.Key,
+                                                                    Rule = string.Format("{0}: {1}", i.Key, i.Value.First().Description),
+                                                                    RuleCount = i.Value.Count,
+                                                                    TotalRuleCount = DebugInfo.TotalRuleCount
+                                                                }).ToArray();
+                        }
                     }
                     if (cardToPlay == null)
                     {
                         _log.DebugFormat("Threshold condition has not been met");
-                        kvp = cardScores.OrderByDescending(i => i.Value.Count(j => !j.Rule.UseThreshold)).FirstOrDefault();
-                        cardToPlay = kvp.Key;
-                        DebugInfo.Card = kvp.Key;
-                        DebugInfo.Rule = kvp.Value.First().Rule.Description;
-                        DebugInfo.RuleCount = kvp.Value.Count;
-                        DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count);
-                        DebugInfo.AllChoices = cardScores.OrderByDescending(i => i.Value.Count(j => !j.Rule.UseThreshold)).Select(i => new RuleDebugInfo
+                        kv = cardRules.OrderByDescending(i => i.Value.Count(j => !j.UseThreshold)).FirstOrDefault();
+                        cardToPlay = kv.Key;
+                        DebugInfo.Card = kv.Key;
+                        DebugInfo.Rule = kv.Value.First().Description;
+                        DebugInfo.RuleCount = kv.Value.Count;
+                        DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count); //tohle by se melo rovnat poctu simulaci
+                        DebugInfo.AllChoices = cardRules.OrderByDescending(i => i.Value.Count(j => !j.UseThreshold)).Select(i => new RuleDebugInfo
                         {
                             Card = i.Key,
-                            Rule = string.Format("{0}: {1}", i.Value.First().CardToPlay, i.Value.First().Rule.Description),
+                            Rule = string.Format("{0}: {1}", i.Key, i.Value.First().Description),
                             RuleCount = i.Value.Count,
                             TotalRuleCount = DebugInfo.TotalRuleCount
                         }).ToArray();
@@ -823,16 +925,16 @@ namespace Mariasek.Engine.New
                     if (cardToPlay == null)
                     {
                         _log.DebugFormat("No rule without a threshold found");
-                        kvp = cardScores.OrderByDescending(i => i.Value.Count).First();
-                        cardToPlay = kvp.Key;
-                        DebugInfo.Card = kvp.Key;
-                        DebugInfo.Rule = kvp.Value.First().Rule.Description;
-                        DebugInfo.RuleCount = kvp.Value.Count;
-                        DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count);
-                        DebugInfo.AllChoices = cardScores.OrderByDescending(i => i.Value.Count).Select(i => new RuleDebugInfo
+                        kv = cardRules.OrderByDescending(i => i.Value.Count).First();
+                        cardToPlay = kv.Key;
+                        DebugInfo.Card = kv.Key;
+                        DebugInfo.Rule = kv.Value.First().Description;
+                        DebugInfo.RuleCount = kv.Value.Count;
+                        DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count); //tohle by se melo rovnat poctu simulaci
+                        DebugInfo.AllChoices = cardRules.OrderByDescending(i => i.Value.Count).Select(i => new RuleDebugInfo
                         {
                             Card = i.Key,
-                            Rule = string.Format("{0}: {1}", i.Value.First().CardToPlay, i.Value.First().Rule.Description),
+                            Rule = string.Format("{0}: {1}", i.Key, i.Value.First().Description),
                             RuleCount = i.Value.Count,
                             TotalRuleCount = DebugInfo.TotalRuleCount
                         }).ToArray();
@@ -893,19 +995,17 @@ namespace Mariasek.Engine.New
             return cardToPlay;
         }
 
-        private float GetRuleThreshold(bool singleThreshold)
+        private float GetRuleThreshold()
         {
-            var thresholds = singleThreshold ? Settings.SingleRuleThresholdForGameType : Settings.RuleThresholdForGameType;
-            var defaultThreshold = singleThreshold ? Settings.SingleRuleThreshold : Settings.RuleThreshold;
-
-            foreach (var gameType in thresholds.Keys)
+            foreach (var gameType in Settings.RuleThresholdForGameType.Keys)
             {
                 if((gameType & _g.GameType) != 0)
                 {
-                    return thresholds[gameType];
+                    return Settings.RuleThresholdForGameType[gameType];
                 }
             }
-            return defaultThreshold;
+
+            return Settings.RuleThreshold;
         }
 
         private GameComputationResult InitGameComputationResult(Hand[] hands)
@@ -1038,10 +1138,15 @@ namespace Mariasek.Engine.New
 
                 var roundStarterIndex = player1;
                 AiRule r1 = null, r2 = null, r3 = null;
+                Dictionary<AiRule, Card> ruleDictionary;
 
                 if (!firstTime || c1 == null)
                 {
-                    c1 = aiStrategy.PlayCard1(out r1);
+                    //c1 = aiStrategy.PlayCard1(out r1);
+                    ruleDictionary = aiStrategy.GetApplicableRules();
+
+                    r1 = ruleDictionary.Keys.OrderBy(i => i.Order).FirstOrDefault();
+                    c1 = ruleDictionary.OrderBy(i => i.Key.Order).Select(i => i.Value).FirstOrDefault();
 
                     aiStrategy.MyIndex = player2;
                     //aiStrategy.TeamMateIndex = TeamMateIndex == player2 ? PlayerIndex : (TeamMateIndex == -1 ? player3 : -1);
@@ -1050,12 +1155,18 @@ namespace Mariasek.Engine.New
                     {
                         result.CardToPlay = c1;
                         result.Rule = r1;
+                        result.ToplevelRuleDictionary = ruleDictionary;
                         firstTime = false;
                     }
                 }
                 if (!firstTime || c2 == null)
                 {
-                    c2 = aiStrategy.PlayCard2(c1, out r2);
+                    //c2 = aiStrategy.PlayCard2(c1, out r2);
+                    ruleDictionary = aiStrategy.GetApplicableRules2(c1);
+
+                    r2 = ruleDictionary.Keys.OrderBy(i => i.Order).FirstOrDefault();
+                    c2 = ruleDictionary.OrderBy(i => i.Key.Order).Select(i => i.Value).FirstOrDefault();
+
                     aiStrategy.MyIndex = player3;
                     //aiStrategy.TeamMateIndex = TeamMateIndex == player3 ? PlayerIndex : (TeamMateIndex == -1 ? player2 : -1);
                     aiStrategy.TeamMateIndex = aiStrategy.TeamMateIndex == player3 ? player2 : (aiStrategy.TeamMateIndex == -1 ? player1 : -1);
@@ -1063,10 +1174,15 @@ namespace Mariasek.Engine.New
                     {
                         result.CardToPlay = c2;
                         result.Rule = r2;
+                        result.ToplevelRuleDictionary = ruleDictionary;
                         firstTime = false;
                     }
                 }
-                var c3 = aiStrategy.PlayCard3(c1, c2, out r3);
+                //var c3 = aiStrategy.PlayCard3(c1, c2, out r3);
+                ruleDictionary = aiStrategy.GetApplicableRules3(c1, c2);
+
+                r3 = ruleDictionary.Keys.OrderBy(i => i.Order).FirstOrDefault();
+                var c3 = ruleDictionary.OrderBy(i => i.Key.Order).Select(i => i.Value).FirstOrDefault();
 
                 //if (c1 == null || c2 == null || c3 == null)
                 //    c3 = c3; //investigate
@@ -1090,6 +1206,7 @@ namespace Mariasek.Engine.New
                 {
                     result.CardToPlay = c3;
                     result.Rule = r3;
+                    result.ToplevelRuleDictionary = ruleDictionary;
                     firstTime = false;
                 }
                 if (aiStrategy.RoundNumber == 10 && trump.HasValue)
