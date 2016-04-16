@@ -132,7 +132,7 @@ namespace Mariasek.Console
             }
             else
             {
-                g.SaveGame(System.IO.Path.Combine(programFolder, "_konec.hra"), true);            
+                g.SaveGame(System.IO.Path.Combine(programFolder, "_konec.hra"), true);
             }
 
             return !desiredGameType.HasValue || (g.GameType & desiredGameType.Value) != 0;
@@ -147,12 +147,19 @@ namespace Mariasek.Console
 
         private static void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
         {
+            var debugInfo = g.players[e.GameStartingPlayerIndex].DebugInfo != null
+                                ? g.players[e.GameStartingPlayerIndex].DebugInfo.AllChoices
+                                : new RuleDebugInfo[0];
+            foreach (var choice in debugInfo)
+            {
+                System.Console.WriteLine("{0}: {1}x", choice.Rule, choice.RuleCount);
+            }
+            System.Console.WriteLine("{0}: {1} {2}\nTalon: {3} {4}\n", g.GameStartingPlayer.Name, e.GameType, e.TrumpCard, g.talon[0], g.talon[1]);
             for (var i = 0; i < Game.NumPlayers; i++)
             {
                 var player = g.players[(g.GameStartingPlayerIndex + i) % Game.NumPlayers];
                 System.Console.WriteLine("{0}: {1}", player.Name, new Hand(player.Hand));
             }
-            System.Console.WriteLine("{0}: {1} {2}\nTalon: {3} {4}\n", g.GameStartingPlayer.Name, e.GameType, e.TrumpCard, g.talon[0], g.talon[1]);
         }
 
         private static void BidMade(object sender, BidEventArgs e)

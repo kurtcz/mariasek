@@ -22,6 +22,7 @@ namespace Mariasek.Engine.New
     {
         public bool Cheat { get; set; }
         public CardSelectionStrategy CardSelectionStrategy { get; set; }
+        public int SimulationsPerGameType { get; set; }
         public int SimulationsPerRound { get; set; }
         public int RoundsToCompute { get; set; }
         public float RuleThreshold { get; set; }
@@ -29,6 +30,7 @@ namespace Mariasek.Engine.New
         public float[] GameThresholds { get; set; }
         public Dictionary<Hra, float[]> GameThresholdsForGameType { get; set; }
         public int MaxDoubleCount { get; set; }
+        public int SigmaMultiplier { get; set; }
 
 #if !PORTABLE
         public override string ToString()

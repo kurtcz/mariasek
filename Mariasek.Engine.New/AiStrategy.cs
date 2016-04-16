@@ -412,8 +412,44 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 8,
+                Description = "zbav se plev",
+                ChooseCard1 = () =>
+                {
+                    IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
+
+                    if (TeamMateIndex == -1)
+                    {
+                        //Hraj plivu.
+                        //Odmazeme si tim slabou kartu driv nez na ni bude moct souper namazat svoje A, X.
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&                                 //Pokud mam plivy(ani A, X ani trumf)
+                                                                !hands[MyIndex].HasA(i.Suit) &&                                 //v barve kde neznam ani A ani X
+                                                                !hands[MyIndex].HasX(i.Suit) &&
+                                                                hands[MyIndex].HasSuit(_trump) &&                               //a nejake trumfy
+                                                                ((hands[player2].Any(j => (j.Value == Hodnota.Eso ||            //a souper ma A, X v barve kterou neznam
+                                                                                         j.Value == Hodnota.Desitka) &&
+                                                                                         j.Suit != _trump &&                    //a ktera neni trumfova
+                                                                                         !hands[MyIndex].HasSuit(j.Suit) &&     
+                                                                                         hands[player2].CardCount(j.Suit) < hands[MyIndex].CardCount(_trump) &&
+                                                                                                                                //a pokud ma min tech barev nez ja trumfu
+                                                                                         (hands[player2].HasSuit(i.Suit) ||     //a navic ma jeste trumf nebo moji barvu
+                                                                                          hands[player2].HasSuit(_trump)))) ||
+                                                                 (hands[player3].Any(j => (j.Value == Hodnota.Eso ||
+                                                                                         j.Value == Hodnota.Desitka) &&
+                                                                                         j.Suit != _trump && 
+                                                                                         !hands[MyIndex].HasSuit(j.Suit) &&
+                                                                                         hands[player2].CardCount(j.Suit) < hands[MyIndex].CardCount(_trump) &&
+                                                                                         (hands[player3].HasSuit(i.Suit) ||
+                                                                                          hands[player3].HasSuit(_trump))))));
+                    }
+
+                    return cardsToPlay.ToList().RandomOneOrDefault();
+                }
+            };
+
+            yield return new AiRule()
+            {
+                Order = 9,
                 Description = "vytahnout trumfy",
-                UseThreshold = true,
                 ChooseCard1 = () =>
                 {
                     IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
@@ -423,6 +459,8 @@ namespace Mariasek.Engine.New
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&                           //pokud mam trumfy
                                                                 (hands[player2].HasSuit(_trump) ||                        //a aspon jeden ze souperu ma taky trumfy
                                                                  hands[player3].HasSuit(_trump)) &&
+                                                                hands[MyIndex].CardCount(_trump) > hands[player2].CardCount(_trump) &&  //a pokud jich mam vic nez
+                                                                hands[MyIndex].CardCount(_trump) > hands[player3].CardCount(_trump) &&  //kazdy ze souperu
                                                                 ValidCards(i, hands[player2]).All(j =>                    //a nektere moje trumfy jsou vetsi nez vsechny trumfy soupere
                                                                     ValidCards(i, j, hands[player3]).All(k =>
                                                                         Round.WinningCard(i, j, k, _trump) == i)) &&
@@ -475,7 +513,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 9,
+                Order = 10,
                 Description = "snaz se vytlacit trumf",
                 ChooseCard1 = () =>
                 {
@@ -551,7 +589,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 10,
+                Order = 11,
                 Description = "zustat ve stychu",
                 ChooseCard1 = () =>
                 {
@@ -596,7 +634,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 11,
+                Order = 12,
                 Description = "hrat dlouhou barvu (mimo A, X)",
                 ChooseCard1 = () =>
                 {
@@ -660,7 +698,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 12,
+                Order = 13,
                 Description = "hrat cokoli mimo A, X",
                 ChooseCard1 = () =>
                 {
@@ -679,7 +717,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 13,
+                Order = 14,
                 Description = "hrat cokoli",
                 ChooseCard1 = () =>
                 {

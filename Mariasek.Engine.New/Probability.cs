@@ -26,6 +26,8 @@ namespace Mariasek.Engine.New
         //private static Random r = new Random();
         private static RandomMT mt = new RandomMT((ulong)(DateTime.Now - DateTime.MinValue).TotalMilliseconds);
 
+        private List<Hand[]> generatedHands;
+
         public const int talonIndex = Game.NumPlayers;
 
         public Probability(int myIndex, int gameStarterIndex, Hand myHand, Barva? trump, List<Card> talon = null)
@@ -306,11 +308,48 @@ namespace Mariasek.Engine.New
             }
         }
 
+        public float Deviation
+        {
+            get
+            {
+                if(generatedHands == null)
+                {
+                    return float.NaN;
+                }
+
+                var differences = new List<double>();
+
+                //spocitej odchylku pro kazdou kartu
+                foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                {
+                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+                    {
+                        for(var i = 0; i < Game.NumPlayers + 1; i++)
+                        {
+                            var cardCount = generatedHands.Count(j => j[i].Any(k => k.Suit == b && k.Value == h));
+                            var cardDiffSq = (_cardProbabilityForPlayer[i][b][h] - cardCount / generatedHands.Count()) *
+                                             (_cardProbabilityForPlayer[i][b][h] - cardCount / generatedHands.Count());
+
+                            differences.Add(cardDiffSq);
+                        }
+                    }
+                }
+
+                //vrat prumernou odchulku pro vsechny karty
+                return (float)Math.Sqrt(differences.Sum(i => i) / generatedHands.Count());
+            }
+        }
+
         public IEnumerable<Hand[]> GenerateHands(int roundNumber, int roundStarterIndex, int maxGenerations)
         {
+            generatedHands = new List<Hand[]>();
             for(var i = 0; i < maxGenerations; i++)
             {
-                yield return GenerateHands(roundNumber, roundStarterIndex);
+                var hands = GenerateHands(roundNumber, roundStarterIndex);
+
+                generatedHands.Add(hands);
+
+                yield return hands;
             }
         }
 

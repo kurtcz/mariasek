@@ -71,8 +71,10 @@ function PlayerConfigToHashTable
 		'RoundsToCompute' = $xml.selectSingleNode("./parameter[@name='RoundsToCompute']/@value").get_innerXml();
 		'CardSelectionStrategy' = $xml.selectSingleNode("./parameter[@name='CardSelectionStrategy']/@value").get_innerXml();
 		'SimulationsPerRound' = $xml.selectSingleNode("./parameter[@name='SimulationsPerRound']/@value").get_innerXml();
+		'SimulationsPerGameType' = $xml.selectSingleNode("./parameter[@name='SimulationsPerGameType']/@value").get_innerXml();
 		'RuleThreshold' = $xml.selectSingleNode("./parameter[@name='RuleThreshold']/@value").get_innerXml();
 		'GameThreshold' = $xml.selectSingleNode("./parameter[@name='GameThreshold']/@value").get_innerXml();
+		'SigmaMultiplier' = $xml.selectSingleNode("./parameter[@name='SigmaMultiplier']/@value").get_innerXml();
 	}
 
 	return New-Object PSObject -Property $config
