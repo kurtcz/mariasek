@@ -355,24 +355,46 @@ namespace Mariasek.Engine.New
                 var sb = new StringBuilder();
                 if ((e.BidMade & (Hra.Hra | Hra.Kilo)) != 0)
                 {
-                    sb.AppendFormat("{0}", MultiplierToString(GameMultiplier, "Na hru vejš"));
+                    sb.AppendFormat("{0}", MultiplierToString(GameMultiplier));
                     e.BidNumber = GameMultiplier;
                 }
                 if ((e.BidMade & (Hra.Sedma | Hra.SedmaProti)) != 0)
                 {
-                    sb.AppendFormat("{0}Na sedmu vejš", sb.Length > 0 ? "\n" : "");
                     if ((e.BidMade & Hra.Sedma) != 0)
                     {
                         e.BidNumber = SevenMultiplier;
+                        if(e.BidNumber > 1)
+                        {
+                            sb.AppendFormat("{0}Na sedmu vejš", sb.Length > 0 ? "\n" : "");
+                        }
+                        else
+                        {
+                            sb.AppendFormat("{0}Flek na sedmu", sb.Length > 0 ? "\n" : "");
+                        }
                     }
                     else
                     {
                         e.BidNumber = SevenAgainstMultiplier;
+                        if (e.BidNumber > 1)
+                        {
+                            sb.AppendFormat("{0}Na sedmu vejš", sb.Length > 0 ? "\n" : "");
+                        }
+                        else
+                        {
+                            sb.AppendFormat("{0}Sedma proti", sb.Length > 0 ? "\n" : "");
+                        }
                     }
                 }
                 if ((e.BidMade & Hra.KiloProti) != 0)
                 {
-                    sb.AppendFormat("{0}Na kilo vejš", sb.Length > 0 ? "\n" : "");
+                    if (e.BidNumber > 1)
+                    {
+                        sb.AppendFormat("{0}Na kilo vejš", sb.Length > 0 ? "\n" : "");
+                    }
+                    else
+                    {
+                        sb.AppendFormat("{0}Kilo proti", sb.Length > 0 ? "\n" : "");
+                    }
                     e.BidNumber = HundredAgainstMultiplier;
                 }
                 if ((e.BidMade & (Hra.Betl | Hra.Durch)) != 0)
