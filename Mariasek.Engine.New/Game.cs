@@ -343,6 +343,10 @@ namespace Mariasek.Engine.New
 
                     rounds[stych.Kolo - 1] = r;
 
+                    players[player1].Hand.Remove(c1);
+                    players[player2].Hand.Remove(c2);
+                    players[player3].Hand.Remove(c3);
+
                     OnRoundFinished(r);
                 }
                 RoundNumber = gameData.Kolo;
@@ -352,7 +356,7 @@ namespace Mariasek.Engine.New
                 }
                 players[(GameStartingPlayerIndex + 1) % NumPlayers].Hand.Sort();
                 players[(GameStartingPlayerIndex + 2) % NumPlayers].Hand.Sort();
-                if(RoundNumber == 10)
+                if(RoundNumber == 0)
                 {
                     Rewind();
                 }

@@ -561,35 +561,36 @@ namespace Mariasek.TesterGUI
             _state = GameState.GameFinished;
             var sb = new StringBuilder();
             var baseBet = AppSettings.GetFloat("BaseBet", 1f);
-
-            if (!g.trump.HasValue)
-            {
-                sb.AppendFormat("{0} {1} {2}.",
-                    g.GameStartingPlayer.Name,
-                    (((g.GameType & Hra.Betl) != 0 && g.Results.BetlWon) || g.Results.DurchWon) ? "vyhrál" : "prohrál",
-                    g.GameType);
-            }
-            else
-            {
-                sb.AppendFormat("{0} {1} hru ({2} {3}). Skóre {4}:{5}",
-                    g.GameStartingPlayer.Name,
-                    g.Results.GameWon ? "vyhrál" : "prohrál",
-                    g.GameType, g.trump.Value.Description(), g.Results.PointsWon, g.Results.PointsLost);
-            }
-            if ((g.GameType & Hra.Sedma) != 0)
-            {
-                sb.AppendFormat("\n{0} {1} sedmu.", g.GameStartingPlayer.Name,
-                    g.Results.SevenWon ? "vyhrál" : "prohrál");
-            }
-            sb.AppendFormat("\nVyúčtování:");
-            for (var i = 0; i < Game.NumPlayers; i++)
-            {
-                sb.AppendFormat("\n{0}: {1}", g.players[i].Name,
-                    (g.Results.MoneyWon[i] * baseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
-            }
+            
+            //if (!g.trump.HasValue)
+            //{
+            //    sb.AppendFormat("{0} {1} {2}.",
+            //        g.GameStartingPlayer.Name,
+            //        (((g.GameType & Hra.Betl) != 0 && g.Results.BetlWon) || g.Results.DurchWon) ? "vyhrál" : "prohrál",
+            //        g.GameType);
+            //}
+            //else
+            //{
+            //    sb.AppendFormat("{0} {1} hru ({2} {3}). Skóre {4}:{5}",
+            //        g.GameStartingPlayer.Name,
+            //        g.Results.GameWon ? "vyhrál" : "prohrál",
+            //        g.GameType, g.trump.Value.Description(), g.Results.PointsWon, g.Results.PointsLost);
+            //}
+            //if ((g.GameType & Hra.Sedma) != 0)
+            //{
+            //    sb.AppendFormat("\n{0} {1} sedmu.", g.GameStartingPlayer.Name,
+            //        g.Results.SevenWon ? "vyhrál" : "prohrál");
+            //}
+            //sb.AppendFormat("\nVyúčtování:");
+            //for (var i = 0; i < Game.NumPlayers; i++)
+            //{
+            //    sb.AppendFormat("\n{0}: {1}", g.players[i].Name,
+            //        (g.Results.MoneyWon[i] * baseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+            //}
             _synchronizationContext.Post(_ =>
             {
-                ShowMsgLabel(sb.ToString(), false);
+                //ShowMsgLabel(sb.ToString(), false);
+                ShowMsgLabel(g.Results.ToString(), false);
                 ClearTable();
             }, null);
             CanRewind = true;

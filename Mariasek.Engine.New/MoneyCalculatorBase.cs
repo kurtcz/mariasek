@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace Mariasek.Engine.New
 {
@@ -15,12 +16,15 @@ namespace Mariasek.Engine.New
         protected Barva? _trump;
         protected Bidding _bidding;
         protected int _gameStartingPlayerIndex;
+        
+        protected string[] PlayerNames;
 
         public bool GoodGame
         {
             get { return (_gameType & Hra.Betl) == 0 && (_gameType & Hra.Durch) == 0; }
         }
 
+        public float BaseBet { get; set; }
         public Hra GameType { get { return _gameType; } }
         public int PointsWon { get; private set; }
         public int PointsLost { get; private set; }
@@ -33,7 +37,9 @@ namespace Mariasek.Engine.New
 
         public bool GameWon { get; private set; }
         public bool SevenWon { get; private set; }
+        public bool QuietSevenWon { get; private set; }
         public bool SevenAgainstWon { get; private set; }
+        public bool QuietSevenAgainstWon { get; private set; }
         public bool KilledSeven { get; private set; }
         public bool HundredWon { get; private set; }
         public bool QuietHundredWon { get; private set; }
@@ -42,22 +48,46 @@ namespace Mariasek.Engine.New
         public bool BetlWon { get; private set; }
         public bool DurchWon { get; private set; }
 
+        public int GameMoneyWon { get; protected set; }
+        public int SevenMoneyWon { get; protected set; }
+        public int QuietSevenMoneyWon { get; protected set; }
+        public int SevenAgainstMoneyWon { get; protected set; }
+        public int QuietSevenAgainstMoneyWon { get; protected set; }
+        public int KilledSevenMoneyWon { get; protected set; }
+        public int HundredMoneyWon { get; protected set; }
+        public int QuietHundredMoneyWon { get; protected set; }
+        public int HundredAgainstMoneyWon { get; protected set; }
+        public int QuietHundredAgainstMoneyWon { get; protected set; }
+        public int BetlMoneyWon { get; protected set; }
+        public int DurchMoneyWon { get; protected set; }
+
         [XmlArray]
         public int[] MoneyWon { get; protected set; }
+
+        protected CultureInfo _ci;
 
         //Default constructor for XmlSerialize purposes
         public MoneyCalculatorBase()
         {
+            PlayerNames = new[] { "Hráč1", "Hráč2", "Hráč3"};
+            BaseBet = 1f;
+            _ci = new CultureInfo("cs-CZ");
         }
 
         //vola se na konci hry
-        protected MoneyCalculatorBase(Game g)
+        protected MoneyCalculatorBase(Game g, CultureInfo ci = null)
         {
             _gameType = g.GameType;
             _trump = g.trump;
             _bidding = g.Bidding;
             _gameStartingPlayerIndex = g.GameStartingPlayerIndex;
-            
+            PlayerNames = g.players.Select(i => i.Name).ToArray();
+            BaseBet = 1f;
+
+            if(ci == null)
+            {
+                _ci = new CultureInfo("cs-CZ");
+            }
             if (GoodGame)
             {
                 var score = new int[Game.NumPlayers];

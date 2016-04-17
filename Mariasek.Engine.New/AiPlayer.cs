@@ -45,19 +45,19 @@ namespace Mariasek.Engine.New
                 RoundsToCompute = 1,
                 CardSelectionStrategy = CardSelectionStrategy.MaxCount,
                 SimulationsPerGameType = 100,
-                SimulationsPerRound = 1000,
-                RuleThreshold = 0.8f,
-                RuleThresholdForGameType = new Dictionary<Hra, float> {{ Hra.Hra, 0.8f }, { Hra.Sedma, 0.8f }, { Hra.Kilo, 0.8f }, { Hra.Betl, 0.8f }, { Hra.Durch, 0.8f }},
-                GameThresholds = new [] { 0.7f, 0.8f, 0.9f, 0.95f },
+                SimulationsPerRound = 250,
+                RuleThreshold = 0.9f,
+                RuleThresholdForGameType = new Dictionary<Hra, float> {{ Hra.Hra, 0.9f }, { Hra.Sedma, 0.9f }, { Hra.Kilo, 0.99f }, { Hra.Betl, 0.9f }, { Hra.Durch, 0.9f }},
+                GameThresholds = new [] { 0.75f, 0.8f, 0.85f, 0.9f, 0.95f },
                 GameThresholdsForGameType = new Dictionary<Hra, float[]>
                                             {
-                                                { Hra.Hra,   new[] { 0.5f, 0.7f, 0.85f, 0.95f } },
-                                                { Hra.Sedma, new[] { 0.7f, 0.8f, 0.9f, 0.95f } },
-                                                { Hra.Kilo,  new[] { 0.7f, 0.8f, 0.9f, 0.95f } },
-                                                { Hra.Betl,  new[] { 0.7f, 0.8f, 0.9f, 0.95f } },
-                                                { Hra.Durch, new[] { 0.7f, 0.8f, 0.9f, 0.95f } }
+                                                { Hra.Hra,   new[] { 0.5f, 0.65f, 0.75f, 0.85f, 0.95f } },
+                                                { Hra.Sedma, new[] { 0.75f, 0.8f, 0.85f, 0.9f, 0.95f } },
+                                                { Hra.Kilo,  new[] { 0.85f, 0.87f, 0.9f, 0.95f, 0.99f } },
+                                                { Hra.Betl,  new[] { 0.75f, 0.8f, 0.85f, 0.9f, 0.95f } },
+                                                { Hra.Durch, new[] { 0.75f, 0.8f, 0.85f, 0.9f, 0.95f } }
                                             },
-                MaxDoubleCount = 4,
+                MaxDoubleCount = 5,
                 SigmaMultiplier = 2
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);

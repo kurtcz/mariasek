@@ -101,30 +101,7 @@ namespace Mariasek.Console
             g.RoundFinished += RoundFinished;
             g.PlayGame();
 
-            if (!g.trump.HasValue)
-            {
-                System.Console.WriteLine("{0} has {1} the {2}.",
-                    g.GameStartingPlayer.Name,
-                    (((g.GameType & Hra.Betl) != 0 && g.Results.BetlWon) || g.Results.DurchWon) ? "won" : "lost",
-                    g.GameType);
-            }
-            else
-            {
-                System.Console.WriteLine("{0} has {1} the game ({2} {3}).",
-                    g.GameStartingPlayer.Name,
-                    g.Results.GameWon ? "won" : "lost",
-                    g.GameType, g.trump.Value);
-                System.Console.WriteLine("Final score: {0}:{1}", g.Results.PointsWon, g.Results.PointsLost);
-            }
-            if ((g.GameType & Hra.Sedma) != 0)
-            {
-                System.Console.WriteLine("{0} has {1} the seven.", g.GameStartingPlayer.Name, g.Results.SevenWon ? "won" : "lost");
-            }
-            for (var i = 0; i < Game.NumPlayers; i++)
-            {
-                System.Console.WriteLine("{0}: {1}", g.players[i].Name,
-                                                     g.Results.MoneyWon[i].ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
-            }            
+            System.Console.WriteLine(g.Results.ToString());
 
             if (!string.IsNullOrEmpty(resultFilename))
             {

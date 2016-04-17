@@ -118,35 +118,50 @@ namespace Mariasek.SharedClient
                     Name = "CardSelectionStrategy",
                     Value = "MaxCount"
                 });
+            _aiConfig.Add("SimulationsPerGameType", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                {
+                    Name = "SimulationsPerGameType",
+                    Value = "100"
+                });
             _aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "SimulationsPerRound",
-                    Value = "50"
+                    Value = "200"
                 });
             _aiConfig.Add("RuleThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "RuleThreshold",
-                    Value = "80"
+                    Value = "90"
                 });
-            _aiConfig.Add("SingleRuleThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("RuleThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
-                    Name = "SingleRuleThreshold",
-                    Value = "0"
-                });
-            _aiConfig.Add("SingleRuleThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "SingleRuleThreshold.Kilo",
-                    Value = "95"
+                    Name = "RuleThreshold.Kilo",
+                    Value = "99"
                 });
             _aiConfig.Add("GameThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "GameThreshold",
-                    Value = "75|85|95"
+                    Value = "75|80|85|90|95"
+                });
+            _aiConfig.Add("GameThreshold.Hra", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                {
+                    Name = "GameThreshold",
+                    Value = "50|65|75|85|95"
+                });
+            _aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                {
+                    Name = "GameThreshold",
+                    Value = "85|87|90|95|99"
                 });
             _aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "MaxDoubleCount",
-                    Value = "3"
+                    Value = "5"
+                });
+            _aiConfig.Add("SigmaMultiplier", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                {
+                    Name = "MaxDoubleCount",
+                    Value = "2"
                 });
         }
 
@@ -1044,40 +1059,13 @@ namespace Mariasek.SharedClient
         public void GameFinished(object sender, MoneyCalculatorBase results)
         {
             _state = GameState.GameFinished;
-            var sb = new StringBuilder();
-            var baseBet = 1f;
 
             Game.Money.Add(results);
             SaveHistory();
 
-            if (!g.trump.HasValue)
-            {
-                sb.AppendFormat("{0} {1} {2}.",
-                    g.GameStartingPlayer.Name,
-                    (((g.GameType & Hra.Betl) != 0 && g.Results.BetlWon) || g.Results.DurchWon) ? "vyhrál" : "prohrál",
-                    g.GameType);
-            }
-            else
-            {
-                sb.AppendFormat("{0} {1} hru ({2} {3}). Skóre {4}:{5}",
-                g.GameStartingPlayer.Name,
-                g.Results.GameWon ? "vyhrál" : "prohrál",
-                g.GameType, g.trump.Value.ToDescription(), g.Results.PointsWon, g.Results.PointsLost);
-            }
-            if ((g.GameType & Hra.Sedma) != 0)
-            {
-                sb.AppendFormat("\n{0} {1} sedmu.", g.GameStartingPlayer.Name,
-                    g.Results.SevenWon ? "vyhrál" : "prohrál");
-            }
-            sb.AppendFormat("\nVyúčtování:");
-            for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
-            {
-                sb.AppendFormat("\n{0}: {1}", g.players[i].Name,
-                    (g.Results.MoneyWon[i] * baseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
-            }
             ClearTable(true);
             _hand.UpdateHand(new Card[0]);
-            ShowMsgLabel(sb.ToString(), false);
+            ShowMsgLabel(g.Results.ToString(), false);
             _deck = g.GetDeckFromLastGame();
             SaveDeck();
         }

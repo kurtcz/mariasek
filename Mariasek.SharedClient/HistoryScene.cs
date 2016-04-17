@@ -124,7 +124,7 @@ namespace Mariasek.SharedClient
             _historyBox.Text = sb.ToString();
             _stat.Text = string.Format("Odehráno her:\n{0}\nZ toho výher:\n{1}\nPoměr: {2:N0}%\nPříště začíná:\n{3}", 
                 total, wins, ratio, 
-                (Game.MainScene.g != null)
+                (Game.MainScene.g != null && Game.MainScene.g.players != null)
                 ? Game.MainScene.g.players[(Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers].Name
                 : string.Format("Hráč {0}", (Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers + 1));
 
