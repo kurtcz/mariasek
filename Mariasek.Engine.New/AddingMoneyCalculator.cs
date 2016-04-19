@@ -166,10 +166,12 @@ namespace Mariasek.Engine.New
                 if ((_gameType & Hra.Betl) != 0)
                 {
                     BetlMoneyWon = BetlValue * _bidding.BetlDurchMultiplier * (BetlWon ? 1 : -1);
+                    money += BetlMoneyWon;
                 }
                 else
                 {
                     DurchMoneyWon = DurchValue * _bidding.BetlDurchMultiplier * (DurchWon ? 1 : -1);
+                    money += DurchMoneyWon;
                 }
             }
 
