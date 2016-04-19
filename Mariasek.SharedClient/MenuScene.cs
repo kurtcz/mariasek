@@ -77,19 +77,19 @@ namespace Mariasek.SharedClient
 
             _version = new Label(this)
             {
-                    Position = new Vector2(5, Game.VirtualScreenHeight - 15),
+                    Position = new Vector2(5, Game.VirtualScreenHeight - 34),
                     Width = 200,
-                    Height = 15,
+                    Height = 34,
                     Text = string.Format("v{0}", MariasekMonoGame.Version)
             };
             _author = new Label(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth - 405, Game.VirtualScreenHeight - 15),
-                    Width = 400,
-                    Height = 15,
-                    HorizontalAlign = HorizontalAlignment.Right,
-                    Text = "Copyright ©2016 Tomáš Němec"
-                };
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 405, Game.VirtualScreenHeight - 34),
+                Width = 400,
+                Height = 34,
+                HorizontalAlign = HorizontalAlignment.Right,
+                Text = "Copyright ©2016 Tomáš Němec"
+            };
         }
 
         private void NewGameClicked(object sender)

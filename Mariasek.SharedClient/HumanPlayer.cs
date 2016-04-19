@@ -11,6 +11,7 @@ namespace Mariasek.SharedClient
         private bool firstTimeChoosingFlavour;
         private Hra _gameType;
         private Barva _trump;
+        private Game _g;
 
         public Probability Probabilities { get; set; }
 
@@ -18,8 +19,9 @@ namespace Mariasek.SharedClient
             : base(g)
         {
             _scene = scene;
-            g.GameTypeChosen += GameTypeChosen;
-            g.CardPlayed += CardPlayed;
+            _g = g;
+            _g.GameTypeChosen += GameTypeChosen;
+            _g.CardPlayed += CardPlayed;
         }
 
         public override void Init()
@@ -27,6 +29,10 @@ namespace Mariasek.SharedClient
             _gameType = 0;
             firstTimeChoosingFlavour = true;
             Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _g.talon);
+            if (_g.GameStartingPlayerIndex != 0)
+            {
+                _scene.UpdateHand(flipCardsUp: true);
+            }
         }
 
         public override Card ChooseTrump()

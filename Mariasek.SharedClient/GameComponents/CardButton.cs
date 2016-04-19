@@ -31,6 +31,8 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
+        public bool IsFaceUp { get { return Sprite.IsVisible; } }
+
         public CardButton(GameComponent parent)
             : base(parent)
         {
@@ -194,6 +196,8 @@ namespace Mariasek.SharedClient.GameComponents
 
             return this;
         }
+
+        public override bool IsBusy { get { return Sprite.IsBusy; } }
 
         protected override void OnTouchDown(TouchLocation tl)
         {

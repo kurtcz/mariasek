@@ -41,7 +41,9 @@ namespace Mariasek.SharedClient.GameComponents
         public ManualResetEventSlim AnimationEvent { get; private set; }
         public Card Card { get; set; }
         public bool IsStraight { get; private set; }
-        public bool IsMoving { get { return _sprites.Any(i => i != null && i.IsVisible && i.IsMoving); }  }
+        public override bool IsMoving { get { return _sprites.Any(i => i != null && i.IsVisible && i.IsMoving); }  }
+        public bool SpritesBusy { get { return _sprites.Any(i => i != null && i.IsBusy); } }
+
         private Vector2 _centre;
 
         private CardButton[] _sprites = new CardButton[12];
@@ -151,7 +153,14 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     if (i < hand.Count() - cardsNotRevealed)
                     {
-                        _sprites[i].Show();
+                        if (!_sprites[i].IsVisible)
+                        {
+                            _sprites[i].Show();
+                        }
+                        else if (!_sprites[i].IsFaceUp)
+                        {
+                            _sprites[i].FlipToFront();
+                        }
                     }
                     else
                     {
@@ -271,6 +280,7 @@ namespace Mariasek.SharedClient.GameComponents
                 hh[i].Slerp(targetPosition, targetAngle, 1f, 400, 2f, 1f);
             }
             IsStraight = true;
+
             AnimationEvent.Reset();
         }
 

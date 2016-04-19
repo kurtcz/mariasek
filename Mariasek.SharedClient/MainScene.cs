@@ -750,7 +750,7 @@ namespace Mariasek.SharedClient
                 {
                     ShowMsgLabel("Vyber trumfovou kartu", false);
                     _state = GameState.ChooseTrump;
-                    UpdateHand(cardsNotRevealed: 5);
+                    UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
                 }, null);
             WaitForUIThread();
             return _cardClicked;
@@ -1072,11 +1072,21 @@ namespace Mariasek.SharedClient
 
         #endregion
 
-        private void UpdateHand(int cardsNotRevealed = 0, Card cardToHide = null)
+        public void UpdateHand(bool flipCardsUp = false, int cardsNotRevealed = 0, Card cardToHide = null)
         {
-            _hand.UpdateHand(g.players[0].Hand.ToArray(), cardsNotRevealed, cardToHide);
-            //_hand.ShowArc((float)Math.PI / 2);
-            _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
+            _hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide);
+            _hand.Invoke(() =>
+                {                        
+                    _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
+                });
+            if(flipCardsUp)
+            {
+                 _hand.WaitUntil(() => !_hand.SpritesBusy)
+                      .Invoke(() => 
+                        {
+                            _hand.UpdateHand(g.players[0].Hand.ToArray(), cardsNotRevealed, cardToHide);
+                        });
+            }
         }
 
         private void ShowBubble(int bubbleNo, string message, bool autoHide = true)
@@ -1147,7 +1157,6 @@ namespace Mariasek.SharedClient
                 _trumpLabel2.Hide();
                 _trumpLabel3.Hide();
             }
-
             _msgLabel.Hide();
         }
 
