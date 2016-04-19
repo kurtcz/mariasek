@@ -157,7 +157,7 @@ namespace Mariasek.Engine.New
                               gameStarterLastCard.Suit == g.trump.Value &&
                               gameStarterLastCard.Value == Hodnota.Sedma;
 
-                QuietHundredWon = PointsWon >= 100;
+                QuietHundredWon = PointsWon >= 100 && (_gameType & Hra.Kilo) == 0;
                 QuietHundredAgainstWon = PointsLost >= 100;
 
                 HundredWon = BasicPointsWon + MaxHlasWon >= 100;
@@ -217,7 +217,7 @@ namespace Mariasek.Engine.New
                 //Not implemented:
                 //KilledSeven
 
-                QuietHundredWon = PointsWon >= 100;
+                QuietHundredWon = PointsWon >= 100 && (_gameType & Hra.Kilo) == 0;
                 QuietHundredAgainstWon = PointsLost >= 100;
 
                 HundredWon = BasicPointsWon + MaxHlasWon >= 100;

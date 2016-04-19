@@ -269,7 +269,7 @@ namespace Mariasek.Engine.New
                 }
 
                 sb.AppendFormat("{0} {1}{2}{3}\t{4}\n", 
-                    status, gt.Description(), multiplier > 1 ? string.Format(" ({0}x flek)", MultiplierToDoubleCount(multiplier)) : string.Empty, other, 
+                    status, gt.ToString().ToLower(), multiplier > 1 ? string.Format(" ({0}x flek)", MultiplierToDoubleCount(multiplier)) : string.Empty, other, 
                     (money * BaseBet).ToString("C", _ci));
             }
             if (QuietHundredWon)
@@ -290,7 +290,7 @@ namespace Mariasek.Engine.New
             }
             if (_trump.HasValue && _trump.Value == Barva.Cerveny)
             {
-                sb.AppendFormat("V červenejch:\t{0}\n", (MoneyWon[_gameStartingPlayerIndex] * BaseBet).ToString("C", _ci));
+                sb.AppendFormat("V červenejch:\t{0}\n", (MoneyWon[_gameStartingPlayerIndex] / 2 * BaseBet).ToString("C", _ci));
             }
             for (var i = 0; i < Game.NumPlayers; i++)
             {

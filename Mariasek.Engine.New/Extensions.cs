@@ -31,7 +31,7 @@ namespace Mariasek.Engine.New
         public static string Description(this Enum value)
         {
 #if PORTABLE
-            return null;
+            return value.ToString();
 #else
             // Check for Enum that is marked with FlagAttribute
             var entries = value.ToString().Split(ENUM_SEPERATOR_CHARACTER);
