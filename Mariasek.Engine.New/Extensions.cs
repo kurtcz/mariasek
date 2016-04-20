@@ -30,20 +30,20 @@ namespace Mariasek.Engine.New
 
         public static string Description(this Enum value)
         {
-#if PORTABLE
-            return value.ToString();
-#else
             // Check for Enum that is marked with FlagAttribute
             var entries = value.ToString().Split(ENUM_SEPERATOR_CHARACTER);
             var description = new string[entries.Length];
             for (var i = 0; i < entries.Length; i++)
             {
+#if PORTABLE
+                var attributes = (DescriptionAttribute[])(value.GetType().GetTypeInfo().GetCustomAttributes(typeof(DescriptionAttribute), false).ToArray());
+#else
                 var fieldInfo = value.GetType().GetField(entries[i].Trim());
                 var attributes = (DescriptionAttribute[])fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
+#endif
                 description[i] = (attributes.Length > 0) ? attributes[0].Description : entries[i].Trim();
             }
             return String.Join(", ", description);
-#endif
         }
     }
 }

@@ -10,9 +10,16 @@ namespace Mariasek.Engine.New
 {
     public class DescriptionAttribute : Attribute
     {
+        public string Description { get; set; }
+
+        public DescriptionAttribute()
+            : this(string.Empty)
+        {
+        }
+
         public DescriptionAttribute(string description)
         {
-
+            Description = description;
         }
     }
 }
