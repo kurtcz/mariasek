@@ -612,7 +612,8 @@ namespace Mariasek.Engine.New
                 else
                 {
                     //mame flekovat betl nebo durch
-                    RunGameSimulations(bidding, _g.GameStartingPlayerIndex, false, true);
+                    //nema smysl, nic o souperovych kartach nevime
+                    //RunGameSimulations(bidding, _g.GameStartingPlayerIndex, false, true);
                 }
             }
             //Flekovani se u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah),
@@ -664,16 +665,16 @@ namespace Mariasek.Engine.New
                 bid |= bidding.Bids & Hra.KiloProti;
             }
             //durch flekuju jen pokud jsem volil sam durch a v simulacich jsem ho uhral dost casto
-            //nebo pokud jsem nevolil a v simulacich ani jednou nevysel            
+            //nebo pokud jsem nevolil a nejde teoreticky uhrat            
             if ((PlayerIndex == _g.GameStartingPlayerIndex && _durchBalance / (float)Settings.SimulationsPerGameType >= durchThreshold) ||
-                (PlayerIndex != _g.GameStartingPlayerIndex && _durchBalance == Settings.SimulationsPerGameType))
+                (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) == 4) && bidding.MaxDoubleCount == 0)
             {
                 bid |= bidding.Bids & Hra.Durch;
             }
             //betla flekuju jen pokud jsem volil sam betla a v simulacich jsem ho uhral dost casto
-            //nebo pokud jsem nevolil a v simulacich ani jednou nevysel            
+            //nebo pokud jsem nevolil a nejde teoreticky uhrat            
             if ((PlayerIndex == _g.GameStartingPlayerIndex && _betlBalance / (float)Settings.SimulationsPerGameType >= betlThreshold) ||
-                (PlayerIndex != _g.GameStartingPlayerIndex && _betlBalance == Settings.SimulationsPerGameType))
+                (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Sedma) == 4) && bidding.MaxDoubleCount == 0)
             {
                 bid |= bidding.Bids & Hra.Betl;
             }

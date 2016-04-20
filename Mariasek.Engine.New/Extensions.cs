@@ -36,7 +36,8 @@ namespace Mariasek.Engine.New
             for (var i = 0; i < entries.Length; i++)
             {
 #if PORTABLE
-                var attributes = (DescriptionAttribute[])(value.GetType().GetTypeInfo().GetCustomAttributes(typeof(DescriptionAttribute), false).ToArray());
+                var attributes = value.GetType().GetTypeInfo().GetCustomAttributes(false)
+                                      .Select(j => j as DescriptionAttribute).ToArray();
 #else
                 var fieldInfo = value.GetType().GetField(entries[i].Trim());
                 var attributes = (DescriptionAttribute[])fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
