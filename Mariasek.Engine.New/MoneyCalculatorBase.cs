@@ -41,6 +41,7 @@ namespace Mariasek.Engine.New
         public bool SevenAgainstWon { get; private set; }
         public bool QuietSevenAgainstWon { get; private set; }
         public bool KilledSeven { get; private set; }
+        public bool KilledSevenAgainst { get; private set; }
         public bool HundredWon { get; private set; }
         public bool QuietHundredWon { get; private set; }
         public bool HundredAgainstWon { get; private set; }
@@ -54,6 +55,7 @@ namespace Mariasek.Engine.New
         public int SevenAgainstMoneyWon { get; protected set; }
         public int QuietSevenAgainstMoneyWon { get; protected set; }
         public int KilledSevenMoneyWon { get; protected set; }
+        public int KilledSevenAgainstMoneyWon { get; protected set; }
         public int HundredMoneyWon { get; protected set; }
         public int QuietHundredMoneyWon { get; protected set; }
         public int HundredAgainstMoneyWon { get; protected set; }
@@ -154,11 +156,16 @@ namespace Mariasek.Engine.New
                 QuietSevenAgainstWon = SevenAgainstWon && (_gameType & Hra.SedmaProti) == 0;
 
                 var gameStarterLastCard = GetGameStarterLastCard(finalRound, g.GameStartingPlayer);
+                var killedSeven = GetKilledSeven(finalRound);
 
-                KilledSeven = finalRound.roundWinner != g.GameStartingPlayer &&
+                KilledSeven = killedSeven &&
                               gameStarterLastCard.Suit == g.trump.Value &&
                               gameStarterLastCard.Value == Hodnota.Sedma;
 
+                KilledSevenAgainst = killedSeven &&
+                              (gameStarterLastCard.Suit != g.trump.Value ||
+                               gameStarterLastCard.Value != Hodnota.Sedma);
+                
                 QuietHundredWon = PointsWon >= 100 && (_gameType & Hra.Kilo) == 0;
                 QuietHundredAgainstWon = PointsLost >= 100;
 
@@ -184,6 +191,19 @@ namespace Mariasek.Engine.New
                 }
             }
             MoneyWon = new int[Game.NumPlayers];
+        }
+
+        private bool GetKilledSeven(Round finalRound)
+        {
+            if (!_trump.HasValue)
+            {
+                return false;
+            }
+
+            var winningCard = Round.WinningCard(finalRound.c1, finalRound.c2, finalRound.c3, _trump);
+            var finalCards = new [] { finalRound.c1, finalRound.c2, finalRound.c3 };
+
+            return winningCard.Value != Hodnota.Sedma && finalCards.Any(i => i.Suit == _trump.Value && i.Value == Hodnota.Sedma);
         }
 
         protected MoneyCalculatorBase(Game g, Bidding bidding, GameComputationResult res)

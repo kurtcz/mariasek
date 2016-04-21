@@ -95,14 +95,21 @@ namespace Mariasek.SharedClient.GameComponents
 
             foreach (var line in lines)
             {
+                FontChar fc;
+
                 foreach (char c in line)
                 {
-                    FontChar fc;
-
                     if (_characterMap.TryGetValue(c, out fc))
                     {
                         linewidth += fc.XAdvance;
                         lineheight = Math.Max(fc.Height + fc.YOffset, lineheight);
+                    }
+                }
+                if (lineheight == 0)
+                {
+                    if (_characterMap.TryGetValue('X', out fc))
+                    {
+                        lineheight = fc.Height + fc.YOffset;
                     }
                 }
                 height += lineheight + _lineSpacing;
@@ -117,7 +124,7 @@ namespace Mariasek.SharedClient.GameComponents
         public Rectangle DrawText(SpriteBatch spriteBatch, string text, Vector2 position, Color color, Alignment alignment = Alignment.TopLeft)
         {
             var lineSeparators = new [] { '\r', '\n' };
-            var lines = text.Split(lineSeparators, StringSplitOptions.RemoveEmptyEntries);
+            var lines = text.Split(lineSeparators);
             var lineHeight = 0;
             var dx = position.X;
             var dy = position.Y;
@@ -136,6 +143,7 @@ namespace Mariasek.SharedClient.GameComponents
             foreach (var line in lines)
             {
                 var lineRect = GetBoundsRect(new [] { line });
+                FontChar fc;
 
                 if (((HorizontalAlignment)alignment & HorizontalAlignment.Right) != 0)
                 {
@@ -147,8 +155,6 @@ namespace Mariasek.SharedClient.GameComponents
                 }
                 foreach (char c in line)
                 {
-                    FontChar fc;
-
                     if (_characterMap.TryGetValue(c, out fc))
                     {
                         var sourceRectangle = new Rectangle(fc.X, fc.Y, fc.Width, fc.Height);
@@ -167,6 +173,13 @@ namespace Mariasek.SharedClient.GameComponents
                         var nextTab = dx + tabWidth - remainder;
 
                         dx = nextTab;
+                    }
+                }
+                if (lineHeight == 0)
+                {
+                    if (_characterMap.TryGetValue('X', out fc))
+                    {
+                        lineHeight = fc.YOffset + fc.Height;
                     }
                 }
                 dx = position.X;

@@ -64,6 +64,8 @@ namespace Mariasek.SharedClient
         private Label _trumpLabel1, _trumpLabel2, _trumpLabel3;
         private Label[] _trumpLabels;
         private Label _msgLabel;
+        private Label _msgLabelLeft;
+        private Label _msgLabelRight;
         private TextBox _bubble1,  _bubble2,  _bubble3;
         private ManualResetEvent _bubbleEvent1, _bubbleEvent2, _bubbleEvent3;
         private ManualResetEvent[] _bubbleEvents;
@@ -336,10 +338,29 @@ namespace Mariasek.SharedClient
             { 
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle,
-                //Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f - 20),
                 Position = new Vector2(10, 60),
                 Width = (int)Game.VirtualScreenWidth - 20,
                 Height = (int)Game.VirtualScreenHeight - 120,
+                TextColor = Color.Yellow,
+                TextRenderer = Game.FontRenderers["SegoeUI40Outl"]
+            };
+            _msgLabelLeft = new Label(this)
+            { 
+                HorizontalAlign = HorizontalAlignment.Left,
+                VerticalAlign = VerticalAlignment.Middle,
+                Position = new Vector2(120, 20),
+                Width = (int)Game.VirtualScreenWidth - 240,
+                Height = (int)Game.VirtualScreenHeight - 40,
+                TextColor = Color.Yellow,
+                TextRenderer = Game.FontRenderers["SegoeUI40Outl"]
+            };
+            _msgLabelRight = new Label(this)
+            { 
+                HorizontalAlign = HorizontalAlignment.Right,
+                VerticalAlign = VerticalAlignment.Middle,
+                Position = new Vector2(120, 20),
+                Width = (int)Game.VirtualScreenWidth - 240,
+                Height = (int)Game.VirtualScreenHeight - 40,
                 TextColor = Color.Yellow,
                 TextRenderer = Game.FontRenderers["SegoeUI40Outl"]
             };
@@ -348,8 +369,8 @@ namespace Mariasek.SharedClient
             _hand.ShowArc((float)Math.PI / 2);
             _bubble1 = new TextBox(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 75, Game.VirtualScreenHeight / 2 - 100),
-                Width = 150,
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 - 100),
+                Width = 200,
                 Height = 50,
                 BackgroundColor = new Color(0x40, 0x40, 0x40),
                 TextColor = Color.Yellow,
@@ -362,7 +383,7 @@ namespace Mariasek.SharedClient
             _bubble2 = new TextBox(this)
             {
                 Position = new Vector2(50, 80),
-                Width = 150,
+                Width = 200,
                 Height = 50,
                 BackgroundColor = new Color(0x40, 0x40, 0x40),
                 TextColor = Color.Yellow,
@@ -374,8 +395,8 @@ namespace Mariasek.SharedClient
             _bubble2.Hide();
             _bubble3 = new TextBox(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 200, 80),
-                Width = 150,
+                Position = new Vector2(Game.VirtualScreenWidth - 250, 80),
+                Width = 200,
                 Height = 50,
                 BackgroundColor = new Color(0x40, 0x40, 0x40),
                 TextColor = Color.Yellow,
@@ -571,6 +592,7 @@ namespace Mariasek.SharedClient
                 _trumpCardChosen = null;
 
                 _state = GameState.NotPlaying;
+
                 ClearTable(true);
                 if(g.GameStartingPlayerIndex != 0)
                 {
@@ -1029,20 +1051,16 @@ namespace Mariasek.SharedClient
                         _cardsPlayed[lastPlayer.PlayerIndex].Show();
                     }
 
-                    if(lastPlayer.PlayerIndex == 0)
-                    {
-                        UpdateHand();
-                    }
+//                    if(lastPlayer.PlayerIndex == 0)
+//                    {
+//                        UpdateHand();
+//                    }
                     _hand.ShowArc((float)Math.PI / 2);
                 }, null);
         }
 
         public void RoundStarted(object sender, Round r)
         {
-            if (r.number == 1)
-            {
-                _synchronizationContext.Send(_ => ClearTable(true), null);
-            }
             if (r.player1.PlayerIndex != 0)
             {
                 ShowThinkingMessage();
@@ -1073,7 +1091,27 @@ namespace Mariasek.SharedClient
 
             ClearTable(true);
             _hand.UpdateHand(new Card[0]);
-            ShowMsgLabel(g.Results.ToString(), false);
+
+            //multi-line string needs to be split into two strings separated by a tab on each line
+            var leftMessage = new StringBuilder();
+            var rightMessage = new StringBuilder();
+
+            foreach (var line in g.Results.ToString().Split('\n'))
+            {
+                var tokens = line.Split('\t');
+                if (tokens.Length > 0)
+                {
+                    leftMessage.Append(tokens[0]);
+                }
+                if (tokens.Length > 1)
+                {
+                    rightMessage.Append(tokens[1]);
+                }
+                leftMessage.Append("\n");
+                rightMessage.Append("\n");
+            }
+            ShowMsgLabelLeftRight(leftMessage.ToString(), rightMessage.ToString());
+
             _deck = g.GetDeckFromLastGame();
             SaveDeck();
         }
@@ -1166,6 +1204,8 @@ namespace Mariasek.SharedClient
                 _trumpLabel3.Hide();
             }
             _msgLabel.Hide();
+            _msgLabelLeft.Hide();
+            _msgLabelRight.Hide();
         }
 
         private void ShowMsgLabel(string message, bool showButton)
@@ -1181,9 +1221,19 @@ namespace Mariasek.SharedClient
             }
         }
 
+        private void ShowMsgLabelLeftRight(string leftMessage, string rightMessage)
+        {
+            _msgLabelLeft.Text = leftMessage;
+            _msgLabelRight.Text = rightMessage;
+            _msgLabelLeft.Show();
+            _msgLabelRight.Show();
+        }
+
         public void HideMsgLabel()
         {
             _msgLabel.Hide();
+            _msgLabelLeft.Hide();
+            _msgLabelRight.Hide();
             _okBtn.Hide();
         }
 
