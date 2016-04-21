@@ -622,6 +622,23 @@ namespace Mariasek.Engine.New
             return new Deck(deck);
         }
 
+        public bool IsValidTalonCard(Card c)
+        {
+            return IsValidTalonCard(c.Value, c.Suit, trump);
+        }
+
+        public static bool IsValidTalonCard(Hodnota h, Barva b, Barva? trump)
+        {
+            if (!trump.HasValue)
+            {
+                return true;
+            }
+
+            return !(//(trump.HasValue && b == trump.Value) ||
+                     h == Hodnota.Eso ||
+                     h == Hodnota.Desitka);
+        }
+
         #endregion
 
         #region Private methods
@@ -692,6 +709,10 @@ namespace Mariasek.Engine.New
                 {
                     talon = GameStartingPlayer.ChooseTalon();
                     GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
+                    if (talon.Any(i => !IsValidTalonCard(i)))
+                    {
+                        canChooseFlavour = false;
+                    }
                 }
                 if (canChooseFlavour)
                 {
@@ -704,7 +725,14 @@ namespace Mariasek.Engine.New
                 }
                 else
                 {
-                    gameFlavour = GameFlavour.Good;
+                    if (talon.Any(i => !IsValidTalonCard(i)))
+                    {
+                        gameFlavour = GameFlavour.Bad;
+                    }
+                    else
+                    {
+                        gameFlavour = GameFlavour.Good;
+                    }
                 }
                 if(!firstTime && gameFlavour == GameFlavour.Good && GameType > Hra.Hra)
                 {

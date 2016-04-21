@@ -135,4 +135,7 @@
   <ItemGroup>
     <InterfaceDefinition Include="Launch.storyboard" />
   </ItemGroup>
+  <ItemGroup>
+    <ImageAsset Include="Resources\Images.xcassets\LaunchImage.launchimage\Contents.json" />
+  </ItemGroup>
 </Project>

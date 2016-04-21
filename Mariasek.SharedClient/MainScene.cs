@@ -595,9 +595,9 @@ namespace Mariasek.SharedClient
             switch (_state)
             {
                 case GameState.ChooseTalon:
-                    if (button.IsSelected && (_talon.Count == 2 || ((Card)button.Tag).Value == Hodnota.Eso || ((Card)button.Tag).Value == Hodnota.Desitka || ((Card)button.Tag).Suit == g.trump))
+                    if (button.IsSelected && _talon.Count == 2)
                     {
-                        //do talonu nemuzu pridat kdyz je plnej nebo pokud je to desitka, eso nebo trumf
+                        //do talonu nemuzu pridat kdyz je plnej
                         button.IsSelected = !button.IsSelected;
                         return;
                     }
@@ -612,6 +612,14 @@ namespace Mariasek.SharedClient
                         _talon.Remove(_cardClicked);
                     }
                     _okBtn.IsEnabled = _talon.Count == 2;
+                    if (_talon.Any(i => !g.IsValidTalonCard(i)))
+                    {
+                        ShowMsgLabel("Vyber si talon\nS tímto talonem musíš hrát betl nebo durch", false);                        
+                    }
+                    else
+                    {
+                        ShowMsgLabel("Vyber si talon", false);                        
+                    }
                     break;
                 case GameState.ChooseTrump:
                     if (_cardClicked == null)

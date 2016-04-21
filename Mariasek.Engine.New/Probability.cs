@@ -51,8 +51,8 @@ namespace Mariasek.Engine.New
                             _cardProbabilityForPlayer[i][b].Add(h, myHand.Any(k => k.Suit == b && k.Value == h) ? 1f : 0f);
                         }
                         else if (i == talonIndex)
-                        {
-                            if(trump.HasValue && (h == Hodnota.Eso || h == Hodnota.Desitka || (trump.HasValue && b == trump.Value)))
+                        {                            
+                            if(!Game.IsValidTalonCard(h, b, trump))
                             {
                                 //karty co nemohou byt v talonu
                                 _cardProbabilityForPlayer[i][b].Add(h, 0f);
