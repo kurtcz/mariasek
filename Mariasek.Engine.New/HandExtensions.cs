@@ -24,6 +24,34 @@ namespace Mariasek.Engine.New
             return default(TSource);
         }
 
+        public static IEnumerable<Card> Sort(this List<Card>hand, bool ascending, bool badGameSorting = false)
+        {
+            hand.Sort((c1, c2) =>
+                {
+                    var sign = ascending ? -1 : 1;
+                    int s1 = Convert.ToInt16(c1.Suit);
+                    int s2 = Convert.ToInt16(c2.Suit);
+
+                    if (s1 == s2)
+                    {
+                        if (!badGameSorting)
+                        {
+                            //normalni trideni
+                            return sign * (Convert.ToInt16(c2.Value) - Convert.ToInt16(c1.Value));
+                        }
+                        else
+                        {
+                            //betl a durch
+                            return sign * (c2.BadValue - c1.BadValue);
+                        }
+                    }
+
+                    return sign*(s1 - s2);
+                });
+
+            return hand;
+        }
+
         public static bool HasSolitaryX(this List<Card> hand, Barva suit)
         {
             return hand.Any(i => i.Value == Hodnota.Desitka && i.Suit == suit) &&
@@ -250,27 +278,7 @@ namespace Mariasek.Engine.New
 
         public void Sort(bool ascending = false, bool badGameSorting = false)
         {
-            _hand.Sort((c1, c2) =>
-                       {
-                           var sign = ascending ? -1 : 1;
-                           int s1 = Convert.ToInt16(c1.Suit);
-                           int s2 = Convert.ToInt16(c2.Suit);
-
-                           if (s1 == s2)
-                           {
-                               if (!badGameSorting)
-                               {
-                                   //normalni trideni
-                                   return sign * (Convert.ToInt16(c2.Value) - Convert.ToInt16(c1.Value));
-                               }
-                               else
-                               {
-                                   //betl a durch
-                               }
-                           }
-                           
-                           return sign*(s1 - s2);
-                       });
+            _hand.Sort(ascending, badGameSorting);
         }
 
         public override string ToString()

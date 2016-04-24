@@ -81,7 +81,23 @@ namespace Mariasek.Engine.New
 
         public Barva Suit { get; set; }
         public Hodnota Value { get; set; }
+        public int BadValue
+        {
+            get
+            {
+                if (Value == Hodnota.Desitka)
+                {
+                    return (int)(Hodnota.Devitka) + 1;
+                }
 
+                if (Value > Hodnota.Devitka)
+                {
+                    return (int)Value + 1;
+                }
+
+                return (int)Value;
+            }
+        }
         private const string CharCodes = "789sSKXA";
         public char CharCode
         {

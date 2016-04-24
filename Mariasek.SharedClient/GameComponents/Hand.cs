@@ -77,7 +77,7 @@ namespace Mariasek.SharedClient.GameComponents
             UpdateHand(hand);
         }
 
-        public void UpdateHand(Card[] hand, int cardsNotRevealed = 0, Card cardToHide = null)
+        public void UpdateHand(IList<Card> hand, int cardsNotRevealed = 0, Card cardToHide = null)
         {
             var cardStrings = new StringBuilder();
 
@@ -282,6 +282,21 @@ namespace Mariasek.SharedClient.GameComponents
             IsStraight = true;
 
             AnimationEvent.Reset();
+        }
+
+        public void SortHand(List<Card> unsorted)
+        {
+            foreach (var sprite in _sprites)
+            {
+                var n = unsorted.IndexOf(sprite.Tag as Card);
+
+                if (n < 0)
+                {
+                    throw new IndexOutOfRangeException();
+                }
+                sprite.Position = _sprites[n].Position;
+            }
+            ShowStraight((int)Game.VirtualScreenWidth - 20);
         }
 
         public override void Update(GameTime gameTime)

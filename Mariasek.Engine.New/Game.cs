@@ -260,8 +260,8 @@ namespace Mariasek.Engine.New
                 players[(GameStartingPlayer.PlayerIndex + 2) % NumPlayers].Hand.Add(deck.TakeOne());
             }
             //players[GameStartingPlayerIndex].Hand.Sort();   //voliciho hrace utridime pokud uz zvolil trumf
-            players[(GameStartingPlayerIndex + 1) % NumPlayers].Hand.Sort();
-            players[(GameStartingPlayerIndex + 2) % NumPlayers].Hand.Sort();
+            //players[(GameStartingPlayerIndex + 1) % NumPlayers].Hand.Sort();
+            //players[(GameStartingPlayerIndex + 2) % NumPlayers].Hand.Sort();
 
             talon = new List<Card>();
             InitPlayers();
@@ -692,7 +692,7 @@ namespace Mariasek.Engine.New
             gameTypeForPlayer[GameStartingPlayerIndex] = Hra.Hra;
             TrumpCard = GameStartingPlayer.ChooseTrump();
             trump = TrumpCard.Suit;
-            GameStartingPlayer.Hand.Sort();
+            //GameStartingPlayer.Hand.Sort();
             GameType = 0;
             talon = new List<Card>();
             while(GameType < Hra.Durch)

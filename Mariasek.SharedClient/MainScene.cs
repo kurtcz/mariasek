@@ -1133,6 +1133,19 @@ namespace Mariasek.SharedClient
                             _hand.UpdateHand(g.players[0].Hand.ToArray(), cardsNotRevealed, cardToHide);
                         });
             }
+            if(_state == GameState.ChooseTalon)
+            {
+                _hand.WaitUntil(() => !_hand.SpritesBusy)
+                     .Invoke(() =>
+                        {
+                            var unsorted = new List<Card>(g.players[0].Hand);
+
+                            g.players[0].Hand.Sort(false, (g.GameType & (Hra.Betl | Hra.Durch)) != 0);
+                            _hand.UpdateHand(g.players[0].Hand.ToArray(), 0, cardToHide);
+                            _hand.SortHand(unsorted);
+                            _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
+                        });
+            }
         }
 
         private void ShowBubble(int bubbleNo, string message, bool autoHide = true)
