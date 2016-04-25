@@ -291,11 +291,11 @@ namespace Mariasek.Engine.New
             }
             if (QuietHundredWon)
             {
-                sb.AppendFormat("Tichý kilo\t{0}\n", (QuietHundredMoneyWon * BaseBet).ToString("C", _ci));
+                sb.AppendFormat("Tichý kilo ({0} bodů)\t{1}\n", PointsWon, (QuietHundredMoneyWon * BaseBet).ToString("C", _ci));
             }
             if (QuietHundredAgainstWon)
             {
-                sb.AppendFormat("Tichý kilo proti\t{0}\n", (QuietHundredAgainstMoneyWon * BaseBet).ToString("C", _ci));
+                sb.AppendFormat("Tichý kilo proti ({0} bodů)\t{1}\n", PointsLost, (QuietHundredAgainstMoneyWon * BaseBet).ToString("C", _ci));
             }
             if (QuietSevenWon)
             {
