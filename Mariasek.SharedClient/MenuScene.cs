@@ -22,6 +22,7 @@ namespace Mariasek.SharedClient
     {
         private Button _newGameButton;
         private Button _resumeButton;
+        private Button _settingsButton;
         public ToggleButton ShuffleBtn;
         private Button _historyBtn;
         private Label _version;
@@ -42,7 +43,7 @@ namespace Mariasek.SharedClient
 
             _newGameButton = new Button(this)
                 {
-                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 120),
+                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 140),
                     Width = 200,
                     Height = 50,
                     Text = "Nová hra"
@@ -50,22 +51,30 @@ namespace Mariasek.SharedClient
             _newGameButton.Click += NewGameClicked;
             _resumeButton = new Button(this)
                 {
-                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 60),
+                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 80),
                     Width = 200,
                     Height = 50,
                     Text = "Zpět do hry"
                 };
             _resumeButton.Click += ResumeClicked;
+            _settingsButton = new Button(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 20),
+                    Width = 200,
+                    Height = 50,
+                    Text = "Nastavení"
+                };
+            _settingsButton.Click += SettingsClicked;
             ShuffleBtn = new ToggleButton(this)
                 {
-                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f),
+                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f + 40),
                     Width = 200,
                     Height = 50,
                     Text = "Zamíchat karty"
                 };
             _historyBtn = new Button(this)
                 {
-                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f + 60),
+                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f + 100),
                     Width = 200,
                     Height = 50,
                     Text = "Historie"
@@ -88,7 +97,7 @@ namespace Mariasek.SharedClient
                 Width = 400,
                 Height = 34,
                 HorizontalAlign = HorizontalAlignment.Right,
-                Text = "Copyright ©2016 Tomáš Němec"
+                Text = "©2016 Tomáš Němec"
             };
         }
 
@@ -101,6 +110,11 @@ namespace Mariasek.SharedClient
         private void ResumeClicked(object sender)
         {
             Game.MainScene.SetActive();
+        }
+            
+        private void SettingsClicked(object sender)
+        {
+            Game.SettingsScene.SetActive();
         }
 
         private void HistoryClicked(object sender)

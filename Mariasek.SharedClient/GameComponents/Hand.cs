@@ -292,7 +292,8 @@ namespace Mariasek.SharedClient.GameComponents
 
                 if (n < 0)
                 {
-                    throw new IndexOutOfRangeException();
+                    //throw new IndexOutOfRangeException();
+                    continue;
                 }
                 sprite.Position = _sprites[n].Position;
             }

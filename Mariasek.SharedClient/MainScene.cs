@@ -79,6 +79,7 @@ namespace Mariasek.SharedClient
         private SynchronizationContext _synchronizationContext;
         private CancellationTokenSource _cancellationTokenSource;
         private readonly AutoResetEvent _evt = new AutoResetEvent(false);
+        private bool _canSort;
         private int _aiMessageIndex;
         public int CurrentStartingPlayerIndex = -1;
         private Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
@@ -88,8 +89,9 @@ namespace Mariasek.SharedClient
         private string _deckFilePath = Path.Combine (
             Environment.GetFolderPath (Environment.SpecialFolder.Personal),
             "Mariasek.deck");
-
+        
         private GameState _state;
+        private GameSettings _settings;
         private volatile Bidding _bidding;
         private volatile Hra _gameTypeChosen;
         private volatile GameFlavour _gameFlavourChosen;
@@ -165,6 +167,7 @@ namespace Mariasek.SharedClient
                     Name = "MaxDoubleCount",
                     Value = "2"
                 });
+            Game.SettingsScene.SettingsChanged += SettingsChanged;
         }
 
         /// <summary>
@@ -440,11 +443,11 @@ namespace Mariasek.SharedClient
             kiloBtn.Hide();
 
             LoadHistory();
+            Game.SettingsScene.LoadGameSettings(false);
 
             //LightShader = Game.Content.Load<Texture2D>("Spotlight");
             Background = Game.Content.Load<Texture2D>("wood2");
             ClearTable(true);
-
         }
 
         public void LoadHistory()
@@ -596,8 +599,11 @@ namespace Mariasek.SharedClient
                 ClearTable(true);
                 if(g.GameStartingPlayerIndex != 0)
                 {
+                    g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, false);
                     ShowThinkingMessage();
                 }
+                _canSort = g.GameStartingPlayerIndex != 0;
+
                 g.PlayGame(_cancellationTokenSource.Token);
             },  _cancellationTokenSource.Token);
         }
@@ -1146,13 +1152,31 @@ namespace Mariasek.SharedClient
                 _hand.WaitUntil(() => !_hand.SpritesBusy)
                      .Invoke(() =>
                         {
-                            var unsorted = new List<Card>(g.players[0].Hand);
-
-                            g.players[0].Hand.Sort(false, (g.GameType & (Hra.Betl | Hra.Durch)) != 0);
-                            _hand.UpdateHand(g.players[0].Hand.ToArray(), 0, cardToHide);
-                            _hand.SortHand(unsorted);
-                            _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
+                            _canSort = true;
+                            SortHand(cardToHide);
                         });
+            }
+        }
+
+        public void SettingsChanged(object sender, SettingsChangedEventArgs e)
+        {
+            _settings = e.Settings;
+            SortHand(null);
+        }
+
+        public void SortHand(Card cardToHide = null)
+        {
+            if (_canSort)
+            {
+                var unsorted = new List<Card>(g.players[0].Hand);
+
+                if (_settings.SortMode != SortMode.None)
+                {
+                    g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, (g.GameType & (Hra.Betl | Hra.Durch)) != 0);
+                }
+                _hand.UpdateHand(g.players[0].Hand.ToArray(), 0, cardToHide);
+                _hand.SortHand(unsorted);
+                _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
             }
         }
 
