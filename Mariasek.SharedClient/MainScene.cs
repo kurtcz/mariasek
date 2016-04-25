@@ -768,6 +768,9 @@ namespace Mariasek.SharedClient
                     (kiloBtn.IsSelected
                         ? (Hra)kiloBtn.Tag
                         : 0));
+            flekBtn.IsSelected = false;
+            sedmaBtn.IsSelected = false;
+            kiloBtn.IsSelected = false;
         }
 
         #region HumanPlayer methods
