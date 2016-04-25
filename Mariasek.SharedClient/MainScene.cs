@@ -860,7 +860,7 @@ namespace Mariasek.SharedClient
             WaitHandle.WaitAll(_bubbleEvents);
             _synchronizationContext.Send(_ =>
                 {
-                    UpdateHand(cardToHide: _trumpCardChosen);
+                    UpdateHand();
                 }, null);
             _hand.AnimationEvent.Wait();
             _synchronizationContext.Send(_ =>
@@ -984,7 +984,12 @@ namespace Mariasek.SharedClient
                         //imgs[e.GameStartingPlayerIndex].Texture = Game.CardTextures;
                         imgs[e.GameStartingPlayerIndex].Sprite.SpriteRectangle = e.TrumpCard.ToTextureRect();
                         imgs[e.GameStartingPlayerIndex].ShowBackSide();
-                        imgs[e.GameStartingPlayerIndex].FlipToFront();
+                        imgs[e.GameStartingPlayerIndex].FlipToFront()
+                                                       .Wait(2000)
+                            .Invoke(() => {
+                                imgs[e.GameStartingPlayerIndex].Hide();
+                                UpdateHand();
+                            });
                     }
                     else if(e.GameStartingPlayerIndex == 0)
                     {
@@ -1003,7 +1008,7 @@ namespace Mariasek.SharedClient
 
         public void BidMade(object sender, BidEventArgs e)
         {
-            UpdateHand(cardToHide: _trumpCardChosen);
+            //UpdateHand(cardToHide: _trumpCardChosen);
             ShowBubble(e.Player.PlayerIndex, e.Description);
             if(e.Player.PlayerIndex != 2)
             {
