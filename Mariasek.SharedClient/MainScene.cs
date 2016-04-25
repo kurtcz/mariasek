@@ -1162,6 +1162,7 @@ namespace Mariasek.SharedClient
         {
             _settings = e.Settings;
             SortHand(null);
+            SoundEffect.MasterVolume = _settings.SoundEnabled ? 1f : 0f;
         }
 
         public void SortHand(Card cardToHide = null)

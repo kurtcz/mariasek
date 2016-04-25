@@ -11,7 +11,14 @@ namespace Mariasek.SharedClient
 
     public class GameSettings
     {
+        public bool SoundEnabled { get; set; }
         public SortMode SortMode { get; set; }
+
+        public GameSettings()
+        {
+            SoundEnabled = true;
+            SortMode = SortMode.Ascending;
+        }
     }
 }
 

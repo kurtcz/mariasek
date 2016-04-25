@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Storage;
 using Microsoft.Xna.Framework.Input;
@@ -36,6 +37,10 @@ namespace Mariasek.SharedClient
 		public readonly float VirtualScreenWidth = 800;
         public readonly float VirtualScreenHeight = 480;
 		public Matrix ScaleMatrix;
+
+        public SoundEffect ClickSound { get; private set; }
+        public SoundEffect OnSound { get; private set; }
+        public SoundEffect OffSound { get; private set; }
 
         public List<Mariasek.Engine.New.MoneyCalculatorBase> Money = new List<Mariasek.Engine.New.MoneyCalculatorBase>();
 		public MariasekMonoGame ()
@@ -158,6 +163,9 @@ namespace Mariasek.SharedClient
             {
                 Restarted += kvp.Value.GameRestarted;
             }
+            ClickSound = Content.Load<SoundEffect>("click");
+            OnSound = Content.Load<SoundEffect>("on");
+            OffSound = Content.Load<SoundEffect>("off");
 
 //            TestScene = new TestScene(this);
 //            TestScene.Initialize();

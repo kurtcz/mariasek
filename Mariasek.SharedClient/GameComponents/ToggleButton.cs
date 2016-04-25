@@ -35,9 +35,17 @@ namespace Mariasek.SharedClient.GameComponents
             
         protected override void OnTouchDown(TouchLocation tl)
         {
-            base.OnTouchDown(tl);
-
             IsSelected = !IsSelected;
+            if (IsSelected)
+            {
+                ClickSound = Game.OnSound;
+            }
+            else
+            {
+                ClickSound = Game.OffSound;
+            }
+
+            base.OnTouchDown(tl);
         }
     }
 }

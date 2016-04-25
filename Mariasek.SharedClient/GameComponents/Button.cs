@@ -163,6 +163,7 @@ namespace Mariasek.SharedClient.GameComponents
         protected override void OnClick()
         {
             _buttonShape.BackgroundColors[0] = Color.LightGreen;
+            ClickSound.Play();
             base.OnClick();
         }
 

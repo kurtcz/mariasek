@@ -131,6 +131,9 @@
     <Content Include="Content\LuckiestGuy32Outl_1.png" />
     <Content Include="Content\LuckiestGuy32Outl_2.png" />
     <Content Include="Content\wood2.jpg" />
+    <Content Include="Content\click.wav" />
+    <Content Include="Content\off.wav" />
+    <Content Include="Content\on.wav" />
   </ItemGroup>
   <ItemGroup>
     <InterfaceDefinition Include="Launch.storyboard" />

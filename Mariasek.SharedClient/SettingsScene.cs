@@ -21,8 +21,10 @@ namespace Mariasek.SharedClient
         private string _settingsFilePath = Path.Combine (
             Environment.GetFolderPath (Environment.SpecialFolder.Personal),
             "Mariasek.settings");
-        
+
+        private Label _sounds;
         private Label _handSorting;
+        private ToggleButton _soundBtn;
         private ToggleButton _ascSortBtn;
         private ToggleButton _descSortBtn;
         private ToggleButton _noSortBtn;
@@ -54,9 +56,27 @@ namespace Mariasek.SharedClient
             base.Initialize();
 
             LoadGameSettings();
-            _handSorting = new Label(this)
+            _sounds = new Label(this)
             {
                 Position = new Vector2(10, 60),
+                Width = (int)Game.VirtualScreenWidth / 2 - 20,
+                Height = 50,
+                Text = "Zvuk",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _soundBtn = new ToggleButton(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 260, 60),
+                Width = 120,
+                Height = 50,
+                Text = _settings.SoundEnabled ? "Zapnutý" : "Vypnutý",
+                IsSelected = _settings.SoundEnabled
+            };
+            _soundBtn.Click += SoundBtnClick;
+            _handSorting = new Label(this)
+            {
+                Position = new Vector2(10, 120),
                 Width = (int)Game.VirtualScreenWidth / 2 - 20,
                 Height = 50,
                 Text = "Řadit karty",
@@ -65,7 +85,7 @@ namespace Mariasek.SharedClient
             };
             _ascSortBtn = new ToggleButton(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 390, 60),
+                Position = new Vector2(Game.VirtualScreenWidth - 390, 120),
                 Width = 120,
                 Height = 50,
                 Text = "Vzestupně",
@@ -74,7 +94,7 @@ namespace Mariasek.SharedClient
             _ascSortBtn.Click += SortBtnClick;
             _descSortBtn = new ToggleButton(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 260, 60),
+                Position = new Vector2(Game.VirtualScreenWidth - 260, 120),
                 Width = 120,
                 Height = 50,
                 Text = "Sestupně",
@@ -83,7 +103,7 @@ namespace Mariasek.SharedClient
             _descSortBtn.Click += SortBtnClick;
             _noSortBtn = new ToggleButton(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 130, 60),
+                Position = new Vector2(Game.VirtualScreenWidth - 130, 120),
                 Width = 120,
                 Height = 50,
                 Text = "Vůbec",
@@ -101,6 +121,16 @@ namespace Mariasek.SharedClient
 
             Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;
+            OnSettingsChanged();
+        }
+
+        void SoundBtnClick (object sender)
+        {
+            var btn = sender as ToggleButton;
+
+            _settings.SoundEnabled = btn.IsSelected;
+            _soundBtn.Text = _settings.SoundEnabled ? "Zapnutý" : "Vypnutý";
+            SaveGameSettings();
             OnSettingsChanged();
         }
 

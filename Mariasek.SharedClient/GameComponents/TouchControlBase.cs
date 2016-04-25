@@ -27,11 +27,13 @@ namespace Mariasek.SharedClient.GameComponents
         private bool _touchHeld;
 
         public bool IsClicked { get; private set; }
+        public SoundEffect ClickSound { get; set; }
 
         public TouchControlBase(GameComponent parent)
             : base(parent)
         {
             // TODO: Construct any child components here
+            ClickSound = Game.ClickSound;
         }
 
         /// <summary>
