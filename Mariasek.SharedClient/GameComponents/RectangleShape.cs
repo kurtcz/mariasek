@@ -178,8 +178,8 @@ namespace Mariasek.SharedClient.GameComponents
         {
             if (backgroundColors == null || backgroundColors.Count == 0) throw new ArgumentException("Must define at least one background color (up to four).");
             if (borderColors == null || borderColors.Count == 0) throw new ArgumentException("Must define at least one border color (up to three).");
-            if (borderRadius < 1) throw new ArgumentException("Must define a border radius (rounds off edges).");
-            if (borderThickness < 1) throw new ArgumentException("Must define border thikness.");
+            //if (borderRadius < 1) throw new ArgumentException("Must define a border radius (rounds off edges).");
+            //if (borderThickness < 1) throw new ArgumentException("Must define border thikness.");
             if (borderThickness + borderRadius > height / 2 || borderThickness + borderRadius > width / 2) throw new ArgumentException("Border will be too thick and/or rounded to fit on the texture.");
             if (borderShadow > borderRadius) throw new ArgumentException("Border shadow must be lesser in magnitude than the border radius (suggeted: shadow <= 0.25 * radius).");
 

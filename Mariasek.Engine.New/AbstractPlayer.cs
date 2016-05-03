@@ -48,7 +48,17 @@ namespace Mariasek.Engine.New
         public abstract GameFlavour ChooseGameFlavour();
         public abstract Hra ChooseGameType(Hra validGameTypes);
         public abstract Hra GetBidsAndDoubles(Bidding bidding);
-        
+
+        public delegate void GameComputationProgressEventHandler(object sender, GameComputationProgressEventArgs e);
+        public event GameComputationProgressEventHandler GameComputationProgress;
+        protected virtual void OnGameComputationProgress(GameComputationProgressEventArgs e)
+        {
+            if (GameComputationProgress != null)
+            {
+                GameComputationProgress(this, e);
+            }
+        }
+
         /// <summary>
         /// This method will be called before the 1st round has been played. Override this method to initialize the player's ai model.
         /// </summary>

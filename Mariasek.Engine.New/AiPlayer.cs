@@ -384,7 +384,8 @@ namespace Mariasek.Engine.New
             var gameComputationResults = new ConcurrentQueue<GameComputationResult>();
             var durchComputationResults = new ConcurrentQueue<GameComputationResult>();
             var betlComputationResults = new ConcurrentQueue<GameComputationResult>();
-
+            var totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
+                                       (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
             //pokud volim hru tak se ted rozhoduju jaky typ hry hrat (hra, betl, durch)
             //pokud nevolim hru, tak bud simuluju betl a durch nebo konkretni typ hry
             //tak ci tak nevim co je/bude v talonu
@@ -397,6 +398,8 @@ namespace Mariasek.Engine.New
                                 : Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType);
                 //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
                 var opt = new ParallelOptions { MaxDegreeOfParallelism = 1 };
+                var progress = 0;
+
                 Parallel.ForEach(source.ToArray(), opt, hands =>
                 {
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
@@ -404,10 +407,14 @@ namespace Mariasek.Engine.New
                     // to ?? vypada chybne
                     var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : Hra.Sedma, 10, 1); 
                     gameComputationResults.Enqueue(gameComputationResult);
+                    
+                    var val = Interlocked.Increment(ref progress);
+                    OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = totalGameSimulations});
                 });
             }
             if(simulateBadGames)
             {
+                var progress = 0;
                 //nasimuluj durchy
                 var source = Settings.Cheat
                                 ? new[] { GetPlayersHandsAndTalon() }
@@ -419,6 +426,9 @@ namespace Mariasek.Engine.New
 
                     var durchComputationResult = ComputeGame(hands, null, null, null, Hra.Durch, 10, 1, true);
                     durchComputationResults.Enqueue(durchComputationResult);
+
+                    var val = Interlocked.Increment(ref progress);
+                    OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = totalGameSimulations});
                 });
                 //nasimuluj betly
                 source = Settings.Cheat
@@ -431,6 +441,9 @@ namespace Mariasek.Engine.New
 
                     var betlComputationResult = ComputeGame(hands, null, null, null, Hra.Betl, 10, 1, true);
                     betlComputationResults.Enqueue(betlComputationResult);
+
+                    var val = Interlocked.Increment(ref progress);
+                    OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = totalGameSimulations});
                 });
             }
 
@@ -807,6 +820,7 @@ namespace Mariasek.Engine.New
                     Math.Max(Probabilities.PossibleCombinations((PlayerIndex + 1) % Game.NumPlayers, r.number),
                              Probabilities.PossibleCombinations((PlayerIndex + 2) % Game.NumPlayers, r.number)));
                 var source = Probabilities.GenerateHands(_g.RoundNumber, roundStarterIndex, simulations);
+                var progress = 0;
                 //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), (hands, loopState) =>
                 Parallel.ForEach(source, (hands, loopState) =>
                 {
@@ -821,6 +835,9 @@ namespace Mariasek.Engine.New
                     {
                         loopState.Stop();
                     }
+
+                    var val = Interlocked.Increment(ref progress);
+                    OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = simulations});
                 });
                 if (canSkipSimulations)
                 {

@@ -66,6 +66,8 @@ namespace Mariasek.SharedClient
         private Label _msgLabel;
         private Label _msgLabelLeft;
         private Label _msgLabelRight;
+        private ProgressIndicator _progress1, _progress2;
+        private ProgressIndicator[] _progressBars;
         private TextBox _bubble1,  _bubble2,  _bubble3;
         private ManualResetEvent _bubbleEvent1, _bubbleEvent2, _bubbleEvent3;
         private ManualResetEvent[] _bubbleEvents;
@@ -442,6 +444,20 @@ namespace Mariasek.SharedClient
             kiloBtn.Click += BidButtonClicked;
             kiloBtn.Hide();
 
+            _progress1 = new ProgressIndicator(this)
+            {
+                Position = new Vector2(0, 0),
+                Width = 150,
+                Height = 6
+            };
+            _progress2 = new ProgressIndicator(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 150, 0),
+                Width = 150,
+                Height = 6
+            };
+            _progressBars = new [] { _progress1, _progress2 };
+
             LoadHistory();
             Game.SettingsScene.LoadGameSettings(false);
 
@@ -591,6 +607,10 @@ namespace Mariasek.SharedClient
                 g.RoundStarted += RoundStarted;
                 g.RoundFinished += RoundFinished;
                 g.GameFinished += GameFinished;
+                g.GameException += GameException;
+                g.players[1].GameComputationProgress += GameComputationProgress;
+                g.players[2].GameComputationProgress += GameComputationProgress;
+
                 _firstTimeGameFlavourChosen = true;
                 _trumpCardChosen = null;
 
@@ -606,6 +626,19 @@ namespace Mariasek.SharedClient
 
                 g.PlayGame(_cancellationTokenSource.Token);
             },  _cancellationTokenSource.Token);
+        }
+
+        void GameException (object sender, GameExceptionEventArgs e)
+        {
+            ShowMsgLabel(string.Format("Chyba:\n{0}\n{1}", e.e.Message, e.e.StackTrace), false);
+        }
+
+        public void GameComputationProgress(object sender, GameComputationProgressEventArgs e)
+        {
+            var player = sender as AbstractPlayer;
+
+            _progressBars[player.PlayerIndex - 1].Progress = e.Current;
+            _progressBars[player.PlayerIndex - 1].Max = e.Max;
         }
 
         public void MenuBtnClicked(object sender)

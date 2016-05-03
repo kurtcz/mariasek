@@ -93,6 +93,16 @@ namespace Mariasek.Engine.New
             }
         }
 
+        public delegate void GameExceptionEventHandler(object sender, GameExceptionEventArgs e);
+        public event GameExceptionEventHandler GameException;
+        protected virtual void OnGameException(GameExceptionEventArgs e)
+        {
+            if (GameException != null)
+            {
+                GameException(this, e);
+            }
+        }
+
         public delegate void BidMadeEventHandler(object sender, BidEventArgs e);
         public event BidMadeEventHandler BidMade;
         public virtual void OnBidMade(BidEventArgs e)
@@ -533,6 +543,7 @@ namespace Mariasek.Engine.New
             catch (Exception ex)
             {
                 _log.Error("Exception in PlayGame()", ex);
+                OnGameException(new GameExceptionEventArgs { e = ex });
 #if !PORTABLE
                 SaveGame(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss")));
 #endif

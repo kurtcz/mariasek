@@ -40,5 +40,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)GameSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SettingsScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SettingsChangedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ProgressIndicator.cs" />
   </ItemGroup>
 </Project>
