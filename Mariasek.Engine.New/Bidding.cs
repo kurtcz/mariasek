@@ -236,24 +236,24 @@ namespace Mariasek.Engine.New
                     if ((_g.GameType & Hra.Hra) != 0 &&
                         (_g.GameType & Hra.Sedma) != 0)
                     {
-                        e.Description = string.Format("Sedma {0}", _g.trump.Value.Description());
+                        e.Description = string.Format("Sedma {0}", _g.trump.Value.ToDescription());
                     }
                     else if ((_g.GameType & Hra.Kilo) != 0 &&
                                 (_g.GameType & Hra.Sedma) != 0)
                     {
-                        e.Description = string.Format("Stosedm {0}", _g.trump.Value.Description());
+                        e.Description = string.Format("Stosedm {0}", _g.trump.Value.ToDescription());
                     }
                     else if ((_g.GameType & Hra.Kilo) != 0)
                     {
-                        e.Description = string.Format("Kilo {0}", _g.trump.Value.Description());
+                        e.Description = string.Format("Kilo {0}", _g.trump.Value.ToDescription());
                     }
                     else if ((_g.GameType & Hra.Sedma) != 0)
                     {
-                        e.Description = string.Format("Sedma {0}", _g.trump.Value.Description());
+                        e.Description = string.Format("Sedma {0}", _g.trump.Value.ToDescription());
                     }
                     else if ((_g.GameType & Hra.Hra) != 0)
                     {
-                        e.Description = string.Format("Hra {0}", _g.trump.Value.Description());
+                        e.Description = string.Format("Hra {0}", _g.trump.Value.ToDescription());
                     }
                     else if ((_g.GameType & Hra.Betl) != 0)
                     {

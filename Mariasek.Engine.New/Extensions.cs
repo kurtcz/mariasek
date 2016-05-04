@@ -36,7 +36,8 @@ namespace Mariasek.Engine.New
             for (var i = 0; i < entries.Length; i++)
             {
 #if PORTABLE
-                var attributes = value.GetType().GetTypeInfo().GetCustomAttributes(false)
+                var typeInfo = value.GetType().GetTypeInfo();
+                var attributes = typeInfo.GetCustomAttributes(false)
                                       .Select(j => j as DescriptionAttribute).ToArray();
 #else
                 var fieldInfo = value.GetType().GetField(entries[i].Trim());
@@ -45,6 +46,22 @@ namespace Mariasek.Engine.New
                 description[i] = (attributes.Length > 0) ? attributes[0].Description : entries[i].Trim();
             }
             return String.Join(", ", description);
+        }
+            
+        public static string ToDescription(this Mariasek.Engine.New.Barva b)
+        {
+            switch (b)
+            {
+                case Barva.Cerveny:
+                    return "červený";
+                case Barva.Zeleny:
+                    return "zelený";
+                case Barva.Kule:
+                    return "kule";
+                case Barva.Zaludy:
+                    return "žaludy";
+            }
+            return string.Empty;
         }
     }
 }

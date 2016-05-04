@@ -6,6 +6,7 @@ namespace Mariasek.Engine.New
     {
         public int Current;
         public int Max;
+        public string Message;
     }
 }
 

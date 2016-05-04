@@ -127,12 +127,12 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("SimulationsPerGameType", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "SimulationsPerGameType",
-                    Value = "100"
+                    Value = "25"
                 });
             _aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "SimulationsPerRound",
-                    Value = "200"
+                    Value = "100"
                 });
             _aiConfig.Add("RuleThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
@@ -630,7 +630,22 @@ namespace Mariasek.SharedClient
 
         void GameException (object sender, GameExceptionEventArgs e)
         {
-            ShowMsgLabel(string.Format("Chyba:\n{0}\n{1}", e.e.Message, e.e.StackTrace), false);
+            var ex = e.e;
+            var ae = ex as AggregateException;
+
+            if (ae != null)
+            {
+                ae = ae.Flatten();
+                if (ae.InnerExceptions.Count > 0)
+                {
+                    ex = ae.InnerExceptions[0];
+                }
+            }
+            while (ex.InnerException != null)
+            {
+                ex = ex.InnerException;
+            }
+            ShowMsgLabel(string.Format("Chyba:\n{0}\n{1}", ex.Message, ex.StackTrace), false);
         }
 
         public void GameComputationProgress(object sender, GameComputationProgressEventArgs e)
@@ -639,6 +654,10 @@ namespace Mariasek.SharedClient
 
             _progressBars[player.PlayerIndex - 1].Progress = e.Current;
             _progressBars[player.PlayerIndex - 1].Max = e.Max;
+            if (!string.IsNullOrEmpty(e.Message))
+            {
+                ShowMsgLabel(string.Format("{0}/{1} {2}", e.Current, e.Max, e.Message), false);
+            }
         }
 
         public void MenuBtnClicked(object sender)
@@ -765,6 +784,12 @@ namespace Mariasek.SharedClient
             HideMsgLabel();
             HideBidButtons();
             _okBtn.Hide();
+            if (_state == GameState.Bid)
+            {
+                flekBtn.IsSelected = false;
+                sedmaBtn.IsSelected = false;
+                kiloBtn.IsSelected = false;
+            }
             _state = GameState.NotPlaying;
             _evt.Set();
         }
@@ -807,9 +832,6 @@ namespace Mariasek.SharedClient
                     (kiloBtn.IsSelected
                         ? (Hra)kiloBtn.Tag
                         : 0));
-            flekBtn.IsSelected = false;
-            sedmaBtn.IsSelected = false;
-            kiloBtn.IsSelected = false;
         }
 
         #region HumanPlayer methods
@@ -904,6 +926,7 @@ namespace Mariasek.SharedClient
             _hand.AnimationEvent.Wait();
             _synchronizationContext.Send(_ =>
                 {
+                    _state = GameState.Bid;
                     ShowBidButtons(bidding);
                     _okBtn.IsEnabled = true;
                     _okBtn.Show();

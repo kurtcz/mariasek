@@ -386,22 +386,36 @@ namespace Mariasek.Engine.New
             var betlComputationResults = new ConcurrentQueue<GameComputationResult>();
             var totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
                                        (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
+            var progress = 0;
+            OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = totalGameSimulations, Message = "Generuju karty"});
+
+            //nasimuluj hry v barve
+            var source = Settings.Cheat
+                ? new [] { GetPlayersHandsAndTalon() }
+                : Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType);
+            
             //pokud volim hru tak se ted rozhoduju jaky typ hry hrat (hra, betl, durch)
             //pokud nevolim hru, tak bud simuluju betl a durch nebo konkretni typ hry
             //tak ci tak nevim co je/bude v talonu
             _log.DebugFormat("Running game simulations for {0} ...", Name);
             if (simulateGoodGames)
             {
-                //nasimuluj hry v barve
-                var source = Settings.Cheat
-                                ? new [] { GetPlayersHandsAndTalon() }
-                                : Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType);
-                //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
-                var opt = new ParallelOptions { MaxDegreeOfParallelism = 1 };
-                var progress = 0;
+                //OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = totalGameSimulations, Message = "Generuju karty na hru"});
 
-                Parallel.ForEach(source.ToArray(), opt, hands =>
+                //nasimuluj hry v barve
+                //var source = Settings.Cheat
+                //                ? new [] { GetPlayersHandsAndTalon() }
+                //                : Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType);
+                //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
+                //var opt = new ParallelOptions { MaxDegreeOfParallelism = 1 };
+
+                //Parallel.ForEach(source.ToArray(), opt, hands =>
+                Parallel.ForEach(source.ToArray(), hands =>
                 {
+                    for(var i = 0; i < hands.Length; i++)
+                    {
+                        hands[i] = new Hand(new List<Card>((List<Card>)hands[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
+                    }
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
 
                     // to ?? vypada chybne
@@ -409,31 +423,44 @@ namespace Mariasek.Engine.New
                     gameComputationResults.Enqueue(gameComputationResult);
                     
                     var val = Interlocked.Increment(ref progress);
-                    OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = totalGameSimulations});
+                    OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = totalGameSimulations, Message = "Simuluju hru"});
                 });
             }
-            if(simulateBadGames)
+            if (simulateBadGames)
             {
-                var progress = 0;
+                var initialProgress = progress;
+                //OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = totalGameSimulations, Message = "Generuju karty na durch"});
+
                 //nasimuluj durchy
-                var source = Settings.Cheat
-                                ? new[] { GetPlayersHandsAndTalon() }
-                                : Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType);
+                //var source = Settings.Cheat
+                //                ? new[] { GetPlayersHandsAndTalon() }
+                //                : Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType);
                 //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
-                Parallel.ForEach(source.ToArray(), hands =>
+                Parallel.ForEach(source.ToArray(), (hands, loopState) =>
                 {
+                    for(var i = 0; i < hands.Length; i++)
+                    {
+                        hands[i] = new Hand(new List<Card>((List<Card>)hands[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
+                    }
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseDurchTalon, GameStartingPlayerIndex);
 
                     var durchComputationResult = ComputeGame(hands, null, null, null, Hra.Durch, 10, 1, true);
                     durchComputationResults.Enqueue(durchComputationResult);
-
+                    
                     var val = Interlocked.Increment(ref progress);
-                    OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = totalGameSimulations});
+                    OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = totalGameSimulations, Message = "Simuluju durch"});
+
+                    if (NoChanceToWinDurch(PlayerIndex, hands))
+                    {
+                        OnGameComputationProgress(new GameComputationProgressEventArgs { Current = initialProgress + Settings.SimulationsPerGameType, Max = totalGameSimulations, Message = "Neuhratelnej durch"});
+                        loopState.Stop();
+                    }
                 });
+                //OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = totalGameSimulations, Message = "Generuju karty na betl"});
                 //nasimuluj betly
-                source = Settings.Cheat
-                                ? new[] { GetPlayersHandsAndTalon() }
-                                : Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType);
+                //source = Settings.Cheat
+                //                ? new[] { GetPlayersHandsAndTalon() }
+                //                : Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType);
                 //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
                 Parallel.ForEach(source.ToArray(), hands =>
                 {
@@ -443,7 +470,7 @@ namespace Mariasek.Engine.New
                     betlComputationResults.Enqueue(betlComputationResult);
 
                     var val = Interlocked.Increment(ref progress);
-                    OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = totalGameSimulations});
+                    OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = totalGameSimulations, Message = "Simuluju betl"});
                 });
             }
 
@@ -819,6 +846,7 @@ namespace Mariasek.Engine.New
                 var simulations = (int)Math.Min(Settings.SimulationsPerRound,
                     Math.Max(Probabilities.PossibleCombinations((PlayerIndex + 1) % Game.NumPlayers, r.number),
                              Probabilities.PossibleCombinations((PlayerIndex + 2) % Game.NumPlayers, r.number)));
+                OnGameComputationProgress(new GameComputationProgressEventArgs { Current = 0, Max = simulations, Message = "Generuju karty"});
                 var source = Probabilities.GenerateHands(_g.RoundNumber, roundStarterIndex, simulations);
                 var progress = 0;
                 //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), (hands, loopState) =>
@@ -830,14 +858,15 @@ namespace Mariasek.Engine.New
                     {
                         cardScores[computationResult.CardToPlay].Enqueue(computationResult);
                     }
+                    
+                    var val = Interlocked.Increment(ref progress);
+                    OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = simulations, Message = "Simuluju hru"});
 
                     if (computationResult.Rule == AiRule.PlayTheOnlyValidCard || canSkipSimulations)    //We have only one card to play, so there is really no need to compute anything
                     {
+                        OnGameComputationProgress(new GameComputationProgressEventArgs { Current = simulations, Max = simulations});
                         loopState.Stop();
                     }
-
-                    var val = Interlocked.Increment(ref progress);
-                    OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = simulations});
                 });
                 if (canSkipSimulations)
                 {
@@ -1119,6 +1148,15 @@ namespace Mariasek.Engine.New
                 result.Score[(roundStarterIndex + 2) % Game.NumPlayers] += hlas;
                 result.MaxHlasScore[(roundStarterIndex + 2) % Game.NumPlayers] = Math.Max(hlas, result.MaxHlasScore[(roundStarterIndex + 2) % Game.NumPlayers]);
             }
+        }
+
+        private bool NoChanceToWinDurch(int gameStarterIndex, Hand[] hands)
+        {
+            var player2 = (gameStarterIndex + 1) % Game.NumPlayers;
+            var player3 = (gameStarterIndex + 2) % Game.NumPlayers;
+
+            return hands[player2].Any(i => hands[gameStarterIndex].All(j => !j.IsHigherThan(i, null))) ||
+                   hands[player3].Any(i => hands[gameStarterIndex].All(j => !j.IsHigherThan(i, null)));
         }
 
         private GameComputationResult ComputeGame(Hand[] hands, Card c1, Card c2, Barva? trump = null, Hra? gameType = null, int? roundsToCompute = null, int? initialRoundNumber = null, bool ImpersonateGameStartingPlayer = false)
