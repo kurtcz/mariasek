@@ -64,6 +64,7 @@ namespace Mariasek.Engine.New
 
             DebugInfo = new PlayerDebugInfo();
             g.GameLoaded += GameLoaded;
+            g.GameFlavourChosen += GameFlavourChosen;
             g.GameTypeChosen += GameTypeChosen;
             g.CardPlayed += CardPlayed;
         }
@@ -792,6 +793,15 @@ namespace Mariasek.Engine.New
                 _talon = _g.talon;
             }
             Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
+        }
+
+        private void GameFlavourChosen(object sender, GameFlavourChosenEventArgs e)
+        {
+            //pokud nekdo hlasi spatnou barvu vymaz svuj talon (uz neni relevantni)
+            if (e.Player.PlayerIndex != PlayerIndex && e.Flavour == GameFlavour.Bad)
+            {
+                _talon = null;
+            }
         }
 
         private void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
