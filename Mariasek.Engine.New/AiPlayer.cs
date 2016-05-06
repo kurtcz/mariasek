@@ -33,6 +33,7 @@ namespace Mariasek.Engine.New
         private int _betlBalance;
         private int _durchBalance;
         private bool _initialSimulation;
+        private bool _teamMateDoubledGame;
  
         public Probability Probabilities { get; set; }
         public AiPlayerSettings Settings { get; set; }
@@ -66,6 +67,7 @@ namespace Mariasek.Engine.New
             g.GameLoaded += GameLoaded;
             g.GameFlavourChosen += GameFlavourChosen;
             g.GameTypeChosen += GameTypeChosen;
+            g.BidMade += BidMade;
             g.CardPlayed += CardPlayed;
         }
 
@@ -657,9 +659,10 @@ namespace Mariasek.Engine.New
                     //RunGameSimulations(bidding, _g.GameStartingPlayerIndex, false, true);
                 }
             }
-            //Flekovani se u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah),
+            //Flekovani se u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) pokud trham (flek) nebo kolega flekoval (tutti a vys),
             //ostatni flekujeme pouze pokud zvolenou hru volici hrac nemuze uhrat
-            if (_gamesBalance / (float)Settings.SimulationsPerGameType >= gameThreshold)
+            if (_gamesBalance / (float)Settings.SimulationsPerGameType >= gameThreshold && _g.trump.HasValue &&
+                (Hand.HasK(_g.trump.Value || Hand.HasQ(_g.trump.Value || _teamMateDoubledGame))))
             {
                 bid |= bidding.Bids & Hra.Hra;
             }
@@ -784,6 +787,7 @@ namespace Mariasek.Engine.New
             _gameType = null;
             Probabilities = null;
             _initialSimulation = true;
+            _teamMateDoubledGame = false;
         }
 
         public void GameLoaded(object sender)
@@ -813,6 +817,16 @@ namespace Mariasek.Engine.New
                 Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
             }
             Probabilities.UpdateProbabilitiesAfterGameTypeChosen(e);
+        }
+
+
+        private void BidMade (object sender, BidEventArgs e)
+        {
+            //spoluhrac flekoval hru nebo kilo
+            if (e.Player.PlayerIndex == TeamMateIndex && (e.BidMade & (Hra.Hra | Hra.Kilo)) != 0)
+            {
+                _teamMateDoubledGame = true;
+            }
         }
 
         private void CardPlayed(object sender, Round r)
