@@ -662,7 +662,7 @@ namespace Mariasek.Engine.New
             //Flekovani se u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) pokud trham (flek) nebo kolega flekoval (tutti a vys),
             //ostatni flekujeme pouze pokud zvolenou hru volici hrac nemuze uhrat
             if (_gamesBalance / (float)Settings.SimulationsPerGameType >= gameThreshold && _g.trump.HasValue &&
-                (Hand.HasK(_g.trump.Value || Hand.HasQ(_g.trump.Value || _teamMateDoubledGame))))
+                (Hand.HasK(_g.trump.Value) || Hand.HasQ(_g.trump.Value) || _teamMateDoubledGame))
             {
                 bid |= bidding.Bids & Hra.Hra;
             }

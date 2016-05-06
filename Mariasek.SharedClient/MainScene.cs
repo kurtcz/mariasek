@@ -927,6 +927,7 @@ namespace Mariasek.SharedClient
             _synchronizationContext.Send(_ =>
                 {
                     _state = GameState.Bid;
+                    _bid = 0;
                     ShowBidButtons(bidding);
                     _okBtn.IsEnabled = true;
                     _okBtn.Show();
