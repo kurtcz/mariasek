@@ -54,12 +54,12 @@ namespace Mariasek.Engine.New
                                             {
                                                 { Hra.Hra,   new[] { 0.5f, 0.65f, 0.75f, 0.85f, 0.95f } },
                                                 { Hra.Sedma, new[] { 0.75f, 0.8f, 0.85f, 0.9f, 0.95f } },
-                                                { Hra.Kilo,  new[] { 0.85f, 0.87f, 0.9f, 0.95f, 0.99f } },
+                                                { Hra.Kilo,  new[] { 0.8f, 0.85f, 0.9f, 0.95f, 0.99f } },
                                                 { Hra.Betl,  new[] { 0.75f, 0.8f, 0.85f, 0.9f, 0.95f } },
                                                 { Hra.Durch, new[] { 0.75f, 0.8f, 0.85f, 0.9f, 0.95f } }
                                             },
                 MaxDoubleCount = 5,
-                SigmaMultiplier = 2
+                SigmaMultiplier = 0
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 

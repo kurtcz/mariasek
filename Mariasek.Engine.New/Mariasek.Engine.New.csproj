@@ -72,6 +72,7 @@
     <Compile Include="GameFlavour.cs" />
     <Compile Include="GameFlavourChosenEventArgs.cs" />
     <Compile Include="GameTypeChosenEventArgs.cs" />
+    <Compile Include="GameWonPrematurelyEventArgs.cs" />
     <Compile Include="HandExtensions.cs" />
     <Compile Include="Hra.cs" />
     <Compile Include="IStatsPlayer.cs" />

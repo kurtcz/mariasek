@@ -284,6 +284,36 @@ namespace Mariasek.SharedClient.GameComponents
             AnimationEvent.Reset();
         }
 
+        public void ShowWinningHand(int playerIndex)
+        {
+            var initialPosition = Vector2.Zero;
+            var delta = Vector2.Zero;
+
+            switch (playerIndex)
+            {
+                case 0:
+                    initialPosition = new Vector2(100, Game.VirtualScreenHeight - CardHeight);
+                    delta = new Vector2(CardWidth, -CardWidth / 4);
+                    break;
+                case 1:
+                    initialPosition = new Vector2(100, 130);
+                    delta = new Vector2(CardWidth, CardWidth / 4);
+                    break;
+                case 2:
+                    initialPosition = new Vector2(Game.VirtualScreenWidth - 100, 130);
+                    delta = new Vector2(-CardWidth, -CardWidth / 4);
+                    break;
+            }
+
+            var targetPosition = initialPosition;
+            for (var i = 0; i < _sprites.Length && _sprites[i] != null; i++, targetPosition += delta)
+            {
+                _sprites[i].Position = initialPosition;
+                _sprites[i].MoveTo(targetPosition);
+            }
+            AnimationEvent.Reset();
+        }
+
         public void SortHand(List<Card> unsorted)
         {
             foreach (var sprite in _sprites)

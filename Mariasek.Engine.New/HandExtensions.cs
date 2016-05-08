@@ -24,7 +24,7 @@ namespace Mariasek.Engine.New
             return default(TSource);
         }
 
-        public static IEnumerable<Card> Sort(this List<Card>hand, bool ascending, bool badGameSorting = false)
+        public static IEnumerable<Card> Sort(this List<Card>hand, bool ascending, bool badGameSorting = false, Barva? lastSuit = null)
         {
             hand.Sort((c1, c2) =>
                 {
@@ -32,6 +32,17 @@ namespace Mariasek.Engine.New
                     int s1 = Convert.ToInt16(c1.Suit);
                     int s2 = Convert.ToInt16(c2.Suit);
 
+                    if(lastSuit.HasValue)
+                    {
+                        if (c1.Suit == lastSuit.Value)
+                        {
+                            s1 += 10;
+                        }
+                        if (c2.Suit == lastSuit.Value)
+                        {
+                            s2 += 10;
+                        }
+                    }
                     if (s1 == s2)
                     {
                         if (!badGameSorting)
@@ -46,7 +57,8 @@ namespace Mariasek.Engine.New
                         }
                     }
 
-                    return sign*(s1 - s2);
+                    //return sign*(s1 - s2);
+                    return s1 - s2; //sign ignorujeme v poradi barev
                 });
 
             return hand;

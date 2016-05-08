@@ -150,6 +150,16 @@ namespace Mariasek.Engine.New
                 GameFinished(this, results);
             }
         }
+
+        public delegate void GameWonPrematurelyEventHandler(object sender, GameWonPrematurelyEventArgs e);
+        public event GameWonPrematurelyEventHandler GameWonPrematurely;
+        protected virtual void OnGameWonPrematurely(object sender, GameWonPrematurelyEventArgs e)
+        {
+            if (GameWonPrematurely != null)
+            {
+                GameWonPrematurely(this, e);
+            }
+        }
         #endregion
 
         #region Public methods
@@ -513,21 +523,37 @@ namespace Mariasek.Engine.New
                 {
                     Bidding = new Bidding(this); 
                 }
+
+
                 //vlastni hra
                 var roundWinner = _roundStartingPlayer;
 
-                for (; RoundNumber <= NumRounds; RoundNumber++)
+                if(PlayerWinsGame(GameStartingPlayer))
                 {
-                    var r = new Round(this, roundWinner);
-                    OnRoundStarted(r);
-
-                    rounds[RoundNumber - 1] = r;
-                    roundWinner = r.PlayRound();
-
-                    OnRoundFinished(r);
-                    if(CanStopPlaying(r))
+                    OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = roundWinner.Hand });
+                    CompleteUnfinishedRounds();
+                }
+                else
+                {
+                    for (; RoundNumber <= NumRounds; RoundNumber++)
                     {
-                        break;
+                        var r = new Round(this, roundWinner);
+                        OnRoundStarted(r);
+
+                        rounds[RoundNumber - 1] = r;
+                        roundWinner = r.PlayRound();
+
+                        OnRoundFinished(r);
+                        if(CanStopPlaying(r))
+                        {
+                            //predcasne vitezstvi ukazuju jen do sedmeho kola, pro posledni 2 karty to nema smysl
+                            if(RoundNumber < 8 && PlayerWinsGame(roundWinner))
+                            {
+                                OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = roundWinner.Hand, roundNumber = RoundNumber });
+                                CompleteUnfinishedRounds();
+                            }
+                            break;
+                        }
                     }
                 }
 
@@ -661,9 +687,30 @@ namespace Mariasek.Engine.New
             {
                 return true;
             }
+
+            if (PlayerWinsGame(r.roundWinner))
+            {
+                return true;
+            }
+
             return false;
         }
 
+        private bool PlayerWinsGame(AbstractPlayer player)
+        {
+            var player2 = (player.PlayerIndex + 1) % Game.NumPlayers;
+            var player3 = (player.PlayerIndex + 2) % Game.NumPlayers;
+
+            if(GameType == Hra.Betl)
+            {
+                return player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => Round.WinningCard(i, j, k, trump) != i)));
+            }
+            else
+            {
+                return player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => Round.WinningCard(i, j, k, trump) == i)));
+            }
+        }
+        
         public Hra GetValidGameTypesForPlayer(AbstractPlayer player, GameFlavour gameFlavour, Hra minimalBid)
         {
             Hra validGameTypes;
@@ -820,6 +867,27 @@ namespace Mariasek.Engine.New
             _roundStartingPlayer = GameStartingPlayer;
         }
 
+        private void CompleteUnfinishedRounds()
+        {
+            var lastRoundWinner = rounds[0] == null ? GameStartingPlayer : rounds[0].roundWinner;
+
+            for (var i = 0; i < Game.NumRounds; i++)
+            {                
+                if (rounds[i] == null)
+                {
+                    var player1 = lastRoundWinner.PlayerIndex;
+                    var player2 = (lastRoundWinner.PlayerIndex + 1) % Game.NumPlayers;
+                    var player3 = (lastRoundWinner.PlayerIndex + 2) % Game.NumPlayers;
+
+                    var c1 = AbstractPlayer.ValidCards(players[player1].Hand, trump, GameType, players[player1].TeamMateIndex).RandomOne();
+                    var c2 = AbstractPlayer.ValidCards(players[player2].Hand, trump, GameType, players[player2].TeamMateIndex, c1).RandomOne();
+                    var c3 = AbstractPlayer.ValidCards(players[player3].Hand, trump, GameType, players[player3].TeamMateIndex, c1, c2).RandomOne();
+
+                    rounds[i] = new Round(this, lastRoundWinner, c1, c2, c3);
+                }
+                lastRoundWinner = rounds[i].roundWinner;
+            }
+        }
         #endregion
     }
 }

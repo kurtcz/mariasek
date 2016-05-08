@@ -41,6 +41,7 @@ namespace Mariasek.SharedClient
 
         //TODO:Add child components here
         private GameComponents.Hand _hand;
+        private GameComponents.Hand _winningHand;
         private Deck _deck;
         private Sprite[] _cardsPlayed;
         private CardButton[][] _hlasy;
@@ -152,12 +153,12 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Hra", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "GameThreshold",
-                    Value = "50|65|75|85|95"
+                    Value = "0|50|70|85|95"
                 });
             _aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "GameThreshold",
-                    Value = "85|87|90|95|99"
+                    Value = "80|85|90|95|99"
                 });
             _aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
@@ -167,7 +168,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("SigmaMultiplier", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "MaxDoubleCount",
-                    Value = "2"
+                    Value = "0"
                 });
             Game.SettingsScene.SettingsChanged += SettingsChanged;
         }
@@ -607,6 +608,7 @@ namespace Mariasek.SharedClient
                 g.RoundStarted += RoundStarted;
                 g.RoundFinished += RoundFinished;
                 g.GameFinished += GameFinished;
+                g.GameWonPrematurely += GameWonPrematurely;
                 g.GameException += GameException;
                 g.players[1].GameComputationProgress += GameComputationProgress;
                 g.players[2].GameComputationProgress += GameComputationProgress;
@@ -627,8 +629,47 @@ namespace Mariasek.SharedClient
                 g.PlayGame(_cancellationTokenSource.Token);
             },  _cancellationTokenSource.Token);
         }
+            
+        private void GameWonPrematurely (object sender, GameWonPrematurelyEventArgs e)
+        {
+            g.ThrowIfCancellationRequested();
+            _synchronizationContext.Send(_ =>
+                {
+                    if((g.GameType & Hra.Betl) != 0)
+                    {
+                        if(e.roundNumber > 1)
+                        {
+                            ShowMsgLabel("Už mě nechytíte", false);
+                        }
+                        else
+                        {
+                            ShowMsgLabel("Mám to ložený", false);
+                        }
+                    }
+                    else
+                    {
+                        var finalTrumpSeven = g.trump.HasValue && e.winningHand.Any(i => i.Suit == g.trump.Value && i.Value == Hodnota.Sedma);
+                        if(e.roundNumber > 1)
+                        {
+                            ShowMsgLabel(string.Format("Zbytek jde za mnou{0}", finalTrumpSeven ? ", sedma nakonec" : string.Empty), false);
+                        }
+                        else
+                        {
+                            ShowMsgLabel(string.Format("Mám to ložený{0}", finalTrumpSeven ? ", sedma nakonec" : string.Empty), false);
+                        }
+                    }
+                    ShowInvisibleClickableOverlay();
+                    _hand.Hide();
+                    _winningHand = new GameComponents.Hand(this, e.winningHand.Sort(false, (g.GameType & (Hra.Betl | Hra.Durch)) != 0, g.trump).ToArray());
+                    _winningHand.ShowWinningHand(e.winner.PlayerIndex);
+                    _winningHand.Show();
+                    _state = GameState.RoundFinished;
+                }, null);
+            WaitForUIThread();
+            ClearTable(true);
+        }
 
-        void GameException (object sender, GameExceptionEventArgs e)
+        private void GameException (object sender, GameExceptionEventArgs e)
         {
             var ex = e.e;
             var ae = ex as AggregateException;
@@ -645,6 +686,7 @@ namespace Mariasek.SharedClient
             {
                 ex = ex.InnerException;
             }
+            _msgLabel.HorizontalAlign = HorizontalAlignment.Right;
             ShowMsgLabel(string.Format("Chyba:\n{0}\n{1}", ex.Message, ex.StackTrace), false);
         }
 
@@ -1309,6 +1351,11 @@ namespace Mariasek.SharedClient
             _msgLabel.Hide();
             _msgLabelLeft.Hide();
             _msgLabelRight.Hide();
+
+            if (_winningHand != null)
+            {
+                _winningHand.Hide();
+            }
         }
 
         private void ShowMsgLabel(string message, bool showButton)
