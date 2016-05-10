@@ -619,6 +619,7 @@ namespace Mariasek.SharedClient
                 _state = GameState.NotPlaying;
 
                 ClearTable(true);
+                _hand.Show();
                 if(g.GameStartingPlayerIndex != 0)
                 {
                     g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, false);
@@ -884,6 +885,15 @@ namespace Mariasek.SharedClient
             _hand.IsEnabled = true;
             _synchronizationContext.Send(_ =>
                 {
+//                    var hh = new [] {
+//                        new Mariasek.Engine.New.Hand(g.players[0].Hand).ToString(), 
+//                        new Mariasek.Engine.New.Hand(g.players[1].Hand).ToString(), 
+//                        new Mariasek.Engine.New.Hand(g.players[2].Hand).ToString(), 
+//                        new Mariasek.Engine.New.Hand(g.talon).ToString()
+//                    };
+//                    var txt = string.Format("{0}\n{1}\n{2}\n{3}", hh[0], hh[1], hh[2], hh[3]);
+//                    ShowMsgLabel(txt, false);
+//                    _msgLabel.HorizontalAlign = HorizontalAlignment.Right;
                     ShowMsgLabel("Vyber trumfovou kartu", false);
                     _state = GameState.ChooseTrump;
                     UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
@@ -1182,7 +1192,7 @@ namespace Mariasek.SharedClient
 
         public void RoundFinished(object sender, Round r)
         {
-            if (r.number < 10)
+            if (r.number <= 10)
             {
                 g.ThrowIfCancellationRequested();
                 _synchronizationContext.Send(_ =>
@@ -1223,6 +1233,7 @@ namespace Mariasek.SharedClient
                 leftMessage.Append("\n");
                 rightMessage.Append("\n");
             }
+            HideInvisibleClickableOverlay();
             ShowMsgLabelLeftRight(leftMessage.ToString(), rightMessage.ToString());
 
             _deck = g.GetDeckFromLastGame();

@@ -296,12 +296,12 @@ namespace Mariasek.SharedClient.GameComponents
                     delta = new Vector2(CardWidth, -CardWidth / 4);
                     break;
                 case 1:
-                    initialPosition = new Vector2(100, 130);
+                    initialPosition = new Vector2(100, 80);
                     delta = new Vector2(CardWidth, CardWidth / 4);
                     break;
                 case 2:
-                    initialPosition = new Vector2(Game.VirtualScreenWidth - 100, 130);
-                    delta = new Vector2(-CardWidth, -CardWidth / 4);
+                    initialPosition = new Vector2(Game.VirtualScreenWidth - 100, 80);
+                    delta = new Vector2(-CardWidth, CardWidth / 4);
                     break;
             }
 

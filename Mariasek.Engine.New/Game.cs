@@ -551,8 +551,8 @@ namespace Mariasek.Engine.New
                             {
                                 OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = roundWinner.Hand, roundNumber = RoundNumber });
                                 CompleteUnfinishedRounds();
+                                break;
                             }
-                            break;
                         }
                     }
                 }
