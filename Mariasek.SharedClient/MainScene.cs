@@ -619,11 +619,12 @@ namespace Mariasek.SharedClient
                 _state = GameState.NotPlaying;
 
                 ClearTable(true);
-                _hand.Show();
                 if(g.GameStartingPlayerIndex != 0)
                 {
                     g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, false);
                     ShowThinkingMessage();
+                    _hand.Show();
+                    _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
                 }
                 _canSort = g.GameStartingPlayerIndex != 0;
 
