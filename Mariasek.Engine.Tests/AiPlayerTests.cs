@@ -30,6 +30,11 @@ namespace Mariasek.Engine.Tests
             {
                 Name = "CardSelectionStrategy",
                 Value = "MaxCount"
+            }); 
+            _aiConfig.Add("SimulationsPerGameType", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "SimulationsPerGameType",
+                Value = "25"
             });
             _aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -50,6 +55,11 @@ namespace Mariasek.Engine.Tests
             {
                 Name = "MaxDoubleCount",
                 Value = "5"
+            });
+            _aiConfig.Add("SigmaMultiplier", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "SigmaMultiplier",
+                Value = "0"
             });
         }
 
@@ -252,6 +262,7 @@ namespace Mariasek.Engine.Tests
 
         [TestCategory("Bidding tests")]
         [TestMethod]
+        [Ignore] //Betla neflekujeme
         public void FlekBetl()
         {
             Dictionary<string, object> props;

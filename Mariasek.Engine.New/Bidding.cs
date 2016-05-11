@@ -100,6 +100,9 @@ namespace Mariasek.Engine.New
 
         private void ResetBidsOfPlayer(AbstractPlayer player)
         {
+            PlayerBids[player.PlayerIndex] = 0;
+            return;
+
             if (GameLastBidder == player)
             {
                 GameLastBidder = null;
@@ -150,12 +153,13 @@ namespace Mariasek.Engine.New
             {
                 Round = j % Game.NumPlayers;
                 //zrus priznak u her ktere cele kolo nikdo neflekoval aby uz nesly flekovat dal
-                ResetBidsOfPlayer(_g.players[i]);
-                if ((PlayerBids[0] | PlayerBids[1] | PlayerBids[2]) == 0)
+                AdjustValidBidsForPlayer(i, j);
+                
+                //ResetBidsOfPlayer(_g.players[i]);
+                if (Bids == 0)
                 {
                     break;
                 }
-                AdjustValidBidsForPlayer(i, j);
                 var bid = _g.players[i].GetBidsAndDoubles(this);
                 //nastav priznak co hrac hlasil a flekoval
                 SetLastBidder(_g.players[i], bid);

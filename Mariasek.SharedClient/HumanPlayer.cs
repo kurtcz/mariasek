@@ -100,12 +100,24 @@ namespace Mariasek.SharedClient
             while (true)
             {
                 card = _scene.PlayCard(validationState);
-                if (r.c2 != null && (validationState = IsCardValid(card, r.c1, r.c2)) == Renonc.Ok)
-                    break;
-                else if (r.c1 != null && (validationState = IsCardValid(card, r.c1)) == Renonc.Ok)
-                    break;
-                else if (r.c1 == null && (validationState = IsCardValid(card)) == Renonc.Ok)
-                    break;
+                if (r.c2 != null)
+                {
+                    validationState = IsCardValid(card, r.c1, r.c2);
+                    if (validationState == Renonc.Ok)
+                        break;
+                }
+                else if (r.c1 != null)
+                {
+                    validationState = IsCardValid(card, r.c1);
+                    if (validationState == Renonc.Ok)
+                        break;
+                }
+                else
+                {
+                    validationState = IsCardValid(card);
+                    if (validationState == Renonc.Ok)
+                        break;
+                }
             }
 
             return card;

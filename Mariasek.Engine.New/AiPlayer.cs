@@ -647,7 +647,7 @@ namespace Mariasek.Engine.New
                 {
                     //mame flekovat hru
                     //kilo simulovat nema cenu, hrac ho asi ma, takze flekovat stejne nebudeme
-                    if ((_g.GameType & Hra.Kilo) == 0)
+                    if (_g.GameType != Hra.Kilo)
                     {
                         RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, false);
                     }
@@ -711,14 +711,12 @@ namespace Mariasek.Engine.New
             //durch flekuju jen pokud jsem volil sam durch a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem nevolil a nejde teoreticky uhrat            
             if ((PlayerIndex == _g.GameStartingPlayerIndex && _durchBalance / (float)Settings.SimulationsPerGameType >= durchThreshold) ||
-                (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) == 4) && bidding.MaxDoubleCount == 0)
+                (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) == 4))
             {
                 bid |= bidding.Bids & Hra.Durch;
             }
             //betla flekuju jen pokud jsem volil sam betla a v simulacich jsem ho uhral dost casto
-            //nebo pokud jsem nevolil a nejde teoreticky uhrat            
-            if ((PlayerIndex == _g.GameStartingPlayerIndex && _betlBalance / (float)Settings.SimulationsPerGameType >= betlThreshold) ||
-                (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Sedma) == 4) && bidding.MaxDoubleCount == 0)
+            if ((PlayerIndex == _g.GameStartingPlayerIndex && _betlBalance / (float)Settings.SimulationsPerGameType >= betlThreshold))
             {
                 bid |= bidding.Bids & Hra.Betl;
             }
