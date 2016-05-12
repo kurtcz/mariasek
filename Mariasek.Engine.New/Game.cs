@@ -524,40 +524,43 @@ namespace Mariasek.Engine.New
                     Bidding = new Bidding(this); 
                 }
 
-
-                //vlastni hra
-                var roundWinner = _roundStartingPlayer;
-
-                if(PlayerWinsGame(GameStartingPlayer))
+                if(ShouldPlayGame())
                 {
-                    OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = roundWinner.Hand });
-                    CompleteUnfinishedRounds();
-                }
-                else
-                {
-                    for (; RoundNumber <= NumRounds; RoundNumber++)
+                    //vlastni hra
+                    var roundWinner = _roundStartingPlayer;
+
+                    if(PlayerWinsGame(GameStartingPlayer))
                     {
-                        var r = new Round(this, roundWinner);
-                        OnRoundStarted(r);
-
-                        rounds[RoundNumber - 1] = r;
-                        roundWinner = r.PlayRound();
-
-                        OnRoundFinished(r);
-                        if(CanStopPlaying(r))
+                        OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = roundWinner.Hand });
+                        CompleteUnfinishedRounds();
+                    }
+                    else
+                    {
+                        for (; RoundNumber <= NumRounds; RoundNumber++)
                         {
-                            //predcasne vitezstvi ukazuju jen do sedmeho kola, pro posledni 2 karty to nema smysl
-                            if(RoundNumber < 8 && PlayerWinsGame(roundWinner))
+                            var r = new Round(this, roundWinner);
+                            OnRoundStarted(r);
+
+                            rounds[RoundNumber - 1] = r;
+                            roundWinner = r.PlayRound();
+
+                            OnRoundFinished(r);
+                            if(CanStopPlaying(r))
                             {
-                                OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = roundWinner.Hand, roundNumber = RoundNumber });
-                                CompleteUnfinishedRounds();
-                                break;
+                                //predcasne vitezstvi ukazuju jen do sedmeho kola, pro posledni 2 karty to nema smysl
+                                if(RoundNumber < 8 && PlayerWinsGame(roundWinner))
+                                {
+                                    OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = roundWinner.Hand, roundNumber = RoundNumber });
+                                    CompleteUnfinishedRounds();
+                                    break;
+                                }
                             }
                         }
                     }
                 }
 
                 //zakonceni hry
+                IsRunning = false;
                 Results = new AddingMoneyCalculator(this);
                 Results.CalculateMoney();
                 OnGameFinished(Results);
@@ -679,6 +682,23 @@ namespace Mariasek.Engine.New
         #endregion
 
         #region Private methods
+
+        private bool ShouldPlayGame()
+        {
+            if (SkipBidding)
+            {
+                return true; //pokud je vyple flekovani, tak hrajeme vzdycky
+            }
+            if (GameType == Hra.Hra && Bidding.GameMultiplier == 1)
+            {
+                return false; //neflekovana hra se nehraje
+            }
+            if (GameType == (Hra.Hra | Hra.Sedma) && Bidding.SevenMultiplier == 1 && Bidding.GameMultiplier == 2)
+            {
+                return false; //sedma a flek na hru se nehraje
+            }
+            return true;
+        }
 
         private bool CanStopPlaying(Round r)
         {

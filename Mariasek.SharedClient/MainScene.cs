@@ -1431,11 +1431,12 @@ namespace Mariasek.SharedClient
         private void OverlayTouchUp(object sender, TouchLocation tl)
         {
             _state = GameState.NotPlaying;
-            //ClearTable();
-            ClearTableAfterRoundFinished();
+            if (g.IsRunning)
+            {
+                ClearTableAfterRoundFinished();
+            }
             HideMsgLabel();
             HideInvisibleClickableOverlay();
-            //_evt.Set();
         }
 
         private void ShowInvisibleClickableOverlay()

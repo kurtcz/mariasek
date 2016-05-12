@@ -96,7 +96,7 @@ namespace Mariasek.Engine.New
                 var basicScore = new int[Game.NumPlayers];
                 var maxHlasScore = new int[Game.NumPlayers];
 
-                foreach (var r in g.rounds)
+                foreach (var r in g.rounds.Where(i => i != null))
                 {
                     score[r.player1.PlayerIndex] += r.points1;
                     score[r.player2.PlayerIndex] += r.points2;
@@ -138,34 +138,46 @@ namespace Mariasek.Engine.New
                 MaxHlasWon = maxHlasScore[_gameStartingPlayerIndex];
                 MaxHlasLost = Math.Max(maxHlasScore[(_gameStartingPlayerIndex + 1) % Game.NumPlayers], maxHlasScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers]);
 
-                GameWon = PointsWon > PointsLost;
-
                 var finalRound = g.rounds[Game.NumRounds - 1];
-                var lastWinningCard = Round.WinningCard(finalRound.c1, finalRound.c2, finalRound.c3, g.trump);
+                if (finalRound != null) //hra se hrala
+                {
+                    var lastWinningCard = Round.WinningCard(finalRound.c1, finalRound.c2, finalRound.c3, g.trump);
 
-                FinalCardWon = finalRound.roundWinner == g.GameStartingPlayer;
+                    GameWon = PointsWon > PointsLost;
+                    FinalCardWon = finalRound.roundWinner == g.GameStartingPlayer;
 
-                SevenWon = FinalCardWon &&
-                           lastWinningCard.Suit == g.trump.Value &&
-                           lastWinningCard.Value == Hodnota.Sedma;
-                QuietSevenWon = SevenWon && (_gameType & Hra.Sedma) == 0;
+                    SevenWon = FinalCardWon &&
+                    lastWinningCard.Suit == g.trump.Value &&
+                    lastWinningCard.Value == Hodnota.Sedma;
+                    QuietSevenWon = SevenWon && (_gameType & Hra.Sedma) == 0;
                     
-                SevenAgainstWon = !FinalCardWon &&
-                                  lastWinningCard.Suit == g.trump.Value &&
-                                  lastWinningCard.Value == Hodnota.Sedma;
-                QuietSevenAgainstWon = SevenAgainstWon && (_gameType & Hra.SedmaProti) == 0;
+                    SevenAgainstWon = !FinalCardWon &&
+                    lastWinningCard.Suit == g.trump.Value &&
+                    lastWinningCard.Value == Hodnota.Sedma;
+                    QuietSevenAgainstWon = SevenAgainstWon && (_gameType & Hra.SedmaProti) == 0;
 
-                var gameStarterLastCard = GetGameStarterLastCard(finalRound, g.GameStartingPlayer);
-                var killedSeven = GetKilledSeven(finalRound);
+                    var gameStarterLastCard = GetGameStarterLastCard(finalRound, g.GameStartingPlayer);
+                    var killedSeven = GetKilledSeven(finalRound);
 
-                KilledSeven = killedSeven &&
-                              gameStarterLastCard.Suit == g.trump.Value &&
-                              gameStarterLastCard.Value == Hodnota.Sedma;
+                    KilledSeven = killedSeven &&
+                        gameStarterLastCard.Suit == g.trump.Value &&
+                        gameStarterLastCard.Value == Hodnota.Sedma;
 
-                KilledSevenAgainst = killedSeven &&
-                              (gameStarterLastCard.Suit != g.trump.Value ||
-                               gameStarterLastCard.Value != Hodnota.Sedma);
-                
+                    KilledSevenAgainst = killedSeven &&
+                        (gameStarterLastCard.Suit != g.trump.Value ||
+                            gameStarterLastCard.Value != Hodnota.Sedma);
+                }
+                else //hra se nehrala
+                {
+                    GameWon = (g.GameType & Hra.Sedma) == 0; //neflekovana hra se bere jako vyhrana, flekovana hra pri sedme se bere jako prohrana
+                    SevenWon = (g.GameType & Hra.Sedma) != 0;
+                    QuietSevenWon = false;
+                    SevenAgainstWon = false;
+                    QuietSevenAgainstWon = false;
+                    KilledSeven = false;
+                    KilledSevenAgainst = false;
+                }
+                    
                 QuietHundredWon = PointsWon >= 100 && (_gameType & Hra.Kilo) == 0;
                 QuietHundredAgainstWon = PointsLost >= 100;
 
