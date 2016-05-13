@@ -44,6 +44,8 @@ namespace Mariasek.Engine.New
         public MoneyCalculatorBase Results { get; private set; }
 
         public bool SkipBidding { get; set; }
+        public float BaseBet { get; set; }
+        public CalculationStyle CalculationStyle { get; set; }
         public bool IsRunning { get; private set; }
         public Hra GameType { get; private set; }
         public Barva? trump { get; private set; }
@@ -166,6 +168,7 @@ namespace Mariasek.Engine.New
 
         public Game()
         {
+            BaseBet = 1f;
         }
 
         public void RegisterPlayers(AbstractPlayer player1, AbstractPlayer player2, AbstractPlayer player3)
@@ -561,7 +564,7 @@ namespace Mariasek.Engine.New
 
                 //zakonceni hry
                 IsRunning = false;
-                Results = new AddingMoneyCalculator(this);
+                Results = GetMoneyCalculator();
                 Results.CalculateMoney();
                 OnGameFinished(Results);
             }
@@ -682,6 +685,19 @@ namespace Mariasek.Engine.New
         #endregion
 
         #region Private methods
+
+        private MoneyCalculatorBase GetMoneyCalculator()
+        {
+            switch (CalculationStyle)
+            {
+                case CalculationStyle.Adding:
+                    return new AddingMoneyCalculator(this);
+                case CalculationStyle.Multiplying:
+                    return new MultiplyingMoneyCalculator(this);
+                default:
+                    throw new Exception(string.Format("Unsupported calculation style: {0}", CalculationStyle));
+            }
+        }
 
         private bool ShouldPlayGame()
         {

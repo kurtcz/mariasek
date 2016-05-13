@@ -177,8 +177,8 @@ namespace Mariasek.SharedClient
             MainScene = new MainScene(this);
 
             MenuScene.Initialize();
-            SettingsScene.Initialize();
             HistoryScene.Initialize();
+            SettingsScene.Initialize();
             MainScene.Initialize();
 
             MenuScene.SetActive();

@@ -1,4 +1,5 @@
 ﻿using System;
+using Mariasek.Engine.New;
 
 namespace Mariasek.SharedClient
 {
@@ -13,11 +14,15 @@ namespace Mariasek.SharedClient
     {
         public bool SoundEnabled { get; set; }
         public SortMode SortMode { get; set; }
+        public float BaseBet { get; set; }
+        public CalculationStyle CalculationStyle { get; set; }
 
         public GameSettings()
         {
             SoundEnabled = true;
             SortMode = SortMode.Ascending;
+            BaseBet = 1f;
+            CalculationStyle = CalculationStyle.Adding;
         }
     }
 }

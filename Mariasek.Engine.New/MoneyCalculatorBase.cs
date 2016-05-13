@@ -8,7 +8,13 @@ using System.Globalization;
 
 namespace Mariasek.Engine.New
 {
-    [XmlInclude(typeof(AddingMoneyCalculator))]
+    public enum CalculationStyle
+    {
+        Adding,
+        Multiplying
+    }
+
+    [XmlInclude(typeof(MultiplyingMoneyCalculator))]
     [XmlRoot(ElementName="Money")]
     public abstract class MoneyCalculatorBase
     {
@@ -84,7 +90,7 @@ namespace Mariasek.Engine.New
             _bidding = g.Bidding;
             _gameStartingPlayerIndex = g.GameStartingPlayerIndex;
             PlayerNames = g.players.Select(i => i.Name).ToArray();
-            BaseBet = 1f;
+            BaseBet = g.BaseBet;
 
             if(ci == null)
             {

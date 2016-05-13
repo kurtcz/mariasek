@@ -167,8 +167,13 @@ namespace Mariasek.SharedClient
                 });
             _aiConfig.Add("SigmaMultiplier", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
-                    Name = "MaxDoubleCount",
+                    Name = "SigmaMultiplier",
                     Value = "0"
+                });
+            _aiConfig.Add("BaseBet", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                {
+                    Name = "BaseBet",
+                    Value = "1"
                 });
             Game.SettingsScene.SettingsChanged += SettingsChanged;
         }
@@ -574,9 +579,10 @@ namespace Mariasek.SharedClient
             CancelRunningTask();
             _gameTask = Task.Run(() => {
                 g = new Mariasek.Engine.New.Game()
-                    {
-                        SkipBidding = false
-                    };
+                {
+                    SkipBidding = false,
+                    BaseBet = _settings.BaseBet
+                };
                 g.RegisterPlayers(
                     new HumanPlayer(g, this) { Name = "Hráč 1" },
                     new AiPlayer(g, _aiConfig) { Name = "Hráč 2" },

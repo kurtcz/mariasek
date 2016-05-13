@@ -27,6 +27,7 @@ namespace Mariasek.SharedClient
         private Label _footer;
         private TextBox _historyBox;
         private bool _useMockData;// = true;
+        private GameSettings _settings;
 
         public HistoryScene(MariasekMonoGame game)
             : base(game)
@@ -86,6 +87,8 @@ namespace Mariasek.SharedClient
             Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;
 
+            Game.SettingsScene.SettingsChanged += SettingsChanged;
+
             PopulateControls();
         }
 
@@ -128,9 +131,9 @@ namespace Mariasek.SharedClient
                 ? Game.MainScene.g.players[(Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers].Name
                 : string.Format("Hráč {0}", (Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers + 1));
 
-            var sum1 = Game.Money.Sum(i => i.MoneyWon[0]).ToString("C", culture);
-            var sum2 = Game.Money.Sum(i => i.MoneyWon[1]).ToString("C", culture);
-            var sum3 = Game.Money.Sum(i => i.MoneyWon[2]).ToString("C", culture);
+            var sum1 = Game.Money.Sum(i => i.MoneyWon[0] * _settings.BaseBet).ToString("C", culture);
+            var sum2 = Game.Money.Sum(i => i.MoneyWon[1] * _settings.BaseBet).ToString("C", culture);
+            var sum3 = Game.Money.Sum(i => i.MoneyWon[2] * _settings.BaseBet).ToString("C", culture);
 
             _footer.Text = string.Format("Součet:\t{0}\t{1}\t{2}", sum1, sum2, sum3);
         }
@@ -146,6 +149,11 @@ namespace Mariasek.SharedClient
         private void MenuClicked(object sender)
         {
             Game.MenuScene.SetActive();
+        }
+
+        public void SettingsChanged(object sender, SettingsChangedEventArgs e)
+        {
+            _settings = e.Settings;
         }
 
         public override void Draw(GameTime gameTime)

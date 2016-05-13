@@ -82,6 +82,7 @@
     <Compile Include="Logger\LogWrapper.cs" />
     <Compile Include="Logger\NotifyAppender.cs" />
     <Compile Include="MoneyCalculatorBase.cs" />
+    <Compile Include="MultiplyingMoneyCalculator.cs" />
     <Compile Include="PlayerDebugInfo.cs" />
     <Compile Include="PortableMockups.cs" />
     <Compile Include="Probability.cs" />

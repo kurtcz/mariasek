@@ -24,10 +24,19 @@ namespace Mariasek.SharedClient
 
         private Label _sounds;
         private Label _handSorting;
+        private Label _baseBet;
         private ToggleButton _soundBtn;
         private ToggleButton _ascSortBtn;
         private ToggleButton _descSortBtn;
         private ToggleButton _noSortBtn;
+        private ToggleButton _bet001Btn;
+        private ToggleButton _bet005Btn;
+        private ToggleButton _bet010Btn;
+        private ToggleButton _bet020Btn;
+        private ToggleButton _bet050Btn;
+        private ToggleButton _bet100Btn;
+        private ToggleButton _addingBtn;
+        private ToggleButton _multiplyingBtn;
         private Button _menuBtn;
 
         private GameSettings _settings;
@@ -109,7 +118,96 @@ namespace Mariasek.SharedClient
                 Text = "Vůbec",
                 IsSelected = _settings.SortMode == SortMode.None
             };
-            _noSortBtn.Click += SortBtnClick;
+            _baseBet = new Label(this)
+            {
+                Position = new Vector2(10, 180),
+                Width = (int)Game.VirtualScreenWidth / 2 - 20,
+                Height = 50,
+                Text = "Hodnota hry",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _bet001Btn = new ToggleButton(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth - 390, 180),
+                    Width = 120,
+                    Height = 50,
+                    Text = "0,10 Kč",
+                    IsSelected = _settings.BaseBet == 0.1f
+                };
+            _bet001Btn.Click += BetBtnClick;
+            _bet005Btn = new ToggleButton(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth - 260, 180),
+                    Width = 120,
+                    Height = 50,
+                    Text = "0,50 Kč",
+                    IsSelected = _settings.BaseBet == 0.5f
+                };
+            _bet005Btn.Click += BetBtnClick;
+            _bet010Btn = new ToggleButton(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth - 130, 180),
+                    Width = 120,
+                    Height = 50,
+                    Text = "1 Kč",
+                    IsSelected = _settings.BaseBet == 1f
+                };
+            _bet010Btn.Click += BetBtnClick;
+            _bet020Btn = new ToggleButton(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth - 390, 240),
+                    Width = 120,
+                    Height = 50,
+                    Text = "2 Kč",
+                    IsSelected = _settings.BaseBet == 2f
+                };
+            _bet020Btn.Click += BetBtnClick;
+            _bet050Btn = new ToggleButton(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth - 260, 240),
+                    Width = 120,
+                    Height = 50,
+                    Text = "5 Kč",
+                    IsSelected = _settings.BaseBet == 5f
+                };
+            _bet050Btn.Click += BetBtnClick;
+            _bet100Btn = new ToggleButton(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth - 130, 240),
+                    Width = 120,
+                    Height = 50,
+                    Text = "10 Kč",
+                    IsSelected = _settings.BaseBet == 10f
+                };
+            _bet100Btn.Click += BetBtnClick;
+            _baseBet = new Label(this)
+                {
+                    Position = new Vector2(10, 300),
+                    Width = (int)Game.VirtualScreenWidth / 2 - 20,
+                    Height = 50,
+                    Text = "Počítání nad kilo",
+                    HorizontalAlign = HorizontalAlignment.Center,
+                    VerticalAlign = VerticalAlignment.Middle
+                };
+            _addingBtn = new ToggleButton(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth - 325, 300),
+                    Width = 120,
+                    Height = 50,
+                    Text = "Sčítat",
+                    IsSelected = _settings.CalculationStyle == Mariasek.Engine.New.CalculationStyle.Adding
+                };
+            _addingBtn.Click += CalculationBtnClick;
+            _multiplyingBtn = new ToggleButton(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth - 195, 300),
+                    Width = 120,
+                    Height = 50,
+                    Text = "Násobit",
+                    IsSelected = _settings.CalculationStyle == Mariasek.Engine.New.CalculationStyle.Multiplying
+                };
+            _multiplyingBtn.Click += CalculationBtnClick;
             _menuBtn = new Button(this)
             {
                 Position = new Vector2(10, Game.VirtualScreenHeight - 60),
@@ -156,6 +254,68 @@ namespace Mariasek.SharedClient
                 _settings.SortMode = SortMode.None;
             }
                 
+            SaveGameSettings();
+            OnSettingsChanged();
+        }
+
+        void BetBtnClick (object sender)
+        {
+            var betbtn = sender as ToggleButton;
+
+            _bet001Btn.IsSelected = false;
+            _bet005Btn.IsSelected = false;
+            _bet010Btn.IsSelected = false;
+            _bet020Btn.IsSelected = false;
+            _bet050Btn.IsSelected = false;
+            _bet100Btn.IsSelected = false;
+            betbtn.IsSelected = true;
+
+            if (betbtn == _bet001Btn)
+            {
+                _settings.BaseBet = 0.1f;
+            }
+            else if (betbtn == _bet005Btn)
+            {
+                _settings.BaseBet = 0.5f;
+            }
+            else if (betbtn == _bet010Btn)
+            {
+                _settings.BaseBet = 1f;
+            }
+            else if (betbtn == _bet020Btn)
+            {
+                _settings.BaseBet = 2f;
+            }
+            else if (betbtn == _bet050Btn)
+            {
+                _settings.BaseBet = 5f;
+            }
+            else if (betbtn == _bet100Btn)
+            {
+                _settings.BaseBet = 10f;
+            }
+
+            SaveGameSettings();
+            OnSettingsChanged();
+        }
+
+        void CalculationBtnClick (object sender)
+        {
+            var btn = sender as ToggleButton;
+
+            _addingBtn.IsSelected = false;
+            _multiplyingBtn.IsSelected = false;
+            btn.IsSelected = true;
+
+            if (btn == _addingBtn)
+            {
+                _settings.CalculationStyle = Mariasek.Engine.New.CalculationStyle.Adding;
+            }
+            else if (btn == _multiplyingBtn)
+            {
+                _settings.CalculationStyle = Mariasek.Engine.New.CalculationStyle.Multiplying;
+            }
+
             SaveGameSettings();
             OnSettingsChanged();
         }
