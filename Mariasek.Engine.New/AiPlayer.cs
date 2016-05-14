@@ -46,6 +46,7 @@ namespace Mariasek.Engine.New
                 RoundsToCompute = 1,
                 CardSelectionStrategy = CardSelectionStrategy.MaxCount,
                 SimulationsPerGameType = 100,
+                MaxSimulationTimeMs = 3000,
                 SimulationsPerRound = 250,
                 RuleThreshold = 0.9f,
                 RuleThresholdForGameType = new Dictionary<Hra, float> {{ Hra.Hra, 0.9f }, { Hra.Sedma, 0.9f }, { Hra.Kilo, 0.99f }, { Hra.Betl, 0.9f }, { Hra.Durch, 0.9f }},
@@ -77,7 +78,10 @@ namespace Mariasek.Engine.New
             Settings.RoundsToCompute = int.Parse(parameters["RoundsToCompute"].Value);
             Settings.CardSelectionStrategy = (CardSelectionStrategy)Enum.Parse(typeof(CardSelectionStrategy), parameters["CardSelectionStrategy"].Value);
             Settings.SimulationsPerGameType = int.Parse(parameters["SimulationsPerGameType"].Value);
+            Settings.MaxSimulationTimeMs = int.Parse(parameters["MaxSimulationTimeMs"].Value);
+            Settings.SimulationsPerGameTypePerSecond = int.Parse(parameters["SimulationsPerGameTypePerSecond"].Value);
             Settings.SimulationsPerRound = int.Parse(parameters["SimulationsPerRound"].Value);
+            Settings.SimulationsPerRoundPerSecond = int.Parse(parameters["SimulationsPerRoundPerSecond"].Value);
             Settings.RuleThreshold = int.Parse(parameters["RuleThreshold"].Value) / 100f;
             Settings.RuleThresholdForGameType = new Dictionary<Hra, float>();
             Settings.RuleThresholdForGameType[Hra.Hra] = int.Parse(parameters["RuleThreshold.Hra"].Value ?? parameters["RuleThreshold"].Value) / 100f;
@@ -100,6 +104,16 @@ namespace Mariasek.Engine.New
             Settings.GameThresholdsForGameType[Hra.Durch] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
             Settings.MaxDoubleCount = int.Parse(parameters["MaxDoubleCount"].Value);
             Settings.SigmaMultiplier = int.Parse(parameters["SigmaMultiplier"].Value);
+
+            //if we have benchmarked values then use thouse instead of defaults
+            if (Settings.SimulationsPerGameTypePerSecond > 0)
+            {
+                Settings.SimulationsPerGameType = Settings.SimulationsPerGameTypePerSecond * Settings.MaxSimulationTimeMs / 1000;
+            }
+            if (Settings.SimulationsPerRoundPerSecond > 0)
+            {
+                Settings.SimulationsPerRound = Settings.SimulationsPerRoundPerSecond * Settings.MaxSimulationTimeMs / 1000;
+            }
         }
 
         private int GetSuitScoreForTrumpChoice(Barva b)
@@ -390,6 +404,8 @@ namespace Mariasek.Engine.New
             var totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
                                        (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
             var progress = 0;
+            var goodGamesPerSecond = 0;
+            var badGamesPerSecond = 0;
             OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = totalGameSimulations, Message = "Generuju karty"});
 
             //nasimuluj hry v barve
@@ -413,8 +429,17 @@ namespace Mariasek.Engine.New
                 //var opt = new ParallelOptions { MaxDegreeOfParallelism = 1 };
 
                 //Parallel.ForEach(source.ToArray(), opt, hands =>
-                Parallel.ForEach(source.ToArray(), hands =>
+                var start = DateTime.Now;
+                var actualSimulations = 0;
+                var prematureEnd = false;
+                Parallel.ForEach(source.ToArray(), (hands, loopState) =>
                 {
+                    if(Settings.SimulationsPerGameTypePerSecond <= 0 && (DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
+                    {
+                        prematureEnd = true;
+                        loopState.Stop();
+                    }
+                    Interlocked.Increment(ref actualSimulations);
                     for(var i = 0; i < hands.Length; i++)
                     {
                         hands[i] = new Hand(new List<Card>((List<Card>)hands[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
@@ -428,10 +453,21 @@ namespace Mariasek.Engine.New
                     var val = Interlocked.Increment(ref progress);
                     OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = totalGameSimulations, Message = "Simuluju hru"});
                 });
+                if (prematureEnd)
+                {
+                    Settings.SimulationsPerGameType = actualSimulations;
+                    Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / Settings.MaxSimulationTimeMs * 1000);
+                    totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
+                        (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
+                }
             }
             if (simulateBadGames)
             {
                 var initialProgress = progress;
+                var start = DateTime.Now;
+                var actualSimulations = 0;
+                var prematureEnd = false;
+
                 //OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = totalGameSimulations, Message = "Generuju karty na durch"});
 
                 //nasimuluj durchy
@@ -441,6 +477,13 @@ namespace Mariasek.Engine.New
                 //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
                 Parallel.ForEach(source.ToArray(), (hands, loopState) =>
                 {
+                    if(Settings.SimulationsPerGameTypePerSecond <= 0 && (DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
+                    {
+                        prematureEnd = true;
+                        loopState.Stop();
+                    }
+                    Interlocked.Increment(ref actualSimulations);
+
                     for(var i = 0; i < hands.Length; i++)
                     {
                         hands[i] = new Hand(new List<Card>((List<Card>)hands[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
@@ -459,14 +502,31 @@ namespace Mariasek.Engine.New
                         loopState.Stop();
                     }
                 });
+                if (prematureEnd)
+                {
+                    Settings.SimulationsPerGameType = actualSimulations;
+                    Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / Settings.MaxSimulationTimeMs * 1000);
+                    totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
+                        (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
+                }
+                actualSimulations = 0;
+                prematureEnd = false;
+                start = DateTime.Now;
                 //OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = totalGameSimulations, Message = "Generuju karty na betl"});
                 //nasimuluj betly
                 //source = Settings.Cheat
                 //                ? new[] { GetPlayersHandsAndTalon() }
                 //                : Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType);
                 //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
-                Parallel.ForEach(source.ToArray(), hands =>
+                Parallel.ForEach(source.ToArray(), (hands, loopState) =>
                 {
+                    if(Settings.SimulationsPerGameTypePerSecond <= 0 && (DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
+                    {
+                        prematureEnd = true;
+                        loopState.Stop();
+                    }
+                    Interlocked.Increment(ref actualSimulations);
+
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, GameStartingPlayerIndex);
 
                     var betlComputationResult = ComputeGame(hands, null, null, null, Hra.Betl, 10, 1, true);
@@ -475,6 +535,13 @@ namespace Mariasek.Engine.New
                     var val = Interlocked.Increment(ref progress);
                     OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = totalGameSimulations, Message = "Simuluju betl"});
                 });
+                if (prematureEnd)
+                {
+                    Settings.SimulationsPerGameType = actualSimulations;
+                    Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / Settings.MaxSimulationTimeMs * 1000);
+                    totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
+                        (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
+                }
             }
 
             //vyber vhodnou hru podle vysledku simulace
@@ -871,9 +938,17 @@ namespace Mariasek.Engine.New
                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = 0, Max = simulations, Message = "Generuju karty"});
                 var source = Probabilities.GenerateHands(_g.RoundNumber, roundStarterIndex, simulations);
                 var progress = 0;
+                var start = DateTime.Now;
+                var prematureEnd = false;
+
                 //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), (hands, loopState) =>
                 Parallel.ForEach(source, (hands, loopState) =>
                 {
+                    if (Settings.SimulationsPerRoundPerSecond <= 0 && (DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
+                    {
+                        prematureEnd = true;
+                        loopState.Stop();
+                    }
                     var computationResult = ComputeGame(hands, r.c1, r.c2);
 
                     if (!cardScores.TryAdd(computationResult.CardToPlay, new ConcurrentQueue<GameComputationResult>(new[] { computationResult })))
@@ -890,6 +965,11 @@ namespace Mariasek.Engine.New
                         loopState.Stop();
                     }
                 });
+                if (prematureEnd)
+                {
+                    Settings.SimulationsPerRound = progress;
+                    Settings.SimulationsPerRoundPerSecond = (int)((float)progress / Settings.MaxSimulationTimeMs * 1000);
+                }
                 if (canSkipSimulations)
                 {
                     _log.InfoFormat("Other simulations have been skipped");

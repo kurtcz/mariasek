@@ -108,6 +108,17 @@ namespace Mariasek.SharedClient
         public MainScene(MariasekMonoGame game)
             : base(game)
         {
+            Game.SettingsScene.SettingsChanged += SettingsChanged;
+        }
+
+        /// <summary>
+        /// Allows the game component to perform any initialization it needs to before starting
+        /// to run.  This is where it can query for any required services and load content.
+        /// </summary>
+        public override void Initialize()
+        {
+            base.Initialize();
+
             _aiConfig = new Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection();
 
             _aiConfig.Add("AiCheating", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
@@ -128,12 +139,27 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("SimulationsPerGameType", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "SimulationsPerGameType",
-                    Value = "25"
+                    Value = "500"
+                });
+            _aiConfig.Add("SimulationsPerGameTypePerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                {
+                    Name = "SimulationsPerGameTypePerSecond",
+                    Value = _settings.GameTypeSimulationsPerSecond.ToString()
+                });
+            _aiConfig.Add("MaxSimulationTimeMs", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                {
+                    Name = "MaxSimulationTimeMs",
+                    Value = "3000"
                 });
             _aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "SimulationsPerRound",
-                    Value = "100"
+                    Value = "1000"
+                });
+            _aiConfig.Add("SimulationsPerRoundPerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                {
+                    Name = "SimulationsPerRoundPerSecond",
+                    Value = _settings.RoundSimulationsPerSecond.ToString()
                 });
             _aiConfig.Add("RuleThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
@@ -175,17 +201,7 @@ namespace Mariasek.SharedClient
                     Name = "BaseBet",
                     Value = "1"
                 });
-            Game.SettingsScene.SettingsChanged += SettingsChanged;
-        }
-
-        /// <summary>
-        /// Allows the game component to perform any initialization it needs to before starting
-        /// to run.  This is where it can query for any required services and load content.
-        /// </summary>
-        public override void Initialize()
-        {
-            base.Initialize();
-
+            
             _synchronizationContext = SynchronizationContext.Current;
             _hlasy = new []
             {
@@ -1144,6 +1160,10 @@ namespace Mariasek.SharedClient
 
         public void CardPlayed(object sender, Round r)
         {
+            if (g.CurrentRound == null) //pokud se vubec nehralo (lozena hra)
+            {
+                return;
+            }
             _synchronizationContext.Send(_ =>
                 {
                     Card lastCard;
@@ -1245,6 +1265,15 @@ namespace Mariasek.SharedClient
 
             _deck = g.GetDeckFromLastGame();
             SaveDeck();
+
+            if (_settings.GameTypeSimulationsPerSecond <= 0 || _settings.RoundSimulationsPerSecond <= 0)
+            {
+                _settings.GameTypeSimulationsPerSecond = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
+                _settings.RoundSimulationsPerSecond = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
+                _aiConfig["SimulationsPerGameTypePerSecond"].Value = _settings.GameTypeSimulationsPerSecond.ToString();
+                _aiConfig["SimulationsPerRoundPerSecond"].Value = _settings.RoundSimulationsPerSecond.ToString();
+                Game.SettingsScene.SaveGameSettings();
+            }
         }
 
         #endregion
@@ -1407,6 +1436,12 @@ namespace Mariasek.SharedClient
 
         private void ClearTableAfterRoundFinished()
         {
+            if (g.CurrentRound == null) //pokud se vubec nehralo (lozena hra)
+            {
+                _evt.Set();
+                return;
+            }
+
             var stych = _stychy[g.CurrentRound.roundWinner.PlayerIndex];
             var origPositions = _cardsPlayed.Select(i => i.Position).ToArray();
 

@@ -16,6 +16,8 @@ namespace Mariasek.SharedClient
         public SortMode SortMode { get; set; }
         public float BaseBet { get; set; }
         public CalculationStyle CalculationStyle { get; set; }
+        public int GameTypeSimulationsPerSecond { get; set; }
+        public int RoundSimulationsPerSecond { get; set; }
 
         public GameSettings()
         {

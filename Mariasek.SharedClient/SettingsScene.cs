@@ -186,7 +186,7 @@ namespace Mariasek.SharedClient
                     Position = new Vector2(10, 300),
                     Width = (int)Game.VirtualScreenWidth / 2 - 20,
                     Height = 50,
-                    Text = "Počítání nad kilo",
+                    Text = "Počítání peněz u kila",
                     HorizontalAlign = HorizontalAlignment.Center,
                     VerticalAlign = VerticalAlignment.Middle
                 };

@@ -23,7 +23,10 @@ namespace Mariasek.Engine.New
         public bool Cheat { get; set; }
         public CardSelectionStrategy CardSelectionStrategy { get; set; }
         public int SimulationsPerGameType { get; set; }
+        public int SimulationsPerGameTypePerSecond { get; set; }
+        public int MaxSimulationTimeMs { get; set; }
         public int SimulationsPerRound { get; set; }
+        public int SimulationsPerRoundPerSecond { get; set; }
         public int RoundsToCompute { get; set; }
         public float RuleThreshold { get; set; }
         public Dictionary<Hra, float> RuleThresholdForGameType { get; set; }

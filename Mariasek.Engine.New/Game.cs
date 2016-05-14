@@ -553,6 +553,10 @@ namespace Mariasek.Engine.New
                                 //predcasne vitezstvi ukazuju jen do sedmeho kola, pro posledni 2 karty to nema smysl
                                 if(RoundNumber < 8 && PlayerWinsGame(roundWinner))
                                 {
+                                    if(GameType == Hra.Betl)
+                                    {
+                                        roundWinner = GameStartingPlayer;
+                                    }
                                     OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = roundWinner.Hand, roundNumber = RoundNumber });
                                     CompleteUnfinishedRounds();
                                     break;
@@ -734,15 +738,20 @@ namespace Mariasek.Engine.New
 
         private bool PlayerWinsGame(AbstractPlayer player)
         {
-            var player2 = (player.PlayerIndex + 1) % Game.NumPlayers;
-            var player3 = (player.PlayerIndex + 2) % Game.NumPlayers;
-
             if(GameType == Hra.Betl)
             {
-                return player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => Round.WinningCard(i, j, k, trump) != i)));
+                var player2 = (GameStartingPlayerIndex + 1) % Game.NumPlayers;
+                var player3 = (GameStartingPlayerIndex + 2) % Game.NumPlayers;
+
+                player = GameStartingPlayer;
+
+                return player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => j.IsHigherThan(i, trump) && k.IsHigherThan(i, trump))));
             }
             else
             {
+                var player2 = (player.PlayerIndex + 1) % Game.NumPlayers;
+                var player3 = (player.PlayerIndex + 2) % Game.NumPlayers;
+
                 return player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => Round.WinningCard(i, j, k, trump) == i)));
             }
         }

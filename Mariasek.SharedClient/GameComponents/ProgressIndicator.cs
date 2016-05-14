@@ -57,6 +57,14 @@ namespace Mariasek.SharedClient.GameComponents
             get { return _progress; }
             set
             {
+                if (value < Min)
+                {
+                    value = Min;
+                }
+                else if (value > Max)
+                {
+                    value = Max;
+                }
                 _progress = value;
                 _progressBar.Width = GetProgressBarWidth(value);
             }
