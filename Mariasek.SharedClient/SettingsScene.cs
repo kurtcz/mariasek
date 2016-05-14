@@ -37,6 +37,7 @@ namespace Mariasek.SharedClient
         private ToggleButton _bet100Btn;
         private ToggleButton _addingBtn;
         private ToggleButton _multiplyingBtn;
+        private Label _performance;
         private Button _menuBtn;
 
         private GameSettings _settings;
@@ -64,6 +65,13 @@ namespace Mariasek.SharedClient
         {
             base.Initialize();
 
+            _performance = new Label(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth - 405, Game.VirtualScreenHeight - 34),
+                    Width = 400,
+                    Height = 34,
+                    HorizontalAlign = HorizontalAlignment.Right
+                };            
             LoadGameSettings();
             _sounds = new Label(this)
             {
@@ -208,6 +216,7 @@ namespace Mariasek.SharedClient
                     IsSelected = _settings.CalculationStyle == Mariasek.Engine.New.CalculationStyle.Multiplying
                 };
             _multiplyingBtn.Click += CalculationBtnClick;
+
             _menuBtn = new Button(this)
             {
                 Position = new Vector2(10, Game.VirtualScreenHeight - 60),
@@ -346,6 +355,9 @@ namespace Mariasek.SharedClient
                 System.Diagnostics.Debug.WriteLine(string.Format("Cannot load settings\n{0}", e.Message));
                 _settings = new GameSettings();
             }
+            _performance.Text = string.Format("Výkon simulace: {0} her/s, {1} kol/s", 
+                _settings.GameTypeSimulationsPerSecond > 0 ? _settings.GameTypeSimulationsPerSecond.ToString() : "?", 
+                _settings.RoundSimulationsPerSecond > 0 ? _settings.RoundSimulationsPerSecond.ToString() : "?");
         }
 
         public void SaveGameSettings()
