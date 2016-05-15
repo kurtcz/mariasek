@@ -362,7 +362,7 @@ namespace Mariasek.Engine.New
                     var c1 = new Card(cards[player1].Barva, cards[player1].Hodnota);
                     var c2 = new Card(cards[player2].Barva, cards[player2].Hodnota);
                     var c3 = new Card(cards[player3].Barva, cards[player3].Hodnota);
-                    var r = new Round(this, players[player1], c1, c2, c3);  //inside this constructor we replay the round and call all event handlers to ensure that all players can update their ai model
+                    var r = new Round(this, players[player1], c1, c2, c3, RoundNumber);  //inside this constructor we replay the round and call all event handlers to ensure that all players can update their ai model
 
                     rounds[stych.Kolo - 1] = r;
 

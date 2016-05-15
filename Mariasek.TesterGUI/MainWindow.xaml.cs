@@ -351,6 +351,10 @@ namespace Mariasek.TesterGUI
                               int skip = (12 - g.players[0].Hand.Count)/2;
                               var imgSrcConverter = new ImageSourceConverter();
 
+                              for (int i = 0; i < Game.NumPlayers; i++)
+                              {
+                                  g.players[i].Hand.Sort();
+                              }
                               for (int i = 0; i < g.players[0].Hand.Count; i++)
                               {
                                   string source =

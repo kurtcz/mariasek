@@ -36,10 +36,25 @@ namespace Mariasek.Engine.Tests
                 Name = "SimulationsPerGameType",
                 Value = "25"
             });
+            _aiConfig.Add("SimulationsPerGameTypePerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "SimulationsPerGameTypePerSecond",
+                Value = "0"
+            });
             _aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "SimulationsPerRound",
                 Value = "100"
+            });
+            _aiConfig.Add("SimulationsPerRoundPerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "SimulationsPerRoundPerSecond",
+                Value = "0"
+            });
+            _aiConfig.Add("MaxSimulationTimeMs", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "MaxSimulationTimeMs",
+                Value = "3000"
             });
             _aiConfig.Add("RuleThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
