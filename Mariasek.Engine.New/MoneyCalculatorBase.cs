@@ -185,7 +185,7 @@ namespace Mariasek.Engine.New
                 }
                     
                 QuietHundredWon = PointsWon >= 100 && (_gameType & Hra.Kilo) == 0;
-                QuietHundredAgainstWon = PointsLost >= 100;
+                QuietHundredAgainstWon = PointsLost >= 100 && (_gameType & Hra.KiloProti) == 0;
 
                 HundredWon = BasicPointsWon + MaxHlasWon >= 100;
                 HundredAgainstWon = BasicPointsLost + MaxHlasLost >= 100;

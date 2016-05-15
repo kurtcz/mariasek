@@ -139,7 +139,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("SimulationsPerGameType", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "SimulationsPerGameType",
-                    Value = "50"
+                    Value = "1000"
                 });
             _aiConfig.Add("SimulationsPerGameTypePerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
@@ -154,7 +154,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "SimulationsPerRound",
-                    Value = "100"
+                    Value = "1000"
                 });
             _aiConfig.Add("SimulationsPerRoundPerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
@@ -461,7 +461,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth / 2f + 80, Game.VirtualScreenHeight / 2f - 150),
                 Width = 150,
                 Height = 50,
-                Tag = Hra.KiloProti
+                Tag = Hra.Hra | Hra.KiloProti
             };
             kiloBtn.Click += BidButtonClicked;
             kiloBtn.Hide();
@@ -646,7 +646,7 @@ namespace Mariasek.SharedClient
                     g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, false);
                     ShowThinkingMessage();
                     _hand.Show();
-                    _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
+                    UpdateHand();
                 }
                 _canSort = g.GameStartingPlayerIndex != 0;
 
@@ -722,7 +722,7 @@ namespace Mariasek.SharedClient
             _progressBars[player.PlayerIndex - 1].Max = e.Max;
             if (!string.IsNullOrEmpty(e.Message))
             {
-                ShowMsgLabel(string.Format("{0}/{1} {2}", e.Current, e.Max, e.Message), false);
+                ShowMsgLabel(string.Format("{0}/{1} {2}", e.Current, e.Max > 0 ? e.Max.ToString() : "?", e.Message), false);
             }
         }
 
@@ -888,6 +888,14 @@ namespace Mariasek.SharedClient
 
         public void BidButtonClicked(object sender)
         {
+            if (sender == flekBtn && flekBtn.IsSelected)
+            {
+                kiloBtn.IsSelected = false;
+            }
+            else if (sender == kiloBtn && kiloBtn.IsSelected)
+            {
+                flekBtn.IsSelected = false;
+            }
             _bid = _bidding.Bids &
                 ((flekBtn.IsSelected
                     ? (Hra)flekBtn.Tag
@@ -1266,7 +1274,7 @@ namespace Mariasek.SharedClient
             _deck = g.GetDeckFromLastGame();
             SaveDeck();
 
-            if (_settings.GameTypeSimulationsPerSecond <= 0 || _settings.RoundSimulationsPerSecond <= 0)
+            //if (_settings.GameTypeSimulationsPerSecond <= 0 || _settings.RoundSimulationsPerSecond <= 0)
             {
                 _settings.GameTypeSimulationsPerSecond = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
                 _settings.RoundSimulationsPerSecond = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);

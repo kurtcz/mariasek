@@ -149,7 +149,7 @@ namespace Mariasek.Engine.New
             _g.OnBidMade(e);
 
             var i = (_g.GameStartingPlayerIndex + 1) % Game.NumPlayers;
-            for (var j = 0; ; j++, i = ++i % Game.NumPlayers)
+            for (var j = 1; ; j++, i = ++i % Game.NumPlayers)
             {
                 Round = j % Game.NumPlayers;
                 //zrus priznak u her ktere cele kolo nikdo neflekoval aby uz nesly flekovat dal
@@ -202,6 +202,10 @@ namespace Mariasek.Engine.New
                 if (_g.players[(playerIndex + 2) % Game.NumPlayers].TeamMateIndex != -1)
                 {
                     Bids = PlayerBids[_g.GameStartingPlayerIndex] & ((Hra)~0 ^ PlayerBids[(playerIndex + 2) % Game.NumPlayers]);
+                    if ((PlayerBids[(playerIndex + 2) % Game.NumPlayers] & Hra.KiloProti) != 0)
+                    {
+                        Bids &= (Hra)~Hra.Hra; //u kila proti uz nejde dat flek na hru
+                    }
                 }
                 else
                 {
@@ -233,193 +237,175 @@ namespace Mariasek.Engine.New
                 BidMade = bid
             };
 
-            if (Round == 0)
+            if ((e.BidMade & Hra.Hra) != 0 &&
+                (e.BidMade & Hra.Sedma) != 0)
             {
-                if (player == _g.GameStartingPlayer)
+                switch (GameMultiplier)
                 {
-                    if ((_g.GameType & Hra.Hra) != 0 &&
-                        (_g.GameType & Hra.Sedma) != 0)
-                    {
+                    case 1:
                         e.Description = string.Format("Sedma {0}", _g.trump.Value.ToDescription());
-                    }
-                    else if ((_g.GameType & Hra.Kilo) != 0 &&
-                                (_g.GameType & Hra.Sedma) != 0)
-                    {
-                        e.Description = string.Format("Stosedm {0}", _g.trump.Value.ToDescription());
-                    }
-                    else if ((_g.GameType & Hra.Kilo) != 0)
-                    {
-                        e.Description = string.Format("Kilo {0}", _g.trump.Value.ToDescription());
-                    }
-                    else if ((_g.GameType & Hra.Sedma) != 0)
-                    {
-                        e.Description = string.Format("Sedma {0}", _g.trump.Value.ToDescription());
-                    }
-                    else if ((_g.GameType & Hra.Hra) != 0)
-                    {
-                        e.Description = string.Format("Hra {0}", _g.trump.Value.ToDescription());
-                    }
-                    else if ((_g.GameType & Hra.Betl) != 0)
-                    {
-                        if (e.BidMade != 0)
-                        {
-                            if (BetlDurchMultiplier == 1)
-                            {
-                                e.Description = "Betl";
-                            }
-                            else
-                            {
-                                e.Description = MultiplierToString(BetlDurchMultiplier);
-                            }
-                        }
-                        else
-                        {
-                            e.Description = "Dobrý";
-                        }
-                    }
-                    else if ((_g.GameType & Hra.Durch) != 0)
-                    {
-                        if (BetlDurchMultiplier == 1)
-                        {
-                            e.Description = "Durch";
-                        }
-                        else
-                        {
-                            e.Description = MultiplierToString(BetlDurchMultiplier);
-                        }
-                    }
-                    else
-                    {
-                        e.Description = string.Format(_g.GameType.ToString());
-                    }
-                }
-                else //player != _g.GameStartingPlayer
-                {
-                    if ((e.BidMade & (Hra.Hra | Hra.Kilo)) != 0 &&
-                        (e.BidMade & Hra.SedmaProti) != 0)
-                    {
-                        e.Description = "Flek a sedma proti";
-                    }
-                    else if ((e.BidMade & (Hra.Hra | Hra.Kilo)) != 0 &&
-                                (e.BidMade & Hra.Sedma) != 0)
-                    {
-                        e.Description = "Stří­hat a holit";
-                    }
-                    else if ((e.BidMade & (Hra.Hra | Hra.Kilo)) != 0)
-                    {
-                        if ((previousBid & Hra.Sedma) != 0)
-                        {
-                            if (GameMultiplier == 2)
-                            {
-                                e.Description = "Flek na hru";
-                            }
-                            else
-                            {
-                                e.Description = "Na hru vejš";
-                            }
-                            e.BidNumber = GameMultiplier;
-                        }
-                        else
-                        {
-                            e.Description = MultiplierToString(GameMultiplier, "Na hru vejš");
-                        }
-                    }
-                    else if ((e.BidMade & (Hra.Sedma)) != 0)
-                    {
-                        e.Description = "Flek na sedmu";
-                        e.BidNumber = SevenMultiplier;
-                    }
-                    else if ((e.BidMade & Hra.SedmaProti) != 0)
-                    {
-                        e.Description = "Sedma proti";
-                        e.BidNumber = SevenAgainstMultiplier;
-                    }
-                    else if ((e.BidMade & Hra.KiloProti) != 0)
-                    {
-                        e.Description = "Kilo proti";
-                        e.BidNumber = HundredAgainstMultiplier;
-                    }
-                    else if ((e.BidMade & (Hra.Betl | Hra.Durch)) != 0)
-                    {
-                        e.Description = MultiplierToString(BetlDurchMultiplier);
-                        e.BidNumber = BetlDurchMultiplier;
-                    }
-                    else if (e.BidMade == 0)
-                    {
-                        e.Description = "Dobrý";
-                    }
-                    else
-                    {
-                        e.Description = string.Format(e.BidMade.ToString());
-                    }
+                        break;
+                    case 2:
+                        e.Description = "Stříhat a holit";
+                        break;
+                    default:
+                        e.Description = "Na oboje vejš";
+                        break;
                 }
             }
-            else //Round > 0
+            else if ((e.BidMade & Hra.Kilo) != 0 &&
+                     (e.BidMade & Hra.Sedma) != 0)
             {
-                var sb = new StringBuilder();
-                if ((e.BidMade & (Hra.Hra | Hra.Kilo)) != 0)
+                switch (GameMultiplier)
                 {
-                    sb.AppendFormat("{0}", MultiplierToString(GameMultiplier));
-                    e.BidNumber = GameMultiplier;
+                    case 1:
+                        e.Description = string.Format("Stosedm {0}", _g.trump.Value.ToDescription());
+                        break;
+                    case 2:
+                        e.Description = "Stříhat a holit";
+                        break;
+                    default:
+                        e.Description = "Na oboje vejš";
+                        break;
                 }
-                if ((e.BidMade & (Hra.Sedma | Hra.SedmaProti)) != 0)
+            }
+            else if ((e.BidMade & Hra.Kilo) != 0)
+            {
+                if ((previousBid & Hra.Sedma) != 0)
                 {
-                    if ((e.BidMade & Hra.Sedma) != 0)
+                    switch (GameMultiplier)
                     {
-                        e.BidNumber = SevenMultiplier;
-                        if(e.BidNumber > 1)
-                        {
-                            sb.AppendFormat("{0}Na sedmu vejš", sb.Length > 0 ? "\n" : "");
-                        }
-                        else
-                        {
-                            sb.AppendFormat("{0}Flek na sedmu", sb.Length > 0 ? "\n" : "");
-                        }
+                        case 1:
+                            e.Description = "Flek na hru";
+                            break;
+                        default:
+                            e.Description = "Na hru vejš";
+                            break;
                     }
-                    else
-                    {
-                        e.BidNumber = SevenAgainstMultiplier;
-                        if (e.BidNumber > 1)
-                        {
-                            sb.AppendFormat("{0}Na sedmu vejš", sb.Length > 0 ? "\n" : "");
-                        }
-                        else
-                        {
-                            sb.AppendFormat("{0}Sedma proti", sb.Length > 0 ? "\n" : "");
-                        }
-                    }
-                }
-                if ((e.BidMade & Hra.KiloProti) != 0)
-                {
-                    if (e.BidNumber > 1)
-                    {
-                        sb.AppendFormat("{0}Na kilo vejš", sb.Length > 0 ? "\n" : "");
-                    }
-                    else
-                    {
-                        sb.AppendFormat("{0}Kilo proti", sb.Length > 0 ? "\n" : "");
-                    }
-                    e.BidNumber = HundredAgainstMultiplier;
-                }
-                if ((e.BidMade & (Hra.Betl | Hra.Durch)) != 0)
-                {
-                    if (BetlDurchMultiplier == 1)
-                    {
-                        sb.Append(e.BidMade.ToString());
-                    }
-                    else
-                    {
-                        sb.Append(MultiplierToString(BetlDurchMultiplier));
-                    }
-                }
-                if (e.BidMade == 0)
-                {
-                    e.Description = "Dobrý";
                 }
                 else
                 {
-                    e.Description = sb.ToString();
+                    switch (GameMultiplier)
+                    {
+                        case 1:
+                            e.Description = string.Format("Kilo {0}", _g.trump.Value.ToDescription());
+                            break;
+                        default:
+                            e.Description = MultiplierToString(GameMultiplier);
+                            break;
+                    }
                 }
+            }
+            else if ((e.BidMade & Hra.Sedma) != 0)
+            {
+                switch (SevenMultiplier)
+                {
+                    case 1:
+                        e.Description = string.Format("Sedma {0}", _g.trump.Value.ToDescription());
+                        break;
+                    case 2:
+                        e.Description = "Flek na sedmu";
+                        break;
+                    default:
+                        e.Description = "Flek na vejš";
+                        break;
+                }
+            }
+            else if ((e.BidMade & (Hra.Hra | Hra.Kilo)) != 0 &&
+                     (e.BidMade & Hra.SedmaProti) != 0)
+            {
+                switch (SevenAgainstMultiplier)
+                {
+                    case 1:
+                        e.Description = "Flek a sedma proti";
+                        break;
+                    default:
+                        e.Description = "Na oboje vejš";
+                        break;
+                }
+            }
+            else if ((e.BidMade & Hra.SedmaProti) != 0)
+            {
+                switch (SevenAgainstMultiplier)
+                {
+                    case 1:
+                        e.Description = "Sedma proti";
+                        break;
+                    default:
+                        e.Description = "Na sedmu vejš";
+                        break;
+                }
+            }
+            else if ((e.BidMade & Hra.KiloProti) != 0)
+            {
+                switch (HundredAgainstMultiplier)
+                {
+                    case 1:
+                        e.Description = "Kilo proti";
+                        break;
+                    default:
+                        e.Description = "Na kilo vejš";
+                        break;
+                }
+            }
+            else if ((e.BidMade & Hra.Hra) != 0)
+            {
+                if ((previousBid & Hra.Sedma) != 0)
+                {
+                    switch (GameMultiplier)
+                    {
+                        case 1:
+                            e.Description = "Flek na hru";
+                            break;
+                        default:
+                            e.Description = "Na hru vejš";
+                            break;
+                    }
+                }
+                else
+                {
+                    switch (GameMultiplier)
+                    {
+                        case 1:
+                            e.Description = string.Format("Hra {0}", _g.trump.Value.ToDescription());
+                            break;
+                        default:
+                            e.Description = MultiplierToString(GameMultiplier);
+                            break;
+                    }
+                }
+            }
+            else if ((e.BidMade & Hra.Betl) != 0)
+            {
+                switch (BetlDurchMultiplier)
+                {
+                    case 1:
+                        e.Description = "Betl";
+                        break;
+                    default:
+                        e.Description = MultiplierToString(BetlDurchMultiplier);
+                        break;
+                }
+            }
+            else if ((e.BidMade & Hra.Durch) != 0)
+            {
+                switch (BetlDurchMultiplier)
+                {
+                    case 1:
+                        e.Description = "Durch";
+                        break;
+                    default:
+                        e.Description = MultiplierToString(BetlDurchMultiplier);
+                        break;
+                }
+            }
+            else if (e.BidMade == 0)
+            {
+                e.Description = "Dobrý";
+            }
+            else
+            {
+                e.Description = "?";
             }
 
             return e;

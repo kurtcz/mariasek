@@ -95,6 +95,11 @@ namespace Mariasek.SharedClient.GameComponents
             
         private int GetProgressBarWidth(int progress)
         {
+            if (Max == 0 || Max - Min == 0)
+            {
+                return Width / 3;
+            }
+
             return progress * _maxProgressWidth / (Max - Min);
         }
     }
