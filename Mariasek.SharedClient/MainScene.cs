@@ -465,7 +465,7 @@ namespace Mariasek.SharedClient
             };
             kiloBtn.Click += BidButtonClicked;
             kiloBtn.Hide();
-
+            bidButtons = new [] { flekBtn, sedmaBtn, kiloBtn };
             _progress1 = new ProgressIndicator(this)
             {
                 Position = new Vector2(0, 0),
@@ -557,9 +557,17 @@ namespace Mariasek.SharedClient
             if (_gameTask != null && _gameTask.Status == TaskStatus.Running)
             {
                 _synchronizationContext.Send(_ => ClearTable(true), null);
-                WaitHandle.WaitAll(_bubbleEvents);
-                _cancellationTokenSource.Cancel();
-                _evt.Set();
+                try
+                {
+                    //WaitHandle.WaitAll(_bubbleEvents);
+                    _cancellationTokenSource.Cancel();
+                    _evt.Set();
+                    _gameTask.Wait();
+                }
+                catch(Exception e)
+                {
+                    //exception caught during task cancellation
+                }
             }
             _cancellationTokenSource = new CancellationTokenSource();
         }
@@ -641,6 +649,19 @@ namespace Mariasek.SharedClient
                 _state = GameState.NotPlaying;
 
                 ClearTable(true);
+                HideMsgLabel();
+                foreach(var btn in gtButtons)
+                {
+                    btn.Hide();
+                }
+                foreach(var btn in gfButtons)
+                {
+                    btn.Hide();
+                }
+                foreach(var btn in bidButtons)
+                {
+                    btn.Hide();
+                }
                 if(g.GameStartingPlayerIndex != 0)
                 {
                     g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, false);

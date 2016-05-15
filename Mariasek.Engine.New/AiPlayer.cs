@@ -434,6 +434,7 @@ namespace Mariasek.Engine.New
                 var prematureEnd = false;
                 Parallel.ForEach(source, (hh, loopState) =>
                 {
+                    _g.ThrowIfCancellationRequested();
                     //if(Settings.SimulationsPerGameTypePerSecond <= 0 && (DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     if((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     {
@@ -481,6 +482,7 @@ namespace Mariasek.Engine.New
                 //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
                 Parallel.ForEach(source, (hh, loopState) =>
                 {
+                    _g.ThrowIfCancellationRequested();
                     //if(Settings.SimulationsPerGameTypePerSecond <= 0 && (DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     if((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     {
@@ -522,6 +524,7 @@ namespace Mariasek.Engine.New
                 //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
                 Parallel.ForEach(source, (hands, loopState) =>
                 {
+                    _g.ThrowIfCancellationRequested();
                     //if(Settings.SimulationsPerGameTypePerSecond <= 0 && (DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     //if((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     //{
@@ -954,6 +957,7 @@ namespace Mariasek.Engine.New
                 //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), (hands, loopState) =>
                 Parallel.ForEach(source, (hands, loopState) =>
                 {
+                    _g.ThrowIfCancellationRequested();
                     //if (Settings.SimulationsPerRoundPerSecond <= 0 && (DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     {
