@@ -59,8 +59,9 @@ namespace Mariasek.Engine.New
             player3 = _g.players[(player2.PlayerIndex + 1) % Game.NumPlayers];
         }
 
-        public Round(Game g, AbstractPlayer roundStarter, Card c1, Card c2, Card c3) : this(g, roundStarter)
+        public Round(Game g, AbstractPlayer roundStarter, Card c1, Card c2, Card c3, int roundNumber) : this(g, roundStarter)
         {
+            number = roundNumber;
             player1 = roundStarter;
             player2 = _g.players[(roundStarter.PlayerIndex + 1) % Game.NumPlayers];
             player3 = _g.players[(roundStarter.PlayerIndex + 2) % Game.NumPlayers];

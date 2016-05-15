@@ -928,7 +928,7 @@ namespace Mariasek.Engine.New
                     var c2 = AbstractPlayer.ValidCards(players[player2].Hand, trump, GameType, players[player2].TeamMateIndex, c1).RandomOne();
                     var c3 = AbstractPlayer.ValidCards(players[player3].Hand, trump, GameType, players[player3].TeamMateIndex, c1, c2).RandomOne();
 
-                    rounds[i] = new Round(this, lastRoundWinner, c1, c2, c3);
+                    rounds[i] = new Round(this, lastRoundWinner, c1, c2, c3, i+1);
                 }
                 lastRoundWinner = rounds[i].roundWinner;
             }

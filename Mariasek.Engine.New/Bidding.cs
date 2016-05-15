@@ -275,7 +275,7 @@ namespace Mariasek.Engine.New
                 {
                     switch (GameMultiplier)
                     {
-                        case 1:
+                        case 2:
                             e.Description = "Flek na hru";
                             break;
                         default:
