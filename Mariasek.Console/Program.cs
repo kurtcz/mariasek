@@ -99,6 +99,7 @@ namespace Mariasek.Console
             g.BidMade += BidMade;
             g.CardPlayed += CardPlayed;
             g.RoundFinished += RoundFinished;
+            g.GameFinished += GameFinished;
             g.PlayGame();
 
             System.Console.WriteLine(g.Results.ToString());
@@ -198,6 +199,12 @@ namespace Mariasek.Console
             System.Console.WriteLine("Round winner: {0} ({1} points won)\n", r.roundWinner.Name, r.PointsWon);
         }
 
+        private static void GameFinished(object sender, MoneyCalculatorBase e)
+        {
+            System.Console.WriteLine("Výkon simulace: {0} her/s, {1} kol/s",
+                (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond),
+                (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond));
+        }
         #endregion
     }
 }

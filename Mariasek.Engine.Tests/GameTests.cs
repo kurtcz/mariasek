@@ -299,5 +299,27 @@ namespace Mariasek.Engine.Tests
             player2.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Once);
             player3.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Once);
         }
+
+        [TestCategory("Bid and double tests")]
+        [TestMethod]
+        public void DoublingTest2()
+        {
+            g.SetProperty("GameStartingPlayerIndex", 0); //player1
+            g.SetProperty("GameType", Hra.Hra);
+            g.SetProperty("trump", (Barva?)Barva.Cerveny);
+
+            var bidding = new Bidding(g);
+            var player2BidsAndDoubles = new Queue<Hra>(new Hra[] { Hra.KiloProti, 0 });
+
+            player2.Setup(m => m.GetBidsAndDoubles(bidding)).Returns(() => player2BidsAndDoubles.Dequeue());
+            player3.Setup(m => m.GetBidsAndDoubles(bidding)).Returns(0);
+            player1.Setup(m => m.GetBidsAndDoubles(bidding)).Returns(Hra.KiloProti); //flek na kilo proti
+
+            bidding.CompleteBidding();
+
+            player1.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Once);
+            player2.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Exactly(2));
+            player3.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Exactly(2));
+        }
     }
 }
