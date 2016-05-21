@@ -207,43 +207,43 @@ namespace Mariasek.SharedClient
             {
                 new []
                 {
-                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f), IsEnabled = false },
-                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 150, Game.VirtualScreenHeight / 2f), IsEnabled = false },
-                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 200, Game.VirtualScreenHeight / 2f), IsEnabled = false },
-                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 250, Game.VirtualScreenHeight / 2f), IsEnabled = false },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f), IsEnabled = false },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, Game.VirtualScreenHeight / 2f), IsEnabled = false },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, Game.VirtualScreenHeight / 2f), IsEnabled = false },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, Game.VirtualScreenHeight / 2f), IsEnabled = false },
                 },
                 new []
                 {
-                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(100, 130), IsEnabled = false },
-                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(150, 130), IsEnabled = false },
-                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(200, 130), IsEnabled = false },
-                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(250, 130), IsEnabled = false },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(100, 130), IsEnabled = false },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(150, 130), IsEnabled = false },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(200, 130), IsEnabled = false },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(250, 130), IsEnabled = false },
                 },
                 new []
                 {
-                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 100, 130), IsEnabled = false },
-                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 150, 130), IsEnabled = false },
-                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 200, 130), IsEnabled = false },
-                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 250, 130), IsEnabled = false },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, 130), IsEnabled = false },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, 130), IsEnabled = false },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, 130), IsEnabled = false },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, 130), IsEnabled = false },
                 }
             };
             _stareStychy = new []
             {
-                new Sprite(this, Game.ReverseTexture) { Position = new Vector2(Game.VirtualScreenWidth - 50, Game.VirtualScreenHeight / 2f + 50) },
-                new Sprite(this, Game.ReverseTexture) { Position = new Vector2(50, 80) },
-                new Sprite(this, Game.ReverseTexture) { Position = new Vector2(Game.VirtualScreenWidth - 50, 80) }
+                    new Sprite(this, Game.ReverseTexture) { Position = new Vector2(Game.VirtualScreenWidth - 50, Game.VirtualScreenHeight / 2f + 50), Scale = Game.CardScaleFactor },
+                    new Sprite(this, Game.ReverseTexture) { Position = new Vector2(50, 80), Scale = Game.CardScaleFactor },
+                    new Sprite(this, Game.ReverseTexture) { Position = new Vector2(Game.VirtualScreenWidth - 50, 80), Scale = Game.CardScaleFactor }
             };
             _stychy = new []
             {
-                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 50, Game.VirtualScreenHeight / 2f + 50), IsEnabled = false },
-                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(50, 80), IsEnabled = false },
-                    new CardButton(this, new Sprite(this, Game.CardTextures)) { Position = new Vector2(Game.VirtualScreenWidth - 50, 80), IsEnabled = false }
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 50, Game.VirtualScreenHeight / 2f + 50), IsEnabled = false },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(50, 80), IsEnabled = false },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 50, 80), IsEnabled = false }
             };
             _cardsPlayed = new []
             {
-                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f - 100) },
-                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 150) },
-                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f + 100, Game.VirtualScreenHeight / 2f - 150) }
+                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f - 100), Scale = Game.CardScaleFactor },
+                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 150), Scale = Game.CardScaleFactor },
+                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f + 100, Game.VirtualScreenHeight / 2f - 150), Scale = Game.CardScaleFactor }
             };
             _overlay = new ClickableArea(this)
             {
@@ -612,6 +612,7 @@ namespace Mariasek.SharedClient
                     new AiPlayer(g, _aiConfig) { Name = "Hráč 2" },
                     new AiPlayer(g, _aiConfig) { Name = "Hráč 3" }
                 );
+                CurrentStartingPlayerIndex = _settings.CurrentStartingPlayerIndex; //TODO: zrusit CurrentStartingPlayerIndex a pouzivat jen _settings.CurrentStartingPlayerIndex
                 CurrentStartingPlayerIndex = (CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers;
                 if (_deck == null)
                 {
@@ -1301,6 +1302,7 @@ namespace Mariasek.SharedClient
                 _settings.RoundSimulationsPerSecond = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
                 _aiConfig["SimulationsPerGameTypePerSecond"].Value = _settings.GameTypeSimulationsPerSecond.ToString();
                 _aiConfig["SimulationsPerRoundPerSecond"].Value = _settings.RoundSimulationsPerSecond.ToString();
+                _settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
                 Game.SettingsScene.SaveGameSettings();
             }
         }

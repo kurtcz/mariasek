@@ -42,6 +42,8 @@ namespace Mariasek.SharedClient
         public SoundEffect OnSound { get; private set; }
         public SoundEffect OffSound { get; private set; }
 
+        public readonly Vector2 CardScaleFactor;
+
         public List<Mariasek.Engine.New.MoneyCalculatorBase> Money = new List<Mariasek.Engine.New.MoneyCalculatorBase>();
 		public MariasekMonoGame ()
 		{
@@ -59,6 +61,7 @@ namespace Mariasek.SharedClient
 //            var c = new Vector2(3, 3);
 //            var rt = pt.Rotate(c, (float)Math.PI / 2);
 //            System.Diagnostics.Debug.WriteLine(rt);
+            CardScaleFactor = new Vector2(1.2f, 1.2f);
 		}
 
         public static string Version

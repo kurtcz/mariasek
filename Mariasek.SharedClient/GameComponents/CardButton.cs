@@ -47,7 +47,7 @@ namespace Mariasek.SharedClient.GameComponents
 
         private void Init()
         {
-            _reverseSprite = new Sprite(this, Game.ReverseTexture) { Name = "Backsprite", Position = Position };
+            _reverseSprite = new Sprite(this, Game.ReverseTexture) { Name = "Backsprite", Position = Position, Scale = Game.CardScaleFactor };
             _reverseSprite.Hide();
         }
 
@@ -95,7 +95,7 @@ namespace Mariasek.SharedClient.GameComponents
             var slim = new Vector2
             {
                 X = 0,
-                Y = 1
+                Y = Game.CardScaleFactor.Y
             };
             this.Invoke(() =>
                 {
@@ -118,10 +118,10 @@ namespace Mariasek.SharedClient.GameComponents
                                 Sprite.Scale = slim;
                                 Sprite.Show();
                             })
-                    .ScaleTo(Vector2.One, speed)
+                    .ScaleTo(Game.CardScaleFactor.X, speed)
                     .Invoke(() =>
                             {
-                                _reverseSprite.Scale = Vector2.One;
+                                _reverseSprite.Scale = Game.CardScaleFactor;//Vector2.One;
                                 _doneFlipping = true;
                             });
                 })
@@ -134,7 +134,7 @@ namespace Mariasek.SharedClient.GameComponents
             var slim = new Vector2
                 {
                     X = 0,
-                    Y = 1
+                    Y = Game.CardScaleFactor.Y
                 };
             this.Invoke(() =>
                 {
@@ -153,10 +153,10 @@ namespace Mariasek.SharedClient.GameComponents
                             _reverseSprite.Scale = slim;
                             _reverseSprite.Show();
                             _reverseSprite
-                                .ScaleTo(Vector2.One, speed)
+                                .ScaleTo(Game.CardScaleFactor.X, speed)
                                 .Invoke(() =>
                                 {
-                                    Sprite.Scale = Vector2.One;
+                                    Sprite.Scale = Game.CardScaleFactor;//Vector2.One;
                                     _doneFlipping = true;
                                 });
                         });

@@ -62,7 +62,7 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 var rect = new Rectangle(4 + (i % 8) * 74, 5 + (i / 8) * 120, CardWidth, CardHeight);
 
-                _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures, rect) { Name = string.Format("HandSprite{0}", i+1) });
+                _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures, rect) { Name = string.Format("HandSprite{0}", i+1), Scale = Game.CardScaleFactor });
                 //_sprites[i] = new Sprite(this, Game.CardTextures, rect);
                 _sprites[i].Click += CardClicked;
                 _sprites[i].Name = string.Format("HandButton{0}", i + 1);
@@ -137,7 +137,7 @@ namespace Mariasek.SharedClient.GameComponents
 
                 if (_sprites[i] == null)
                 {
-                    _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures) { Name = string.Format("HandSprite{0}", i + 1), Scale = new Vector2(1.5f, 1.5f) })
+                    _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures) { Name = string.Format("HandSprite{0}", i + 1), Scale = Game.CardScaleFactor })
                     { Name = string.Format("HandButton{0}", i + 1) };
                     _sprites[i].Click += CardClicked;
                     _sprites[i].Position = Centre;
@@ -229,7 +229,7 @@ namespace Mariasek.SharedClient.GameComponents
 
                 //hh[i].MoveTo(targetPosition, 400);
                 //hh[i].RotateTo(rotationAngle, 2);
-                hh[i].Slerp(targetPosition, rotationAngle, 1f, 400, 2f, 1f);
+                hh[i].Slerp(targetPosition, rotationAngle, Game.CardScaleFactor.X, 400, 2f, 1f);
             }
             IsStraight = false;
             AnimationEvent.Reset();
@@ -277,7 +277,7 @@ namespace Mariasek.SharedClient.GameComponents
 
                 //hh[i].MoveTo(targetPosition, 400);
                 //hh[i].RotateTo(targetAngle, 2);
-                hh[i].Slerp(targetPosition, targetAngle, 1f, 400, 2f, 1f);
+                hh[i].Slerp(targetPosition, targetAngle, Game.CardScaleFactor.X, 400, 2f, 1f);
             }
             IsStraight = true;
 
