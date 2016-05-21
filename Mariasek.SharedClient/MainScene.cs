@@ -482,7 +482,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth / 2f + 80, Game.VirtualScreenHeight / 2f - 150),
                 Width = 150,
                 Height = 50,
-                Tag = Hra.Hra | Hra.KiloProti,
+                Tag = Hra.KiloProti,
                 ZIndex = 100
             };
             kiloBtn.Click += BidButtonClicked;
@@ -638,6 +638,8 @@ namespace Mariasek.SharedClient
                 );
                 CurrentStartingPlayerIndex = _settings.CurrentStartingPlayerIndex; //TODO: zrusit CurrentStartingPlayerIndex a pouzivat jen _settings.CurrentStartingPlayerIndex
                 CurrentStartingPlayerIndex = (CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers;
+                _settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
+                Game.SettingsScene.SaveGameSettings();
                 if (_deck == null)
                 {
                     LoadDeck();
@@ -1110,9 +1112,10 @@ namespace Mariasek.SharedClient
 
             _gameFlavourChosenEventArgs = e;
             if(_firstTimeGameFlavourChosen)
-            {
+            {                
                 if (g.GameStartingPlayerIndex != 0)
                 {
+                    _progressBars[g.GameStartingPlayerIndex - 1].Progress = _progressBars[g.GameStartingPlayerIndex - 1].Max;
                     if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Good)
                     {
                         ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, "Barva?");
@@ -1187,6 +1190,10 @@ namespace Mariasek.SharedClient
                     {
                         imgs[e.GameStartingPlayerIndex].Hide();
                     }
+                    if(e.GameStartingPlayerIndex != 0)
+                    {
+                        _progressBars[e.GameStartingPlayerIndex - 1].Progress = _progressBars[e.GameStartingPlayerIndex - 1].Max;                        
+                    }
                     if(e.GameStartingPlayerIndex != 2)
                     {
                         ShowThinkingMessage();
@@ -1201,6 +1208,10 @@ namespace Mariasek.SharedClient
         public void BidMade(object sender, BidEventArgs e)
         {
             //UpdateHand(cardToHide: _trumpCardChosen);
+            if(e.Player.PlayerIndex != 0)
+            {
+                _progressBars[e.Player.PlayerIndex - 1].Progress = _progressBars[e.Player.PlayerIndex - 1].Max;
+            }
             ShowBubble(e.Player.PlayerIndex, e.Description);
             if(e.Player.PlayerIndex != 2)
             {
@@ -1242,6 +1253,10 @@ namespace Mariasek.SharedClient
                         lastCard = g.CurrentRound.c1;
                         lastPlayer = g.CurrentRound.player1;
                         lastHlas = g.CurrentRound.hlas1;
+                    }
+                    if(lastPlayer.PlayerIndex != 0)
+                    {
+                        _progressBars[lastPlayer.PlayerIndex - 1].Progress = _progressBars[lastPlayer.PlayerIndex - 1].Max;
                     }
                     rect = lastCard.ToTextureRect();
                     if (lastHlas)

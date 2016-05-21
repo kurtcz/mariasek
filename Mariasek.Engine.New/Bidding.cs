@@ -202,10 +202,10 @@ namespace Mariasek.Engine.New
                 if (_g.players[(playerIndex + 2) % Game.NumPlayers].TeamMateIndex != -1)
                 {
                     Bids = PlayerBids[_g.GameStartingPlayerIndex] & ((Hra)~0 ^ PlayerBids[(playerIndex + 2) % Game.NumPlayers]);
-                    if ((PlayerBids[(playerIndex + 2) % Game.NumPlayers] & Hra.KiloProti) != 0)
-                    {
-                        Bids &= (Hra)~Hra.Hra; //u kila proti uz nejde dat flek na hru
-                    }
+//                    if ((PlayerBids[(playerIndex + 2) % Game.NumPlayers] & Hra.KiloProti) != 0)
+//                    {
+//                        Bids &= (Hra)~Hra.Hra; //u kila proti uz nejde dat flek na hru
+//                    }
                 }
                 else
                 {
