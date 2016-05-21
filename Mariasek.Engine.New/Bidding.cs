@@ -307,7 +307,7 @@ namespace Mariasek.Engine.New
                         e.Description = "Flek na sedmu";
                         break;
                     default:
-                        e.Description = "Flek na vejš";
+                        e.Description = "Na sedmu vejš";
                         break;
                 }
             }
@@ -354,7 +354,7 @@ namespace Mariasek.Engine.New
                 {
                     switch (GameMultiplier)
                     {
-                        case 1:
+                        case 2:
                             e.Description = "Flek na hru";
                             break;
                         default:

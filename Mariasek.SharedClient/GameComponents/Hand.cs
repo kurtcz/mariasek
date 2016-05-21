@@ -137,7 +137,7 @@ namespace Mariasek.SharedClient.GameComponents
 
                 if (_sprites[i] == null)
                 {
-                    _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures) { Name = string.Format("HandSprite{0}", i + 1) })
+                    _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures) { Name = string.Format("HandSprite{0}", i + 1), Scale = new Vector2(1.5f, 1.5f) })
                     { Name = string.Format("HandButton{0}", i + 1) };
                     _sprites[i].Click += CardClicked;
                     _sprites[i].Position = Centre;

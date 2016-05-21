@@ -548,19 +548,20 @@ namespace Mariasek.Engine.New
                             roundWinner = r.PlayRound();
 
                             OnRoundFinished(r);
-                            if(CanStopPlaying(r))
+                            if(IsGameOver(r))
                             {
-                                //predcasne vitezstvi ukazuju jen do sedmeho kola, pro posledni 2 karty to nema smysl
-                                if(RoundNumber < 8 && PlayerWinsGame(roundWinner))
+                                break;
+                            }
+                            //predcasne vitezstvi ukazuju jen do sedmeho kola, pro posledni 2 karty to nema smysl
+                            if(RoundNumber < 8 && PlayerWinsGame(roundWinner))
+                            {
+                                if(GameType == Hra.Betl)
                                 {
-                                    if(GameType == Hra.Betl)
-                                    {
-                                        roundWinner = GameStartingPlayer;
-                                    }
-                                    OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = roundWinner.Hand, roundNumber = RoundNumber });
-                                    CompleteUnfinishedRounds();
-                                    break;
+                                    roundWinner = GameStartingPlayer;
                                 }
+                                OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = roundWinner.Hand, roundNumber = RoundNumber });
+                                CompleteUnfinishedRounds();
+                                break;
                             }
                         }
                     }
@@ -720,15 +721,10 @@ namespace Mariasek.Engine.New
             return true;
         }
 
-        private bool CanStopPlaying(Round r)
+        private bool IsGameOver(Round r)
         {
             if ((GameType == Hra.Betl && r.roundWinner == GameStartingPlayer) ||
                 (GameType == Hra.Durch && r.roundWinner != GameStartingPlayer))
-            {
-                return true;
-            }
-
-            if (PlayerWinsGame(r.roundWinner))
             {
                 return true;
             }
