@@ -207,24 +207,24 @@ namespace Mariasek.SharedClient
             {
                 new []
                 {
-                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f), IsEnabled = false },
-                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, Game.VirtualScreenHeight / 2f), IsEnabled = false },
-                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, Game.VirtualScreenHeight / 2f), IsEnabled = false },
-                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, Game.VirtualScreenHeight / 2f), IsEnabled = false },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f), IsEnabled = false, ZIndex = 1 },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, Game.VirtualScreenHeight / 2f), IsEnabled = false, ZIndex = 2 },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, Game.VirtualScreenHeight / 2f), IsEnabled = false, ZIndex = 3 },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, Game.VirtualScreenHeight / 2f), IsEnabled = false, ZIndex = 4 },
                 },
                 new []
                 {
-                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(100, 130), IsEnabled = false },
-                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(150, 130), IsEnabled = false },
-                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(200, 130), IsEnabled = false },
-                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(250, 130), IsEnabled = false },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(100, 130), IsEnabled = false, ZIndex = 1 },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(150, 130), IsEnabled = false, ZIndex = 2 },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(200, 130), IsEnabled = false, ZIndex = 3 },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(250, 130), IsEnabled = false, ZIndex = 4 },
                 },
                 new []
                 {
-                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, 130), IsEnabled = false },
-                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, 130), IsEnabled = false },
-                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, 130), IsEnabled = false },
-                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, 130), IsEnabled = false },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, 130), IsEnabled = false, ZIndex = 1 },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, 130), IsEnabled = false, ZIndex = 2 },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, 130), IsEnabled = false, ZIndex = 3 },
+                        new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, 130), IsEnabled = false, ZIndex = 4 },
                 }
             };
             _stareStychy = new []
@@ -235,15 +235,15 @@ namespace Mariasek.SharedClient
             };
             _stychy = new []
             {
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 50, Game.VirtualScreenHeight / 2f + 50), IsEnabled = false },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(50, 80), IsEnabled = false },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 50, 80), IsEnabled = false }
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 50, Game.VirtualScreenHeight / 2f + 50), IsEnabled = false, ZIndex = 10 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(50, 80), IsEnabled = false, ZIndex = 10 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 50, 80), IsEnabled = false, ZIndex = 10 }
             };
             _cardsPlayed = new []
             {
-                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f - 100), Scale = Game.CardScaleFactor },
-                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 150), Scale = Game.CardScaleFactor },
-                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f + 100, Game.VirtualScreenHeight / 2f - 150), Scale = Game.CardScaleFactor }
+                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f - 100), Scale = Game.CardScaleFactor, ZIndex = 10 },
+                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 150), Scale = Game.CardScaleFactor, ZIndex = 10 },
+                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f + 100, Game.VirtualScreenHeight / 2f - 150), Scale = Game.CardScaleFactor, ZIndex = 10 }
             };
             _overlay = new ClickableArea(this)
             {
@@ -253,17 +253,19 @@ namespace Mariasek.SharedClient
             };
             _overlay.TouchUp += OverlayTouchUp;
             _menuBtn = new Button(this)
-                {
-                    Text = "Menu",
-                    Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 30)
-                };
+            {
+                Text = "Menu",
+                Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 30),
+                ZIndex = 100
+            };
             _menuBtn.Click += MenuBtnClicked;
             _okBtn = new Button(this)
             {
                 Text = "OK",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 50, Game.VirtualScreenHeight / 2f - 100),
                 //Position = new Vector2(10, 60),
-                IsEnabled = false
+                IsEnabled = false,
+                ZIndex = 100
             };
             _okBtn.Click += OkBtnClicked;
             _okBtn.Hide();
@@ -271,7 +273,8 @@ namespace Mariasek.SharedClient
             {
                 Text = "Hra",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 325, Game.VirtualScreenHeight / 2f - 100),
-                Tag = Hra.Hra
+                Tag = Hra.Hra,
+                ZIndex = 100
             };
             gtHraButton.Click += GtButtonClicked;
             gtHraButton.Hide();
@@ -279,7 +282,8 @@ namespace Mariasek.SharedClient
             {
                 Text = "Sedma",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 215, Game.VirtualScreenHeight / 2f - 100),
-                Tag = Hra.Hra | Hra.Sedma
+                Tag = Hra.Hra | Hra.Sedma,
+                ZIndex = 100
             };
             gt7Button.Click += GtButtonClicked;
             gt7Button.Hide();
@@ -287,7 +291,8 @@ namespace Mariasek.SharedClient
             {
                 Text = "Kilo",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 105, Game.VirtualScreenHeight / 2f - 100),
-                Tag = Hra.Kilo
+                Tag = Hra.Kilo,
+                ZIndex = 100
             };
             gt100Button.Click += GtButtonClicked;
             gt100Button.Hide();
@@ -295,7 +300,8 @@ namespace Mariasek.SharedClient
             {
                 Text = "Stosedm",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f + 5, Game.VirtualScreenHeight / 2f - 100),
-                Tag = Hra.Kilo | Hra.Sedma
+                Tag = Hra.Kilo | Hra.Sedma,
+                ZIndex = 100
             };
             gt107Button.Click += GtButtonClicked;
             gt107Button.Hide();
@@ -303,7 +309,8 @@ namespace Mariasek.SharedClient
             {
                 Text = "Betl",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f + 115, Game.VirtualScreenHeight / 2f - 100),
-                Tag = Hra.Betl
+                Tag = Hra.Betl,
+                ZIndex = 100
             };
             gtBetlButton.Click += GtButtonClicked;
             gtBetlButton.Hide();
@@ -311,7 +318,8 @@ namespace Mariasek.SharedClient
             {
                 Text = "Durch",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f + 225, Game.VirtualScreenHeight / 2f - 100),
-                Tag = Hra.Durch
+                Tag = Hra.Durch,
+                ZIndex = 100
             };
             gtDurchButton.Click += GtButtonClicked;
             gtDurchButton.Hide();
@@ -320,7 +328,8 @@ namespace Mariasek.SharedClient
             {
                 Text = "Dobrá",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 105, Game.VirtualScreenHeight / 2f - 100),
-                Tag = GameFlavour.Good
+                Tag = GameFlavour.Good,
+                ZIndex = 100
             };
             gfDobraButton.Click += GfButtonClicked;
             gfDobraButton.Hide();
@@ -328,7 +337,8 @@ namespace Mariasek.SharedClient
             {
                 Text = "Špatná",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f + 5, Game.VirtualScreenHeight / 2f - 100),
-                Tag = GameFlavour.Bad
+                Tag = GameFlavour.Bad,
+                ZIndex = 100
             };
             gfSpatnaButton.Click += GfButtonClicked;
             gfSpatnaButton.Hide();
@@ -339,7 +349,8 @@ namespace Mariasek.SharedClient
                 VerticalAlign = VerticalAlignment.Middle,
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 125, 1),
                 Width = 250,
-                Height = 50
+                Height = 50,
+                ZIndex = 100
             };
             _trumpLabel1.Hide();
             _trumpLabel2 = new Label(this)
@@ -348,7 +359,8 @@ namespace Mariasek.SharedClient
                 VerticalAlign = VerticalAlignment.Middle,
                 Position = new Vector2(125, 1),
                 Width = 250,
-                Height = 50
+                Height = 50,
+                ZIndex = 100
             };
             _trumpLabel2.Hide();
             _trumpLabel3 = new Label(this)
@@ -357,7 +369,8 @@ namespace Mariasek.SharedClient
                 VerticalAlign = VerticalAlignment.Middle,
                 Position = new Vector2(Game.VirtualScreenWidth - 260, 1),
                 Width = 250,
-                Height = 50
+                Height = 50,
+                ZIndex = 100
             };
             _trumpLabel3.Hide();
             _trumpLabels = new[] { _trumpLabel1, _trumpLabel2, _trumpLabel3 };
@@ -369,7 +382,8 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth - 20,
                 Height = (int)Game.VirtualScreenHeight - 120,
                 TextColor = Color.Yellow,
-                TextRenderer = Game.FontRenderers["SegoeUI40Outl"]
+                TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
+                ZIndex = 100
             };
             _msgLabelLeft = new Label(this)
             { 
@@ -379,7 +393,8 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth - 240,
                 Height = (int)Game.VirtualScreenHeight - 40,
                 TextColor = Color.Yellow,
-                TextRenderer = Game.FontRenderers["SegoeUI40Outl"]
+                TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
+                ZIndex = 100
             };
             _msgLabelRight = new Label(this)
             { 
@@ -389,7 +404,8 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth - 240,
                 Height = (int)Game.VirtualScreenHeight - 40,
                 TextColor = Color.Yellow,
-                TextRenderer = Game.FontRenderers["SegoeUI40Outl"]
+                TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
+                ZIndex = 100
             };
             _hand = new GameComponents.Hand(this, new Card[0]) { Centre = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight - 60) };
             _hand.Click += CardClicked;
@@ -404,7 +420,8 @@ namespace Mariasek.SharedClient
                 BorderColor = Color.Yellow,
                 Opacity = 0.8f,
                 VerticalAlign = VerticalAlignment.Middle,
-                HorizontalAlign = HorizontalAlignment.Center
+                HorizontalAlign = HorizontalAlignment.Center,
+                ZIndex = 100
             };
             _bubble1.Hide();
             _bubble2 = new TextBox(this)
@@ -417,7 +434,8 @@ namespace Mariasek.SharedClient
                 BorderColor = Color.Yellow,
                 Opacity = 0.8f,
                 VerticalAlign = VerticalAlignment.Middle,
-                HorizontalAlign = HorizontalAlignment.Center
+                HorizontalAlign = HorizontalAlignment.Center,
+                ZIndex = 100
             };
             _bubble2.Hide();
             _bubble3 = new TextBox(this)
@@ -430,7 +448,8 @@ namespace Mariasek.SharedClient
                 BorderColor = Color.Yellow,
                 Opacity = 0.8f,
                 VerticalAlign = VerticalAlignment.Middle,
-                HorizontalAlign = HorizontalAlignment.Center
+                HorizontalAlign = HorizontalAlignment.Center,
+                ZIndex = 100
             };
             _bubble3.Hide();
             _bubbleEvent1 = new ManualResetEvent(true);
@@ -442,7 +461,8 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 230, Game.VirtualScreenHeight / 2f - 150),
                 Width = 150,
                 Height = 50,
-                Tag = Hra.Hra | Hra.Kilo | Hra.Betl | Hra.Durch
+                Tag = Hra.Hra | Hra.Kilo | Hra.Betl | Hra.Durch,
+                ZIndex = 100
             };
 
             flekBtn.Click += BidButtonClicked;
@@ -452,7 +472,8 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 75, Game.VirtualScreenHeight / 2f - 150),
                 Width = 150,
                 Height = 50,
-                Tag = Hra.Sedma | Hra.SedmaProti
+                Tag = Hra.Sedma | Hra.SedmaProti,
+                ZIndex = 100
             };
             sedmaBtn.Click += BidButtonClicked;
             sedmaBtn.Hide();
@@ -461,7 +482,8 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth / 2f + 80, Game.VirtualScreenHeight / 2f - 150),
                 Width = 150,
                 Height = 50,
-                Tag = Hra.Hra | Hra.KiloProti
+                Tag = Hra.Hra | Hra.KiloProti,
+                ZIndex = 100
             };
             kiloBtn.Click += BidButtonClicked;
             kiloBtn.Hide();
@@ -470,13 +492,15 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(0, 0),
                 Width = 150,
-                Height = 6
+                Height = 6,
+                ZIndex = 100
             };
             _progress2 = new ProgressIndicator(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 150, 0),
                 Width = 150,
-                Height = 6
+                Height = 6,
+                ZIndex = 100
             };
             _progressBars = new [] { _progress1, _progress2 };
 
@@ -1245,6 +1269,9 @@ namespace Mariasek.SharedClient
             {
                 ShowThinkingMessage();
             }
+            _cardsPlayed[r.player1.PlayerIndex].ZIndex = 7;
+            _cardsPlayed[r.player2.PlayerIndex].ZIndex = 8;
+            _cardsPlayed[r.player3.PlayerIndex].ZIndex = 9;
         }
 
         public void RoundFinished(object sender, Round r)

@@ -51,11 +51,13 @@ namespace Mariasek.SharedClient
                 {
                     _parent.Children.Add(this);
                 }
+                _parent.Children.Sort((a, b) => a.ZIndex - b.ZIndex);
             }
         }
         public virtual Vector2 Position { get; set; }
         public virtual bool IsBusy { get { return ScheduledOperations!= null && ScheduledOperations.Count > 0; } }
         public virtual bool IsMoving { get; private set; }
+        public int ZIndex { get; set; }
         public object Tag { get; set; }
 
         /// <summary>
