@@ -88,7 +88,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Text, 
                 position,
                 TextColor * Opacity, 
-                (Alignment)VerticalAlign | (Alignment)HorizontalAlign);                    
+                (Alignment)VerticalAlign | (Alignment)HorizontalAlign);   
 
             Game.SpriteBatch.End();
 

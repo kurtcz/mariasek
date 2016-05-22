@@ -18,13 +18,12 @@ namespace Mariasek.SharedClient
 {
     public class SettingsScene : Scene
     {
-        private string _settingsFilePath = Path.Combine (
-            Environment.GetFolderPath (Environment.SpecialFolder.Personal),
-            "Mariasek.settings");
+        private string _settingsFilePath = Path.Combine(MariasekMonoGame.ConfigPath, "Mariasek.settings");
 
         private Label _sounds;
         private Label _handSorting;
         private Label _baseBet;
+        private Label _kiloCounting;
         private ToggleButton _soundBtn;
         private ToggleButton _ascSortBtn;
         private ToggleButton _descSortBtn;
@@ -189,7 +188,7 @@ namespace Mariasek.SharedClient
                     IsSelected = _settings.BaseBet == 10f
                 };
             _bet100Btn.Click += BetBtnClick;
-            _baseBet = new Label(this)
+            _kiloCounting = new Label(this)
                 {
                     Position = new Vector2(10, 300),
                     Width = (int)Game.VirtualScreenWidth / 2 - 20,

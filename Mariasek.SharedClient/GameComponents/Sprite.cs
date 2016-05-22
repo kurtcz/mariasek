@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#define DEBUG_SPRITES
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -265,7 +266,7 @@ namespace Mariasek.SharedClient.GameComponents
 
             base.Update(gameTime);
         }
-
+                   
         public override void Draw(GameTime gameTime)
         {
             //System.Diagnostics.Debug.WriteLine(string.Format("Draw {0}/{8} {1} [{2} {3} - {4} {5}] {6} {7}", 
@@ -286,8 +287,17 @@ namespace Mariasek.SharedClient.GameComponents
                     Vector2.Subtract(RotationOrigin, new Vector2(SpriteRectangle.Left, SpriteRectangle.Top)),
                     Scale,
                     (SpriteEffects)0,
-                    0   //depth
+                    ZIndex/100f   //depth
                 );
+#if DEBUG_SPRITES
+                Game.CurrentScene.Counter++;
+                Game.FontRenderers["BM2Font"].DrawText(
+                    Game.SpriteBatch, 
+                    string.Format("{0}/{1}", Game.CurrentScene.Counter, Parent.ZIndex != 0 ? Parent.ZIndex : ZIndex),
+                    Position,
+                    Color.Orange, 
+                    Alignment.MiddleCenter);   
+#endif
             }
 
             base.Draw(gameTime);

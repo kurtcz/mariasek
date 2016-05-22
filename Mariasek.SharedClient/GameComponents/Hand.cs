@@ -316,7 +316,7 @@ namespace Mariasek.SharedClient.GameComponents
 
         public void SortHand(List<Card> unsorted)
         {
-            foreach (var sprite in _sprites)
+            foreach (var sprite in _sprites.Where(i => i != null))
             {
                 var n = unsorted.IndexOf(sprite.Tag as Card);
 

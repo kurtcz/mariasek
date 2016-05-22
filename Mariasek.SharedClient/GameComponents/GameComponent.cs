@@ -57,7 +57,16 @@ namespace Mariasek.SharedClient
         public virtual Vector2 Position { get; set; }
         public virtual bool IsBusy { get { return ScheduledOperations!= null && ScheduledOperations.Count > 0; } }
         public virtual bool IsMoving { get; private set; }
-        public int ZIndex { get; set; }
+        private int _zIndex;
+        public int ZIndex
+        { 
+            get { return _zIndex; }
+            set
+            {
+                _zIndex = value;
+                _parent.Children.Sort((a, b) => a.ZIndex - b.ZIndex);
+            }
+        }
         public object Tag { get; set; }
 
         /// <summary>

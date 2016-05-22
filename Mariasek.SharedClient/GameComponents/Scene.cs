@@ -33,7 +33,9 @@ namespace Mariasek.SharedClient.GameComponents
         public Texture2D Background { get; set; }
         public BackgroundAlignment BackgroundAlign { get; set; }
         public Color BackgroundTint { get; set; }
-
+#if DEBUG_SPRITES
+        public int Counter;
+#endif
         public Scene(MariasekMonoGame game)
             : base(game)
         {
@@ -88,6 +90,9 @@ namespace Mariasek.SharedClient.GameComponents
 
         public override void Draw (GameTime gameTime)
         {
+#if DEBUG_SPRITES
+            Counter = 0;
+#endif
             if (Background != null)
             {
                 switch(BackgroundAlign)
