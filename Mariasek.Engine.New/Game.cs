@@ -555,6 +555,7 @@ namespace Mariasek.Engine.New
                             //predcasne vitezstvi ukazuju jen do sedmeho kola, pro posledni 2 karty to nema smysl
                             if(RoundNumber < 8 && PlayerWinsGame(roundWinner))
                             {
+                                IsRunning = false;
                                 if(GameType == Hra.Betl)
                                 {
                                     roundWinner = GameStartingPlayer;
