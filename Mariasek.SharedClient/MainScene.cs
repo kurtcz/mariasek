@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#define DEBUG_PROGRESS
+using System;
 using System.IO;
 using System.Globalization;
 using System.Collections.Generic;
@@ -86,8 +87,9 @@ namespace Mariasek.SharedClient
         private int _aiMessageIndex;
         public int CurrentStartingPlayerIndex = -1;
         private Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
-        private string _historyFilePath = Path.Combine(MariasekMonoGame.ConfigPath, "Mariasek.history");
-        private string _deckFilePath = Path.Combine(MariasekMonoGame.ConfigPath, "Mariasek.deck");
+
+        private string _historyFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.history");
+        private string _deckFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.deck");
         
         private GameState _state;
         private GameSettings _settings;
@@ -668,7 +670,6 @@ namespace Mariasek.SharedClient
                 g.GameException += GameException;
                 g.players[1].GameComputationProgress += GameComputationProgress;
                 g.players[2].GameComputationProgress += GameComputationProgress;
-
                 _firstTimeGameFlavourChosen = true;
                 _trumpCardChosen = null;
 
@@ -767,10 +768,12 @@ namespace Mariasek.SharedClient
 
             _progressBars[player.PlayerIndex - 1].Progress = e.Current;
             _progressBars[player.PlayerIndex - 1].Max = e.Max;
+#if DEBUG_PROGRESS
             if (!string.IsNullOrEmpty(e.Message))
             {
                 ShowMsgLabel(string.Format("{0}/{1} {2}", e.Current, e.Max > 0 ? e.Max.ToString() : "?", e.Message), false);
             }
+#endif
         }
 
         public void MenuBtnClicked(object sender)
@@ -1520,7 +1523,7 @@ namespace Mariasek.SharedClient
 
         private void ClearTableAfterRoundFinished()
         {
-            if (g.CurrentRound == null) //pokud se vubec nehralo (lozena hra)
+            if (g.CurrentRound == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo skoncilo predcasne
             {
                 _evt.Set();
                 return;

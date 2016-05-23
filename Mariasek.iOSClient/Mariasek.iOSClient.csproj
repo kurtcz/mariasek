@@ -75,6 +75,9 @@
     <DeviceSpecificBuild>true</DeviceSpecificBuild>
     <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchUseSGen>true</MtouchUseSGen>
+    <MtouchExtraArgs>--sgen</MtouchExtraArgs>
+    <IpaPackageName>
+    </IpaPackageName>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

@@ -20,20 +20,6 @@ namespace Mariasek.SharedClient
 	public class MariasekMonoGame : Game
 	{
 		//Texture2D logoTexture;
-
-        public static string ConfigPath
-        {
-            get
-            {
-                #if __IOS__
-                var personalPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-
-                return Path.Combine(personalPath, "..", "Library");
-                #else
-                return Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                #endif
-            }
-        }
         public GraphicsDeviceManager Graphics { get; private set; }
         public TouchCollection TouchCollection { get; private set; }
         public SpriteBatch SpriteBatch { get; private set; }

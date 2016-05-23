@@ -14,6 +14,7 @@ namespace Mariasek.Engine.New
         Multiplying
     }
 
+    [XmlInclude(typeof(AddingMoneyCalculator))]
     [XmlInclude(typeof(MultiplyingMoneyCalculator))]
     [XmlRoot(ElementName="Money")]
     public abstract class MoneyCalculatorBase

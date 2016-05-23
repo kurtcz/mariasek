@@ -18,7 +18,7 @@ namespace Mariasek.SharedClient
 {
     public class SettingsScene : Scene
     {
-        private string _settingsFilePath = Path.Combine(MariasekMonoGame.ConfigPath, "Mariasek.settings");
+        private string _settingsFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.settings");
 
         private Label _sounds;
         private Label _handSorting;
