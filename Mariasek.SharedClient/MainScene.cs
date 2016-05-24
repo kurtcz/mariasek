@@ -784,6 +784,7 @@ namespace Mariasek.SharedClient
         public void CardClicked(object sender)
         {
             var button = sender as CardButton;
+            var origZIndex = button.ZIndex;
             Sprite targetSprite;
 
             _cardClicked = (Card)button.Tag;
@@ -870,6 +871,7 @@ namespace Mariasek.SharedClient
                     targetSprite.SpriteRectangle = _cardClicked.ToTextureRect();
                     targetSprite.Show();
                     button.Hide();
+                    button.ZIndex = origZIndex;
                     targetSprite
                         .MoveTo(origPosition, 1000)
                         .Invoke(() =>
@@ -1230,7 +1232,7 @@ namespace Mariasek.SharedClient
 
         public void CardPlayed(object sender, Round r)
         {
-            if (g.CurrentRound == null) //pokud se vubec nehralo (lozena hra)
+            if (g.CurrentRound == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
             {
                 return;
             }
@@ -1523,7 +1525,7 @@ namespace Mariasek.SharedClient
 
         private void ClearTableAfterRoundFinished()
         {
-            if (g.CurrentRound == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo skoncilo predcasne
+            if (g.CurrentRound == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
             {
                 _evt.Set();
                 return;

@@ -49,6 +49,7 @@ namespace Mariasek.SharedClient.GameComponents
         private CardButton[] _sprites = new CardButton[12];
         //private Sprite[] _sprites = new Sprite[12];
 
+        private const int ZIndexBase = 50;
         const int CardWidth = 65;
         const int CardHeight = 112;
 
@@ -62,7 +63,8 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 var rect = new Rectangle(4 + (i % 8) * 74, 5 + (i / 8) * 120, CardWidth, CardHeight);
 
-                _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures, rect) { Name = string.Format("HandSprite{0}", i+1), Scale = Game.CardScaleFactor, ZIndex = 50 + i });
+                _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures, rect) { Name = string.Format("HandSprite{0}", i+1), Scale = Game.CardScaleFactor })
+                { Name = string.Format("HandButton{0}", i + 1), ZIndex = ZIndexBase + i };
                 //_sprites[i] = new Sprite(this, Game.CardTextures, rect);
                 _sprites[i].Click += CardClicked;
                 _sprites[i].Name = string.Format("HandButton{0}", i + 1);
@@ -137,11 +139,12 @@ namespace Mariasek.SharedClient.GameComponents
 
                 if (_sprites[i] == null)
                 {
-                    _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures) { Name = string.Format("HandSprite{0}", i + 1), Scale = Game.CardScaleFactor })
+                    _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures) { Name = string.Format("HandSprite{0}", i + 1), Scale = Game.CardScaleFactor})
                     { Name = string.Format("HandButton{0}", i + 1), ZIndex = 50 + i };
                     _sprites[i].Click += CardClicked;
                     _sprites[i].Position = Centre;
                 }
+                ZIndex = ZIndexBase + i;
                 _sprites[i].Sprite.SpriteRectangle = rect;
                 _sprites[i].Tag = hand[i];
                 _sprites[i].Sprite.Tag = hand[i];
