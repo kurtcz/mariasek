@@ -41,5 +41,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)SettingsScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SettingsChangedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ProgressIndicator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Primitives2D.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\LineChart.cs" />
   </ItemGroup>
 </Project>

@@ -26,6 +26,7 @@ namespace Mariasek.SharedClient
         private Label _header;
         private Label _footer;
         private TextBox _historyBox;
+        private LineChart _historyChart;
         private bool _useMockData;// = true;
         private GameSettings _settings;
 
@@ -42,6 +43,12 @@ namespace Mariasek.SharedClient
         {
             base.Initialize();
 
+            _historyChart = new LineChart(this)
+                {
+                    Position = new Vector2(10,10),
+                    Width = (int)Game.VirtualScreenWidth - 20,
+                    Height = (int)Game.VirtualScreenHeight - 120
+                };
             _menuButton = new Button(this)
                 {
                     Position = new Vector2(10, 10),
@@ -99,6 +106,7 @@ namespace Mariasek.SharedClient
             var culture = CultureInfo.CreateSpecificCulture("cs-CZ");
             var sb = new StringBuilder();
             int wins = 0, total = 0;
+            var series = new Vector2[Mariasek.Engine.New.Game.NumPlayers][];
 
             if (_useMockData)
             {
@@ -110,8 +118,35 @@ namespace Mariasek.SharedClient
                         ((i + 1) * -0.5f).ToString("C", culture));
                 }
             }
-            foreach (var historyItem in Game.Money)
+            var maxWon = 0f;
+            var maxLost = 0f;
+            var sums = new float[series.Length];
+
+            for (var i = 0; i < series.Length; i++)
             {
+                series[i] = new Vector2[Game.Money.Count + 1];
+                series[i][0] = Vector2.Zero;
+
+                for (var j = 0; j < Game.Money.Count; j++)
+                {
+                    sums[i] += Game.Money[j].MoneyWon[i];
+                    series[i][j + 1] = new Vector2(j + 1, sums[i]);
+                    if (maxWon < Game.Money[j].MoneyWon[i])
+                    {
+                        maxWon = Game.Money[j].MoneyWon[i];
+                    }
+                    if (maxLost > Game.Money[j].MoneyWon[i])
+                    {
+                        maxLost = Game.Money[j].MoneyWon[i];
+                    }
+                }
+            }
+            _historyChart.MaxValue = new Vector2(Game.Money.Count, maxWon);
+            _historyChart.MinValue = new Vector2(0, maxLost);
+            _historyChart.Series = series;
+
+            foreach (var historyItem in Game.Money)
+            {                
                 sb.AppendFormat("\t\t{0}\t{1}\t{2}\n", 
                     historyItem.MoneyWon[0].ToString("C", culture), 
                     historyItem.MoneyWon[1].ToString("C", culture), 

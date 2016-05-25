@@ -888,6 +888,7 @@ namespace Mariasek.Engine.New
             Probabilities = null;
             _initialSimulation = true;
             _teamMateDoubledGame = false;
+            Settings.SimulationsPerRoundPerSecond = 0;
         }
 
         public void GameLoaded(object sender)
@@ -1003,10 +1004,9 @@ namespace Mariasek.Engine.New
                     }
                 });
                 var end = DateTime.Now;
-                //if (prematureEnd)
+                Settings.SimulationsPerRound = progress;
+                if (Settings.SimulationsPerRoundPerSecond == 0) // only do this 1st time when we calculate most to get a more realistic benchmark
                 {
-                    Settings.SimulationsPerRound = progress;
-                    //Settings.SimulationsPerRoundPerSecond = (int)((float)progress / Settings.MaxSimulationTimeMs * 1000);
                     Settings.SimulationsPerRoundPerSecond = (int)((float)progress / (end - start).TotalMilliseconds * 1000);
                 }
                 if (canSkipSimulations)

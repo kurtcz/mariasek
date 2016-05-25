@@ -147,7 +147,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("MaxSimulationTimeMs", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "MaxSimulationTimeMs",
-                    Value = "3000"
+                    Value = _settings.ThinkingTimeMs.ToString()
                 });
             _aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
@@ -626,6 +626,10 @@ namespace Mariasek.SharedClient
         public void NewGameBtnClicked(object sender)
         {
             CancelRunningTask();
+            if (g != null && g.IsRunning)
+            {
+                _evt.Set(); //to avoid a freeze when clicking a new game whilst game is waiting for user input
+            }
             _gameTask = Task.Run(() => {
                 g = new Mariasek.Engine.New.Game()
                 {
@@ -825,7 +829,7 @@ namespace Mariasek.SharedClient
                     _state = GameState.NotPlaying;
                     HideMsgLabel();
                     button.IsSelected = false; //aby karta nebyla pri animaci tmava
-                    button.ZIndex = g.CurrentRound != null ? (g.CurrentRound.number - 1) * 3 : 0;
+                    //button.ZIndex = g.CurrentRound != null ? (g.CurrentRound.number - 1) * 3 : 0;
                     var origPosition = _hlasy[0][0].Position;
                     _hlasy[0][0].Position = button.Position;
                     if (!button.Sprite.IsVisible)
@@ -871,7 +875,7 @@ namespace Mariasek.SharedClient
                     targetSprite.SpriteRectangle = _cardClicked.ToTextureRect();
                     targetSprite.Show();
                     button.Hide();
-                    button.ZIndex = origZIndex;
+                    //button.ZIndex = origZIndex;
                     targetSprite
                         .MoveTo(origPosition, 1000)
                         .Invoke(() =>

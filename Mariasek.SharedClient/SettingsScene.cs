@@ -24,6 +24,7 @@ namespace Mariasek.SharedClient
         private Label _handSorting;
         private Label _baseBet;
         private Label _kiloCounting;
+        private Label _thinkingTime;
         private ToggleButton _soundBtn;
         private ToggleButton _ascSortBtn;
         private ToggleButton _descSortBtn;
@@ -36,6 +37,9 @@ namespace Mariasek.SharedClient
         private ToggleButton _bet100Btn;
         private ToggleButton _addingBtn;
         private ToggleButton _multiplyingBtn;
+        private ToggleButton _thinkingTime1;
+        private ToggleButton _thinkingTime2;
+        private ToggleButton _thinkingTime3;
         private Label _performance;
         private Button _menuBtn;
 
@@ -215,6 +219,42 @@ namespace Mariasek.SharedClient
                     IsSelected = _settings.CalculationStyle == Mariasek.Engine.New.CalculationStyle.Multiplying
                 };
             _multiplyingBtn.Click += CalculationBtnClick;
+            _thinkingTime = new Label(this)
+                {
+                    Position = new Vector2(10, 360),
+                    Width = (int)Game.VirtualScreenWidth / 2 - 20,
+                    Height = 50,
+                    Text = "Jak dlouho AI přemýšlí",
+                    HorizontalAlign = HorizontalAlignment.Center,
+                    VerticalAlign = VerticalAlignment.Middle
+                };
+            _thinkingTime1 = new ToggleButton(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth - 390, 360),
+                    Width = 120,
+                    Height = 50,
+                    Text = "Krátce",
+                    IsSelected = _settings.ThinkingTimeMs == 3000
+                };
+            _thinkingTime1.Click += ThinkingTimeBtnClick;
+            _thinkingTime2 = new ToggleButton(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth - 260, 360),
+                    Width = 120,
+                    Height = 50,
+                    Text = "Středně",
+                    IsSelected = _settings.ThinkingTimeMs == 4000
+                };
+            _thinkingTime2.Click += ThinkingTimeBtnClick;
+            _thinkingTime3 = new ToggleButton(this)
+                {
+                    Position = new Vector2(Game.VirtualScreenWidth - 130, 360),
+                    Width = 120,
+                    Height = 50,
+                    Text = "Dlouho",
+                    IsSelected = _settings.ThinkingTimeMs == 5000
+                };
+            _thinkingTime3.Click += ThinkingTimeBtnClick;
 
             _menuBtn = new Button(this)
             {
@@ -301,6 +341,32 @@ namespace Mariasek.SharedClient
             else if (betbtn == _bet100Btn)
             {
                 _settings.BaseBet = 10f;
+            }
+
+            SaveGameSettings();
+            OnSettingsChanged();
+        }
+
+        void ThinkingTimeBtnClick (object sender)
+        {
+            var btn = sender as ToggleButton;
+
+            _thinkingTime1.IsSelected = false;
+            _thinkingTime2.IsSelected = false;
+            _thinkingTime3.IsSelected = false;
+            btn.IsSelected = true;
+
+            if (btn == _thinkingTime1)
+            {
+                _settings.ThinkingTimeMs = 3000;
+            }
+            else if (btn == _thinkingTime2)
+            {
+                _settings.ThinkingTimeMs = 4000;
+            }
+            else if (btn == _thinkingTime3)
+            {
+                _settings.ThinkingTimeMs = 5000;
             }
 
             SaveGameSettings();

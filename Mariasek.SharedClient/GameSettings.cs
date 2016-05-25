@@ -15,6 +15,7 @@ namespace Mariasek.SharedClient
         public bool SoundEnabled { get; set; }
         public SortMode SortMode { get; set; }
         public float BaseBet { get; set; }
+        public int ThinkingTimeMs { get; set; }
         public CalculationStyle CalculationStyle { get; set; }
         public int GameTypeSimulationsPerSecond { get; set; }
         public int RoundSimulationsPerSecond { get; set; }
@@ -27,6 +28,7 @@ namespace Mariasek.SharedClient
             BaseBet = 1f;
             CalculationStyle = CalculationStyle.Adding;
             CurrentStartingPlayerIndex = 0;
+            ThinkingTimeMs = 3000;
         }
     }
 }
