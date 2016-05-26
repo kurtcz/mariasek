@@ -24,6 +24,9 @@ namespace Mariasek.SharedClient
         private Button _resetHistoryButton;
         private Label _stat;
         private Label _header;
+        private Label _player1;
+        private Label _player2;
+        private Label _player3;
         private Label _footer;
         private TextBox _historyBox;
         private LineChart _historyChart;
@@ -45,9 +48,15 @@ namespace Mariasek.SharedClient
 
             _historyChart = new LineChart(this)
                 {
-                    Position = new Vector2(10,10),
-                    Width = (int)Game.VirtualScreenWidth - 20,
-                    Height = (int)Game.VirtualScreenHeight - 120
+                    Position = new Vector2(220,10),
+                    Width = (int)Game.VirtualScreenWidth - 230,
+                    Height = (int)Game.VirtualScreenHeight / 2 - 60,
+                    LineThickness = 3f,
+                    DataMarkerSize = 9f,
+                    TickMarkLength = 5f,
+                    GridInterval = new Vector2(1f, 10f),
+                    ShowHorizontalGridLines = false,
+                    ShowVerticalGridLines = false
                 };
             _menuButton = new Button(this)
                 {
@@ -73,15 +82,42 @@ namespace Mariasek.SharedClient
             };
             _header = new Label(this)
                 {
-                    Position = new Vector2(220, 10),
+                    Position = new Vector2(220, (int)Game.VirtualScreenHeight / 2 - 30),
                     Width = (int)Game.VirtualScreenWidth - 180,
-                    Height = 50
+                    Height = 50,
+                    Text = "Tabulka:"
+                };
+            _player1 = new Label(this)
+                {
+                    Position = new Vector2(350, (int)Game.VirtualScreenHeight / 2 - 30),
+                    Width = 120,
+                    Height = 50,
+                    Text = "Hráč 1",
+                    TextColor = _historyChart.Colors[0]
+                };
+            _player2 = new Label(this)
+                {
+                    Position = new Vector2(485, (int)Game.VirtualScreenHeight / 2 - 30),
+                    Width = 120,
+                    Height = 50,
+                    Text = "Hráč 2 (AI)",
+                    TextColor = _historyChart.Colors[1]
+                };
+            _player3 = new Label(this)
+                {
+                    Position = new Vector2(630, (int)Game.VirtualScreenHeight / 2 - 30),
+                    Width = 120,
+                    Height = 50,
+                    Text = "Hráč 3 (AI)",
+                    TextColor = _historyChart.Colors[2]
                 };
             _historyBox = new TextBox(this)
                 {
-                    Position = new Vector2(220, 60),
+                    //Position = new Vector2(220, 10),
+                    Position = new Vector2(220, (int)Game.VirtualScreenHeight / 2),
                     Width = (int)Game.VirtualScreenWidth - 230,
-                    Height = (int)Game.VirtualScreenHeight - 120,
+                    //Height = (int)Game.VirtualScreenHeight - 20,
+                    Height = (int)Game.VirtualScreenHeight / 2 - 60,
                     HorizontalAlign = HorizontalAlignment.Left,
                     VerticalAlign = VerticalAlignment.Top
                 };
@@ -89,7 +125,8 @@ namespace Mariasek.SharedClient
                 {
                     Position = new Vector2(220, Game.VirtualScreenHeight - 60),
                     Width = (int)Game.VirtualScreenWidth - 230,
-                    Height = 50
+                    Height = 50,
+                    TextColor = Color.Yellow
                 };
             Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;
@@ -101,7 +138,7 @@ namespace Mariasek.SharedClient
 
         public void PopulateControls()
         {            
-            _header.Text = string.Format("Hráč:\t\t{0}\t\t{1}\t{2}", "Hráč 1", "Hráč 2 (AI)", "Hráč 3 (AI)");
+            //_header.Text = string.Format("Hráč:\t\t{0}\t\t{1}\t{2}", "Hráč 1", "Hráč 2 (AI)", "Hráč 3 (AI)");
 
             var culture = CultureInfo.CreateSpecificCulture("cs-CZ");
             var sb = new StringBuilder();
@@ -131,19 +168,23 @@ namespace Mariasek.SharedClient
                 {
                     sums[i] += Game.Money[j].MoneyWon[i];
                     series[i][j + 1] = new Vector2(j + 1, sums[i]);
-                    if (maxWon < Game.Money[j].MoneyWon[i])
+                    if (maxWon < sums[i])
                     {
-                        maxWon = Game.Money[j].MoneyWon[i];
+                        maxWon = sums[i];
                     }
-                    if (maxLost > Game.Money[j].MoneyWon[i])
+                    if (maxLost > sums[i])
                     {
-                        maxLost = Game.Money[j].MoneyWon[i];
+                        maxLost = sums[i];
                     }
                 }
             }
             _historyChart.MaxValue = new Vector2(Game.Money.Count, maxWon);
             _historyChart.MinValue = new Vector2(0, maxLost);
-            _historyChart.Series = series;
+            if (_settings != null)
+            {
+                _historyChart.GridInterval = new Vector2(1f, 25 * _settings.BaseBet);
+            }
+            _historyChart.Data = series;
 
             foreach (var historyItem in Game.Money)
             {                

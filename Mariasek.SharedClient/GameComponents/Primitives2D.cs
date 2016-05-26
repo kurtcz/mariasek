@@ -38,14 +38,14 @@ namespace Mariasek.SharedClient.GameComponents
 		/// <param name="points">The points to connect with lines</param>
 		/// <param name="color">The color to use</param>
 		/// <param name="thickness">The thickness of the lines</param>
-		private static void DrawPoints(SpriteBatch spriteBatch, Vector2 position, List<Vector2> points, Color color, float thickness)
+        private static void DrawPoints(SpriteBatch spriteBatch, Vector2 position, List<Vector2> points, Color color, float thickness, float opacity)
 		{
 			if (points.Count < 2)
 				return;
 
 			for (int i = 1; i < points.Count; i++)
 			{
-				DrawLine(spriteBatch, points[i - 1] + position, points[i] + position, color, thickness);
+                DrawLine(spriteBatch, points[i - 1] + position, points[i] + position, color, thickness, opacity);
 			}
 		}
 
@@ -329,10 +329,14 @@ namespace Mariasek.SharedClient.GameComponents
 		/// <param name="color">The color to use</param>
 		/// <param name="thickness">The thickness of the line</param>
 		public static void DrawLine(this SpriteBatch spriteBatch, float x1, float y1, float x2, float y2, Color color, float thickness)
-		{
-			DrawLine(spriteBatch, new Vector2(x1, y1), new Vector2(x2, y2), color, thickness);
-		}
+        {
+            DrawLine(spriteBatch, x1, y1, x2, y2, color, thickness, 1.0f);
+        }
 
+        public static void DrawLine(this SpriteBatch spriteBatch, float x1, float y1, float x2, float y2, Color color, float thickness, float opacity)
+		{
+			DrawLine(spriteBatch, new Vector2(x1, y1), new Vector2(x2, y2), color, thickness, opacity);
+		}
 
 		/// <summary>
 		/// Draws a line from point1 to point2 with an offset
@@ -355,7 +359,12 @@ namespace Mariasek.SharedClient.GameComponents
 		/// <param name="point2">The second point</param>
 		/// <param name="color">The color to use</param>
 		/// <param name="thickness">The thickness of the line</param>
-		public static void DrawLine(this SpriteBatch spriteBatch, Vector2 point1, Vector2 point2, Color color, float thickness)
+        public static void DrawLine(this SpriteBatch spriteBatch, Vector2 point1, Vector2 point2, Color color, float thickness)
+        {
+            DrawLine(spriteBatch, point1, point2, color, thickness, 1.0f);
+        }
+
+        public static void DrawLine(this SpriteBatch spriteBatch, Vector2 point1, Vector2 point2, Color color, float thickness, float opacity)
 		{
 			// calculate the distance between the two vectors
 			float distance = Vector2.Distance(point1, point2);
@@ -363,7 +372,7 @@ namespace Mariasek.SharedClient.GameComponents
 			// calculate the angle between the two vectors
 			float angle = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
 
-			DrawLine(spriteBatch, point1, distance, angle, color, thickness);
+			DrawLine(spriteBatch, point1, distance, angle, color, thickness, opacity);
 		}
 
 
@@ -391,6 +400,11 @@ namespace Mariasek.SharedClient.GameComponents
 		/// <param name="color">The color to use</param>
 		/// <param name="thickness">The thickness of the line</param>
 		public static void DrawLine(this SpriteBatch spriteBatch, Vector2 point, float length, float angle, Color color, float thickness)
+        {
+            DrawLine(spriteBatch, point, length, angle, color, thickness, 1.0f);
+        }
+
+        public static void DrawLine(this SpriteBatch spriteBatch, Vector2 point, float length, float angle, Color color, float thickness, float opacity)
 		{
 			if (pixel == null)
 			{
@@ -401,7 +415,7 @@ namespace Mariasek.SharedClient.GameComponents
 			spriteBatch.Draw(pixel,
 			                 point,
 			                 null,
-			                 color,
+			                 color * opacity,
 			                 angle,
 			                 Vector2.Zero,
 			                 new Vector2(length, thickness),
@@ -445,7 +459,7 @@ namespace Mariasek.SharedClient.GameComponents
 		/// <param name="color">The color of the circle</param>
 		public static void DrawCircle(this SpriteBatch spriteBatch, Vector2 center, float radius, int sides, Color color)
 		{
-			DrawPoints(spriteBatch, center, CreateCircle(radius, sides), color, 1.0f);
+			DrawPoints(spriteBatch, center, CreateCircle(radius, sides), color, 1.0f, 1.0f);
 		}
 
 
@@ -459,8 +473,13 @@ namespace Mariasek.SharedClient.GameComponents
 		/// <param name="color">The color of the circle</param>
 		/// <param name="thickness">The thickness of the lines used</param>
 		public static void DrawCircle(this SpriteBatch spriteBatch, Vector2 center, float radius, int sides, Color color, float thickness)
+        {
+            DrawPoints(spriteBatch, center, CreateCircle(radius, sides), color, thickness, 1.0f);
+        }
+
+        public static void DrawCircle(this SpriteBatch spriteBatch, Vector2 center, float radius, int sides, Color color, float thickness, float opacity)
 		{
-			DrawPoints(spriteBatch, center, CreateCircle(radius, sides), color, thickness);
+			DrawPoints(spriteBatch, center, CreateCircle(radius, sides), color, thickness, opacity);
 		}
 
 
@@ -475,7 +494,7 @@ namespace Mariasek.SharedClient.GameComponents
 		/// <param name="color">The color of the circle</param>
 		public static void DrawCircle(this SpriteBatch spriteBatch, float x, float y, float radius, int sides, Color color)
 		{
-			DrawPoints(spriteBatch, new Vector2(x, y), CreateCircle(radius, sides), color, 1.0f);
+			DrawPoints(spriteBatch, new Vector2(x, y), CreateCircle(radius, sides), color, 1.0f, 1.0f);
 		}
 
 
@@ -491,7 +510,7 @@ namespace Mariasek.SharedClient.GameComponents
 		/// <param name="thickness">The thickness of the lines used</param>
 		public static void DrawCircle(this SpriteBatch spriteBatch, float x, float y, float radius, int sides, Color color, float thickness)
 		{
-			DrawPoints(spriteBatch, new Vector2(x, y), CreateCircle(radius, sides), color, thickness);
+			DrawPoints(spriteBatch, new Vector2(x, y), CreateCircle(radius, sides), color, thickness, 1.0f);
 		}
 
 		#endregion
@@ -530,7 +549,7 @@ namespace Mariasek.SharedClient.GameComponents
 		{
 			List<Vector2> arc = CreateArc(radius, sides, startingAngle, radians);
 			//List<Vector2> arc = CreateArc2(radius, sides, startingAngle, degrees);
-			DrawPoints(spriteBatch, center, arc, color, thickness);
+			DrawPoints(spriteBatch, center, arc, color, thickness, 1.0f);
 		}
 
 		#endregion
@@ -544,6 +563,11 @@ namespace Mariasek.SharedClient.GameComponents
 
         public static void DrawSpline(this SpriteBatch spriteBatch, Vector2[] points, Color color, float thickness)
         {
+            DrawSpline(spriteBatch, points, color, thickness, 1.0f);
+        }
+
+        public static void DrawSpline(this SpriteBatch spriteBatch, Vector2[] points, Color color, float thickness, float opacity)
+        {
             var spline = new SplineInterpolator(points);
             Vector2 current;
             Vector2 previous = points.Length > 0 ? points[0] : Vector2.Zero;
@@ -555,7 +579,7 @@ namespace Mariasek.SharedClient.GameComponents
                     var y = (float)spline.GetValue(x);
 
                     current = new Vector2(x, y);
-                    DrawLine(spriteBatch, previous, current, color, thickness);
+                    DrawLine(spriteBatch, previous, current, color, thickness, opacity);
                     previous = current;
                 }
             }

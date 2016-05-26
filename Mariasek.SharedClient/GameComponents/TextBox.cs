@@ -183,7 +183,7 @@ namespace Mariasek.SharedClient.GameComponents
             if (Height >= BoundsRect.Height)
             {
                 _minVerticalScrollOffset = 0;
-                _maxVerticalScrollOffset = Height;
+                _maxVerticalScrollOffset = 0;
             }
             switch (VerticalAlign)
             {
@@ -247,7 +247,7 @@ namespace Mariasek.SharedClient.GameComponents
                     _scrollBarBgTexture.SetData<Color>(bgcolor);
                 }
                 _scrollBarPosition.X = Position.X + Width - _scrollBarWidth;
-                _scrollBarPosition.Y = Position.Y + (Position.Y - BoundsRect.Top - VerticalScrollOffset) * Height / BoundsRect.Height;
+                _scrollBarPosition.Y = Position.Y - VerticalScrollOffset * (Height - _scrollBarHeight) / (BoundsRect.Height - Height);
             }
             else if(_scrollBarTexture != null)
             {
