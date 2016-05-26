@@ -302,6 +302,15 @@ namespace Mariasek.SharedClient.GameComponents
                         position.X += Width;
                         break;
                 }
+                switch (VerticalAlign)
+                {
+                    case VerticalAlignment.Middle:
+                        position.Y += Height / 2f;
+                        break;
+                    case VerticalAlignment.Bottom:
+                        position.Y += Height;
+                        break;
+                }
                 //System.Diagnostics.Debug.WriteLine(string.Format("VSO {0}", VerticalScrollOffset));
                 position.Y += VerticalScrollOffset;
 
