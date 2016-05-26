@@ -1001,6 +1001,7 @@ namespace Mariasek.SharedClient
                     _talon = new List<Card>();
                     ShowMsgLabel("Vyber si talon", false);
                     _okBtn.Show();
+                    _okBtn.IsEnabled = false;
                     _state = GameState.ChooseTalon;
                     UpdateHand(cardToHide: _trumpCardChosen);
                 }, null);
