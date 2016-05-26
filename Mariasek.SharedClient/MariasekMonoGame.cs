@@ -239,7 +239,7 @@ namespace Mariasek.SharedClient
 		
 			//TODO: Add your drawing code here
 			//spriteBatch.Begin ();
-            SpriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, ScaleMatrix);
+            SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, ScaleMatrix);
             CurrentScene.Draw(gameTime);
 			SpriteBatch.End ();
 

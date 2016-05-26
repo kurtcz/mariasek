@@ -106,7 +106,7 @@ namespace Mariasek.SharedClient.GameComponents
                                                                      (int)(Game.ScaleMatrix.M42 + Position.Y*Game.ScaleMatrix.M22), 
                                                                      (int)(Width*Game.ScaleMatrix.M11), 
                                                                      (int)(Height*Game.ScaleMatrix.M22));
-                Game.SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, new RasterizerState { ScissorTestEnable = true }, null, Game.ScaleMatrix);
+                Game.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, new RasterizerState { ScissorTestEnable = true }, null, Game.ScaleMatrix);
 
                 if (ShowHorizontalGridLines)
                 {
@@ -192,7 +192,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Game.SpriteBatch.End();
 
                 Game.GraphicsDevice.ScissorRectangle = origClippingRectangle;
-                Game.SpriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, Game.ScaleMatrix);
+                Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Game.ScaleMatrix);
             }
             base.Draw(gameTime);
         }
