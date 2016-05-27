@@ -569,20 +569,16 @@ namespace Mariasek.SharedClient.GameComponents
         public static void DrawSpline(this SpriteBatch spriteBatch, Vector2[] points, Color color, float thickness, float opacity)
         {
             var spline = new SplineInterpolator(points);
-            Vector2 current;
-            Vector2 previous = points.Length > 0 ? points[0] : Vector2.Zero;
+            var splinePoints = new List<Vector2>();
+            var splinePointsLength = (int)points.Last().X - (int)points.First().X + 1;
 
-            for (var i = 1; i < points.Length - 1; i++)
+            for (var i = 0; i < splinePointsLength; i++)
             {
-                for (var x = points[i].X; x < points[i + 1].X; x++)
-                {
-                    var y = (float)spline.GetValue(x);
-
-                    current = new Vector2(x, y);
-                    DrawLine(spriteBatch, previous, current, color, thickness, opacity);
-                    previous = current;
-                }
+                var x = points.First().X + i;
+                var y = (float)spline.GetValue(x);
+                splinePoints.Add(new Vector2(x, y));
             }
+            DrawPoints(spriteBatch, Vector2.Zero, splinePoints, color, thickness, opacity);
         }
 
         #endregion

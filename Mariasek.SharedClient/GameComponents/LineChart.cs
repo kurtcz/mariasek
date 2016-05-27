@@ -19,9 +19,19 @@ namespace Mariasek.SharedClient.GameComponents
 
     public class LineChart : GameComponent
     {
+        private RenderTarget2D _target;
         public int Width { get; set; }
         public int Height { get; set; }
-        public Vector2[][] Data { get; set; }
+        private Vector2[][] _data;
+        public Vector2[][] Data
+        { 
+            get { return _data; }
+            set
+            {
+                _data = value;
+                UpdateSprite();
+            }
+        }
         public string[] Series { get; set; }
         public float XAxisPoint { get; set; }
         public float YAxisPoint { get; set; }
@@ -50,7 +60,7 @@ namespace Mariasek.SharedClient.GameComponents
         {
             MinValue = Vector2.Zero;
             MaxValue = Vector2.One;
-            Data = new []
+            _data = new []
             {
                 new [] { new Vector2(0, 0.25f), new Vector2(0.5f, 0.5f), new Vector2(1, 0.25f) },
                 new [] { new Vector2(0, 0.1f), new Vector2(0.5f, 0.2f), new Vector2(1, 0.75f) },
@@ -78,6 +88,8 @@ namespace Mariasek.SharedClient.GameComponents
             GridInterval = new Vector2(0.25f, 0.25f);
             HorizontalGridLineColor = Color.Gray;
             VerticalGridLineColor = Color.Gray;
+
+            UpdateSprite();
         }
 
         private Vector2 LogicalToPhysical(Vector2 point)
@@ -87,112 +99,114 @@ namespace Mariasek.SharedClient.GameComponents
 
             if (logicalWidth == 0 || logicalHeight == 0)
             {
-                return Position;
+                return Vector2.Zero;//Position;
             }
 
-            var result = Position + Vector2.UnitY * (Height - DataMarkerSize) + new Vector2((point.X - MinValue.X) * (Width - DataMarkerSize) / logicalWidth + DataMarkerSize / 2, 
+            var result = //Position + 
+                            Vector2.UnitY * (Height - DataMarkerSize) + new Vector2((point.X - MinValue.X) * (Width - DataMarkerSize) / logicalWidth + DataMarkerSize / 2, 
                                                                                             -(point.Y - MinValue.Y) * (Height - DataMarkerSize) / logicalHeight + DataMarkerSize / 2);
 
             return result;
+        }
+
+        public void UpdateSprite()
+        {
+            //Draw onto the target rather than the back buffer
+            _target = new RenderTarget2D(Game.GraphicsDevice, Width, Height);
+            Game.GraphicsDevice.SetRenderTarget(_target);
+            Game.Graphics.GraphicsDevice.Clear(Color.Transparent);
+            Game.SpriteBatch.Begin();
+            if (ShowHorizontalGridLines)
+            {
+                var offset = MinValue.Y % GridInterval.Y;
+
+                for (int i = 0; MinValue.Y + i * GridInterval.Y < MaxValue.Y; i++)
+                {                        
+                    var lineStart = LogicalToPhysical(new Vector2(MinValue.X, MinValue.Y + i * GridInterval.Y - offset));
+                    var lineEnd = LogicalToPhysical(new Vector2(MaxValue.X, MinValue.Y + i * GridInterval.Y - offset));
+
+                    Primitives2D.DrawLine(Game.SpriteBatch, lineStart, lineEnd, HorizontalGridLineColor, 1f, Opacity);
+                }
+            }
+            if (ShowVerticalGridLines)
+            {
+                var offset = MinValue.X % GridInterval.X;
+
+                for (int i = 0; MinValue.X + i * GridInterval.X < MaxValue.X; i++)
+                {                        
+                    var lineStart = LogicalToPhysical(new Vector2(MinValue.X + i * GridInterval.X - offset, MinValue.Y));
+                    var lineEnd = LogicalToPhysical(new Vector2(MinValue.X + i * GridInterval.X - offset, MaxValue.Y));
+
+                    Primitives2D.DrawLine(Game.SpriteBatch, lineStart, lineEnd, VerticalGridLineColor, 1f, Opacity);
+                }
+            }
+            if (ShowXAxis)
+            {
+                Primitives2D.DrawLine(Game.SpriteBatch, LogicalToPhysical(new Vector2(MinValue.X, XAxisPoint)), LogicalToPhysical(new Vector2(MaxValue.X, XAxisPoint)), AxisColor, AxisThickness, Opacity);
+                if (ShowXAxisTickMarks)
+                {                    
+                    var offset = MinValue.X % GridInterval.X;
+
+                    for (int i = 0; MinValue.X + i * GridInterval.X < MaxValue.X; i++)
+                    {                        
+                        var tickCentre = LogicalToPhysical(new Vector2(MinValue.X + i * GridInterval.X - offset, XAxisPoint));
+                        var tickStart = new Vector2(tickCentre.X, tickCentre.Y - TickMarkLength / 2);
+                        var tickEnd = new Vector2(tickStart.X, tickStart.Y + TickMarkLength);
+
+                        Primitives2D.DrawLine(Game.SpriteBatch, tickStart, tickEnd, AxisColor, AxisThickness, Opacity);
+                    }
+                }
+            }
+            if (ShowYAxis)
+            {
+                Primitives2D.DrawLine(Game.SpriteBatch, LogicalToPhysical(new Vector2(YAxisPoint, MinValue.Y)), LogicalToPhysical(new Vector2(YAxisPoint, MaxValue.Y)), AxisColor, AxisThickness, Opacity);
+                if (ShowYAxisTickMarks)
+                {                    
+                    var offset = MinValue.Y % GridInterval.Y;
+
+                    for (int i = 0; MinValue.Y + i * GridInterval.Y < MaxValue.Y; i++)
+                    {                        
+                        var tickCentre = LogicalToPhysical(new Vector2(YAxisPoint, MinValue.Y + i * GridInterval.Y - offset));
+                        var tickStart = new Vector2(tickCentre.X - TickMarkLength / 2, tickCentre.Y);
+                        var tickEnd = new Vector2(tickStart.X + TickMarkLength, tickStart.Y);
+
+                        Primitives2D.DrawLine(Game.SpriteBatch, tickStart, tickEnd, AxisColor, AxisThickness, Opacity);
+                    }
+                }
+            }
+            for (var i = 0; i < _data.Length; i++)
+            {
+                if (_data[i].Length == 0)
+                {
+                    continue;
+                }
+
+                var points = new Vector2[_data[i].Length + 1];
+
+                for (var j = 0; j < _data[i].Length; j++)
+                {
+                    points[j + 1] = LogicalToPhysical(_data[i][j]);
+                }
+                points[0] = new Vector2(points[1].X - 1, points[1].Y);
+                Primitives2D.DrawSpline(Game.SpriteBatch, points, Colors[i], LineThickness, Opacity);
+                if (DataMarkerSize > 0)
+                {
+                    for (var j = 0; j < points.Length; j++)
+                    {
+                        Primitives2D.DrawCircle(Game.SpriteBatch, points[j], DataMarkerSize / 2, (int)DataMarkerShape, Colors[i], DataMarkerSize / 2, Opacity);
+                    }
+                }
+            }
+            Game.SpriteBatch.End();
+            //restore the original backbuffer as the render target
+            Game.GraphicsDevice.SetRenderTarget(null); 
         }
 
         public override void Draw(GameTime gameTime)
         {
             if (IsVisible)
             {
-                Game.SpriteBatch.End();
-                var origClippingRectangle = Game.GraphicsDevice.ScissorRectangle;
-                Game.GraphicsDevice.ScissorRectangle = new Rectangle((int)(Game.ScaleMatrix.M41 + Position.X*Game.ScaleMatrix.M11), 
-                                                                     (int)(Game.ScaleMatrix.M42 + Position.Y*Game.ScaleMatrix.M22), 
-                                                                     (int)(Width*Game.ScaleMatrix.M11), 
-                                                                     (int)(Height*Game.ScaleMatrix.M22));
-                Game.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, new RasterizerState { ScissorTestEnable = true }, null, Game.ScaleMatrix);
-
-                if (ShowHorizontalGridLines)
-                {
-                    var offset = MinValue.Y % GridInterval.Y;
-
-                    for (int i = 0; MinValue.Y + i * GridInterval.Y < MaxValue.Y; i++)
-                    {                        
-                        var lineStart = LogicalToPhysical(new Vector2(MinValue.X, MinValue.Y + i * GridInterval.Y - offset));
-                        var lineEnd = LogicalToPhysical(new Vector2(MaxValue.X, MinValue.Y + i * GridInterval.Y - offset));
-
-                        Primitives2D.DrawLine(Game.SpriteBatch, lineStart, lineEnd, HorizontalGridLineColor, 1f, Opacity);
-                    }
-                }
-                if (ShowVerticalGridLines)
-                {
-                    var offset = MinValue.X % GridInterval.X;
-
-                    for (int i = 0; MinValue.X + i * GridInterval.X < MaxValue.X; i++)
-                    {                        
-                        var lineStart = LogicalToPhysical(new Vector2(MinValue.X + i * GridInterval.X - offset, MinValue.Y));
-                        var lineEnd = LogicalToPhysical(new Vector2(MinValue.X + i * GridInterval.X - offset, MaxValue.Y));
-
-                        Primitives2D.DrawLine(Game.SpriteBatch, lineStart, lineEnd, VerticalGridLineColor, 1f, Opacity);
-                    }
-                }
-                if (ShowXAxis)
-                {
-                    Primitives2D.DrawLine(Game.SpriteBatch, LogicalToPhysical(new Vector2(MinValue.X, XAxisPoint)), LogicalToPhysical(new Vector2(MaxValue.X, XAxisPoint)), AxisColor, AxisThickness, Opacity);
-                    if (ShowXAxisTickMarks)
-                    {                    
-                        var offset = MinValue.X % GridInterval.X;
-
-                        for (int i = 0; MinValue.X + i * GridInterval.X < MaxValue.X; i++)
-                        {                        
-                            var tickCentre = LogicalToPhysical(new Vector2(MinValue.X + i * GridInterval.X - offset, XAxisPoint));
-                            var tickStart = new Vector2(tickCentre.X, tickCentre.Y - TickMarkLength / 2);
-                            var tickEnd = new Vector2(tickStart.X, tickStart.Y + TickMarkLength);
-
-                            Primitives2D.DrawLine(Game.SpriteBatch, tickStart, tickEnd, AxisColor, AxisThickness, Opacity);
-                        }
-                    }
-                }
-                if (ShowYAxis)
-                {
-                    Primitives2D.DrawLine(Game.SpriteBatch, LogicalToPhysical(new Vector2(YAxisPoint, MinValue.Y)), LogicalToPhysical(new Vector2(YAxisPoint, MaxValue.Y)), AxisColor, AxisThickness, Opacity);
-                    if (ShowYAxisTickMarks)
-                    {                    
-                        var offset = MinValue.Y % GridInterval.Y;
-
-                        for (int i = 0; MinValue.Y + i * GridInterval.Y < MaxValue.Y; i++)
-                        {                        
-                            var tickCentre = LogicalToPhysical(new Vector2(YAxisPoint, MinValue.Y + i * GridInterval.Y - offset));
-                            var tickStart = new Vector2(tickCentre.X - TickMarkLength / 2, tickCentre.Y);
-                            var tickEnd = new Vector2(tickStart.X + TickMarkLength, tickStart.Y);
-
-                            Primitives2D.DrawLine(Game.SpriteBatch, tickStart, tickEnd, AxisColor, AxisThickness, Opacity);
-                        }
-                    }
-                }
-                for (var i = 0; i < Data.Length; i++)
-                {
-                    if (Data[i].Length == 0)
-                    {
-                        continue;
-                    }
-
-                    var points = new Vector2[Data[i].Length + 1];
-
-                    for (var j = 0; j < Data[i].Length; j++)
-                    {
-                        points[j + 1] = LogicalToPhysical(Data[i][j]);
-                    }
-                    points[0] = new Vector2(points[1].X - 1, points[1].Y);
-                    Primitives2D.DrawSpline(Game.SpriteBatch, points, Colors[i], LineThickness, Opacity);
-                    if (DataMarkerSize > 0)
-                    {
-                        for (var j = 0; j < points.Length; j++)
-                        {
-                            Primitives2D.DrawCircle(Game.SpriteBatch, points[j], DataMarkerSize / 2, (int)DataMarkerShape, Colors[i], DataMarkerSize / 2, Opacity);
-                        }
-                    }
-                }
-                Game.SpriteBatch.End();
-
-                Game.GraphicsDevice.ScissorRectangle = origClippingRectangle;
-                Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Game.ScaleMatrix);
+                Game.SpriteBatch.Draw(_target, Position);
             }
             base.Draw(gameTime);
         }
