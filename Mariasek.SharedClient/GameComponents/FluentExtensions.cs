@@ -35,10 +35,10 @@ namespace Mariasek.SharedClient.GameComponents
             return gameComponent.WaitImpl(milliseconds) as T;
         }
 
-        public static T MoveTo<T>(this T sprite, Vector2 targetPosition, float speed = 100f)
-            where T : Sprite
+        public static T MoveTo<T>(this T gameComponent, Vector2 targetPosition, float speed = 100f)
+            where T : GameComponent
         {
-            return sprite.MoveToImpl(targetPosition, speed) as T;
+            return gameComponent.MoveToImpl(targetPosition, speed) as T;
         }
 
         public static T ScaleTo<T>(this T sprite, float targetScale, float speed = 1f)

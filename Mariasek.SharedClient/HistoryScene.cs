@@ -34,6 +34,8 @@ namespace Mariasek.SharedClient
         private LineChart _historyChart;
         private bool _useMockData;// = true;
         private GameSettings _settings;
+        private Vector2 _origPosition;
+        private Vector2 _hiddenPosition;
 
         public HistoryScene(MariasekMonoGame game)
             : base(game)
@@ -48,9 +50,11 @@ namespace Mariasek.SharedClient
         {
             base.Initialize();
 
+            _origPosition = new Vector2(220, 60);
+            _hiddenPosition = new Vector2(Game.VirtualScreenWidth, 60);
             _historyChart = new LineChart(this)
             {
-                Position = new Vector2(220, 60),
+                Position = _origPosition,
                 Width = (int)Game.VirtualScreenWidth - 230,
                 Height = (int)Game.VirtualScreenHeight - 120,
                 LineThickness = 3f,
@@ -132,7 +136,7 @@ namespace Mariasek.SharedClient
             };
             _historyBox = new TextBox(this)
             {
-                Position = new Vector2(220, 60),
+                Position = _hiddenPosition,
                 Width = (int)Game.VirtualScreenWidth - 230,
                 Height = (int)Game.VirtualScreenHeight - 120,
                 HorizontalAlign = HorizontalAlignment.Left,
@@ -236,11 +240,15 @@ namespace Mariasek.SharedClient
         {
             if (_historyChart.IsVisible)
             {
-                _historyChart.Hide();
+                _historyChart.MoveTo(_hiddenPosition, 5000)
+                    .Invoke(() => { _historyChart.Hide(); });
+                //_historyChart.Hide();
             }
             else
             {
-                _historyChart.Show();
+                _historyChart.Invoke(() => { _historyChart.Show(); })
+                    .MoveTo(_origPosition, 5000);
+                //_historyChart.Show();
             }
         }
 
@@ -248,11 +256,15 @@ namespace Mariasek.SharedClient
         {
             if (_historyBox.IsVisible)
             {
-                _historyBox.Hide();
+                _historyBox.MoveTo(_hiddenPosition, 5000)
+                           .Invoke(() => { _historyBox.Hide(); });
+                //_historyBox.Hide();
             }
             else
             {
-                _historyBox.Show();
+                _historyBox.Invoke(() => { _historyBox.Show(); })
+                    .MoveTo(_origPosition, 5000);
+                //_historyBox.Show();
             }
         }
 

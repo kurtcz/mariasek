@@ -109,7 +109,7 @@ namespace Mariasek.SharedClient.GameComponents
             return result;
         }
 
-        public void UpdateSprite()
+        private void UpdateSprite()
         {
             //Draw onto the target rather than the back buffer
             _target = new RenderTarget2D(Game.GraphicsDevice, Width, Height);

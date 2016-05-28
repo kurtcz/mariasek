@@ -626,10 +626,6 @@ namespace Mariasek.SharedClient
         public void NewGameBtnClicked(object sender)
         {
             CancelRunningTask();
-            if (g != null && g.IsRunning)
-            {
-                _evt.Set(); //to avoid a freeze when clicking a new game whilst game is waiting for user input
-            }
             _gameTask = Task.Run(() => {
                 g = new Mariasek.Engine.New.Game()
                 {
@@ -986,6 +982,7 @@ namespace Mariasek.SharedClient
 //                    _msgLabel.HorizontalAlign = HorizontalAlignment.Right;
                     ShowMsgLabel("Vyber trumfovou kartu", false);
                     _state = GameState.ChooseTrump;
+                    _hand.Show();
                     UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
                 }, null);
             WaitForUIThread();
