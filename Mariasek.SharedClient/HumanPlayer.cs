@@ -31,6 +31,7 @@ namespace Mariasek.SharedClient
             Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _g.talon);
             if (_g.GameStartingPlayerIndex != 0)
             {
+                _scene.SortHand();
                 _scene.UpdateHand(flipCardsUp: true);
             }
         }

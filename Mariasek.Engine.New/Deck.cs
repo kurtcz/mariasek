@@ -19,8 +19,9 @@ namespace Mariasek.Engine.New
             Init();
         }
 
-        public Deck(List<Card> cards)
+        public Deck(List<Card> cards, int? rndSeed = null)
         {
+            _rand = rndSeed.HasValue ? new Random(rndSeed.Value) : new Random();
             _cards = cards;
         }
 
@@ -47,6 +48,17 @@ namespace Mariasek.Engine.New
                 _cards.RemoveAt(r);
             }
             _cards = temp;
+        }
+
+        public void Cut()
+        {
+            const int minimalCut = 2;
+            var temp = new List<Card>();
+            int r = _rand.Next() % (_cards.Count - 2 * minimalCut) + minimalCut;
+
+            temp = _cards.GetRange(0, r);
+            _cards.RemoveRange(0, r);
+            _cards.AddRange(temp);
         }
 
         public Card TakeOne()

@@ -53,11 +53,13 @@ namespace Mariasek.Engine.New
                 GameThresholds = new [] { 0.75f, 0.8f, 0.85f, 0.9f, 0.95f },
                 GameThresholdsForGameType = new Dictionary<Hra, float[]>
                                             {
-                                                { Hra.Hra,   new[] { 0.5f, 0.65f, 0.75f, 0.85f, 0.95f } },
-                                                { Hra.Sedma, new[] { 0.75f, 0.8f, 0.85f, 0.9f, 0.95f } },
-                                                { Hra.Kilo,  new[] { 0.8f, 0.85f, 0.9f, 0.95f, 0.99f } },
-                                                { Hra.Betl,  new[] { 0.75f, 0.8f, 0.85f, 0.9f, 0.95f } },
-                                                { Hra.Durch, new[] { 0.75f, 0.8f, 0.85f, 0.9f, 0.95f } }
+                                                { Hra.Hra,        new[] { 0.50f, 0.65f, 0.75f, 0.85f, 0.95f } },
+                                                { Hra.Sedma,      new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
+                                                { Hra.SedmaProti, new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
+                                                { Hra.Kilo,       new[] { 0.80f, 0.85f, 0.90f, 0.95f, 0.99f } },
+                                                { Hra.KiloProti,  new[] { 0.95f, 0.96f, 0.97f, 0.98f, 0.99f } },
+                                                { Hra.Betl,       new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
+                                                { Hra.Durch,      new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } }
                                             },
                 MaxDoubleCount = 5,
                 SigmaMultiplier = 0
@@ -96,8 +98,12 @@ namespace Mariasek.Engine.New
             Settings.GameThresholdsForGameType[Hra.Hra] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
             gameThresholds2 = parameters["GameThreshold.Sedma"].Value;
             Settings.GameThresholdsForGameType[Hra.Sedma] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
+            gameThresholds2 = parameters["GameThreshold.SedmaProti"].Value;
+            Settings.GameThresholdsForGameType[Hra.SedmaProti] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
             gameThresholds2 = parameters["GameThreshold.Kilo"].Value;
             Settings.GameThresholdsForGameType[Hra.Kilo] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
+            gameThresholds2 = parameters["GameThreshold.KiloProti"].Value;
+            Settings.GameThresholdsForGameType[Hra.KiloProti] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
             gameThresholds2 = parameters["GameThreshold.Betl"].Value;
             Settings.GameThresholdsForGameType[Hra.Betl] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
             gameThresholds2 = parameters["GameThreshold.Durch"].Value;
@@ -732,8 +738,8 @@ namespace Mariasek.Engine.New
             var gameThreshold = bidding._gameFlek < Settings.GameThresholdsForGameType[Hra.Hra].Length ? Settings.GameThresholdsForGameType[Hra.Hra][bidding._gameFlek] : 1f;
             var sevenThreshold = bidding._sevenFlek < Settings.GameThresholdsForGameType[Hra.Sedma].Length ? Settings.GameThresholdsForGameType[Hra.Sedma][bidding._sevenFlek] : 1f;
             var hundredThreshold = bidding._gameFlek < Settings.GameThresholdsForGameType[Hra.Kilo].Length ? Settings.GameThresholdsForGameType[Hra.Kilo][bidding._gameFlek] : 1f;
-            var sevenAgainstThreshold = bidding._sevenAgainstFlek < Settings.GameThresholds.Length ? Settings.GameThresholds[bidding._sevenAgainstFlek] : 1f;
-            var hundredAgainstThreshold = bidding._hundredAgainstFlek < Settings.GameThresholds.Length ? Settings.GameThresholds[bidding._hundredAgainstFlek] : 1f;
+            var sevenAgainstThreshold = bidding._sevenAgainstFlek < Settings.GameThresholdsForGameType[Hra.SedmaProti].Length ? Settings.GameThresholdsForGameType[Hra.SedmaProti][bidding._sevenAgainstFlek] : 1f;
+            var hundredAgainstThreshold = bidding._hundredAgainstFlek < Settings.GameThresholdsForGameType[Hra.KiloProti].Length ? Settings.GameThresholdsForGameType[Hra.KiloProti][bidding._hundredAgainstFlek] : 1f;
             var betlThreshold = bidding._betlDurchFlek < Settings.GameThresholdsForGameType[Hra.Betl].Length ? Settings.GameThresholdsForGameType[Hra.Betl][bidding._betlDurchFlek] : 1f;
             var durchThreshold = bidding._betlDurchFlek < Settings.GameThresholdsForGameType[Hra.Durch].Length ? Settings.GameThresholdsForGameType[Hra.Durch][bidding._betlDurchFlek] : 1f;
 

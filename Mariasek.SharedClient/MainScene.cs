@@ -176,12 +176,37 @@ namespace Mariasek.SharedClient
                 });
             _aiConfig.Add("GameThreshold.Hra", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
-                    Name = "GameThreshold",
+                    Name = "GameThreshold.Hra",
                     Value = "0|50|70|85|95"
                 });
+//            _aiConfig.Add("GameThreshold.Sedma", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+//                {
+//                    Name = "GameThreshold.Sedma",
+//                    Value = "75|80|85|90|95"
+//                });
+//            _aiConfig.Add("GameThreshold.SedmaProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+//                {
+//                    Name = "GameThreshold.SedmaProti",
+//                    Value = "75|80|85|90|95"
+//                });
             _aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
-                    Name = "GameThreshold",
+                    Name = "GameThreshold.Kilo",
+                    Value = "80|85|90|95|99"
+                });
+            _aiConfig.Add("GameThreshold.KiloProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                {
+                    Name = "GameThreshold.KiloProti",
+                    Value = "90|95|97|98|99"
+                });
+            _aiConfig.Add("GameThreshold.Betl", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                {
+                    Name = "GameThreshold.Betl",
+                    Value = "80|85|90|95|99"
+                });
+            _aiConfig.Add("GameThreshold.Durch", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                {
+                    Name = "GameThreshold.Durch",
                     Value = "80|85|90|95|99"
                 });
             _aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
@@ -589,7 +614,7 @@ namespace Mariasek.SharedClient
                     _evt.Set();
                     _gameTask.Wait();
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     //exception caught during task cancellation
                 }
@@ -639,6 +664,7 @@ namespace Mariasek.SharedClient
                 );
                 CurrentStartingPlayerIndex = _settings.CurrentStartingPlayerIndex; //TODO: zrusit CurrentStartingPlayerIndex a pouzivat jen _settings.CurrentStartingPlayerIndex
                 CurrentStartingPlayerIndex = (CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers;
+                //CurrentStartingPlayerIndex = 1;
                 _settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
                 Game.SettingsScene.SaveGameSettings();
                 if (_deck == null)
@@ -658,6 +684,8 @@ namespace Mariasek.SharedClient
                     _deck.Shuffle();
                     Game.MenuScene.ShuffleBtn.IsSelected = false;
                 }
+                _canSort = CurrentStartingPlayerIndex != 0;
+
                 g.NewGame(CurrentStartingPlayerIndex, _deck);
                 g.GameFlavourChosen += GameFlavourChosen;
                 g.GameTypeChosen += GameTypeChosen;
@@ -696,7 +724,6 @@ namespace Mariasek.SharedClient
                     _hand.Show();
                     UpdateHand();
                 }
-                _canSort = g.GameStartingPlayerIndex != 0;
 
                 g.PlayGame(_cancellationTokenSource.Token);
             },  _cancellationTokenSource.Token);
@@ -758,6 +785,10 @@ namespace Mariasek.SharedClient
             {
                 ex = ex.InnerException;
             }
+            if (ex is OperationCanceledException)
+            {
+                return;
+            }                
             _msgLabel.HorizontalAlign = HorizontalAlignment.Right;
             ShowMsgLabel(string.Format("Chyba:\n{0}\n{1}", ex.Message, ex.StackTrace), false);
         }
@@ -1051,6 +1082,7 @@ namespace Mariasek.SharedClient
                 {
                     ShowThinkingMessage();
                 }, null);
+            g.ThrowIfCancellationRequested();
             return _gameTypeChosen;
         }
 

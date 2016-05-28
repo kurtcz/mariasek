@@ -24,6 +24,18 @@ namespace Mariasek.Engine.New
             return default(TSource);
         }
 
+        public static IEnumerable<TSource> Randomize<TSource>(this IEnumerable<TSource> source)
+        {
+            var list = source.ToList();
+
+            list.Sort((c1, c2) =>
+                {
+                    return (rand.Next() % 2) - 1;
+                });
+            
+            return list;
+        }
+
         public static IEnumerable<Card> Sort(this List<Card>hand, bool ascending, bool badGameSorting = false, Barva? lastSuit = null)
         {
             hand.Sort((c1, c2) =>

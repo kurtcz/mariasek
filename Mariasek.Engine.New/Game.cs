@@ -246,7 +246,8 @@ namespace Mariasek.Engine.New
                 deck = new Deck();
                 deck.Shuffle();
             }
-            
+            deck.Cut();
+
             GameStartingPlayerIndex = gameStartingPlayerIndex;
             OriginalGameStartingPlayerIndex = GameStartingPlayerIndex;
 
@@ -618,33 +619,38 @@ namespace Mariasek.Engine.New
             var deck = new List<Card>();
             if (rounds != null)
             {
-                foreach (var r in rounds)
+                //slozime stychy v nahodnem poradi
+                var randomPlayers = players.Randomize<AbstractPlayer>();
+
+                foreach (var player in randomPlayers)
                 {
-                    if (r == null)
-                    {
-                        break;
-                    }
-                    if (!r.hlas1)
-                    {
-                        deck.Insert(0, r.c1);
-                    }
-                    if (!r.hlas2)
-                    {
-                        deck.Insert(0, r.c2);
-                    }
-                    if (!r.hlas3)
-                    {
-                        deck.Insert(0, r.c3);
-                    }
-                }
-                foreach (var player in players)
-                {
+                    //dodame karty ve stychu vyjma hlasu
                     foreach (var r in rounds)
                     {
                         if (r == null)
                         {
                             break;
                         }
+                        if (r.roundWinner == player && !r.hlas1)
+                        {
+                            deck.Insert(0, r.c1);
+                        }
+                        if (r.roundWinner == player && !r.hlas2)
+                        {
+                            deck.Insert(0, r.c2);
+                        }
+                        if (r.roundWinner == player && !r.hlas3)
+                        {
+                            deck.Insert(0, r.c3);
+                        }
+                    }
+                    foreach (var r in rounds)
+                    {
+                        if (r == null)
+                        {
+                            break;
+                        }
+                        //dodame hlasy
                         if (r.hlas1 && r.player1 == player)
                         {
                             deck.Insert(0, r.c1);
@@ -661,12 +667,6 @@ namespace Mariasek.Engine.New
                     deck.InsertRange(0, player.Hand);
                 }
                 deck.InsertRange(0, talon);
-
-                //sejmeme
-                var n = rand.Next(deck.Count);
-                var temp = deck.GetRange(0, n);
-                deck.RemoveRange(0, n);
-                deck.AddRange(temp);
             }
             return new Deck(deck);
         }
