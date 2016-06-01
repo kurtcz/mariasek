@@ -4,9 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-//using log4net;
 using Mariasek.Engine.New.Logger;
-//using log4net.Appender;
 using MersenneTwister;
 
 namespace Mariasek.Engine.New
@@ -23,7 +21,6 @@ namespace Mariasek.Engine.New
         private int _gameStarterIndex;
         private Barva? _trump;
         private readonly Dictionary<Barva, Dictionary<Hodnota, float>>[] _cardProbabilityForPlayer;
-        //private static Random r = new Random();
         private static RandomMT mt = new RandomMT((ulong)(DateTime.Now - DateTime.MinValue).TotalMilliseconds);
 
         private List<Hand[]> generatedHands;

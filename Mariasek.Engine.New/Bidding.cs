@@ -155,7 +155,6 @@ namespace Mariasek.Engine.New
                 //zrus priznak u her ktere cele kolo nikdo neflekoval aby uz nesly flekovat dal
                 AdjustValidBidsForPlayer(i, j);
                 
-                //ResetBidsOfPlayer(_g.players[i]);
                 if (Bids == 0)
                 {
                     break;

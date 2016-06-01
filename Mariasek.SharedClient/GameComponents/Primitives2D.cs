@@ -6,8 +6,6 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Mariasek.SharedClient.GameComponents
 {
-	/// <summary>
-	/// </summary>
 	public static class Primitives2D
 	{
 
@@ -15,7 +13,6 @@ namespace Mariasek.SharedClient.GameComponents
 		#region Private Members
 
 		private static readonly Dictionary<String, List<Vector2>> circleCache = new Dictionary<string, List<Vector2>>();
-		//private static readonly Dictionary<String, List<Vector2>> arcCache = new Dictionary<string, List<Vector2>>();
 		private static Texture2D pixel;
 
 		#endregion

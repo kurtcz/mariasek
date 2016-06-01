@@ -5,7 +5,6 @@ using System.Text;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
@@ -38,7 +37,6 @@ namespace Mariasek.SharedClient.GameComponents
             TextColor = Color.White;
             Opacity = 1f;
             TextRenderer = Game.FontRenderers["BM2Font"];
-            //TextRenderer = Game.FontRenderers["LuckiestGuy32Outl"];
             Text = Name;
         }
 
@@ -75,7 +73,6 @@ namespace Mariasek.SharedClient.GameComponents
 
         protected void DrawTextAtPosition(Vector2 position)
         {
-            //System.Diagnostics.Debug.WriteLine(string.Format("{0} {1} {2} {3}", Text, position.Y, defaultVerticalScrollOffset, VerticalScrollOffset));
             Game.SpriteBatch.End();
             var origClippingRectangle = Game.GraphicsDevice.ScissorRectangle;
             //we need to create a new sprite batch instance that is going to use a clipping rectangle

@@ -128,9 +128,6 @@
     <Compile Include="..\Mariasek.Engine.New\Logger\ILog.cs">
       <Link>Logger\ILog.cs</Link>
     </Compile>
-    <Compile Include="..\Mariasek.Engine.New\Logger\ILogExtensions.ToBeDeleted.cs">
-      <Link>Logger\ILogExtensions.ToBeDeleted.cs</Link>
-    </Compile>
     <Compile Include="..\Mariasek.Engine.New\Logger\LogManager.cs">
       <Link>Logger\LogManager.cs</Link>
     </Compile>

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
@@ -137,28 +136,11 @@ namespace Mariasek.SharedClient.GameComponents
 
         private void GameRestarted()
         {
-//            var btn = Parent as Button;
-//            var box = Parent as TextBox;
-//            var caption = btn != null 
-//                ? btn.Text 
-//                : (box != null
-//                    ? box.Text 
-//                    : Name);
-//            System.Diagnostics.Debug.WriteLine(string.Format("{0} {1} {2} {3} restart event caught", caption, Position.X, Position.Y, GetHashCode()));
             _textureUpdateNeeded = true;
-            //UpdateTexture();
         }
 
         public void UpdateTexture()
         {
-//            var btn = Parent as Button;
-//            var box = Parent as TextBox;
-//            var caption = btn != null 
-//                            ? btn.Text 
-//                            : (box != null
-//                                ? box.Text 
-//                                : Name);
-//            System.Diagnostics.Debug.WriteLine(string.Format("{0} {1} {2} {3} UpdateTexture()", caption, Position.X, Position.Y, GetHashCode()));
             _texture = CreateRoundedRectangleTexture(
                 Game.Graphics.GraphicsDevice,
                 _width,
@@ -178,8 +160,6 @@ namespace Mariasek.SharedClient.GameComponents
         {
             if (backgroundColors == null || backgroundColors.Count == 0) throw new ArgumentException("Must define at least one background color (up to four).");
             if (borderColors == null || borderColors.Count == 0) throw new ArgumentException("Must define at least one border color (up to three).");
-            //if (borderRadius < 1) throw new ArgumentException("Must define a border radius (rounds off edges).");
-            //if (borderThickness < 1) throw new ArgumentException("Must define border thikness.");
             if (borderThickness + borderRadius > height / 2 || borderThickness + borderRadius > width / 2) throw new ArgumentException("Border will be too thick and/or rounded to fit on the texture.");
             if (borderShadow > borderRadius) throw new ArgumentException("Border shadow must be lesser in magnitude than the border radius (suggeted: shadow <= 0.25 * radius).");
 

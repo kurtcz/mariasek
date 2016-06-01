@@ -47,7 +47,6 @@ namespace Mariasek.SharedClient.GameComponents
         private Vector2 _centre;
 
         private CardButton[] _sprites = new CardButton[12];
-        //private Sprite[] _sprites = new Sprite[12];
 
         private const int ZIndexBase = 50;
         const int CardWidth = 65;
@@ -65,7 +64,6 @@ namespace Mariasek.SharedClient.GameComponents
 
                 _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures, rect) { Name = string.Format("HandSprite{0}", i+1), Scale = Game.CardScaleFactor })
                 { Name = string.Format("HandButton{0}", i + 1), ZIndex = ZIndexBase + i };
-                //_sprites[i] = new Sprite(this, Game.CardTextures, rect);
                 _sprites[i].Click += CardClicked;
                 _sprites[i].Name = string.Format("HandButton{0}", i + 1);
             }
@@ -88,42 +86,6 @@ namespace Mariasek.SharedClient.GameComponents
                 cardStrings.AppendFormat("{0} ", c);
             }
             System.Diagnostics.Debug.WriteLine(string.Format("UpdateHand() {0}", cardStrings.ToString()));
-            /*for(var i = 0; i < _sprites.Length; i++)
-            {
-                if (_sprites[i] != null)
-                {
-                    _sprites[i].Hide();
-                    _sprites[i].Parent = null;
-                }
-                if (i < hand.Length)
-                {
-                    var rect = hand[i].ToTextureRect();
-
-                    _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures, rect) { Tag = hand[i], Name = string.Format("HandSprite{0}", i+1) })
-                        { Tag = hand[i], Name = string.Format("HandButton{0}", i+1) };
-                    //_sprites[i] = new Sprite(this, Game.CardTextures, rect) { Tag = hand[i] };
-                    _sprites[i].Position = Centre;
-                    _sprites[i].Click += CardClicked;
-                }
-                else
-                {
-                    _sprites[i] = null;
-                }
-            }*/
-
-            //Hide cards that were played
-//            for(var i = 0; i < _sprites.Length; i++)
-//            {
-//                if (_sprites[i] != null)
-//                {
-//                    _sprites[i].IsSelected = false;
-//                    if (!hand.Contains(_sprites[i].Tag) || _sprites[i].Tag == cardToHide)
-//                    {
-//                        _sprites[i].Hide();
-//                    }
-//                }
-//            }
-
             for (var i = 0; i < _sprites.Length; i++)
             {
                 if (i >= hand.Count())
@@ -225,13 +187,9 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 var angle = angle0 - arcAngle / 12 * (i /*+ cardsToSkip*/ - hh.Count()/2.0f/* + 0.5f*/);
                 float rotationAngle = -angle + (float)Math.PI / 2;
-                //if(rotationAngle < 0)
-                //    rotationAngle += (float)Math.PI * 2;
                 var targetPosition = new Vector2(Centre.X + r * (float)Math.Cos(angle),
                                                  Centre.Y + r * 0.75f - r * (float)Math.Sin(angle));
 
-                //hh[i].MoveTo(targetPosition, 400);
-                //hh[i].RotateTo(rotationAngle, 2);
                 hh[i].Slerp(targetPosition, rotationAngle, Game.CardScaleFactor.X, 400, 2f, 1f);
             }
             IsStraight = false;
@@ -242,26 +200,6 @@ namespace Mariasek.SharedClient.GameComponents
         {
             var hh = _sprites.Where(i => i != null && i.IsVisible).ToList();
             var padding = 10;
-            /* This code shows cards in up to two rows */
-/*
-            var cardsPerRow = 8;
-            for(var i = 0; i < hh.Count; i++)
-            {
-                var rowItems = hh.Count <= cardsPerRow || i < cardsPerRow
-                    ? cardsPerRow
-                    : hh.Count - cardsPerRow;
-                var x_offset = ((i % cardsPerRow) - rowItems/2.0f + 0.5f) * (CardWidth + padding);
-                var y_offset = hh.Count > cardsPerRow
-                    ? ((i / cardsPerRow) - 1) * (CardHeight + padding)
-                    : 0;
-
-                var targetPosition = new Vector2(Centre.X + x_offset, Centre.Y + y_offset);
-                var targetAngle = 0f;
-
-                hh[i].MoveTo(targetPosition, 400);
-                hh[i].RotateTo(targetAngle, 2);
-            }
-*/
             /* This code shows cards in one row */
             float rowWidth = CardWidth * hh.Count + padding * (hh.Count - 1);
 
@@ -278,8 +216,6 @@ namespace Mariasek.SharedClient.GameComponents
                 var targetPosition = new Vector2(Centre.X + x_offset, Centre.Y + y_offset);
                 var targetAngle = 0f;
 
-                //hh[i].MoveTo(targetPosition, 400);
-                //hh[i].RotateTo(targetAngle, 2);
                 hh[i].Slerp(targetPosition, targetAngle, Game.CardScaleFactor.X, 400, 2f, 1f);
             }
             IsStraight = true;
@@ -325,7 +261,6 @@ namespace Mariasek.SharedClient.GameComponents
 
                 if (n < 0)
                 {
-                    //throw new IndexOutOfRangeException();
                     continue;
                 }
                 sprite.Position = _sprites[n].Position;

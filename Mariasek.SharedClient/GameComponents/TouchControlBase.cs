@@ -149,7 +149,6 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 if (CollidesWithPosition(tl.Position))
                 {
-                    //System.Diagnostics.Debug.WriteLine(string.Format("{0}/{4}: IN state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position, Tag));
                     if (tl.State == TouchLocationState.Pressed || tl.State == TouchLocationState.Moved)
                     {
                         if (!_touchHeld)
@@ -186,7 +185,6 @@ namespace Mariasek.SharedClient.GameComponents
                 }
                 else if (tl.Id == TouchId && tl.State == TouchLocationState.Released)
                 {
-                    //System.Diagnostics.Debug.WriteLine(string.Format("{0}: OUT state: {1} id: {2}", Name, tl.State, tl.Id));
                     _touchHeld = false;
                     _touchHeldConsumed = false;
                     TouchId = -1;

@@ -6,7 +6,6 @@ using System.Threading;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
@@ -273,7 +272,6 @@ namespace Mariasek.SharedClient.GameComponents
 
             _previoustouchHeldLocation = _touchHeldLocation;
             _touchHeldLocation = tl;
-            //System.Diagnostics.Debug.WriteLine(string.Format("A{0} {1} {2}", Thread.CurrentThread.ManagedThreadId, _touchHeldLocation.Position.Y, _previoustouchHeldLocation.Position.Y));
 
             return handled;
         }
@@ -283,7 +281,6 @@ namespace Mariasek.SharedClient.GameComponents
             base.Update(gameTime);
 
             var distance = _touchHeldLocation.Position.Y - _previoustouchHeldLocation.Position.Y;
-            //System.Diagnostics.Debug.WriteLine(string.Format("B{0} {1} {2}", Thread.CurrentThread.ManagedThreadId, _touchHeldLocation.Position.Y, _previoustouchHeldLocation.Position.Y));
             VerticalScrollOffset += (int)distance;
         }
 
@@ -311,7 +308,6 @@ namespace Mariasek.SharedClient.GameComponents
                         position.Y += Height;
                         break;
                 }
-                //System.Diagnostics.Debug.WriteLine(string.Format("VSO {0}", VerticalScrollOffset));
                 position.Y += VerticalScrollOffset;
 
                 _backgroundShape.Draw(gameTime);

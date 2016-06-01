@@ -52,15 +52,9 @@ namespace Mariasek.SharedClient
 			Content.RootDirectory = "Content";	            
 			Graphics.IsFullScreen = true;
 			//make sure SupportedOrientations is set accordingly to ActivityAttribute.ScreenOrientation
-			Graphics.SupportedOrientations = //DisplayOrientation.Portrait |
-											 //DisplayOrientation.PortraitDown |
-											 DisplayOrientation.LandscapeRight |
+			Graphics.SupportedOrientations = DisplayOrientation.LandscapeRight |
 											 DisplayOrientation.LandscapeLeft;	
             Graphics.ApplyChanges();
-//            var pt = new Vector2(4, 2);
-//            var c = new Vector2(3, 3);
-//            var rt = pt.Rotate(c, (float)Math.PI / 2);
-//            System.Diagnostics.Debug.WriteLine(rt);
             CardScaleFactor = new Vector2(1.2f, 1.2f);
 		}
 
@@ -110,37 +104,6 @@ namespace Mariasek.SharedClient
 
             ScaleMatrix = Matrix.CreateScale(_screenScale) * Matrix.CreateTranslation(translation);
 		}
-
-//        public void ReloadContent()
-//        {
-//            // Create a new SpriteBatch, which can be used to draw textures.
-//            SpriteBatch = new SpriteBatch (GraphicsDevice);
-//
-//            var cardTextures = Content.Load<Texture2D>("marias");
-//            var reverseTexture = Content.Load<Texture2D>("revers");
-//            FontRenderers = new Dictionary<string, FontRenderer>
-//            {
-//                { "BMFont", FontRenderer.GetFontRenderer(this, "BMFont.fnt", "BMFont_0.png", "BMFont_1.png") },
-//                { "BM2Font", FontRenderer.GetFontRenderer(this, "BM2Font.fnt", "BM2Font_0.png", "BM2Font_1.png") },
-//                { "SegoeUI40Outl", FontRenderer.GetFontRenderer(this, "SegoeUI40Outl.fnt", "SegoeUI40Outl_0.png", "SegoeUI40Outl_1.png", "SegoeUI40Outl_2.png") }
-//            };
-//
-//            foreach (var kvp in FontRenderers)
-//            {
-//                Restarted += kvp.Value.GameRestarted;
-//            }
-//
-//            Color[] data;
-//            data = new Color[cardTextures.Width * cardTextures.Height];
-//            cardTextures.GetData<Color>(data);
-//            CardTextures.SetData<Color>(data);
-//
-//            data = new Color[reverseTexture.Width * reverseTexture.Height];
-//            reverseTexture.GetData<Color>(data);
-//            ReverseTexture.SetData<Color>(data);
-//            //MainScene.Initialize();
-//            //MainScene.SetActive();
-//        }
 
 		/// <summary>
 		/// LoadContent will be called once per game and is the place to load
@@ -234,18 +197,12 @@ namespace Mariasek.SharedClient
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw (GameTime gameTime)
 		{
-			//Graphics.GraphicsDevice.Clear (Color.CornflowerBlue);
             Graphics.GraphicsDevice.Clear (Color.ForestGreen);
 		
 			//TODO: Add your drawing code here
-			//spriteBatch.Begin ();
             SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, ScaleMatrix);
             CurrentScene.Draw(gameTime);
 			SpriteBatch.End ();
-
-            //SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Additive, null, null, null, null, ScaleMatrix);
-            //SpriteBatch.Draw(CurrentScene.LightShader);
-            //SpriteBatch.End ();
 
 			base.Draw (gameTime);
 		}

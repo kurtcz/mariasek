@@ -121,12 +121,6 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 RotationOrigin = rotationOrigin.Value;
             }
-            //            RotationOrigin = rotationOrigin
-            //                             ??   (spriteRectangle.HasValue
-            //                                    ? new Vector2(spriteRectangle.Value.Width / 2f, spriteRectangle.Value.Height / 2f)
-            //                                    : ( _spriteTexture != null
-            //                                        ? new Vector2(_spriteTexture.Bounds.Width / 2f, _spriteTexture.Bounds.Height / 2f)
-            //                                        : new Vector2()));
             Name = ToString();
         }
 

@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-//using log4net;
 using Mariasek.Engine.New.Logger;
 using Mariasek.Engine.New.Configuration;
 using System.Threading.Tasks;
@@ -426,16 +425,6 @@ namespace Mariasek.Engine.New
             _log.DebugFormat("Running game simulations for {0} ...", Name);
             if (simulateGoodGames)
             {
-                //OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Generuju karty na hru"});
-
-                //nasimuluj hry v barve
-                //var source = Settings.Cheat
-                //                ? new [] { GetPlayersHandsAndTalon() }
-                //                : Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType);
-                //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
-                //var opt = new ParallelOptions { MaxDegreeOfParallelism = 1 };
-
-                //Parallel.ForEach(source.ToArray(), opt, hands =>
                 var start = DateTime.Now;
                 var actualSimulations = 0;
                 var prematureEnd = false;
@@ -447,7 +436,6 @@ namespace Mariasek.Engine.New
                     {
                         tempSource.Add(hh);
                     }
-                    //if(Settings.SimulationsPerGameTypePerSecond <= 0 && (DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     if((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     {
                         prematureEnd = true;
@@ -469,14 +457,11 @@ namespace Mariasek.Engine.New
                         OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju hru"});
                 });
                 var end = DateTime.Now;
-                //if (prematureEnd)
-                {
-                    Settings.SimulationsPerGameType = actualSimulations;
-                    //Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / Settings.MaxSimulationTimeMs * 1000);
-                    Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / (end - start).TotalMilliseconds * 1000);
-                    totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
-                        (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
-                }
+                Settings.SimulationsPerGameType = actualSimulations;
+                //Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / Settings.MaxSimulationTimeMs * 1000);
+                Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / (end - start).TotalMilliseconds * 1000);
+                totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
+                    (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
                 if (source == null)
                 {
                     source = tempSource.ToArray();
@@ -489,13 +474,6 @@ namespace Mariasek.Engine.New
                 var actualSimulations = 0;
                 var prematureEnd = false;
 
-                //OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Generuju karty na durch"});
-
-                //nasimuluj durchy
-                //var source = Settings.Cheat
-                //                ? new[] { GetPlayersHandsAndTalon() }
-                //                : Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType);
-                //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
                 Parallel.ForEach(source ?? Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType), (hh, loopState) =>
                 {
                     _g.ThrowIfCancellationRequested();
@@ -503,7 +481,6 @@ namespace Mariasek.Engine.New
                     {
                         tempSource.Add(hh);
                     }
-                    //if(Settings.SimulationsPerGameTypePerSecond <= 0 && (DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     if((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     {
                         prematureEnd = true;
@@ -525,27 +502,15 @@ namespace Mariasek.Engine.New
                     OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju betl"});
                 });
                 var end = DateTime.Now;
-                //if (prematureEnd)
-                {
-                    Settings.SimulationsPerGameType = actualSimulations;
-                    //Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / Settings.MaxSimulationTimeMs * 1000);
-                    Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / (end - start).TotalMilliseconds * 1000);
-                    totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
-                        (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
-                }
+                Settings.SimulationsPerGameType = actualSimulations;
+                //Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / Settings.MaxSimulationTimeMs * 1000);
+                Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / (end - start).TotalMilliseconds * 1000);
+                totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
+                    (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
                 if (source == null)
                 {
                     source = tempSource.ToArray();
                 }
-                //actualSimulations = 0;
-                //prematureEnd = false;
-                //start = DateTime.Now;
-                //OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Generuju karty na betl"});
-                //nasimuluj betly
-                //source = Settings.Cheat
-                //                ? new[] { GetPlayersHandsAndTalon() }
-                //                : Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType);
-                //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), hands =>
                 Parallel.ForEach(source ?? Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType), (hands, loopState) =>
                 {
                     _g.ThrowIfCancellationRequested();
@@ -553,14 +518,6 @@ namespace Mariasek.Engine.New
                     {
                         tempSource.Add(hands);
                     }
-                    //if(Settings.SimulationsPerGameTypePerSecond <= 0 && (DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
-                    //if((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
-                    //{
-                    //    prematureEnd = true;
-                    //    loopState.Stop();
-                    //}
-                    //Interlocked.Increment(ref actualSimulations);
-
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseDurchTalon, GameStartingPlayerIndex);
 
                     var durchComputationResult = ComputeGame(hands, null, null, null, Hra.Durch, 10, 1, true);
@@ -575,13 +532,6 @@ namespace Mariasek.Engine.New
                         loopState.Stop();
                     }
                 });
-//                if (prematureEnd)
-//                {
-//                    Settings.SimulationsPerGameType = actualSimulations;
-//                    Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / Settings.MaxSimulationTimeMs * 1000);
-//                    totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
-//                        (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
-//                }
             }
 
             //vyber vhodnou hru podle vysledku simulace
@@ -983,11 +933,9 @@ namespace Mariasek.Engine.New
                 var start = DateTime.Now;
                 var prematureEnd = false;
 
-                //Parallel.ForEach(Partitioner.Create(source, EnumerablePartitionerOptions.NoBuffering), (hands, loopState) =>
                 Parallel.ForEach(source, (hands, loopState) =>
                 {
                     _g.ThrowIfCancellationRequested();
-                    //if (Settings.SimulationsPerRoundPerSecond <= 0 && (DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     {
                         prematureEnd = true;
@@ -1362,14 +1310,12 @@ namespace Mariasek.Engine.New
 
                 if (!firstTime || c1 == null)
                 {
-                    //c1 = aiStrategy.PlayCard1(out r1);
                     ruleDictionary = aiStrategy.GetApplicableRules();
 
                     r1 = ruleDictionary.Keys.OrderBy(i => i.Order).FirstOrDefault();
                     c1 = ruleDictionary.OrderBy(i => i.Key.Order).Select(i => i.Value).FirstOrDefault();
 
                     aiStrategy.MyIndex = player2;
-                    //aiStrategy.TeamMateIndex = TeamMateIndex == player2 ? PlayerIndex : (TeamMateIndex == -1 ? player3 : -1);
                     aiStrategy.TeamMateIndex = aiStrategy.TeamMateIndex == player2 ? player1 : (aiStrategy.TeamMateIndex == -1 ? player3 : -1);
                     if (firstTime)
                     {
@@ -1381,14 +1327,12 @@ namespace Mariasek.Engine.New
                 }
                 if (!firstTime || c2 == null)
                 {
-                    //c2 = aiStrategy.PlayCard2(c1, out r2);
                     ruleDictionary = aiStrategy.GetApplicableRules2(c1);
 
                     r2 = ruleDictionary.Keys.OrderBy(i => i.Order).FirstOrDefault();
                     c2 = ruleDictionary.OrderBy(i => i.Key.Order).Select(i => i.Value).FirstOrDefault();
 
                     aiStrategy.MyIndex = player3;
-                    //aiStrategy.TeamMateIndex = TeamMateIndex == player3 ? PlayerIndex : (TeamMateIndex == -1 ? player2 : -1);
                     aiStrategy.TeamMateIndex = aiStrategy.TeamMateIndex == player3 ? player2 : (aiStrategy.TeamMateIndex == -1 ? player1 : -1);
                     if (firstTime)
                     {
@@ -1398,7 +1342,6 @@ namespace Mariasek.Engine.New
                         firstTime = false;
                     }
                 }
-                //var c3 = aiStrategy.PlayCard3(c1, c2, out r3);
                 ruleDictionary = aiStrategy.GetApplicableRules3(c1, c2);
 
                 r3 = ruleDictionary.Keys.OrderBy(i => i.Order).FirstOrDefault();

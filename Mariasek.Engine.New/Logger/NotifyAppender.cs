@@ -73,27 +73,6 @@ namespace Mariasek.Engine.New.Logger
         }
 
         /// <summary>
-        /// Get a reference to the log instance.
-        /// </summary>
-        //public NotifyAppender LogAppender
-        //{
-        //    get
-        //    {
-        //        foreach (ILog log in LogManager.GetCurrentLoggers())
-        //        {
-        //            foreach (IAppender appender in log.Logger.Repository.GetAppenders())
-        //            {
-        //                if (appender is NotifyAppender)
-        //                {
-        //                    return appender as NotifyAppender;
-        //                }
-        //            }
-        //        }
-        //        return null;
-        //    }
-        //}
-
-        /// <summary>
         /// Raise the change notification.
         /// </summary>
         private void OnChange()

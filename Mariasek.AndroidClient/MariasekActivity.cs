@@ -21,9 +21,7 @@ namespace Mariasek.AndroidClient
 		Theme = "@style/Theme.Splash",
 		AlwaysRetainTaskState = true,
 		LaunchMode = LaunchMode.SingleInstance,
-		//ScreenOrientation = ScreenOrientation.Portrait,
 		ScreenOrientation = ScreenOrientation.Landscape,
-		//ScreenOrientation = ScreenOrientation.Sensor,
 		ConfigurationChanges = ConfigChanges.Orientation |
 		ConfigChanges.KeyboardHidden |
 		ConfigChanges.Keyboard)]
@@ -48,13 +46,6 @@ namespace Mariasek.AndroidClient
             base.OnRestart();
             g.OnRestart();
         }
-
-//        protected override void OnResume()
-//        {
-//            //SetContentView (g.Window);
-//            //SetContentView ((View)g.Services.GetService(typeof(View)));
-//            base.OnResume();
-//        }
 	}
 }
 

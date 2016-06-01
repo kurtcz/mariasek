@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
@@ -179,16 +178,6 @@ namespace Mariasek.SharedClient
                     Name = "GameThreshold.Hra",
                     Value = "0|50|70|85|95"
                 });
-//            _aiConfig.Add("GameThreshold.Sedma", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-//                {
-//                    Name = "GameThreshold.Sedma",
-//                    Value = "75|80|85|90|95"
-//                });
-//            _aiConfig.Add("GameThreshold.SedmaProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-//                {
-//                    Name = "GameThreshold.SedmaProti",
-//                    Value = "75|80|85|90|95"
-//                });
             _aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "GameThreshold.Kilo",
@@ -264,9 +253,6 @@ namespace Mariasek.SharedClient
             };
             _cardsPlayed = new []
             {
-//                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f - 100), Scale = Game.CardScaleFactor, Name="CardsPlayed1", ZIndex = 10 },
-//                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 150), Scale = Game.CardScaleFactor, Name="CardsPlayed2", ZIndex = 10 },
-//                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f + 100, Game.VirtualScreenHeight / 2f - 150), Scale = Game.CardScaleFactor, Name="CardsPlayed3", ZIndex = 10 }
                 new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f - 100), Scale = Game.CardScaleFactor, Name="CardsPlayed1", ZIndex = 10 },
                 new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f - 50, Game.VirtualScreenHeight / 2f - 140), Scale = Game.CardScaleFactor, Name="CardsPlayed2", ZIndex = 10 },
                 new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f + 50, Game.VirtualScreenHeight / 2f - 150), Scale = Game.CardScaleFactor, Name="CardsPlayed3", ZIndex = 10 }
@@ -533,7 +519,6 @@ namespace Mariasek.SharedClient
             LoadHistory();
             Game.SettingsScene.LoadGameSettings(false);
 
-            //LightShader = Game.Content.Load<Texture2D>("Spotlight");
             Background = Game.Content.Load<Texture2D>("wood2");
             ClearTable(true);
         }
@@ -609,7 +594,6 @@ namespace Mariasek.SharedClient
                 _synchronizationContext.Send(_ => ClearTable(true), null);
                 try
                 {
-                    //WaitHandle.WaitAll(_bubbleEvents);
                     _cancellationTokenSource.Cancel();
                     _evt.Set();
                     _gameTask.Wait();
@@ -856,7 +840,6 @@ namespace Mariasek.SharedClient
                     _state = GameState.NotPlaying;
                     HideMsgLabel();
                     button.IsSelected = false; //aby karta nebyla pri animaci tmava
-                    //button.ZIndex = g.CurrentRound != null ? (g.CurrentRound.number - 1) * 3 : 0;
                     var origPosition = _hlasy[0][0].Position;
                     _hlasy[0][0].Position = button.Position;
                     if (!button.Sprite.IsVisible)
@@ -898,11 +881,9 @@ namespace Mariasek.SharedClient
                     }
                     origPosition = targetSprite.Position;
                     targetSprite.Position = button.Position;
-                    //targetSprite.Texture = Game.CardTextures;
                     targetSprite.SpriteRectangle = _cardClicked.ToTextureRect();
                     targetSprite.Show();
                     button.Hide();
-                    //button.ZIndex = origZIndex;
                     targetSprite
                         .MoveTo(origPosition, 1000)
                         .Invoke(() =>
@@ -910,7 +891,6 @@ namespace Mariasek.SharedClient
                             _evt.Set();
                         });
                     _hand.IsEnabled = false;
-                    //_evt.Set();
                     break;
                 case GameState.RoundFinished:
                     _state = GameState.NotPlaying;
@@ -961,12 +941,10 @@ namespace Mariasek.SharedClient
 
         public void GfButtonClicked(object sender)
         {
-            //HideMsgLabel();
             foreach (var btn in gfButtons)
             {
                 btn.Hide();
             }
-            //_okBtn.Hide();
             _state = GameState.NotPlaying;
             _gameFlavourChosen = (GameFlavour)(sender as Button).Tag;
             _evt.Set();
@@ -1002,15 +980,6 @@ namespace Mariasek.SharedClient
             _hand.IsEnabled = true;
             _synchronizationContext.Send(_ =>
                 {
-//                    var hh = new [] {
-//                        new Mariasek.Engine.New.Hand(g.players[0].Hand).ToString(), 
-//                        new Mariasek.Engine.New.Hand(g.players[1].Hand).ToString(), 
-//                        new Mariasek.Engine.New.Hand(g.players[2].Hand).ToString(), 
-//                        new Mariasek.Engine.New.Hand(g.talon).ToString()
-//                    };
-//                    var txt = string.Format("{0}\n{1}\n{2}\n{3}", hh[0], hh[1], hh[2], hh[3]);
-//                    ShowMsgLabel(txt, false);
-//                    _msgLabel.HorizontalAlign = HorizontalAlignment.Right;
                     ShowMsgLabel("Vyber trumfovou kartu", false);
                     _state = GameState.ChooseTrump;
                     _hand.Show();
@@ -1248,7 +1217,6 @@ namespace Mariasek.SharedClient
 
         public void BidMade(object sender, BidEventArgs e)
         {
-            //UpdateHand(cardToHide: _trumpCardChosen);
             if(e.Player.PlayerIndex != 0)
             {
                 _progressBars[e.Player.PlayerIndex - 1].Progress = _progressBars[e.Player.PlayerIndex - 1].Max;
@@ -1311,10 +1279,6 @@ namespace Mariasek.SharedClient
                         _cardsPlayed[lastPlayer.PlayerIndex].Show();
                     }
 
-//                    if(lastPlayer.PlayerIndex == 0)
-//                    {
-//                        UpdateHand();
-//                    }
                     _hand.ShowArc((float)Math.PI / 2);
                 }, null);
         }
@@ -1388,15 +1352,12 @@ namespace Mariasek.SharedClient
             _deck = g.GetDeckFromLastGame();
             SaveDeck();
 
-            //if (_settings.GameTypeSimulationsPerSecond <= 0 || _settings.RoundSimulationsPerSecond <= 0)
-            {
-                _settings.GameTypeSimulationsPerSecond = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
-                _settings.RoundSimulationsPerSecond = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
-                _aiConfig["SimulationsPerGameTypePerSecond"].Value = _settings.GameTypeSimulationsPerSecond.ToString();
-                _aiConfig["SimulationsPerRoundPerSecond"].Value = _settings.RoundSimulationsPerSecond.ToString();
-                _settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
-                Game.SettingsScene.SaveGameSettings();
-            }
+            _settings.GameTypeSimulationsPerSecond = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
+            _settings.RoundSimulationsPerSecond = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
+            _aiConfig["SimulationsPerGameTypePerSecond"].Value = _settings.GameTypeSimulationsPerSecond.ToString();
+            _aiConfig["SimulationsPerRoundPerSecond"].Value = _settings.RoundSimulationsPerSecond.ToString();
+            _settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
+            Game.SettingsScene.SaveGameSettings();
         }
 
         #endregion

@@ -28,9 +28,7 @@ namespace Mariasek.SharedClient.GameComponents
         protected SpriteBatch _spriteBatch;
 
         public new MariasekMonoGame Game { get; private set; }
-        //public Dialog ModalDialog { get; set; }
         public GameComponent ExclusiveControl { get; set; }
-        //public Texture2D LightShader { get; set; }
         public Texture2D Background { get; set; }
         public BackgroundAlignment BackgroundAlign { get; set; }
         public Color BackgroundTint { get; set; }

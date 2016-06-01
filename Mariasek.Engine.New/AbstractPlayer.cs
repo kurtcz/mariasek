@@ -100,13 +100,11 @@ namespace Mariasek.Engine.New
             if (c.Suit == first.Suit)
             {
                 //sli jsme vejs - ok
-                //if (c.Value > first.Value)
                 if(first.IsLowerThan(c, trump))
                 {
                     return IsCardValid(hand, trump, gameType, teamMateIndex, c);
                 }
                 //sli jsme niz: nemame v ruce vyssi v barve?
-                //if (hand.Exists(i => i.Suit == first.Suit && i.Value > first.Value))
                 if (hand.Exists(i => i.Suit == first.Suit && first.IsLowerThan(i, trump)))
                 {
                     return Renonc.JdiVejs;

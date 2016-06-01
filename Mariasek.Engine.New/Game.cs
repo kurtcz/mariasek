@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-//using log4net;
 using Mariasek.Engine.New.Logger;
 using Mariasek.Engine.New.Configuration;
 #if !PORTABLE
@@ -178,9 +177,7 @@ namespace Mariasek.Engine.New
 
 #if !PORTABLE
         public void RegisterPlayers(IPlayerSettingsReader settingsReader)
-        //public void RegisterPlayers()
         {
-            //var playersSettings = ConfigurationManager.GetSection("players") as PlayersConfigurationSection;
             var playersSettings = settingsReader.ReadSettings();
 
             var player1 = CreatePlayerInstance(playersSettings.Player1);
@@ -251,9 +248,6 @@ namespace Mariasek.Engine.New
             GameStartingPlayerIndex = gameStartingPlayerIndex;
             OriginalGameStartingPlayerIndex = GameStartingPlayerIndex;
 
-            //var logName = string.Format(@"Logs\LogFile.{0}.txt", DateTime.Now.ToString("yyyy-MM-dd_HHmmss"));
-            //LoggerSetup.TraceFileSetup(logName, LoggerSetup.FileMode.CreateNewOrTruncate);
-
             _log.Init();
             _log.Info("********");
 
@@ -283,9 +277,6 @@ namespace Mariasek.Engine.New
             {
                 players[(GameStartingPlayer.PlayerIndex + 2) % NumPlayers].Hand.Add(deck.TakeOne());
             }
-            //players[GameStartingPlayerIndex].Hand.Sort();   //voliciho hrace utridime pokud uz zvolil trumf
-            //players[(GameStartingPlayerIndex + 1) % NumPlayers].Hand.Sort();
-            //players[(GameStartingPlayerIndex + 2) % NumPlayers].Hand.Sort();
 
             talon = new List<Card>();
             InitPlayers();
@@ -513,14 +504,8 @@ namespace Mariasek.Engine.New
                 //zahajeni hry
                 if (RoundNumber == 0)
                 {
-                    //InitPlayers();
                     GameType = Hra.Hra; //docasne nastavena nejaka minimalni hra
                     ChooseGame();
-                    //Bidding = new Bidding(this);
-                    //if (!SkipBidding)
-                    //{
-                    //    GameType = Bidding.StartBidding();
-                    //}
                     RoundNumber++;
                 }
                 else
@@ -792,7 +777,6 @@ namespace Mariasek.Engine.New
             gameTypeForPlayer[GameStartingPlayerIndex] = Hra.Hra;
             TrumpCard = GameStartingPlayer.ChooseTrump();
             trump = TrumpCard.Suit;
-            //GameStartingPlayer.Hand.Sort();
             GameType = 0;
             talon = new List<Card>();
             while(GameType < Hra.Durch)

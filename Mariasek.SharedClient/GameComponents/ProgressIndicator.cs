@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
@@ -37,7 +36,6 @@ namespace Mariasek.SharedClient.GameComponents
                 _backgroundShape.Width = value; 
                 _maxProgressWidth = value - _backgroundShape.BorderThickness;
                 _progressBar.Width = GetProgressBarWidth(_progress);
-                //_progressBar.Position = Position;
             } 
         }
         public int Height
@@ -47,7 +45,6 @@ namespace Mariasek.SharedClient.GameComponents
             { 
                 _backgroundShape.Height = value; 
                 _progressBar.Height = value - _backgroundShape.BorderThickness;
-                //_progressBar.Position = Position;
             } 
         }
         public int Min { get; set; }

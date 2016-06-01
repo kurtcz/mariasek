@@ -5,7 +5,6 @@ using System.Text;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
@@ -132,22 +131,6 @@ namespace Mariasek.SharedClient
 
             return rect;
         }
-//
-//        public static string ToDescription(this Mariasek.Engine.New.Barva b)
-//        {
-//            switch (b)
-//            {
-//                case GameEngine.Barva.Cerveny:
-//                    return "červený";
-//                case GameEngine.Barva.Zeleny:
-//                    return "zelený";
-//                case GameEngine.Barva.Kule:
-//                    return "kule";
-//                case GameEngine.Barva.Zaludy:
-//                    return "žaludy";
-//            }
-//            return string.Empty;
-//        }
 
         public static string ToDescription(this Mariasek.Engine.New.GameFlavour f)
         {

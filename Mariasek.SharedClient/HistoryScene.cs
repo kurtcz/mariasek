@@ -6,7 +6,6 @@ using System.Text;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-//using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
@@ -160,8 +159,6 @@ namespace Mariasek.SharedClient
 
         public void PopulateControls()
         {            
-            //_header.Text = string.Format("Hráč:\t\t{0}\t\t{1}\t{2}", "Hráč 1", "Hráč 2 (AI)", "Hráč 3 (AI)");
-
             var culture = CultureInfo.CreateSpecificCulture("cs-CZ");
             var sb = new StringBuilder();
             int wins = 0, total = 0;
@@ -242,13 +239,11 @@ namespace Mariasek.SharedClient
             {
                 _historyChart.MoveTo(_hiddenPosition, 5000)
                     .Invoke(() => { _historyChart.Hide(); });
-                //_historyChart.Hide();
             }
             else
             {
                 _historyChart.Invoke(() => { _historyChart.Show(); })
                     .MoveTo(_origPosition, 5000);
-                //_historyChart.Show();
             }
         }
 
@@ -258,13 +253,11 @@ namespace Mariasek.SharedClient
             {
                 _historyBox.MoveTo(_hiddenPosition, 5000)
                            .Invoke(() => { _historyBox.Hide(); });
-                //_historyBox.Hide();
             }
             else
             {
                 _historyBox.Invoke(() => { _historyBox.Show(); })
                     .MoveTo(_origPosition, 5000);
-                //_historyBox.Show();
             }
         }
 

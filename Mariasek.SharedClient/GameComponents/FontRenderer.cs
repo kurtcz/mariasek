@@ -51,7 +51,6 @@ namespace Mariasek.SharedClient.GameComponents
             using(var stream = TitleContainer.OpenStream(fontFilePath))
             {
                 var fontFile = FontLoader.Load(stream);
-                //var fontTextures = new [] { content.Load<Texture2D>("BM2Font_0.png"), content.Load<Texture2D>("BM2Font_1.png") };
                 var fontTextures = fontBitmapFiles.Select(i => game.Content.Load<Texture2D>(i)).ToArray();
 
                 textRenderer = new FontRenderer(game, fontFile, fontTextures);
