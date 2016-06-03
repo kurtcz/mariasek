@@ -68,7 +68,28 @@ namespace Mariasek.Engine.New
             SetLastBidder(_g.GameStartingPlayer, _g.GameType);
         }
 
-        private void SetLastBidder(AbstractPlayer player, Hra bid)
+        public Bidding(Bidding b)
+        {
+            _g = b._g;
+
+            _gameFlek = b._gameFlek;
+            _sevenFlek = b._sevenFlek;
+            _sevenAgainstFlek = b._sevenAgainstFlek;
+            _hundredAgainstFlek = b._hundredAgainstFlek;
+            _betlDurchFlek = b._betlDurchFlek;
+            PlayerBids = new Hra[Game.NumPlayers];
+            for (var i = 0; i < Game.NumPlayers; i++)
+            {
+                PlayerBids[i] = b.PlayerBids[i];
+            }
+            GameLastBidder = b.GameLastBidder;
+            SevenLastBidder = b.SevenLastBidder;
+            SevenAgainstLastBidder = b.SevenAgainstLastBidder;
+            HundredAgainstLastBidder = b.HundredAgainstLastBidder;
+            BetlDurchLastBidder = b.BetlDurchLastBidder;
+        }
+
+        public void SetLastBidder(AbstractPlayer player, Hra bid)
         {
             if ((bid & (Hra.Hra | Hra.Kilo)) != 0)
             {
@@ -103,27 +124,27 @@ namespace Mariasek.Engine.New
             PlayerBids[player.PlayerIndex] = 0;
             return;
 
-            if (GameLastBidder == player)
+            if (GameLastBidder.PlayerIndex == player.PlayerIndex)
             {
                 GameLastBidder = null;
                 PlayerBids[player.PlayerIndex] &= ((Hra)~0 ^ (Hra.Hra | Hra.Kilo));
             }
-            if (SevenLastBidder == player)
+            if (SevenLastBidder.PlayerIndex == player.PlayerIndex)
             {
                 SevenLastBidder = null;
                 PlayerBids[player.PlayerIndex] &= ((Hra)~0 ^ Hra.Sedma);
             }
-            if (SevenAgainstLastBidder == player)
+            if (SevenAgainstLastBidder.PlayerIndex == player.PlayerIndex)
             {
                 SevenAgainstLastBidder = null;
                 PlayerBids[player.PlayerIndex] &= ((Hra)~0 ^ Hra.SedmaProti);
             }
-            if (HundredAgainstLastBidder == player)
+            if (HundredAgainstLastBidder.PlayerIndex == player.PlayerIndex)
             {
                 HundredAgainstLastBidder = null;
                 PlayerBids[player.PlayerIndex] &= ((Hra)~0 ^ Hra.KiloProti);
             }
-            if (BetlDurchLastBidder == player)
+            if (BetlDurchLastBidder.PlayerIndex == player.PlayerIndex)
             {
                 BetlDurchLastBidder = null;
                 PlayerBids[player.PlayerIndex] &= ((Hra)~0 ^ (Hra.Betl | Hra.Durch));
@@ -228,7 +249,7 @@ namespace Mariasek.Engine.New
             }
         }
 
-        private BidEventArgs GetEventArgs(AbstractPlayer player, Hra bid, Hra previousBid)
+        public BidEventArgs GetEventArgs(AbstractPlayer player, Hra bid, Hra previousBid)
         {
             var e = new BidEventArgs
             {

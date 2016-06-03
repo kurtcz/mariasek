@@ -1,4 +1,7 @@
-﻿//#define DEBUG_PROGRESS
+﻿//#define STARTING_PLAYER_1
+//#define STARTING_PLAYER_2
+//#define STARTING_PLAYER_3
+//#define DEBUG_PROGRESS
 using System;
 using System.IO;
 using System.Globalization;
@@ -67,7 +70,7 @@ namespace Mariasek.SharedClient
         private Label _msgLabel;
         private Label _msgLabelLeft;
         private Label _msgLabelRight;
-        private ProgressIndicator _progress1, _progress2;
+        private ProgressIndicator _progress1, _progress2, _progress3;
         private ProgressIndicator[] _progressBars;
         private TextBox _bubble1,  _bubble2,  _bubble3;
         private ManualResetEvent _bubbleEvent1, _bubbleEvent2, _bubbleEvent3;
@@ -502,19 +505,30 @@ namespace Mariasek.SharedClient
             bidButtons = new [] { flekBtn, sedmaBtn, kiloBtn };
             _progress1 = new ProgressIndicator(this)
             {
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 75, 0),
+                Width = 150,
+                Height = 6,
+                ZIndex = 100
+            };
+            if (!_settings.HintEnabled)
+            {
+                _progress1.Hide();
+            }
+            _progress2 = new ProgressIndicator(this)
+            {
                 Position = new Vector2(0, 0),
                 Width = 150,
                 Height = 6,
                 ZIndex = 100
             };
-            _progress2 = new ProgressIndicator(this)
+            _progress3 = new ProgressIndicator(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 150, 0),
                 Width = 150,
                 Height = 6,
                 ZIndex = 100
             };
-            _progressBars = new [] { _progress1, _progress2 };
+            _progressBars = new [] { _progress1, _progress2, _progress3 };
 
             LoadHistory();
             Game.SettingsScene.LoadGameSettings(false);
@@ -592,6 +606,7 @@ namespace Mariasek.SharedClient
             if (_gameTask != null && _gameTask.Status == TaskStatus.Running)
             {
                 _synchronizationContext.Send(_ => ClearTable(true), null);
+                (g.players[0] as HumanPlayer).CancelAiTask();
                 try
                 {
                     _cancellationTokenSource.Cancel();
@@ -642,13 +657,19 @@ namespace Mariasek.SharedClient
                     BaseBet = _settings.BaseBet
                 };
                 g.RegisterPlayers(
-                    new HumanPlayer(g, this) { Name = "Hráč 1" },
+                    new HumanPlayer(g, _aiConfig, this) { Name = "Hráč 1" },
                     new AiPlayer(g, _aiConfig) { Name = "Hráč 2" },
                     new AiPlayer(g, _aiConfig) { Name = "Hráč 3" }
                 );
                 CurrentStartingPlayerIndex = _settings.CurrentStartingPlayerIndex; //TODO: zrusit CurrentStartingPlayerIndex a pouzivat jen _settings.CurrentStartingPlayerIndex
                 CurrentStartingPlayerIndex = (CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers;
-                //CurrentStartingPlayerIndex = 1;
+#if STARTING_PLAYER_1
+                CurrentStartingPlayerIndex = 0;
+#elif STARTING_PLAYER_2
+                CurrentStartingPlayerIndex = 1;
+#elif STARTING_PLAYER_3
+                CurrentStartingPlayerIndex = 2;
+#endif
                 _settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
                 Game.SettingsScene.SaveGameSettings();
                 if (_deck == null)
@@ -781,8 +802,8 @@ namespace Mariasek.SharedClient
         {
             var player = sender as AbstractPlayer;
 
-            _progressBars[player.PlayerIndex - 1].Progress = e.Current;
-            _progressBars[player.PlayerIndex - 1].Max = e.Max;
+            _progressBars[player.PlayerIndex].Progress = e.Current;
+            _progressBars[player.PlayerIndex].Max = e.Max;
 #if DEBUG_PROGRESS
             if (!string.IsNullOrEmpty(e.Message))
             {
@@ -1017,7 +1038,10 @@ namespace Mariasek.SharedClient
                 {
                         gfButton.Show();
                 }
-                ShowMsgLabel("Co řekneš?", false);
+                if (!_settings.HintEnabled || !_msgLabel.IsVisible) //abych neprepsal napovedu
+                {
+                    ShowMsgLabel("Co řekneš?", false);
+                }
                 _state = GameState.ChooseGameFlavour;
             }, null);
             WaitForUIThread();
@@ -1033,7 +1057,10 @@ namespace Mariasek.SharedClient
                 gtButton.IsEnabled = ((Hra)gtButton.Tag & validGameTypes) == (Hra)gtButton.Tag;
                 gtButton.Show();
             }
-            ShowMsgLabel("Co budeš hrát?", false);
+            if (!_settings.HintEnabled || !_msgLabel.IsVisible) //abych neprepsal napovedu
+            {
+                ShowMsgLabel("Co budeš hrát?", false);
+            }
             _state = GameState.ChooseGameType;
         }
 
@@ -1125,15 +1152,16 @@ namespace Mariasek.SharedClient
             {                
                 if (g.GameStartingPlayerIndex != 0)
                 {
-                    _progressBars[g.GameStartingPlayerIndex - 1].Progress = _progressBars[g.GameStartingPlayerIndex - 1].Max;
+                    _progressBars[g.GameStartingPlayerIndex].Progress = _progressBars[g.GameStartingPlayerIndex].Max;
                     if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Good)
                     {
                         ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, "Barva?");
                     }
                     else
                     {
-                        var str = _gameFlavourChosenEventArgs.Flavour == GameFlavour.Good ? "Dobrá" : "Špatná";
-                        ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, str);
+                        //protihrac z ruky zavolil betl nebo durch
+                        //var str = _gameFlavourChosenEventArgs.Flavour == GameFlavour.Good ? "Dobrá" : "Špatná";
+                        //ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, str);
                     }
                 }
                 else
@@ -1202,7 +1230,7 @@ namespace Mariasek.SharedClient
                     }
                     if(e.GameStartingPlayerIndex != 0)
                     {
-                        _progressBars[e.GameStartingPlayerIndex - 1].Progress = _progressBars[e.GameStartingPlayerIndex - 1].Max;                        
+                        _progressBars[e.GameStartingPlayerIndex].Progress = _progressBars[e.GameStartingPlayerIndex].Max;                        
                     }
                     if(e.GameStartingPlayerIndex != 2)
                     {
@@ -1219,7 +1247,7 @@ namespace Mariasek.SharedClient
         {
             if(e.Player.PlayerIndex != 0)
             {
-                _progressBars[e.Player.PlayerIndex - 1].Progress = _progressBars[e.Player.PlayerIndex - 1].Max;
+                _progressBars[e.Player.PlayerIndex].Progress = _progressBars[e.Player.PlayerIndex].Max;
             }
             ShowBubble(e.Player.PlayerIndex, e.Description);
             if(e.Player.PlayerIndex != 2)
@@ -1263,10 +1291,7 @@ namespace Mariasek.SharedClient
                         lastPlayer = g.CurrentRound.player1;
                         lastHlas = g.CurrentRound.hlas1;
                     }
-                    if(lastPlayer.PlayerIndex != 0)
-                    {
-                        _progressBars[lastPlayer.PlayerIndex - 1].Progress = _progressBars[lastPlayer.PlayerIndex - 1].Max;
-                    }
+                    _progressBars[lastPlayer.PlayerIndex].Progress = _progressBars[lastPlayer.PlayerIndex].Max;
                     rect = lastCard.ToTextureRect();
                     if (lastHlas)
                     {
@@ -1391,8 +1416,65 @@ namespace Mariasek.SharedClient
         public void SettingsChanged(object sender, SettingsChangedEventArgs e)
         {
             _settings = e.Settings;
+            if (_progress1 != null)
+            {
+                if (_settings.HintEnabled)
+                {
+                    _progress1.Show();
+                }
+                else
+                {
+                    _progress1.Hide();
+                }
+            }
             SortHand(null);
             SoundEffect.MasterVolume = _settings.SoundEnabled ? 1f : 0f;
+        }
+
+        public void SuggestTrump(Card trumpCard)
+        {
+            if (_settings.HintEnabled)
+            {
+                //dame cas aby se nejdriv karty vykreslily a az potom oznacime trumfovou kartu
+                _hand.Wait(1000).Invoke(() => _hand.HighlightCard(trumpCard));
+            }
+        }
+
+        public void SuggestGameFlavour(GameFlavour flavour)
+        {
+            if (_settings.HintEnabled)
+            {
+                ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", flavour.ToDescription()), false);
+            }
+        }
+
+        public void SuggestGameType(string gameType)
+        {
+            if (_settings.HintEnabled)
+            {
+                ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", gameType), false);
+            }
+        }
+
+        public void SuggestBidsAndDoubles(string bid)
+        {
+            if (_settings.HintEnabled)
+            {
+                ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", bid), false);
+            }
+        }
+
+        public void SuggestCardToPlay(Card cardToPlay, string hint)
+        {
+            if (_settings.HintEnabled)
+            {                
+                ShowMsgLabel(hint, false);
+                if (!_hand.HighlightCard(cardToPlay))
+                {
+                    var msg = string.Format("Chyba simulace: hráč nemá {0}", cardToPlay);
+                    ShowMsgLabel(msg, false);
+                }
+            }
         }
 
         public void SortHand(Card cardToHide = null)

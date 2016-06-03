@@ -243,9 +243,14 @@ namespace Mariasek.SharedClient
                 IsMoving = (operation.OperationType & GameComponentOperationType.Move) != 0 && positionDiff != Vector2.Zero;
             }
 
-            foreach (var child in Children)
+            for (var i = 0; i < Children.Count; i++)
             {
-                child.Update(gameTime);
+                var child = Children[i];
+
+                if (child != null)
+                {
+                    child.Update(gameTime);
+                }
             }
         }
 
@@ -253,9 +258,14 @@ namespace Mariasek.SharedClient
         {
             if (IsVisible)
             {
-                foreach (var child in Children)
+                for (var i = 0; i < Children.Count; i++)
                 {
-                    child.Draw(gameTime);
+                    var child = Children[i];
+
+                    if (child != null)
+                    {
+                        child.Draw(gameTime);
+                    }
                 }
             }
         }

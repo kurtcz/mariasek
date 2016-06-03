@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Mariasek.Engine.New.Logger;
 using Mariasek.Engine.New.Configuration;
-#if !PORTABLE
+//#if !PORTABLE
 using Mariasek.Engine.New.Schema;
-#endif
+//#endif
 
 namespace Mariasek.Engine.New
 {
@@ -25,7 +25,7 @@ namespace Mariasek.Engine.New
         private static readonly ILog _log = new DummyLogWrapper();
 #endif
         private static readonly Random rand = new Random();
-        private CancellationToken _cancellationToken;
+        public CancellationToken CancellationToken;
         private AbstractPlayer _roundStartingPlayer;
         
         #region Public fields and properties
@@ -57,6 +57,9 @@ namespace Mariasek.Engine.New
         public string Author { get; set; }
 #if !PORTABLE
         public static Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
+#else
+        public static Version Version { get { return typeof(Game).GetTypeInfo().Assembly.GetName().Version; } }
+        public static Func<string, Stream> GetFileStream { get; set; }
 #endif
         public string Comment { get; set; }
 
@@ -168,11 +171,22 @@ namespace Mariasek.Engine.New
         public Game()
         {
             BaseBet = 1f;
+#if PORTABLE
+            GetFileStream = _ => new MemoryStream(); //dummy stream factory
+#endif
+        }
+
+        public void RegisterPlayers(AbstractPlayer[] players)
+        {
+            RegisterPlayers(players[0], players[1], players[2]);
         }
 
         public void RegisterPlayers(AbstractPlayer player1, AbstractPlayer player2, AbstractPlayer player3)
         {
             players = new[] {player1, player2, player3};
+            player1.PlayerIndex = 0;
+            player2.PlayerIndex = 1;
+            player3.PlayerIndex = 2;
         }
 
 #if !PORTABLE
@@ -228,10 +242,10 @@ namespace Mariasek.Engine.New
 
         public void ThrowIfCancellationRequested()
         {
-            if (_cancellationToken.IsCancellationRequested)
+            if (CancellationToken.IsCancellationRequested)
             {
                 _log.Debug("Task cancellation requested");
-                _cancellationToken.ThrowIfCancellationRequested();
+                CancellationToken.ThrowIfCancellationRequested();
             }
         }
 
@@ -283,6 +297,8 @@ namespace Mariasek.Engine.New
 #if !PORTABLE
             var programFolder = System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
             SaveGame(System.IO.Path.Combine(programFolder, "_temp.hra"));
+#else
+            SaveGame(GetFileStream("_temp.hra"));
 #endif        
         }
 
@@ -379,6 +395,15 @@ namespace Mariasek.Engine.New
         }
 
         public void SaveGame(string filename, bool saveDebugInfo = false)
+        {
+            using (var fileStream = new FileStream(filename, FileMode.Create))
+            {
+                SaveGame(fileStream, saveDebugInfo);
+            }
+        }
+#endif
+
+        public void SaveGame(Stream fileStream, bool saveDebugInfo = false)
         {
             var startingPlayerIndex = GameStartingPlayerIndex;
             if(CurrentRound != null)
@@ -492,19 +517,19 @@ namespace Mariasek.Engine.New
                 };
             }
 
-            gameDto.SaveGame(filename, saveDebugInfo);
+            gameDto.SaveGame(fileStream, saveDebugInfo);
         }
-#endif
 
         public void PlayGame(CancellationToken cancellationToken = default(CancellationToken))
         {
             try
             {
-                _cancellationToken = cancellationToken;
+                CancellationToken = cancellationToken;
                 //zahajeni hry
                 if (RoundNumber == 0)
                 {
                     GameType = Hra.Hra; //docasne nastavena nejaka minimalni hra
+                    Bidding = new Bidding(this); //TEST!!!
                     ChooseGame();
                     RoundNumber++;
                 }
@@ -560,18 +585,27 @@ namespace Mariasek.Engine.New
                 Results.CalculateMoney();
                 OnGameFinished(Results);
             }
-            catch (OperationCanceledException)
-            {
-                _log.Debug("OperationCanceledException caught");
-            }
             catch (Exception ex)
             {
-                _log.Error("Exception in PlayGame()", ex);
-                OnGameException(new GameExceptionEventArgs { e = ex });
+                while (ex.InnerException != null)
+                {
+                    ex = ex.InnerException;
+                }
+                if (ex is OperationCanceledException)
+                {
+                    _log.Debug("OperationCanceledException caught");
+                }
+                else
+                {
+                    _log.Error("Exception in PlayGame()", ex);
+                    OnGameException(new GameExceptionEventArgs { e = ex });
 #if !PORTABLE
-                SaveGame(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss")));
+                    SaveGame(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss")));
+#else
+                    SaveGame(GetFileStream(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss"))));
 #endif
-                throw;
+                    throw;
+                }
             }
             finally
             {

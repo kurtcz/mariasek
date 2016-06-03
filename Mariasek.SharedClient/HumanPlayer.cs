@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using Mariasek.Engine.New;
 
@@ -9,26 +12,39 @@ namespace Mariasek.SharedClient
     {
         private MainScene _scene;
         private bool firstTimeChoosingFlavour;
+        private List<Card> _talon;
+        private Hra _previousBid;
         private Hra _gameType;
         private Barva _trump;
         private Game _g;
+        private AiPlayer _aiPlayer;
+        private Task _aiTask;
+        private CancellationTokenSource _cancellationTokenSource;
 
         public Probability Probabilities { get; set; }
 
-        public HumanPlayer(Game g, MainScene scene)
+        public HumanPlayer(Game g, Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection aiConfig, MainScene scene)
             : base(g)
         {
             _scene = scene;
             _g = g;
+            _aiPlayer = new AiPlayer(_g, aiConfig) { Name = "Advisor" };
+            _g.GameFlavourChosen += GameFlavourChosen;
             _g.GameTypeChosen += GameTypeChosen;
-            _g.CardPlayed += CardPlayed;
         }
 
         public override void Init()
         {
             _gameType = 0;
+            _talon = null;
             firstTimeChoosingFlavour = true;
             Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _g.talon);
+            _cancellationTokenSource = new CancellationTokenSource();
+            _aiPlayer.Init();
+            _aiPlayer.ThrowIfCancellationRequested = ThrowIfAiCancellationRequested;
+            _aiPlayer.Hand = new List<Card>();
+            _aiPlayer.Hand.AddRange(Hand);
+            _aiPlayer.GameComputationProgress += _scene.GameComputationProgress;
             if (_g.GameStartingPlayerIndex != 0)
             {
                 _scene.SortHand();
@@ -36,23 +52,65 @@ namespace Mariasek.SharedClient
             }
         }
 
+        public void CancelAiTask()
+        {
+            if (_aiTask != null && _aiTask.Status == TaskStatus.Running)
+            {
+                _cancellationTokenSource.Cancel();
+                try
+                {
+                    _aiTask.Wait();
+                }
+                catch (Exception ex)
+                {
+                    while (ex.InnerException != null)
+                    {
+                        ex = ex.InnerException;
+                    }
+                    if (!(ex is OperationCanceledException)) //ignore OperationCanceledException
+                    {
+                        throw;
+                    }
+                }
+                _cancellationTokenSource = new CancellationTokenSource();
+            }
+        }
+            
+        private void ThrowIfAiCancellationRequested() //callback function for _aiPlayer to cancel _aiTask
+        {
+            if (_cancellationTokenSource.Token.IsCancellationRequested)
+            {
+                _cancellationTokenSource.Token.ThrowIfCancellationRequested();
+            }
+        }
+
         public override Card ChooseTrump()
         {
+            _aiTask = Task.Run(() =>
+                { 
+                    var trump = _aiPlayer.ChooseTrump();
+                    _scene.SuggestTrump(trump);
+                }, _cancellationTokenSource.Token);                
             var trumpCard = _scene.ChooseTrump();
 
+            CancelAiTask();
             _trump = trumpCard.Suit;
             return trumpCard;
         }
 
         public override List<Card> ChooseTalon()
         {
-            return _scene.ChooseTalon();
+            _talon = _scene.ChooseTalon();
+
+            CancelAiTask();
+            _aiPlayer._talon = _talon;
+            return _talon;
         }
 
         public override GameFlavour ChooseGameFlavour()
         {
             if (firstTimeChoosingFlavour)
-            {
+            {                
                 firstTimeChoosingFlavour = false;
                 //poprve volici hrac nehlasi dobra/spatna ale vybira z typu her, cimz se dobra/spatna implicitne zvoli
                 if (PlayerIndex == _g.GameStartingPlayerIndex)
@@ -63,7 +121,24 @@ namespace Mariasek.SharedClient
                     {
                         validGameTypes |= Hra.Sedma;
                     }
+                    _aiTask = Task.Run(() =>
+                        {
+                            var flavour = _aiPlayer.ChooseGameFlavour();
+                            if(flavour == GameFlavour.Good)
+                            {
+                                validGameTypes &= ((Hra)~0^(Hra.Betl | Hra.Durch));
+                            }
+                            else
+                            {
+                                validGameTypes &= (Hra.Betl | Hra.Durch);
+                            }
+                            var gameType = _aiPlayer.ChooseGameType(validGameTypes);
+                            var e = _g.Bidding.GetEventArgs(_aiPlayer, gameType, 0);
+                            _scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount));
+                        }, _cancellationTokenSource.Token);                
                     _gameType = _scene.ChooseGameType(validGameTypes);
+
+                    CancelAiTask();
                     if ((_gameType & (Hra.Betl | Hra.Durch)) != 0)
                     {
                         return GameFlavour.Bad;
@@ -76,7 +151,15 @@ namespace Mariasek.SharedClient
             }
             _gameType = 0;
 
-            return _scene.ChooseGameFlavour();
+            _aiTask = Task.Run(() =>
+                { 
+                    var flavour = _aiPlayer.ChooseGameFlavour();
+                    _scene.SuggestGameFlavour(flavour);
+                }, _cancellationTokenSource.Token);                
+            var gf = _scene.ChooseGameFlavour();
+
+            CancelAiTask();
+            return gf;
         }
 
         public override Hra ChooseGameType(Hra validGameTypes)
@@ -85,12 +168,34 @@ namespace Mariasek.SharedClient
             {
                 return _gameType;
             }
-            return _scene.ChooseGameType(validGameTypes);
+            _aiTask = Task.Run(() =>
+                { 
+                    var gameType = _aiPlayer.ChooseGameType(validGameTypes);
+                    var temp = new Bidding(_g.Bidding);
+                    temp.SetLastBidder(_aiPlayer, gameType);
+                    var e = temp.GetEventArgs(_aiPlayer, gameType, 0);
+                    _scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount));
+                }, _cancellationTokenSource.Token);                
+            var gt = _scene.ChooseGameType(validGameTypes);
+
+            CancelAiTask();
+            return gt;
         }
 
         public override Hra GetBidsAndDoubles(Bidding bidding)
         {
-            return _scene.GetBidsAndDoubles(bidding);
+            _aiTask = Task.Run(() =>
+                { 
+                    var bid = _aiPlayer.GetBidsAndDoubles(bidding);
+                    var temp = new Bidding(bidding);                            //vyrobit kopii objektu
+                    temp.SetLastBidder(_aiPlayer, bid);                         //nasimulovat reakci (tato operace manipuluje s vnitrnim stavem - proto pracujeme s kopii)
+                    var e = temp.GetEventArgs(_aiPlayer, bid, _previousBid);    //a zformatovat ji do stringu
+                    _scene.SuggestGameType(e.Description);
+                }, _cancellationTokenSource.Token);                
+            var bd = _scene.GetBidsAndDoubles(bidding);
+
+            CancelAiTask();
+            return bd;
         }
 
         public override Card PlayCard(Round r)
@@ -98,6 +203,12 @@ namespace Mariasek.SharedClient
             Card card;
             var validationState = Renonc.Ok;
 
+            _aiTask = Task.Run(() =>
+                { 
+                    var cardToplay = _aiPlayer.PlayCard(r);
+                    var hint = string.Format("{2}\n{0} ({1}%)", _aiPlayer.DebugInfo.Rule, (100 * _aiPlayer.DebugInfo.RuleCount)/_aiPlayer.DebugInfo.TotalRuleCount, _aiPlayer.DebugInfo.Card);
+                    _scene.SuggestCardToPlay(_aiPlayer.DebugInfo.Card, hint);
+                }, _cancellationTokenSource.Token);                
             while (true)
             {
                 card = _scene.PlayCard(validationState);
@@ -121,28 +232,26 @@ namespace Mariasek.SharedClient
                 }
             }
 
+            CancelAiTask();
             return card;
+        }
+            
+        private void GameFlavourChosen(object sender, GameFlavourChosenEventArgs e)
+        {
+            if (e.Flavour == GameFlavour.Bad && e.Player.PlayerIndex != PlayerIndex)
+            {
+                _talon = null;
+            }
         }
 
         private void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
         {
-            Probabilities.UpdateProbabilitiesAfterGameTypeChosen(e);
+            _previousBid = e.GameType;
         }
 
-        public void CardPlayed(object sender, Round r)
+        private void BidMade(object sender, BidEventArgs e)
         {
-            if (r.c3 != null)
-            {
-                Probabilities.UpdateProbabilities(r.number, r.player1.PlayerIndex, r.c1, r.c2, r.c3, r.hlas3);
-            }
-            else if (r.c2 != null)
-            {
-                Probabilities.UpdateProbabilities(r.number, r.player1.PlayerIndex, r.c1, r.c2, r.hlas2);
-            }
-            else
-            {
-                Probabilities.UpdateProbabilities(r.number, r.player1.PlayerIndex, r.c1, r.hlas1);
-            }
+            _previousBid = e.BidMade;
         }
     }
 }

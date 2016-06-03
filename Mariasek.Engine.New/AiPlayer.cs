@@ -22,7 +22,7 @@ namespace Mariasek.Engine.New
 #endif   
         private Barva? _trump;
         private Hra? _gameType;
-        private List<Card> _talon;
+        public List<Card> _talon; //public so that HumanPlayer can set it
         private List<MultiplyingMoneyCalculator> _moneyCalculations;
         private int _gamesBalance;
         private int _hundredsBalance;
@@ -36,6 +36,8 @@ namespace Mariasek.Engine.New
  
         public Probability Probabilities { get; set; }
         public AiPlayerSettings Settings { get; set; }
+
+        public Action ThrowIfCancellationRequested;
 
         public AiPlayer(Game g) : base(g)
         {
@@ -71,6 +73,7 @@ namespace Mariasek.Engine.New
             g.GameTypeChosen += GameTypeChosen;
             g.BidMade += BidMade;
             g.CardPlayed += CardPlayed;
+            ThrowIfCancellationRequested = g.ThrowIfCancellationRequested;
         }
 
         public AiPlayer(Game g, ParameterConfigurationElementCollection parameters) : this(g)
@@ -431,7 +434,7 @@ namespace Mariasek.Engine.New
 
                 Parallel.ForEach(source ?? Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType), (hh, loopState) =>
                 {                        
-                    _g.ThrowIfCancellationRequested();
+                    ThrowIfCancellationRequested();
                     if (source == null)
                     {
                         tempSource.Add(hh);
@@ -476,7 +479,7 @@ namespace Mariasek.Engine.New
 
                 Parallel.ForEach(source ?? Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType), (hh, loopState) =>
                 {
-                    _g.ThrowIfCancellationRequested();
+                    ThrowIfCancellationRequested();
                     if (source == null)
                     {
                         tempSource.Add(hh);
@@ -513,7 +516,7 @@ namespace Mariasek.Engine.New
                 }
                 Parallel.ForEach(source ?? Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType), (hands, loopState) =>
                 {
-                    _g.ThrowIfCancellationRequested();
+                    ThrowIfCancellationRequested();
                     if (source == null)
                     {
                         tempSource.Add(hands);
@@ -935,7 +938,7 @@ namespace Mariasek.Engine.New
 
                 Parallel.ForEach(source, (hands, loopState) =>
                 {
-                    _g.ThrowIfCancellationRequested();
+                    ThrowIfCancellationRequested();
                     if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     {
                         prematureEnd = true;

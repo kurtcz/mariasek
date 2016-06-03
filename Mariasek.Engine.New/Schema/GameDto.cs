@@ -1,6 +1,4 @@
-﻿#if !PORTABLE
-
-using System.IO;
+﻿using System.IO;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
@@ -78,17 +76,22 @@ namespace Mariasek.Engine.New.Schema
         {
             return Zuctovani != null;
         }
-
+#if !PORTABLE
         public void SaveGame(string filename, bool saveDebugInfo = false)
+        {
+            using (var fileStream = new FileStream(filename, FileMode.Create))
+            {
+                SaveGame(fileStream, saveDebugInfo);
+            }
+        }
+#endif
+        public void SaveGame(Stream fileStream, bool saveDebugInfo = false)
         {
             var serializer = new XmlSerializer(typeof(GameDto));
 
             if (!saveDebugInfo)
             {
-                using (var fileStream = new FileStream(filename, FileMode.Create))
-                {
-                    serializer.Serialize(fileStream, this, Namespaces);
-                }
+                serializer.Serialize(fileStream, this, Namespaces);
             }
             else
             {
@@ -121,10 +124,7 @@ namespace Mariasek.Engine.New.Schema
                     }
                     i++;
                 }
-                using (var fileStream = new FileStream(filename, FileMode.Create))
-                {
-                    xd.Save(fileStream);
-                }
+                xd.Save(fileStream);
             }
         }
     }
@@ -178,5 +178,3 @@ namespace Mariasek.Engine.New.Schema
         public Skore Hrac3;
     }
 }
-
-#endif

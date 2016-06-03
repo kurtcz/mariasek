@@ -22,7 +22,7 @@ namespace Mariasek.Engine.New
         protected Game _g;
 
         public string Name { get; set; }
-        public int PlayerIndex { get { return Array.IndexOf(_g.players, this); } }
+        public int PlayerIndex { get; set; }
 
         public int TeamMateIndex
         {
@@ -32,7 +32,7 @@ namespace Mariasek.Engine.New
                 {
                     return -1;
                 }
-                return _g.players.First(i => i != this && i != _g.GameStartingPlayer).PlayerIndex;
+                return _g.players.First(i => i.PlayerIndex != PlayerIndex && i.PlayerIndex != _g.GameStartingPlayerIndex).PlayerIndex;
             }
         }
 

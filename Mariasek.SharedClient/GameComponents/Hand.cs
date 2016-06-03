@@ -77,6 +77,26 @@ namespace Mariasek.SharedClient.GameComponents
             UpdateHand(hand);
         }
 
+        public bool HighlightCard(Card cardToPlay)
+        {
+            if (_sprites == null || _sprites.All(i => i == null))
+            {
+                return false;
+            }
+
+            var sprite = _sprites.FirstOrDefault(i => (Card)i.Tag == cardToPlay);
+
+            if (sprite != null)
+            {
+                sprite.IsSelected = true;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public void UpdateHand(IList<Card> hand, int cardsNotRevealed = 0, Card cardToHide = null)
         {
             var cardStrings = new StringBuilder();

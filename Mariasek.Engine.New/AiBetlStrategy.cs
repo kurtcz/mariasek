@@ -23,7 +23,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 0,
-                Description = "Hraj viteznou kartu",
+                Description = "Hraj vítěznou kartu",
                 ChooseCard1 = () =>
                 {
                     IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
@@ -108,7 +108,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 2,
-                Description = "Hrat kratkou barvu",
+                Description = "Hrát krátkou barvu",
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = new List<Card>();
@@ -132,7 +132,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 0,
-                Description = "Hraj viteznou kartu",
+                Description = "Hraj vítěznou kartu",
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = Enumerable.Empty<Card>();
@@ -240,7 +240,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 3,
-                Description = "Hrat kratkou barvu",
+                Description = "Hrát krátkou barvu",
                 ChooseCard2 = (Card c1) =>
                 {
                     var lo = ValidCards(c1, hands[MyIndex]).GroupBy(g => g.Suit);   //seskup podle barev
@@ -262,7 +262,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 0,
-                Description = "Hraj viteznou kartu",
+                Description = "Hraj vítěznou kartu",
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = Enumerable.Empty<Card>();
@@ -367,7 +367,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 3,
-                Description = "Hrat kratkou barvu",
+                Description = "Hrát kratkou barvu",
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var lo = ValidCards(c1, c2, hands[MyIndex]).GroupBy(g => g.Suit);   //seskup podle barev

@@ -15,7 +15,7 @@ namespace Mariasek.Engine.New
 
         public static readonly AiRule PlayTheOnlyValidCard = new AiRule
                                                              {
-                                                                 Description = "Hraj jedinou moznou kartu"
+                                                                 Description = "Hraj jedinou možnou kartu"
                                                              };
         public override string ToString()
         {

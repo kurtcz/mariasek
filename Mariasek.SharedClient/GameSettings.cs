@@ -12,6 +12,7 @@ namespace Mariasek.SharedClient
 
     public class GameSettings
     {
+        public bool HintEnabled { get; set; }
         public bool SoundEnabled { get; set; }
         public SortMode SortMode { get; set; }
         public float BaseBet { get; set; }
@@ -23,6 +24,7 @@ namespace Mariasek.SharedClient
 
         public GameSettings()
         {
+            SoundEnabled = false;
             SoundEnabled = true;
             SortMode = SortMode.Ascending;
             BaseBet = 1f;

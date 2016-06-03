@@ -21,7 +21,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 0,
-                Description = "hrat od A nejdelsi viteznou barvu",
+                Description = "hrát od A nejdelší vítěznou barvu",
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = new List<Card>();
@@ -53,7 +53,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 1,
-                Description = "hrat nejdelsi barvu",
+                Description = "hrát nejdelší barvu",
                 ChooseCard1 = () =>
                 {
                     IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
@@ -83,7 +83,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 0,
-                Description = "hrat viteznou kartu",
+                Description = "hrát vítěznou kartu",
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => !c1.IsHigherThan(i, null));
@@ -95,7 +95,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 1,
-                Description = "hrat nejmensi kartu v barve",
+                Description = "hrát nejmenší kartu v barvě",
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == c1.Suit);
@@ -107,7 +107,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 2,
-                Description = "hrat nejmensi kartu v barve, ve ktere nechytam",
+                Description = "hrát nejmenší kartu v barvě, ve které nechytám",
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = new List<Card>();
@@ -138,7 +138,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 3,
-                Description = "hrat nejmensi kartu",
+                Description = "hrát nejmenší kartu",
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]);
@@ -156,7 +156,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 0,
-                Description = "hrat viteznou kartu",
+                Description = "hrát vítěznou kartu",
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => !c1.IsHigherThan(i, null));
@@ -168,7 +168,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 1,
-                Description = "hrat nejmensi kartu v barve",
+                Description = "hrát nejmenší kartu v barvě",
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit == c1.Suit);
@@ -180,7 +180,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 2,
-                Description = "hrat nejmensi kartu v barve, ve ktere nechytam",
+                Description = "hrát nejmenší kartu v barvě, ve které nechytám",
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = new List<Card>();
@@ -211,7 +211,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 3,
-                Description = "hrat nejmensi kartu",
+                Description = "hrát nejmenší kartu",
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]);
