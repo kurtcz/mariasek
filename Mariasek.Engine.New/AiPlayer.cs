@@ -113,31 +113,25 @@ namespace Mariasek.Engine.New
             Settings.MaxDoubleCount = int.Parse(parameters["MaxDoubleCount"].Value);
             Settings.SigmaMultiplier = int.Parse(parameters["SigmaMultiplier"].Value);
 
-            //if we have benchmarked values then use thouse instead of defaults
-            if (Settings.SimulationsPerGameTypePerSecond > 0)
-            {
-                Settings.SimulationsPerGameType = Settings.SimulationsPerGameTypePerSecond * Settings.MaxSimulationTimeMs / 1000;
-            }
-            if (Settings.SimulationsPerRoundPerSecond > 0)
-            {
-                Settings.SimulationsPerRound = Settings.SimulationsPerRoundPerSecond * Settings.MaxSimulationTimeMs / 1000;
-            }
+            Settings.SimulationsPerGameType = Settings.SimulationsPerGameTypePerSecond * Settings.MaxSimulationTimeMs / 1000;
+            Settings.SimulationsPerRound = Settings.SimulationsPerRoundPerSecond * Settings.MaxSimulationTimeMs / 1000;
         }
 
         private int GetSuitScoreForTrumpChoice(Barva b)
         {
+            var hand = Hand.Take(7).ToList(); //nekoukat do karet co nejsou videt
             var score = 0;
-            var count = Hand.Count(i => i.Suit == b);
+            var count = hand.Count(i => i.Suit == b);
 
             if (count > 1)
             {
-                if (Hand.HasK(b))
+                if (hand.HasK(b))
                     score += 20;
-                if (Hand.HasQ(b))
+                if (hand.HasQ(b))
                     score += 20;
-                if (Hand.HasA(b))
+                if (hand.HasA(b))
                     score += 10;
-                if (Hand.HasX(b))
+                if (hand.HasX(b))
                     score += 10;
 
                 score += count;
@@ -960,10 +954,10 @@ namespace Mariasek.Engine.New
                         loopState.Stop();
                     }
                 });
-                var end = DateTime.Now;
-                Settings.SimulationsPerRound = progress;
                 if (Settings.SimulationsPerRoundPerSecond == 0) // only do this 1st time when we calculate most to get a more realistic benchmark
                 {
+                    var end = DateTime.Now;
+                    Settings.SimulationsPerRound = progress;
                     Settings.SimulationsPerRoundPerSecond = (int)((float)progress / (end - start).TotalMilliseconds * 1000);
                 }
                 if (canSkipSimulations)

@@ -1436,7 +1436,8 @@ namespace Mariasek.SharedClient
             if (_settings.HintEnabled)
             {
                 //dame cas aby se nejdriv karty vykreslily a az potom oznacime trumfovou kartu
-                _hand.Wait(1000).Invoke(() => _hand.HighlightCard(trumpCard));
+                Task.Delay(1000);
+                _hand.Invoke(() => _hand.HighlightCard(trumpCard));
             }
         }
 
