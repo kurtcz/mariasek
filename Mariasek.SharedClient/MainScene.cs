@@ -657,7 +657,7 @@ namespace Mariasek.SharedClient
                     BaseBet = _settings.BaseBet
                 };
                 g.RegisterPlayers(
-                    new HumanPlayer(g, _aiConfig, this) { Name = "Hráč 1" },
+                    new HumanPlayer(g, _aiConfig, this, _settings.HintEnabled) { Name = "Hráč 1" },
                     new AiPlayer(g, _aiConfig) { Name = "Hráč 2" },
                     new AiPlayer(g, _aiConfig) { Name = "Hráč 3" }
                 );
@@ -1379,8 +1379,8 @@ namespace Mariasek.SharedClient
 
             _settings.GameTypeSimulationsPerSecond = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
             _settings.RoundSimulationsPerSecond = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
-            _aiConfig["SimulationsPerGameTypePerSecond"].Value = _settings.GameTypeSimulationsPerSecond.ToString();
-            _aiConfig["SimulationsPerRoundPerSecond"].Value = _settings.RoundSimulationsPerSecond.ToString();
+            //_aiConfig["SimulationsPerGameTypePerSecond"].Value = _settings.GameTypeSimulationsPerSecond.ToString();
+            //_aiConfig["SimulationsPerRoundPerSecond"].Value = _settings.RoundSimulationsPerSecond.ToString();
             _settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
             Game.SettingsScene.SaveGameSettings();
         }

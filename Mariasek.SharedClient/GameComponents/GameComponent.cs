@@ -249,7 +249,13 @@ namespace Mariasek.SharedClient
 
                 if (child != null)
                 {
-                    child.Update(gameTime);
+                    try
+                    {
+                        child.Update(gameTime);
+                    }
+                    catch(Exception e)
+                    {
+                    }
                 }
             }
         }
@@ -264,7 +270,13 @@ namespace Mariasek.SharedClient
 
                     if (child != null)
                     {
-                        child.Draw(gameTime);
+                        try
+                        {
+                            child.Draw(gameTime);
+                        }
+                        catch(Exception e)
+                        {
+                        }
                     }
                 }
             }

@@ -33,6 +33,7 @@ namespace Mariasek.Engine.New
         private int _durchBalance;
         private bool _initialSimulation;
         private bool _teamMateDoubledGame;
+        private bool _shouldMeasureThroughput;
  
         public Probability Probabilities { get; set; }
         public AiPlayerSettings Settings { get; set; }
@@ -113,8 +114,8 @@ namespace Mariasek.Engine.New
             Settings.MaxDoubleCount = int.Parse(parameters["MaxDoubleCount"].Value);
             Settings.SigmaMultiplier = int.Parse(parameters["SigmaMultiplier"].Value);
 
-            Settings.SimulationsPerGameType = Settings.SimulationsPerGameTypePerSecond * Settings.MaxSimulationTimeMs / 1000;
-            Settings.SimulationsPerRound = Settings.SimulationsPerRoundPerSecond * Settings.MaxSimulationTimeMs / 1000;
+            //Settings.SimulationsPerGameType = Settings.SimulationsPerGameTypePerSecond * Settings.MaxSimulationTimeMs / 1000;
+            //Settings.SimulationsPerRound = Settings.SimulationsPerRoundPerSecond * Settings.MaxSimulationTimeMs / 1000;
         }
 
         private int GetSuitScoreForTrumpChoice(Barva b)
@@ -318,7 +319,10 @@ namespace Mariasek.Engine.New
 
                 //pokud volim hru tak mam 12 karet a nechci generovat talon,
                 //jinak mam 10 karet a talon si necham nagenerovat a potom ho vymenim za talon zvoleny podle logiky
-                _talon = PlayerIndex == _g.GameStartingPlayerIndex ? new List<Card>() : null;
+                if (_talon == null) //pokud je AiPlayer poradce cloveka, tak uz je _talon definovanej
+                {
+                    _talon = PlayerIndex == _g.GameStartingPlayerIndex ? new List<Card>() : null;
+                }
                 Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, _talon);
 
                 if (PlayerIndex == _g.OriginalGameStartingPlayerIndex)
@@ -455,8 +459,8 @@ namespace Mariasek.Engine.New
                 });
                 var end = DateTime.Now;
                 Settings.SimulationsPerGameType = actualSimulations;
-                //Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / Settings.MaxSimulationTimeMs * 1000);
-                Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / (end - start).TotalMilliseconds * 1000);
+                Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / Settings.MaxSimulationTimeMs * 1000);
+                //Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / (end - start).TotalMilliseconds * 1000);
                 totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
                     (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
                 if (source == null)
@@ -500,8 +504,8 @@ namespace Mariasek.Engine.New
                 });
                 var end = DateTime.Now;
                 Settings.SimulationsPerGameType = actualSimulations;
-                //Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / Settings.MaxSimulationTimeMs * 1000);
-                Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / (end - start).TotalMilliseconds * 1000);
+                Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / Settings.MaxSimulationTimeMs * 1000);
+                //Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / (end - start).TotalMilliseconds * 1000);
                 totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
                     (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
                 if (source == null)
@@ -841,6 +845,7 @@ namespace Mariasek.Engine.New
             Probabilities = null;
             _initialSimulation = true;
             _teamMateDoubledGame = false;
+            _shouldMeasureThroughput = true;
             Settings.SimulationsPerRoundPerSecond = 0;
         }
 
@@ -954,11 +959,13 @@ namespace Mariasek.Engine.New
                         loopState.Stop();
                     }
                 });
-                if (Settings.SimulationsPerRoundPerSecond == 0) // only do this 1st time when we calculate most to get a more realistic benchmark
+                if (_shouldMeasureThroughput) // only do this 1st time when we calculate most to get a more realistic benchmark
                 {
                     var end = DateTime.Now;
                     Settings.SimulationsPerRound = progress;
-                    Settings.SimulationsPerRoundPerSecond = (int)((float)progress / (end - start).TotalMilliseconds * 1000);
+                    Settings.SimulationsPerRoundPerSecond = (int)((float)progress / Settings.MaxSimulationTimeMs * 1000);
+                    //Settings.SimulationsPerRoundPerSecond = (int)((float)progress / (end - start).TotalMilliseconds * 1000);
+                    _shouldMeasureThroughput = false;
                 }
                 if (canSkipSimulations)
                 {

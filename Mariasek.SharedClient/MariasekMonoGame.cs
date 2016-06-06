@@ -119,10 +119,10 @@ namespace Mariasek.SharedClient
             ReverseTexture = Content.Load<Texture2D>("revers");
             FontRenderers = new Dictionary<string, FontRenderer>
             {
-                { "BMFont", FontRenderer.GetFontRenderer(this, "BMFont.fnt", "BMFont_0.png", "BMFont_1.png") },
-                { "BM2Font", FontRenderer.GetFontRenderer(this, "BM2Font.fnt", "BM2Font_0.png", "BM2Font_1.png") },
-                { "SegoeUI40Outl", FontRenderer.GetFontRenderer(this, "SegoeUI40Outl.fnt", "SegoeUI40Outl_0.png", "SegoeUI40Outl_1.png", "SegoeUI40Outl_2.png") },
-                { "LuckiestGuy32Outl", FontRenderer.GetFontRenderer(this, "LuckiestGuy32Outl.fnt", "LuckiestGuy32Outl_0.png", "LuckiestGuy32Outl_1.png", "LuckiestGuy32Outl_2.png") }
+                { "BMFont", FontRenderer.GetFontRenderer(this, "BMFont.fnt", "BMFont_0", "BMFont_1") },
+                { "BM2Font", FontRenderer.GetFontRenderer(this, "BM2Font.fnt", "BM2Font_0", "BM2Font_1") },
+                { "SegoeUI40Outl", FontRenderer.GetFontRenderer(this, "SegoeUI40Outl.fnt", "SegoeUI40Outl_0", "SegoeUI40Outl_1", "SegoeUI40Outl_2") },
+                { "LuckiestGuy32Outl", FontRenderer.GetFontRenderer(this, "LuckiestGuy32Outl.fnt", "LuckiestGuy32Outl_0", "LuckiestGuy32Outl_1", "LuckiestGuy32Outl_2") }
             };
 
             foreach (var kvp in FontRenderers)

@@ -20,15 +20,14 @@ namespace Mariasek.SharedClient
         private AiPlayer _aiPlayer;
         private Task _aiTask;
         private CancellationTokenSource _cancellationTokenSource;
-
         public Probability Probabilities { get; set; }
 
-        public HumanPlayer(Game g, Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection aiConfig, MainScene scene)
+        public HumanPlayer(Game g, Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection aiConfig, MainScene scene, bool showHint)
             : base(g)
         {
             _scene = scene;
             _g = g;
-            _aiPlayer = new AiPlayer(_g, aiConfig) { Name = "Advisor" };
+            _aiPlayer = showHint ? new AiPlayer(_g, aiConfig) { Name = "Advisor" } : null;
             _g.GameFlavourChosen += GameFlavourChosen;
             _g.GameTypeChosen += GameTypeChosen;
         }
@@ -40,11 +39,14 @@ namespace Mariasek.SharedClient
             firstTimeChoosingFlavour = true;
             Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _g.talon);
             _cancellationTokenSource = new CancellationTokenSource();
-            _aiPlayer.Init();
-            _aiPlayer.ThrowIfCancellationRequested = ThrowIfAiCancellationRequested;
-            _aiPlayer.Hand = new List<Card>();
-            _aiPlayer.Hand.AddRange(Hand);
-            _aiPlayer.GameComputationProgress += _scene.GameComputationProgress;
+            if (_aiPlayer != null)
+            {
+                _aiPlayer.Init();
+                _aiPlayer.ThrowIfCancellationRequested = ThrowIfAiCancellationRequested;
+                _aiPlayer.Hand = new List<Card>();
+                _aiPlayer.Hand.AddRange(Hand);
+                _aiPlayer.GameComputationProgress += _scene.GameComputationProgress;
+            }
             if (_g.GameStartingPlayerIndex != 0)
             {
                 _scene.SortHand();
@@ -86,11 +88,14 @@ namespace Mariasek.SharedClient
 
         public override Card ChooseTrump()
         {
-            _aiTask = Task.Run(() =>
-                { 
-                    var trump = _aiPlayer.ChooseTrump();
-                    _scene.SuggestTrump(trump);
-                }, _cancellationTokenSource.Token);                
+            if (_aiPlayer != null)
+            {
+                _aiTask = Task.Run(() =>
+                    { 
+                        var trump = _aiPlayer.ChooseTrump();
+                        _scene.SuggestTrump(trump);
+                    }, _cancellationTokenSource.Token);
+            }
             var trumpCard = _scene.ChooseTrump();
 
             CancelAiTask();
@@ -103,7 +108,6 @@ namespace Mariasek.SharedClient
             _talon = _scene.ChooseTalon();
 
             CancelAiTask();
-            _aiPlayer._talon = _talon;
             return _talon;
         }
 
@@ -121,21 +125,27 @@ namespace Mariasek.SharedClient
                     {
                         validGameTypes |= Hra.Sedma;
                     }
-                    _aiTask = Task.Run(() =>
-                        {
-                            var flavour = _aiPlayer.ChooseGameFlavour();
-                            if(flavour == GameFlavour.Good)
+                    if (_aiPlayer != null)
+                    {
+                        _aiTask = Task.Run(() =>
                             {
-                                validGameTypes &= ((Hra)~0^(Hra.Betl | Hra.Durch));
-                            }
-                            else
-                            {
-                                validGameTypes &= (Hra.Betl | Hra.Durch);
-                            }
-                            var gameType = _aiPlayer.ChooseGameType(validGameTypes);
-                            var e = _g.Bidding.GetEventArgs(_aiPlayer, gameType, 0);
-                            _scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount));
-                        }, _cancellationTokenSource.Token);                
+                                //dej 2 karty z ruky do talonu aby byl _aiPlayer v aktualnim stavu
+                                _aiPlayer._talon = _talon;
+                                _aiPlayer.Hand = Hand;
+                                var flavour = _aiPlayer.ChooseGameFlavour();
+                                if (flavour == GameFlavour.Good)
+                                {
+                                    validGameTypes &= ((Hra)~0 ^ (Hra.Betl | Hra.Durch));
+                                }
+                                else
+                                {
+                                    validGameTypes &= (Hra.Betl | Hra.Durch);
+                                }
+                                var gameType = _aiPlayer.ChooseGameType(validGameTypes);
+                                var e = _g.Bidding.GetEventArgs(_aiPlayer, gameType, 0);
+                                _scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount));
+                            }, _cancellationTokenSource.Token);
+                    }
                     _gameType = _scene.ChooseGameType(validGameTypes);
 
                     CancelAiTask();
@@ -151,11 +161,14 @@ namespace Mariasek.SharedClient
             }
             _gameType = 0;
 
-            _aiTask = Task.Run(() =>
-                { 
-                    var flavour = _aiPlayer.ChooseGameFlavour();
-                    _scene.SuggestGameFlavour(flavour);
-                }, _cancellationTokenSource.Token);                
+            if (_aiPlayer != null)
+            {
+                _aiTask = Task.Run(() =>
+                    { 
+                        var flavour = _aiPlayer.ChooseGameFlavour();
+                        _scene.SuggestGameFlavour(flavour);
+                    }, _cancellationTokenSource.Token);                
+            }
             var gf = _scene.ChooseGameFlavour();
 
             CancelAiTask();
@@ -168,14 +181,17 @@ namespace Mariasek.SharedClient
             {
                 return _gameType;
             }
-            _aiTask = Task.Run(() =>
-                { 
-                    var gameType = _aiPlayer.ChooseGameType(validGameTypes);
-                    var temp = new Bidding(_g.Bidding);
-                    temp.SetLastBidder(_aiPlayer, gameType);
-                    var e = temp.GetEventArgs(_aiPlayer, gameType, 0);
-                    _scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount));
-                }, _cancellationTokenSource.Token);                
+            if (_aiPlayer != null)
+            {
+                _aiTask = Task.Run(() =>
+                    { 
+                        var gameType = _aiPlayer.ChooseGameType(validGameTypes);
+                        var temp = new Bidding(_g.Bidding);
+                        temp.SetLastBidder(_aiPlayer, gameType);
+                        var e = temp.GetEventArgs(_aiPlayer, gameType, 0);
+                        _scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount));
+                    }, _cancellationTokenSource.Token);
+            }
             var gt = _scene.ChooseGameType(validGameTypes);
 
             CancelAiTask();
@@ -184,14 +200,17 @@ namespace Mariasek.SharedClient
 
         public override Hra GetBidsAndDoubles(Bidding bidding)
         {
-            _aiTask = Task.Run(() =>
-                { 
-                    var bid = _aiPlayer.GetBidsAndDoubles(bidding);
-                    var temp = new Bidding(bidding);                            //vyrobit kopii objektu
-                    temp.SetLastBidder(_aiPlayer, bid);                         //nasimulovat reakci (tato operace manipuluje s vnitrnim stavem - proto pracujeme s kopii)
-                    var e = temp.GetEventArgs(_aiPlayer, bid, _previousBid);    //a zformatovat ji do stringu
-                    _scene.SuggestGameType(e.Description);
-                }, _cancellationTokenSource.Token);                
+            if (_aiPlayer != null)
+            {
+                _aiTask = Task.Run(() =>
+                    { 
+                        var bid = _aiPlayer.GetBidsAndDoubles(bidding);
+                        var temp = new Bidding(bidding);                            //vyrobit kopii objektu
+                        temp.SetLastBidder(_aiPlayer, bid);                         //nasimulovat reakci (tato operace manipuluje s vnitrnim stavem - proto pracujeme s kopii)
+                        var e = temp.GetEventArgs(_aiPlayer, bid, _previousBid);    //a zformatovat ji do stringu
+                        _scene.SuggestGameType(e.Description);
+                    }, _cancellationTokenSource.Token);
+            }
             var bd = _scene.GetBidsAndDoubles(bidding);
 
             CancelAiTask();
@@ -203,12 +222,15 @@ namespace Mariasek.SharedClient
             Card card;
             var validationState = Renonc.Ok;
 
-            _aiTask = Task.Run(() =>
-                { 
-                    var cardToplay = _aiPlayer.PlayCard(r);
-                    var hint = string.Format("{2}\n{0} ({1}%)", _aiPlayer.DebugInfo.Rule, (100 * _aiPlayer.DebugInfo.RuleCount)/_aiPlayer.DebugInfo.TotalRuleCount, _aiPlayer.DebugInfo.Card);
-                    _scene.SuggestCardToPlay(_aiPlayer.DebugInfo.Card, hint);
-                }, _cancellationTokenSource.Token);                
+            if (_aiPlayer != null)
+            {
+                _aiTask = Task.Run(() =>
+                    { 
+                        var cardToplay = _aiPlayer.PlayCard(r);
+                        var hint = string.Format("{2}\n{0} ({1}%)", _aiPlayer.DebugInfo.Rule, (100 * _aiPlayer.DebugInfo.RuleCount) / _aiPlayer.DebugInfo.TotalRuleCount, _aiPlayer.DebugInfo.Card);
+                        _scene.SuggestCardToPlay(_aiPlayer.DebugInfo.Card, hint);
+                    }, _cancellationTokenSource.Token);
+            }
             while (true)
             {
                 card = _scene.PlayCard(validationState);
