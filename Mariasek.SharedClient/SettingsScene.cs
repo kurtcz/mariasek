@@ -470,6 +470,12 @@ namespace Mariasek.SharedClient
             }
             LoadGameSettings();
         }
+
+        public void UpdateSettings(GameSettings settings)
+        {
+            _settings = settings;
+            SaveGameSettings();
+        }
     }
 }
 

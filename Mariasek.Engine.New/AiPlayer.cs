@@ -962,7 +962,7 @@ namespace Mariasek.Engine.New
                 if (_shouldMeasureThroughput) // only do this 1st time when we calculate most to get a more realistic benchmark
                 {
                     var end = DateTime.Now;
-                    Settings.SimulationsPerRound = progress;
+                    //Settings.SimulationsPerRound = progress;
                     Settings.SimulationsPerRoundPerSecond = (int)((float)progress / Settings.MaxSimulationTimeMs * 1000);
                     //Settings.SimulationsPerRoundPerSecond = (int)((float)progress / (end - start).TotalMilliseconds * 1000);
                     _shouldMeasureThroughput = false;
@@ -1032,7 +1032,7 @@ namespace Mariasek.Engine.New
             KeyValuePair<Card, List<GameComputationResult>> kvp;
             KeyValuePair<Card, GameComputationResult> kvp2;
             bool ignoreThreshold = (_g.GameType & Hra.Kilo) != 0 && TeamMateIndex != -1;    //pokud hraju proti kilu, tak ryskuju cokoli abych snizil ztraty
-            var sigma = Probabilities.Deviation; //1sigma ~ 67%, 2sigma ~95%, 3sigma ~ 99.7%
+            var sigma = Probabilities.Deviation; //1sigma ~ 67%, 2sigma ~ 95%, 3sigma ~ 99.7%
 
             switch (Settings.CardSelectionStrategy)
             {

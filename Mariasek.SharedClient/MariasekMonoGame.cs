@@ -110,11 +110,23 @@ namespace Mariasek.SharedClient
 		/// all of your content.
 		/// </summary>
 		protected override void LoadContent ()
-		{
+        {
             System.Diagnostics.Debug.WriteLine("LoadContent()");
             // Create a new SpriteBatch, which can be used to draw textures.
-            SpriteBatch = new SpriteBatch (GraphicsDevice);
+            SpriteBatch = new SpriteBatch(GraphicsDevice);
 
+            LoadContentImpl();
+
+            MenuScene.Initialize();
+            HistoryScene.Initialize();
+            SettingsScene.Initialize();
+            MainScene.Initialize();
+
+            MenuScene.SetActive();
+        }
+
+        private void LoadContentImpl()
+        {
             CardTextures = Content.Load<Texture2D>("marias");
             ReverseTexture = Content.Load<Texture2D>("revers");
             FontRenderers = new Dictionary<string, FontRenderer>
@@ -125,10 +137,6 @@ namespace Mariasek.SharedClient
                 { "LuckiestGuy32Outl", FontRenderer.GetFontRenderer(this, "LuckiestGuy32Outl.fnt", "LuckiestGuy32Outl_0", "LuckiestGuy32Outl_1", "LuckiestGuy32Outl_2") }
             };
 
-            foreach (var kvp in FontRenderers)
-            {
-                Restarted += kvp.Value.GameRestarted;
-            }
             ClickSound = Content.Load<SoundEffect>("click");
             OnSound = Content.Load<SoundEffect>("on");
             OffSound = Content.Load<SoundEffect>("off");
@@ -141,13 +149,6 @@ namespace Mariasek.SharedClient
             SettingsScene = new SettingsScene(this);
             HistoryScene = new HistoryScene(this);
             MainScene = new MainScene(this);
-
-            MenuScene.Initialize();
-            HistoryScene.Initialize();
-            SettingsScene.Initialize();
-            MainScene.Initialize();
-
-            MenuScene.SetActive();
         }
 
         public int HandlerCount { get; private set; }
@@ -157,6 +158,7 @@ namespace Mariasek.SharedClient
         public void OnRestart()
         {
             Content.Unload();
+            LoadContentImpl();
             if (Restarted != null)
             {
                 Restarted();

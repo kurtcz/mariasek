@@ -34,6 +34,7 @@ namespace Mariasek.SharedClient.GameComponents
         {
             // TODO: Construct any child components here
             ClickSound = Game.ClickSound;
+
         }
 
         /// <summary>
@@ -45,6 +46,14 @@ namespace Mariasek.SharedClient.GameComponents
             // TODO: Add your initialization code here
 
             base.Initialize();
+        }
+
+        private void GameRestarted()
+        {            
+            if (ClickSound != null && ClickSound.IsDisposed)
+            {
+                ClickSound = Game.Content.Load<SoundEffect>(ClickSound.Name);
+            }
         }
 
         /// <summary>

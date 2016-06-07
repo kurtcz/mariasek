@@ -46,7 +46,14 @@ namespace Mariasek.AndroidClient
             base.OnRestart();
             g.OnRestart();
         }
-	}
+
+        protected override void OnResume()
+        {
+            System.Diagnostics.Debug.WriteLine("OnResume()");
+            base.OnResume();
+            g.OnRestart();
+        }
+    }
 }
 
 

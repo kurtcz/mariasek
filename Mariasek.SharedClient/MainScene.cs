@@ -1377,12 +1377,20 @@ namespace Mariasek.SharedClient
             _deck = g.GetDeckFromLastGame();
             SaveDeck();
 
-            _settings.GameTypeSimulationsPerSecond = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
-            _settings.RoundSimulationsPerSecond = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
+            var value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
+            if (value > 0)
+            {
+                _settings.GameTypeSimulationsPerSecond = value;
+            }
+            value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
+            if (value > 0)
+            {
+                _settings.RoundSimulationsPerSecond = value;
+            }
             //_aiConfig["SimulationsPerGameTypePerSecond"].Value = _settings.GameTypeSimulationsPerSecond.ToString();
             //_aiConfig["SimulationsPerRoundPerSecond"].Value = _settings.RoundSimulationsPerSecond.ToString();
             _settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
-            Game.SettingsScene.SaveGameSettings();
+            Game.SettingsScene.UpdateSettings(_settings);
         }
 
         #endregion
