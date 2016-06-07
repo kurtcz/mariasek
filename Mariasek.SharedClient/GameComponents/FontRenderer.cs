@@ -75,17 +75,6 @@ namespace Mariasek.SharedClient.GameComponents
             _game.Restarted += GameRestarted;
         }
 
-        public void GameRestarted()
-        {
-            for(var i = 0; i < _textures.Length; i++)
-            {
-                if (_textures[i].IsDisposed)
-                {
-                    _textures[i] = _game.Content.Load<Texture2D>(_textures[i].Name);
-                }
-            }
-        }
-
         public Rectangle GetBoundsRect(string[] lines)
         {
             var width = 0;

@@ -92,18 +92,8 @@ namespace Mariasek.SharedClient.GameComponents
             Init(_spriteTexture);
         }
 
-        public void GameRestarted()
-        {
-            if (_spriteTexture.IsDisposed)
-            {
-                System.Diagnostics.Debug.WriteLine(string.Format("{0} {1} {2} update texture", Name, Position.X, Position.Y));
-                _spriteTexture = Game.Content.Load<Texture2D>(_spriteTexture.Name);
-            }
-        }
-
         private void Init(Texture2D texture, Rectangle? spriteRectangle = null, Vector2? rotationOrigin = null)
         {
-            Game.Restarted += GameRestarted;
             _spriteTexture = texture;
             //set the sprite clipping rectangle (null signifies no clipping)
             SpriteRectangle = spriteRectangle.HasValue 

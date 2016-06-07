@@ -40,7 +40,6 @@ namespace Mariasek.SharedClient.GameComponents
         {
             // TODO: Construct any child components here
             Game = game;
-            Game.Restarted += GameRestarted;
             _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
             BackgroundTint = Color.White;
             Hide();
@@ -66,14 +65,6 @@ namespace Mariasek.SharedClient.GameComponents
             // TODO: Add your initialization code here
 
             base.Initialize();
-        }
-
-        private void GameRestarted()
-        {
-            if (Background != null && Background.IsDisposed)
-            {
-                Background = Game.Content.Load<Texture2D>(Background.Name);
-            }
         }
 
         /// <summary>

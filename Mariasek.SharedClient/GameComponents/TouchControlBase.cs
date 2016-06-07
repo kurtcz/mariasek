@@ -48,12 +48,9 @@ namespace Mariasek.SharedClient.GameComponents
             base.Initialize();
         }
 
-        private void GameRestarted()
-        {            
-            if (ClickSound != null && ClickSound.IsDisposed)
-            {
-                ClickSound = Game.Content.Load<SoundEffect>(ClickSound.Name);
-            }
+        protected override void GameRestarted()
+        {
+            ClickSound = Game.ClickSound;
         }
 
         /// <summary>

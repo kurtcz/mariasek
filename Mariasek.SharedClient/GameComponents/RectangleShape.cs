@@ -123,20 +123,6 @@ namespace Mariasek.SharedClient.GameComponents
         public RectangleShape(GameComponent parent)
             :base (parent)
         {
-//            var btn = Parent as Button;
-//            var box = Parent as TextBox;
-//            var caption = btn != null 
-//                ? btn.Text 
-//                : (box != null
-//                    ? box.Text 
-//                    : Name);
-//            System.Diagnostics.Debug.WriteLine(string.Format("{0} {1} {2} {3} GameRestarted handler added", caption, Position.X, Position.Y, GetHashCode()));
-            Game.Restarted += GameRestarted;
-        }
-
-        private void GameRestarted()
-        {
-            _textureUpdateNeeded = true;
         }
 
         public void UpdateTexture()

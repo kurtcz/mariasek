@@ -157,8 +157,6 @@ namespace Mariasek.SharedClient
 
         public void OnRestart()
         {
-            Content.Unload();
-            LoadContentImpl();
             if (Restarted != null)
             {
                 Restarted();

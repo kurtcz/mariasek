@@ -98,6 +98,10 @@ namespace Mariasek.SharedClient
             base.Initialize();
         }
 
+        protected virtual void GameRestarted()
+        {
+        }
+
         public virtual void Show()
         {
             IsVisible = true;
