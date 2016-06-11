@@ -515,6 +515,7 @@ namespace Mariasek.Engine.New
             {
                 Order = 10,
                 Description = "snaž se vytlačit trumf",
+                UseThreshold = true, //protoze muzu omylem vytlacit A,X ze spoluhrace
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = Enumerable.Empty<Card>();
@@ -550,17 +551,11 @@ namespace Mariasek.Engine.New
                                                                 i.Suit != _trump &&
                                                                 !hands[player3].HasSuit(i.Suit) &&      //pokud 3. hrac nezna barvu a ma trumfy a
                                                                 hands[player3].HasSuit(_trump) &&
-                                                                ((hands[player2].HasSuit(i.Suit) &&     //2.hrac zna barvu a
-                                                                  (!ValidCards(i, hands[player2]).HasA(i.Suit) &&      //ani jedna z tech co muze hrat neni desitka nebo eso
-                                                                   !ValidCards(i, hands[player2]).HasX(i.Suit)) ||
-                                                                   (ValidCards(i, hands[player2]).HasA(i.Suit) &&      //nebo zna eso v barve, nezna desitku v barve a muze hrat jeste jednu kartu v barve
-                                                                   !ValidCards(i, hands[player2]).HasX(i.Suit) &&
-                                                                   ValidCards(i, hands[player2]).HasAtLeastNCardsOfSuit(i.Suit, 2)) ||
-                                                                   (ValidCards(i, hands[player2]).HasX(i.Suit) &&      //nebo zna desitku v barve, nezna eso v barve a muze hrat jeste jednu kartu v barve
-                                                                   !ValidCards(i, hands[player2]).HasA(i.Suit) &&
-                                                                   ValidCards(i, hands[player2]).HasAtLeastNCardsOfSuit(i.Suit, 2)) ||
+                                                                ((hands[player2].HasSuit(i.Suit) &&     //2.hrac zna barvu a aspon jedna z tech co muze hrat neni desitka nebo eso
+                                                                  ValidCards(i, hands[player2]).Any(j => j.Value != Hodnota.Desitka && 
+                                                                                                         j.Value != Hodnota.Eso)) ||
                                                                  (!hands[player2].HasSuit(i.Suit) &&    //nebo nezna ani barvu ani nema trumf
-                                                                  !hands[player2].HasSuit(_trump)))));
+                                                                  !hands[player2].HasSuit(_trump))));
                     }
                     else
                     {
@@ -570,17 +565,11 @@ namespace Mariasek.Engine.New
                                                                 i.Suit != _trump &&
                                                                 !hands[player2].HasSuit(i.Suit) &&      //pokud 2. hrac nezna barvu a ma trumfy a
                                                                 hands[player2].HasSuit(_trump) &&
-                                                                ((hands[player3].HasSuit(i.Suit) &&     //3.hrac zna barvu a
-                                                                  (!hands[player3].HasA(i.Suit) &&      //ani jedna z nich neni desitka nebo eso
-                                                                   !hands[player3].HasX(i.Suit)) ||
-                                                                   (hands[player3].HasA(i.Suit) &&      //nebo zna eso v barve, nezna desitku v barve a ma jeste aspon jednu kartu v barve
-                                                                   !hands[player3].HasX(i.Suit) &&
-                                                                   hands[player3].HasAtLeastNCardsOfSuit(i.Suit, 2)) ||
-                                                                   (hands[player3].HasX(i.Suit) &&      //nebo zna desitku v barve, nezna eso v barve a ma jeste aspon jednu kartu v barve
-                                                                   !hands[player3].HasA(i.Suit) &&
-                                                                   hands[player3].HasAtLeastNCardsOfSuit(i.Suit, 2)) ||
+                                                                ((hands[player3].HasSuit(i.Suit) &&     //3.hrac zna barvu a aspon jedna z tech co muze hrat neni desitka nebo eso
+                                                                  hands[player3].All(j => ValidCards(i, j, hands[player3]).Any(k => k.Value != Hodnota.Desitka && 
+                                                                                                                                    k.Value != Hodnota.Eso))) ||
                                                                  (!hands[player3].HasSuit(i.Suit) &&    //nebo nezna ani barvu ani nema trumf
-                                                                  !hands[player3].HasSuit(_trump)))));
+                                                                  !hands[player3].HasSuit(_trump))));
                     }
 
                     return cardsToPlay.ToList().RandomOneOrDefault();

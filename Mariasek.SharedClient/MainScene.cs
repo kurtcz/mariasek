@@ -1214,7 +1214,7 @@ namespace Mariasek.SharedClient
                         {
                             _hlasy[0][0], _hlasy[1][0], _hlasy[2][0]
                         };
-                    _trumpLabels[e.GameStartingPlayerIndex].Text = string.Format("{0} {1}", e.GameType, e.TrumpCard != null ? e.TrumpCard.Suit.ToDescription() : "");
+                    _trumpLabels[e.GameStartingPlayerIndex].Text = g.GameType.ToDescription(g.trump);
                     foreach(var trumpLabel in _trumpLabels)
                     {
                         trumpLabel.Hide();
@@ -1460,6 +1460,10 @@ namespace Mariasek.SharedClient
                     foreach(var btn in bidButtons)
                     {
                         btn.Hide();
+                    }
+                    if(g.CurrentRound != null)
+                    {
+                        _trumpLabels[g.GameStartingPlayerIndex].Text = g.GameType.ToDescription(g.trump);
                     }
                     if(g.GameStartingPlayerIndex != 0)
                     {

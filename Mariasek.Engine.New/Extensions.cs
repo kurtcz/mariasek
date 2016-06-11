@@ -48,7 +48,7 @@ namespace Mariasek.Engine.New
             return String.Join(", ", description);
         }
             
-        public static string ToDescription(this Mariasek.Engine.New.Barva b)
+        public static string ToDescription(this Barva b)
         {
             switch (b)
             {
@@ -61,6 +61,42 @@ namespace Mariasek.Engine.New
                 case Barva.Zaludy:
                     return "žaludy";
             }
+            return string.Empty;
+        }
+
+        public static string ToDescription(this Hra gt, Barva? trump)
+        {
+            if ((gt & Hra.Hra) != 0)
+            {
+                if ((gt & Hra.Sedma) != 0)
+                {
+                    return string.Format("Sedma {0}", trump.Value.ToDescription());
+                }
+                else
+                {
+                    return string.Format("Hra {0}", trump.Value.ToDescription());
+                }
+            }
+            else if ((gt & Hra.Kilo) != 0)
+            {
+                if ((gt & Hra.Sedma) != 0)
+                {
+                    return string.Format("Stosedm {0}", trump.Value.ToDescription());
+                }
+                else
+                {
+                    return string.Format("Kilo {0}", trump.Value.ToDescription());
+                }
+            }
+            else if (gt == Hra.Betl)
+            {
+                return "Betl";
+            }
+            else if (gt == Hra.Durch)
+            {
+                return "Durch";
+            }
+
             return string.Empty;
         }
     }

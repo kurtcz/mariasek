@@ -263,7 +263,7 @@ namespace Mariasek.Engine.New
                 switch (GameMultiplier)
                 {
                     case 1:
-                        e.Description = string.Format("Sedma {0}", _g.trump.Value.ToDescription());
+                        e.Description = e.BidMade.ToDescription(_g.trump);
                         break;
                     case 2:
                         e.Description = "Stříhat a holit";
@@ -279,7 +279,7 @@ namespace Mariasek.Engine.New
                 switch (GameMultiplier)
                 {
                     case 1:
-                        e.Description = string.Format("Stosedm {0}", _g.trump.Value.ToDescription());
+                        e.Description = e.BidMade.ToDescription(_g.trump);
                         break;
                     case 2:
                         e.Description = "Stříhat a holit";
@@ -308,7 +308,7 @@ namespace Mariasek.Engine.New
                     switch (GameMultiplier)
                     {
                         case 1:
-                            e.Description = string.Format("Kilo {0}", _g.trump.Value.ToDescription());
+                            e.Description = e.BidMade.ToDescription(_g.trump);
                             break;
                         default:
                             e.Description = MultiplierToString(GameMultiplier);
@@ -321,7 +321,7 @@ namespace Mariasek.Engine.New
                 switch (SevenMultiplier)
                 {
                     case 1:
-                        e.Description = string.Format("Sedma {0}", _g.trump.Value.ToDescription());
+                        e.Description = e.BidMade.ToDescription(_g.trump);
                         break;
                     case 2:
                         e.Description = "Flek na sedmu";
@@ -387,7 +387,7 @@ namespace Mariasek.Engine.New
                     switch (GameMultiplier)
                     {
                         case 1:
-                            e.Description = string.Format("Hra {0}", _g.trump.Value.ToDescription());
+                            e.Description = e.BidMade.ToDescription(_g.trump);
                             break;
                         default:
                             e.Description = MultiplierToString(GameMultiplier);
@@ -400,7 +400,7 @@ namespace Mariasek.Engine.New
                 switch (BetlDurchMultiplier)
                 {
                     case 1:
-                        e.Description = "Betl";
+                        e.Description = e.BidMade.ToDescription(_g.trump);
                         break;
                     default:
                         e.Description = MultiplierToString(BetlDurchMultiplier);
@@ -412,7 +412,7 @@ namespace Mariasek.Engine.New
                 switch (BetlDurchMultiplier)
                 {
                     case 1:
-                        e.Description = "Durch";
+                        e.Description = e.BidMade.ToDescription(_g.trump);
                         break;
                     default:
                         e.Description = MultiplierToString(BetlDurchMultiplier);
