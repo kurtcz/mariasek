@@ -86,13 +86,15 @@ namespace Mariasek.SharedClient
         private CancellationTokenSource _cancellationTokenSource;
         private readonly AutoResetEvent _evt = new AutoResetEvent(false);
         private bool _canSort;
+        private bool _canShowTrumpHint;
         private int _aiMessageIndex;
         public int CurrentStartingPlayerIndex = -1;
         private Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
 
         private string _historyFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.history");
         private string _deckFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.deck");
-        
+        private string _savedGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SavedGame.hra");
+
         private GameState _state;
         private GameSettings _settings;
         private volatile Bidding _bidding;
@@ -109,6 +111,7 @@ namespace Mariasek.SharedClient
             : base(game)
         {
             Game.SettingsScene.SettingsChanged += SettingsChanged;
+            Game.SaveInstanceState += SaveGame;
         }
 
         /// <summary>
@@ -729,6 +732,11 @@ namespace Mariasek.SharedClient
                     _hand.Show();
                     UpdateHand();
                 }
+                else
+                {
+                    _hand.Hide();
+                    _canShowTrumpHint = false;
+                }
 
                 g.PlayGame(_cancellationTokenSource.Token);
             },  _cancellationTokenSource.Token);
@@ -773,7 +781,7 @@ namespace Mariasek.SharedClient
             ClearTable(true);
         }
 
-        private void GameException (object sender, GameExceptionEventArgs e)
+        public void GameException (object sender, GameExceptionEventArgs e)
         {
             var ex = e.e;
             var ae = ex as AggregateException;
@@ -1395,6 +1403,100 @@ namespace Mariasek.SharedClient
 
         #endregion
 
+        public void LoadGame()
+        {
+            if (File.Exists(_savedGameFilePath) && g == null)
+            {
+                SetActive();
+                _cancellationTokenSource = new CancellationTokenSource();
+                _gameTask = Task.Run(() => 
+                {
+                    g = new Mariasek.Engine.New.Game()
+                        {
+                            SkipBidding = false,
+                            BaseBet = _settings.BaseBet
+                        };
+                    g.RegisterPlayers(
+                        new HumanPlayer(g, _aiConfig, this, _settings.HintEnabled) { Name = "Hráč 1" },
+                        new AiPlayer(g, _aiConfig) { Name = "Hráč 2" },
+                        new AiPlayer(g, _aiConfig) { Name = "Hráč 3" }
+                    );
+
+                    using (var fs = File.Open(_savedGameFilePath, FileMode.Open))
+                    {                            
+                        g.LoadGame(fs);
+                    }
+                    g.GameFlavourChosen += GameFlavourChosen;
+                    g.GameTypeChosen += GameTypeChosen;
+                    g.BidMade += BidMade;
+                    g.CardPlayed += CardPlayed;
+                    g.RoundStarted += RoundStarted;
+                    g.RoundFinished += RoundFinished;
+                    g.GameFinished += GameFinished;
+                    g.GameWonPrematurely += GameWonPrematurely;
+                    g.GameException += GameException;
+                    g.players[1].GameComputationProgress += GameComputationProgress;
+                    g.players[2].GameComputationProgress += GameComputationProgress;
+                    _firstTimeGameFlavourChosen = true;
+                    _trumpCardChosen = null;
+
+                    _state = GameState.NotPlaying;
+
+                    CurrentStartingPlayerIndex = g.GameStartingPlayerIndex;
+                    _settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
+                    Game.SettingsScene.SaveGameSettings();
+                    _canSort = CurrentStartingPlayerIndex != 0;
+
+                    ClearTable(true);
+                    HideMsgLabel();
+                    foreach(var btn in gtButtons)
+                    {
+                        btn.Hide();
+                    }
+                    foreach(var btn in gfButtons)
+                    {
+                        btn.Hide();
+                    }
+                    foreach(var btn in bidButtons)
+                    {
+                        btn.Hide();
+                    }
+                    if(g.GameStartingPlayerIndex != 0)
+                    {
+                        g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, false);
+                        ShowThinkingMessage();
+                        _hand.Show();
+                        UpdateHand();
+                    }
+                    else
+                    {
+                        _hand.Hide();
+                        _canShowTrumpHint = false;
+                    }
+                    File.Delete(_savedGameFilePath);
+                    g.PlayGame(_cancellationTokenSource.Token);
+                },  _cancellationTokenSource.Token);
+            }
+        }
+
+        public void SaveGame()
+        {
+            if (g != null && g.IsRunning)
+            {
+                try
+                {
+                    using (var fs = File.Open(_savedGameFilePath, FileMode.Create))
+                    {
+                        g.SaveGame(fs);
+                    }
+                }
+                catch (Exception e)
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("Cannot save game\n{0}", e.Message));
+                }
+            }
+        }
+
         public void UpdateHand(bool flipCardsUp = false, int cardsNotRevealed = 0, Card cardToHide = null)
         {
             _hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide);
@@ -1444,8 +1546,7 @@ namespace Mariasek.SharedClient
             if (_settings.HintEnabled)
             {
                 //dame cas aby se nejdriv karty vykreslily a az potom oznacime trumfovou kartu
-                Task.Delay(1000);
-                _hand.Invoke(() => _hand.HighlightCard(trumpCard));
+                _hand.WaitUntil(() => _canShowTrumpHint).Invoke(() => _hand.HighlightCard(trumpCard));
             }
         }
 

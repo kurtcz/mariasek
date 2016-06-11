@@ -56,6 +56,10 @@ namespace Mariasek.SharedClient
 
         public void CancelAiTask()
         {
+            if (_aiTask != null && _aiTask.Status == TaskStatus.Faulted)
+            {
+                _scene.GameException(this, new GameExceptionEventArgs(){ e = _aiTask.Exception });
+            }
             if (_aiTask != null && _aiTask.Status == TaskStatus.Running)
             {
                 _cancellationTokenSource.Cancel();

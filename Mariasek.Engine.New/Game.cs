@@ -305,95 +305,103 @@ namespace Mariasek.Engine.New
 #if !PORTABLE
         public void LoadGame(string filename)
         {
+            using (var fileStream = new FileStream(filename, FileMode.Open))
+            {
+                LoadGame(fileStream);
+            }
+        }
+#endif
+
+        public void LoadGame(Stream fileStream)
+        {
             _log.Init();
             _log.Info("********");
-
+#if !PORTABLE
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 #if DEBUG
             const string buildConfiguration = "DEBUG";
 #else
             const string buildConfiguration = "RELEASE";
 #endif
-            IsRunning = true;
             _log.InfoFormat("Assembly version: {0} ({1})", version, buildConfiguration);
-            _log.InfoFormat("**Loading game {0}**\n", Path.GetFileName(filename));
+#endif
+            //_log.InfoFormat("**Loading game {0}**\n", Path.GetFileName(filename));
+            IsRunning = true;
 
-            using (var fileStream = new FileStream(filename, FileMode.Open))
+            var serializer = new XmlSerializer(typeof(GameDto));
+            var gameData = (GameDto)serializer.Deserialize(fileStream);
+
+            RoundNumber = 0;
+            trump = gameData.Trumf;
+            if (gameData.Typ.HasValue)
             {
-                var serializer = new XmlSerializer(typeof(GameDto));
-                var gameData = (GameDto)serializer.Deserialize(fileStream);
+                GameType = gameData.Typ.Value;
+            }
+            GameStartingPlayerIndex = (int) gameData.Voli;
+            OriginalGameStartingPlayerIndex = GameStartingPlayerIndex;
+            _roundStartingPlayer = players[(int)gameData.Zacina];
 
-                RoundNumber = 0;
-                trump = gameData.Trumf;
-                if (gameData.Typ.HasValue)
-                {
-                    GameType = gameData.Typ.Value;
-                }
-                GameStartingPlayerIndex = (int) gameData.Voli;
-                OriginalGameStartingPlayerIndex = GameStartingPlayerIndex;
-                _roundStartingPlayer = players[(int)gameData.Zacina];
+            Author = gameData.Autor;
+            Comment = gameData.Komentar;
+            players[0].Hand.AddRange(gameData.Hrac1.Select(i => new Card(i.Barva, i.Hodnota)));
+            players[1].Hand.AddRange(gameData.Hrac2.Select(i => new Card(i.Barva, i.Hodnota)));
+            players[2].Hand.AddRange(gameData.Hrac3.Select(i => new Card(i.Barva, i.Hodnota)));
 
-                Author = gameData.Autor;
-                Comment = gameData.Komentar;
-                players[0].Hand.AddRange(gameData.Hrac1.Select(i => new Card(i.Barva, i.Hodnota)));
-                players[1].Hand.AddRange(gameData.Hrac2.Select(i => new Card(i.Barva, i.Hodnota)));
-                players[2].Hand.AddRange(gameData.Hrac3.Select(i => new Card(i.Barva, i.Hodnota)));
+            if (gameData.Talon == null)
+            {
+                gameData.Talon = new Karta[0];
+            }
+            talon = new List<Card>(gameData.Talon.Select(i => new Card(i.Barva, i.Hodnota)));
 
-                if (gameData.Talon == null)
-                {
-                    gameData.Talon = new Karta[0];
-                }
-                talon = new List<Card>(gameData.Talon.Select(i => new Card(i.Barva, i.Hodnota)));
+            if (gameData.Stychy == null)
+            {
+                gameData.Stychy = new Stych[0];
+            }
 
-                if (gameData.Stychy == null)
-                {
-                    gameData.Stychy = new Stych[0];
-                }
+            players[0].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null).Select(i => new Card(i.Hrac1.Barva, i.Hrac1.Hodnota)));
+            players[1].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac2 != null).Select(i => new Card(i.Hrac2.Barva, i.Hrac2.Hodnota)));
+            players[2].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac3 != null).Select(i => new Card(i.Hrac3.Barva, i.Hrac3.Hodnota)));
 
-                players[0].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null).Select(i => new Card(i.Hrac1.Barva, i.Hrac1.Hodnota)));
-                players[1].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac2 != null).Select(i => new Card(i.Hrac2.Barva, i.Hrac2.Hodnota)));
-                players[2].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac3 != null).Select(i => new Card(i.Hrac3.Barva, i.Hrac3.Hodnota)));
+            InitPlayers();
+            OnGameLoaded();
 
-                InitPlayers();
-                OnGameLoaded();
+            rounds = new Round[NumRounds];
+            foreach (var stych in gameData.Stychy.Where(i => i.Hrac1 != null && i.Hrac2 != null && i.Hrac3 != null).OrderBy(i => i.Kolo))
+            {
+                RoundNumber++;
+                var cards = new[] {stych.Hrac1, stych.Hrac2, stych.Hrac3};
+                
+                var player1 = (int) stych.Zacina;
+                var player2 = ((int) stych.Zacina + 1) % NumPlayers;
+                var player3 = ((int) stych.Zacina + 2) % NumPlayers;
+                
+                var c1 = new Card(cards[player1].Barva, cards[player1].Hodnota);
+                var c2 = new Card(cards[player2].Barva, cards[player2].Hodnota);
+                var c3 = new Card(cards[player3].Barva, cards[player3].Hodnota);
+                var r = new Round(this, players[player1], c1, c2, c3, RoundNumber);  //inside this constructor we replay the round and call all event handlers to ensure that all players can update their ai model
 
-                rounds = new Round[NumRounds];
-                foreach (var stych in gameData.Stychy.Where(i => i.Hrac1 != null && i.Hrac2 != null && i.Hrac3 != null).OrderBy(i => i.Kolo))
-                {
-                    RoundNumber++;
-                    var cards = new[] {stych.Hrac1, stych.Hrac2, stych.Hrac3};
-                    
-                    var player1 = (int) stych.Zacina;
-                    var player2 = ((int) stych.Zacina + 1) % NumPlayers;
-                    var player3 = ((int) stych.Zacina + 2) % NumPlayers;
-                    
-                    var c1 = new Card(cards[player1].Barva, cards[player1].Hodnota);
-                    var c2 = new Card(cards[player2].Barva, cards[player2].Hodnota);
-                    var c3 = new Card(cards[player3].Barva, cards[player3].Hodnota);
-                    var r = new Round(this, players[player1], c1, c2, c3, RoundNumber);  //inside this constructor we replay the round and call all event handlers to ensure that all players can update their ai model
+                rounds[stych.Kolo - 1] = r;
 
-                    rounds[stych.Kolo - 1] = r;
+                players[player1].Hand.Remove(c1);
+                players[player2].Hand.Remove(c2);
+                players[player3].Hand.Remove(c3);
 
-                    players[player1].Hand.Remove(c1);
-                    players[player2].Hand.Remove(c2);
-                    players[player3].Hand.Remove(c3);
-
-                    OnRoundFinished(r);
-                }
-                RoundNumber = gameData.Kolo;
-                if(RoundNumber > 0)
-                {
-                    players[GameStartingPlayerIndex].Hand.Sort();   //voliciho hrace utridime pokud uz zvolil trumf
-                }
-                players[(GameStartingPlayerIndex + 1) % NumPlayers].Hand.Sort();
-                players[(GameStartingPlayerIndex + 2) % NumPlayers].Hand.Sort();
-                if(RoundNumber == 0)
-                {
-                    Rewind();
-                }
+                OnRoundFinished(r);
+            }
+            RoundNumber = gameData.Kolo;
+            if(RoundNumber > 0)
+            {
+                players[GameStartingPlayerIndex].Hand.Sort();   //voliciho hrace utridime pokud uz zvolil trumf
+            }
+            players[(GameStartingPlayerIndex + 1) % NumPlayers].Hand.Sort();
+            players[(GameStartingPlayerIndex + 2) % NumPlayers].Hand.Sort();
+            if(RoundNumber == 0)
+            {
+                Rewind();
             }
         }
 
+#if !PORTABLE
         public void SaveGame(string filename, bool saveDebugInfo = false)
         {
             using (var fileStream = new FileStream(filename, FileMode.Create))
@@ -412,7 +420,15 @@ namespace Mariasek.Engine.New
                 {
                     //save after an exception (unfinished round)
                     startingPlayerIndex = CurrentRound.player1.PlayerIndex;
-                    Comment = string.Format("Exception has been thrown at round {0}", CurrentRound.number);
+                    //Comment = string.Format("Exception has been thrown at round {0}", CurrentRound.number);
+                    if (CurrentRound.c1 != null)
+                    {
+                        CurrentRound.player1.Hand.Add(CurrentRound.c1);
+                    }
+                    if (CurrentRound.c2 != null)
+                    {
+                        CurrentRound.player2.Hand.Add(CurrentRound.c2);
+                    }
                     RoundNumber--;
                 }
                 else

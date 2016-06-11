@@ -149,9 +149,19 @@ namespace Mariasek.SharedClient
             SettingsScene = new SettingsScene(this);
             HistoryScene = new HistoryScene(this);
             MainScene = new MainScene(this);
+<<<<<<< 623c0db67352e6b9b388ce230306f5476f37697d
+=======
+
+            MenuScene.Initialize();
+            HistoryScene.Initialize();
+            SettingsScene.Initialize();
+            MainScene.Initialize();
+
+            MenuScene.SetActive();
+            MainScene.LoadGame();
+>>>>>>> Fix in advising trump card, LoadGame() implemented
         }
 
-        public int HandlerCount { get; private set; }
         public delegate void RestartedEventHandler();
         public event RestartedEventHandler Restarted;
 
@@ -160,6 +170,16 @@ namespace Mariasek.SharedClient
             if (Restarted != null)
             {
                 Restarted();
+            }
+        }
+        public delegate void SaveInstanceStateEventHandler();
+        public event SaveInstanceStateEventHandler SaveInstanceState;
+
+        public void OnSaveInstanceState()
+        {
+            if (SaveInstanceState != null)
+            {
+                SaveInstanceState();
             }
         }
 

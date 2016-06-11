@@ -418,7 +418,7 @@ namespace Mariasek.Engine.New
             var source = Settings.Cheat
                 ? new [] { GetPlayersHandsAndTalon() }
                 : null;
-            var tempSource = new List<Hand[]>();
+            var tempSource = new ConcurrentQueue<Hand[]>();
 
             //pokud volim hru tak se ted rozhoduju jaky typ hry hrat (hra, betl, durch)
             //pokud nevolim hru, tak bud simuluju betl a durch nebo konkretni typ hry
@@ -435,7 +435,7 @@ namespace Mariasek.Engine.New
                     ThrowIfCancellationRequested();
                     if (source == null)
                     {
-                        tempSource.Add(hh);
+                        tempSource.Enqueue(hh);
                     }
                     if((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     {
@@ -480,7 +480,7 @@ namespace Mariasek.Engine.New
                     ThrowIfCancellationRequested();
                     if (source == null)
                     {
-                        tempSource.Add(hh);
+                        tempSource.Enqueue(hh);
                     }
                     if((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     {
@@ -517,7 +517,7 @@ namespace Mariasek.Engine.New
                     ThrowIfCancellationRequested();
                     if (source == null)
                     {
-                        tempSource.Add(hands);
+                        tempSource.Enqueue(hands);
                     }
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseDurchTalon, GameStartingPlayerIndex);
 
@@ -955,7 +955,7 @@ namespace Mariasek.Engine.New
 
                     if (computationResult.Rule == AiRule.PlayTheOnlyValidCard || canSkipSimulations)    //We have only one card to play, so there is really no need to compute anything
                     {
-                            OnGameComputationProgress(new GameComputationProgressEventArgs { Current = simulations, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0});
+                        OnGameComputationProgress(new GameComputationProgressEventArgs { Current = simulations, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0});
                         loopState.Stop();
                     }
                 });

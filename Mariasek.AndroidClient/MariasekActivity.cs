@@ -34,7 +34,9 @@ namespace Mariasek.AndroidClient
             System.Diagnostics.Debug.WriteLine("OnCreate()");
 			base.OnCreate (bundle);
 
-			// Create our OpenGL view, and display it
+            //Load: _counter = outState.GetInt ("click_count", 0);
+
+            // Create our OpenGL view, and display it
 			g = new MariasekMonoGame ();
             SetContentView (g.Services.GetService<View>());
             g.Run();
@@ -47,6 +49,7 @@ namespace Mariasek.AndroidClient
             g.OnRestart();
         }
 
+<<<<<<< 623c0db67352e6b9b388ce230306f5476f37697d
         protected override void OnResume()
         {
             System.Diagnostics.Debug.WriteLine("OnResume()");
@@ -54,6 +57,15 @@ namespace Mariasek.AndroidClient
             g.OnRestart();
         }
     }
+=======
+        protected override void OnSaveInstanceState (Bundle outState)
+        {
+            //Save: outState.PutInt ("click_count", _counter);
+            g.OnSaveInstanceState();
+            base.OnSaveInstanceState (outState);    
+        }
+	}
+>>>>>>> Fix in advising trump card, LoadGame() implemented
 }
 
 
