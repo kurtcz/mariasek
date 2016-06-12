@@ -49,15 +49,6 @@ namespace Mariasek.AndroidClient
             g.OnRestart();
         }
 
-<<<<<<< 623c0db67352e6b9b388ce230306f5476f37697d
-        protected override void OnResume()
-        {
-            System.Diagnostics.Debug.WriteLine("OnResume()");
-            base.OnResume();
-            g.OnRestart();
-        }
-    }
-=======
         protected override void OnSaveInstanceState (Bundle outState)
         {
             //Save: outState.PutInt ("click_count", _counter);
@@ -65,7 +56,6 @@ namespace Mariasek.AndroidClient
             base.OnSaveInstanceState (outState);    
         }
 	}
->>>>>>> Fix in advising trump card, LoadGame() implemented
 }
 
 

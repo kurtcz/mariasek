@@ -72,7 +72,6 @@ namespace Mariasek.SharedClient.GameComponents
                 char c = (char)fontCharacter.ID;
                 _characterMap.Add(c, fontCharacter);
             }
-            _game.Restarted += GameRestarted;
         }
 
         public Rectangle GetBoundsRect(string[] lines)

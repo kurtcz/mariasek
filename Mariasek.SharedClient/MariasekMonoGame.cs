@@ -114,19 +114,6 @@ namespace Mariasek.SharedClient
             System.Diagnostics.Debug.WriteLine("LoadContent()");
             // Create a new SpriteBatch, which can be used to draw textures.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-
-            LoadContentImpl();
-
-            MenuScene.Initialize();
-            HistoryScene.Initialize();
-            SettingsScene.Initialize();
-            MainScene.Initialize();
-
-            MenuScene.SetActive();
-        }
-
-        private void LoadContentImpl()
-        {
             CardTextures = Content.Load<Texture2D>("marias");
             ReverseTexture = Content.Load<Texture2D>("revers");
             FontRenderers = new Dictionary<string, FontRenderer>
@@ -149,8 +136,6 @@ namespace Mariasek.SharedClient
             SettingsScene = new SettingsScene(this);
             HistoryScene = new HistoryScene(this);
             MainScene = new MainScene(this);
-<<<<<<< 623c0db67352e6b9b388ce230306f5476f37697d
-=======
 
             MenuScene.Initialize();
             HistoryScene.Initialize();
@@ -159,7 +144,6 @@ namespace Mariasek.SharedClient
 
             MenuScene.SetActive();
             MainScene.LoadGame();
->>>>>>> Fix in advising trump card, LoadGame() implemented
         }
 
         public delegate void RestartedEventHandler();
