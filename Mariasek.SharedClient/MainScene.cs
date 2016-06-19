@@ -94,6 +94,8 @@ namespace Mariasek.SharedClient
         private string _historyFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.history");
         private string _deckFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.deck");
         private string _savedGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SavedGame.hra");
+        private string _newGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_temp.hra");
+        private string _errorFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_error.hra");
 
         private GameState _state;
         private GameSettings _settings;
@@ -540,6 +542,13 @@ namespace Mariasek.SharedClient
             ClearTable(true);
         }
 
+        private static Stream GetFileStream(string filename)
+        {
+            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), filename);
+
+            return new FileStream(path, FileMode.Create);
+        }
+
         public void LoadHistory()
         {
             var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
@@ -654,10 +663,15 @@ namespace Mariasek.SharedClient
         {
             CancelRunningTask();
             _gameTask = Task.Run(() => {
+                if (File.Exists(_errorFilePath))
+                {
+                    File.Delete(_errorFilePath);
+                }
                 g = new Mariasek.Engine.New.Game()
                 {
                     SkipBidding = false,
-                    BaseBet = _settings.BaseBet
+                    BaseBet = _settings.BaseBet,
+                    GetFileStream = GetFileStream
                 };
                 g.RegisterPlayers(
                     new HumanPlayer(g, _aiConfig, this, _settings.HintEnabled) { Name = "Hráč 1" },
@@ -803,7 +817,14 @@ namespace Mariasek.SharedClient
                 return;
             }                
             _msgLabel.HorizontalAlign = HorizontalAlignment.Right;
-            ShowMsgLabel(string.Format("Chyba:\n{0}\n{1}", ex.Message, ex.StackTrace), false);
+
+            var msg = string.Format("Chyba:\n{0}\n{1}", ex.Message, ex.StackTrace);
+
+            ShowMsgLabel(msg, false);
+            if (Game.EmailSender != null)
+            {
+                Game.EmailSender.SendEmail(new[] { "tnemec78@gmail.com" }, "Mariasek crash report", msg, new[] { _newGameFilePath, _errorFilePath });
+            }
         }
 
         public void GameComputationProgress(object sender, GameComputationProgressEventArgs e)
@@ -1011,8 +1032,8 @@ namespace Mariasek.SharedClient
                 {
                     ShowMsgLabel("Vyber trumfovou kartu", false);
                     _state = GameState.ChooseTrump;
-                    _hand.Show();
                     UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
+                    _hand.Show();
                 }, null);
             WaitForUIThread();
             return _cardClicked;

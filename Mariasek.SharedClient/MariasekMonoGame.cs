@@ -41,11 +41,17 @@ namespace Mariasek.SharedClient
         public SoundEffect ClickSound { get; private set; }
         public SoundEffect OnSound { get; private set; }
         public SoundEffect OffSound { get; private set; }
-
+        public IEmailSender EmailSender { get; private set; }
         public readonly Vector2 CardScaleFactor;
 
         public List<Mariasek.Engine.New.MoneyCalculatorBase> Money = new List<Mariasek.Engine.New.MoneyCalculatorBase>();
-		public MariasekMonoGame ()
+
+        public MariasekMonoGame()
+            : this(null)
+        {
+        }
+
+        public MariasekMonoGame (IEmailSender emailSender)
 		{
             System.Diagnostics.Debug.WriteLine("MariasekMonoGame()");
 			Graphics = new GraphicsDeviceManager (this);
@@ -56,6 +62,7 @@ namespace Mariasek.SharedClient
 											 DisplayOrientation.LandscapeLeft;	
             Graphics.ApplyChanges();
             CardScaleFactor = new Vector2(1.2f, 1.2f);
+            EmailSender = emailSender;
 		}
 
         public static string Version

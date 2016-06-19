@@ -59,7 +59,7 @@ namespace Mariasek.Engine.New
         public static Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
 #else
         public static Version Version { get { return typeof(Game).GetTypeInfo().Assembly.GetName().Version; } }
-        public static Func<string, Stream> GetFileStream { get; set; }
+        public Func<string, Stream> GetFileStream { get; set; }
 #endif
         public string Comment { get; set; }
 
@@ -298,7 +298,10 @@ namespace Mariasek.Engine.New
             var programFolder = System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
             SaveGame(System.IO.Path.Combine(programFolder, "_temp.hra"));
 #else
-            SaveGame(GetFileStream("_temp.hra"));
+            using (var fs = GetFileStream("_temp.hra"))
+            {
+                SaveGame(fs);
+            }
 #endif        
         }
 
@@ -559,7 +562,7 @@ namespace Mariasek.Engine.New
                     //vlastni hra
                     var roundWinner = _roundStartingPlayer;
 
-                    if(PlayerWinsGame(GameStartingPlayer))
+                    if (PlayerWinsGame(GameStartingPlayer))
                     {
                         OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = roundWinner.Hand });
                         CompleteUnfinishedRounds();
@@ -614,12 +617,22 @@ namespace Mariasek.Engine.New
                 else
                 {
                     _log.Error("Exception in PlayGame()", ex);
-                    OnGameException(new GameExceptionEventArgs { e = ex });
+                    try
+                    {
 #if !PORTABLE
-                    SaveGame(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss")));
+                        SaveGame(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss")));
 #else
-                    SaveGame(GetFileStream(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss"))));
+                        //SaveGame(GetFileStream(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss"))));
+                        using (var fs = GetFileStream("_error.hra"))
+                        {
+                            SaveGame(fs);
+                        }
 #endif
+                    }
+                    catch(Exception)
+                    {
+                    }
+                    OnGameException(new GameExceptionEventArgs { e = ex });
                     throw;
                 }
             }

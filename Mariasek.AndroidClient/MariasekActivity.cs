@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Threading.Tasks;
 
 using Android.App;
@@ -25,7 +27,7 @@ namespace Mariasek.AndroidClient
 		ConfigurationChanges = ConfigChanges.Orientation |
 		ConfigChanges.KeyboardHidden |
 		ConfigChanges.Keyboard)]
-	public class MariasekActivity : AndroidGameActivity
+	public class MariasekActivity : AndroidGameActivity, IEmailSender
 	{
         MariasekMonoGame g;
 
@@ -37,7 +39,7 @@ namespace Mariasek.AndroidClient
             //Load: _counter = outState.GetInt ("click_count", 0);
 
             // Create our OpenGL view, and display it
-			g = new MariasekMonoGame ();
+			g = new MariasekMonoGame (this);
             SetContentView (g.Services.GetService<View>());
             g.Run();
 		}
@@ -54,6 +56,35 @@ namespace Mariasek.AndroidClient
             //Save: outState.PutInt ("click_count", _counter);
             g.OnSaveInstanceState();
             base.OnSaveInstanceState (outState);    
+        }
+
+        public void SendEmail(string[] recipients, string subject, string body, string[] attachments)
+        {
+            var email = new Intent(Android.Content.Intent.ActionSendMultiple);
+            var uris = new List<Android.Net.Uri>();
+
+            email.SetType("text/plain");
+            email.PutExtra(Android.Content.Intent.ExtraEmail, recipients);
+            email.PutExtra(Android.Content.Intent.ExtraSubject, subject);
+            email.PutExtra(Android.Content.Intent.ExtraText, body);
+            foreach (var attachment in attachments)
+            {
+                //copy attachment to external storage where an email application can have access to it
+                var externalPath = global::Android.OS.Environment.ExternalStorageDirectory.AbsolutePath;
+                var path = Path.Combine(externalPath, Path.GetFileName(attachment));
+                var file = new Java.IO.File(path);
+                var uri = Android.Net.Uri.FromFile(file);
+
+                if(!File.Exists(attachment))
+                {
+                    continue;
+                }
+                File.Copy(attachment, path, true);
+                file.SetReadable(true, false);
+                uris.Add(uri);
+            }
+            email.PutParcelableArrayListExtra(Intent.ExtraStream, uris.ToArray());
+            StartActivity(email);
         }
 	}
 }
