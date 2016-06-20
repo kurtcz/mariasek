@@ -65,6 +65,7 @@ namespace Mariasek.SharedClient
         private ToggleButton flekBtn;
         private ToggleButton sedmaBtn;
         private ToggleButton kiloBtn;
+        private Button _hintBtn;
         private Label _trumpLabel1, _trumpLabel2, _trumpLabel3;
         private Label[] _trumpLabels;
         private Label _msgLabel;
@@ -97,6 +98,7 @@ namespace Mariasek.SharedClient
         private string _newGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_temp.hra");
         private string _errorFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_error.hra");
 
+        private Action HintBtnFunc;
         private GameState _state;
         private GameSettings _settings;
         private volatile Bidding _bidding;
@@ -227,10 +229,10 @@ namespace Mariasek.SharedClient
             {
                 new []
                 {
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f), IsEnabled = false, Name="Hlasy11", ZIndex = 1 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, Game.VirtualScreenHeight / 2f), IsEnabled = false, Name="Hlasy12", ZIndex = 2 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, Game.VirtualScreenHeight / 2f), IsEnabled = false, Name="Hlasy13", ZIndex = 3 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, Game.VirtualScreenHeight / 2f), IsEnabled = false, Name="Hlasy14", ZIndex = 4 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f + 20), IsEnabled = false, Name="Hlasy11", ZIndex = 1 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, Game.VirtualScreenHeight / 2f + 20), IsEnabled = false, Name="Hlasy12", ZIndex = 2 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, Game.VirtualScreenHeight / 2f + 20), IsEnabled = false, Name="Hlasy13", ZIndex = 3 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, Game.VirtualScreenHeight / 2f + 20), IsEnabled = false, Name="Hlasy14", ZIndex = 4 },
                 },
                 new []
                 {
@@ -279,6 +281,16 @@ namespace Mariasek.SharedClient
                 ZIndex = 100
             };
             _menuBtn.Click += MenuBtnClicked;
+            _hintBtn = new Button(this)
+            {
+                Text = "?",
+                Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 30),
+                Width = 50,
+                TextColor = Color.SaddleBrown,
+                BackgroundColor = Color.White,
+                BorderColor = Color.SaddleBrown
+            };
+            _hintBtn.Click += HintBtnClicked;
             _okBtn = new Button(this)
             {
                 Text = "OK",
@@ -740,6 +752,15 @@ namespace Mariasek.SharedClient
                     btn.Hide();
                 }
                 _hand.ClearOperations();
+                _hintBtn.IsEnabled = false;
+                if(_settings.HintEnabled)
+                {
+                    _hintBtn.Show();
+                }
+                else
+                {
+                    _hintBtn.Hide();
+                }
                 if (g.GameStartingPlayerIndex != 0)
                 {
                     g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, false);
@@ -844,6 +865,12 @@ namespace Mariasek.SharedClient
         public void MenuBtnClicked(object sender)
         {
             Game.MenuScene.SetActive();
+        }
+
+        public void HintBtnClicked(object sender)
+        {
+            HintBtnFunc();
+            _hintBtn.IsEnabled = false;
         }
 
         public void CardClicked(object sender)
@@ -1028,6 +1055,7 @@ namespace Mariasek.SharedClient
         {
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = true;
+            _hintBtn.IsEnabled = false;
             _synchronizationContext.Send(_ =>
                 {
                     ShowMsgLabel("Vyber trumfovou kartu", false);
@@ -1043,6 +1071,7 @@ namespace Mariasek.SharedClient
         {
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = true;
+            _hintBtn.IsEnabled = false;
             _synchronizationContext.Send(_ =>
                 {
                     _talon = new List<Card>();
@@ -1060,6 +1089,7 @@ namespace Mariasek.SharedClient
         {
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = false;
+            _hintBtn.IsEnabled = false;
             _synchronizationContext.Send(_ =>
             {
                 UpdateHand(); //abych nevidel karty co jsem hodil do talonu                
@@ -1097,6 +1127,7 @@ namespace Mariasek.SharedClient
         {
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = false;
+            _hintBtn.IsEnabled = false;
             _synchronizationContext.Send(_ =>
                 {
                     ChooseGameTypeInternal(validGameTypes);
@@ -1137,6 +1168,7 @@ namespace Mariasek.SharedClient
         {
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = true;
+            _hintBtn.IsEnabled = false;
             _synchronizationContext.Send(_ =>
                 {
                     _state = GameState.Play;
@@ -1381,7 +1413,7 @@ namespace Mariasek.SharedClient
 
             ClearTable(true);
             _hand.UpdateHand(new Card[0]);
-
+            _hintBtn.IsEnabled = false;
             //multi-line string needs to be split into two strings separated by a tab on each line
             var leftMessage = new StringBuilder();
             var rightMessage = new StringBuilder();
@@ -1559,6 +1591,17 @@ namespace Mariasek.SharedClient
                     _progress1.Hide();
                 }
             }
+            if (_hintBtn != null)
+            {
+                if (_settings.HintEnabled)
+                {
+                    _hintBtn.Show();
+                }
+                else
+                {
+                    _hintBtn.Hide();
+                }
+            }
             SortHand(null);
             SoundEffect.MasterVolume = _settings.SoundEnabled ? 1f : 0f;
         }
@@ -1567,8 +1610,12 @@ namespace Mariasek.SharedClient
         {
             if (_settings.HintEnabled)
             {
-                //dame cas aby se nejdriv karty vykreslily a az potom oznacime trumfovou kartu
-                _hand.WaitUntil(() => _canShowTrumpHint).Invoke(() => _hand.HighlightCard(trumpCard));
+                _hintBtn.IsEnabled = true;
+                HintBtnFunc = () => _hand.HighlightCard(trumpCard);
+                //{
+                //    //dame cas aby se nejdriv karty vykreslily a az potom oznacime trumfovou kartu
+                //    _hand.WaitUntil(() => _canShowTrumpHint).Invoke(() => _hand.HighlightCard(trumpCard));
+                //};
             }
         }
 
@@ -1576,37 +1623,35 @@ namespace Mariasek.SharedClient
         {
             if (_settings.HintEnabled)
             {
-                ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", flavour.ToDescription()), false);
+                _hintBtn.IsEnabled = true;
+                HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", flavour.ToDescription()), false);
             }
         }
 
         public void SuggestGameType(string gameType)
         {
-            if (_settings.HintEnabled)
-            {
-                ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", gameType), false);
-            }
+            _hintBtn.IsEnabled = true;
+            HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", gameType), false);
         }
 
         public void SuggestBidsAndDoubles(string bid)
         {
-            if (_settings.HintEnabled)
-            {
-                ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", bid), false);
-            }
+            _hintBtn.IsEnabled = true;
+            HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", bid), false);
         }
 
         public void SuggestCardToPlay(Card cardToPlay, string hint)
         {
-            if (_settings.HintEnabled)
-            {                
+            _hintBtn.IsEnabled = true;
+            HintBtnFunc = () =>
+            {
                 ShowMsgLabel(hint, false);
                 if (!_hand.HighlightCard(cardToPlay))
                 {
                     var msg = string.Format("Chyba simulace: hráč nemá {0}", cardToPlay);
                     ShowMsgLabel(msg, false);
                 }
-            }
+            };
         }
 
         public void SortHand(Card cardToHide = null)
