@@ -136,13 +136,13 @@ namespace Mariasek.SharedClient.GameComponents
                 }
                 else
                 {
+                    if (!_sprites[i].IsVisible)
+                    {
+                        _sprites[i].Show();
+                    }
                     if (i < hand.Count() - cardsNotRevealed)
                     {
-                        if (!_sprites[i].IsVisible)
-                        {
-                            _sprites[i].Show();
-                        }
-                        else if (!_sprites[i].IsFaceUp)
+                        if (!_sprites[i].IsFaceUp)
                         {
                             _sprites[i].FlipToFront();
                         }

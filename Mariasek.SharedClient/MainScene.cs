@@ -739,7 +739,8 @@ namespace Mariasek.SharedClient
                 {
                     btn.Hide();
                 }
-                if(g.GameStartingPlayerIndex != 0)
+                _hand.ClearOperations();
+                if (g.GameStartingPlayerIndex != 0)
                 {
                     g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, false);
                     ShowThinkingMessage();
@@ -751,7 +752,6 @@ namespace Mariasek.SharedClient
                     _hand.Hide();
                     _canShowTrumpHint = false;
                 }
-
                 g.PlayGame(_cancellationTokenSource.Token);
             },  _cancellationTokenSource.Token);
         }
@@ -1032,8 +1032,8 @@ namespace Mariasek.SharedClient
                 {
                     ShowMsgLabel("Vyber trumfovou kartu", false);
                     _state = GameState.ChooseTrump;
-                    UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
                     _hand.Show();
+                    UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
                 }, null);
             WaitForUIThread();
             return _cardClicked;
@@ -1525,10 +1525,7 @@ namespace Mariasek.SharedClient
         public void UpdateHand(bool flipCardsUp = false, int cardsNotRevealed = 0, Card cardToHide = null)
         {
             _hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide);
-            _hand.Invoke(() =>
-                {                        
-                    _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
-                });
+            _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
             if(flipCardsUp)
             {
                  _hand.WaitUntil(() => !_hand.SpritesBusy)
