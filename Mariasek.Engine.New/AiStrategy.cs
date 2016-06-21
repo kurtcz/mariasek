@@ -635,6 +635,7 @@ namespace Mariasek.Engine.New
                         var count = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka).Count(i => i.Suit == barva);
 
                         //pokud bych hranim barvy vytlacil ze spoluhrace A nebo X ktere by souper sebral trumfem tak barvu nehraj
+                        //pokud bych hranim barvy vytlacil ze spoluhrace trumf ktery by souper nebral trumfem a zatoven by nehral A, X tak bravu nehraj
                         if (TeamMateIndex == player2)
                         {
                             if (ValidCards(hands[MyIndex]).Any(i => i.Suit == barva &&
@@ -643,6 +644,16 @@ namespace Mariasek.Engine.New
                                                                        j.Value == Hodnota.Desitka) &&
                                                                       ValidCards(i, j, hands[player3]).Any(k =>
                                                                           Round.WinningCard(i, j, k, _trump) == k))))
+                            {
+                                count = 0;
+                            }
+                            if (ValidCards(hands[MyIndex]).Any(i => i.Suit == barva &&
+                                                        ValidCards(i, hands[player2])
+                                                            .All(j => j.Suit == _trump &&
+                                                                      ValidCards(i, j, hands[player3]).Any(k =>
+                                                                          k.Suit != _trump && 
+                                                                          k.Value != Hodnota.Eso && 
+                                                                          k.Value != Hodnota.Desitka))))
                             {
                                 count = 0;
                             }
@@ -655,6 +666,16 @@ namespace Mariasek.Engine.New
                                                                           (k.Value == Hodnota.Eso ||
                                                                            k.Value == Hodnota.Desitka) &&
                                                                           Round.WinningCard(i, j, k, _trump) == j))))
+                            {
+                                count = 0;
+                            }
+                            if (ValidCards(hands[MyIndex]).Any(i => i.Suit == barva &&
+                                                        ValidCards(i, hands[player2])
+                                                            .Any(j => ValidCards(i, j, hands[player3]).All(k =>
+                                                                          j.Suit != _trump &&
+                                                                          k.Suit == _trump &&
+                                                                          j.Value != Hodnota.Eso &&
+                                                                          j.Value != Hodnota.Desitka))))
                             {
                                 count = 0;
                             }

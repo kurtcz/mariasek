@@ -223,11 +223,11 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 float distance = Vector2.Distance(point, origin);
 
-                if (distance > borderRadius + borderThickness + 1)
+                if (distance > borderRadius + borderThickness)
                 {
                     return Color.Transparent;
                 }
-                else if (distance > borderRadius + 1)
+                else if (distance > borderRadius)
                 {
                     if (borderColors.Count > 2)
                     {
@@ -247,7 +247,7 @@ namespace Mariasek.SharedClient.GameComponents
                     if (borderColors.Count > 0)
                         return borderColors[0];
                 }
-                else if (distance > borderRadius - borderShadow + 1)
+                else if (distance > borderRadius - borderShadow)
                 {
                     float mod = (distance - (borderRadius - borderShadow)) / borderShadow;
                     float shadowDiff = initialShadowIntensity - finalShadowIntensity;

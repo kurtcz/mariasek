@@ -37,6 +37,7 @@ namespace Mariasek.Engine.New
  
         public Probability Probabilities { get; set; }
         public AiPlayerSettings Settings { get; set; }
+        public bool UpdateProbabilitiesAfterTalon { get; set; }
 
         public Action ThrowIfCancellationRequested;
 
@@ -66,6 +67,7 @@ namespace Mariasek.Engine.New
                 MaxDoubleCount = 5,
                 SigmaMultiplier = 0
             };
+            UpdateProbabilitiesAfterTalon = true;
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
             DebugInfo = new PlayerDebugInfo();
@@ -342,7 +344,10 @@ namespace Mariasek.Engine.New
                     {
                         _talon = ChooseNormalTalon(Hand);
                     }
-                    Probabilities.UpdateProbabilitiesAfterTalon(_talon);
+                    if (UpdateProbabilitiesAfterTalon)
+                    {
+                        Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
+                    }
                 }
                 else
                 {
@@ -865,13 +870,17 @@ namespace Mariasek.Engine.New
             {
                 _talon = null;
             }
+            if (Probabilities != null) //Probabilities == null kdyz jsem nezacinal, tudiz netusim co je v talonu a nemusim nic upravovat
+            {
+                Probabilities.UpdateProbabilitiesAfterGameFlavourChosen(e);
+            }
         }
 
         private void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
         {
             _trump = _g.trump;
             _gameType = _g.GameType;
-            if (PlayerIndex != _g.GameStartingPlayerIndex)
+            if (PlayerIndex != _g.GameStartingPlayerIndex || Probabilities == null) //Probabilities == null by nemelo nastat, ale ...
             {
                 Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
             }

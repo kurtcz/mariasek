@@ -16,6 +16,7 @@ namespace Mariasek.SharedClient
         private Hra _previousBid;
         private Hra _gameType;
         private Barva _trump;
+        private Card _trumpCard;
         private Game _g;
         private AiPlayer _aiPlayer;
         private Task _aiTask;
@@ -27,7 +28,7 @@ namespace Mariasek.SharedClient
         {
             _scene = scene;
             _g = g;
-            _aiPlayer = showHint ? new AiPlayer(_g, aiConfig) { Name = "Advisor" } : null;
+            _aiPlayer = showHint ? new AiPlayer(_g, aiConfig) { Name = "Advisor", UpdateProbabilitiesAfterTalon = false } : null;
             _g.GameFlavourChosen += GameFlavourChosen;
             _g.GameTypeChosen += GameTypeChosen;
         }
@@ -36,6 +37,7 @@ namespace Mariasek.SharedClient
         {
             _gameType = 0;
             _talon = null;
+            _trumpCard = null;
             firstTimeChoosingFlavour = true;
             Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _g.talon);
             _cancellationTokenSource = new CancellationTokenSource();
@@ -100,17 +102,20 @@ namespace Mariasek.SharedClient
                         _scene.SuggestTrump(trump);
                     }, _cancellationTokenSource.Token);
             }
-            var trumpCard = _scene.ChooseTrump();
+            _trumpCard = _scene.ChooseTrump();
 
             CancelAiTask();
-            _trump = trumpCard.Suit;
-            return trumpCard;
+            _trump = _trumpCard.Suit;
+            return _trumpCard;
         }
 
         public override List<Card> ChooseTalon()
         {
             _talon = _scene.ChooseTalon();
 
+            //_aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
+            _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
+            _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
             CancelAiTask();
             return _talon;
         }
@@ -136,7 +141,7 @@ namespace Mariasek.SharedClient
                                 //dej 2 karty z ruky do talonu aby byl _aiPlayer v aktualnim stavu
                                 _aiPlayer._talon = _talon;
                                 _aiPlayer.Hand = Hand;
-                                var flavour = _aiPlayer.ChooseGameFlavour();
+                                var flavour = _aiPlayer.ChooseGameFlavour(); //uvnitr se zvoli talon, ale clovek muze ve skutecnosti volit jinak nez ai!!!
                                 if (flavour == GameFlavour.Good)
                                 {
                                     validGameTypes &= ((Hra)~0 ^ (Hra.Betl | Hra.Durch));
@@ -148,6 +153,12 @@ namespace Mariasek.SharedClient
                                 var gameType = _aiPlayer.ChooseGameType(validGameTypes);
                                 var e = _g.Bidding.GetEventArgs(_aiPlayer, gameType, 0);
                                 _scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount));
+                                //nasimulovany talon musime nahradit skutecnym pokud ho uz znam, jinak to udelam v ChooseTalon
+                                if (_talon != null)
+                                {
+                                    _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
+                                    _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
+                                }
                             }, _cancellationTokenSource.Token);
                     }
                     _gameType = _scene.ChooseGameType(validGameTypes);
@@ -163,6 +174,7 @@ namespace Mariasek.SharedClient
                     }
                 }
             }
+            //nevolim, odpovidam na barvu
             _gameType = 0;
 
             if (_aiPlayer != null)
@@ -171,6 +183,12 @@ namespace Mariasek.SharedClient
                     { 
                         var flavour = _aiPlayer.ChooseGameFlavour();
                         _scene.SuggestGameFlavour(flavour);
+                        //nasimulovany talon musime nahradit skutecnym pokud ho uz znam, jinak to udelam v ChooseTalon
+                        if(_talon != null)
+                        {
+                            _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
+                            _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
+                        }
                     }, _cancellationTokenSource.Token);                
             }
             var gf = _scene.ChooseGameFlavour();

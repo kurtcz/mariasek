@@ -288,7 +288,8 @@ namespace Mariasek.SharedClient
                 Width = 50,
                 TextColor = Color.SaddleBrown,
                 BackgroundColor = Color.White,
-                BorderColor = Color.SaddleBrown
+                BorderColor = Color.SaddleBrown,
+                ZIndex = 100
             };
             _hintBtn.Click += HintBtnClicked;
             _okBtn = new Button(this)
@@ -1064,6 +1065,7 @@ namespace Mariasek.SharedClient
                     UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
                 }, null);
             WaitForUIThread();
+            _hintBtn.IsEnabled = false;
             return _cardClicked;
         }
 
@@ -1082,6 +1084,7 @@ namespace Mariasek.SharedClient
                     UpdateHand(cardToHide: _trumpCardChosen);
                 }, null);
             WaitForUIThread();
+            _hintBtn.IsEnabled = false;
             return _talon;
         }
 
@@ -1104,6 +1107,7 @@ namespace Mariasek.SharedClient
                 _state = GameState.ChooseGameFlavour;
             }, null);
             WaitForUIThread();
+            _hintBtn.IsEnabled = false;
             return _gameFlavourChosen;
         }
 
@@ -1138,6 +1142,7 @@ namespace Mariasek.SharedClient
                 {
                     ShowThinkingMessage();
                 }, null);
+            _hintBtn.IsEnabled = false;
             g.ThrowIfCancellationRequested();
             return _gameTypeChosen;
         }
@@ -1196,7 +1201,8 @@ namespace Mariasek.SharedClient
                     _cardsPlayed[0].Hide();
                     UpdateHand();
                 }, null);
-            WaitForUIThread(); 
+            WaitForUIThread();
+            _hintBtn.IsEnabled = false;
             return _cardClicked;
         }
 
