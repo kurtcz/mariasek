@@ -450,7 +450,7 @@ namespace Mariasek.SharedClient
                 Height = 50,
                 BackgroundColor = new Color(0x40, 0x40, 0x40),
                 TextColor = Color.Yellow,
-                BorderColor = Color.Yellow,
+                BorderColor = Color.Red,
                 Opacity = 0.8f,
                 VerticalAlign = VerticalAlignment.Middle,
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -464,7 +464,7 @@ namespace Mariasek.SharedClient
                 Height = 50,
                 BackgroundColor = new Color(0x40, 0x40, 0x40),
                 TextColor = Color.Yellow,
-                BorderColor = Color.Yellow,
+                BorderColor = Color.Green,
                 Opacity = 0.8f,
                 VerticalAlign = VerticalAlignment.Middle,
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -478,7 +478,7 @@ namespace Mariasek.SharedClient
                 Height = 50,
                 BackgroundColor = new Color(0x40, 0x40, 0x40),
                 TextColor = Color.Yellow,
-                BorderColor = Color.Yellow,
+                BorderColor = Color.Blue,
                 Opacity = 0.8f,
                 VerticalAlign = VerticalAlignment.Middle,
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -525,7 +525,8 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 75, 0),
                 Width = 150,
-                Height = 6,
+                Height = 8,
+                Color = Color.Red,
                 ZIndex = 100
             };
             if (!_settings.HintEnabled)
@@ -536,14 +537,16 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(0, 0),
                 Width = 150,
-                Height = 6,
+                Height = 8,
+                Color = Color.Green,
                 ZIndex = 100
             };
             _progress3 = new ProgressIndicator(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 150, 0),
                 Width = 150,
-                Height = 6,
+                Height = 8,
+                Color = Color.Blue,
                 ZIndex = 100
             };
             _progressBars = new [] { _progress1, _progress2, _progress3 };
