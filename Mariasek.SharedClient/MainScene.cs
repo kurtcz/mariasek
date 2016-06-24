@@ -52,6 +52,7 @@ namespace Mariasek.SharedClient
         private Sprite[] _stareStychy;
         private ClickableArea _overlay;
         private Button _menuBtn;
+        private Button _sendBtn;
         private Button _okBtn;
         private Button[] gtButtons, gfButtons, bidButtons;
         private Button gtHraButton;
@@ -97,6 +98,7 @@ namespace Mariasek.SharedClient
         private string _savedGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SavedGame.hra");
         private string _newGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_temp.hra");
         private string _errorFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_error.hra");
+        private string _endGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_end.hra");
 
         private Action HintBtnFunc;
         private GameState _state;
@@ -281,6 +283,13 @@ namespace Mariasek.SharedClient
                 ZIndex = 100
             };
             _menuBtn.Click += MenuBtnClicked;
+            _sendBtn = new Button(this)
+            {
+                Text = "Odeslat",
+                Position = new Vector2(10, Game.VirtualScreenHeight / 2f + 30),
+                ZIndex = 100
+            };
+            _sendBtn.Click += SendBtnClicked;
             _hintBtn = new Button(this)
             {
                 Text = "?",
@@ -743,7 +752,8 @@ namespace Mariasek.SharedClient
 
                 ClearTable(true);
                 HideMsgLabel();
-                foreach(var btn in gtButtons)
+                _sendBtn.Hide();
+                foreach (var btn in gtButtons)
                 {
                     btn.Hide();
                 }
@@ -869,6 +879,14 @@ namespace Mariasek.SharedClient
         public void MenuBtnClicked(object sender)
         {
             Game.MenuScene.SetActive();
+        }
+
+        public void SendBtnClicked(object sender)
+        {
+            if (Game.EmailSender != null)
+            {
+                Game.EmailSender.SendEmail(new[] { "tnemec78@gmail.com" }, "Mariasek game feedback", "", new[] { _newGameFilePath, _endGameFilePath });
+            }
         }
 
         public void HintBtnClicked(object sender)
@@ -1421,6 +1439,7 @@ namespace Mariasek.SharedClient
             SaveHistory();
 
             ClearTable(true);
+            _sendBtn.Show();
             _hand.UpdateHand(new Card[0]);
             _hintBtn.IsEnabled = false;
             //multi-line string needs to be split into two strings separated by a tab on each line
@@ -1511,7 +1530,8 @@ namespace Mariasek.SharedClient
 
                     ClearTable(true);
                     HideMsgLabel();
-                    foreach(var btn in gtButtons)
+                    _sendBtn.Hide();
+                    foreach (var btn in gtButtons)
                     {
                         btn.Hide();
                     }

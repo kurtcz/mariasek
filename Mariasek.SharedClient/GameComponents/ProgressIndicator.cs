@@ -18,7 +18,19 @@ namespace Mariasek.SharedClient.GameComponents
         private RectangleShape _progressBar;
         private int _progress;
         private int _maxProgressWidth;
+        private Color _color;
+        private Color _borderColor;
 
+        public Color Color
+        {
+            get { return _color; }
+            set { _color = value; _progressBar.BorderColors = new List<Color> { value }; _progressBar.BackgroundColors = new List<Color> { value }; }
+        }
+        public Color BorderColor
+        {
+            get { return _borderColor; }
+            set { _borderColor = value; _backgroundShape.BorderColors = new List<Color> { value }; }
+        }
         public override Vector2 Position
         {
             get { return _backgroundShape.Position; }
@@ -73,19 +85,21 @@ namespace Mariasek.SharedClient.GameComponents
             _backgroundShape = new RectangleShape(this)
             {
                 BackgroundColors = new List<Color> { Color.DimGray },
-                BorderColors = new List<Color> { Color.Black },
+                BorderColors = new List<Color> { BorderColor },
                 BorderRadius = 0,
                 BorderThickness = 3,
                 Opacity = 0.7f
             };
             _progressBar = new RectangleShape(this)
             {
-                BackgroundColors = new List<Color> { Color.Yellow },
-                BorderColors = new List<Color> { Color.Yellow },
+                BackgroundColors = new List<Color> { Color },
+                BorderColors = new List<Color> { Color },
                 BorderRadius = 0,
                 BorderThickness = 0,
                 Opacity = 1f
             };
+            Color = Color.Yellow;
+            BorderColor = Color.Black;
             Min = 0;
             Max = 100;
         }

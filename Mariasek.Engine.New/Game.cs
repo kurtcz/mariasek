@@ -602,6 +602,10 @@ namespace Mariasek.Engine.New
                 IsRunning = false;
                 Results = GetMoneyCalculator();
                 Results.CalculateMoney();
+                using (var fs = GetFileStream("_end.hra"))
+                {
+                    SaveGame(fs, saveDebugInfo: true);
+                }
                 OnGameFinished(Results);
             }
             catch (Exception ex)
