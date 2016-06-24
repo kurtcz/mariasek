@@ -752,7 +752,6 @@ namespace Mariasek.SharedClient
 
                 ClearTable(true);
                 HideMsgLabel();
-                _sendBtn.Hide();
                 foreach (var btn in gtButtons)
                 {
                     btn.Hide();
@@ -883,9 +882,20 @@ namespace Mariasek.SharedClient
 
         public void SendBtnClicked(object sender)
         {
-            if (Game.EmailSender != null)
+            if (Game.EmailSender != null && g != null)
             {
-                Game.EmailSender.SendEmail(new[] { "tnemec78@gmail.com" }, "Mariasek game feedback", "", new[] { _newGameFilePath, _endGameFilePath });
+                if (g.IsRunning)
+                {
+                    using (var fs = GetFileStream(Path.GetFileName(_savedGameFilePath)))
+                    {
+                        g.SaveGame(fs, saveDebugInfo: true);
+                    }
+                    Game.EmailSender.SendEmail(new[] { "tnemec78@gmail.com" }, "Mariasek game feedback", "", new[] { _newGameFilePath, _savedGameFilePath });
+                }
+                else
+                {
+                    Game.EmailSender.SendEmail(new[] { "tnemec78@gmail.com" }, "Mariasek game feedback", "", new[] { _newGameFilePath, _endGameFilePath });
+                }
             }
         }
 
@@ -1439,7 +1449,6 @@ namespace Mariasek.SharedClient
             SaveHistory();
 
             ClearTable(true);
-            _sendBtn.Show();
             _hand.UpdateHand(new Card[0]);
             _hintBtn.IsEnabled = false;
             //multi-line string needs to be split into two strings separated by a tab on each line
@@ -1530,7 +1539,6 @@ namespace Mariasek.SharedClient
 
                     ClearTable(true);
                     HideMsgLabel();
-                    _sendBtn.Hide();
                     foreach (var btn in gtButtons)
                     {
                         btn.Hide();
