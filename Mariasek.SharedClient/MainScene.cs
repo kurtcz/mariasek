@@ -915,21 +915,22 @@ namespace Mariasek.SharedClient
             System.Diagnostics.Debug.WriteLine(string.Format("{0} clicked", _cardClicked));
             switch (_state)
             {
-                case GameState.ChooseTalon:
-                    if (button.IsSelected && _talon.Count == 2)
+                case GameState.ChooseTalon:                    
+                    if (button.IsFaceUp && _talon.Count == 2)
                     {
                         //do talonu nemuzu pridat kdyz je plnej
-                        button.IsSelected = !button.IsSelected;
                         return;
                     }
-                    if (button.IsSelected)
+                    if (button.IsFaceUp)
                     {
                         //selected
+                        button.FlipToBack();
                         _talon.Add(_cardClicked);
                     }
                     else
                     {
                         //unselected
+                        button.FlipToFront();
                         _talon.Remove(_cardClicked);
                     }
                     _okBtn.IsEnabled = _talon.Count == 2;
@@ -1489,6 +1490,19 @@ namespace Mariasek.SharedClient
             //_aiConfig["SimulationsPerRoundPerSecond"].Value = _settings.RoundSimulationsPerSecond.ToString();
             _settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
             Game.SettingsScene.UpdateSettings(_settings);
+
+            if(results.MoneyWon[0] >= 4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] >= 2))
+            {
+                Game.ClapSound.Play();
+            }
+            else if (results.MoneyWon[0] <= -10 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] <= -5))
+            {
+                Game.BooSound.Play();
+            }
+            else
+            {
+                Game.CoughSound.Play();
+            }
         }
 
         #endregion
@@ -1649,10 +1663,19 @@ namespace Mariasek.SharedClient
             {
                 _hintBtn.IsEnabled = true;
                 HintBtnFunc = () => _hand.HighlightCard(trumpCard);
-                //{
-                //    //dame cas aby se nejdriv karty vykreslily a az potom oznacime trumfovou kartu
-                //    _hand.WaitUntil(() => _canShowTrumpHint).Invoke(() => _hand.HighlightCard(trumpCard));
-                //};
+            }
+        }
+
+        public void SuggestTalon(List<Card> talon)
+        {
+            if (_settings.HintEnabled)
+            {
+                _hintBtn.IsEnabled = true;
+                HintBtnFunc = () =>
+                {
+                    _hand.HighlightCard(talon[0]);
+                    _hand.HighlightCard(talon[1]);
+                };
             }
         }
 

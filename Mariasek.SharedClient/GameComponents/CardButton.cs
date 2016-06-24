@@ -210,7 +210,6 @@ namespace Mariasek.SharedClient.GameComponents
 
         protected override void OnClick()
         {
-            IsSelected = !IsSelected;
             base.OnClick();
         }
 

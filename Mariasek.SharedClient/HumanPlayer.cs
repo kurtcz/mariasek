@@ -113,7 +113,6 @@ namespace Mariasek.SharedClient
         {
             _talon = _scene.ChooseTalon();
 
-            //_aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
             _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);
             _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
             CancelAiTask();

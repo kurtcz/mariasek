@@ -41,6 +41,9 @@ namespace Mariasek.SharedClient
         public SoundEffect ClickSound { get; private set; }
         public SoundEffect OnSound { get; private set; }
         public SoundEffect OffSound { get; private set; }
+        public SoundEffect ClapSound { get; private set; }
+        public SoundEffect CoughSound { get; private set; }
+        public SoundEffect BooSound { get; private set; }
         public IEmailSender EmailSender { get; private set; }
         public readonly Vector2 CardScaleFactor;
 
@@ -134,10 +137,12 @@ namespace Mariasek.SharedClient
             ClickSound = Content.Load<SoundEffect>("click");
             OnSound = Content.Load<SoundEffect>("on");
             OffSound = Content.Load<SoundEffect>("off");
-
-//            TestScene = new TestScene(this);
-//            TestScene.Initialize();
-//            TestScene.SetActive();
+            ClapSound = Content.Load<SoundEffect>("clap");
+            CoughSound = Content.Load<SoundEffect>("cough");
+            BooSound = Content.Load<SoundEffect>("boo");
+            //            TestScene = new TestScene(this);
+            //            TestScene.Initialize();
+            //            TestScene.SetActive();
 
             MenuScene = new MenuScene(this);           
             SettingsScene = new SettingsScene(this);
