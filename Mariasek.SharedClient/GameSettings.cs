@@ -24,9 +24,9 @@ namespace Mariasek.SharedClient
 
         public GameSettings()
         {
-            SoundEnabled = false;
+            HintEnabled = true;
             SoundEnabled = true;
-            SortMode = SortMode.Ascending;
+            SortMode = SortMode.Descending;
             BaseBet = 1f;
             CalculationStyle = CalculationStyle.Adding;
             CurrentStartingPlayerIndex = 0;

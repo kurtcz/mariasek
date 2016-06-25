@@ -67,9 +67,20 @@ namespace Mariasek.iOSClient
         #if __IOS__ || __TVOS__
         public override void FinishedLaunching(UIApplication app)
         {
+			app.IdleTimerDisabled = true; //stop iOS from stalling our game
             RunGame();
         }
-        #endif
+
+		public override void WillEnterForeground(UIApplication app)
+		{
+			app.IdleTimerDisabled = true; //stop iOS from stalling our game
+		}
+
+		public override void DidEnterBackground(UIApplication app)
+		{
+			app.IdleTimerDisabled = false; //conserve battery when sleeping
+		}
+		#endif
     }
 
     #if MONOMAC
