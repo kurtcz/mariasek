@@ -67,7 +67,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
-    <MtouchArch>ARMv7, ARM64</MtouchArch>
+    <MtouchArch>ARMv7</MtouchArch>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchFloat32>true</MtouchFloat32>
     <MtouchUseRefCounting>true</MtouchUseRefCounting>
@@ -78,6 +78,7 @@
     <MtouchExtraArgs>--sgen</MtouchExtraArgs>
     <IpaPackageName>
     </IpaPackageName>
+    <MtouchLink>Full</MtouchLink>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -97,13 +98,16 @@
     <None Include="Entitlements.plist" />
     <None Include="Info.plist" />
     <None Include="packages.config" />
+    <None Include="Content\boo.wav" />
+    <None Include="Content\clap.wav" />
+    <None Include="Content\cough.wav" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="GameThumbnail.png" />
-    <BundleResource Include="Content\Icon57.png" />
     <BundleResource Include="Content\woodsplash.png" />
     <BundleResource Include="Content\woodsplash-ipad.png" />
     <BundleResource Include="Content\woodsplash-ipad2.png" />
+    <BundleResource Include="Resources\Icon.png" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />

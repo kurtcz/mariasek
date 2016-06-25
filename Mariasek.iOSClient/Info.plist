@@ -6,7 +6,7 @@
 	<string>Mariasek.iOSClient</string>
 	<key>CFBundleIconFiles</key>
 	<array>
-		<string>Content/Icon57</string>
+		<string>Icon</string>
 	</array>
 	<key>CFBundleIdentifier</key>
 	<string>project.MonoGame.Mariasek.iOSClient</string>
@@ -32,6 +32,8 @@
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>UIStatusBarHidden</key>
+	<true/>
+	<key>UIPrerenderedIcon</key>
 	<true/>
 </dict>
 </plist>

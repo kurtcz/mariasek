@@ -31,3 +31,21 @@
 /processorParam:Quality=Best
 /build:on.wav
 
+#begin boo.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:boo.wav
+
+#begin clap.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:clap.wav
+
+#begin cough.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:cough.wav
+
