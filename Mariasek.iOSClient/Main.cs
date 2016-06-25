@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.IO;
 using Mariasek.SharedClient;
 
 #if MONOMAC
@@ -19,23 +19,29 @@ namespace Mariasek.iOSClient
 {
     #if __IOS__ || __TVOS__
     [Register("AppDelegate")]
-    class Program : UIApplicationDelegate
+	class Program : UIApplicationDelegate
     
 #else
     static class Program
     #endif
     {
         private static MariasekMonoGame game;
+		private static Program instance = new Program();
 
         internal static void RunGame()
         {
-            game = new MariasekMonoGame();
-            game.Run();
+			var emailSender = new EmailSender ();
+			game = new MariasekMonoGame(emailSender);
+
+			var gameController = game.Services.GetService(typeof(UIViewController)) as UIViewController;
+			emailSender.GameController = gameController;
+
+			game.Run();
             #if !__IOS__  && !__TVOS__
             game.Dispose();
             #endif
         }
-
+			
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
