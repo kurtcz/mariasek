@@ -38,7 +38,7 @@ namespace Mariasek.Engine.New.Schema
         [XmlAttribute(AttributeName = "Typ")]
         public Hra TypValue
         {
-            get { return Typ.Value; }
+            get { return Typ.HasValue? Typ.Value : 0; }
             set { Typ = value; }
         }
         [XmlIgnore]
@@ -48,7 +48,7 @@ namespace Mariasek.Engine.New.Schema
         [XmlAttribute(AttributeName = "Trumf")]
         public Barva TrumfValue
         {
-            get { return Trumf.Value; }
+			get { return Trumf.HasValue ? Trumf.Value : 0; }
             set { Trumf = value; }
         }
         [XmlAttribute]

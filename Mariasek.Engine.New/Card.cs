@@ -108,6 +108,7 @@ namespace Mariasek.Engine.New
         public Card()
             :this (Barva.Cerveny, Hodnota.Sedma)
         {
+			Value = Value + 1 - 1;
         }
 
         public Card(Barva suit, Hodnota value)

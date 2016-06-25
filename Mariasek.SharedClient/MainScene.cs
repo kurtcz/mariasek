@@ -576,10 +576,11 @@ namespace Mariasek.SharedClient
 
         public void LoadHistory()
         {
-            var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
             try
             {
-                using (var fs = File.Open(_historyFilePath, FileMode.Open))
+				var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
+
+				using (var fs = File.Open(_historyFilePath, FileMode.Open))
                 {
                     Game.Money = (List<MoneyCalculatorBase>)xml.Deserialize(fs);
                 }
@@ -592,10 +593,11 @@ namespace Mariasek.SharedClient
 
         public void SaveHistory()
         {
-            var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
             try
             {
-                using (var fs = File.Open(_historyFilePath, FileMode.Create))
+				var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
+
+				using (var fs = File.Open(_historyFilePath, FileMode.Create))
                 {
                     xml.Serialize(fs, Game.Money);
                 }
