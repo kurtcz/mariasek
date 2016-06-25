@@ -196,6 +196,14 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
+        public void DeselectAllCards()
+        {
+            foreach(var sprite in _sprites.Where(i => i != null))
+            {
+                sprite.IsSelected = false;
+            }
+        }
+
         public void ShowArc(float arcAngle)
         {
             var hh = _sprites.Where(i => i != null && i.IsVisible).ToList();

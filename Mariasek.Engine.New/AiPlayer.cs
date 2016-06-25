@@ -698,6 +698,7 @@ namespace Mariasek.Engine.New
             var hundredAgainstThreshold = bidding._hundredAgainstFlek < Settings.GameThresholdsForGameType[Hra.KiloProti].Length ? Settings.GameThresholdsForGameType[Hra.KiloProti][bidding._hundredAgainstFlek] : 1f;
             var betlThreshold = bidding._betlDurchFlek < Settings.GameThresholdsForGameType[Hra.Betl].Length ? Settings.GameThresholdsForGameType[Hra.Betl][bidding._betlDurchFlek] : 1f;
             var durchThreshold = bidding._betlDurchFlek < Settings.GameThresholdsForGameType[Hra.Durch].Length ? Settings.GameThresholdsForGameType[Hra.Durch][bidding._betlDurchFlek] : 1f;
+            var minRuleCount = 0;
 
             if (bidding.MaxDoubleCount > Settings.MaxDoubleCount)
             {
@@ -728,6 +729,7 @@ namespace Mariasek.Engine.New
                 (Hand.HasK(_g.trump.Value) || Hand.HasQ(_g.trump.Value) || _teamMateDoubledGame))
             {
                 bid |= bidding.Bids & Hra.Hra;
+                minRuleCount = Math.Min(minRuleCount, _gamesBalance);
             }
             //sedmu flekuju jen pokud jsem volil sam sedmu a v simulacich jsem ji uhral dost casto
             //nebo pokud jsem nevolil a v simulacich ani jednou nevysla
@@ -735,6 +737,7 @@ namespace Mariasek.Engine.New
                 (PlayerIndex != _g.GameStartingPlayerIndex && _sevensBalance == Settings.SimulationsPerGameType))
             {
                 bid |=bidding.Bids & Hra.Sedma;
+                minRuleCount = Math.Min(minRuleCount, _sevensBalance);
             }
             //kilo flekuju jen pokud jsem volil sam kilo a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem nevolil a je nemozne aby mel volici hrac kilo (nema hlas)
@@ -743,6 +746,7 @@ namespace Mariasek.Engine.New
                 (PlayerIndex != _g.GameStartingPlayerIndex && Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0))
             {
                 bid |= bidding.Bids & Hra.Kilo;
+                minRuleCount = Math.Min(minRuleCount, _hundredsBalance);
             }
             //sedmu proti flekuju jen pokud jsem hlasil sam sedmu proti a v simulacich jsem ji uhral dost casto
             //nebo pokud jsem volil trumf a v simulacich ani jednou nevysla
@@ -756,6 +760,7 @@ namespace Mariasek.Engine.New
                 //    bid |= bidding.Bids | Hra.SedmaProti;
                 //}
                 bid |= bidding.Bids & Hra.SedmaProti;
+                minRuleCount = Math.Min(minRuleCount, _sevensAgainstBalance);
             }
             //kilo proti flekuju jen pokud jsem hlasil sam kilo proti a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem volil trumf a je nemozne aby meli protihraci kilo (nemaji hlas)
@@ -771,6 +776,7 @@ namespace Mariasek.Engine.New
                 //}
                 bid |= bidding.Bids & Hra.KiloProti;
                 bid &= (Hra)~Hra.Hra; //u kila proti uz nehlasime flek na hru
+                minRuleCount = Math.Min(minRuleCount, _hundredsAgainstBalance);
             }
             //durch flekuju jen pokud jsem volil sam durch a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem nevolil a nejde teoreticky uhrat            
@@ -778,14 +784,17 @@ namespace Mariasek.Engine.New
                 (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) == 4))
             {
                 bid |= bidding.Bids & Hra.Durch;
+                minRuleCount = Math.Min(minRuleCount, _durchBalance);
             }
             //betla flekuju jen pokud jsem volil sam betla a v simulacich jsem ho uhral dost casto
             if ((PlayerIndex == _g.GameStartingPlayerIndex && _betlBalance / (float)Settings.SimulationsPerGameType >= betlThreshold))
             {
                 bid |= bidding.Bids & Hra.Betl;
+                minRuleCount = Math.Min(minRuleCount, _betlBalance);
             }
-            DebugInfo.TotalRuleCount = Settings.SimulationsPerGameType;
             DebugInfo.Rule = bid.ToString();
+            DebugInfo.RuleCount = minRuleCount;
+            DebugInfo.TotalRuleCount = Settings.SimulationsPerGameType;
             var allChoices = new List<RuleDebugInfo>();
             allChoices.Add(new RuleDebugInfo
             {

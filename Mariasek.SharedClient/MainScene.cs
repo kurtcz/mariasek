@@ -750,6 +750,7 @@ namespace Mariasek.SharedClient
 
                 _state = GameState.NotPlaying;
 
+                BackgroundTint = Color.White;
                 ClearTable(true);
                 HideMsgLabel();
                 foreach (var btn in gtButtons)
@@ -1403,6 +1404,7 @@ namespace Mariasek.SharedClient
                         _cardsPlayed[lastPlayer.PlayerIndex].Show();
                     }
 
+                    _hand.DeselectAllCards();
                     _hand.ShowArc((float)Math.PI / 2);
                 }, null);
         }
@@ -1449,6 +1451,7 @@ namespace Mariasek.SharedClient
             Game.Money.Add(results);
             SaveHistory();
 
+            BackgroundTint = Color.DimGray;
             ClearTable(true);
             _hand.UpdateHand(new Card[0]);
             _hintBtn.IsEnabled = false;
