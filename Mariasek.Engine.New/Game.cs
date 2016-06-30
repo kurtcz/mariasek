@@ -58,8 +58,9 @@ namespace Mariasek.Engine.New
 #if !PORTABLE
         public static Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
 #else
-        public static Version Version { get { return typeof(Game).GetTypeInfo().Assembly.GetName().Version; } }
+		public Version Version { get { return GetVersion != null ? GetVersion() : typeof(Game).GetTypeInfo().Assembly.GetName().Version; } }
         public Func<string, Stream> GetFileStream { get; set; }
+		public Func<Version> GetVersion { get; set; }
 #endif
         public string Comment { get; set; }
 

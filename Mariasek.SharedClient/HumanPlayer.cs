@@ -162,7 +162,7 @@ namespace Mariasek.SharedClient
                                 }
                                 var gameType = _aiPlayer.ChooseGameType(validGameTypes);
                                 var e = _g.Bidding.GetEventArgs(_aiPlayer, gameType, 0);
-                                var msg = string.Format("{0} ({1}%)\n", e.Description, 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount);
+								var msg = string.Format("{0} ({1}%)\n", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1);
                                 //foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices)
                                 //{
                                 //    msg += string.Format("\n{0} ({1}%)", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount);
@@ -197,7 +197,8 @@ namespace Mariasek.SharedClient
                 _aiTask = Task.Run(() =>
                     { 
                         var flavour = _aiPlayer.ChooseGameFlavour();
-                        _scene.SuggestGameFlavour(flavour);
+						var msg = string.Format("{0} ({1}%)\n", flavour.ToDescription(), _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1);
+                        _scene.SuggestGameFlavour(msg);
                         //nasimulovany talon musime nahradit skutecnym pokud ho uz znam, jinak to udelam v ChooseTalon
                         if(_talon != null)
                         {

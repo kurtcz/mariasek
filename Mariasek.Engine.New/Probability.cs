@@ -44,6 +44,8 @@ namespace Mariasek.Engine.New
             _talon = talon;
             _myTalon = talon;
             _debugString = new StringBuilder();
+			_debugString.AppendFormat("ctor\nhand:\n{0}\ntalon:\n{1}", 
+				_myHand, _talon != null ? _talon.Any() ? string.Format("{0} {1}", _talon[0], _talon[1]) : "empty" : "null");
             var GenerateTalonProbabilities = talon == null;
 
             _gameBidders.Add(gameStarterIndex);
@@ -87,6 +89,8 @@ namespace Mariasek.Engine.New
                 }
             }
             UpdateUncertainCardsProbability();
+			_debugString.Append(FriendlyString(0));
+			_debugString.Append("-----\n");
         }
 
         /// <summary>
@@ -288,17 +292,14 @@ namespace Mariasek.Engine.New
                     if (uncertainCards[j].Any() && totalCards[j] - hands[j].Count() == uncertainCards[j].Count())
                     {
                         //danemu hraci musim uz dat vse co zbylo
-                        for (int k = 0; k < uncertainCards[j].Count(); k++)
+						for (int k = uncertainCards[j].Count() - 1; k >= 0 ; k--)
                         {
                             var c = uncertainCards[j][k];
                             hands[j].Add(c);
                             //a u ostatnich tim padem tuhle kartu uz nesmim brat v potaz
                             for (int l = 0; l < Game.NumPlayers + 1; l++)
                             {
-                                if (j != l)
-                                {
-                                    uncertainCards[l].Remove(c);
-                                }
+                                uncertainCards[l].Remove(c);
                             }
                         }
                         uncertainCards[j].Clear();
@@ -434,9 +435,16 @@ namespace Mariasek.Engine.New
 
                         for (int i = 0; i < Game.NumPlayers + 1; i++)
                         {
-                            thresholds[i] /= sum;
+							if (thresholds [i] == sum)
+							{
+								thresholds[i] = 1f;
+							}
+							else
+							{
+								thresholds[i] /= sum;
+							}
                         }
-                        //nyni by melo platit priblizne, ze thresholds[talonIndex] == 1f
+                        //nyni by melo platit, ze thresholds[talonIndex] == 1f
                     }
 
                     //var n = r.NextDouble();
@@ -536,10 +544,13 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[_myIndex][card.Suit][card.Value] = 0f;
                 _cardProbabilityForPlayer[talonIndex][card.Suit][card.Value] = 1f;
             }
+			_debugString.Append(FriendlyString(0));
+			_debugString.Append("-----\n");
         }
 
         public void UpdateProbabilitiesAfterGameFlavourChosen(GameFlavourChosenEventArgs e)
         {
+			_debugString.AppendFormat("GameFlavourchosen: {0} {1}", e.Player.Name, e.Flavour);
             if (e.Flavour == GameFlavour.Bad && e.Player.PlayerIndex != _myIndex && _myTalon != null)
             {
                 _gameBidders.Add(e.Player.PlayerIndex);
@@ -553,6 +564,8 @@ namespace Mariasek.Engine.New
                 }
                 UpdateUncertainCardsProbability();
             }
+			_debugString.Append(FriendlyString(0));
+			_debugString.Append("-----\n");
         }
 
         public void UpdateProbabilitiesAfterGameTypeChosen(GameTypeChosenEventArgs e)
@@ -573,11 +586,13 @@ namespace Mariasek.Engine.New
                     _cardProbabilityForPlayer[i][e.TrumpCard.Suit][Hodnota.Sedma] = i == e.GameStartingPlayerIndex ? 1f : 0f;
                 }
             }
+			_debugString.Append(FriendlyString(0));
+			_debugString.Append("-----\n");
         }
 
         public void UpdateProbabilities(int roundNumber, int roundStarterIndex, Card c1, bool hlas1)
         {
-            _debugString.AppendFormat("Round {0}: starting {1}, card1: {2}, hlas: {2}\n", roundNumber, roundStarterIndex, c1, hlas1);
+            _debugString.AppendFormat("Round {0}: starting {1}, card1: {2}, hlas: {3}\n", roundNumber, roundStarterIndex, c1, hlas1);
             for (var i = 0; i < Game.NumPlayers + 1; i++)
             {
                 _cardProbabilityForPlayer[i][c1.Suit][c1.Value] = i == roundStarterIndex ? 1f : 0f;
@@ -591,11 +606,13 @@ namespace Mariasek.Engine.New
             }
             ReduceUcertainCardSet();
             UpdateUncertainCardsProbability();
+			_debugString.Append(FriendlyString(roundNumber));
+			_debugString.Append("-----\n");
         }
 
         public void UpdateProbabilities(int roundNumber, int roundStarterIndex, Card c1, Card c2, bool hlas2)
         {
-            _debugString.AppendFormat("Round {0}: starting {1}, card2: {2}, hlas: {2}\n", roundNumber, roundStarterIndex, c2, hlas2);
+            _debugString.AppendFormat("Round {0}: starting {1}, card2: {2}, hlas: {3}\n", roundNumber, roundStarterIndex, c2, hlas2);
             for (var i = 0; i < Game.NumPlayers + 1; i++)
             {
                 _cardProbabilityForPlayer[i][c2.Suit][c2.Value] = i == (roundStarterIndex + 1) % Game.NumPlayers ? 1f : 0f;
@@ -624,11 +641,13 @@ namespace Mariasek.Engine.New
                 }
             }
             UpdateUncertainCardsProbability();
+			_debugString.Append(FriendlyString(roundNumber));
+			_debugString.Append("-----\n");
         }
 
         public void UpdateProbabilities(int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas3)
         {
-            _debugString.AppendFormat("Round {0}: starting {1}, card3: {2}, hlas: {2}\n", roundNumber, roundStarterIndex, c3, hlas3);
+            _debugString.AppendFormat("Round {0}: starting {1}, card3: {2}, hlas: {3}\n", roundNumber, roundStarterIndex, c3, hlas3);
             for (var i = 0;  i < Game.NumPlayers + 1; i++)
             {
                 _cardProbabilityForPlayer[i][c1.Suit][c1.Value] = 0f;
@@ -693,6 +712,8 @@ namespace Mariasek.Engine.New
                 }
             }
             UpdateUncertainCardsProbability();
+			_debugString.Append(FriendlyString(roundNumber));
+			_debugString.Append("-----\n");
         }
 
         private void SetCardProbabilitiesHigherThanCardToZero(int playerIndex, Card c)
@@ -733,13 +754,28 @@ namespace Mariasek.Engine.New
             }
         }
 
+		public string FriendlyString(int roundNumber)
+		{
+			var friendlyString = new StringBuilder();
+
+			friendlyString.AppendFormat("My hand:\n{0}\n", _myHand);
+			friendlyString.AppendFormat("Talon:\n{0}\n", _talon == null ? "null" : _talon.Count() == 0 ? "empty" : string.Format("{0} {1}", _talon[0], _talon[1]));
+			for (var i = 0; i < Game.NumPlayers + 1; i++)
+			{
+				friendlyString.AppendFormat("Player{0}'s probabilities for {1}:\n{2}\n",
+					_myIndex+1, i < Game.NumPlayers ? string.Format("Player{0}", i+1) : "talon", FriendlyString(i, roundNumber));
+			}
+
+			return friendlyString.ToString();
+		}
+
         public string FriendlyString(int playerIndex, int roundNumber)
         {
             var sb = new StringBuilder();
 
-            foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().OrderByDescending(i => (int)i))
-            {
-                foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+			foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            {                
+				foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().OrderByDescending(i => (int)i))
                 {
                     sb.AppendFormat("{0} {1}:\t{2:0.00}\t", h, b, CardProbability(playerIndex, new Card(b, h)));
                 }

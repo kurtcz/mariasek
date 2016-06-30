@@ -96,7 +96,8 @@ namespace Mariasek.SharedClient
         private string _historyFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.history");
         private string _deckFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.deck");
         private string _savedGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SavedGame.hra");
-        private string _newGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_temp.hra");
+		private string _loadedGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SavedGame.hra");
+		private string _newGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_temp.hra");
         private string _errorFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_error.hra");
         private string _endGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_end.hra");
 
@@ -573,7 +574,7 @@ namespace Mariasek.SharedClient
 
             return new FileStream(path, FileMode.Create);
         }
-
+			
         public void LoadHistory()
         {
             try
@@ -698,7 +699,8 @@ namespace Mariasek.SharedClient
                 {
                     SkipBidding = false,
                     BaseBet = _settings.BaseBet,
-                    GetFileStream = GetFileStream
+                    GetFileStream = GetFileStream,
+					GetVersion = () => MariasekMonoGame.Version
                 };
                 g.RegisterPlayers(
                     new HumanPlayer(g, _aiConfig, this, _settings.HintEnabled) { Name = "Hráč 1" },
@@ -853,14 +855,14 @@ namespace Mariasek.SharedClient
             {
                 return;
             }                
-            _msgLabel.HorizontalAlign = HorizontalAlignment.Right;
 
-            var msg = string.Format("Chyba:\n{0}\n{1}", ex.Message, ex.StackTrace);
+			var msg1 = string.Format("Chyba:\n{0}\nOdesílám zprávu...", ex.Message.Split('\n').First());
+			var msg2 = string.Format("{0}\n{1}", ex.Message, ex.StackTrace);
 
-            ShowMsgLabel(msg, false);
+            ShowMsgLabel(msg1, false);
             if (Game.EmailSender != null)
             {
-                Game.EmailSender.SendEmail(new[] { "tnemec78@gmail.com" }, "Mariasek crash report", msg, new[] { _newGameFilePath, _errorFilePath });
+                Game.EmailSender.SendEmail(new[] { "tnemec78@gmail.com" }, "Mariasek crash report", msg2, new[] { _newGameFilePath, _errorFilePath });
             }
         }
 
@@ -1684,12 +1686,12 @@ namespace Mariasek.SharedClient
             }
         }
 
-        public void SuggestGameFlavour(GameFlavour flavour)
+        public void SuggestGameFlavour(string flavour)
         {
             if (_settings.HintEnabled)
             {
                 _hintBtn.IsEnabled = true;
-                HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", flavour.ToDescription()), false);
+                HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", flavour), false);
             }
         }
 

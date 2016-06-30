@@ -1,74 +1,78 @@
-﻿<Properties StartupItem="Mariasek.iOSClient/Mariasek.iOSClient.csproj">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Mariasek.iOSClient/Info.plist">
+﻿<Properties StartupItem="Mariasek.AndroidClient/Mariasek.AndroidClient.csproj">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Mariasek.iOSClient/Main.cs">
     <Files>
       <File FileName="Mariasek.SharedClient/GameComponents/ProgressIndicator.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/Button.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/RectangleShape.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/MainScene.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/MainScene.cs" Line="193" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/GameComponent.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.Engine.New/Game.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.Engine.New/Game.cs" Line="419" Column="1" />
       <File FileName="Mariasek.Engine.New/GameFlavourChosenEventArgs.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/AbstractPlayer.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.Engine.New/AiPlayer.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.Engine.New/AiPlayer.cs" Line="701" Column="35" />
       <File FileName="Mariasek.Engine.New/Probability.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/Extensions.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/HandExtensions.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/Bidding.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/Extensions.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/PortableMockups.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.Engine.New/AddingMoneyCalculator.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.Engine.New/MoneyCalculatorBase.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.Engine.New/AddingMoneyCalculator.cs" Line="22" Column="37" />
+      <File FileName="Mariasek.Engine.New/MoneyCalculatorBase.cs" Line="18" Column="36" />
       <File FileName="Mariasek.Engine.New/AiStrategy.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/Round.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/DummyPlayer.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/Hand.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/GameSettings.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/GameSettings.cs" Line="30" Column="26" />
       <File FileName="Mariasek.Engine.New/GameWonPrematurelyEventArgs.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.Engine.New/Card.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.Engine.New/Card.cs" Line="111" Column="26" />
       <File FileName="Mariasek.SharedClient/GameComponents/TouchControlBase.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/Logger/DummyLogWrapper.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/HumanPlayer.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/MenuScene.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/SettingsScene.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/HumanPlayer.cs" Line="91" Column="1" />
+      <File FileName="Mariasek.SharedClient/MenuScene.cs" Line="84" Column="1" />
+      <File FileName="Mariasek.SharedClient/SettingsScene.cs" Line="439" Column="53" />
       <File FileName="Mariasek.SharedClient/HistoryScene.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.Engine.New/MultiplyingMoneyCalculator.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.Engine.New/MultiplyingMoneyCalculator.cs" Line="22" Column="42" />
       <File FileName="Mariasek.Engine.New/AiPlayerSettings.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/Configuration/ParameterConfigurationElement.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/GameComponents/FontRenderer.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/GameComponents/FontRenderer.cs" Line="54" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/CardButton.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/Sprite.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/Scene.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/SpriteButton.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/FluentExtensions.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/Label.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.Engine.New/Deck.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.Engine.New/Deck.cs" Line="100" Column="1" />
       <File FileName="Mariasek.SharedClient/BmFont/FontSerializer.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/Primitives2D.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/LineChart.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/TextBox.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.AndroidClient/MariasekActivity.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.AndroidClient/MariasekActivity.cs" Line="62" Column="1" />
       <File FileName="Mariasek.AndroidClient/Properties/AssemblyInfo.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/Logger/NotifyAppender.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/ClickableArea.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/AiBetlStrategy.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/TestScene.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.Engine.New/Schema/GameDto.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.Engine.New/Schema/GameDto.cs" Line="51" Column="49" />
       <File FileName="Mariasek.Engine.New/AiStrategyBase.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/AiStrategyFactory.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/AiDurchStrategy.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/AiRule.cs" Line="1" Column="1" />
       <File FileName="Mariasek.Engine.New/GameTypeChosenEventArgs.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.iOSClient/Main.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.iOSClient/Main.cs" Line="82" Column="4" />
       <File FileName="Mariasek.SharedClient/GameComponents/ToggleButton.cs" Line="1" Column="1" />
-      <File FileName="Mariasek.SharedClient/MariasekMonoGame.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/MariasekMonoGame.cs" Line="127" Column="1" />
       <File FileName="Mariasek.iOSClient/Info.plist" />
+      <File FileName="Mariasek.iOSClient/EmailSender.cs" Line="33" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhone" PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneDeviceTarget.Tomáš Němec’s iPad" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhone" PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneDeviceTarget.František - iPad" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Catchpoint enabled="false" exceptionName="System.Exception" includeSubclasses="True" />
+      <Breakpoint enabled="false" file="/Users/kurt/git/mariasek/Mariasek.SharedClient/MainScene.cs" line="693" column="1" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.ItemProperties.Mariasek.iOSClient PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneSimulatorTarget.CC911526-7213-438A-9006-AE27A407733B" />
   <MonoDevelop.Ide.ItemProperties.Mariasek.AndroidClient PreferredExecutionTarget="Android.310017518bb42389" />
+  <MonoDevelop.Ide.ItemProperties.Mariasek.iOSClient PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneSimulatorTarget.CC911526-7213-438A-9006-AE27A407733B" />
 </Properties>

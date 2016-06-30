@@ -68,13 +68,14 @@ namespace Mariasek.SharedClient
             EmailSender = emailSender;
 		}
 
-        public static string Version
+        public static Version Version
         {
             get
             {
+				Type t = typeof(MariasekMonoGame);
                 var assembly = typeof(MariasekMonoGame).Assembly;
 
-                return assembly.GetName().Version.ToString();
+                return assembly.GetName().Version;
             }
         }
 
