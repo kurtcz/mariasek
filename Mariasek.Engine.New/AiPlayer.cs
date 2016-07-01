@@ -20,7 +20,7 @@ namespace Mariasek.Engine.New
 #else
         private static readonly ILog _log = new DummyLogWrapper();
 #endif   
-        private Barva? _trump;
+        public Barva? _trump;
         private Hra? _gameType;
         public List<Card> _talon; //public so that HumanPlayer can set it
         private List<MultiplyingMoneyCalculator> _moneyCalculations;
@@ -335,14 +335,17 @@ namespace Mariasek.Engine.New
                     if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType)
                     {
                         _talon = ChooseDurchTalon(Hand);
+						DebugInfo.RuleCount = _durchBalance;
                     }
                     else if (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * Settings.SimulationsPerGameType)
                     {
                         _talon = ChooseBetlTalon(Hand);
+						DebugInfo.RuleCount = _betlBalance;
                     }
                     else
                     {
                         _talon = ChooseNormalTalon(Hand);
+						DebugInfo.RuleCount = Settings.SimulationsPerGameType - Math.Max(_durchBalance, _betlBalance);
                     }
                     if (UpdateProbabilitiesAfterTalon)
                     {
@@ -357,18 +360,21 @@ namespace Mariasek.Engine.New
             }
             _moneyCalculations = null; //abychom v GetBidsAndDoubles znovu sjeli simulaci normalni hry
 
+			DebugInfo.TotalRuleCount = Settings.SimulationsPerGameType;
             //byla uz zavolena nejaka hra?
             if (_gameType == Hra.Durch)
             {
+				DebugInfo.RuleCount = _durchBalance;
                 return GameFlavour.Good;
             }
             else if (_gameType == Hra.Betl)
             {
                 if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType)
                 {
+					DebugInfo.RuleCount = _durchBalance;
                     return GameFlavour.Bad;
                 }
-
+				DebugInfo.RuleCount = _betlBalance;
                 return GameFlavour.Good;
             }
             else
@@ -376,9 +382,10 @@ namespace Mariasek.Engine.New
                 if ((_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType) ||
                     (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * Settings.SimulationsPerGameType))
                 {
+					DebugInfo.RuleCount = Math.Max(_durchBalance, _betlBalance);
                     return GameFlavour.Bad;
                 }
-
+				DebugInfo.RuleCount = Settings.SimulationsPerGameType - Math.Max(_durchBalance, _betlBalance);
                 return GameFlavour.Good;
             }
         }
@@ -793,7 +800,8 @@ namespace Mariasek.Engine.New
                 minRuleCount = Math.Min(minRuleCount, _betlBalance);
             }
             DebugInfo.Rule = bid.ToString();
-            DebugInfo.RuleCount = minRuleCount;
+			//DebugInfo.RuleCount = minRuleCount; //tohle je spatne. je treba brat v potaz jen balance ktere jsou v bidding.Bids popr. ty co skoncily flekem
+			DebugInfo.RuleCount = 0;
             DebugInfo.TotalRuleCount = Settings.SimulationsPerGameType;
             var allChoices = new List<RuleDebugInfo>();
             allChoices.Add(new RuleDebugInfo

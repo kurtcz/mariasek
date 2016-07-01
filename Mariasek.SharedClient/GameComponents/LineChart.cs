@@ -90,6 +90,7 @@ namespace Mariasek.SharedClient.GameComponents
             VerticalGridLineColor = Color.Gray;
 
             UpdateSprite();
+			Game.Activated += (sender, e) => UpdateSprite();
         }
 
         private Vector2 LogicalToPhysical(Vector2 point)

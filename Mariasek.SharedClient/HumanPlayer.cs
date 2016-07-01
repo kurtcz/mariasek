@@ -104,9 +104,13 @@ namespace Mariasek.SharedClient
             }
             _trumpCard = _scene.ChooseTrump();
 
-            CancelAiTask();
             _trump = _trumpCard.Suit;
-            return _trumpCard;
+			if (_aiPlayer != null)
+			{
+				_aiPlayer._trump = _trump;
+			}
+			CancelAiTask();
+			return _trumpCard;
         }
 
         public override List<Card> ChooseTalon()

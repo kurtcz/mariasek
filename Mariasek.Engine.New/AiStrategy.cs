@@ -295,6 +295,7 @@ namespace Mariasek.Engine.New
             {
                 Order = 5,
                 Description = "vytáhnout plonkovou X",
+				UseThreshold = true, //aby se tohle pravidlo nehralo zbytecne, rozlozeni karet muze byt ruzne a muze byt lepsi a esem pockat
                 ChooseCard1 = () =>
                 {
                     IEnumerable<Card> cardsToPlay;
@@ -415,7 +416,7 @@ namespace Mariasek.Engine.New
                 Description = "zbav se plev",
                 ChooseCard1 = () =>
                 {
-                    IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
+					var cardsToPlay = new List<Card>();
 
                     if (TeamMateIndex == -1)
                     {
@@ -439,10 +440,26 @@ namespace Mariasek.Engine.New
                                                                                          !hands[MyIndex].HasSuit(j.Suit) &&
                                                                                          hands[player2].CardCount(j.Suit) < hands[MyIndex].CardCount(_trump) &&
                                                                                          (hands[player3].HasSuit(i.Suit) ||
-                                                                                          hands[player3].HasSuit(_trump))))));
+                                                                                          hands[player3].HasSuit(_trump)))))).ToList();
                     }
+					if (!cardsToPlay.Any())	//další verze (nezávislá na TeamMateIndex)
+					{						
+						var topCards = ValidCards(hands[MyIndex]).Where(i => 
+							hands[player2].All(j => 
+								hands[player3].All(k =>
+									Round.WinningCard(i, j, k, _trump) == i))).ToList();
+						if(topCards.Any())	//a pokud mám nějaké nejvyšší karty ve hře
+						{
+							cardsToPlay =  ValidCards(hands[MyIndex]).Where(i => !hands[MyIndex].HasA(i.Suit) && //a pokud mám plívy v barvě
+								!hands[MyIndex].HasX(i.Suit) && 
+								!hands[player2].HasA(i.Suit) && //ve které ani jeden soupeř/spoluhráč nemá A,X
+								!hands[player2].HasX(i.Suit) &&
+								!hands[player3].HasA(i.Suit) &&
+								!hands[player3].HasX(i.Suit)).ToList();
+						}
+					}
 
-                    return cardsToPlay.ToList().RandomOneOrDefault();
+                    return cardsToPlay.RandomOneOrDefault();
                 }
             };
 

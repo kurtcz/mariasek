@@ -1669,8 +1669,12 @@ namespace Mariasek.SharedClient
             if (_settings.HintEnabled)
             {
                 _hintBtn.IsEnabled = true;
-                HintBtnFunc = () => _hand.HighlightCard(trumpCard);
-            }
+				HintBtnFunc = () =>
+				{
+					_hand.HighlightCard(trumpCard);
+					ShowMsgLabel(trumpCard.ToString(), false); //Docasne, zjistit kdy radi kartu kterou jsem nemohl videt
+				}; 
+			}
         }
 
         public void SuggestTalon(List<Card> talon)
