@@ -120,21 +120,21 @@ namespace Mariasek.Engine.New
             //Settings.SimulationsPerRound = Settings.SimulationsPerRoundPerSecond * Settings.MaxSimulationTimeMs / 1000;
         }
 
-        private int GetSuitScoreForTrumpChoice(Barva b)
+        private int GetSuitScoreForTrumpChoice(List<Card> hand, Barva b)
         {
-            var hand = Hand.Take(7).ToList(); //nekoukat do karet co nejsou videt
+            var hand7 = hand.Take(7).ToList(); //nekoukat do karet co nejsou videt
             var score = 0;
-            var count = hand.Count(i => i.Suit == b);
+            var count = hand7.Count(i => i.Suit == b);
 
             if (count > 1)
             {
-                if (hand.HasK(b))
+                if (hand7.HasK(b))
                     score += 20;
-                if (hand.HasQ(b))
+                if (hand7.HasQ(b))
                     score += 20;
-                if (hand.HasA(b))
+                if (hand7.HasA(b))
                     score += 10;
-                if (hand.HasX(b))
+                if (hand7.HasX(b))
                     score += 10;
 
                 score += count;
@@ -146,10 +146,15 @@ namespace Mariasek.Engine.New
 
         public override Card ChooseTrump()
         {
+            return ChooseTrump(Hand);
+        }
+
+        public Card ChooseTrump(List<Card> hand)
+        {
             var scores = Enum.GetValues(typeof(Barva)).Cast<Barva>().Select(barva => new
             {
                 Suit = barva,
-                Score = GetSuitScoreForTrumpChoice(barva)
+                Score = GetSuitScoreForTrumpChoice(hand, barva)
             });
 
             //vezmi barvu s nejvetsim skore, pokud je skore shodne tak vezmi nejdelsi barvu
@@ -158,15 +163,15 @@ namespace Mariasek.Engine.New
                               .First();
 
             //vyber jednu z karet v barve (nejdriv zkus neukazovat zadne dulezite karty, pokud to nejde vezmi libovolnou kartu v barve)
-            var card = Hand.FirstOrDefault(i => i.Suit == trump && i.Value > Hodnota.Sedma && i.Value < Hodnota.Svrsek) ??
-                       Hand.OrderBy(i => i.Value).FirstOrDefault(i => i.Suit == trump);
+            var card = hand.FirstOrDefault(i => i.Suit == trump && i.Value > Hodnota.Sedma && i.Value < Hodnota.Svrsek) ??
+                       hand.OrderBy(i => i.Value).FirstOrDefault(i => i.Suit == trump);
 
             _trump = card.Suit;
             _log.DebugFormat("Trump chosen: {0}", card);
             return card;
         }
 
-        private List<Card> ChooseBetlTalon(List<Card> hand)
+        private List<Card> ChooseBetlTalon(List<Card> hand, Barva? trump)
         {
             var holesByCard = hand.Select(i => {
                 //pro kazdou kartu spocitej diry (mensi karty v barve ktere nemam)
@@ -190,6 +195,7 @@ namespace Mariasek.Engine.New
             var talon = holesByCard.OrderBy(i => i.Count())
                                    .ThenByDescending(i => i.Max(j => j.Item3))
                                    .SelectMany(i => i.Select(j => j.Item2))
+                                   .OrderByDescending(i => i)
                                    .Take(2)
                                    .ToList();
             var count = talon.Count();
@@ -203,7 +209,7 @@ namespace Mariasek.Engine.New
             return talon;
         }
 
-        private List<Card> ChooseDurchTalon(List<Card> hand)
+        private List<Card> ChooseDurchTalon(List<Card> hand, Barva? trump)
         {
             var holesByCard = hand.Select(i =>
             {
@@ -240,13 +246,13 @@ namespace Mariasek.Engine.New
             return talon;
         }
 
-        private List<Card> ChooseNormalTalon(List<Card> hand)
+        private List<Card> ChooseNormalTalon(List<Card> hand, Barva? trump)
         {
             var talon = new List<Card>();
 
             //nejdriv zkus vzit karty v barve kde krom esa nemam nic jineho (neber krale ani svrska)
             var b = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                        .Where(barva => barva != _trump.Value &&
+                        .Where(barva => barva != trump.Value &&
                                         hand.Count(i => i.Suit == barva &&
                                                         i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka) <= 2 &&
                                         !hand.HasX(barva) &&
@@ -260,7 +266,7 @@ namespace Mariasek.Engine.New
             if (talon.Count < 2)
             {
                 b = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                        .Where(barva => barva != _trump.Value &&
+                        .Where(barva => barva != trump.Value &&
                                         (talon.Count == 0 || barva != talon.First().Suit) &&
                                         hand.Count(i => i.Suit == barva &&
                                                         i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka) <= 2 &&
@@ -275,7 +281,7 @@ namespace Mariasek.Engine.New
                 if (talon.Count < 2)
                 {
                     b = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                            .Where(barva => barva != _trump.Value &&
+                            .Where(barva => barva != trump.Value &&
                                             (talon.Count == 0 || barva != talon.First().Suit));
                     talon.AddRange(hand.Where(i => b.Contains(i.Suit) &&
                                               i.Value != Hodnota.Eso &&
@@ -301,11 +307,11 @@ namespace Mariasek.Engine.New
                 //protihrac nejdriv sjede simulaci nanecisto (bez talonu) a potom znovu s kartami talonu a vybere novy talon
                 if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType)
                 {
-                    _talon = ChooseDurchTalon(Hand);
+                    _talon = ChooseDurchTalon(Hand, null);
                 }
                 else
                 {
-                    _talon = ChooseBetlTalon(Hand);
+                    _talon = ChooseBetlTalon(Hand, null);
                 }
             }
             _log.DebugFormat("Talon chosen: {0} {1}", _talon[0], _talon[1]);
@@ -334,17 +340,17 @@ namespace Mariasek.Engine.New
                     RunGameSimulations(bidding, PlayerIndex, true, true);
                     if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType)
                     {
-                        _talon = ChooseDurchTalon(Hand);
+                        _talon = ChooseDurchTalon(Hand, null);
 						DebugInfo.RuleCount = _durchBalance;
                     }
                     else if (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * Settings.SimulationsPerGameType)
                     {
-                        _talon = ChooseBetlTalon(Hand);
+                        _talon = ChooseBetlTalon(Hand, null);
 						DebugInfo.RuleCount = _betlBalance;
                     }
                     else
                     {
-                        _talon = ChooseNormalTalon(Hand);
+                        _talon = ChooseNormalTalon(Hand, _trump);
 						DebugInfo.RuleCount = Settings.SimulationsPerGameType - Math.Max(_durchBalance, _betlBalance);
                     }
                     if (UpdateProbabilitiesAfterTalon)
@@ -390,14 +396,28 @@ namespace Mariasek.Engine.New
             }
         }
 
-        private void UpdateGeneratedHandsByChoosingTalon(Hand[] hands, Func<List<Card>, List<Card>> chooseTalonFunc, int GameStartingPlayerIndex)
+        private void UpdateGeneratedHandsByChoosingTalon(Hand[] hands, Func<List<Card>, Barva?, List<Card>> chooseTalonFunc, int GameStartingPlayerIndex, Barva? trump = null)
         {
             const int talonIndex = 3;
 
             //volicimu hraci dame i to co je v talonu, aby mohl vybrat skutecny talon
             hands[GameStartingPlayerIndex].AddRange(hands[3]);
 
-            var talon = chooseTalonFunc(hands[GameStartingPlayerIndex]);
+            var talon = chooseTalonFunc(hands[GameStartingPlayerIndex], trump);
+
+            hands[GameStartingPlayerIndex].RemoveAll(i => talon.Contains(i));
+            hands[talonIndex] = new Hand(talon);
+        }
+
+        private void UpdateGeneratedHandsByChoosingTrumpAndTalon(Hand[] hands, Func<List<Card>, Barva?, List<Card>> chooseTalonFunc, int GameStartingPlayerIndex)
+        {
+            const int talonIndex = 3;
+
+            //volicimu hraci dame i to co je v talonu, aby mohl vybrat skutecny talon
+            hands[GameStartingPlayerIndex].AddRange(hands[3]);
+
+            var trump = ChooseTrump(hands[GameStartingPlayerIndex]).Suit;
+            var talon = chooseTalonFunc(hands[GameStartingPlayerIndex], trump);
 
             hands[GameStartingPlayerIndex].RemoveAll(i => talon.Contains(i));
             hands[talonIndex] = new Hand(talon);
@@ -460,7 +480,10 @@ namespace Mariasek.Engine.New
                     {
                         hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
                     }
-                    UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
+                    if (PlayerIndex != GameStartingPlayerIndex)
+                    {
+                        UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex, _trump);
+                    }
 
                     // to ?? vypada chybne
                     var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : Hra.Sedma, 10, 1); 
@@ -506,6 +529,7 @@ namespace Mariasek.Engine.New
                     {
                         hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
                     }
+                    UpdateGeneratedHandsByChoosingTrumpAndTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, GameStartingPlayerIndex);
 
                     var betlComputationResult = ComputeGame(hands, null, null, null, Hra.Betl, 10, 1, true);
@@ -530,6 +554,15 @@ namespace Mariasek.Engine.New
                     if (source == null)
                     {
                         tempSource.Enqueue(hands);
+                    }
+                    //nasimuluj ze volici hrac vybral trumfy a/nebo talon
+                    if (_g.GameType == Hra.Betl)
+                    {
+                        UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, _g.GameStartingPlayerIndex);
+                    }
+                    else
+                    {
+                        UpdateGeneratedHandsByChoosingTrumpAndTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
                     }
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseDurchTalon, GameStartingPlayerIndex);
 

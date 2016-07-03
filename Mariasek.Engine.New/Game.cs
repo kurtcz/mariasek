@@ -198,7 +198,11 @@ namespace Mariasek.Engine.New
             var player1 = CreatePlayerInstance(playersSettings.Player1);
             var player2 = CreatePlayerInstance(playersSettings.Player2);
             var player3 = CreatePlayerInstance(playersSettings.Player3);
-            
+
+            player1.PlayerIndex = 0;
+            player2.PlayerIndex = 1;
+            player3.PlayerIndex = 2;
+
             players = new[] { player1, player2, player3 };
         }
 
@@ -603,10 +607,12 @@ namespace Mariasek.Engine.New
                 IsRunning = false;
                 Results = GetMoneyCalculator();
                 Results.CalculateMoney();
+#if PORTABLE
                 using (var fs = GetFileStream("_end.hra"))
                 {
                     SaveGame(fs, saveDebugInfo: true);
                 }
+#endif
                 OnGameFinished(Results);
             }
             catch (Exception ex)
@@ -741,9 +747,9 @@ namespace Mariasek.Engine.New
                      h == Hodnota.Desitka);
         }
 
-        #endregion
+#endregion
 
-        #region Private methods
+#region Private methods
 
         private MoneyCalculatorBase GetMoneyCalculator()
         {
@@ -982,6 +988,6 @@ namespace Mariasek.Engine.New
                 lastRoundWinner = rounds[i].roundWinner;
             }
         }
-        #endregion
+#endregion
     }
 }

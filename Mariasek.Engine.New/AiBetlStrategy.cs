@@ -50,6 +50,28 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 1,
+                Description = "Vytlač chytající karty",
+                ChooseCard1 = () =>
+                {
+                    IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
+
+                    if (TeamMateIndex == -1)//c--
+                    {
+                        cardsToPlay = hands[MyIndex].Where(i =>                                 //vytlac jednou kartou chytajici karty souperu
+                                            hands[player2].CardCount(i.Suit) <= 1 &&
+                                            hands[player3].CardCount(i.Suit) <= 1 &&
+                                            ValidCards(i, hands[player2]).Any(j =>
+                                                ValidCards(i, j, hands[player3]).All(k =>
+                                                    Round.WinningCard(i, j, k, null) != i)));
+                    }
+
+                    return cardsToPlay.ToList().RandomOneOrDefault();
+                }
+            };
+
+            yield return new AiRule()
+            {
+                Order = 2,
                 Description = "Odmazat si vysokou kartu",
                 ChooseCard1 = () =>
                 {
@@ -107,7 +129,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 2,
+                Order = 3,
                 Description = "Hrát krátkou barvu",
                 ChooseCard1 = () =>
                 {
