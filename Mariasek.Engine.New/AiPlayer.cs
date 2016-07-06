@@ -485,10 +485,7 @@ namespace Mariasek.Engine.New
                     {
                         hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
                     }
-                    if (PlayerIndex != GameStartingPlayerIndex)
-                    {
-                        UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex, _trump);
-                    }
+                    UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex, _trump);
 
                     // to ?? vypada chybne
                     var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : Hra.Sedma, 10, 1); 
