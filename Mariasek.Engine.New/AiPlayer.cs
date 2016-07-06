@@ -252,40 +252,45 @@ namespace Mariasek.Engine.New
 
             //nejdriv zkus vzit karty v barve kde krom esa nemam nic jineho (neber krale ani svrska)
             var b = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                        .Where(barva => barva != trump.Value &&
-                                        hand.Count(i => i.Suit == barva &&
-                                                        i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka) <= 2 &&
-                                        !hand.HasX(barva) &&
+                        .Where(barva => barva != trump.Value &&                 //trumfy ne
+                                        hand.Count(i => i.Suit == barva &&      //max. 2 karty jine nez A
+                                                        i.Value != Hodnota.Eso) <= 2 &&
+                                        !hand.HasX(barva) &&                    //v barve kde neznam X ani nemam hlas
                                         !(hand.HasK(barva) && hand.HasQ(barva)));
 
-            talon.AddRange(hand.Where(i => b.Contains(i.Suit) &&
-                                      i.Value != Hodnota.Eso &&
-                                      i.Value != Hodnota.Desitka)
+            talon.AddRange(hand.Where(i => b.Contains(i.Suit) &&                //vem karty z techto barev pokud to neni A
+                                      i.Value != Hodnota.Eso)
+                               .OrderBy(i => hand.Count(j => j.Suit == i.Suit))         //vybirej od nejkratsich barev
+                               .ThenBy(i => hand.Count(j => j.Suit == i.Suit &&
+                                                            i.Value == Hodnota.Eso))    //v pripade stejne delky barev dej prednost barve s esem
                                .Take(2)
                                .ToList());
             if (talon.Count < 2)
             {
-                b = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                        .Where(barva => barva != trump.Value &&
-                                        (talon.Count == 0 || barva != talon.First().Suit) &&
-                                        hand.Count(i => i.Suit == barva &&
-                                                        i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka) <= 2 &&
-                                        !hand.HasX(barva));
+                //b = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                //        .Where(barva => barva != trump.Value &&
+                //                        (talon.Count == 0 || barva != talon.First().Suit) && //vem barvy ktere nejsou trumf a jsou jine nez prvni karta v talonu
+                //                        hand.Count(i => i.Suit == barva &&      //max. 2 karty jine nez A, X
+                //                                        i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka) <= 2 &&
+                //                        !hand.HasX(barva)); //tady uz muzu hodit kompletni hlasku do talonu!!!
 
-                talon.AddRange(hand.Where(i => b.Contains(i.Suit) &&
-                                          i.Value != Hodnota.Eso &&
-                                          i.Value != Hodnota.Desitka)
-                                   .Take(2 - talon.Count)
-                                   .ToList());
+                //talon.AddRange(hand.Where(i => b.Contains(i.Suit) &&            //vem karty z techto barve pokud ot neni A, X
+                //                          i.Value != Hodnota.Eso &&
+                //                          i.Value != Hodnota.Desitka)
+                //                   .Take(2 - talon.Count)
+                //                   .ToList());
 
-                if (talon.Count < 2)
+                //if (talon.Count < 2)
                 {
                     b = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                             .Where(barva => barva != trump.Value &&
-                                            (talon.Count == 0 || barva != talon.First().Suit));
-                    talon.AddRange(hand.Where(i => b.Contains(i.Suit) &&
+                                            (talon.Count == 0 || barva != talon.First().Suit)); //vem barvy ktere nejsou trumf a jsou jine nez prvni karta v talonu
+                    talon.AddRange(hand.Where(i => b.Contains(i.Suit) &&                        //vyber cokoli mimo A, X, hlas
                                               i.Value != Hodnota.Eso &&
-                                              i.Value != Hodnota.Desitka)
+                                              i.Value != Hodnota.Desitka &&
+                                              !((i.Value == Hodnota.Svrsek || i.Value == Hodnota.Kral) &&
+                                                hand.HasK(i.Suit) &&
+                                                hand.HasQ(i.Suit)))
                                        .OrderBy(i => i.Value)
                                        .Take(2 - talon.Count)
                                        .ToList());

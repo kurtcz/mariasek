@@ -107,7 +107,7 @@ namespace Mariasek.Engine.New
                 }
                 else if (KilledSevenAgainst)
                 {
-                    KilledSevenAgainstMoneyWon = -KilledSevenValue;
+                    KilledSevenAgainstMoneyWon = KilledSevenValue;
                     money += KilledSevenAgainstMoneyWon;
                 }
 
