@@ -84,7 +84,7 @@ namespace Mariasek.Engine.New
                      (gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
                      c.Value == Hodnota.Sedma &&
                      c.Suit == trump.Value &&
-                     ((isFirstPlayer && hand.Count() > 2) ||    //pokud zacinam kolo musim hrat trumfovou sedmu jako posledni kartu v ruce
+                     ((isFirstPlayer && hand.Count() > 1) ||    //pokud zacinam kolo musim hrat trumfovou sedmu jako posledni kartu v ruce
                       (!isFirstPlayer && hand.HasAtLeastNCardsOfSuit(trump.Value, 2)))) //jinak musim hrat trumfovou sedmu jako posledniho trumfa v ruce
             {
                 return Renonc.NehrajSedmu;

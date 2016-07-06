@@ -96,7 +96,6 @@ namespace Mariasek.SharedClient
         private string _historyFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.history");
         private string _deckFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.deck");
         private string _savedGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SavedGame.hra");
-		private string _loadedGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SavedGame.hra");
 		private string _newGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_temp.hra");
         private string _errorFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_error.hra");
         private string _endGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_end.hra");
@@ -1516,8 +1515,16 @@ namespace Mariasek.SharedClient
 
         public void LoadGame()
         {
-            if (File.Exists(_savedGameFilePath) && g == null)
+			var gameToLoadString = ResourceLoader.GetEmbeddedResourceString(this.GetType().Assembly, "GameToLoad");
+
+            //if (File.Exists(_savedGameFilePath) && g == null)
+			if(!string.IsNullOrEmpty(gameToLoadString) && g == null)
             {
+				using (var fs = File.Open(_savedGameFilePath, FileMode.Create))
+				using (var sw = new StreamWriter(fs))
+				{
+					sw.Write(gameToLoadString);
+				}
                 SetActive();
                 _cancellationTokenSource = new CancellationTokenSource();
                 _gameTask = Task.Run(() => 
@@ -1533,7 +1540,7 @@ namespace Mariasek.SharedClient
                         new AiPlayer(g, _aiConfig) { Name = "Hráč 3" }
                     );
 
-                    using (var fs = File.Open(_savedGameFilePath, FileMode.Open))
+					using (var fs = File.Open(_savedGameFilePath, FileMode.Open))
                     {                            
                         g.LoadGame(fs);
                     }

@@ -1,4 +1,5 @@
-﻿#region Using Statements
+﻿//#define LOADGAME
+#region Using Statements
 using System;
 using System.IO;
 using System.Linq;
@@ -156,7 +157,9 @@ namespace Mariasek.SharedClient
             MainScene.Initialize();
 
             MenuScene.SetActive();
+#if LOADGAME
             MainScene.LoadGame();
+#endif
         }
 
         public delegate void RestartedEventHandler();
