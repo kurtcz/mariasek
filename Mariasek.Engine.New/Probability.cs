@@ -32,6 +32,7 @@ namespace Mariasek.Engine.New
         private List<Card> _talon;
         private List<Card> _myTalon;
         private StringBuilder _debugString;
+		private StringBuilder _verboseString;
         private readonly List<int> _gameBidders;
 
         public Probability(int myIndex, int gameStarterIndex, Hand myHand, Barva? trump, List<Card> talon = null)
@@ -44,6 +45,7 @@ namespace Mariasek.Engine.New
             _talon = talon;
             _myTalon = talon;
             _debugString = new StringBuilder();
+			_verboseString = new StringBuilder();
 			_debugString.AppendFormat("ctor\nhand:\n{0}\ntalon:\n{1}", 
 				_myHand, _talon != null ? _talon.Any() ? string.Format("{0} {1}", _talon[0], _talon[1]) : "empty" : "null");
             var GenerateTalonProbabilities = talon == null;
@@ -231,7 +233,8 @@ namespace Mariasek.Engine.New
             //pocet mych jistych karet je pocet karet ve hre pro kazdeho hrace
             var tc = _cardProbabilityForPlayer[_myIndex].SelectMany(i => i.Value).Count(i => i.Value == 1f);
             var totalCards = new int[] { tc, tc, tc, 2 };
-            
+			_verboseString.Append("ReduceUcertainCardSet -> Enter\n");
+			
             while (true)
             {
                 bool reduced = false;
@@ -249,6 +252,8 @@ namespace Mariasek.Engine.New
                             for (int k = 0; k < Game.NumPlayers + 1; k++)
                             {
                                 _cardProbabilityForPlayer[k][uncertainCard.Suit][uncertainCard.Value] = j == k ? 1f : 0f;
+								_verboseString.AppendFormat("Player{0}[{1}][{2}] = {3}\n",
+									k + 1, uncertainCard.Suit, uncertainCard.Value, _cardProbabilityForPlayer[k][uncertainCard.Suit][uncertainCard.Value]);
                             }
                         }
                         reduced = true;
@@ -262,6 +267,8 @@ namespace Mariasek.Engine.New
                             {
                                 _cardProbabilityForPlayer[j][uncertainCard.Suit][uncertainCard.Value] = 0f;
                                 reduced = true;
+								_verboseString.AppendFormat("Player{0}[{1}][{2}] = {3}\n",
+									j + 1, uncertainCard.Suit, uncertainCard.Value, _cardProbabilityForPlayer[j][uncertainCard.Suit][uncertainCard.Value]);
                             }
                         }
                     }
@@ -272,6 +279,7 @@ namespace Mariasek.Engine.New
                     break;
                 }
             }
+			_verboseString.Append("ReduceUcertainCardSet <- Exit\n");
         }
 
         /// <summary>
@@ -279,6 +287,7 @@ namespace Mariasek.Engine.New
         /// </summary>
         private void ReduceUncertainCardSet(List<Card>[] hands, int[] totalCards, List<Card>[] uncertainCards)
         {
+			_verboseString.Append("ReduceUcertainCardSet -> Enter\n");
             //Pozor!!!: u vsech techto vstupnich promennych plati, ze index 0 == ja ale u _cardProbabilityForPlayer je _myIndex == ja
             while (true)
             {
@@ -296,10 +305,13 @@ namespace Mariasek.Engine.New
                         {
                             var c = uncertainCards[j][k];
                             hands[j].Add(c);
+							_verboseString.AppendFormat("Hand{0} += {1} (rest)\n",  (_myIndex + k + 1) % (Game.NumPlayers + 1), c);
                             //a u ostatnich tim padem tuhle kartu uz nesmim brat v potaz
                             for (int l = 0; l < Game.NumPlayers + 1; l++)
                             {
                                 uncertainCards[l].Remove(c);
+								_verboseString.AppendFormat("Player{0}[{1}][{2}] = 0\n",
+									l + 1, c.Suit, c.Value);
                             }
                         }
                         uncertainCards[j].Clear();
@@ -317,6 +329,7 @@ namespace Mariasek.Engine.New
                     break;
                 }
             }
+			_verboseString.Append("ReduceUcertainCardSet <- Exit\n");
         }
 
         public float Deviation
@@ -387,10 +400,16 @@ namespace Mariasek.Engine.New
             totalCards[talonIndex] = 2;
             hands[talonIndex] = new List<Card>();
 
+            _verboseString.Clear();
+            _verboseString.Append("GenerateHands(round: {0}, starting: Player{1} -> Enter\n", roundNumber, roundStarterIndex + 1);
             //zacneme tim, ze rozdelime jiste karty
             for (int i = 0; i < Game.NumPlayers + 1; i++)
             {
                 hands[i].AddRange(certainCards[i]);
+                foreach(var c in certainCards[i])
+                {
+					_verboseString.AppendFormat("Hand{0} += {1} (certain)\n", (_myIndex + i + 1) % (Game.NumPlayers + 1), c);
+                }
             }
             ReduceUncertainCardSet(hands, totalCards, uncertainCards);
             //projdeme vsechny nejiste karty a zkusime je rozdelit podle pravdepodobnosti jednotlivym hracum (nebo do talonu)
@@ -402,6 +421,7 @@ namespace Mariasek.Engine.New
                     if (!uncertainCards.Any(i => i.Contains(c)))
                     {
                         //toto neni karta na rozdeleni (je bud jista nebo odehrana)
+						_verboseString.AppendFormat("{0} skipped\n", c);
                         continue;
                     }
                     //spocitame si pravdepodobnostni prahy
@@ -456,9 +476,11 @@ namespace Mariasek.Engine.New
                         if ((i == 0 || n >= thresholds[i - 1]) && n < thresholds[i])
                         {
                             hands[i].Add(c);
+							_verboseString.AppendFormat("Hand{0} += {1}\n", (_myIndex + i + 1) % (Game.NumPlayers + 1), c);
                             for (int j = 0; j < Game.NumPlayers + 1; j ++)
                             {
                                 uncertainCards[j].Remove(c);
+								_verboseString.AppendFormat("Player[{0}][{1}][{2}] = 0\n", (_myIndex + j + 1) % (Game.NumPlayers + 1), c.Suit, c.Value);
                             }
                             ReduceUncertainCardSet(hands, totalCards, uncertainCards);
                             break;
@@ -512,10 +534,11 @@ namespace Mariasek.Engine.New
                         _myIndex+1, i < Game.NumPlayers ? string.Format("Player{0}", i+1) : "talon", FriendlyString(i, roundNumber));
                 }
 
-                throw new InvalidOperationException(string.Format("Badly generated hands for player {0}, round {1}:{2}\n{3}\nHistorie:\n{4}\n", 
-                    _myIndex + 1, roundNumber, sb.ToString(), friendlyString.ToString(), _debugString.ToString()));
+				throw new InvalidOperationException(string.Format("Badly generated hands for player {0}, round {1}:{2}\n{3}\nGenerovani:\n{4}\nHistorie:\n{5}\n", 
+					_myIndex + 1, roundNumber, sb.ToString(), friendlyString.ToString(), _verboseString.ToString(), _debugString.ToString()));
             }
             _log.DebugFormat("Finished generating hands for player{0}\n{1}", _myIndex + 1, sb.ToString());
+			_verboseString.Append("GenerateHands <- Exit\n");
 
             return result;
         }
@@ -550,7 +573,7 @@ namespace Mariasek.Engine.New
 
         public void UpdateProbabilitiesAfterGameFlavourChosen(GameFlavourChosenEventArgs e)
         {
-			_debugString.AppendFormat("GameFlavourchosen: {0} {1}", e.Player.Name, e.Flavour);
+			_debugString.AppendFormat("GameFlavourchosen: {0} {1}\n", e.Player.Name, e.Flavour);
             if (e.Flavour == GameFlavour.Bad && e.Player.PlayerIndex != _myIndex && _myTalon != null)
             {
                 _gameBidders.Add(e.Player.PlayerIndex);
