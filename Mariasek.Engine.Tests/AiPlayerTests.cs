@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mariasek.Engine.New;
 using Mariasek.Engine.New.Configuration;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Mariasek.Engine.Tests
 {
@@ -108,6 +109,40 @@ namespace Mariasek.Engine.Tests
             props = aiPlayer.ToPropertyDictionary();
 
             return g.GameType;
+        }
+
+        private void ChooseTrumpAndTalon(string filename, out Dictionary<string, object> props)
+        {
+            var g = new Game()
+            {
+                SkipBidding = false
+            };
+
+            //if (cheat)
+            //{
+            //    _aiConfig["Cheat"] = new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            //    {
+            //        Name = "AiCheating",
+            //        Value = "true"
+            //    };
+            //}
+
+            var player1 = new DummyPlayer(g);
+            var aiPlayer = new AiPlayer(g, _aiConfig);
+            var player3 = new DummyPlayer(g);
+
+            g.RegisterPlayers(
+                    player1,
+                    aiPlayer,
+                    player3);
+            //zacina aiPlayer (player2)
+            g.LoadGame(filename);
+            //g.InvokeMethod("ChooseGame");
+            var trumpCard = aiPlayer.ChooseTrump();
+            var talon = aiPlayer.ChooseTalon();
+            props = aiPlayer.ToPropertyDictionary();
+
+            return;
         }
 
         private Hra GetOpponentsBidsAndDoubles(string filename, out Dictionary<string, object> props)
@@ -249,6 +284,69 @@ namespace Mariasek.Engine.Tests
             var hra = ChooseGameType(@"Scenarios\ChooseGame\Durch.hra", out props);
 
             Assert.IsTrue((hra & Hra.Durch) != 0, string.Format("Ai mel zavolit durcha, ale zvolil {0}", hra));
+        }
+
+        [TestMethod]
+        public void ChooseTrumpAndTalon1()
+        {
+            var g = new Game();
+            var aiPlayer = new AiPlayer(g, _aiConfig);
+            var player2 = new DummyPlayer(g);
+            var player3 = new DummyPlayer(g);
+            var hand = new Hand(
+                new[] {
+                    new Card(Barva.Zeleny, Hodnota.Eso),
+                    new Card(Barva.Zeleny, Hodnota.Desitka),
+                    new Card(Barva.Zeleny, Hodnota.Kral),
+                    new Card(Barva.Zeleny, Hodnota.Svrsek),
+                    new Card(Barva.Zeleny, Hodnota.Sedma),
+                    new Card(Barva.Kule, Hodnota.Eso),
+                    new Card(Barva.Kule, Hodnota.Osma),
+                    new Card(Barva.Zaludy, Hodnota.Osma),
+                    new Card(Barva.Cerveny, Hodnota.Desitka),
+                    new Card(Barva.Cerveny, Hodnota.Kral),
+                    new Card(Barva.Cerveny, Hodnota.Spodek),
+                    new Card(Barva.Cerveny, Hodnota.Devitka)
+                });
+            aiPlayer.Hand = hand;
+            var trumpCard = aiPlayer.ChooseTrump();
+            var talon = aiPlayer.InvokeMethod<IEnumerable<Card>>("ChooseNormalTalon", aiPlayer.Hand, trumpCard);
+            var props = aiPlayer.ToPropertyDictionary();
+
+            Assert.AreEqual(2, talon.Count(), "Bad number of cards in talon");
+            Assert.IsFalse(talon.Any(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka), "talon nesmi obsahovat eso nebo desitku");
+            Assert.IsFalse(talon.Contains(trumpCard), "talon nesmi obsahovat kartu co ukazuju jako trumf");
+        }
+
+        [TestMethod]
+        public void ChooseTrumpAndTalon2()
+        {
+            var g = new Game();
+            var aiPlayer = new AiPlayer(g, _aiConfig);
+            var player2 = new DummyPlayer(g);
+            var player3 = new DummyPlayer(g);
+            var hand = new Hand(
+                new[] {
+                    new Card(Barva.Zeleny, Hodnota.Eso),
+                    new Card(Barva.Zeleny, Hodnota.Desitka),
+                    new Card(Barva.Zeleny, Hodnota.Kral),
+                    new Card(Barva.Zeleny, Hodnota.Svrsek),
+                    new Card(Barva.Zeleny, Hodnota.Spodek),
+                    new Card(Barva.Zeleny, Hodnota.Osma),
+                    new Card(Barva.Zeleny, Hodnota.Sedma),
+                    new Card(Barva.Kule, Hodnota.Eso),
+                    new Card(Barva.Cerveny, Hodnota.Desitka),
+                    new Card(Barva.Cerveny, Hodnota.Kral),
+                    new Card(Barva.Zaludy, Hodnota.Eso),
+                    new Card(Barva.Zaludy, Hodnota.Desitka)
+                });
+            aiPlayer.Hand = hand;
+            var trumpCard = aiPlayer.ChooseTrump();
+            var talon = aiPlayer.InvokeMethod<IEnumerable<Card>>("ChooseNormalTalon", aiPlayer.Hand, trumpCard);
+            var props = aiPlayer.ToPropertyDictionary();
+
+            Assert.IsFalse(talon.Any(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka), "talon nesmi obsahovat eso nebo desitku");
+            Assert.IsFalse(talon.Contains(trumpCard), "talon nesmi obsahovat kartu co ukazuju jako trumf");
         }
         #endregion
 

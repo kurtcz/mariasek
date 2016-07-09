@@ -21,6 +21,7 @@ namespace Mariasek.Engine.New
         private static readonly ILog _log = new DummyLogWrapper();
 #endif   
         public Barva? _trump;
+        public Card _trumpCard;
         private Hra? _gameType;
         public List<Card> _talon; //public so that HumanPlayer can set it
         private List<MultiplyingMoneyCalculator> _moneyCalculations;
@@ -163,16 +164,16 @@ namespace Mariasek.Engine.New
                               .First();
 
             //vyber jednu z karet v barve (nejdriv zkus neukazovat zadne dulezite karty, pokud to nejde vezmi libovolnou kartu v barve)
-            var card = hand.FirstOrDefault(i => i.Suit == trump && i.Value > Hodnota.Sedma && i.Value < Hodnota.Svrsek) ??
+            _trumpCard = hand.FirstOrDefault(i => i.Suit == trump && i.Value > Hodnota.Sedma && i.Value < Hodnota.Svrsek) ??
                        hand.OrderBy(i => i.Value).FirstOrDefault(i => i.Suit == trump);
 
-            _trump = card.Suit;
-            _log.DebugFormat("Trump chosen: {0}", card);
-            return card;
+			_trump = _trumpCard.Suit;
+			_log.DebugFormat("Trump chosen: {0}", _trumpCard);
+			return _trumpCard;
         }
 
-        private List<Card> ChooseBetlTalon(List<Card> hand, Barva? trump)
-        {
+        private List<Card> ChooseBetlTalon(List<Card> hand, Card trumpCard)
+        {            
             var holesByCard = hand.Select(i => {
                 //pro kazdou kartu spocitej diry (mensi karty v barve ktere nemam)
                 var holes = 0;
@@ -209,7 +210,7 @@ namespace Mariasek.Engine.New
             return talon;
         }
 
-        private List<Card> ChooseDurchTalon(List<Card> hand, Barva? trump)
+        private List<Card> ChooseDurchTalon(List<Card> hand, Card trumpCard)
         {
             var holesByCard = hand.Select(i =>
             {
@@ -246,54 +247,74 @@ namespace Mariasek.Engine.New
             return talon;
         }
 
-        private List<Card> ChooseNormalTalon(List<Card> hand, Barva? trump)
+        private List<Card> ChooseNormalTalon(List<Card> hand, Card trumpCard)
         {
             var talon = new List<Card>();
 
-            //nejdriv zkus vzit karty v barve kde krom esa nemam nic jineho (neber krale ani svrska)
-            var b = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                        .Where(barva => barva != trump.Value &&                 //trumfy ne
-                                        hand.Count(i => i.Suit == barva &&      //max. 2 karty jine nez A
-                                                        i.Value != Hodnota.Eso) <= 2 &&
-                                        !hand.HasX(barva) &&                    //v barve kde neznam X ani nemam hlas
-                                        !(hand.HasK(barva) && hand.HasQ(barva)));
-
-            talon.AddRange(hand.Where(i => b.Contains(i.Suit) &&                //vem karty z techto barev pokud to neni A
-                                      i.Value != Hodnota.Eso)
-                               .OrderBy(i => hand.Count(j => j.Suit == i.Suit))         //vybirej od nejkratsich barev
-                               .ThenBy(i => hand.Count(j => j.Suit == i.Suit &&
-                                                            i.Value == Hodnota.Eso))    //v pripade stejne delky barev dej prednost barve s esem
-                               .Take(2)
-                               .ToList());
+            //nejdriv zkus vzit karty v barve kde krom esa mam max 2 plivy (a nemam hlasku)
+            talon.AddRange(hand
+                .Where(i => i.Suit != trumpCard.Suit &&             //nevybirej trumfy
+                            i.Value != trumpCard.Value &&
+                            i.Value != Hodnota.Eso &&               //ani esa
+                            hand.Count(j => i.Suit == j.Suit &&     //max. 2 karty jine nez A
+                                            i.Value != Hodnota.Eso) <= 2 &&
+                            !hand.HasX(i.Suit) &&                   //v barve kde neznam X ani nemam hlas
+                            !(hand.HasK(i.Suit) && hand.HasQ(i.Suit)))
+                .OrderBy(i => hand.Count(j => j.Suit == i.Suit))    //vybirej od nejkratsich barev
+                .ThenBy(i => hand.Count(j => j.Suit == i.Suit &&    //v pripade stejne delky barev
+                             i.Value == Hodnota.Eso))               //dej prednost barve s esem
+                .Take(2)
+                .ToList());
+            //potom zkus cokoli mimo trumfu,A,X,7, hlasu a samotne plivy ktera doplnuje X
             if (talon.Count < 2)
             {
-                //b = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                //        .Where(barva => barva != trump.Value &&
-                //                        (talon.Count == 0 || barva != talon.First().Suit) && //vem barvy ktere nejsou trumf a jsou jine nez prvni karta v talonu
-                //                        hand.Count(i => i.Suit == barva &&      //max. 2 karty jine nez A, X
-                //                                        i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka) <= 2 &&
-                //                        !hand.HasX(barva)); //tady uz muzu hodit kompletni hlasku do talonu!!!
+                talon.AddRange(hand
+                    .Where(i => i.Suit != trumpCard.Suit &&             //nevybirej trumfy
+                                i.Value != Hodnota.Eso &&               //ani A,X
+                                i.Value != Hodnota.Desitka &&
+                                !((i.Value == Hodnota.Kral ||           //ani hlasy
+                                   i.Value == Hodnota.Svrsek) && 
+                                  hand.HasK(i.Suit) && hand.HasQ(i.Suit)) &&
+                                i.Value != Hodnota.Sedma &&             //ani sedmu
+                                !(hand.HasX(i.Suit) &&                  //pokud mam jen X+plivu, tak nech plivu byt
+                                  hand.CardCount(i.Suit) <= 2))
+                    .OrderBy(i => i.Value)                              //vybirej od nejmensich karet
+                    .Take(2 - talon.Count)
+                    .ToList());
 
-                //talon.AddRange(hand.Where(i => b.Contains(i.Suit) &&            //vem karty z techto barve pokud ot neni A, X
-                //                          i.Value != Hodnota.Eso &&
-                //                          i.Value != Hodnota.Desitka)
-                //                   .Take(2 - talon.Count)
-                //                   .ToList());
-
-                //if (talon.Count < 2)
+                //potom zkus cokoli mimo trumfu,A,X,trumfove 7, hlasu a samotne plivy ktera doplnuje X
+                if (talon.Count < 2)
                 {
-                    b = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                            .Where(barva => barva != trump.Value &&
-                                            (talon.Count == 0 || barva != talon.First().Suit)); //vem barvy ktere nejsou trumf a jsou jine nez prvni karta v talonu
-                    talon.AddRange(hand.Where(i => b.Contains(i.Suit) &&                        //vyber cokoli mimo A, X, hlas
-                                              i.Value != Hodnota.Eso &&
-                                              i.Value != Hodnota.Desitka &&
-                                              !((i.Value == Hodnota.Svrsek || i.Value == Hodnota.Kral) &&
-                                                hand.HasK(i.Suit) &&
-                                                hand.HasQ(i.Suit)))
-                                       .OrderBy(i => i.Value)
-                                       .Take(2 - talon.Count)
-                                       .ToList());
+                    talon.AddRange(hand
+                        .Where(i => !(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
+                                      i.Suit == trumpCard.Suit) &&
+                                      i.Value != Hodnota.Eso &&             //ani A,X
+                                      i.Value != Hodnota.Desitka &&
+                                      !((i.Value == Hodnota.Kral ||         //ani hlasy
+                                         i.Value == Hodnota.Svrsek) &&
+                                        hand.HasK(i.Suit) && hand.HasQ(i.Suit)) &&
+                                      !(i.Value == Hodnota.Sedma &&         //ani trumfovou sedmu
+                                        i.Suit == trumpCard.Suit) &&
+                                      !(hand.HasX(i.Suit) &&                //pokud mam jen X+plivu, tak nech plivu byt
+                                        hand.CardCount(i.Suit) <= 2))
+                        .OrderBy(i => i.Value)                              //vybirej od nejmensich karet
+                        .Take(2 - talon.Count)
+                        .ToList());
+
+                    //nakonec cokoli co je podle pravidel
+                    if (talon.Count < 2)
+                    {
+                        talon.AddRange(hand
+                            .Where(i => !(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
+                                          i.Suit == trumpCard.Suit) &&
+                                        i.Value != Hodnota.Eso &&               //ani A,X
+                                        i.Value != Hodnota.Desitka)
+                            .OrderByDescending(i => i.Suit == trumpCard.Suit 
+                                          ? -1 : (int)trumpCard.Suit)           //nejdriv zkus jine nez trumfy
+                            .ThenBy(i => i.Value)                               //vybirej od nejmensich karet
+                            .Take(2 - talon.Count)
+                            .ToList());
+                    }
                 }
             }
 
@@ -355,7 +376,7 @@ namespace Mariasek.Engine.New
                     }
                     else
                     {
-                        _talon = ChooseNormalTalon(Hand, _trump);
+                        _talon = ChooseNormalTalon(Hand, _trumpCard);
 						DebugInfo.RuleCount = Settings.SimulationsPerGameType - Math.Max(_durchBalance, _betlBalance);
                     }
                     if (UpdateProbabilitiesAfterTalon)
@@ -401,28 +422,28 @@ namespace Mariasek.Engine.New
             }
         }
 
-        private void UpdateGeneratedHandsByChoosingTalon(Hand[] hands, Func<List<Card>, Barva?, List<Card>> chooseTalonFunc, int GameStartingPlayerIndex, Barva? trump = null)
+        private void UpdateGeneratedHandsByChoosingTalon(Hand[] hands, Func<List<Card>, Card, List<Card>> chooseTalonFunc, int GameStartingPlayerIndex)
         {
             const int talonIndex = 3;
 
             //volicimu hraci dame i to co je v talonu, aby mohl vybrat skutecny talon
             hands[GameStartingPlayerIndex].AddRange(hands[3]);
 
-            var talon = chooseTalonFunc(hands[GameStartingPlayerIndex], trump);
+            var talon = chooseTalonFunc(hands[GameStartingPlayerIndex], _trumpCard);
 
             hands[GameStartingPlayerIndex].RemoveAll(i => talon.Contains(i));
             hands[talonIndex] = new Hand(talon);
         }
 
-        private void UpdateGeneratedHandsByChoosingTrumpAndTalon(Hand[] hands, Func<List<Card>, Barva?, List<Card>> chooseTalonFunc, int GameStartingPlayerIndex)
+        private void UpdateGeneratedHandsByChoosingTrumpAndTalon(Hand[] hands, Func<List<Card>, Card, List<Card>> chooseTalonFunc, int GameStartingPlayerIndex)
         {
             const int talonIndex = 3;
 
             //volicimu hraci dame i to co je v talonu, aby mohl vybrat skutecny talon
             hands[GameStartingPlayerIndex].AddRange(hands[3]);
 
-            var trump = ChooseTrump(hands[GameStartingPlayerIndex]).Suit;
-            var talon = chooseTalonFunc(hands[GameStartingPlayerIndex], trump);
+            var trumpCard = ChooseTrump(hands[GameStartingPlayerIndex]);
+            var talon = chooseTalonFunc(hands[GameStartingPlayerIndex], trumpCard);
 
             hands[GameStartingPlayerIndex].RemoveAll(i => talon.Contains(i));
             hands[talonIndex] = new Hand(talon);
@@ -485,7 +506,7 @@ namespace Mariasek.Engine.New
                     {
                         hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
                     }
-                    UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex, _trump);
+                    UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
 
                     // to ?? vypada chybne
                     var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : Hra.Sedma, 10, 1); 
@@ -931,6 +952,7 @@ namespace Mariasek.Engine.New
         private void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
         {
             _trump = _g.trump;
+            _trumpCard = e.TrumpCard;
             _gameType = _g.GameType;
             if (PlayerIndex != _g.GameStartingPlayerIndex || Probabilities == null) //Probabilities == null by nemelo nastat, ale ...
             {
