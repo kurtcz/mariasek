@@ -348,6 +348,37 @@ namespace Mariasek.Engine.Tests
             Assert.IsFalse(talon.Any(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka), "talon nesmi obsahovat eso nebo desitku");
             Assert.IsFalse(talon.Contains(trumpCard), "talon nesmi obsahovat kartu co ukazuju jako trumf");
         }
+
+        [TestMethod]
+        public void ChooseTrumpAndTalon3()
+        {
+            var g = new Game();
+            var aiPlayer = new AiPlayer(g, _aiConfig);
+            var player2 = new DummyPlayer(g);
+            var player3 = new DummyPlayer(g);
+            var hand = new Hand(
+                new[] {
+                    new Card(Barva.Zeleny, Hodnota.Sedma),
+                    new Card(Barva.Cerveny, Hodnota.Osma),
+                    new Card(Barva.Cerveny, Hodnota.Devitka),
+                    new Card(Barva.Cerveny, Hodnota.Spodek),
+                    new Card(Barva.Cerveny, Hodnota.Kral),
+                    new Card(Barva.Cerveny, Hodnota.Svrsek),
+                    new Card(Barva.Cerveny, Hodnota.Desitka),
+                    new Card(Barva.Zeleny, Hodnota.Osma),
+                    new Card(Barva.Zeleny, Hodnota.Devitka),
+                    new Card(Barva.Cerveny, Hodnota.Eso),
+                    new Card(Barva.Zeleny, Hodnota.Svrsek),
+                    new Card(Barva.Kule, Hodnota.Spodek)
+                });
+            aiPlayer.Hand = hand;
+            var trumpCard = aiPlayer.ChooseTrump();
+            var talon = aiPlayer.InvokeMethod<IEnumerable<Card>>("ChooseNormalTalon", aiPlayer.Hand, trumpCard);
+            var props = aiPlayer.ToPropertyDictionary();
+
+            Assert.IsFalse(talon.Any(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka), "talon nesmi obsahovat eso nebo desitku");
+            Assert.IsFalse(talon.Contains(trumpCard), "talon nesmi obsahovat kartu co ukazuju jako trumf");
+        }
         #endregion
 
         #region Bidding tests
