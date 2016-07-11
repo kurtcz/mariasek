@@ -545,7 +545,14 @@ namespace Mariasek.Engine.New
                     {
                         hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
                     }
-                    UpdateGeneratedHandsByChoosingTrumpAndTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
+					if(PlayerIndex != _g.GameStartingPlayerIndex) //pokud nevolim tak nasimuluju shoz do talonu
+					{
+                		UpdateGeneratedHandsByChoosingTrumpAndTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
+					}
+					else //pokud volim, tak v UpdateGeneratedHandsByChoosingTalon() beru v potaz trumfovou kartu kterou jsem zvolil
+					{
+						UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
+					}
                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, GameStartingPlayerIndex);
 
                     var betlComputationResult = ComputeGame(hands, null, null, null, Hra.Betl, 10, 1, true);
@@ -572,8 +579,8 @@ namespace Mariasek.Engine.New
                         tempSource.Enqueue(hands);
                     }
                     //nasimuluj ze volici hrac vybral trumfy a/nebo talon
-                    if (_g.GameType == Hra.Betl)
-                    {
+					if (_g.GameType == Hra.Betl || PlayerIndex == _g.GameStartingPlayerIndex)
+					{	//pokud jsem volil ja tak v UpdateGeneratedHandsByChoosingTalon() pouziju skutecne zvoleny trumf
                         UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, _g.GameStartingPlayerIndex);
                     }
                     else
