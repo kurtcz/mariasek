@@ -20,8 +20,7 @@ namespace Mariasek.Engine.New
 #else
         private static readonly ILog _log = new DummyLogWrapper();
 #endif   
-        public Barva? _trump;
-        public Card _trumpCard;
+        private Barva? _trump;
         private Hra? _gameType;
         public List<Card> _talon; //public so that HumanPlayer can set it
         private List<MultiplyingMoneyCalculator> _moneyCalculations;
@@ -36,6 +35,7 @@ namespace Mariasek.Engine.New
         private bool _teamMateDoubledGame;
         private bool _shouldMeasureThroughput;
  
+		public Card TrumpCard { get; set; }
         public Probability Probabilities { get; set; }
         public AiPlayerSettings Settings { get; set; }
         public bool UpdateProbabilitiesAfterTalon { get; set; }
@@ -164,12 +164,12 @@ namespace Mariasek.Engine.New
                               .First();
 
             //vyber jednu z karet v barve (nejdriv zkus neukazovat zadne dulezite karty, pokud to nejde vezmi libovolnou kartu v barve)
-            _trumpCard = hand.FirstOrDefault(i => i.Suit == trump && i.Value > Hodnota.Sedma && i.Value < Hodnota.Svrsek) ??
+            TrumpCard = hand.FirstOrDefault(i => i.Suit == trump && i.Value > Hodnota.Sedma && i.Value < Hodnota.Svrsek) ??
                        hand.OrderBy(i => i.Value).FirstOrDefault(i => i.Suit == trump);
 
-			_trump = _trumpCard.Suit;
-			_log.DebugFormat("Trump chosen: {0}", _trumpCard);
-			return _trumpCard;
+			_trump = TrumpCard.Suit;
+			_log.DebugFormat("Trump chosen: {0}", TrumpCard);
+			return TrumpCard;
         }
 
         private List<Card> ChooseBetlTalon(List<Card> hand, Card trumpCard)
@@ -369,7 +369,7 @@ namespace Mariasek.Engine.New
                     }
                     else
                     {
-                        _talon = ChooseNormalTalon(Hand, _trumpCard);
+                        _talon = ChooseNormalTalon(Hand, TrumpCard);
 						DebugInfo.RuleCount = Settings.SimulationsPerGameType - Math.Max(_durchBalance, _betlBalance);
                     }
                     if (UpdateProbabilitiesAfterTalon)
@@ -422,7 +422,7 @@ namespace Mariasek.Engine.New
             //volicimu hraci dame i to co je v talonu, aby mohl vybrat skutecny talon
             hands[GameStartingPlayerIndex].AddRange(hands[3]);
 
-            var talon = chooseTalonFunc(hands[GameStartingPlayerIndex], _trumpCard);
+            var talon = chooseTalonFunc(hands[GameStartingPlayerIndex], TrumpCard);
 
             hands[GameStartingPlayerIndex].RemoveAll(i => talon.Contains(i));
             hands[talonIndex] = new Hand(talon);
@@ -945,7 +945,7 @@ namespace Mariasek.Engine.New
         private void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
         {
             _trump = _g.trump;
-            _trumpCard = e.TrumpCard;
+            TrumpCard = e.TrumpCard;
             _gameType = _g.GameType;
             if (PlayerIndex != _g.GameStartingPlayerIndex || Probabilities == null) //Probabilities == null by nemelo nastat, ale ...
             {

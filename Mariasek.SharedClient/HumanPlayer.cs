@@ -107,7 +107,7 @@ namespace Mariasek.SharedClient
             _trump = _trumpCard.Suit;
 			if (_aiPlayer != null)
 			{
-				_aiPlayer._trump = _trump;
+				_aiPlayer.TrumpCard = _trumpCard;
 			}
 			CancelAiTask();
 			return _trumpCard;
