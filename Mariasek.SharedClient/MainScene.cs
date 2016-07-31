@@ -1541,10 +1541,17 @@ namespace Mariasek.SharedClient
                         new AiPlayer(g, _aiConfig) { Name = "Hráč 3" }
                     );
 
-					using (var fs = File.Open(_savedGameFilePath, FileMode.Open))
-                    {                            
-                        g.LoadGame(fs);
-                    }
+					try
+					{
+						using (var fs = File.Open(_savedGameFilePath, FileMode.Open))
+	                    {                            
+	                        g.LoadGame(fs);
+	                    }
+					}
+					catch(Exception ex)
+					{
+						ShowMsgLabel(ex.Message, false);
+					}
                     g.GameFlavourChosen += GameFlavourChosen;
                     g.GameTypeChosen += GameTypeChosen;
                     g.BidMade += BidMade;
