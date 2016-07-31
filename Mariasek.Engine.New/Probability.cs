@@ -34,10 +34,12 @@ namespace Mariasek.Engine.New
         private StringBuilder _debugString;
 		private StringBuilder _verboseString;
         private readonly List<int> _gameBidders;
+        private int _sevenIndex;
 
         public Probability(int myIndex, int gameStarterIndex, Hand myHand, Barva? trump, List<Card> talon = null)
         {
             _myIndex = myIndex;
+            _sevenIndex = -1;
             _gameStarterIndex = gameStarterIndex;
             _trump = trump;
             _gameBidders = new List<int>();
@@ -123,6 +125,33 @@ namespace Mariasek.Engine.New
                             }
                         }
                         _cardProbabilityForPlayer[i][b][h] = (float)1 / totalUncertainCards;
+                        //pokud nekdo hlasil sedmu, zvednu mu pravdepodobnosti trumfovych karet
+                        //ostatnim naopak pravdepodobnosti snizim
+                        if (_sevenIndex >= 0 && b == _trump.Value)
+                        {
+                            if(i == _sevenIndex)
+                            {
+                                if (totalUncertainCards == 2)
+                                {
+                                    _cardProbabilityForPlayer[i][b][h] = 0.625f; // 5/8
+                                }
+                                else //totalUncertainCards == 3
+                                {
+                                    _cardProbabilityForPlayer[i][b][h] = 0.5f; // 1/2
+                                }
+                            }
+                            else
+                            {
+                                if (totalUncertainCards == 2)
+                                {
+                                    _cardProbabilityForPlayer[i][b][h] = 0.375f; // 3/8
+                                }
+                                else //totalUncertainCards == 3
+                                {
+                                    _cardProbabilityForPlayer[i][b][h] = 0.25f; // 1/4
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -600,7 +629,6 @@ namespace Mariasek.Engine.New
             }
 
             _trump = e.TrumpCard.Suit;
-            //TODO: Adjust probabilities (7, Kilo, 107)
             for (var i = 0; i < Game.NumPlayers + 1; i++)
             {
                 _cardProbabilityForPlayer[i][e.TrumpCard.Suit][e.TrumpCard.Value] = i == e.GameStartingPlayerIndex ? 1f : 0f;
@@ -609,7 +637,12 @@ namespace Mariasek.Engine.New
                     _cardProbabilityForPlayer[i][e.TrumpCard.Suit][Hodnota.Sedma] = i == e.GameStartingPlayerIndex ? 1f : 0f;
                 }
             }
-			_debugString.Append(FriendlyString(0));
+            if ((e.GameType & Hra.Sedma) != 0)
+            {
+                _sevenIndex = e.GameStartingPlayerIndex;
+                //TODO: poresit sedmu proti (jak zjistim kdo ji hlasil?)
+            }
+            _debugString.Append(FriendlyString(0));
 			_debugString.Append("-----\n");
         }
 

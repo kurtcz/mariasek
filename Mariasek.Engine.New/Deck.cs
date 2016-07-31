@@ -99,6 +99,8 @@ namespace Mariasek.Engine.New
         {
             var xml = new XmlSerializer(typeof(List<Card>));
             _cards = (List<Card>)xml.Deserialize(stream);
+
+			CheckDeck();
         }
 
         public void SaveDeck(Stream stream)
@@ -106,5 +108,20 @@ namespace Mariasek.Engine.New
             var xml = new XmlSerializer(typeof(List<Card>));
             xml.Serialize(stream, _cards);
         }
+
+		private void CheckDeck()
+		{
+			for (int i = 0; i < MaxSize; i++)
+			{
+				var c = new Card((Barva)Enum.ToObject(typeof(Barva), i / 8),
+					(Hodnota)Enum.ToObject(typeof(Hodnota), i % 8));
+				var n = _cards.Count(j => j == c);
+
+				if (n != 1)
+				{
+					throw new InvalidDataException(string.Format("CheckDeck failed: {0} is present {1} times", c, n));
+				};
+			}
+		}
     }
 }

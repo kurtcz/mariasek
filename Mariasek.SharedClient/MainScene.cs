@@ -188,7 +188,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Hra", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "GameThreshold.Hra",
-                    Value = "0|50|70|85|95"
+                    Value = "0|50|70|90|99"
                 });
             _aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
@@ -620,7 +620,8 @@ namespace Mariasek.SharedClient
             }
             catch(Exception e)
             {
-                System.Diagnostics.Debug.WriteLine(string.Format("Cannot load deck\n{0}", e.Message));
+				System.Diagnostics.Debug.WriteLine(string.Format("Cannot load deck\n{0}", e.Message));
+				_deck.Init();
                 _deck.Shuffle();
             }
         }

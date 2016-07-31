@@ -34,8 +34,12 @@ namespace Mariasek.Engine.New
         private bool _initialSimulation;
         private bool _teamMateDoubledGame;
         private bool _shouldMeasureThroughput;
- 
-		public Card TrumpCard { get; set; }
+        private ParallelOptions options = new ParallelOptions
+        {
+            //MaxDegreeOfParallelism = 1  //Uncomment before debugging
+        };
+
+    public Card TrumpCard { get; set; }
         public Probability Probabilities { get; set; }
         public AiPlayerSettings Settings { get; set; }
         public bool UpdateProbabilitiesAfterTalon { get; set; }
@@ -479,9 +483,9 @@ namespace Mariasek.Engine.New
             {
                 var start = DateTime.Now;
                 var actualSimulations = 0;
-                var prematureEnd = false;
+                var prematureEnd = false;                
 
-                Parallel.ForEach(source ?? Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType), (hh, loopState) =>
+                Parallel.ForEach(source ?? Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType), options, (hh, loopState) =>
                 {                        
                     ThrowIfCancellationRequested();
                     if (source == null)
@@ -526,7 +530,7 @@ namespace Mariasek.Engine.New
                 var actualSimulations = 0;
                 var prematureEnd = false;
 
-                Parallel.ForEach(source ?? Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType), (hh, loopState) =>
+                Parallel.ForEach(source ?? Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType), options, (hh, loopState) =>
                 {
                     ThrowIfCancellationRequested();
                     if (source == null)
@@ -796,8 +800,11 @@ namespace Mariasek.Engine.New
             }
             //sedmu flekuju jen pokud jsem volil sam sedmu a v simulacich jsem ji uhral dost casto
             //nebo pokud jsem nevolil a v simulacich ani jednou nevysla
-            if ((PlayerIndex == _g.GameStartingPlayerIndex && _sevensBalance / (float)Settings.SimulationsPerGameType >= sevenThreshold) ||
-                (PlayerIndex != _g.GameStartingPlayerIndex && _sevensBalance == Settings.SimulationsPerGameType))
+            //if ((PlayerIndex == _g.GameStartingPlayerIndex && _sevensBalance / (float)Settings.SimulationsPerGameType >= sevenThreshold) ||
+            //    (PlayerIndex != _g.GameStartingPlayerIndex && _sevensBalance == Settings.SimulationsPerGameType))
+
+            //nove muzu flekovat sedmu protoze ji zohlednuju v pravdepodobnostnim rozlozeni
+            if (_sevensBalance / (float)Settings.SimulationsPerGameType >= sevenThreshold)
             {
                 bid |=bidding.Bids & Hra.Sedma;
                 minRuleCount = Math.Min(minRuleCount, _sevensBalance);
@@ -1017,8 +1024,12 @@ namespace Mariasek.Engine.New
                 var progress = 0;
                 var start = DateTime.Now;
                 var prematureEnd = false;
+                var options = new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = 1
+                };
 
-                Parallel.ForEach(source, (hands, loopState) =>
+                Parallel.ForEach(source, options, (hands, loopState) =>
                 {
                     ThrowIfCancellationRequested();
                     if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
@@ -1348,27 +1359,51 @@ namespace Mariasek.Engine.New
             int player1;
             int player2;
             int player3;
+            int playerIndex;
+            int teamMateIndex;
+            string playerName;
 
             if (c1 == null && c2 == null)
             {
-                player1 = PlayerIndex;
-                player2 = (PlayerIndex + 1) % Game.NumPlayers;
-                player3 = (PlayerIndex + 2) % Game.NumPlayers;
+                if (_g.CurrentRound == null && !ImpersonateGameStartingPlayer)
+                {   //jeste se nezacalo hrat a simuluju celou hru a nesimuluju vlastni betl/durch
+                    player1 = _g.GameStartingPlayerIndex;
+                    player2 = (_g.GameStartingPlayerIndex + 1) % Game.NumPlayers;
+                    player3 = (_g.GameStartingPlayerIndex + 2) % Game.NumPlayers;
+                    playerName = _g.players[player1].Name;
+                    playerIndex = player1;
+                    teamMateIndex = _g.players[player1].TeamMateIndex;
+                }
+                else
+                {
+                    player1 = PlayerIndex;
+                    player2 = (PlayerIndex + 1) % Game.NumPlayers;
+                    player3 = (PlayerIndex + 2) % Game.NumPlayers;
+                    playerName = _g.players[player1].Name;
+                    playerIndex = player1;
+                    teamMateIndex = TeamMateIndex;
+                }
             }
             else if (c2 == null)
             {
                 player1 = (PlayerIndex + 2) % Game.NumPlayers;
                 player2 = PlayerIndex;
                 player3 = (PlayerIndex + 1) % Game.NumPlayers;
+                playerName = _g.players[player2].Name;
+                playerIndex = player2;
+                teamMateIndex = TeamMateIndex;
             }
             else
             {
                 player1 = (PlayerIndex + 1) % Game.NumPlayers;
                 player2 = (PlayerIndex + 2) % Game.NumPlayers;
                 player3 = PlayerIndex;
+                playerName = _g.players[player3].Name;
+                playerIndex = player3;
+                teamMateIndex = TeamMateIndex;
             }
 
-            if(!gameType.HasValue || !initialRoundNumber.HasValue || !roundsToCompute.HasValue)
+            if (!gameType.HasValue || !initialRoundNumber.HasValue || !roundsToCompute.HasValue)
             {
                 gameType = _g.GameType;
                 initialRoundNumber = _g.RoundNumber;
@@ -1378,7 +1413,7 @@ namespace Mariasek.Engine.New
             {
                 trump = _g.trump;
             }
-            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, Name, PlayerIndex, ImpersonateGameStartingPlayer ? -1 : TeamMateIndex, initialRoundNumber);
+            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, playerName, playerIndex, teamMateIndex, initialRoundNumber);
             
             _log.DebugFormat("Round {0}. Starting simulation for {1}", _g.RoundNumber, _g.players[PlayerIndex].Name);
             if (c1 != null) _log.DebugFormat("First card: {0}", c1);

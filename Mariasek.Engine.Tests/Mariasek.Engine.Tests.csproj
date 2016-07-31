@@ -86,9 +86,6 @@
     <None Include="Scenarios\Bidding\__betlflek.hra">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Scenarios\__generatehandserror.hra">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
