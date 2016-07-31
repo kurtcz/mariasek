@@ -84,6 +84,10 @@ namespace Mariasek.Engine.Tests
                 types,
                 null);
 
+            if(obj == null)
+            {
+                throw new Exception("!!!");
+            }
             return dynMethod.Invoke(obj, methodParams);
         }
     }

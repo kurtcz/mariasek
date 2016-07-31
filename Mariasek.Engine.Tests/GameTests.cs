@@ -1,15 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Mariasek.Engine.New;
 using Moq;
+using NUnit.Framework;
 
 namespace Mariasek.Engine.Tests
 {
-    [TestClass]
+    [TestFixture]
     public class GameTests
     {
         private Game g;
@@ -19,7 +19,7 @@ namespace Mariasek.Engine.Tests
         private Card trumpCard;
         private Func<List<Card>> talon;
 
-        [TestInitialize]
+        [SetUp]
         public void Initialize()
         {
             g = new Game();
@@ -46,8 +46,8 @@ namespace Mariasek.Engine.Tests
             g.SetProperty<Bidding>("Bidding", new Bidding(g));
         }
 
-        [TestCategory("Game Flavour and Type Choice Tests")]
-        [TestMethod]
+        [Category("Game Flavour and Type Choice Tests")]
+        [Test]
         public void Player1ChoosesDurch()
         {
             player1.Setup(m => m.ChooseTrump()).Returns(trumpCard);
@@ -65,8 +65,8 @@ namespace Mariasek.Engine.Tests
             Assert.AreEqual(Hra.Durch, g.GameType);
         }
 
-        [TestCategory("Game Flavour and Type Choice Tests")]
-        [TestMethod]
+        [Category("Game Flavour and Type Choice Tests")]
+        [Test]
         public void Player1ChoosesBetl()
         {
             player1.Setup(m => m.ChooseTrump()).Returns(trumpCard);
@@ -86,8 +86,8 @@ namespace Mariasek.Engine.Tests
             Assert.AreEqual(Hra.Betl, g.GameType);
         }
 
-        [TestCategory("Game Flavour and Type Choice Tests")]
-        [TestMethod]
+        [Category("Game Flavour and Type Choice Tests")]
+        [Test]
         public void Player1ChoosesBetlPlayer3Durch()
         {
             var player1BidsAndDoubles = new Queue<Hra> (new Hra[] {Hra.Betl, 0});
@@ -111,8 +111,8 @@ namespace Mariasek.Engine.Tests
             Assert.AreEqual(Hra.Durch, g.GameType);
         }
 
-        [TestCategory("Game Flavour and Type Choice Tests")]
-        [TestMethod]
+        [Category("Game Flavour and Type Choice Tests")]
+        [Test]
         public void Player3ChoosesDurch()
         {
             player1.Setup(m => m.ChooseTrump()).Returns(trumpCard);
@@ -135,8 +135,8 @@ namespace Mariasek.Engine.Tests
             Assert.AreEqual(Hra.Durch, g.GameType);
         }
 
-        [TestCategory("Game Flavour and Type Choice Tests")]
-        [TestMethod]
+        [Category("Game Flavour and Type Choice Tests")]
+        [Test]
         public void Player2ChoosesBetlPlayer1Durch()
         {
             var player1GameFlavours = new Queue<GameFlavour> (new []{GameFlavour.Good, GameFlavour.Bad});
@@ -163,8 +163,8 @@ namespace Mariasek.Engine.Tests
             Assert.AreEqual(Hra.Durch, g.GameType);
         }
 
-        [TestCategory("Game Flavour and Type Choice Tests")]
-        [TestMethod]
+        [Category("Game Flavour and Type Choice Tests")]
+        [Test]
         public void Player3ChoosesBetlPlayer2Durch()
         {
             var player2GameFlavours = new Queue<GameFlavour>(new[] { GameFlavour.Good, GameFlavour.Bad });
@@ -192,8 +192,8 @@ namespace Mariasek.Engine.Tests
             Assert.AreEqual(Hra.Durch, g.GameType);
         }
 
-        [TestCategory("Game Flavour and Type Choice Tests")]
-        [TestMethod]
+        [Category("Game Flavour and Type Choice Tests")]
+        [Test]
         public void Player3ChoosesBetlPlayer1Flek()
         {
             player1.Setup(m => m.ChooseTrump()).Returns(trumpCard);
@@ -220,8 +220,8 @@ namespace Mariasek.Engine.Tests
             player3.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Once);
         }
 
-        [TestCategory("Game Flavour and Type Choice Tests")]
-        [TestMethod]
+        [Category("Game Flavour and Type Choice Tests")]
+        [Test]
         public void Player3ChoosesBetlPlayer2Flek()
         {
             player1.Setup(m => m.ChooseTrump()).Returns(trumpCard);
@@ -248,8 +248,8 @@ namespace Mariasek.Engine.Tests
             player3.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Once);
         }
 
-        [TestCategory("Game Flavour and Type Choice Tests")]
-        [TestMethod]
+        [Category("Game Flavour and Type Choice Tests")]
+        [Test]
         public void Player3ChoosesBetlPlayer2FlekPlayer3Re()
         {
             var player2BidsAndDoubles = new Queue<Hra>(new Hra[] { Hra.Betl, 0 });
@@ -278,8 +278,8 @@ namespace Mariasek.Engine.Tests
             player3.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Once);
         }
 
-        [TestCategory("Bid and double tests")]
-        [TestMethod]
+        [Category("Bid and double tests")]
+        [Test]
         public void DoublingTest()
         {
             g.SetProperty("GameStartingPlayerIndex", 0); //player1
@@ -300,8 +300,8 @@ namespace Mariasek.Engine.Tests
             player3.Verify(m => m.GetBidsAndDoubles(It.IsAny<Bidding>()), Times.Once);
         }
 
-        [TestCategory("Bid and double tests")]
-        [TestMethod]
+        [Category("Bid and double tests")]
+        [Test]
         public void DoublingTest2()
         {
             g.SetProperty("GameStartingPlayerIndex", 0); //player1

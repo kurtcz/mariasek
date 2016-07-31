@@ -1,17 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Mariasek.Engine.New;
+using NUnit.Framework;
 
 namespace Mariasek.Engine.Tests
 {
-    [TestClass]
+    [TestFixture]
     public class ProbabilitiesTests
     {
-        //[TestMethod]
+        //[Test]
         //public void X()
         //{
         //    var hand = new Card[] {
@@ -86,9 +86,9 @@ namespace Mariasek.Engine.Tests
             }
         }
 
-        [TestCategory("Probability tests")]
-        [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
+        [Category("Probability tests")]
+        [Test]
+        [Ignore("Pokud mam deset karet nemuzu nemit nic v talonu")]
         public void Hand10Talon0()
         {
             var hand = new Card[] {
@@ -107,11 +107,11 @@ namespace Mariasek.Engine.Tests
             }.ToList();
             var trump = Barva.Cerveny;
 
-            CardProbabilityTest(0, 0, hand, trump, talon);
+            Assert.Throws<InvalidOperationException>(() => CardProbabilityTest(0, 0, hand, trump, talon));
         }
 
-        [TestCategory("Probability tests")]
-        [TestMethod]
+        [Category("Probability tests")]
+        [Test]
         public void Hand10Talon2()
         {
             var hand = new Card[] {
@@ -135,8 +135,8 @@ namespace Mariasek.Engine.Tests
             CardProbabilityTest(0, 0, hand, trump, talon);
         }
 
-        [TestCategory("Probability tests")]
-        [TestMethod]
+        [Category("Probability tests")]
+        [Test]
         public void Hand12Talon0()
         {
             var hand = new Card[] {
@@ -160,8 +160,8 @@ namespace Mariasek.Engine.Tests
             CardProbabilityTest(0, 0, hand, trump, talon);
         }
 
-        [TestCategory("Probability tests")]
-        [TestMethod]
+        [Category("Probability tests")]
+        [Test]
         public void Hand10NullTalon()
         {
             var hand = new Card[] {

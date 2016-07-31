@@ -1,18 +1,19 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mariasek.Engine.New;
 using Mariasek.Engine.New.Configuration;
 using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework;
+using System.IO;
 
 namespace Mariasek.Engine.Tests
 {
-    [TestClass]
+    [TestFixture]
     public class AiPlayerTests
     {
         private ParameterConfigurationElementCollection _aiConfig;
 
-        [TestInitialize]
+        [SetUp]
         public void Initialize()
         {
             _aiConfig = new Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection();
@@ -104,7 +105,7 @@ namespace Mariasek.Engine.Tests
                     aiPlayer,
                     player3);
             //zacina aiPlayer (player2)
-            g.LoadGame(filename);
+            g.LoadGame(Path.Combine(TestContext.CurrentContext.TestDirectory, filename));
             g.InvokeMethod("ChooseGame");
             props = aiPlayer.ToPropertyDictionary();
 
@@ -160,8 +161,12 @@ namespace Mariasek.Engine.Tests
                     aiPlayer,
                     player3);
 
-            g.LoadGame(filename);
-            
+            g.LoadGame(Path.Combine(TestContext.CurrentContext.TestDirectory, filename));
+            //trumfovou kartu nezname, musime improvizovat
+            if (g.trump.HasValue)
+            {
+                g.SetProperty("TrumpCard", g.GameStartingPlayer.Hand.First(i => i.Suit == g.trump.Value));
+            }
             var bidding = new Bidding(g);
 
             g.InvokeMethod("OnGameTypeChosen", new GameTypeChosenEventArgs
@@ -180,8 +185,8 @@ namespace Mariasek.Engine.Tests
         }
 
         #region Open Hands Game choice tests
-        [TestCategory("Open Hands Game choice tests")]
-        [TestMethod]
+        [Category("Open Hands Game choice tests")]
+        [Test]
         public void OpenHandsChoose107()
         {
             Dictionary<string, object> props;
@@ -191,8 +196,8 @@ namespace Mariasek.Engine.Tests
             Assert.IsTrue((hra & Hra.Sedma) != 0, string.Format("Ai mel zavolit sedmu ale zvolil {0}", hra));
         }
 
-        [TestCategory("Open Hands Game choice tests")]
-        [TestMethod]
+        [Category("Open Hands Game choice tests")]
+        [Test]
         public void OpenHandsDoNotChoose107()
         {
             Dictionary<string, object> props;
@@ -202,8 +207,8 @@ namespace Mariasek.Engine.Tests
             Assert.IsTrue((hra & Hra.Sedma) != 0, string.Format("Ai mel zavolit sedmu ale zvolil {0}", hra));
         }
 
-        [TestCategory("Open Hands Game choice tests")]
-        [TestMethod]
+        [Category("Open Hands Game choice tests")]
+        [Test]
         public void OpenHandsChoose7()
         {
             Dictionary<string, object> props;
@@ -212,8 +217,8 @@ namespace Mariasek.Engine.Tests
             Assert.IsTrue((hra & Hra.Sedma) != 0, string.Format("Ai mel zavolit sedmu ale zvolil {0}", hra));
         }
 
-        [TestCategory("Open Hands Game choice tests")]
-        [TestMethod]
+        [Category("Open Hands Game choice tests")]
+        [Test]
         public void OpenHandsChooseBetl()
         {
             Dictionary<string, object> props;
@@ -222,8 +227,8 @@ namespace Mariasek.Engine.Tests
             Assert.IsTrue((hra & Hra.Betl) != 0, string.Format("Ai mel zavolit betla ale zvolil {0}", hra));
         }
 
-        [TestCategory("Open Hands Game choice tests")]
-        [TestMethod]
+        [Category("Open Hands Game choice tests")]
+        [Test]
         public void OpenHandsChooseDurch()
         {
             Dictionary<string, object> props;
@@ -234,8 +239,8 @@ namespace Mariasek.Engine.Tests
         #endregion
 
         #region Game choice tests
-        [TestCategory("Game choice tests")]
-        [TestMethod]
+        [Category("Game choice tests")]
+        [Test]
         public void Choose107()
         {
             Dictionary<string, object> props;
@@ -245,8 +250,8 @@ namespace Mariasek.Engine.Tests
             Assert.IsTrue((hra & Hra.Sedma) != 0, string.Format("Ai mel zavolit sedmu ale zvolil {0}", hra));
         }
 
-        [TestCategory("Game choice tests")]
-        [TestMethod]
+        [Category("Game choice tests")]
+        [Test]
         public void DoNotChoose107()
         {
             Dictionary<string, object> props;
@@ -256,8 +261,8 @@ namespace Mariasek.Engine.Tests
             Assert.IsTrue((hra & Hra.Sedma) != 0, string.Format("Ai mel zavolit sedmu ale zvolil {0}", hra));
         }
 
-        [TestCategory("Game choice tests")]
-        [TestMethod]
+        [Category("Game choice tests")]
+        [Test]
         public void Choose7()
         {
             Dictionary<string, object> props;
@@ -266,8 +271,8 @@ namespace Mariasek.Engine.Tests
             Assert.IsTrue((hra & Hra.Sedma) != 0, string.Format("Ai mel zavolit sedmu ale zvolil {0}", hra));
         }
 
-        [TestCategory("Game choice tests")]
-        [TestMethod]
+        [Category("Game choice tests")]
+        [Test]
         public void ChooseBetl()
         {
             Dictionary<string, object> props;
@@ -276,8 +281,8 @@ namespace Mariasek.Engine.Tests
             Assert.IsTrue((hra & Hra.Betl) != 0, string.Format("Ai mel zavolit betla ale zvolil {0}", hra));
         }
 
-        [TestCategory("Game choice tests")]
-        [TestMethod]
+        [Category("Game choice tests")]
+        [Test]
         public void ChooseDurch()
         {
             Dictionary<string, object> props;
@@ -286,7 +291,7 @@ namespace Mariasek.Engine.Tests
             Assert.IsTrue((hra & Hra.Durch) != 0, string.Format("Ai mel zavolit durcha, ale zvolil {0}", hra));
         }
 
-        [TestMethod]
+        [Test]
         public void ChooseTrumpAndTalon1()
         {
             var g = new Game();
@@ -318,7 +323,7 @@ namespace Mariasek.Engine.Tests
             Assert.IsFalse(talon.Contains(trumpCard), "talon nesmi obsahovat kartu co ukazuju jako trumf");
         }
 
-        [TestMethod]
+        [Test]
         public void ChooseTrumpAndTalon2()
         {
             var g = new Game();
@@ -349,7 +354,7 @@ namespace Mariasek.Engine.Tests
             Assert.IsFalse(talon.Contains(trumpCard), "talon nesmi obsahovat kartu co ukazuju jako trumf");
         }
 
-        [TestMethod]
+        [Test]
         public void ChooseTrumpAndTalon3()
         {
             var g = new Game();
@@ -379,11 +384,42 @@ namespace Mariasek.Engine.Tests
             Assert.IsFalse(talon.Any(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka), "talon nesmi obsahovat eso nebo desitku");
             Assert.IsFalse(talon.Contains(trumpCard), "talon nesmi obsahovat kartu co ukazuju jako trumf");
         }
+
+        [Test]
+        public void ChooseTrumpAndTalon4()
+        {
+            var g = new Game();
+            var aiPlayer = new AiPlayer(g, _aiConfig);
+            var player2 = new DummyPlayer(g);
+            var player3 = new DummyPlayer(g);
+            var hand = new Hand(
+                new[] {
+                    new Card(Barva.Zaludy, Hodnota.Devitka),
+                    new Card(Barva.Zaludy, Hodnota.Sedma),
+                    new Card(Barva.Zeleny, Hodnota.Spodek),
+                    new Card(Barva.Zaludy, Hodnota.Svrsek),
+                    new Card(Barva.Zeleny, Hodnota.Desitka),
+                    new Card(Barva.Kule, Hodnota.Eso),
+                    new Card(Barva.Zaludy, Hodnota.Osma),
+                    new Card(Barva.Zeleny, Hodnota.Eso),
+                    new Card(Barva.Kule, Hodnota.Desitka),
+                    new Card(Barva.Zaludy, Hodnota.Eso),
+                    new Card(Barva.Cerveny, Hodnota.Sedma),
+                    new Card(Barva.Zeleny, Hodnota.Kral)
+                });
+            aiPlayer.Hand = hand;
+            var trumpCard = aiPlayer.ChooseTrump();
+            var talon = aiPlayer.InvokeMethod<IEnumerable<Card>>("ChooseNormalTalon", aiPlayer.Hand, trumpCard);
+            var props = aiPlayer.ToPropertyDictionary();
+
+            Assert.IsFalse(talon.Any(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka), "talon nesmi obsahovat eso nebo desitku");
+            Assert.IsFalse(talon.Contains(trumpCard), "talon nesmi obsahovat kartu co ukazuju jako trumf");
+        }
         #endregion
 
         #region Bidding tests
-        [TestCategory("Bidding tests")]
-        [TestMethod]
+        [Category("Bidding tests")]
+        [Test]
         public void Call107Against()
         {
             Dictionary<string, object> props;
@@ -393,8 +429,8 @@ namespace Mariasek.Engine.Tests
             Assert.IsTrue((hra & Hra.SedmaProti) != 0, "Ai mel hlasit sedmu proti");
         }
 
-        [TestCategory("Bidding tests")]
-        [TestMethod]
+        [Category("Bidding tests")]
+        [Test]
         public void Flek107()
         {
             Dictionary<string, object> props;
@@ -404,9 +440,9 @@ namespace Mariasek.Engine.Tests
             Assert.IsTrue((hra & Hra.Sedma) != 0, string.Format("Ai mel flekovat sedmu (ale skore bylo: {0})", props["_sevensBalance"]));
         }
 
-        [TestCategory("Bidding tests")]
-        [TestMethod]
-        [Ignore] //Betla neflekujeme
+        [Category("Bidding tests")]
+        [Test]
+        [Ignore("Betla neflekujeme")]
         public void FlekBetl()
         {
             Dictionary<string, object> props;
@@ -415,8 +451,8 @@ namespace Mariasek.Engine.Tests
             Assert.IsTrue((hra & Hra.Betl) != 0, string.Format("Ai mel flekovat betla (ale skore bylo: {0})", props["_betlBalance"]));
         }
 
-        [TestCategory("Bidding tests")]
-        [TestMethod]
+        [Category("Bidding tests")]
+        [Test]
         public void FlekDurch()
         {
             Dictionary<string, object> props;

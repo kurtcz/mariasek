@@ -1,5 +1,5 @@
 ﻿using Mariasek.Engine.New;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Mariasek.Engine.Tests
 {
-    [TestClass]
+    [TestFixture]
     public class AbstractPlayerTests
     {
         private Game g;
@@ -16,7 +16,7 @@ namespace Mariasek.Engine.Tests
         private AbstractPlayer player2;
         private AbstractPlayer player3;
 
-        [TestInitialize]
+        [SetUp]
         public void Initialize()
         {
             g = new Game()
@@ -57,8 +57,8 @@ namespace Mariasek.Engine.Tests
             }
         }
 
-        [TestCategory("AbstractPlayer card validity tests")]
-        [TestMethod]
+        [Category("AbstractPlayer card validity tests")]
+        [Test]
         public void PrematureTrumpSevenTest()
         {
             player1.Hand = new [] {
@@ -76,8 +76,8 @@ namespace Mariasek.Engine.Tests
             Assert.AreEqual(Renonc.NehrajSedmu, result, "Pri sedme musi hrac hrat trumfovou sedmu az nakonec");
         }
 
-        [TestCategory("AbstractPlayer card validity tests")]
-        [TestMethod]
+        [Category("AbstractPlayer card validity tests")]
+        [Test]
         public void PrematureQueenTest()
         {
             player1.Hand = new[] {
@@ -95,8 +95,8 @@ namespace Mariasek.Engine.Tests
             Assert.AreEqual(Renonc.Ok, result, "Pri spatne hre nemusi hrac hrat svrska driv nez krale");
         }
 
-        [TestCategory("AbstractPlayer card validity tests")]
-        [TestMethod]
+        [Category("AbstractPlayer card validity tests")]
+        [Test]
         public void TrumpTest()
         {
             player1.Hand = new[] {
@@ -112,8 +112,8 @@ namespace Mariasek.Engine.Tests
             Assert.AreEqual(Renonc.HrajTrumf, result, "Hrac musi hrat trumf");
         }
 
-        [TestCategory("AbstractPlayer card validity tests")]
-        [TestMethod]
+        [Category("AbstractPlayer card validity tests")]
+        [Test]
         public void PlayHigherCardTest()
         {
             player1.Hand = new[] {
@@ -129,8 +129,8 @@ namespace Mariasek.Engine.Tests
             Assert.AreEqual(Renonc.JdiVejs, result, "Hrac musi jit vejs");
         }
 
-        [TestCategory("AbstractPlayer card validity tests")]
-        [TestMethod]
+        [Category("AbstractPlayer card validity tests")]
+        [Test]
         public void PlayLowerCardAfterTrumpTest()
         {
             player1.Hand = new[] {
