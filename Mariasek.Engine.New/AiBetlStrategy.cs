@@ -112,8 +112,8 @@ namespace Mariasek.Engine.New
                                 var mid2 = hands[opponent].Count(i => i.Suit == barva && i.Value > low2);
 
                                 //odmazavat ma smysl jen tehdy pokud je nasich vysokych karet mene nez souperovych strednich karet
-                                if ((lowCard1.IsLowerThan(oplowCard, null) && hi2 < mid1) ||
-                                    (lowCard2.IsLowerThan(oplowCard, null) && hi1 < mid2))
+                                if ((lowCard1.IsLowerThan(oplowCard, null) && hi2 > 0 && hi2 < mid1) ||
+                                    (lowCard2.IsLowerThan(oplowCard, null) && hi1 > 0 && hi1 < mid2))
                                 {
                                     cardsToPlay.Add(hands[MyIndex].Where(i => i.Suit == barva)
                                                                   .OrderByDescending(i => i.Value)
