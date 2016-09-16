@@ -364,16 +364,19 @@ namespace Mariasek.Engine.New
                     if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType)
                     {
                         _talon = ChooseDurchTalon(Hand, null);
-						DebugInfo.RuleCount = _durchBalance;
+                        DebugInfo.Rule = "Durch";
+                        DebugInfo.RuleCount = _durchBalance;
                     }
                     else if (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * Settings.SimulationsPerGameType)
                     {
                         _talon = ChooseBetlTalon(Hand, null);
-						DebugInfo.RuleCount = _betlBalance;
+                        DebugInfo.Rule = "Betl";
+                        DebugInfo.RuleCount = _betlBalance;
                     }
                     else
                     {
                         _talon = ChooseNormalTalon(Hand, TrumpCard);
+                        DebugInfo.Rule = "Klasika";
 						DebugInfo.RuleCount = Settings.SimulationsPerGameType - Math.Max(_durchBalance, _betlBalance);
                     }
                     if (UpdateProbabilitiesAfterTalon)
@@ -677,6 +680,44 @@ namespace Mariasek.Engine.New
             {
                 _log.DebugFormat("simulated score: {0} pts {1} times ({2}%)", score.Score, score.Items.Count(), score.Items.Count() * 100 / scores.Sum(i => i.Items.Count()));
             }
+            var allChoices = new List<RuleDebugInfo>();
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = "Hra",
+                RuleCount = _gamesBalance
+            });
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = "Sedma",
+                RuleCount = _sevensBalance
+            });
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = "Kilo",
+                RuleCount = _hundredsBalance
+            });
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = "Sedma proti",
+                RuleCount = _sevensAgainstBalance
+            });
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = "Kilo proti",
+                RuleCount = _hundredsAgainstBalance
+            });
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = "Betl",
+                RuleCount = _betlBalance
+            });
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = "Durch",
+                RuleCount = _durchBalance
+            });
+            DebugInfo.AllChoices = allChoices.ToArray();
+            DebugInfo.TotalRuleCount = Settings.SimulationsPerGameType;
         }
 
         //vola se z enginu
@@ -780,7 +821,11 @@ namespace Mariasek.Engine.New
                     //kilo simulovat nema cenu, hrac ho asi ma, takze flekovat stejne nebudeme
                     if (_g.GameType != Hra.Kilo)
                     {
-                        RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, false);
+                        if (_initialSimulation)
+                        {
+                            RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, false);
+                            _initialSimulation = false;
+                        }
                     }
                 }
                 else
@@ -945,10 +990,11 @@ namespace Mariasek.Engine.New
 
         private void GameFlavourChosen(object sender, GameFlavourChosenEventArgs e)
         {
-            //pokud nekdo hlasi spatnou barvu vymaz svuj talon (uz neni relevantni)
+            //pokud nekdo hlasi spatnou barvu vymaz svuj talon (uz neni relevantni) a zrus dosavadni simulace (nejsou relevantni)
             if (e.Player.PlayerIndex != PlayerIndex && e.Flavour == GameFlavour.Bad)
             {
                 _talon = null;
+                _initialSimulation = true;
             }
             if (Probabilities != null) //Probabilities == null kdyz jsem nezacinal, tudiz netusim co je v talonu a nemusim nic upravovat
             {
@@ -961,6 +1007,11 @@ namespace Mariasek.Engine.New
             _trump = _g.trump;
             TrumpCard = e.TrumpCard;
             _gameType = _g.GameType;
+            if (_g.GameStartingPlayerIndex != PlayerIndex)
+            {
+                //zapomen na predesle simulace pokud nevolis
+                _initialSimulation = true;
+            }
             if (PlayerIndex != _g.GameStartingPlayerIndex || Probabilities == null) //Probabilities == null by nemelo nastat, ale ...
             {
                 Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon);

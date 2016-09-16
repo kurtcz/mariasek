@@ -71,7 +71,8 @@ namespace Mariasek.Engine.New.Schema
         public Stych[] Stychy;
         [XmlElement]
         public Zuctovani Zuctovani;
-
+        [XmlIgnore]
+        public string BiddingNotes;
         public bool ShouldSerializeZuctovani()
         {
             return Zuctovani != null;
@@ -103,7 +104,8 @@ namespace Mariasek.Engine.New.Schema
                 }
 
                 var i = 0;
-
+                var verze = xd.Root.Element("Verze");
+                verze.AddAfterSelf(new XComment(BiddingNotes));
                 foreach(var stych in xd.Root.Descendants("Stych"))
                 {
                     var hrac1 = stych.Element("Hrac1");

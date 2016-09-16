@@ -27,13 +27,14 @@ namespace Mariasek.Engine.New
         private static readonly Random rand = new Random();
         public CancellationToken CancellationToken;
         private AbstractPlayer _roundStartingPlayer;
-        
+
         #region Public fields and properties
 
         public const int NumPlayers = 3;
         public const int NumRounds = 10;
         public const int NumSuits = 4;
 
+        public StringBuilder BiddingDebugInfo { get; private set; }
         public AbstractPlayer[] players { get; private set; }
 
         public AbstractPlayer GameStartingPlayer { get { return players[GameStartingPlayerIndex]; } }
@@ -172,6 +173,7 @@ namespace Mariasek.Engine.New
         public Game()
         {
             BaseBet = 1f;
+            BiddingDebugInfo = new StringBuilder();
 #if PORTABLE
             GetFileStream = _ => new MemoryStream(); //dummy stream factory
 #endif
@@ -269,6 +271,7 @@ namespace Mariasek.Engine.New
 
             _log.Init();
             _log.Info("********");
+            BiddingDebugInfo.Clear();
 
             RoundNumber = 0;
             rounds = new Round[NumRounds];
@@ -453,6 +456,7 @@ namespace Mariasek.Engine.New
                 Zacina = (Hrac) startingPlayerIndex,
                 Autor = Author,
                 Verze = Version.ToString(),
+                BiddingNotes = BiddingDebugInfo.ToString(),
                 Komentar = Comment,
                 Hrac1 = players[0].Hand
                     .Select(i => new Karta
@@ -631,16 +635,16 @@ namespace Mariasek.Engine.New
                     try
                     {
 #if !PORTABLE
-                        SaveGame(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss")));
+                        SaveGame(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss")), saveDebugInfo: true);
 #else
                         //SaveGame(GetFileStream(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss"))));
                         using (var fs = GetFileStream("_error.hra"))
                         {
-                            SaveGame(fs);
+                            SaveGame(fs, saveDebugInfo: true);
                         }
 #endif
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                     }
                     OnGameException(new GameExceptionEventArgs { e = ex });
@@ -900,7 +904,7 @@ namespace Mariasek.Engine.New
                         Bidding.Round = (Bidding.Round + 1) % Game.NumPlayers;
 
                         //zapis novy flek
-                        bidForPlayer[nextPlayer.PlayerIndex] = Bidding.GetBidsForPlayer(GameType, players[nextPlayer.PlayerIndex], bidNumber++);                        
+                        bidForPlayer[nextPlayer.PlayerIndex] = Bidding.GetBidsForPlayer(GameType, players[nextPlayer.PlayerIndex], bidNumber++);
                     }
                 }
                 else if(gameFlavour == GameFlavour.Bad)
@@ -988,6 +992,15 @@ namespace Mariasek.Engine.New
                 lastRoundWinner = rounds[i].roundWinner;
             }
         }
-#endregion
+
+        public void AddBiddingDebugInfo(int playerIndex)
+        {
+            BiddingDebugInfo.Append("Všechny simulace:");
+            foreach (var choice in players[playerIndex].DebugInfo.AllChoices)
+            {
+                BiddingDebugInfo.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, GameStartingPlayer.DebugInfo.TotalRuleCount);
+            }
+        }
+        #endregion
     }
 }

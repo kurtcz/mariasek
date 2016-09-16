@@ -156,6 +156,8 @@ namespace Mariasek.Engine.New
             Round = 0;
             var e = GetEventArgs(_g.GameStartingPlayer, gameType, 0);
             _log.DebugFormat("Bidding: {0}: {1} ({2})", e.Player.Name, e.Description, Bids);
+            _g.BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1}\n", e.Player.PlayerIndex + 1, e.Description);
+            _g.AddBiddingDebugInfo(e.Player.PlayerIndex);
             _g.OnBidMade(e);
         }
 
@@ -167,6 +169,8 @@ namespace Mariasek.Engine.New
             Round = 0;
             var e = GetEventArgs(_g.GameStartingPlayer, gameType, 0);
             _log.DebugFormat("Bidding: {0}: {1} ({2})", e.Player.Name, e.Description, Bids);
+            _g.BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1}\n", e.Player.PlayerIndex + 1, e.Description);
+            _g.AddBiddingDebugInfo(e.Player.PlayerIndex);
             _g.OnBidMade(e);
 
             var i = (_g.GameStartingPlayerIndex + 1) % Game.NumPlayers;
@@ -184,8 +188,11 @@ namespace Mariasek.Engine.New
                 //nastav priznak co hrac hlasil a flekoval
                 SetLastBidder(_g.players[i], bid);
                 gameType |= bid;
+                e = GetEventArgs(_g.players[i], bid, Bids);
                 _log.DebugFormat("Bidding: {0}: {1} ({2})", e.Player.Name, e.Description, bid);
-                _g.OnBidMade(GetEventArgs(_g.players[i], bid, Bids));
+                _g.BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1}\n", e.Player.PlayerIndex + 1, e.Description);
+                _g.AddBiddingDebugInfo(e.Player.PlayerIndex);
+                _g.OnBidMade(e);
                 _g.ThrowIfCancellationRequested();
             }
 
@@ -203,6 +210,8 @@ namespace Mariasek.Engine.New
             SetLastBidder(player, bid);
             gameType |= bid;
             _log.DebugFormat("Bidding: {0}: {1} ({2})", e.Player.Name, e.Description, bid);
+            _g.BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1}\n", player.PlayerIndex + 1, e.Description);
+            _g.AddBiddingDebugInfo(player.PlayerIndex);
             _g.OnBidMade(GetEventArgs(player, bid, Bids));
 
             //return gameType;

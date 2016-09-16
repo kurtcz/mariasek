@@ -98,9 +98,16 @@ namespace Mariasek.Engine.New
 
         public AbstractPlayer PlayRound()
         {
+            var allRules = new StringBuilder();
+
             //musim nejak overit, ze karty jsou validni a pokud ne tak to hraci oznamit a akci opakovat
             c1 = player1.PlayCard(this);
-            debugNote1 = string.Format("{0} ({1}/{2})", player1.DebugInfo.Rule, player1.DebugInfo.RuleCount, player1.DebugInfo.TotalRuleCount);
+            foreach(var choice in player1.DebugInfo.AllChoices)
+            {
+                allRules.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, player1.DebugInfo.TotalRuleCount);
+            }
+            debugNote1 = string.Format(" {0} ({1}/{2})\nVšechny simulace:{3}", player1.DebugInfo.Rule, player1.DebugInfo.RuleCount, player1.DebugInfo.TotalRuleCount, allRules.ToString());
+
             if (_g.trump.HasValue && c1.Value == Hodnota.Svrsek && player1.Hand.HasK(c1.Suit))
             {
                 hlasPoints1 = c1.Suit == _g.trump.Value ? 40 : 20;
@@ -111,7 +118,12 @@ namespace Mariasek.Engine.New
             _g.OnCardPlayed(this);
             
             c2 = player2.PlayCard(this);
-            debugNote2 = string.Format("{0} ({1}/{2})", player2.DebugInfo.Rule, player2.DebugInfo.RuleCount, player2.DebugInfo.TotalRuleCount);
+            allRules.Clear();
+            foreach (var choice in player2.DebugInfo.AllChoices)
+            {
+                allRules.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, player2.DebugInfo.TotalRuleCount);
+            }
+            debugNote2 = string.Format(" {0} ({1}/{2})\nVšechny simulace:{3}", player2.DebugInfo.Rule, player2.DebugInfo.RuleCount, player2.DebugInfo.TotalRuleCount, allRules.ToString());
             if (_g.trump.HasValue && c2.Value == Hodnota.Svrsek && player2.Hand.HasK(c2.Suit))
             {
                 hlasPoints2 = c2.Suit == _g.trump.Value ? 40 : 20;
@@ -122,7 +134,12 @@ namespace Mariasek.Engine.New
             _g.OnCardPlayed(this);
             
             c3 = player3.PlayCard(this);
-            debugNote3 = string.Format("{0} ({1}/{2})", player3.DebugInfo.Rule, player3.DebugInfo.RuleCount, player3.DebugInfo.TotalRuleCount);
+            allRules.Clear();
+            foreach (var choice in player3.DebugInfo.AllChoices)
+            {
+                allRules.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, player3.DebugInfo.TotalRuleCount);
+            }
+            debugNote3 = string.Format(" {0} ({1}/{2})\nVšechny simulace:{3}", player3.DebugInfo.Rule, player3.DebugInfo.RuleCount, player3.DebugInfo.TotalRuleCount, allRules.ToString());
             if (_g.trump.HasValue && c3.Value == Hodnota.Svrsek && player3.Hand.HasK(c3.Suit))
             {
                 hlasPoints3 = c3.Suit == _g.trump.Value ? 40 : 20;
