@@ -127,19 +127,18 @@ namespace Mariasek.Engine.New
 
         private int GetSuitScoreForTrumpChoice(List<Card> hand, Barva b)
         {
-            var hand7 = hand.Take(7).ToList(); //nekoukat do karet co nejsou videt
             var score = 0;
-            var count = hand7.Count(i => i.Suit == b);
+            var count = hand.Count(i => i.Suit == b);
 
             if (count > 1)
             {
-                if (hand7.HasK(b))
+                if (hand.HasK(b))
                     score += 20;
-                if (hand7.HasQ(b))
+                if (hand.HasQ(b))
                     score += 20;
-                if (hand7.HasA(b))
+                if (hand.HasA(b))
                     score += 10;
-                if (hand7.HasX(b))
+                if (hand.HasX(b))
                     score += 10;
 
                 score += count;
@@ -151,8 +150,8 @@ namespace Mariasek.Engine.New
 
         public override Card ChooseTrump()
         {
-            return ChooseTrump(Hand);
-        }
+			return ChooseTrump(Hand.Take(7).ToList()); //nekoukat do karet co nejsou videt
+		}
 
         public Card ChooseTrump(List<Card> hand)
         {
