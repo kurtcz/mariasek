@@ -1,0 +1,22 @@
+﻿<Properties StartupItem="Mariasek.Console/Mariasek.Console.csproj">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Mariasek.Engine.New/AiStrategy.cs">
+    <Files>
+      <File FileName="Mariasek.Console/Program.cs" Line="122" Column="1" />
+      <File FileName="Mariasek.Engine.New/Game.cs" Line="609" Column="1" />
+      <File FileName="Mariasek.Console/App.config" Line="60" Column="48" />
+      <File FileName="../../Downloads/_mariasek/napoveda_re.hra" Line="2" Column="1" />
+      <File FileName="Mariasek.Engine.New/AiPlayer.cs" Line="648" Column="1" />
+      <File FileName="Mariasek.Engine.New/AiStrategy.cs" Line="425" Column="166" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.ItemProperties.Mariasek.Console PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/kurt/git/mariasek/Mariasek.Console/Program.cs" line="122" column="1" />
+      <Breakpoint file="/Users/kurt/git/mariasek/Mariasek.Console/Program.cs" line="92" column="1" />
+      <Breakpoint file="/Users/kurt/git/mariasek/Mariasek.Engine.New/AiPlayer.cs" line="648" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

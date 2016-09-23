@@ -1681,6 +1681,7 @@ namespace Mariasek.SharedClient
 
         public void SuggestTrump(Card trumpCard)
         {
+			_progress1.Progress = _progress1.Max;
             if (_settings.HintEnabled)
             {
                 _hintBtn.IsEnabled = true;
@@ -1694,6 +1695,7 @@ namespace Mariasek.SharedClient
 
         public void SuggestTalon(List<Card> talon)
         {
+			_progress1.Progress = _progress1.Max;
             if (_settings.HintEnabled)
             {
                 _hintBtn.IsEnabled = true;
@@ -1707,6 +1709,7 @@ namespace Mariasek.SharedClient
 
         public void SuggestGameFlavour(string flavour)
         {
+			_progress1.Progress = _progress1.Max;
             if (_settings.HintEnabled)
             {
                 _hintBtn.IsEnabled = true;
@@ -1716,18 +1719,21 @@ namespace Mariasek.SharedClient
 
         public void SuggestGameType(string gameType)
         {
+			_progress1.Progress = _progress1.Max;
             _hintBtn.IsEnabled = true;
             HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", gameType), false);
         }
 
         public void SuggestBidsAndDoubles(string bid)
         {
+			_progress1.Progress = _progress1.Max;
             _hintBtn.IsEnabled = true;
             HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", bid), false);
         }
 
         public void SuggestCardToPlay(Card cardToPlay, string hint)
         {
+			_progress1.Progress = _progress1.Max;
             _hintBtn.IsEnabled = true;
             HintBtnFunc = () =>
             {

@@ -996,7 +996,7 @@ namespace Mariasek.Engine.New
         public void AddBiddingDebugInfo(int playerIndex)
         {
             BiddingDebugInfo.Append("Všechny simulace:");
-            foreach (var choice in players[playerIndex].DebugInfo.AllChoices)
+			foreach (var choice in players[playerIndex].DebugInfo.AllChoices.Where(i => i != null))
             {
                 BiddingDebugInfo.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, GameStartingPlayer.DebugInfo.TotalRuleCount);
             }

@@ -445,6 +445,7 @@ namespace Mariasek.Engine.New
 					if (!cardsToPlay.Any())	//další verze (nezávislá na TeamMateIndex)
 					{						
 						var topCards = ValidCards(hands[MyIndex]).Where(i => 
+                            i.Suit != _trump &&
 							hands[player2].All(j => 
 								hands[player3].All(k =>
 									Round.WinningCard(i, j, k, _trump) == i))).ToList();
@@ -485,20 +486,21 @@ namespace Mariasek.Engine.New
                                                                  (hands[MyIndex].Any(j => j.Suit != _trump &&             //nebo mam a muzu uhrat nejake A, X v jine barve
                                                                                          (j.Value == Hodnota.Eso ||
                                                                                           j.Value == Hodnota.Desitka)))));
-                        if (cardsToPlay.Count() <
+						//cardsToPlay.Count() nyni muze byt rovno 0
+						if (cardsToPlay.Count() <
                             Math.Max(hands[player2].CardCount(_trump),
                                      hands[player3].CardCount(_trump)))
                         {
                             //nemam dost trumfu vyssich nez souperovy trumfy
-                            if ((_gameType & (Hra.Sedma | Hra.Kilo)) == 0)
+                            if ((_gameType & Hra.Kilo) == 0)
                             {
-                                cardsToPlay = Enumerable.Empty<Card>();
-                            }
+                                cardsToPlay = Enumerable.Empty<Card>(); //nema cenu tahat trumfy, souperum by zustaly vyssi trumfy a me nizsi
+							}
                             else if (hands[MyIndex].CardCount(_trump) >
                                      Math.Max(hands[player2].CardCount(_trump),
                                      hands[player3].CardCount(_trump)))
                             {
-                                //hraju sedmu nebo kilo a mam vic trumfu nez souperi
+                                //hraju kilo a mam vic trumfu nez souperi
                                 //ale nekdo z nich ma vetsi trumf nez ja -
                                 //pokud ho nemohu vytlacit jinou barvou, tak ho vytahnu
                                 var muzuVytlacitTrumf = false;
@@ -642,7 +644,8 @@ namespace Mariasek.Engine.New
             {
                 Order = 12,
                 Description = "hrát dlouhou barvu (mimo A, X)",
-                ChooseCard1 = () =>
+				UseThreshold = true, //protoze muzu omylem vytlacit A,X ze spoluhrace
+				ChooseCard1 = () =>
                 {
                     var cardsToPlay = new List<Card>();
                     var maxCount = 0;
@@ -1319,6 +1322,7 @@ namespace Mariasek.Engine.New
                         cardsToPlay =
                             ValidCards(c1, c2, hands[MyIndex])
                                 .Where(i => i.Value == Hodnota.Eso &&
+								       		i.Suit != _trump &&
                                             Round.WinningCard(c1, c2, i, _trump) == i &&
                                             ((!hands[player1].HasX(i.Suit) &&
                                               !hands[player2].HasX(i.Suit)) ||
@@ -1331,6 +1335,7 @@ namespace Mariasek.Engine.New
                         cardsToPlay =
                             ValidCards(c1, c2, hands[MyIndex])
                                 .Where(i => i.Value == Hodnota.Eso &&
+								       		i.Suit != _trump &&
                                             Round.WinningCard(c1, c2, i, _trump) != c2 &&
                                             ((!hands[player2].HasX(i.Suit)) ||      //2. hrac nema desitku nebo uz barvu nezna a navic ma jeste nejake trumfy
                                              (!hands[player2].HasSuit(i.Suit) &&
@@ -1342,6 +1347,7 @@ namespace Mariasek.Engine.New
                         cardsToPlay =
                             ValidCards(c1, c2, hands[MyIndex])
                                 .Where(i => i.Value == Hodnota.Eso &&
+								       		i.Suit != _trump &&
                                             Round.WinningCard(c1, c2, i, _trump) != c1 &&
                                             ((!hands[player1].HasX(i.Suit)) ||      //1. hrac nema desitku nebo uz barvu nezna a navic ma jeste nejake trumfy
                                              (!hands[player1].HasSuit(i.Suit) &&

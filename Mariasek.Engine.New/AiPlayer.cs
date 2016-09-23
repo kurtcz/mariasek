@@ -470,7 +470,7 @@ namespace Mariasek.Engine.New
             var progress = 0;
             var goodGamesPerSecond = 0;
             var badGamesPerSecond = 0;
-            OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Generuju karty"});
+            OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 1, Message = "Generuju karty"});
 
             //nasimuluj hry v barve
             var source = Settings.Cheat
