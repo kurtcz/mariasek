@@ -116,7 +116,7 @@ namespace Mariasek.SharedClient
             _trump = _trumpCard.Suit;
 			if (_aiPlayer != null)
 			{
-				_aiPlayer.TrumpCard = _trumpCard;
+				_aiPlayer._trump = _trump;
 			}
 			CancelAiTask();
 			return _trumpCard;
@@ -161,7 +161,7 @@ namespace Mariasek.SharedClient
                     {
                         _aiTask = Task.Run(() =>
                             {
-                                //dej 2 karty z ruky do talonu aby byl _aiPlayer v aktualnim stavu
+								//dej 2 karty z ruky do talonu aby byl _aiPlayer v aktualnim stavu
                                 _aiPlayer._talon = _talon;
                                 _aiPlayer.Hand = Hand;
                                 var flavour = _aiPlayer.ChooseGameFlavour(); //uvnitr se zvoli talon, ale clovek muze ve skutecnosti volit jinak nez ai!!!

@@ -20,7 +20,7 @@ namespace Mariasek.Engine.New
 #else
         private static readonly ILog _log = new DummyLogWrapper();
 #endif   
-        private Barva? _trump;
+        public Barva? _trump;
         private Hra? _gameType;
         public List<Card> _talon; //public so that HumanPlayer can set it
         private List<MultiplyingMoneyCalculator> _moneyCalculations;
@@ -356,7 +356,7 @@ namespace Mariasek.Engine.New
                 }
                 Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, _talon);
 
-                if (PlayerIndex == _g.OriginalGameStartingPlayerIndex)
+				if (PlayerIndex == _g.OriginalGameStartingPlayerIndex && bidding.BetlDurchMultiplier == 0)
                 {
                     //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
                     //Zapamatujeme si vysledek a pouzijeme ho i v ChooseGameFlavour() a ChooseGameType()
