@@ -1,5 +1,5 @@
 ﻿<Properties StartupConfiguration="{F8E3C4CE-F1CA-4796-B0ED-5D49939F744C}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Mariasek.AndroidClient/MariasekActivity.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Mariasek.SharedClient/MariasekMonoGame.cs">
     <Files>
       <File FileName="Mariasek.Engine.New/Game.cs" Line="655" Column="1" />
       <File FileName="Mariasek.Engine.New/Bidding.cs" Line="261" Column="29" />
@@ -14,7 +14,8 @@
       <File FileName="Mariasek.iOSClient/Info.plist" />
       <File FileName="Mariasek.iOSClient/EmailSender.cs" Line="37" Column="1" />
       <File FileName="Mariasek.Engine.New/AiDurchStrategy.cs" Line="105" Column="15" />
-      <File FileName="Mariasek.AndroidClient/MariasekActivity.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.AndroidClient/MariasekActivity.cs" Line="17" Column="1" />
+      <File FileName="Mariasek.SharedClient/MariasekMonoGame.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|iPhone" />
@@ -26,7 +27,7 @@
       <Breakpoint file="/Users/kurt/git/mariasek/Mariasek.SharedClient/HumanPlayer.cs" line="167" column="1" />
       <Breakpoint file="/Users/kurt/git/mariasek/Mariasek.SharedClient/MainScene.cs" line="862" column="1" />
       <Breakpoint file="/Users/kurt/git/mariasek/Mariasek.iOSClient/EmailSender.cs" line="23" column="1" />
-      <Breakpoint file="/Users/kurt/git/mariasek/Mariasek.AndroidClient/MariasekActivity.cs" line="35" column="1" />
+      <Breakpoint file="/Users/kurt/git/mariasek/Mariasek.AndroidClient/MariasekActivity.cs" line="36" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

@@ -35,8 +35,14 @@ namespace Mariasek.SharedClient
         public Texture2D ReverseTexture { get; private set; }
         public Dictionary<string, FontRenderer> FontRenderers { get; private set; }
 
+		//Let's create a virtual screen with acpect ratio that is neither widescreen nor narrowscreen
+		// iPhone5+, Samsung A3:	1.78 : 1
+		// iPad:					1.33 : 1
+		// old iPhone:				1.50 : 1
+		// old Androids 800x480:	1.67 : 1
+		// Virtual 800x512:			1.56 : 1
 		public readonly float VirtualScreenWidth = 800;
-        public readonly float VirtualScreenHeight = 480;
+        public readonly float VirtualScreenHeight = 512;
 		public Matrix ScaleMatrix;
 
         public SoundEffect ClickSound { get; private set; }
@@ -114,7 +120,7 @@ namespace Mariasek.SharedClient
             }
 			var _screenScale = new Vector3(scaleX, scaleY, 1.0f);
 
-            ScaleMatrix = Matrix.CreateScale(_screenScale) * Matrix.CreateTranslation(translation);
+			ScaleMatrix = Matrix.CreateScale(_screenScale) * Matrix.CreateTranslation(translation);
 		}
 
 		/// <summary>
