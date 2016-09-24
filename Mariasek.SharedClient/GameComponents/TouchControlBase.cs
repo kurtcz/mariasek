@@ -144,7 +144,9 @@ namespace Mariasek.SharedClient.GameComponents
                 return;
             }
 
-            var currTouches = Game.TouchCollection;
+			// Transform the touch collection to show position in virtual coordinates
+			var currTouches = Game.TouchCollection.Select(i => new TouchLocation(i.Id, i.State, new Vector2((i.Position.X - ScaleMatrix.M41) / ScaleMatrix.M11,
+			                                                                                                (i.Position.Y - ScaleMatrix.M42) / ScaleMatrix.M22)));
 
             IsClicked = false;
             if (_touchHeld)

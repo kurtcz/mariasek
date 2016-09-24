@@ -1,30 +1,29 @@
 ﻿<Properties StartupConfiguration="{F8E3C4CE-F1CA-4796-B0ED-5D49939F744C}|Default">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Mariasek.SharedClient/GameComponents/CardButton.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Mariasek.SharedClient/GameComponents/TouchControlBase.cs">
     <Files>
-      <File FileName="Mariasek.SharedClient/GameComponents/Button.cs" Line="181" Column="1" />
-      <File FileName="Mariasek.SharedClient/GameComponents/RectangleShape.cs" Line="279" Column="8" />
-      <File FileName="Mariasek.SharedClient/MariasekMonoGame.cs" Line="247" Column="13" />
-      <File FileName="Mariasek.SharedClient/GameComponents/GameComponent.cs" Line="287" Column="10" />
-      <File FileName="Mariasek.SharedClient/GameComponents/Label.cs" Line="43" Column="16" />
+      <File FileName="Mariasek.SharedClient/GameComponents/Button.cs" Line="154" Column="30" />
+      <File FileName="Mariasek.SharedClient/GameComponents/RectangleShape.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/MariasekMonoGame.cs" Line="227" Column="7" />
+      <File FileName="Mariasek.SharedClient/GameComponents/GameComponent.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/GameComponents/Label.cs" Line="1" Column="1" />
       <File FileName="Mariasek.SharedClient/GameComponents/FontRenderer.cs" Line="112" Column="58" />
-      <File FileName="Mariasek.SharedClient/GameComponents/Scene.cs" Line="78" Column="16" />
-      <File FileName="Mariasek.SharedClient/MenuScene.cs" Line="139" Column="1" />
-      <File FileName="Mariasek.SharedClient/GameComponents/Sprite.cs" Line="261" Column="7" />
-      <File FileName="Mariasek.SharedClient/GameComponents/TextBox.cs" Line="290" Column="8" />
-      <File FileName="Mariasek.SharedClient/GameComponents/LineChart.cs" Line="209" Column="8" />
-      <File FileName="Mariasek.SharedClient/MainScene.cs" Line="565" Column="48" />
-      <File FileName="Mariasek.SharedClient/GameComponents/ProgressIndicator.cs" Line="53" Column="17" />
-      <File FileName="Mariasek.SharedClient/GameComponents/SpriteButton.cs" Line="155" Column="1" />
-      <File FileName="Mariasek.SharedClient/HistoryScene.cs" Line="286" Column="1" />
-      <File FileName="Mariasek.SharedClient/GameComponents/CardButton.cs" Line="227" Column="16" />
+      <File FileName="Mariasek.SharedClient/GameComponents/Scene.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/MenuScene.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/GameComponents/Sprite.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/GameComponents/TextBox.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/GameComponents/LineChart.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/MainScene.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/GameComponents/ProgressIndicator.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/GameComponents/SpriteButton.cs" Line="50" Column="30" />
+      <File FileName="Mariasek.SharedClient/HistoryScene.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/GameComponents/CardButton.cs" Line="1" Column="1" />
+      <File FileName="Mariasek.SharedClient/GameComponents/TouchControlBase.cs" Line="146" Column="4" />
+      <File FileName="Mariasek.SharedClient/GameComponents/ClickableArea.cs" Line="27" Column="30" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/kurt/git/mariasek/Mariasek.SharedClient/GameComponents/Scene.cs" line="107" column="1" />
-      <Breakpoint conditionExpression="Text == &quot;Odeslat&quot;" file="/Users/kurt/git/mariasek/Mariasek.SharedClient/GameComponents/GameComponent.cs" line="289" column="1" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.ItemProperties.Mariasek.AndroidClient PreferredExecutionTarget="Android.310017518bb42389" />

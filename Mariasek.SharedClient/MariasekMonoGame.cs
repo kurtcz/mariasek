@@ -225,16 +225,7 @@ namespace Mariasek.SharedClient
 				Exit ();
 			}
 #endif
-            // Transform the touch collection to show position in virtual coordinates
-            TouchCollection = new TouchCollection(
-                TouchPanel.GetState()
-                          .Select(i => new TouchLocation(
-                                        i.Id, 
-                                        i.State, 
-                                        new Vector2(
-                                            (i.Position.X - ScaleMatrix.M41) / ScaleMatrix.M11, 
-                                            (i.Position.Y - ScaleMatrix.M42) / ScaleMatrix.M22)))
-                          .ToArray());
+			TouchCollection = TouchPanel.GetState();
 			// TODO: Add your update logic here
             CurrentScene.Update(gameTime);
 			base.Update (gameTime);
