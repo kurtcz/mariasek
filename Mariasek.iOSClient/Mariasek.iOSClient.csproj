@@ -75,7 +75,7 @@
     <DeviceSpecificBuild>true</DeviceSpecificBuild>
     <CodesignKey>iPhone Developer: tomas_nemec@yahoo.com (NM6BPUVRDM)</CodesignKey>
     <MtouchUseSGen>true</MtouchUseSGen>
-    <MtouchExtraArgs>--sgen</MtouchExtraArgs>
+    <MtouchExtraArgs>-v -v -v</MtouchExtraArgs>
     <IpaPackageName>
     </IpaPackageName>
     <MtouchLink>Full</MtouchLink>

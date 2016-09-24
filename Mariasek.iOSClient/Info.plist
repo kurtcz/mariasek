@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>Mariasek.iOSClient</string>
+	<string>Mariasek</string>
 	<key>CFBundleIconFiles</key>
 	<array>
 		<string>Icon</string>
@@ -35,5 +35,7 @@
 	<true/>
 	<key>UIPrerenderedIcon</key>
 	<true/>
+	<key>CFBundleName</key>
+	<string>Mariasek</string>
 </dict>
 </plist>

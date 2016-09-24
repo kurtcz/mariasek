@@ -106,17 +106,20 @@ namespace Mariasek.Engine.New
                                 var lowCard1 = new Card(barva, low1);
                                 var lowCard2 = new Card(barva, low2);
                                 var oplowCard = new Card(barva, oplow);
-                                var hi1 = hands[MyIndex].Count(i => i.Suit == barva && i.Value > oplow);
-                                var hi2 = hands[TeamMateIndex].Count(i => i.Suit == barva && i.Value > oplow);
-                                var mid1 = hands[opponent].Count(i => i.Suit == barva && i.Value > low1);
-                                var mid2 = hands[opponent].Count(i => i.Suit == barva && i.Value > low2);
+                                var hi1 = hands[MyIndex].Count(i => i.Suit == barva && (Hodnota)i.BadValue > oplow);
+                                var hi2 = hands[TeamMateIndex].Count(i => i.Suit == barva && (Hodnota)i.BadValue > oplow);
+                                var mid1 = hands[opponent].Count(i => i.Suit == barva && (Hodnota)i.BadValue > low1);
+                                var mid2 = hands[opponent].Count(i => i.Suit == barva && (Hodnota)i.BadValue > low2);
 
-                                //odmazavat ma smysl jen tehdy pokud je nasich vysokych karet mene nez souperovych strednich karet
+                                //odmazavat ma smysl jen tehdy pokud:
+								//mame nejmensi kartu a
+								//nasich vysokych karet je mene nez souperovych strednich karet
+								//(aby souperovi nejake karty zbyly pote co si vysoke odmazeme)
                                 if ((lowCard1.IsLowerThan(oplowCard, null) && hi2 > 0 && hi2 < mid1) ||
                                     (lowCard2.IsLowerThan(oplowCard, null) && hi1 > 0 && hi1 < mid2))
                                 {
                                     cardsToPlay.Add(hands[MyIndex].Where(i => i.Suit == barva)
-                                                                  .OrderByDescending(i => i.Value)
+                                                                  .OrderByDescending(i => i.BadValue)
                                                                   .First());
                                 }
                             }
@@ -127,9 +130,30 @@ namespace Mariasek.Engine.New
                 }
             };
 
-            yield return new AiRule()
+			yield return new AiRule()
+			{
+				Order = 3,
+				Description = "Hrát krátkou barvu kterou soupeř zná",
+				ChooseCard1 = () =>
+				{
+					var cardsToPlay = new List<Card>();
+
+					var lo = hands[MyIndex].GroupBy(g => g.Suit);   //seskup podle barev
+																	//vyber nejkratsi barvu
+					var cards = lo.Where(g => hands[opponent].HasSuit(g.Key)).OrderBy(g => g.Count()).Select(g => g.ToList()).FirstOrDefault();
+
+					if (cards != null)
+					{
+						return cards.OrderBy(i => i.BadValue).FirstOrDefault(); //nejmensi karta			
+					}
+
+					return null;
+				}
+			};
+
+			yield return new AiRule()
             {
-                Order = 3,
+                Order = 4,
                 Description = "Hrát krátkou barvu",
                 ChooseCard1 = () =>
                 {
@@ -139,7 +163,7 @@ namespace Mariasek.Engine.New
                     //vyber nejkratsi barvu
                     cardsToPlay = lo.OrderBy(g => g.Count()).Select(g => g.ToList()).FirstOrDefault();
 
-                    return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault(); //nejmensi karta
+					return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault(); //nejmensi karta
                 }
             };
         }
@@ -216,17 +240,17 @@ namespace Mariasek.Engine.New
                                 var lowCard1 = new Card(barva, low1);
                                 var lowCard2 = new Card(barva, low2);
                                 var oplowCard = new Card(barva, oplow);
-                                var hi1 = hands[MyIndex].Count(i => i.Suit == barva && i.Value > oplow);
-                                var hi2 = hands[TeamMateIndex].Count(i => i.Suit == barva && i.Value > oplow);
-                                var mid1 = hands[opponent].Count(i => i.Suit == barva && i.Value > low1);
-                                var mid2 = hands[opponent].Count(i => i.Suit == barva && i.Value > low2);
+								var hi1 = hands[MyIndex].Count(i => i.Suit == barva && (Hodnota)i.BadValue > oplow);
+                                var hi2 = hands[TeamMateIndex].Count(i => i.Suit == barva && (Hodnota)i.BadValue > oplow);
+                                var mid1 = hands[opponent].Count(i => i.Suit == barva && (Hodnota)i.BadValue > low1);
+								var mid2 = hands[opponent].Count(i => i.Suit == barva && (Hodnota)i.BadValue > low2);
 
                                 //odmazavat ma smysl jen tehdy pokud je nasich vysokych karet mene nez souperovych strednich karet
                                 if ((lowCard1.IsLowerThan(oplowCard, null) && hi2 < mid1) ||
                                     (lowCard2.IsLowerThan(oplowCard, null) && hi1 < mid2)) 
                                 {
                                     cardsToPlay.Add(ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == barva)
-                                                                                  .OrderByDescending(i => i.Value)
+                                                                                  .OrderByDescending(i => i.BadValue)
                                                                                   .First());
                                 }
                             }
@@ -255,7 +279,7 @@ namespace Mariasek.Engine.New
                         cardsToPlay = cards;
                     }
 
-                    return cardsToPlay.RandomOneOrDefault();
+					return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                 }
             };
 
@@ -343,17 +367,17 @@ namespace Mariasek.Engine.New
                                 var lowCard1 = new Card(barva, low1);
                                 var lowCard2 = new Card(barva, low2);
                                 var oplowCard = new Card(barva, oplow);
-                                var hi1 = hands[MyIndex].Count(i => i.Suit == barva && i.Value > oplow);
-                                var hi2 = hands[TeamMateIndex].Count(i => i.Suit == barva && i.Value > oplow);
-                                var mid1 = hands[opponent].Count(i => i.Suit == barva && i.Value > low1);
-                                var mid2 = hands[opponent].Count(i => i.Suit == barva && i.Value > low2);
+								var hi1 = hands[MyIndex].Count(i => i.Suit == barva && (Hodnota)i.BadValue > oplow);
+                                var hi2 = hands[TeamMateIndex].Count(i => i.Suit == barva && (Hodnota)i.BadValue > oplow);
+                                var mid1 = hands[opponent].Count(i => i.Suit == barva && (Hodnota)i.BadValue > low1);
+                                var mid2 = hands[opponent].Count(i => i.Suit == barva && (Hodnota)i.BadValue > low2);
 
                                 //odmazavat ma smysl jen tehdy pokud je nasich vysokych karet mene nez souperovych strednich karet
                                 if ((lowCard1.IsLowerThan(oplowCard, null) && hi2 < mid1) ||
                                     (lowCard2.IsLowerThan(oplowCard, null) && hi1 < mid2))
                                 {
                                     cardsToPlay.Add(ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == barva)
-                                                                                  .OrderByDescending(i => i.Value)
+                                                                                  .OrderByDescending(i => i.BadValue)
                                                                                   .First());
                                 }
                             }

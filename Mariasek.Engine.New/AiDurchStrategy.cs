@@ -33,14 +33,14 @@ namespace Mariasek.Engine.New
                                                               ValidCards(i, hands[player2]).All(j =>
                                                                 ValidCards(i, j, hands[player3]).All(k =>
                                                                     Round.WinningCard(i, j, k, null) == i)))
-                                                  .OrderByDescending(i => i.Value)
+                                                  .OrderByDescending(i => i.BadValue)
                                                   .ToList();
                         var hi = cards.FirstOrDefault();
                         var lo = cards.LastOrDefault();
 
-                        if(lo != null && lo.Value <= minCard)
+						if(lo != null && (Hodnota)lo.BadValue <= minCard)
                         {
-                            minCard = lo.Value;
+							minCard = (Hodnota)lo.BadValue;
                             cardsToPlay.Clear();
                             cardsToPlay.Add(hi);
                         }
@@ -70,7 +70,7 @@ namespace Mariasek.Engine.New
                         }
                     }
 
-                    return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
+                    return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                 }
             };
         }
@@ -88,7 +88,7 @@ namespace Mariasek.Engine.New
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => !c1.IsHigherThan(i, null));
 
-                    return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
+                    return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                 }
             };
 
@@ -100,7 +100,7 @@ namespace Mariasek.Engine.New
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == c1.Suit);
 
-                    return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                    return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                 }
             };
 
