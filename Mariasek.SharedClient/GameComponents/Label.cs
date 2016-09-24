@@ -42,7 +42,8 @@ namespace Mariasek.SharedClient.GameComponents
 
         public override void Draw(GameTime gameTime)
         {
-            if (IsVisible)
+            if (ScaleMatrixAlign == Game.ScaleMatrixAlign &&
+			    IsVisible)
             {
                 var position = Position;
 
@@ -74,14 +75,14 @@ namespace Mariasek.SharedClient.GameComponents
         protected void DrawTextAtPosition(Vector2 position)
         {
             Game.SpriteBatch.End();
-            var origClippingRectangle = Game.GraphicsDevice.ScissorRectangle;
+            var origClippingRectangle = Game.SpriteBatch.GraphicsDevice.ScissorRectangle;
             //we need to create a new sprite batch instance that is going to use a clipping rectangle
-            Game.GraphicsDevice.ScissorRectangle = new Rectangle((int)(Game.ScaleMatrix.M41 + Position.X*Game.ScaleMatrix.M11), 
-                                                                 (int)(Game.ScaleMatrix.M42 + Position.Y*Game.ScaleMatrix.M22), 
-                                                                 (int)(Width*Game.ScaleMatrix.M11), 
-                                                                 (int)(Height*Game.ScaleMatrix.M22));
+            Game.SpriteBatch.GraphicsDevice.ScissorRectangle = new Rectangle((int)(ScaleMatrix.M41 + Position.X*ScaleMatrix.M11), 
+                                                                 (int)(ScaleMatrix.M42 + Position.Y*ScaleMatrix.M22), 
+                                                                 (int)(Width*ScaleMatrix.M11), 
+                                                                 (int)(Height*ScaleMatrix.M22));
 
-            Game.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, new RasterizerState { ScissorTestEnable = true }, null, Game.ScaleMatrix);
+            Game.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, new RasterizerState { ScissorTestEnable = true }, null, ScaleMatrix);
 
             TextRenderer.DrawText(
                 Game.SpriteBatch, 
@@ -92,8 +93,8 @@ namespace Mariasek.SharedClient.GameComponents
 
             Game.SpriteBatch.End();
 
-            Game.GraphicsDevice.ScissorRectangle = origClippingRectangle;
-            Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Game.ScaleMatrix);
+            Game.SpriteBatch.GraphicsDevice.ScissorRectangle = origClippingRectangle;
+            Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, ScaleMatrix);
         }
     }
 }

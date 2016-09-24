@@ -278,11 +278,6 @@ namespace Mariasek.SharedClient
         {
             _settings = e.Settings;
         }
-
-        public override void Draw(GameTime gameTime)
-        {
-            base.Draw(gameTime);
-        }
     }
 }
 

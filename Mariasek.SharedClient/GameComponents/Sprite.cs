@@ -256,7 +256,9 @@ namespace Mariasek.SharedClient.GameComponents
             //System.Diagnostics.Debug.WriteLine(string.Format("Draw {0}/{8} {1} [{2} {3} - {4} {5}] {6} {7}", 
             //    Name, Position, SpriteRectangle.Left, SpriteRectangle.Top, SpriteRectangle.Right, SpriteRectangle.Bottom, RotationOrigin, RotationAngle, Tag));
             //we will be redrawing our sprite with each frame
-            if(IsVisible && _spriteTexture != null)
+            if(ScaleMatrixAlign == Game.ScaleMatrixAlign &&
+			   IsVisible && 
+			   _spriteTexture != null)
             {
                 if (_spriteTexture.IsDisposed)
                 {

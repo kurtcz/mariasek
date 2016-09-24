@@ -223,12 +223,6 @@ namespace Mariasek.SharedClient.GameComponents
             _reverseSprite.Update(gameTime);
             base.Update(gameTime);
         }
-
-        public override void Draw(GameTime gameTime)
-        {
-            base.Draw(gameTime);
-            _reverseSprite.Draw(gameTime);
-        }
     }
 }
 

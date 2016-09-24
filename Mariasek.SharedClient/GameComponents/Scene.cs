@@ -98,7 +98,28 @@ namespace Mariasek.SharedClient.GameComponents
                         break;
                 }
             }
+			Game.ScaleMatrixAlign = ScaleMatrixAlignment.Main;
             base.Draw(gameTime);
+			Game.SpriteBatch.End();
+
+			Game.ScaleMatrixAlign = ScaleMatrixAlignment.Left;
+			Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Game.LeftScaleMatrix);
+			base.Draw(gameTime);
+			Game.SpriteBatch.End();
+
+			Game.ScaleMatrixAlign = ScaleMatrixAlignment.Top;
+			Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Game.TopScaleMatrix);
+			base.Draw(gameTime);
+			Game.SpriteBatch.End();
+
+			Game.ScaleMatrixAlign = ScaleMatrixAlignment.Right;
+			Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Game.RightScaleMatrix);
+			base.Draw(gameTime);
+			Game.SpriteBatch.End();
+
+			Game.ScaleMatrixAlign = ScaleMatrixAlignment.Bottom;
+			Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Game.BottomScaleMatrix);
+			base.Draw(gameTime);
 			Game.SpriteBatch.End();
         }
     }

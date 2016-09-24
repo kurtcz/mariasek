@@ -280,14 +280,16 @@ namespace Mariasek.SharedClient
             {
                 Text = "Menu",
                 Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 30),
-                ZIndex = 100
+                ZIndex = 100,
+				ScaleMatrixAlign = ScaleMatrixAlignment.Left
             };
             _menuBtn.Click += MenuBtnClicked;
             _sendBtn = new Button(this)
             {
                 Text = "Odeslat",
                 Position = new Vector2(10, Game.VirtualScreenHeight / 2f + 30),
-                ZIndex = 100
+                ZIndex = 100,
+				ScaleMatrixAlign = ScaleMatrixAlignment.Left
             };
             _sendBtn.Click += SendBtnClicked;
             _hintBtn = new Button(this)
@@ -298,7 +300,8 @@ namespace Mariasek.SharedClient
                 TextColor = Color.SaddleBrown,
                 BackgroundColor = Color.White,
                 BorderColor = Color.SaddleBrown,
-                ZIndex = 100
+                ZIndex = 100,
+				ScaleMatrixAlign = ScaleMatrixAlignment.Right
             };
             _hintBtn.Click += HintBtnClicked;
             _okBtn = new Button(this)
@@ -536,7 +539,8 @@ namespace Mariasek.SharedClient
                 Width = 150,
                 Height = 8,
                 Color = Color.Red,
-                ZIndex = 100
+                ZIndex = 100,
+				ScaleMatrixAlign = ScaleMatrixAlignment.Top
             };
             if (!_settings.HintEnabled)
             {
@@ -548,7 +552,8 @@ namespace Mariasek.SharedClient
                 Width = 150,
                 Height = 8,
                 Color = Color.Green,
-                ZIndex = 100
+                ZIndex = 100,
+				ScaleMatrixAlign = ScaleMatrixAlignment.Top
             };
             _progress3 = new ProgressIndicator(this)
             {
@@ -556,7 +561,8 @@ namespace Mariasek.SharedClient
                 Width = 150,
                 Height = 8,
                 Color = Color.Blue,
-                ZIndex = 100
+                ZIndex = 100,
+				ScaleMatrixAlign = ScaleMatrixAlignment.Top
             };
             _progressBars = new [] { _progress1, _progress2, _progress3 };
 

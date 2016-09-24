@@ -11,7 +11,7 @@ namespace Mariasek.SharedClient.GameComponents
 {
     public class Button : TouchControlBase
     {
-        private Color _origButtonColor = Color.SaddleBrown;//Navy;
+        private Color _origButtonColor = Color.SaddleBrown;
         private Color _origTextColor = Color.White;
         private RectangleShape _buttonShape;
         private Label _buttonText;
@@ -25,6 +25,19 @@ namespace Mariasek.SharedClient.GameComponents
                 _buttonText.Position = value;
             }
         }
+		public override ScaleMatrixAlignment ScaleMatrixAlign
+		{
+			get
+			{
+				return base.ScaleMatrixAlign;
+			}
+			set
+			{
+				base.ScaleMatrixAlign = value;
+				_buttonShape.ScaleMatrixAlign = value;
+				_buttonText.ScaleMatrixAlign = value;
+			}
+		}
         public int Width 
         { 
             get { return _buttonShape.Width; }
@@ -164,15 +177,6 @@ namespace Mariasek.SharedClient.GameComponents
             _buttonShape.BackgroundColors[0] = Color.LightGreen;
             ClickSound.Play();
             base.OnClick();
-        }
-
-        public override void Draw(GameTime gameTime)
-        {
-            if (IsVisible)
-            {
-                _buttonShape.Draw(gameTime);
-                _buttonText.Draw(gameTime);
-            }
         }
     }
 }

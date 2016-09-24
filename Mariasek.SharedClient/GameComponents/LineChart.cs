@@ -113,9 +113,9 @@ namespace Mariasek.SharedClient.GameComponents
         private void UpdateSprite()
         {
             //Draw onto the target rather than the back buffer
-            _target = new RenderTarget2D(Game.GraphicsDevice, Width, Height);
-            Game.GraphicsDevice.SetRenderTarget(_target);
-            Game.Graphics.GraphicsDevice.Clear(Color.Transparent);
+            _target = new RenderTarget2D(Game.SpriteBatch.GraphicsDevice, Width, Height);
+            Game.SpriteBatch.GraphicsDevice.SetRenderTarget(_target);
+            Game.SpriteBatch.GraphicsDevice.Clear(Color.Transparent);
             Game.SpriteBatch.Begin();
             if (ShowHorizontalGridLines)
             {
@@ -200,12 +200,13 @@ namespace Mariasek.SharedClient.GameComponents
             }
             Game.SpriteBatch.End();
             //restore the original backbuffer as the render target
-            Game.GraphicsDevice.SetRenderTarget(null); 
+            Game.SpriteBatch.GraphicsDevice.SetRenderTarget(null); 
         }
 
         public override void Draw(GameTime gameTime)
         {
-            if (IsVisible)
+            if (ScaleMatrixAlign == Game.ScaleMatrixAlign &&
+			    IsVisible)
             {
                 Game.SpriteBatch.Draw(_target, Position);
             }

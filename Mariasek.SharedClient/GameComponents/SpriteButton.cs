@@ -147,11 +147,6 @@ namespace Mariasek.SharedClient.GameComponents
             }
             base.Update(gameTime);
         }
-   
-        public override void Draw(GameTime gameTime)
-        {
-            Sprite.Draw(gameTime);
-        }
     }
 }
 

@@ -46,7 +46,8 @@ namespace Mariasek.SharedClient
                     Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 140),
                     Width = 200,
                     Height = 50,
-                    Text = "Nová hra"
+                    Text = "Nová hra",
+					//ScaleMatrixAlign = ScaleMatrixAlignment.Left
                 };
             _newGameButton.Click += NewGameClicked;
             _resumeButton = new Button(this)
@@ -86,10 +87,11 @@ namespace Mariasek.SharedClient
 
             _version = new Label(this)
             {
-                    Position = new Vector2(5, Game.VirtualScreenHeight - 34),
-                    Width = 200,
-                    Height = 34,
-                    Text = string.Format("v{0}", MariasekMonoGame.Version)
+                Position = new Vector2(5, Game.VirtualScreenHeight - 34),
+                Width = 200,
+                Height = 34,
+                Text = string.Format("v{0}", MariasekMonoGame.Version),
+				ScaleMatrixAlign = ScaleMatrixAlignment.Bottom
             };
             _author = new Label(this)
             {
@@ -97,7 +99,8 @@ namespace Mariasek.SharedClient
                 Width = 400,
                 Height = 34,
                 HorizontalAlign = HorizontalAlignment.Right,
-                Text = "©2016 Tomáš Němec"
+                Text = "©2016 Tomáš Němec",
+				ScaleMatrixAlign = ScaleMatrixAlignment.Bottom
             };
         }
 
@@ -127,11 +130,6 @@ namespace Mariasek.SharedClient
         {
             base.Update(gameTime);
             _resumeButton.IsEnabled = Game.MainScene.g != null && Game.MainScene.g.IsRunning;
-        }
-
-        public override void Draw(GameTime gameTime)
-        {
-            base.Draw(gameTime);
         }
     }
 }

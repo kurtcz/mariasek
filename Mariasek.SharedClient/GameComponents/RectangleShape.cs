@@ -275,7 +275,9 @@ namespace Mariasek.SharedClient.GameComponents
 
         public override void Draw(GameTime gameTime)
         {
-            if (_texture != null)
+			if (IsVisible &&
+			    ScaleMatrixAlign == Game.ScaleMatrixAlign &&
+			    _texture != null)
             {
                 Game.SpriteBatch.Draw(_texture, Position, Color.White * Opacity);
             }

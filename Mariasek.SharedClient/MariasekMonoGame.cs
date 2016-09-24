@@ -15,6 +15,15 @@ using Mariasek.SharedClient.GameComponents;
 
 namespace Mariasek.SharedClient
 {
+	public enum ScaleMatrixAlignment
+	{
+		Main,
+		Left,
+		Top,
+		Right,
+		Bottom
+	}
+
 	/// <summary>
 	/// This is the main type for your game
 	/// </summary>
@@ -48,6 +57,7 @@ namespace Mariasek.SharedClient
 		public Matrix RightScaleMatrix;
 		public Matrix TopScaleMatrix;
 		public Matrix BottomScaleMatrix;
+		public ScaleMatrixAlignment ScaleMatrixAlign;
 
         public SoundEffect ClickSound { get; private set; }
         public SoundEffect OnSound { get; private set; }
@@ -105,13 +115,13 @@ namespace Mariasek.SharedClient
             var scaleX = (float)width / (float)VirtualScreenWidth;
 			var scaleY = (float)height / (float)VirtualScreenHeight;
             
-			var translation = new Vector3((width - VirtualScreenWidth) * scaleY, 0, 0);
-			var scale = new Vector3(scaleX, scaleX, 1.0f);
+			var translation = new Vector3(width - VirtualScreenWidth * scaleY, 0, 0);
+			var scale = new Vector3(scaleY, scaleY, 1.0f);
 
 			LeftScaleMatrix = Matrix.CreateScale(scale);
 			RightScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
 
-			translation = new Vector3(0, (height - VirtualScreenHeight) * scaleX, 0);
+			translation = new Vector3(0, height - VirtualScreenHeight * scaleX, 0);
 			scale = new Vector3(scaleX, scaleX, 1.0f);
 
 			TopScaleMatrix = Matrix.CreateScale(scale);

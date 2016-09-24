@@ -55,6 +55,26 @@ namespace Mariasek.SharedClient
             }
         }
         public virtual Vector2 Position { get; set; }
+		public virtual ScaleMatrixAlignment ScaleMatrixAlign { get; set; }
+		protected Matrix ScaleMatrix
+		{
+			get
+			{
+				switch (ScaleMatrixAlign)
+				{
+					case ScaleMatrixAlignment.Left:
+						return Game.LeftScaleMatrix;
+					case ScaleMatrixAlignment.Top:
+						return Game.TopScaleMatrix;
+					case ScaleMatrixAlignment.Right:
+						return Game.RightScaleMatrix;
+					case ScaleMatrixAlignment.Bottom:
+						return Game.BottomScaleMatrix;
+					default:
+						return Game.ScaleMatrix;
+				}
+			}
+		}
         public virtual bool IsBusy { get { return ScheduledOperations!= null && ScheduledOperations.Count > 0; } }
         public virtual bool IsMoving { get; private set; }
         private int _zIndex;
@@ -264,9 +284,9 @@ namespace Mariasek.SharedClient
             }
         }
 
-        public virtual void Draw(GameTime gameTime)
+		public virtual void Draw(GameTime gameTime)
         {
-            if (IsVisible)
+			if (IsVisible)
             {
                 for (var i = 0; i < Children.Count; i++)
                 {
