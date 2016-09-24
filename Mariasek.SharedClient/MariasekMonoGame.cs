@@ -44,6 +44,10 @@ namespace Mariasek.SharedClient
 		public readonly float VirtualScreenWidth = 800;
         public readonly float VirtualScreenHeight = 512;
 		public Matrix ScaleMatrix;
+		public Matrix LeftScaleMatrix;
+		public Matrix RightScaleMatrix;
+		public Matrix TopScaleMatrix;
+		public Matrix BottomScaleMatrix;
 
         public SoundEffect ClickSound { get; private set; }
         public SoundEffect OnSound { get; private set; }
@@ -79,7 +83,6 @@ namespace Mariasek.SharedClient
         {
             get
             {
-				Type t = typeof(MariasekMonoGame);
                 var assembly = typeof(MariasekMonoGame).Assembly;
 
                 return assembly.GetName().Version;
@@ -96,31 +99,41 @@ namespace Mariasek.SharedClient
 		{
             System.Diagnostics.Debug.WriteLine("Initialize()");
 			// TODO: Add your initialization logic here
-			base.Initialize ();
 
             var width = Math.Max(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             var height = Math.Min(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             var scaleX = (float)width / (float)VirtualScreenWidth;
 			var scaleY = (float)height / (float)VirtualScreenHeight;
-            var translation = Vector3.Zero;
+            
+			var translation = new Vector3((width - VirtualScreenWidth) * scaleY, 0, 0);
+			var scale = new Vector3(scaleX, scaleX, 1.0f);
+
+			LeftScaleMatrix = Matrix.CreateScale(scale);
+			RightScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
+
+			translation = new Vector3(0, (height - VirtualScreenHeight) * scaleX, 0);
+			scale = new Vector3(scaleX, scaleX, 1.0f);
+
+			TopScaleMatrix = Matrix.CreateScale(scale);
+			BottomScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
 
             if ((float)width / (float)height < (float)VirtualScreenWidth / (float)VirtualScreenHeight)
             {
                 //skutecna obrazovka ma pomery sran mene sirokouhle nez virtualni
                 //vertikalni pomer upravime podle horizontalniho, obraz vertikalne posuneme na stred (vzniknou okraje nahore a dole)
                 translation = new Vector3(0, (height - VirtualScreenHeight * scaleX) / 2f, 0);
-                scaleY = scaleX;
+				scale = new Vector3(scaleX, scaleX, 1.0f);
             }
             else if ((float)width / (float)height > (float)VirtualScreenWidth / (float)VirtualScreenHeight)
             {
                 //skutecna obrazovka ma pomery sran vice sirokouhle nez virtualni
                 //horizontalni pomer upravime podle vertikalniho, obraz horizontalne posuneme na stred (vzniknou okraje vlevo a vpravo)
                 translation = new Vector3((width - VirtualScreenWidth * scaleY) / 2f, 0, 0);
-                scaleX = scaleY;
+				scale = new Vector3(scaleY, scaleY, 1.0f);
             }
-			var _screenScale = new Vector3(scaleX, scaleY, 1.0f);
+			ScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
 
-			ScaleMatrix = Matrix.CreateScale(_screenScale) * Matrix.CreateTranslation(translation);
+			base.Initialize();
 		}
 
 		/// <summary>
@@ -226,9 +239,7 @@ namespace Mariasek.SharedClient
             Graphics.GraphicsDevice.Clear (Color.ForestGreen);
 		
 			//TODO: Add your drawing code here
-            SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, ScaleMatrix);
             CurrentScene.Draw(gameTime);
-			SpriteBatch.End ();
 
 			base.Draw (gameTime);
 		}

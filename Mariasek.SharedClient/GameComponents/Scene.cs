@@ -25,8 +25,6 @@ namespace Mariasek.SharedClient.GameComponents
     /// </summary>
     public class Scene : GameComponent
     {
-        protected SpriteBatch _spriteBatch;
-
         public new MariasekMonoGame Game { get; private set; }
         public GameComponent ExclusiveControl { get; set; }
         public Texture2D Background { get; set; }
@@ -40,7 +38,6 @@ namespace Mariasek.SharedClient.GameComponents
         {
             // TODO: Construct any child components here
             Game = game;
-            _spriteBatch = new SpriteBatch(Game.GraphicsDevice);
             BackgroundTint = Color.White;
             Hide();
         }
@@ -83,6 +80,7 @@ namespace Mariasek.SharedClient.GameComponents
 #if DEBUG_SPRITES
             Counter = 0;
 #endif
+			Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Game.ScaleMatrix);
             if (Background != null)
             {
                 switch(BackgroundAlign)
@@ -101,6 +99,7 @@ namespace Mariasek.SharedClient.GameComponents
                 }
             }
             base.Draw(gameTime);
+			Game.SpriteBatch.End();
         }
     }
 }
