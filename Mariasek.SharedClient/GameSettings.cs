@@ -30,7 +30,7 @@ namespace Mariasek.SharedClient
             BaseBet = 1f;
             CalculationStyle = CalculationStyle.Adding;
             CurrentStartingPlayerIndex = 0;
-            ThinkingTimeMs = 3000;
+            ThinkingTimeMs = 2000;
         }
     }
 }

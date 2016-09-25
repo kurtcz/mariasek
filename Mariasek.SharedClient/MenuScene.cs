@@ -90,7 +90,7 @@ namespace Mariasek.SharedClient
                 Width = 200,
                 Height = 34,
                 Text = string.Format("v{0}", MariasekMonoGame.Version),
-				Anchor = AnchorType.Bottom
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Bottom
             };
             _author = new Label(this)
             {
@@ -99,7 +99,7 @@ namespace Mariasek.SharedClient
                 Height = 34,
                 HorizontalAlign = HorizontalAlignment.Right,
                 Text = "©2016 Tomáš Němec",
-				Anchor = AnchorType.Bottom
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Bottom
             };
         }
 

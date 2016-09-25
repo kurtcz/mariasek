@@ -24,6 +24,12 @@ namespace Mariasek.SharedClient
 		Bottom
 	}
 
+	public enum ScreenGeometry
+	{
+		Narrow,
+		Wide
+	}
+
 	/// <summary>
 	/// This is the main type for your game
 	/// </summary>
@@ -57,6 +63,8 @@ namespace Mariasek.SharedClient
 		public Matrix RightScaleMatrix;
 		public Matrix TopScaleMatrix;
 		public Matrix BottomScaleMatrix;
+		public ScreenGeometry RealScreenGeometry;
+
 		/// <summary>
 		/// Gets the current rendering group. Game components should render themselves only if they belong to the current group.
 		/// </summary>
@@ -136,6 +144,7 @@ namespace Mariasek.SharedClient
                 //vertikalni pomer upravime podle horizontalniho, obraz vertikalne posuneme na stred (vzniknou okraje nahore a dole)
                 translation = new Vector3(0, (height - VirtualScreenHeight * scaleX) / 2f, 0);
 				scale = new Vector3(scaleX, scaleX, 1.0f);
+				RealScreenGeometry = ScreenGeometry.Narrow;
             }
             else if ((float)width / (float)height > (float)VirtualScreenWidth / (float)VirtualScreenHeight)
             {
@@ -143,6 +152,7 @@ namespace Mariasek.SharedClient
                 //horizontalni pomer upravime podle vertikalniho, obraz horizontalne posuneme na stred (vzniknou okraje vlevo a vpravo)
                 translation = new Vector3((width - VirtualScreenWidth * scaleY) / 2f, 0, 0);
 				scale = new Vector3(scaleY, scaleY, 1.0f);
+				RealScreenGeometry = ScreenGeometry.Wide;
             }
 			MainScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
 

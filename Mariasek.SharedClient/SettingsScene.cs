@@ -67,12 +67,12 @@ namespace Mariasek.SharedClient
                 Width = 400,
                 Height = 34,
                 HorizontalAlign = HorizontalAlignment.Right,
-				Anchor = AnchorType.Bottom
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Bottom
             };
             LoadGameSettings();
             _sounds = new Label(this)
             {
-                Position = new Vector2(10, 10),
+                Position = new Vector2(10, 70),
                 Width = (int)Game.VirtualScreenWidth / 2 - 20,
                 Height = 50,
                 Text = "Zvuk",
@@ -81,7 +81,7 @@ namespace Mariasek.SharedClient
             };
             _soundBtn = new ToggleButton(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 390, 10),
+                Position = new Vector2(Game.VirtualScreenWidth - 390, 70),
                 Width = 360,
                 Height = 50,
                 Text = _settings.SoundEnabled ? "Zapnutý" : "Vypnutý",
@@ -92,7 +92,7 @@ namespace Mariasek.SharedClient
             _soundBtn.Click += SoundBtnClick;
             _hint = new Label(this)
             {
-                Position = new Vector2(10, 70),
+                Position = new Vector2(10, 130),
                 Width = (int)Game.VirtualScreenWidth / 2 - 20,
                 Height = 50,
                 Text = "Nápověda",
@@ -101,7 +101,7 @@ namespace Mariasek.SharedClient
             };
             _hintBtn = new ToggleButton(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 390, 70),
+                Position = new Vector2(Game.VirtualScreenWidth - 390, 130),
                 Width = 360,
                 Height = 50,
                 Text = _settings.HintEnabled ? "Zapnutá" : "Vypnutá",
@@ -112,7 +112,7 @@ namespace Mariasek.SharedClient
             _hintBtn.Click += HintBtnClick;
             _handSorting = new Label(this)
             {
-                Position = new Vector2(10, 130),
+                Position = new Vector2(10, 190),
                 Width = (int)Game.VirtualScreenWidth / 2 - 20,
                 Height = 50,
                 Text = "Řadit karty",
@@ -121,7 +121,7 @@ namespace Mariasek.SharedClient
             };
 			_handSortingSelector = new LeftRightSelector(this)
 			{
-				Position = new Vector2(Game.VirtualScreenWidth - 390, 130),
+				Position = new Vector2(Game.VirtualScreenWidth - 390, 190),
 				Width = 360,
 				Items = new SelectorItems() { { "Vzestupně", SortMode.Ascending }, { "Sestupně", SortMode.Descending }, { "Vůbec", SortMode.None } }
 			};
@@ -129,7 +129,7 @@ namespace Mariasek.SharedClient
 			_handSortingSelector.SelectionChanged += SortModeChanged;
             _baseBet = new Label(this)
             {
-                Position = new Vector2(10, 190),
+                Position = new Vector2(10, 250),
                 Width = (int)Game.VirtualScreenWidth / 2 - 20,
                 Height = 50,
                 Text = "Hodnota hry",
@@ -138,7 +138,7 @@ namespace Mariasek.SharedClient
             };
 			_baseBetSelector = new LeftRightSelector(this)
 			{
-				Position = new Vector2(Game.VirtualScreenWidth - 390, 190),
+				Position = new Vector2(Game.VirtualScreenWidth - 390, 250),
 				Width = 360,
 				Items = new SelectorItems() { { "0,10 Kč", 0.1f}, { "0,20 Kč", 0.2f}, { "0,50 Kč", 0.5f },
 											  { "1 Kč", 1f }, { "2 Kč", 2f}, { "5 Kč", 5f}, { "10 Kč", 10f} }
@@ -147,7 +147,7 @@ namespace Mariasek.SharedClient
 			_baseBetSelector.SelectionChanged += BaseBetChanged;
 			_kiloCounting = new Label(this)
 			{
-				Position = new Vector2(10, 250),
+				Position = new Vector2(10, 310),
 				Width = (int)Game.VirtualScreenWidth / 2 - 20,
 				Height = 50,
 				Text = "Počítání peněz u kila",
@@ -156,7 +156,7 @@ namespace Mariasek.SharedClient
 			};
 			_kiloCountingSelector = new LeftRightSelector(this)
 			{
-				Position = new Vector2(Game.VirtualScreenWidth - 390, 250),
+				Position = new Vector2(Game.VirtualScreenWidth - 390, 310),
 				Width = 360,
 				Items = new SelectorItems() { { "Sčítat", CalculationStyle.Adding}, { "Násobit", CalculationStyle.Multiplying} }
 			};
@@ -164,7 +164,7 @@ namespace Mariasek.SharedClient
 			_kiloCountingSelector.SelectionChanged += KiloCountingChanged;
 			_thinkingTime = new Label(this)
 			{
-				Position = new Vector2(10, 310),
+				Position = new Vector2(10, 370),
 				Width = (int)Game.VirtualScreenWidth / 2 - 20,
 				Height = 50,
 				Text = "Jak dlouho AI přemýšlí",
@@ -173,9 +173,9 @@ namespace Mariasek.SharedClient
 			};
 			_thinkingTimeSelector = new LeftRightSelector(this)
 			{
-				Position = new Vector2(Game.VirtualScreenWidth - 390, 310),
+				Position = new Vector2(Game.VirtualScreenWidth - 390, 370),
 				Width = 360,
-				Items = new SelectorItems() { { "Krátce", 3000 }, { "Středně", 4000 }, { "Dlouho", 5000 } }
+				Items = new SelectorItems() { { "Krátce", 2000 }, { "Středně", 4000 }, { "Dlouho", 6000 } }
 			};
 			_thinkingTimeSelector.SelectedIndex = _thinkingTimeSelector.Items.FindIndex(_settings.ThinkingTimeMs);
 			_thinkingTimeSelector.SelectionChanged += ThinkingTimeChanged;
@@ -186,7 +186,7 @@ namespace Mariasek.SharedClient
                 Width = 100,
                 Height = 50,
                 Text = "Menu",
-				Anchor = AnchorType.Bottom
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Bottom
             };
             _menuBtn.Click += MenuBtnClick;
 

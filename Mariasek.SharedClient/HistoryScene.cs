@@ -69,7 +69,7 @@ namespace Mariasek.SharedClient
                 Width = 200,
                 Height = 50,
                 Text = "Menu",
-				Anchor = AnchorType.Left
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _menuButton.Click += MenuClicked;
             _chartButton = new ToggleButton(this)
@@ -79,7 +79,7 @@ namespace Mariasek.SharedClient
                 Height = 50,
                 Text = "Graf",
                 IsSelected = true,
-				Anchor = AnchorType.Left
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _chartButton.Click += ChartButtonClicked;
             _tableButton = new ToggleButton(this)
@@ -88,7 +88,7 @@ namespace Mariasek.SharedClient
                 Width = 95,
                 Height = 50,
                 Text = "Tabulka",
-				Anchor = AnchorType.Left
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _tableButton.Click += TableButtonClicked;
             _resetHistoryButton = new Button(this)
@@ -97,7 +97,7 @@ namespace Mariasek.SharedClient
                 Width = 200,
                 Height = 50,
                 Text = "Smazat historii",
-				Anchor = AnchorType.Left
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _resetHistoryButton.Click += ResetHistoryClicked;
 			_stat = new Label(this)
@@ -105,7 +105,7 @@ namespace Mariasek.SharedClient
 				Position = new Vector2(10, 70),
 				Width = 200,
 				Height = (int)Game.VirtualScreenHeight - 140,
-				Anchor = AnchorType.Left
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
 			};
             _header = new Label(this)
             {

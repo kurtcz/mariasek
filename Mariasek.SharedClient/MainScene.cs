@@ -281,7 +281,7 @@ namespace Mariasek.SharedClient
                 Text = "Menu",
                 Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 30),
                 ZIndex = 100,
-				Anchor = AnchorType.Left
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _menuBtn.Click += MenuBtnClicked;
             _sendBtn = new Button(this)
@@ -289,7 +289,7 @@ namespace Mariasek.SharedClient
                 Text = "Odeslat",
                 Position = new Vector2(10, Game.VirtualScreenHeight / 2f + 30),
                 ZIndex = 100,
-				Anchor = AnchorType.Left
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _sendBtn.Click += SendBtnClicked;
             _hintBtn = new Button(this)
@@ -301,7 +301,7 @@ namespace Mariasek.SharedClient
                 BackgroundColor = Color.White,
                 BorderColor = Color.SaddleBrown,
                 ZIndex = 100,
-				Anchor = AnchorType.Right
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main
             };
             _hintBtn.Click += HintBtnClicked;
             _okBtn = new Button(this)
@@ -452,7 +452,12 @@ namespace Mariasek.SharedClient
                 TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
                 ZIndex = 100
             };
-            _hand = new GameComponents.Hand(this, new Card[0]) { Centre = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight - 60), ZIndex = 50 };
+			_hand = new GameComponents.Hand(this, new Card[0])
+			{
+				Centre = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight - 60),
+				ZIndex = 50,
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Main : AnchorType.Bottom
+			};
             _hand.Click += CardClicked;
             _hand.ShowArc((float)Math.PI / 2);
             _bubble1 = new TextBox(this)
