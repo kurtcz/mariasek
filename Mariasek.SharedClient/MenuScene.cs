@@ -46,8 +46,7 @@ namespace Mariasek.SharedClient
                     Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 140),
                     Width = 200,
                     Height = 50,
-                    Text = "Nová hra",
-					//ScaleMatrixAlign = ScaleMatrixAlignment.Left
+                    Text = "Nová hra"
                 };
             _newGameButton.Click += NewGameClicked;
             _resumeButton = new Button(this)

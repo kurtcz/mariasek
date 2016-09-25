@@ -14,7 +14,7 @@ namespace Mariasek.SharedClient.GameComponents
         private Color _origButtonColor = Color.SaddleBrown;
         private Color _origTextColor = Color.White;
         private RectangleShape _buttonShape;
-        private Label _buttonText;
+        protected Label _buttonText;
 
         public override Vector2 Position
         {
