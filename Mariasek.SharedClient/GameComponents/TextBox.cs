@@ -286,7 +286,7 @@ namespace Mariasek.SharedClient.GameComponents
 
         public override void Draw(GameTime gameTime)
         {
-            if (ScaleMatrixAlign == Game.ScaleMatrixAlign &&
+            if (Anchor == Game.CurrentRenderingGroup &&
 			    IsVisible)
             {
                 var position = Position;

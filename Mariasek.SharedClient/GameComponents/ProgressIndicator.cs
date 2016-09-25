@@ -40,17 +40,17 @@ namespace Mariasek.SharedClient.GameComponents
                 _progressBar.Position = Vector2.Add(value, new Vector2(_backgroundShape.BorderThickness / 2f, _backgroundShape.BorderThickness / 2f));
             }
         }
-		public override ScaleMatrixAlignment ScaleMatrixAlign
+		public override AnchorType Anchor
 		{
 			get
 			{
-				return base.ScaleMatrixAlign;
+				return base.Anchor;
 			}
 			set
 			{
-				base.ScaleMatrixAlign = value;
-				_backgroundShape.ScaleMatrixAlign = value;
-				_progressBar.ScaleMatrixAlign = value;
+				base.Anchor = value;
+				_backgroundShape.Anchor = value;
+				_progressBar.Anchor = value;
 			}
 		}
         public int Width 

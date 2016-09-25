@@ -281,7 +281,7 @@ namespace Mariasek.SharedClient
                 Text = "Menu",
                 Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 30),
                 ZIndex = 100,
-				ScaleMatrixAlign = ScaleMatrixAlignment.Left
+				Anchor = AnchorType.Left
             };
             _menuBtn.Click += MenuBtnClicked;
             _sendBtn = new Button(this)
@@ -289,7 +289,7 @@ namespace Mariasek.SharedClient
                 Text = "Odeslat",
                 Position = new Vector2(10, Game.VirtualScreenHeight / 2f + 30),
                 ZIndex = 100,
-				ScaleMatrixAlign = ScaleMatrixAlignment.Left
+				Anchor = AnchorType.Left
             };
             _sendBtn.Click += SendBtnClicked;
             _hintBtn = new Button(this)
@@ -301,7 +301,7 @@ namespace Mariasek.SharedClient
                 BackgroundColor = Color.White,
                 BorderColor = Color.SaddleBrown,
                 ZIndex = 100,
-				ScaleMatrixAlign = ScaleMatrixAlignment.Right
+				Anchor = AnchorType.Right
             };
             _hintBtn.Click += HintBtnClicked;
             _okBtn = new Button(this)
@@ -540,7 +540,7 @@ namespace Mariasek.SharedClient
                 Height = 8,
                 Color = Color.Red,
                 ZIndex = 100,
-				ScaleMatrixAlign = ScaleMatrixAlignment.Top
+				Anchor = AnchorType.Top
             };
             if (!_settings.HintEnabled)
             {
@@ -553,7 +553,7 @@ namespace Mariasek.SharedClient
                 Height = 8,
                 Color = Color.Green,
                 ZIndex = 100,
-				ScaleMatrixAlign = ScaleMatrixAlignment.Top
+				Anchor = AnchorType.Top
             };
             _progress3 = new ProgressIndicator(this)
             {
@@ -562,7 +562,7 @@ namespace Mariasek.SharedClient
                 Height = 8,
                 Color = Color.Blue,
                 ZIndex = 100,
-				ScaleMatrixAlign = ScaleMatrixAlignment.Top
+				Anchor = AnchorType.Top
             };
             _progressBars = new [] { _progress1, _progress2, _progress3 };
 

@@ -15,7 +15,7 @@ using Mariasek.SharedClient.GameComponents;
 
 namespace Mariasek.SharedClient
 {
-	public enum ScaleMatrixAlignment
+	public enum AnchorType
 	{
 		Main,
 		Left,
@@ -52,12 +52,15 @@ namespace Mariasek.SharedClient
 		// Virtual 800x512:			1.56 : 1
 		public readonly float VirtualScreenWidth = 800;
         public readonly float VirtualScreenHeight = 512;
-		public Matrix ScaleMatrix;
+		public Matrix MainScaleMatrix;
 		public Matrix LeftScaleMatrix;
 		public Matrix RightScaleMatrix;
 		public Matrix TopScaleMatrix;
 		public Matrix BottomScaleMatrix;
-		public ScaleMatrixAlignment ScaleMatrixAlign;
+		/// <summary>
+		/// Gets the current rendering group. Game components should render themselves only if they belong to the current group.
+		/// </summary>
+		public AnchorType CurrentRenderingGroup { get; private set; } 
 
         public SoundEffect ClickSound { get; private set; }
         public SoundEffect OnSound { get; private set; }
@@ -141,7 +144,7 @@ namespace Mariasek.SharedClient
                 translation = new Vector3((width - VirtualScreenWidth * scaleY) / 2f, 0, 0);
 				scale = new Vector3(scaleY, scaleY, 1.0f);
             }
-			ScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
+			MainScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
 
 			base.Initialize();
 		}
@@ -240,9 +243,30 @@ namespace Mariasek.SharedClient
             Graphics.GraphicsDevice.Clear (Color.ForestGreen);
 		
 			//TODO: Add your drawing code here
-            CurrentScene.Draw(gameTime);
+			CurrentRenderingGroup = AnchorType.Main;
+			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, MainScaleMatrix);
+			CurrentScene.Draw(gameTime);
+			SpriteBatch.End();
 
-			base.Draw (gameTime);
+			CurrentRenderingGroup = AnchorType.Left;
+			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, LeftScaleMatrix);
+			CurrentScene.Draw(gameTime);
+			SpriteBatch.End();
+
+			CurrentRenderingGroup = AnchorType.Top;
+			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, TopScaleMatrix);
+			CurrentScene.Draw(gameTime);
+			SpriteBatch.End();
+
+			CurrentRenderingGroup = AnchorType.Right;
+			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, RightScaleMatrix);
+			CurrentScene.Draw(gameTime);
+			SpriteBatch.End();
+
+			CurrentRenderingGroup = AnchorType.Bottom;
+			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, BottomScaleMatrix);
+			CurrentScene.Draw(gameTime);
+			SpriteBatch.End();
 		}
 	}
 }

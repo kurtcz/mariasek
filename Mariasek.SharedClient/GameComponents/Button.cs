@@ -25,17 +25,17 @@ namespace Mariasek.SharedClient.GameComponents
                 _buttonText.Position = value;
             }
         }
-		public override ScaleMatrixAlignment ScaleMatrixAlign
+		public override AnchorType Anchor
 		{
 			get
 			{
-				return base.ScaleMatrixAlign;
+				return base.Anchor;
 			}
 			set
 			{
-				base.ScaleMatrixAlign = value;
-				_buttonShape.ScaleMatrixAlign = value;
-				_buttonText.ScaleMatrixAlign = value;
+				base.Anchor = value;
+				_buttonShape.Anchor = value;
+				_buttonText.Anchor = value;
 			}
 		}
         public int Width 

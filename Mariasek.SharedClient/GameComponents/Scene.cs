@@ -80,17 +80,16 @@ namespace Mariasek.SharedClient.GameComponents
 #if DEBUG_SPRITES
             Counter = 0;
 #endif
-			Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Game.ScaleMatrix);
-            if (Background != null)
+			if (Background != null && Game.CurrentRenderingGroup == AnchorType.Main)
             {
                 switch(BackgroundAlign)
                 {
                     case BackgroundAlignment.Stretch:
                         Game.SpriteBatch.Draw(Background, new Rectangle(
-                                (int)(0 - Game.ScaleMatrix.M41), 
-                                (int)(0 - Game.ScaleMatrix.M42), 
-                                (int)(Game.VirtualScreenWidth + 2 * Game.ScaleMatrix.M41), 
-                                (int)(Game.VirtualScreenHeight + 2 * Game.ScaleMatrix.M42)), BackgroundTint);
+                                (int)(0 - Game.MainScaleMatrix.M41), 
+                                (int)(0 - Game.MainScaleMatrix.M42), 
+                                (int)(Game.VirtualScreenWidth + 2 * Game.MainScaleMatrix.M41), 
+                                (int)(Game.VirtualScreenHeight + 2 * Game.MainScaleMatrix.M42)), BackgroundTint);
                         break;
                     case BackgroundAlignment.Center:
                     default:
@@ -98,29 +97,7 @@ namespace Mariasek.SharedClient.GameComponents
                         break;
                 }
             }
-			Game.ScaleMatrixAlign = ScaleMatrixAlignment.Main;
-            base.Draw(gameTime);
-			Game.SpriteBatch.End();
-
-			Game.ScaleMatrixAlign = ScaleMatrixAlignment.Left;
-			Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Game.LeftScaleMatrix);
 			base.Draw(gameTime);
-			Game.SpriteBatch.End();
-
-			Game.ScaleMatrixAlign = ScaleMatrixAlignment.Top;
-			Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Game.TopScaleMatrix);
-			base.Draw(gameTime);
-			Game.SpriteBatch.End();
-
-			Game.ScaleMatrixAlign = ScaleMatrixAlignment.Right;
-			Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Game.RightScaleMatrix);
-			base.Draw(gameTime);
-			Game.SpriteBatch.End();
-
-			Game.ScaleMatrixAlign = ScaleMatrixAlignment.Bottom;
-			Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, Game.BottomScaleMatrix);
-			base.Draw(gameTime);
-			Game.SpriteBatch.End();
         }
     }
 }

@@ -91,7 +91,7 @@ namespace Mariasek.SharedClient
                 Width = 200,
                 Height = 34,
                 Text = string.Format("v{0}", MariasekMonoGame.Version),
-				ScaleMatrixAlign = ScaleMatrixAlignment.Bottom
+				Anchor = AnchorType.Bottom
             };
             _author = new Label(this)
             {
@@ -100,7 +100,7 @@ namespace Mariasek.SharedClient
                 Height = 34,
                 HorizontalAlign = HorizontalAlignment.Right,
                 Text = "©2016 Tomáš Němec",
-				ScaleMatrixAlign = ScaleMatrixAlignment.Bottom
+				Anchor = AnchorType.Bottom
             };
         }
 

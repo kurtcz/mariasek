@@ -55,23 +55,23 @@ namespace Mariasek.SharedClient
             }
         }
         public virtual Vector2 Position { get; set; }
-		public virtual ScaleMatrixAlignment ScaleMatrixAlign { get; set; }
+		public virtual AnchorType Anchor { get; set; }
 		protected Matrix ScaleMatrix
 		{
 			get
 			{
-				switch (ScaleMatrixAlign)
+				switch (Anchor)
 				{
-					case ScaleMatrixAlignment.Left:
+					case AnchorType.Left:
 						return Game.LeftScaleMatrix;
-					case ScaleMatrixAlignment.Top:
+					case AnchorType.Top:
 						return Game.TopScaleMatrix;
-					case ScaleMatrixAlignment.Right:
+					case AnchorType.Right:
 						return Game.RightScaleMatrix;
-					case ScaleMatrixAlignment.Bottom:
+					case AnchorType.Bottom:
 						return Game.BottomScaleMatrix;
 					default:
-						return Game.ScaleMatrix;
+						return Game.MainScaleMatrix;
 				}
 			}
 		}
