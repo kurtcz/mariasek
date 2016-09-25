@@ -70,12 +70,13 @@ namespace Mariasek.SharedClient
             base.Initialize();
 
             _performance = new Label(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth - 405, Game.VirtualScreenHeight - 34),
-                    Width = 400,
-                    Height = 34,
-                    HorizontalAlign = HorizontalAlignment.Right
-                };            
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 405, Game.VirtualScreenHeight - 34),
+                Width = 400,
+                Height = 34,
+                HorizontalAlign = HorizontalAlignment.Right,
+				Anchor = AnchorType.Bottom
+            };
             LoadGameSettings();
             _sounds = new Label(this)
             {
@@ -96,22 +97,22 @@ namespace Mariasek.SharedClient
             };
             _soundBtn.Click += SoundBtnClick;
             _hint = new Label(this)
-                {
-                    Position = new Vector2(10, 70),
-                    Width = (int)Game.VirtualScreenWidth / 2 - 20,
-                    Height = 50,
-                    Text = "Nápověda",
-                    HorizontalAlign = HorizontalAlignment.Center,
-                    VerticalAlign = VerticalAlignment.Middle
-                };
+            {
+                Position = new Vector2(10, 70),
+                Width = (int)Game.VirtualScreenWidth / 2 - 20,
+                Height = 50,
+                Text = "Nápověda",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
             _hintBtn = new ToggleButton(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth - 260, 70),
-                    Width = 120,
-                    Height = 50,
-                    Text = _settings.HintEnabled ? "Zapnutá" : "Vypnutá",
-                    IsSelected = _settings.HintEnabled
-                };
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 260, 70),
+                Width = 120,
+                Height = 50,
+                Text = _settings.HintEnabled ? "Zapnutá" : "Vypnutá",
+                IsSelected = _settings.HintEnabled
+            };
             _hintBtn.Click += HintBtnClick;
             _handSorting = new Label(this)
             {
@@ -158,121 +159,121 @@ namespace Mariasek.SharedClient
                 VerticalAlign = VerticalAlignment.Middle
             };
             _bet001Btn = new ToggleButton(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth - 390, 190),
-                    Width = 120,
-                    Height = 50,
-                    Text = "0,10 Kč",
-                    IsSelected = _settings.BaseBet == 0.1f
-                };
-            _bet001Btn.Click += BetBtnClick;
-            _bet005Btn = new ToggleButton(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth - 260, 190),
-                    Width = 120,
-                    Height = 50,
-                    Text = "0,50 Kč",
-                    IsSelected = _settings.BaseBet == 0.5f
-                };
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 390, 190),
+                Width = 120,
+                Height = 50,
+                Text = "0,10 Kč",
+                IsSelected = _settings.BaseBet == 0.1f
+            };
+	        _bet001Btn.Click += BetBtnClick;
+			_bet005Btn = new ToggleButton(this)
+			{
+				Position = new Vector2(Game.VirtualScreenWidth - 260, 190),
+				Width = 120,
+				Height = 50,
+				Text = "0,50 Kč",
+				IsSelected = _settings.BaseBet == 0.5f
+			};
             _bet005Btn.Click += BetBtnClick;
-            _bet010Btn = new ToggleButton(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth - 130, 190),
-                    Width = 120,
-                    Height = 50,
-                    Text = "1 Kč",
-                    IsSelected = _settings.BaseBet == 1f
-                };
+			_bet010Btn = new ToggleButton(this)
+			{
+				Position = new Vector2(Game.VirtualScreenWidth - 130, 190),
+				Width = 120,
+				Height = 50,
+				Text = "1 Kč",
+				IsSelected = _settings.BaseBet == 1f
+			};
             _bet010Btn.Click += BetBtnClick;
-            _bet020Btn = new ToggleButton(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth - 390, 250),
-                    Width = 120,
-                    Height = 50,
-                    Text = "2 Kč",
-                    IsSelected = _settings.BaseBet == 2f
-                };
+			_bet020Btn = new ToggleButton(this)
+			{
+				Position = new Vector2(Game.VirtualScreenWidth - 390, 250),
+				Width = 120,
+				Height = 50,
+				Text = "2 Kč",
+				IsSelected = _settings.BaseBet == 2f
+			};
             _bet020Btn.Click += BetBtnClick;
-            _bet050Btn = new ToggleButton(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth - 260, 250),
-                    Width = 120,
-                    Height = 50,
-                    Text = "5 Kč",
-                    IsSelected = _settings.BaseBet == 5f
-                };
+			_bet050Btn = new ToggleButton(this)
+			{
+				Position = new Vector2(Game.VirtualScreenWidth - 260, 250),
+				Width = 120,
+				Height = 50,
+				Text = "5 Kč",
+				IsSelected = _settings.BaseBet == 5f
+			};
             _bet050Btn.Click += BetBtnClick;
-            _bet100Btn = new ToggleButton(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth - 130, 250),
-                    Width = 120,
-                    Height = 50,
-                    Text = "10 Kč",
-                    IsSelected = _settings.BaseBet == 10f
-                };
+			_bet100Btn = new ToggleButton(this)
+			{
+				Position = new Vector2(Game.VirtualScreenWidth - 130, 250),
+				Width = 120,
+				Height = 50,
+				Text = "10 Kč",
+				IsSelected = _settings.BaseBet == 10f
+			};
             _bet100Btn.Click += BetBtnClick;
-            _kiloCounting = new Label(this)
-                {
-                    Position = new Vector2(10, 310),
-                    Width = (int)Game.VirtualScreenWidth / 2 - 20,
-                    Height = 50,
-                    Text = "Počítání peněz u kila",
-                    HorizontalAlign = HorizontalAlignment.Center,
-                    VerticalAlign = VerticalAlignment.Middle
-                };
-            _addingBtn = new ToggleButton(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth - 325, 310),
-                    Width = 120,
-                    Height = 50,
-                    Text = "Sčítat",
-                    IsSelected = _settings.CalculationStyle == Mariasek.Engine.New.CalculationStyle.Adding
-                };
+			_kiloCounting = new Label(this)
+			{
+				Position = new Vector2(10, 310),
+				Width = (int)Game.VirtualScreenWidth / 2 - 20,
+				Height = 50,
+				Text = "Počítání peněz u kila",
+				HorizontalAlign = HorizontalAlignment.Center,
+				VerticalAlign = VerticalAlignment.Middle
+			};
+			_addingBtn = new ToggleButton(this)
+			{
+				Position = new Vector2(Game.VirtualScreenWidth - 325, 310),
+				Width = 120,
+				Height = 50,
+				Text = "Sčítat",
+				IsSelected = _settings.CalculationStyle == Mariasek.Engine.New.CalculationStyle.Adding
+			};
             _addingBtn.Click += CalculationBtnClick;
-            _multiplyingBtn = new ToggleButton(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth - 195, 310),
-                    Width = 120,
-                    Height = 50,
-                    Text = "Násobit",
-                    IsSelected = _settings.CalculationStyle == Mariasek.Engine.New.CalculationStyle.Multiplying
-                };
+			_multiplyingBtn = new ToggleButton(this)
+			{
+				Position = new Vector2(Game.VirtualScreenWidth - 195, 310),
+				Width = 120,
+				Height = 50,
+				Text = "Násobit",
+				IsSelected = _settings.CalculationStyle == Mariasek.Engine.New.CalculationStyle.Multiplying
+			};
             _multiplyingBtn.Click += CalculationBtnClick;
-            _thinkingTime = new Label(this)
-                {
-                    Position = new Vector2(10, 370),
-                    Width = (int)Game.VirtualScreenWidth / 2 - 20,
-                    Height = 50,
-                    Text = "Jak dlouho AI přemýšlí",
-                    HorizontalAlign = HorizontalAlignment.Center,
-                    VerticalAlign = VerticalAlignment.Middle
-                };
-            _thinkingTime1 = new ToggleButton(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth - 390, 370),
-                    Width = 120,
-                    Height = 50,
-                    Text = "Krátce",
-                    IsSelected = _settings.ThinkingTimeMs == 3000
-                };
+			_thinkingTime = new Label(this)
+			{
+				Position = new Vector2(10, 370),
+				Width = (int)Game.VirtualScreenWidth / 2 - 20,
+				Height = 50,
+				Text = "Jak dlouho AI přemýšlí",
+				HorizontalAlign = HorizontalAlignment.Center,
+				VerticalAlign = VerticalAlignment.Middle
+			};
+			_thinkingTime1 = new ToggleButton(this)
+			{
+				Position = new Vector2(Game.VirtualScreenWidth - 390, 370),
+				Width = 120,
+				Height = 50,
+				Text = "Krátce",
+				IsSelected = _settings.ThinkingTimeMs == 3000
+			};
             _thinkingTime1.Click += ThinkingTimeBtnClick;
-            _thinkingTime2 = new ToggleButton(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth - 260, 370),
-                    Width = 120,
-                    Height = 50,
-                    Text = "Středně",
-                    IsSelected = _settings.ThinkingTimeMs == 4000
-                };
+			_thinkingTime2 = new ToggleButton(this)
+			{
+				Position = new Vector2(Game.VirtualScreenWidth - 260, 370),
+				Width = 120,
+				Height = 50,
+				Text = "Středně",
+				IsSelected = _settings.ThinkingTimeMs == 4000
+			};
             _thinkingTime2.Click += ThinkingTimeBtnClick;
-            _thinkingTime3 = new ToggleButton(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth - 130, 370),
-                    Width = 120,
-                    Height = 50,
-                    Text = "Dlouho",
-                    IsSelected = _settings.ThinkingTimeMs == 5000
-                };
+			_thinkingTime3 = new ToggleButton(this)
+			{
+				Position = new Vector2(Game.VirtualScreenWidth - 130, 370),
+				Width = 120,
+				Height = 50,
+				Text = "Dlouho",
+				IsSelected = _settings.ThinkingTimeMs == 5000
+			};
             _thinkingTime3.Click += ThinkingTimeBtnClick;
 
             _menuBtn = new Button(this)
@@ -280,7 +281,8 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(10, Game.VirtualScreenHeight - 60),
                 Width = 100,
                 Height = 50,
-                Text = "Menu"
+                Text = "Menu",
+				Anchor = AnchorType.Bottom
             };
             _menuBtn.Click += MenuBtnClick;
 

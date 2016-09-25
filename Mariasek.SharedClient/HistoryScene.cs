@@ -68,7 +68,8 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(10, 10),
                 Width = 200,
                 Height = 50,
-                Text = "Menu"
+                Text = "Menu",
+				Anchor = AnchorType.Left
             };
             _menuButton.Click += MenuClicked;
             _chartButton = new ToggleButton(this)
@@ -77,7 +78,8 @@ namespace Mariasek.SharedClient
                 Width = 95,
                 Height = 50,
                 Text = "Graf",
-                IsSelected = true
+                IsSelected = true,
+				Anchor = AnchorType.Left
             };
             _chartButton.Click += ChartButtonClicked;
             _tableButton = new ToggleButton(this)
@@ -85,7 +87,8 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(115, (int)Game.VirtualScreenHeight - 120),
                 Width = 95,
                 Height = 50,
-                Text = "Tabulka"
+                Text = "Tabulka",
+				Anchor = AnchorType.Left
             };
             _tableButton.Click += TableButtonClicked;
             _resetHistoryButton = new Button(this)
@@ -93,15 +96,17 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(10, (int)Game.VirtualScreenHeight - 60),
                 Width = 200,
                 Height = 50,
-                Text = "Smazat historii"
+                Text = "Smazat historii",
+				Anchor = AnchorType.Left
             };
             _resetHistoryButton.Click += ResetHistoryClicked;
-            _stat = new Label(this)
-            {
-                    Position = new Vector2(10, 70),
-                    Width = 200,
-                    Height = (int)Game.VirtualScreenHeight - 140
-            };
+			_stat = new Label(this)
+			{
+				Position = new Vector2(10, 70),
+				Width = 200,
+				Height = (int)Game.VirtualScreenHeight - 140,
+				Anchor = AnchorType.Left
+			};
             _header = new Label(this)
             {
                 Position = new Vector2(220, 20),
@@ -142,13 +147,13 @@ namespace Mariasek.SharedClient
                 VerticalAlign = VerticalAlignment.Top
             };
             _historyBox.Hide();
-            _footer = new Label(this)
-                {
-                    Position = new Vector2(220, Game.VirtualScreenHeight - 50),
-                    Width = (int)Game.VirtualScreenWidth - 230,
-                    Height = 50,
-                    TextColor = Color.Yellow
-                };
+			_footer = new Label(this)
+			{
+				Position = new Vector2(220, Game.VirtualScreenHeight - 50),
+				Width = (int)Game.VirtualScreenWidth - 230,
+				Height = 50,
+				TextColor = Color.Yellow
+			};
             Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;
 
