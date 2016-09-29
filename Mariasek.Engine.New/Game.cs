@@ -680,6 +680,8 @@ namespace Mariasek.Engine.New
         public Deck GetDeckFromLastGame()
         {
             var deck = new List<Card>();
+			var sb = new StringBuilder();
+
             if (rounds != null)
             {
                 //slozime stychy v nahodnem poradi
@@ -687,6 +689,7 @@ namespace Mariasek.Engine.New
 
                 foreach (var player in randomPlayers)
                 {
+					sb.AppendFormat("Adding winning of player {0}\n", player.PlayerIndex + 1);
                     //dodame karty ve stychu vyjma hlasu
                     foreach (var r in rounds)
                     {
@@ -694,19 +697,23 @@ namespace Mariasek.Engine.New
                         {
                             break;
                         }
-                        if (r.roundWinner == player && !r.hlas1)
+						if (r.roundWinner == player && !r.hlas1)
                         {
                             deck.Insert(0, r.c1);
+							sb.AppendFormat("Round {0} card 1: Adding {1}\n", r.number, r.c1);
                         }
-                        if (r.roundWinner == player && !r.hlas2)
+						if (r.roundWinner == player && !r.hlas2)
                         {
                             deck.Insert(0, r.c2);
+							sb.AppendFormat("Round {0} card 2: Adding {1}\n", r.number, r.c2);
                         }
-                        if (r.roundWinner == player && !r.hlas3)
+						if (r.roundWinner == player && !r.hlas3)
                         {
                             deck.Insert(0, r.c3);
+							sb.AppendFormat("Round {0} card 3: Adding {1}\n", r.number, r.c3);
                         }
                     }
+					sb.Append("Hlasy\n");
                     foreach (var r in rounds)
                     {
                         if (r == null)
@@ -717,21 +724,41 @@ namespace Mariasek.Engine.New
                         if (r.hlas1 && r.player1 == player)
                         {
                             deck.Insert(0, r.c1);
+							sb.AppendFormat("Round {0} card 1: Hlas {1}\n", r.number, r.c1);
                         }
                         if (r.hlas2 && r.player2 == player)
                         {
                             deck.Insert(0, r.c2);
+							sb.AppendFormat("Round {0} card 2: Hlas {1}\n", r.number, r.c2);
                         }
                         if (r.hlas3 && r.player3 == player)
                         {
                             deck.Insert(0, r.c3);
+							sb.AppendFormat("Round {0} card 3: Hlas {1}\n", r.number, r.c3);
                         }
                     }
+					sb.AppendFormat("Adding hand of player {0}\n", player.PlayerIndex + 1);
+					foreach (var c in player.Hand)
+					{
+						sb.AppendFormat("{0}\n", c);
+					}
                     deck.InsertRange(0, player.Hand);
                 }
-                deck.InsertRange(0, talon);
+				sb.Append("Adding talon\n");
+				foreach (var c in talon)
+				{
+					sb.AppendFormat("{0}\n", c);
+				}
+				deck.InsertRange(0, talon);
             }
-            return new Deck(deck);
+			try
+			{
+				return new Deck(deck);
+			}
+			catch (InvalidDataException e)
+			{
+				throw new InvalidDataException(sb.ToString(), e);
+			}
         }
 
         public bool IsValidTalonCard(Card c)
@@ -857,6 +884,7 @@ namespace Mariasek.Engine.New
             trump = TrumpCard.Suit;
             GameType = 0;
             talon = new List<Card>();
+			//ptame se na barvu
             while(GameType < Hra.Durch)
             {
                 if(gameTypeForPlayer.All(i => i == 0) && bidForPlayer.All(i => i == 0))
@@ -871,7 +899,7 @@ namespace Mariasek.Engine.New
                 {
                     talon = GameStartingPlayer.ChooseTalon();
                     GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
-                    if (talon.Any(i => !IsValidTalonCard(i)))
+                    if (talon.Any(i => !IsValidTalonCard(i))) //pokud je v talonu eso nebo desitka, musime hrat betla nebo durch
                     {
                         canChooseFlavour = false;
                     }
@@ -887,7 +915,7 @@ namespace Mariasek.Engine.New
                 }
                 else
                 {
-                    if (talon.Any(i => !IsValidTalonCard(i)))
+                    if (talon.Any(i => !IsValidTalonCard(i))) //pokud je v talonu eso nebo desitka, musime hrat betla nebo durch
                     {
                         gameFlavour = GameFlavour.Bad;
                     }
@@ -996,6 +1024,16 @@ namespace Mariasek.Engine.New
         public void AddBiddingDebugInfo(int playerIndex)
         {
             BiddingDebugInfo.Append("Všechny simulace:");
+			if (players[playerIndex].DebugInfo == null)
+			{
+				BiddingDebugInfo.Append("DebugInfo == null");
+				return;
+			}
+			if (players[playerIndex].DebugInfo.AllChoices == null)
+			{
+				BiddingDebugInfo.Append("DebugInfo.AllChoices == null");
+				return;
+			}
 			foreach (var choice in players[playerIndex].DebugInfo.AllChoices.Where(i => i != null))
             {
                 BiddingDebugInfo.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, GameStartingPlayer.DebugInfo.TotalRuleCount);

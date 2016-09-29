@@ -23,6 +23,7 @@ namespace Mariasek.Engine.New
         {
             _rand = rndSeed.HasValue ? new Random(rndSeed.Value) : new Random();
             _cards = cards;
+			CheckDeck();
         }
 
         public void Init()
@@ -35,6 +36,7 @@ namespace Mariasek.Engine.New
                                   (Hodnota)Enum.ToObject(typeof(Hodnota), i % 8));
                 _cards.Add(c);
             }
+			CheckDeck();
         }
 
         public void Shuffle()
@@ -48,6 +50,7 @@ namespace Mariasek.Engine.New
                 _cards.RemoveAt(r);
             }
             _cards = temp;
+			CheckDeck();
         }
 
         public void Cut()

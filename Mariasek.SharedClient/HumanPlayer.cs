@@ -30,7 +30,7 @@ namespace Mariasek.SharedClient
             _g = g;
 			if (showHint)
 			{
-				_aiPlayer = new AiPlayer(_g, aiConfig) { Name = "Advisor", UpdateProbabilitiesAfterTalon = false };
+				_aiPlayer = new AiPlayer(_g, aiConfig) { Name = "Advisor", UpdateProbabilitiesAfterTalon = false, AdvisorMode = true };
 				DebugInfo = _aiPlayer.DebugInfo;
 			}
 			else

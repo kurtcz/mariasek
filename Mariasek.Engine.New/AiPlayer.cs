@@ -38,8 +38,8 @@ namespace Mariasek.Engine.New
         {
             //MaxDegreeOfParallelism = 1  //Uncomment before debugging
         };
-
-    public Card TrumpCard { get; set; }
+		public bool AdvisorMode { get; set; }
+    	public Card TrumpCard { get; set; }
         public Probability Probabilities { get; set; }
         public AiPlayerSettings Settings { get; set; }
         public bool UpdateProbabilitiesAfterTalon { get; set; }
@@ -210,7 +210,13 @@ namespace Mariasek.Engine.New
                 talon.AddRange(hand.OrderBy(i => i.Value).Take(2 - count));
             }
 
-            return talon;
+			if (talon == null || talon.Count != 2)
+			{
+				var msg = talon == null ? "(null)" : "Count: " + talon.Count;
+				throw new InvalidOperationException("Bad talon: " + msg);
+			}
+
+			return talon;
         }
 
         private List<Card> ChooseDurchTalon(List<Card> hand, Card trumpCard)
@@ -246,8 +252,14 @@ namespace Mariasek.Engine.New
                 talon.AddRange(hand.OrderBy(i => i.Value).Take(2 - count));
             }
 
-            //mozna by stacilo negrupovat podle barev ale jen sestupne podle hodnot a vzit prvni dve?
-            return talon;
+			if (talon == null || talon.Count != 2)
+			{
+				var msg = talon == null ? "(null)" : "Count: " + talon.Count;
+				throw new InvalidOperationException("Bad talon: " + msg);
+			}
+
+			//mozna by stacilo negrupovat podle barev ale jen sestupne podle hodnot a vzit prvni dve?
+			return talon;
         }
 
         private List<Card> ChooseNormalTalon(List<Card> hand, Card trumpCard)
@@ -314,7 +326,13 @@ namespace Mariasek.Engine.New
             }
             talon = talon.Distinct().Take(2).ToList();
 
-            return talon;
+			if (talon == null || talon.Count != 2)
+			{
+				var msg = talon == null ? "(null)" : "Count: " + talon.Count;
+				throw new InvalidOperationException("Bad talon: " + msg);
+			}
+
+			return talon;
         }
 
         public override List<Card> ChooseTalon()
@@ -323,6 +341,21 @@ namespace Mariasek.Engine.New
             if (PlayerIndex == _g.OriginalGameStartingPlayerIndex)
             {
                 ChooseGameFlavour();
+				//pokud delam poradce pro cloveka, musim vybrat talon i kdyz bych normalne nehral betla nebo durcha
+				//v tom pripade jestli uz byl vybranej betl, tak my musime jit na durch a podle toho vybirat talon
+				//jiank vybirame betlovej talon
+				if (AdvisorMode && _talon == null || !_talon.Any())
+				{
+					if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType ||
+					   (_gameType == Hra.Betl))
+					{
+						_talon = ChooseDurchTalon(Hand, null);
+					}
+					else
+					{
+						_talon = ChooseBetlTalon(Hand, null);
+					}
+				}
             }
             else
             {
@@ -336,14 +369,20 @@ namespace Mariasek.Engine.New
                     _talon = ChooseBetlTalon(Hand, null);
                 }
             }
-            _log.DebugFormat("Talon chosen: {0} {1}", _talon[0], _talon[1]);
+			if (_talon == null || _talon.Count != 2)
+			{
+				var msg = _talon == null ? "(null)" : "Count: " + _talon.Count;
+				throw new InvalidOperationException("Bad talon: " + msg);
+			}
+
+			_log.DebugFormat("Talon chosen: {0} {1}", _talon[0], _talon[1]);
             
             return _talon;
         }
 
         public override GameFlavour ChooseGameFlavour()
         {
-            if (_initialSimulation)
+			if (_initialSimulation || AdvisorMode)
             {
                 var bidding = new Bidding(_g);
 
@@ -400,8 +439,10 @@ namespace Mariasek.Engine.New
             }
             else if (_gameType == Hra.Betl)
             {
+				//pokud nam vysel durch nebo pokud 
                 if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType)
                 {
+					_talon = ChooseDurchTalon(Hand, null);
 					DebugInfo.RuleCount = _durchBalance;
                     return GameFlavour.Bad;
                 }
@@ -727,7 +768,8 @@ namespace Mariasek.Engine.New
 
             if ((validGameTypes & (Hra.Betl | Hra.Durch)) != 0)
             {
-                if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType)
+                if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType ||
+				    validGameTypes == Hra.Durch)
                 {
                     gameType = Hra.Durch;
                     DebugInfo.RuleCount = _durchBalance;

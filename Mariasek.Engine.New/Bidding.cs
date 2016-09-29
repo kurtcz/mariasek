@@ -113,6 +113,11 @@ namespace Mariasek.Engine.New
             }
             if ((bid & (Hra.Betl | Hra.Durch)) != 0)
             {
+				if (BetlDurchLastBidder != null && PlayerBids[BetlDurchLastBidder.PlayerIndex] != bid)
+				{
+					//sli jsme z betla na durcha: resetuj pocitadlo fleku
+					_betlDurchFlek = 0;
+				}
                 BetlDurchLastBidder = player;
                 _betlDurchFlek++;
             }
