@@ -75,8 +75,8 @@ namespace Mariasek.SharedClient
         private ProgressIndicator _progress1, _progress2, _progress3;
         private ProgressIndicator[] _progressBars;
         private TextBox _bubble1,  _bubble2,  _bubble3;
-        private ManualResetEvent _bubbleEvent1, _bubbleEvent2, _bubbleEvent3;
-        private ManualResetEvent[] _bubbleEvents;
+		private int _bubbleSemaphore;
+		private bool[] _bubbleAutoHide;
 
         #pragma warning restore 414
         #endregion
@@ -395,19 +395,21 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 125, 1),
                 Width = 250,
                 Height = 50,
-                ZIndex = 100
+                ZIndex = 100,
+				Anchor = AnchorType.Top
             };
-            _trumpLabel1.Hide();
+			_trumpLabel1.Hide();
             _trumpLabel2 = new Label(this)
             { 
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(125, 1),
+                Position = new Vector2(10, 1),
                 Width = 250,
                 Height = 50,
-                ZIndex = 100
+                ZIndex = 100,
+				Anchor = AnchorType.Top
             };
-            _trumpLabel2.Hide();
+			_trumpLabel2.Hide();
             _trumpLabel3 = new Label(this)
             { 
                 HorizontalAlign = HorizontalAlignment.Right,
@@ -415,9 +417,10 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth - 260, 1),
                 Width = 250,
                 Height = 50,
-                ZIndex = 100
+                ZIndex = 100,
+				Anchor = AnchorType.Top
             };
-            _trumpLabel3.Hide();
+			_trumpLabel3.Hide();
             _trumpLabels = new[] { _trumpLabel1, _trumpLabel2, _trumpLabel3 };
             _msgLabel = new Label(this)
             { 
@@ -462,8 +465,8 @@ namespace Mariasek.SharedClient
             _hand.ShowArc((float)Math.PI / 2);
             _bubble1 = new TextBox(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 - 100),
-                Width = 200,
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 125, Game.VirtualScreenHeight / 2 - 100),
+                Width = 250,
                 Height = 50,
                 BackgroundColor = new Color(0x40, 0x40, 0x40),
                 TextColor = Color.Yellow,
@@ -476,8 +479,8 @@ namespace Mariasek.SharedClient
             _bubble1.Hide();
             _bubble2 = new TextBox(this)
             {
-                Position = new Vector2(50, 80),
-                Width = 200,
+                Position = new Vector2(10, 80),
+                Width = 250,
                 Height = 50,
                 BackgroundColor = new Color(0x40, 0x40, 0x40),
                 TextColor = Color.Yellow,
@@ -490,8 +493,8 @@ namespace Mariasek.SharedClient
             _bubble2.Hide();
             _bubble3 = new TextBox(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 250, 80),
-                Width = 200,
+                Position = new Vector2(Game.VirtualScreenWidth - 260, 80),
+                Width = 250,
                 Height = 50,
                 BackgroundColor = new Color(0x40, 0x40, 0x40),
                 TextColor = Color.Yellow,
@@ -502,11 +505,8 @@ namespace Mariasek.SharedClient
                 ZIndex = 100
             };
             _bubble3.Hide();
-            _bubbleEvent1 = new ManualResetEvent(true);
-            _bubbleEvent2 = new ManualResetEvent(true);
-            _bubbleEvent3 = new ManualResetEvent(true);
-            _bubbleEvents = new [] { _bubbleEvent1, _bubbleEvent2, _bubbleEvent3 };
-            flekBtn = new ToggleButton(this)
+			_bubbleAutoHide = new [] {false, false, false};
+			flekBtn = new ToggleButton(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 230, Game.VirtualScreenHeight / 2f - 150),
                 Width = 150,
@@ -682,7 +682,7 @@ namespace Mariasek.SharedClient
             sedmaBtn.IsEnabled = (bids & (Hra.Sedma | Hra.SedmaProti)) != 0;
             kiloBtn.IsEnabled = (bids & Hra.KiloProti) != 0;
 
-            flekBtn.Text = Bidding.MultiplierToString(bidding.GameMultiplier * 2);
+			flekBtn.Text = Bidding.MultiplierToString((g.GameType & (Hra.Betl | Hra.Durch)) == 0 ? bidding.GameMultiplier * 2 : bidding.BetlDurchMultiplier * 2);
             sedmaBtn.Text = (bids & Hra.SedmaProti) != 0 && (_bidding.SevenAgainstMultiplier == 0)? "Sedma proti" : "Na sedmu";
             kiloBtn.Text = (bids & Hra.KiloProti) != 0 && (_bidding.HundredAgainstMultiplier == 0) ? "Kilo proti" : "Na kilo";
 
@@ -701,6 +701,9 @@ namespace Mariasek.SharedClient
         public void NewGameBtnClicked(object sender)
         {
             CancelRunningTask();
+			_trumpLabel1.Hide();
+			_trumpLabel2.Hide();
+			_trumpLabel3.Hide();
             _gameTask = Task.Run(() => {
                 if (File.Exists(_errorFilePath))
                 {
@@ -793,7 +796,7 @@ namespace Mariasek.SharedClient
                 if (g.GameStartingPlayerIndex != 0)
                 {
                     g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, false);
-                    ShowThinkingMessage();
+                    ShowThinkingMessage(g.GameStartingPlayerIndex);
                     _hand.Show();
                     UpdateHand();
                 }
@@ -802,7 +805,12 @@ namespace Mariasek.SharedClient
                     _hand.Hide();
                     _canShowTrumpHint = false;
                 }
-                g.PlayGame(_cancellationTokenSource.Token);
+				for (var i = 0; i < _trumpLabels.Count(); i++)
+				{
+					_trumpLabels[i].Text = g.players[i].Name;
+					_trumpLabels[i].Show();
+				}
+				g.PlayGame(_cancellationTokenSource.Token);
             },  _cancellationTokenSource.Token);
         }
             
@@ -1146,7 +1154,7 @@ namespace Mariasek.SharedClient
                 UpdateHand(); //abych nevidel karty co jsem hodil do talonu                
                 foreach (var gfButton in gfButtons)
                 {
-                        gfButton.Show();
+                    gfButton.Show();
                 }
                 if (!_settings.HintEnabled || !_msgLabel.IsVisible) //abych neprepsal napovedu
                 {
@@ -1156,7 +1164,9 @@ namespace Mariasek.SharedClient
             }, null);
             WaitForUIThread();
             _hintBtn.IsEnabled = false;
-            return _gameFlavourChosen;
+			HideMsgLabel();
+
+			return _gameFlavourChosen;
         }
 
         private void ChooseGameTypeInternal(Hra validGameTypes)
@@ -1185,12 +1195,8 @@ namespace Mariasek.SharedClient
                     ChooseGameTypeInternal(validGameTypes);
                 }, null);
             WaitForUIThread();
-            WaitHandle.WaitAll(_bubbleEvents);
-            _synchronizationContext.Send(_ =>
-                {
-                    ShowThinkingMessage();
-                }, null);
             _hintBtn.IsEnabled = false;
+			HideMsgLabel();
             g.ThrowIfCancellationRequested();
             return _gameTypeChosen;
         }
@@ -1199,7 +1205,6 @@ namespace Mariasek.SharedClient
         {
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = false;
-            WaitHandle.WaitAll(_bubbleEvents);
             _synchronizationContext.Send(_ =>
                 {
                     UpdateHand();
@@ -1295,20 +1300,12 @@ namespace Mariasek.SharedClient
             {
                 var str = _gameFlavourChosenEventArgs.Flavour == GameFlavour.Good ? "Dobrá" : "Špatná";
                 ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, str);
-            }
-            _synchronizationContext.Send(_ =>
-                {
-                    if(e.Player.PlayerIndex == 2)
-                    {
-                        HideMsgLabel();
-                    }
-                    else if(e.Player.PlayerIndex == 1)
-                    {
-                        ShowThinkingMessage();
-                    }
-                    UpdateHand(cardToHide: _trumpCardChosen);
-                }, null);
-
+				if (e.Player.PlayerIndex != 2 && _gameFlavourChosenEventArgs.Flavour == GameFlavour.Good)
+				{
+					ShowThinkingMessage((e.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
+				}
+			}
+            UpdateHand(cardToHide: _trumpCardChosen);
             _firstTimeGameFlavourChosen = false;
         }
 
@@ -1321,15 +1318,13 @@ namespace Mariasek.SharedClient
                         {
                             _hlasy[0][0], _hlasy[1][0], _hlasy[2][0]
                         };
-                    _trumpLabels[e.GameStartingPlayerIndex].Text = g.GameType.ToDescription(g.trump);
-                    foreach(var trumpLabel in _trumpLabels)
+					for (var i = 0; i < _trumpLabels.Count(); i++)
                     {
-                        trumpLabel.Hide();
+						_trumpLabels[i].Text = g.players[i].Name;
                     }
-                    _trumpLabels[e.GameStartingPlayerIndex].Show();
-                    if(e.TrumpCard != null)
+                    _trumpLabels[e.GameStartingPlayerIndex].Text = string.Format("{0}: {1}", g.players[e.GameStartingPlayerIndex].Name, g.GameType.ToDescription(g.trump));
+					if(e.TrumpCard != null)
                     {
-                        //imgs[e.GameStartingPlayerIndex].Texture = Game.CardTextures;
                         imgs[e.GameStartingPlayerIndex].Sprite.SpriteRectangle = e.TrumpCard.ToTextureRect();
                         imgs[e.GameStartingPlayerIndex].ShowBackSide();
                         imgs[e.GameStartingPlayerIndex].FlipToFront()
@@ -1343,18 +1338,7 @@ namespace Mariasek.SharedClient
                     {
                         imgs[e.GameStartingPlayerIndex].Hide();
                     }
-                    if(e.GameStartingPlayerIndex != 0)
-                    {
-                        _progressBars[e.GameStartingPlayerIndex].Progress = _progressBars[e.GameStartingPlayerIndex].Max;                        
-                    }
-                    if(e.GameStartingPlayerIndex != 2)
-                    {
-                        ShowThinkingMessage();
-                    }
-                    else
-                    {
-                        HideMsgLabel();
-                    }
+					_progressBars[e.GameStartingPlayerIndex].Progress = _progressBars[e.GameStartingPlayerIndex].Max;
                 }, null);
         }
 
@@ -1367,11 +1351,7 @@ namespace Mariasek.SharedClient
             ShowBubble(e.Player.PlayerIndex, e.Description);
             if(e.Player.PlayerIndex != 2)
             {
-                ShowThinkingMessage();
-            }
-            else
-            {
-                HideMsgLabel();
+				ShowThinkingMessage((e.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
             }
         }
 
@@ -1407,6 +1387,11 @@ namespace Mariasek.SharedClient
                         lastHlas = g.CurrentRound.hlas1;
                     }
                     _progressBars[lastPlayer.PlayerIndex].Progress = _progressBars[lastPlayer.PlayerIndex].Max;
+					HideThinkingMessage();
+					if (lastPlayer.PlayerIndex != 2 && g.CurrentRound.c3 == null)
+					{
+						ShowThinkingMessage((lastPlayer.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
+					}
                     rect = lastCard.ToTextureRect();
                     if (lastHlas)
                     {
@@ -1428,7 +1413,7 @@ namespace Mariasek.SharedClient
         {
             if (r.player1.PlayerIndex != 0)
             {
-                ShowThinkingMessage();
+                ShowThinkingMessage(r.player1.PlayerIndex);
             }
             // 3 * (r-1) + i
             _cardsPlayed[r.player1.PlayerIndex].ZIndex = (r.number - 1) * 3 + 1;
@@ -1489,6 +1474,7 @@ namespace Mariasek.SharedClient
                 rightMessage.Append("\n");
             }
             HideInvisibleClickableOverlay();
+			HideThinkingMessage();
             ShowMsgLabelLeftRight(leftMessage.ToString(), rightMessage.ToString());
 
             _deck = g.GetDeckFromLastGame();
@@ -1529,7 +1515,9 @@ namespace Mariasek.SharedClient
         {
 			var gameToLoadString = ResourceLoader.GetEmbeddedResourceString(this.GetType().Assembly, "GameToLoad");
 
-            //if (File.Exists(_savedGameFilePath) && g == null)
+			_trumpLabel1.Hide();
+			_trumpLabel2.Hide();
+			_trumpLabel3.Hide();
 			if(!string.IsNullOrEmpty(gameToLoadString) && g == null)
             {
 				using (var fs = File.Open(_savedGameFilePath, FileMode.Create))
@@ -1605,7 +1593,7 @@ namespace Mariasek.SharedClient
                     if(g.GameStartingPlayerIndex != 0)
                     {
                         g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, false);
-                        ShowThinkingMessage();
+                        ShowThinkingMessage(g.GameStartingPlayerIndex);
                         _hand.Show();
                         UpdateHand();
                     }
@@ -1614,7 +1602,12 @@ namespace Mariasek.SharedClient
                         _hand.Hide();
                         _canShowTrumpHint = false;
                     }
-                    File.Delete(_savedGameFilePath);
+					for (var i = 0; i < _trumpLabels.Count(); i++)
+					{
+						_trumpLabels[i].Text = g.players[i].Name;
+						_trumpLabels[i].Show();
+					}
+					File.Delete(_savedGameFilePath);
                     g.PlayGame(_cancellationTokenSource.Token);
                 },  _cancellationTokenSource.Token);
             }
@@ -1777,28 +1770,30 @@ namespace Mariasek.SharedClient
         {
             var bubbles = new [] { _bubble1, _bubble2, _bubble3 };
 
-            WaitHandle.WaitAll(_bubbleEvents);
-            _bubbleEvents[bubbleNo].Reset();
-            bubbles[bubbleNo]
-                .Invoke(() =>
-                {                    
+			if (bubbles[bubbleNo].IsVisible && !_bubbleAutoHide[bubbleNo])
+			{
+				Interlocked.Decrement(ref _bubbleSemaphore);
+			}
+			_bubbleAutoHide[bubbleNo] = autoHide;
+            this.WaitUntil(() => _bubbleSemaphore == 0)				//MainScene holds bubble operations
+				.Invoke(() =>
+                {
+					Interlocked.Increment(ref _bubbleSemaphore);
                     bubbles[bubbleNo].Text = message;
                     bubbles[bubbleNo].Show();
                 });
             if (autoHide)
             {
-                bubbles[bubbleNo]
-                    .Wait(_bubbleTime)
-                    .Invoke(() =>
-                        {
-                            bubbles[bubbleNo].Hide();
-                        });
+				this.Wait(_bubbleTime)
+					.Invoke(() =>
+					{
+						bubbles[bubbleNo].Hide();
+						Interlocked.Decrement(ref _bubbleSemaphore);
+					});
             }
-            bubbles[bubbleNo]
-                .Invoke(() => _bubbleEvents[bubbleNo].Set());
         }
 
-        private void ShowThinkingMessage()
+        private void ShowThinkingMessage(int playerIndex = -1)
         {
             string[] msg =
                 {
@@ -1811,9 +1806,29 @@ namespace Mariasek.SharedClient
             g.ThrowIfCancellationRequested();
             _synchronizationContext.Send(_ =>
                 {
-                    ShowMsgLabel(msg[(_aiMessageIndex++)%msg.Length], false);
+					if (playerIndex == -1)
+					{
+						ShowMsgLabel(msg[(_aiMessageIndex++) % msg.Length], false);
+					}
+					else
+					{
+						ShowBubble(playerIndex, msg[(_aiMessageIndex++) % msg.Length], false);
+					}
                 }, null);
         }
+
+		private void HideThinkingMessage()
+		{
+			var bubbles = new[] { _bubble1, _bubble2, _bubble3 };
+
+			HideMsgLabel();
+			this.ClearOperations();			//MainScene holds bubble operations
+			foreach (var bubble in bubbles)
+			{
+				bubble.Hide();
+			}
+			_bubbleSemaphore = 0;
+		}
 
         private void ClearTable(bool hlasy = false)
         {
@@ -1836,10 +1851,6 @@ namespace Mariasek.SharedClient
                 _stareStychy[0].Hide();
                 _stareStychy[1].Hide();
                 _stareStychy[2].Hide();
-
-                _trumpLabel1.Hide();
-                _trumpLabel2.Hide();
-                _trumpLabel3.Hide();
             }
             _msgLabel.Hide();
             _msgLabelLeft.Hide();

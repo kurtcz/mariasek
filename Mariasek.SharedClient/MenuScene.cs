@@ -105,8 +105,8 @@ namespace Mariasek.SharedClient
 
         private void NewGameClicked(object sender)
         {            
-            Game.MainScene.SetActive();
-            Game.MainScene.NewGameBtnClicked(sender);
+			Game.MainScene.SetActive();
+			Game.MainScene.NewGameBtnClicked(sender);
         }
 
         private void ResumeClicked(object sender)

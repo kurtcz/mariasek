@@ -42,8 +42,7 @@ namespace Mariasek.Engine.New
     	public Card TrumpCard { get; set; }
         public Probability Probabilities { get; set; }
         public AiPlayerSettings Settings { get; set; }
-        public bool UpdateProbabilitiesAfterTalon { get; set; }
-
+        
         public Action ThrowIfCancellationRequested;
 
         public AiPlayer(Game g) : base(g)
@@ -72,7 +71,6 @@ namespace Mariasek.Engine.New
                 MaxDoubleCount = 5,
                 SigmaMultiplier = 0
             };
-            UpdateProbabilitiesAfterTalon = true;
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
             DebugInfo = new PlayerDebugInfo();
@@ -176,38 +174,66 @@ namespace Mariasek.Engine.New
         }
 
         private List<Card> ChooseBetlTalon(List<Card> hand, Card trumpCard)
-        {            
-            var holesByCard = hand.Select(i => {
-                //pro kazdou kartu spocitej diry (mensi karty v barve ktere nemam)
-                var holes = 0;
+        {
+			var holesByCard = hand.Select(i =>
+			{
+				//pro kazdou kartu spocitej diry (mensi karty v barve ktere nemam)
+				var holes = 0;
+				var holesDelta = 0;
 
-                foreach(var h in Enum.GetValues(typeof(Hodnota))
-                                     .Cast<Hodnota>()
-                                     .Where(h => i.IsHigherThan(new Card(i.Suit, h), null)))
-                {
-                    if(!hand.Any(j => j.Suit == i.Suit && j.Value == h))
-                    {
-                        holes++;
-                    }
-                }
+				foreach (var h in Enum.GetValues(typeof(Hodnota))
+									 .Cast<Hodnota>()
+									 .Where(h => i.IsHigherThan(new Card(i.Suit, h), null)))
+				{
+					if (!hand.Any(j => j.Suit == i.Suit && j.Value == h))
+					{
+						holes++;
+					}
+				}
+				//mam v ruce mensi kartu v barve?
+				var card2 = hand.Where(j => j.Suit == i.Suit && j.BadValue < i.BadValue).OrderByDescending(j => j.BadValue).FirstOrDefault();
 
-                return new Tuple<Barva, Card, int>(i.Suit, i, holes);
-            }).Where(i => i.Item3 > 0)
-              .GroupBy(i => i.Item1);
-            //radime podle poctu karet v barve vzestupne
-            //a potom podle poctu der sestupne
-            var talon = holesByCard.OrderBy(i => i.Count())
-                                   .ThenByDescending(i => i.Max(j => j.Item3))
-                                   .SelectMany(i => i.Select(j => j.Item2))
-                                   .OrderByDescending(i => i)
+				if (card2 != null)
+				{
+					//spocitej pocet der ktere zmizi pokud dam kartu do talonu
+					holesDelta = Enum.GetValues(typeof(Hodnota))
+									 .Cast<Hodnota>()
+									 .Select(h => new Card(i.Suit, h))
+									 .Count(j => i.IsHigherThan(j, null) && j.IsHigherThan(card2, null));
+				}
+				else
+				{
+					holesDelta = holes;
+				}
+
+				return new Tuple<Card, int, int, int>(i, hand.CardCount(i.Suit), holesDelta, holes);
+			}).Where(i => i.Item4 > 0);
+
+			//nejprve vezmi karty od nejkratsich barev (1 karta)
+            //radime podle poctu poctu der ktere odstranime sestupne, poctu der celkem sestupne a hodnoty karty sestupne
+			var talon = holesByCard.Where(i => i.Item2 == 1)				//CardCount
+			                       .OrderByDescending(i => i.Item3)			//holesDelta
+			                       .ThenByDescending(i => i.Item4)			//holes
+			                       .ThenByDescending(i => i.Item1.BadValue)
                                    .Take(2)
+			                       .Select(i => i.Item1)					//Card
                                    .ToList();
-            var count = talon.Count();
+			if (talon.Count < 2)
+			{
+				//dopln kartami od delsich barev
+				talon.AddRange(holesByCard.Where(i => !talon.Contains(i.Item1))		//Card
+				               		   	  .OrderByDescending(i => i.Item3)			//holesDelta
+				               			  .ThenByDescending(i => i.Item4)			//holes
+									   	  .ThenByDescending(i => i.Item1.BadValue)
+									   	  .Take(2 - talon.Count)
+									   	  .Select(i => i.Item1)						//Card
+									   	  .ToList());
+			}
             
             //pokud je potreba, doplnime o nejake nizke karty (abych zhorsil talon na durcha)
-            if(count < 2)
+            if(talon.Count < 2)
             {
-                talon.AddRange(hand.OrderBy(i => i.Value).Take(2 - count));
+				talon.AddRange(hand.Where(i => !talon.Contains(i)).OrderBy(i => i.BadValue).Take(2 - talon.Count));
             }
 
 			if (talon == null || talon.Count != 2)
@@ -344,7 +370,7 @@ namespace Mariasek.Engine.New
 				//pokud delam poradce pro cloveka, musim vybrat talon i kdyz bych normalne nehral betla nebo durcha
 				//v tom pripade jestli uz byl vybranej betl, tak my musime jit na durch a podle toho vybirat talon
 				//jiank vybirame betlovej talon
-				if (AdvisorMode && _talon == null || !_talon.Any())
+				if (AdvisorMode && (_talon == null || !_talon.Any()))
 				{
 					if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType ||
 					   (_gameType == Hra.Betl))
@@ -375,9 +401,13 @@ namespace Mariasek.Engine.New
 				throw new InvalidOperationException("Bad talon: " + msg);
 			}
 
+			if (!AdvisorMode)
+			{
+				Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
+			}
 			_log.DebugFormat("Talon chosen: {0} {1}", _talon[0], _talon[1]);
-            
-            return _talon;
+
+			return _talon;
         }
 
         public override GameFlavour ChooseGameFlavour()
@@ -416,10 +446,6 @@ namespace Mariasek.Engine.New
                         _talon = ChooseNormalTalon(Hand, TrumpCard);
                         DebugInfo.Rule = "Klasika";
 						DebugInfo.RuleCount = Settings.SimulationsPerGameType - Math.Max(_durchBalance, _betlBalance);
-                    }
-                    if (UpdateProbabilitiesAfterTalon)
-                    {
-                        Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
                     }
                 }
                 else

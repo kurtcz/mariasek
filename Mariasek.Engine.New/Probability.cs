@@ -430,7 +430,7 @@ namespace Mariasek.Engine.New
             hands[talonIndex] = new List<Card>();
 
             _verboseString.Clear();
-            _verboseString.Append("GenerateHands(round: {0}, starting: Player{1} -> Enter\n", roundNumber, roundStarterIndex + 1);
+            _verboseString.AppendFormat("GenerateHands(round: {0}, starting: Player{1} -> Enter\n", roundNumber, roundStarterIndex + 1);
             //zacneme tim, ze rozdelime jiste karty
             for (int i = 0; i < Game.NumPlayers + 1; i++)
             {
@@ -574,7 +574,7 @@ namespace Mariasek.Engine.New
 
         public void UpdateProbabilitiesAfterTalon(List<Card> hand, List<Card> talon)
         {
-            _debugString.AppendFormat("Talon: {0} {1}\n", talon[0], talon[1]);
+            _debugString.AppendFormat("After talon: {0} {1}\n", talon[0], talon[1]);
             _myTalon = talon;
             foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
             {

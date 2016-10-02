@@ -50,28 +50,6 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 1,
-                Description = "Vytlač chytající karty",
-                ChooseCard1 = () =>
-                {
-                    IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
-
-                    if (TeamMateIndex == -1)//c--
-                    {
-                        cardsToPlay = hands[MyIndex].Where(i =>                                 //vytlac jednou kartou chytajici karty souperu
-                                            hands[player2].CardCount(i.Suit) <= 1 &&
-                                            hands[player3].CardCount(i.Suit) <= 1 &&
-                                            ValidCards(i, hands[player2]).Any(j =>
-                                                ValidCards(i, j, hands[player3]).All(k =>
-                                                    Round.WinningCard(i, j, k, null) != i)));
-                    }
-
-                    return cardsToPlay.ToList().RandomOneOrDefault();
-                }
-            };
-
-            yield return new AiRule()
-            {
-                Order = 2,
                 Description = "Odmazat si vysokou kartu",
                 ChooseCard1 = () =>
                 {
@@ -82,12 +60,10 @@ namespace Mariasek.Engine.New
                         var lo = hands[MyIndex].Where(i => //vezmi karty nizsi nez souperi
                                         hands[player2].Any(j => j.Suit == i.Suit && j.IsHigherThan(i, null)) ||
                                             hands[player3].Any(j => j.Suit == i.Suit && j.IsHigherThan(i, null)));
-                        var hi = lo.Where(i => //vezmi karty Vyssi nez souperi
-                                        hands[player2].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)) ||
-                                            hands[player3].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)))
-                                   .GroupBy(g => g.Suit);   //seskup podle barev
-                        //vyber z nizkych karet jen karty kde je max 1 karta vyssi nez souperovy
-                        cardsToPlay = hi.SelectMany(g => g).ToList(); //podminka s jednou kartou nefunguje
+						var hi = lo.Where(i => //vezmi karty Vyssi nez souperi
+										hands[player2].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)) ||
+										  hands[player3].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)));
+						cardsToPlay = hi.ToList();
                         //je treba odmazavat pokud to jde, v nejhorsim hru neuhraju, simulace by mely ukazat
                     }
                     else
@@ -132,7 +108,7 @@ namespace Mariasek.Engine.New
 
 			yield return new AiRule()
 			{
-				Order = 3,
+				Order = 2,
 				Description = "Hrát krátkou barvu kterou soupeř zná",
 				ChooseCard1 = () =>
 				{
@@ -153,7 +129,7 @@ namespace Mariasek.Engine.New
 
 			yield return new AiRule()
             {
-                Order = 4,
+                Order = 3,
                 Description = "Hrát krátkou barvu",
                 ChooseCard1 = () =>
                 {
