@@ -109,27 +109,93 @@ namespace Mariasek.Engine.New
 			yield return new AiRule()
 			{
 				Order = 2,
-				Description = "Hrát krátkou barvu kterou soupeř zná",
+				Description = "Vytlačit soupeřovu vyšší kartu",
 				ChooseCard1 = () =>
 				{
 					var cardsToPlay = new List<Card>();
 
-					var lo = hands[MyIndex].GroupBy(g => g.Suit);   //seskup podle barev
-																	//vyber nejkratsi barvu
-					var cards = lo.Where(g => hands[opponent].HasSuit(g.Key)).OrderBy(g => g.Count()).Select(g => g.ToList()).FirstOrDefault();
-
-					if (cards != null)
+					if (TeamMateIndex == -1)
 					{
-						return cards.OrderBy(i => i.BadValue).FirstOrDefault(); //nejmensi karta			
+						var hi = hands[MyIndex].Where(i => //vezmi karty vyssi nez souperi
+									hands[player2].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)) ||
+										hands[player3].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)));
+						var lo = hands[MyIndex].Where(i => //vezmi karty nizsi nez souperii
+									(hands[player2].Any(j => j.Suit == i.Suit && j.IsHigherThan(j, null)) ||
+									 hands[player3].Any(j => j.Suit == i.Suit && j.IsHigherThan(j, null))) &&
+									hi.Any(j => j.Suit == i.Suit && j.IsHigherThan(i, null)));//v barve kde mam i vysoke kartyy
+
+						cardsToPlay = lo.ToList();
 					}
 
-					return null;
+					return cardsToPlay.RandomOneOrDefault();
+				}
+			};
+
+			yield return new AiRule()
+			{
+				Order = 3,
+				Description = "Odmazat spoluhráčovu kartu",
+				ChooseCard1 = () =>
+				{
+					var cardsToPlay = new List<Card>();
+
+					if (TeamMateIndex == player2)	//co-
+					{
+						cardsToPlay = hands[MyIndex].Where(i => !hands[player2].HasSuit(i.Suit) && 
+						                                   		hands[player3].HasSuit(i.Suit)).ToList();
+					}
+					else if (TeamMateIndex == player3)	//c-o
+					{
+						cardsToPlay = hands[MyIndex].Where(i => hands[player2].HasSuit(i.Suit) &&
+																!hands[player3].HasSuit(i.Suit)).ToList();
+					}
+
+					return cardsToPlay.RandomOneOrDefault();
+				}
+			};
+
+			yield return new AiRule()
+			{
+				Order = 3,
+				Description = "Dostat spoluhráče do štychu",
+				ChooseCard1 = () =>
+				{
+					var cardsToPlay = new List<Card>();
+
+					if (TeamMateIndex == player2)   //co--
+					{
+						var winningCards = hands[player2].Where(i =>												//ma spoluhrac viteznou kartu?
+																ValidCards(i, hands[player3]).All(j =>
+																  	ValidCards(i, j, hands[MyIndex]).Any(k =>
+																	   	Round.WinningCard(i, j, k, null) == j)));
+						if (winningCards.Any())
+						{
+							//je karta kterou ho dostanu do stychu aniz by pritom musel hrat viteznou kartu?
+							cardsToPlay = hands[MyIndex].Where(i => hands[player2].Any(j => !i.IsHigherThan(j, null) && 
+							                                                           		!winningCards.Contains(j))).ToList();
+						}
+					}
+					else if (TeamMateIndex == player3)  //c-oo
+					{
+						var winningCards = hands[player3].Where(i =>                                                //ma spoluhrac viteznou kartu??
+																ValidCards(i, hands[MyIndex]).Any(j =>
+																  	ValidCards(i, j, hands[player2]).Any(k =>
+																	   	Round.WinningCard(i, j, k, null) == k)));
+						if (winningCards.Any())
+						{
+							//je karta kterou ho dostanu do stychu aniz by pritom musel hrat viteznou kartu??
+							cardsToPlay = hands[MyIndex].Where(i => hands[player3].Any(j => !i.IsHigherThan(j, null) &&
+																						    !winningCards.Contains(j))).ToList();
+						}
+					}
+
+					return cardsToPlay.RandomOneOrDefault();
 				}
 			};
 
 			yield return new AiRule()
             {
-                Order = 3,
+                Order = 5,
                 Description = "Hrát krátkou barvu",
                 ChooseCard1 = () =>
                 {
