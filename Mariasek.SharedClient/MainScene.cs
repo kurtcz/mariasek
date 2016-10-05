@@ -1137,7 +1137,7 @@ namespace Mariasek.SharedClient
                     _okBtn.Show();
                     _okBtn.IsEnabled = false;
                     _state = GameState.ChooseTalon;
-                    UpdateHand(cardToHide: _trumpCardChosen);
+                    UpdateHand(cardToHide: _trumpCardChosen); //abych si otocil zbyvajicich 5 karet
                 }, null);
             WaitForUIThread();
             _hintBtn.IsEnabled = false;
@@ -1205,10 +1205,10 @@ namespace Mariasek.SharedClient
         {
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = false;
-            _synchronizationContext.Send(_ =>
-                {
-                    UpdateHand();
-                }, null);
+            //_synchronizationContext.Send(_ =>
+            //    {
+            //        UpdateHand();
+            //    }, null);
             _hand.AnimationEvent.Wait();
             _synchronizationContext.Send(_ =>
                 {
@@ -1276,7 +1276,8 @@ namespace Mariasek.SharedClient
                     if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Good)
                     {
                         ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, "Barva?");
-                    }
+						ShowThinkingMessage(1);
+					}
                     else
                     {
                         //protihrac z ruky zavolil betl nebo durch
@@ -1289,12 +1290,14 @@ namespace Mariasek.SharedClient
                     if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Good)
                     {
                         ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, "Barva?");
+						ShowThinkingMessage(1);
                     }
                     else
                     {
                         _trumpCardChosen = null;
                     }
                 }
+				//UpdateHand(cardToHide: _trumpCardChosen);
             }
             else if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Bad || g.GameType == 0)
             {
@@ -1304,8 +1307,14 @@ namespace Mariasek.SharedClient
 				{
 					ShowThinkingMessage((e.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
 				}
+				if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Bad &&
+				    e.Player.PlayerIndex != 0 &&
+				    g.OriginalGameStartingPlayerIndex == 0)
+				{
+					_hlasy[0][0].Hide();
+					UpdateHand(); //abych vratil trumfovou kartu zpet do ruky
+				}
 			}
-            UpdateHand(cardToHide: _trumpCardChosen);
             _firstTimeGameFlavourChosen = false;
         }
 
