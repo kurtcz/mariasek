@@ -1766,19 +1766,19 @@ namespace Mariasek.SharedClient
             }
         }
 
-        private void ShowBubble(int bubbleNo, string message, bool autoHide = true)
-        {
-            var bubbles = new [] { _bubble1, _bubble2, _bubble3 };
+		private void ShowBubble(int bubbleNo, string message, bool autoHide = true)
+		{
+			var bubbles = new[] { _bubble1, _bubble2, _bubble3 };
 
-			if (bubbles[bubbleNo].IsVisible && !_bubbleAutoHide[bubbleNo])
-			{
-				Interlocked.Decrement(ref _bubbleSemaphore);
-			}
-			_bubbleAutoHide[bubbleNo] = autoHide;
-            this.WaitUntil(() => _bubbleSemaphore == 0)				//MainScene holds bubble operations
-				.Invoke(() =>
-                {
-					Interlocked.Increment(ref _bubbleSemaphore);
+			Console.WriteLine("ShowBubble ({0}, \"{1}\", {2}) ->", bubbleNo + 1, message, autoHide);
+			this.Invoke(() =>
+				{
+					if (bubbles[bubbleNo].IsVisible && !_bubbleAutoHide[bubbleNo])
+					{
+						Console.WriteLine("Bubble {0} hide old {1}", bubbleNo + 1, _bubbleAutoHide[bubbleNo] ? "auto" : "manual");
+					}
+					Console.WriteLine("Bubble {0} show [{1}]: {2}", bubbleNo+1, message, _bubbleAutoHide[bubbleNo] ? "auto" : "manual");
+					_bubbleAutoHide[bubbleNo] = autoHide;
                     bubbles[bubbleNo].Text = message;
                     bubbles[bubbleNo].Show();
                 });
@@ -1788,9 +1788,10 @@ namespace Mariasek.SharedClient
 					.Invoke(() =>
 					{
 						bubbles[bubbleNo].Hide();
-						Interlocked.Decrement(ref _bubbleSemaphore);
+						Console.WriteLine("Bubble {0} hide [{1}]: {2}", bubbleNo+1, message, _bubbleAutoHide[bubbleNo] ? "auto" : "manual");
 					});
             }
+			Console.WriteLine("ShowBubble ({0}, \"{1}\", {2}) <-", bubbleNo + 1, message, autoHide);
         }
 
         private void ShowThinkingMessage(int playerIndex = -1)
