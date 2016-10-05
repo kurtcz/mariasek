@@ -7,6 +7,7 @@ namespace Mariasek.Engine.New
     {
         public int Order { get; set; }
         public bool UseThreshold { get; set; }
+		public bool SkipSimulations { get; set; }
         public string Description { get; set; }
 
         public Func<Card> ChooseCard1;

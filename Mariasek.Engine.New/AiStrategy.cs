@@ -864,6 +864,7 @@ namespace Mariasek.Engine.New
                 Order = 1,
                 Description = "hraj vítěznou X",
                 UseThreshold = TeamMateIndex != player3,
+				SkipSimulations = TeamMateIndex == player3,
                 ChooseCard2 = (Card c1) =>
                 {
                     IEnumerable<Card> cardsToPlay;
@@ -1079,6 +1080,7 @@ namespace Mariasek.Engine.New
             {
                 Order = 7,
                 Description = "zůstat ve štychu (nehrát A, X)",
+				SkipSimulations = TeamMateIndex == player3,
                 ChooseCard2 = (Card c1) =>
                 {
                     IEnumerable<Card> cardsToPlay;
@@ -1117,6 +1119,7 @@ namespace Mariasek.Engine.New
             {
                 Order = 8,
                 Description = "hrát dlouhou barvu (mimo A, X)",
+				SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = new List<Card>();
@@ -1149,6 +1152,7 @@ namespace Mariasek.Engine.New
             {
                 Order = 9,
                 Description = "hrát cokoli mimo A, X",
+				SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka);
@@ -1161,6 +1165,7 @@ namespace Mariasek.Engine.New
             {
                 Order = 10,
                 Description = "hrát cokoli",
+				SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]);
@@ -1274,6 +1279,7 @@ namespace Mariasek.Engine.New
             {
                 Order = 1,
                 Description = "hraj vítěznou X",
+				SkipSimulations = true,
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     IEnumerable<Card> cardsToPlay;
@@ -1362,6 +1368,7 @@ namespace Mariasek.Engine.New
             {
                 Order = 3,
                 Description = "zůstat ve štychu (nehrát A, X)",
+				SkipSimulations = true,
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     IEnumerable<Card> cardsToPlay;
@@ -1392,6 +1399,7 @@ namespace Mariasek.Engine.New
             {
                 Order = 4,
                 Description = "hrát dlouhou barvu (mimo A, X)",
+				SkipSimulations = true,
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = new List<Card>();
@@ -1424,6 +1432,7 @@ namespace Mariasek.Engine.New
             {
                 Order = 5,
                 Description = "hrát cokoli mimo A, X",
+				SkipSimulations = true,
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka);
@@ -1436,6 +1445,7 @@ namespace Mariasek.Engine.New
             {
                 Order = 6,
                 Description = "hrát cokoli",
+				SkipSimulations = true,
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]);

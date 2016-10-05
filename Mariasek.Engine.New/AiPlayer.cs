@@ -1163,9 +1163,11 @@ namespace Mariasek.Engine.New
                     }
                     
                     var val = Interlocked.Increment(ref progress);
-                        OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Simuluju hru"});
+                    OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Simuluju hru"});
 
-                    if (computationResult.Rule == AiRule.PlayTheOnlyValidCard || canSkipSimulations)    //We have only one card to play, so there is really no need to compute anything
+                    if (computationResult.Rule == AiRule.PlayTheOnlyValidCard ||
+					    computationResult.Rule.SkipSimulations ||
+					    canSkipSimulations)    //We have only one card to play, so there is really no need to compute anything
                     {
                         OnGameComputationProgress(new GameComputationProgressEventArgs { Current = simulations, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0});
                         loopState.Stop();
@@ -1494,6 +1496,7 @@ namespace Mariasek.Engine.New
                 }
                 else
                 {
+					//simuluju vlastni betl/durch (jestli ma cenu hlasit spatnou barvu)
                     player1 = PlayerIndex;
                     player2 = (PlayerIndex + 1) % Game.NumPlayers;
                     player3 = (PlayerIndex + 2) % Game.NumPlayers;
@@ -1766,6 +1769,7 @@ namespace Mariasek.Engine.New
             if (validCards.All(c => c.Value == Hodnota.Desitka || c.Value == Hodnota.Eso) ||
                 validCards.All(c => c.Value != Hodnota.Desitka && c.Value != Hodnota.Eso))
             {
+				//muzu hrat jen A nebo X nebo naopak ani jedna karta kterou muzu hrat neni A ani X
                 return true;
             }
 
@@ -1793,6 +1797,7 @@ namespace Mariasek.Engine.New
                         Probabilities.CardProbability(player2, A) == 0f &&
                         Probabilities.CardProbability(player2, X) == 0f)
                     {
+						//muzu hrat jen jednu barvu ve ktere souperi nemaji ani A ani X
                         return true;
                     }
                 }
@@ -1803,6 +1808,7 @@ namespace Mariasek.Engine.New
                     if (Probabilities.CardProbability(opponent, A) == 0f &&
                         Probabilities.CardProbability(opponent, X) == 0f)
                     {
+						//muzu hrat jen jednu barvu ve ktere souper nema ani A ani X
                         return true;
                     }
                 }
