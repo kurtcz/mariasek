@@ -1276,7 +1276,10 @@ namespace Mariasek.SharedClient
                     if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Good)
                     {
                         ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, "Barva?");
-						ShowThinkingMessage(1);
+						if (g.GameStartingPlayerIndex != 2)
+						{
+							ShowThinkingMessage((g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
+						}
 					}
                     else
                     {
@@ -1290,7 +1293,7 @@ namespace Mariasek.SharedClient
                     if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Good)
                     {
                         ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, "Barva?");
-						ShowThinkingMessage(1);
+						ShowThinkingMessage((_gameFlavourChosenEventArgs.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
                     }
                     else
                     {
