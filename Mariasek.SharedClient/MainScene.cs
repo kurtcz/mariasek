@@ -1770,7 +1770,9 @@ namespace Mariasek.SharedClient
 
                 if (_settings.SortMode != SortMode.None)
                 {
-                    g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, (g.GameType & (Hra.Betl | Hra.Durch)) != 0);
+					var badGameSorting = _gameFlavourChosen == GameFlavour.Bad || (g.GameType & (Hra.Betl | Hra.Durch)) != 0;
+
+					g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, badGameSorting);
                 }
                 _hand.UpdateHand(g.players[0].Hand.ToArray(), 0, cardToHide);
                 _hand.SortHand(unsorted);
