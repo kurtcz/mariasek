@@ -8,8 +8,8 @@ namespace Mariasek.Engine.New
 {
     public class AiBetlStrategy : AiStrategyBase
     {
-        public AiBetlStrategy(Barva? trump, Hra gameType, Hand[] hands)
-            : base(trump, gameType, hands)
+        public AiBetlStrategy(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds)
+            : base(trump, gameType, hands, rounds)
         {
         }
 
@@ -20,10 +20,33 @@ namespace Mariasek.Engine.New
             var opponent = TeamMateIndex == (MyIndex + 1) % Game.NumPlayers
                            ? (MyIndex + 2) % Game.NumPlayers : (MyIndex + 1) % Game.NumPlayers;
 
+			Barva? bannedSuit = null;
+
+			if (RoundNumber == 2 && _rounds != null && _rounds[0] != null) //pri simulaci hry jsou skutecny kola jeste neodehrany
+			{
+				bannedSuit = _rounds[0].c1.Suit;
+
+				yield return new AiRule()
+				{
+					Order = 0,
+					Description = "Hraj A v jiné barvě",
+					SkipSimulations = true,
+					ChooseCard1 = () =>
+					{
+						IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
+
+						cardsToPlay = hands[MyIndex].Where(i => i.Suit != bannedSuit.Value && i.Value == Hodnota.Eso);
+
+						return cardsToPlay.ToList().RandomOneOrDefault();
+					}
+				};
+			}
+
             yield return new AiRule()
             {
-                Order = 0,
+                Order = 1,
                 Description = "Hraj vítěznou kartu",
+				//UseThreshold = true, //protoze generovani je nahodne a casto generuje nebetlove rozlozeni
                 ChooseCard1 = () =>
                 {
                     IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
@@ -31,6 +54,7 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex == player2)//co-
                     {
                         cardsToPlay = hands[MyIndex].Where(i =>
+		                                    (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
                                             ValidCards(i, hands[player2]).Any(j =>
                                                 ValidCards(i, j, hands[player3]).All(k =>
                                                     Round.WinningCard(i, j, k, null) == k)));
@@ -38,6 +62,7 @@ namespace Mariasek.Engine.New
                     else if (TeamMateIndex == player3)//c-o
                     {
                         cardsToPlay = hands[MyIndex].Where(i =>
+		                                    (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
                                             ValidCards(i, hands[player2]).All(j =>
                                                 ValidCards(i, j, hands[player3]).Any(k =>
                                                     Round.WinningCard(i, j, k, null) == j)));
@@ -49,7 +74,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 1,
+                Order = 2,
                 Description = "Odmazat si vysokou kartu",
                 ChooseCard1 = () =>
                 {
@@ -58,7 +83,7 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex == -1)//c--
                     {
                         var lo = hands[MyIndex].Where(i => //vezmi karty nizsi nez souperi
-                                        hands[player2].Any(j => j.Suit == i.Suit && j.IsHigherThan(i, null)) ||
+										hands[player2].Any(j => j.Suit == i.Suit && j.IsHigherThan(i, null)) ||
                                             hands[player3].Any(j => j.Suit == i.Suit && j.IsHigherThan(i, null)));
 						var hi = lo.Where(i => //vezmi karty Vyssi nez souperi
 										hands[player2].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)) ||
@@ -72,7 +97,7 @@ namespace Mariasek.Engine.New
                         //hi2 = pocet kolegovych karet > nejmensi souperova
                         //mid1 = pocet souperovych karet > nejmensi moje
                         //mid2 = pocet souperovych karet > nejmensi kolegy
-                        foreach (var barva in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+						foreach (var barva in Enum.GetValues(typeof(Barva)).Cast<Barva>().Where(i => (!bannedSuit.HasValue || i != bannedSuit.Value)))
                         {
                             if(hands[MyIndex].HasSuit(barva) && hands[opponent].HasSuit(barva))
                             {
@@ -108,7 +133,7 @@ namespace Mariasek.Engine.New
 
 			yield return new AiRule()
 			{
-				Order = 2,
+				Order = 3,
 				Description = "Vytlačit soupeřovu vyšší kartu",
 				ChooseCard1 = () =>
 				{
@@ -133,7 +158,7 @@ namespace Mariasek.Engine.New
 
 			yield return new AiRule()
 			{
-				Order = 3,
+				Order = 4,
 				Description = "Odmazat spoluhráčovu kartu",
 				ChooseCard1 = () =>
 				{
@@ -141,12 +166,14 @@ namespace Mariasek.Engine.New
 
 					if (TeamMateIndex == player2)	//co-
 					{
-						cardsToPlay = hands[MyIndex].Where(i => !hands[player2].HasSuit(i.Suit) && 
+						cardsToPlay = hands[MyIndex].Where(i => (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
+																!hands[player2].HasSuit(i.Suit) && 
 						                                   		hands[player3].HasSuit(i.Suit)).ToList();
 					}
 					else if (TeamMateIndex == player3)	//c-o
 					{
-						cardsToPlay = hands[MyIndex].Where(i => hands[player2].HasSuit(i.Suit) &&
+						cardsToPlay = hands[MyIndex].Where(i => (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
+																hands[player2].HasSuit(i.Suit) &&
 																!hands[player3].HasSuit(i.Suit)).ToList();
 					}
 
@@ -156,7 +183,7 @@ namespace Mariasek.Engine.New
 
 			yield return new AiRule()
 			{
-				Order = 3,
+				Order = 5,
 				Description = "Dostat spoluhráče do štychu",
 				ChooseCard1 = () =>
 				{
@@ -171,8 +198,9 @@ namespace Mariasek.Engine.New
 						if (winningCards.Any())
 						{
 							//je karta kterou ho dostanu do stychu aniz by pritom musel hrat viteznou kartu?
-							cardsToPlay = hands[MyIndex].Where(i => hands[player2].Any(j => !i.IsHigherThan(j, null) && 
-							                                                           		!winningCards.Contains(j))).ToList();
+							cardsToPlay = hands[MyIndex].Where(i => (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
+																	hands[player2].Any(j => !i.IsHigherThan(j, null) && 
+	                                                           		!winningCards.Contains(j))).ToList();
 						}
 					}
 					else if (TeamMateIndex == player3)  //c-oo
@@ -184,8 +212,9 @@ namespace Mariasek.Engine.New
 						if (winningCards.Any())
 						{
 							//je karta kterou ho dostanu do stychu aniz by pritom musel hrat viteznou kartu??
-							cardsToPlay = hands[MyIndex].Where(i => hands[player3].Any(j => !i.IsHigherThan(j, null) &&
-																						    !winningCards.Contains(j))).ToList();
+							cardsToPlay = hands[MyIndex].Where(i => (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
+																	hands[player3].Any(j => !i.IsHigherThan(j, null) &&
+																    !winningCards.Contains(j))).ToList();
 						}
 					}
 
@@ -195,13 +224,14 @@ namespace Mariasek.Engine.New
 
 			yield return new AiRule()
             {
-                Order = 5,
+                Order = 6,
                 Description = "Hrát krátkou barvu",
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = new List<Card>();
 
-                    var lo = hands[MyIndex].GroupBy(g => g.Suit);   //seskup podle barev
+					var lo = hands[MyIndex].Where(i => (!bannedSuit.HasValue || i.Suit != bannedSuit.Value))
+					                       .GroupBy(g => g.Suit);   //seskup podle barev
                     //vyber nejkratsi barvu
                     cardsToPlay = lo.OrderBy(g => g.Count()).Select(g => g.ToList()).FirstOrDefault();
 

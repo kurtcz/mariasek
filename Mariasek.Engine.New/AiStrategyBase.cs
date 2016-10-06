@@ -19,17 +19,19 @@ namespace Mariasek.Engine.New
 #endif   
         protected Barva? _trump;
         protected Hra _gameType;
-        protected Hand[] _hands; 
+        protected Hand[] _hands;
+		protected Round[] _rounds;
         public int MyIndex { get; set; }
         public string MyName { get; set; }
         public int TeamMateIndex { get; set; }
         public int RoundNumber { get; set; }
 
-        public AiStrategyBase(Barva? trump, Hra gameType, Hand[] hands)
+		public AiStrategyBase(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds)
         {
             _trump = trump;
             _hands = hands;
             _gameType = gameType;
+			_rounds = rounds;
         }
 
         protected abstract IEnumerable<AiRule> GetRules1(Hand[] hands);

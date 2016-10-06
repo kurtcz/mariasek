@@ -22,8 +22,8 @@ namespace Mariasek.Engine.New
 #endif   
         private new Barva _trump { get { return base._trump.Value; } } //dirty
 
-        public AiStrategy(Barva? trump, Hra gameType, Hand[] hands)
-            :base(trump, gameType, hands)
+		public AiStrategy(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds)
+            :base(trump, gameType, hands, rounds)
         {
         }
 

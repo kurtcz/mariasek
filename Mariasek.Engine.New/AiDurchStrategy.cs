@@ -8,8 +8,8 @@ namespace Mariasek.Engine.New
 {
     public class AiDurchStrategy : AiStrategyBase
     {
-        public AiDurchStrategy(Barva? trump, Hra gameType, Hand[] hands)
-            :base(trump, gameType, hands)
+        public AiDurchStrategy(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds)
+            :base(trump, gameType, hands, rounds)
         {
         }
 

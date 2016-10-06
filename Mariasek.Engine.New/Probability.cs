@@ -622,19 +622,23 @@ namespace Mariasek.Engine.New
         public void UpdateProbabilitiesAfterGameFlavourChosen(GameFlavourChosenEventArgs e)
         {
 			_debugString.AppendFormat("GameFlavourchosen: {0} {1}\n", e.Player.Name, e.Flavour);
-            if (e.Flavour == GameFlavour.Bad && e.Player.PlayerIndex != _myIndex && _myTalon != null)
-            {
-                _gameBidders.Add(e.Player.PlayerIndex);
-                foreach (var card in _myTalon)
-                {
-                    foreach (var gameBidder in _gameBidders)
-                    {
-                        _cardProbabilityForPlayer[gameBidder][card.Suit][card.Value] = gameBidder == _myIndex ? 0f : 0.5f;
-                    }
-                    _cardProbabilityForPlayer[talonIndex][card.Suit][card.Value] = 0.5f;
-                }
-                UpdateUncertainCardsProbability();
-            }
+			if (e.Flavour == GameFlavour.Bad)
+			{
+				_trump = null;
+				if(e.Player.PlayerIndex != _myIndex && _myTalon != null)
+				{
+					_gameBidders.Add(e.Player.PlayerIndex);
+					foreach (var card in _myTalon)
+					{
+						foreach (var gameBidder in _gameBidders)
+						{
+							_cardProbabilityForPlayer[gameBidder][card.Suit][card.Value] = gameBidder == _myIndex ? 0f : 0.5f;
+						}
+						_cardProbabilityForPlayer[talonIndex][card.Suit][card.Value] = 0.5f;
+					}
+					UpdateUncertainCardsProbability();
+				}
+			}
 			_debugString.Append(FriendlyString(0));
 			_debugString.Append("-----\n");
         }
