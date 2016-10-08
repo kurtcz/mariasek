@@ -114,6 +114,10 @@ namespace Mariasek.Engine.New
 
 		private void CheckDeck()
 		{
+			if (IsEmpty())
+			{
+				return;
+			}
 			for (int i = 0; i < MaxSize; i++)
 			{
 				var c = new Card((Barva)Enum.ToObject(typeof(Barva), i / 8),

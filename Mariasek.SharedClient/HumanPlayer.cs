@@ -159,6 +159,10 @@ namespace Mariasek.SharedClient
                     }
                     if (_aiPlayer != null)
                     {
+						//var gt2 = _aiPlayer.ChooseGameTypeNew(validGameTypes);
+						//_scene.SuggestGameTypeNew(gt2);
+						//_scene.SuggestGameFlavourNew(gt2);
+
                         _aiTask = Task.Run(() =>
                             {
 								//dej 2 karty z ruky do talonu aby byl _aiPlayer v aktualnim stavu
@@ -235,6 +239,9 @@ namespace Mariasek.SharedClient
             }
             if (_aiPlayer != null)
             {
+				//var gt2 = _aiPlayer.ChooseGameTypeNew(validGameTypes);
+				//_scene.SuggestGameTypeNew(gt2);
+
                 _aiTask = Task.Run(() =>
                     { 
                         var gameType = _aiPlayer.ChooseGameType(validGameTypes);

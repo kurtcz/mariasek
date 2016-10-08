@@ -72,6 +72,7 @@ namespace Mariasek.SharedClient
 		public AnchorType CurrentRenderingGroup { get; private set; } 
 
         public SoundEffect ClickSound { get; private set; }
+		public SoundEffect TickSound { get; private set; }
         public SoundEffect OnSound { get; private set; }
         public SoundEffect OffSound { get; private set; }
         public SoundEffect ClapSound { get; private set; }
@@ -180,6 +181,7 @@ namespace Mariasek.SharedClient
             };
 
             ClickSound = Content.Load<SoundEffect>("click");
+			//TickSound = Content.Load<SoundEffect>("watch-tick");
             OnSound = Content.Load<SoundEffect>("on");
             OffSound = Content.Load<SoundEffect>("off");
             ClapSound = Content.Load<SoundEffect>("clap");
@@ -193,13 +195,13 @@ namespace Mariasek.SharedClient
             SettingsScene = new SettingsScene(this);
             HistoryScene = new HistoryScene(this);
             MainScene = new MainScene(this);
-			GenerateScene = new GeneratorScene(this);
+			//GenerateScene = new GeneratorScene(this);
 
             MenuScene.Initialize();
             HistoryScene.Initialize();
             SettingsScene.Initialize();
             MainScene.Initialize();
-			GenerateScene.Initialize();
+			//GenerateScene.Initialize();
 
             MenuScene.SetActive();
 #if LOADGAME

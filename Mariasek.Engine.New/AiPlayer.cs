@@ -786,6 +786,152 @@ namespace Mariasek.Engine.New
             DebugInfo.TotalRuleCount = Settings.SimulationsPerGameType;
         }
 
+		public bool ShouldChooseDurch()
+		{
+			var holesPerSuit = new Dictionary<Barva, int>();
+			foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+			{
+				var holes = 0;
+
+				foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+				{
+					var c = new Card(b, h);
+
+					if (Hand.Any(i => i.BadValue < c.BadValue && i.Suit == b && !Hand.Contains(c)))
+					{
+						holes++;
+					}
+				}
+
+				holesPerSuit.Add(b, holes);
+			}
+
+			if (holesPerSuit.All(i => i.Value == 0))
+			{
+				return true;
+			}
+			return false;
+		}
+
+		public bool ShouldChooseBetl()
+		{
+			var holesPerSuit = new Dictionary<Barva, int>();
+			var hiCardsPerSuit = new Dictionary<Barva, int>();
+			foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+			{
+				var holes = 0;		//pocet der v barve
+				var hiCards = 0;	//pocet vysokych karet ktere maji pod sebou diru v barve
+				var hole = false;
+
+				foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+				{
+					var c = new Card(b, h);
+
+					if (Hand.Any(i => i.BadValue > c.BadValue && i.Suit == b && !Hand.Contains(c)))
+					{
+						holes++;
+						hole = true;
+					}
+				}
+				if (hole)
+				{
+					hiCards++;
+				}
+				holesPerSuit.Add(b, holes);
+				hiCardsPerSuit.Add(b, hiCards);
+			}
+
+			//max 4 vysoke karty celkove a max 3 v jedne barve => 2 pujdou do talonu a treti kartou zacnu hrat
+			//nebo max jedna barva s hodne vysokymi kartami ale prave jednou dirou (musim mit sedmu v dane barve)
+			if ((hiCardsPerSuit.Sum(i => i.Value) < 5 && hiCardsPerSuit.All(i => i.Value < 4)) ||
+			    (hiCardsPerSuit.Count(i => i.Value > 3) == 1 && 
+			     hiCardsPerSuit.Any(i => i.Value > 3 && holesPerSuit[i.Key] <= 1 && 
+                 Hand.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key))))
+			{
+				return true;
+			}
+			return false;
+		}
+
+		public bool ShouldChooseHundred()
+		{
+			var axCount = Hand.Count(i => i.Value == Hodnota.Eso || 
+			                         	  (i.Value == Hodnota.Desitka && 
+			                          	   Hand.Any(j => j.Suit == i.Suit && 
+			                                   			 (j.Value == Hodnota.Eso || j.Value == Hodnota.Kral))));
+			var trumpCount = Hand.Count(i => i.Suit == _trump.Value && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka);
+			var cardsPerSuit = Hand.GroupBy(i => i.Suit);
+			var kqs = new List<Barva>();
+			var n = axCount * 10;	//vezmi body za A,X
+
+			foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+			{
+				//mam v barve hlasku?
+				if (Hand.Count(i => i.Suit == b && (i.Value == Hodnota.Kral || i.Value == Hodnota.Svrsek)) == 2)
+				{
+					kqs.Add(b);
+				}
+			}
+			if (!kqs.Any())
+			{
+				//nemam zadanou hlasku v ruce
+				return false;
+			}
+			//pridej body za hlasky
+			if (kqs.Any(i => i == _trump.Value))
+			{
+				n += 40;
+			}
+			else
+			{
+				n += 20;
+			}
+			var emptySuits = cardsPerSuit.Count(i => i.Count() == 0);    //spocitej barvy ktere neznam)
+			var shortSuits = cardsPerSuit.Count(i => i.Count() <= 1);   //spocitej kratke barvy (s max jednou kartou)
+ 
+			n += Math.Min(emptySuits, trumpCount) * 20;	//pridej 20 za kazdou prazdnou barvu
+			n += Math.Max(2, shortSuits) * 20;           //pridej 20 za maximalne 2 kratke barvy (karty pujdou do talonu)
+
+			return n >= 100;
+		}
+
+		public bool ShouldChooseSeven()
+		{
+			var cardsBySuit = Hand.GroupBy(i => i.Suit);
+			var numTrumps = Hand.Count(i => i.Suit == _trump.Value);
+			var has7 = Hand.Any(i => i.Suit == _trump.Value && i.Value == Hodnota.Sedma);
+
+			return has7 && ((numTrumps == 4 && cardsBySuit.Count() == 4) ||
+			                (numTrumps >= 5));
+		}
+
+		public Hra ChooseGameTypeNew(Hra validGameTypes)
+		{
+			var gameType = Hra.Hra;
+
+			if (ShouldChooseHundred())
+			{
+				gameType = Hra.Kilo;
+			}
+			else if (ShouldChooseDurch())
+			{
+				gameType = Hra.Durch;
+			}
+			else if (ShouldChooseBetl())
+			{
+				gameType = Hra.Betl;
+			}
+			if ((gameType & (Hra.Betl | Hra.Durch)) == 0)
+			{
+				if (ShouldChooseSeven())
+				{
+					gameType |= Hra.Sedma;
+				}
+			}
+
+			return gameType;
+		}
+
         //vola se z enginu
         public override Hra ChooseGameType(Hra validGameTypes)
         {

@@ -24,22 +24,28 @@ namespace Mariasek.Engine.New
 
 			if (RoundNumber == 2 && _rounds != null && _rounds[0] != null) //pri simulaci hry jsou skutecny kola jeste neodehrany
 			{
-				bannedSuit = _rounds[0].c1.Suit;
-
-				yield return new AiRule()
+				if (_rounds[0].c1.Suit == _rounds[0].c2.Suit && _rounds[0].c1.Suit == _rounds[0].c3.Suit)
 				{
-					Order = 0,
-					Description = "Hraj A v jiné barvě",
-					SkipSimulations = true,
-					ChooseCard1 = () =>
+					bannedSuit = _rounds[0].c1.Suit;
+				}
+
+				if (bannedSuit.HasValue)
+				{
+					yield return new AiRule()
 					{
-						IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
+						Order = 0,
+						Description = "Hraj A v jiné barvě",
+						SkipSimulations = true,
+						ChooseCard1 = () =>
+						{
+							IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
 
-						cardsToPlay = hands[MyIndex].Where(i => i.Suit != bannedSuit.Value && i.Value == Hodnota.Eso);
+							cardsToPlay = hands[MyIndex].Where(i => i.Suit != bannedSuit.Value && i.Value == Hodnota.Eso);
 
-						return cardsToPlay.ToList().RandomOneOrDefault();
-					}
-				};
+							return cardsToPlay.ToList().RandomOneOrDefault();
+						}
+					};
+				}
 			}
 
             yield return new AiRule()
@@ -88,7 +94,17 @@ namespace Mariasek.Engine.New
 						var hi = lo.Where(i => //vezmi karty Vyssi nez souperi
 										hands[player2].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)) ||
 										  hands[player3].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)));
-						cardsToPlay = hi.ToList();
+						var hiBySuit = hi.GroupBy(i => i.Suit);
+						var singleHiCards = hiBySuit.Where(i => i.Count() == 1).Select(i => i.First()).ToList();
+
+						if (singleHiCards.Any())	//pokud to jde odmazat si zaroven i celou barvu
+						{
+							cardsToPlay.AddRange(singleHiCards);
+						}
+						else
+						{
+							cardsToPlay = hi.ToList();
+						}
                         //je treba odmazavat pokud to jde, v nejhorsim hru neuhraju, simulace by mely ukazat
                     }
                     else

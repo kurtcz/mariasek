@@ -102,6 +102,7 @@
     <None Include="Content\boo.wav" />
     <None Include="Content\clap.wav" />
     <None Include="Content\cough.wav" />
+    <None Include="Content\watch-tick.wav" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="GameThumbnail.png" />

@@ -679,7 +679,7 @@ namespace Mariasek.Engine.New
 
         public Deck GetDeckFromLastGame()
         {
-            var deck = new List<Card>();
+			var deck = new List<Card>();
 			var sb = new StringBuilder();
 
             if (rounds != null)

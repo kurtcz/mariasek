@@ -49,3 +49,9 @@
 /processorParam:Quality=Best
 /build:cough.wav
 
+#begin watch-tick.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:watch-tick.wav
+

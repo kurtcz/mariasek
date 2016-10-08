@@ -203,7 +203,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Betl", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "GameThreshold.Betl",
-					Value = "65|75|85|90|95"
+					Value = "75|80|85|90|95"
                 });
             _aiConfig.Add("GameThreshold.Durch", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
@@ -1740,7 +1740,28 @@ namespace Mariasek.SharedClient
             HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", gameType), false);
         }
 
-        public void SuggestBidsAndDoubles(string bid)
+		public void SuggestGameTypeNew(Hra gameType)
+		{
+			foreach (var gtButton in gtButtons)
+			{
+				if ((gameType & (Hra)gtButton.Tag) != 0)
+				{
+					gtButton.BorderColor = Color.Green;
+				}
+				else
+				{
+					gtButton.BorderColor = Color.White;
+				}
+			}
+		}
+
+		public void SuggestGameFlavourNew(Hra gameType)
+		{
+			gfDobraButton.BorderColor = (gameType & (Hra.Betl | Hra.Durch)) == 0 ? Color.Green : Color.White;
+			gfSpatnaButton.BorderColor = (gameType & (Hra.Betl | Hra.Durch)) != 0 ? Color.Green : Color.White;
+		}
+
+		public void SuggestBidsAndDoubles(string bid)
         {
 			_progress1.Progress = _progress1.Max;
             _hintBtn.IsEnabled = true;

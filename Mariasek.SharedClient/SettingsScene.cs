@@ -179,6 +179,10 @@ namespace Mariasek.SharedClient
 			};
 			_thinkingTimeSelector.SelectedIndex = _thinkingTimeSelector.Items.FindIndex(_settings.ThinkingTimeMs);
 			_thinkingTimeSelector.SelectionChanged += ThinkingTimeChanged;
+			if (_thinkingTimeSelector.SelectedIndex < 0)
+			{
+				_thinkingTimeSelector.SelectedIndex = 0;
+			}
 
             _menuBtn = new Button(this)
             {
