@@ -47,6 +47,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\LineChart.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SavedGame\ResourceLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\LeftRightSelector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GeneratorScene.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)SavedGame\SavedGame.hra">

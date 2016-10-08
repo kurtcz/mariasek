@@ -25,6 +25,7 @@ namespace Mariasek.SharedClient
         private Button _settingsButton;
         public ToggleButton ShuffleBtn;
         private Button _historyBtn;
+		private Button _generateBtn;
         private Label _version;
         private Label _author;
 
@@ -80,6 +81,14 @@ namespace Mariasek.SharedClient
                     Text = "Historie"
                 };
             _historyBtn.Click += HistoryClicked;
+			_generateBtn = new Button(this)
+			{
+				Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f + 160),
+				Width = 200,
+				Height = 50,
+				Text = "Volit"
+			};
+			_generateBtn.Click += GenerateClicked;
             
             Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;
@@ -125,7 +134,12 @@ namespace Mariasek.SharedClient
             Game.HistoryScene.SetActive();
         }
 
-        public override void Update(GameTime gameTime)
+		private void GenerateClicked(object sender)
+		{
+			Game.GenerateScene.SetActive();
+		}
+
+		public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
             _resumeButton.IsEnabled = Game.MainScene.g != null && Game.MainScene.g.IsRunning;

@@ -196,6 +196,17 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
+		public void SelectCard(Card card)
+		{
+			var s = _sprites.FirstOrDefault(i => ((Card)i.Tag == card));
+
+			if (s != null)
+			{
+				s.IsSelected = true;
+			}
+		}
+
+
         public void DeselectAllCards()
         {
             foreach(var sprite in _sprites.Where(i => i != null))
@@ -251,7 +262,7 @@ namespace Mariasek.SharedClient.GameComponents
             AnimationEvent.Reset();
         }
 
-        public void ShowWinningHand(int playerIndex)
+		public void ShowWinningHand(int playerIndex)
         {
             var initialPosition = Vector2.Zero;
             var delta = Vector2.Zero;

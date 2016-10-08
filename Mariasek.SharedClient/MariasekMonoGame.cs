@@ -45,6 +45,7 @@ namespace Mariasek.SharedClient
         public MenuScene MenuScene { get; private set; }
         public SettingsScene SettingsScene { get; private set; }
         public HistoryScene HistoryScene { get; private set; }
+		public GeneratorScene GenerateScene { get; private set; }
 
         public Texture2D CardTextures { get; private set; }
         public Texture2D ReverseTexture { get; private set; }
@@ -192,11 +193,13 @@ namespace Mariasek.SharedClient
             SettingsScene = new SettingsScene(this);
             HistoryScene = new HistoryScene(this);
             MainScene = new MainScene(this);
+			GenerateScene = new GeneratorScene(this);
 
             MenuScene.Initialize();
             HistoryScene.Initialize();
             SettingsScene.Initialize();
             MainScene.Initialize();
+			GenerateScene.Initialize();
 
             MenuScene.SetActive();
 #if LOADGAME
