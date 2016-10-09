@@ -47,7 +47,9 @@ namespace Mariasek.SharedClient
         public HistoryScene HistoryScene { get; private set; }
 		public GeneratorScene GenerateScene { get; private set; }
 
-        public Texture2D CardTextures { get; private set; }
+		public Texture2D CardTextures { get; set; }
+        public Texture2D CardTextures1 { get; private set; }
+		public Texture2D CardTextures2 { get; private set; }
         public Texture2D ReverseTexture { get; private set; }
         public Dictionary<string, FontRenderer> FontRenderers { get; private set; }
 
@@ -170,7 +172,8 @@ namespace Mariasek.SharedClient
             System.Diagnostics.Debug.WriteLine("LoadContent()");
             // Create a new SpriteBatch, which can be used to draw textures.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-            CardTextures = Content.Load<Texture2D>("marias");
+            CardTextures1 = Content.Load<Texture2D>("marias");
+			CardTextures2 = Content.Load<Texture2D>("marias2");
             ReverseTexture = Content.Load<Texture2D>("revers");
             FontRenderers = new Dictionary<string, FontRenderer>
             {

@@ -12,11 +12,11 @@
                         <viewControllerLayoutGuide type="bottom" id="3"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="6">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="736" height="414"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" id="9" translatesAutoresizingMaskIntoConstraints="NO" image="Content/woodsplash-ipad.png">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" id="9" translatesAutoresizingMaskIntoConstraints="NO" image="Content/woodsplash-ipad.png" misplaced="YES">
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                             </imageView>
                         </subviews>
@@ -48,13 +48,11 @@
         <image name="Content/LuckiestGuy32Outl_1.png" width="256" height="256"/>
         <image name="Content/LuckiestGuy32Outl_2.png" width="256" height="256"/>
         <image name="Content/wood2.jpg" width="960" height="640"/>
-        <image name="Content/Icon57.png" width="57" height="57"/>
         <image name="Content/woodsplash.png" width="640" height="960"/>
-        <image name="Default.png" width="320" height="480"/>
         <image name="Content/woodsplash-ipad.png" width="1024" height="748"/>
-        <image name="Default-Landscape.png" width="1024" height="748"/>
         <image name="Content/woodsplash-ipad2.png" width="768" height="1004"/>
-        <image name="Default-Portrait.png" width="768" height="1004"/>
+        <image name="Icon.png" width="57" height="57"/>
+        <image name="Content/marias2.png" width="598" height="479"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedScreenMetrics key="destination" type="retina55"/>

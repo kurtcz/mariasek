@@ -143,7 +143,7 @@ namespace Mariasek.Engine.New
                         }
                     }
 
-                    return cardsToPlay.RandomOneOrDefault();
+					return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                 }
             };
 

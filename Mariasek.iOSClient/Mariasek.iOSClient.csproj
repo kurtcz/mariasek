@@ -110,6 +110,7 @@
     <BundleResource Include="Content\woodsplash-ipad.png" />
     <BundleResource Include="Content\woodsplash-ipad2.png" />
     <BundleResource Include="Resources\Icon.png" />
+    <BundleResource Include="Content\marias2.png" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />

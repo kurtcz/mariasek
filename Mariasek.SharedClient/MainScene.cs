@@ -75,8 +75,10 @@ namespace Mariasek.SharedClient
         private ProgressIndicator _progress1, _progress2, _progress3;
         private ProgressIndicator[] _progressBars;
         private TextBox _bubble1,  _bubble2,  _bubble3;
+		private TextBox[] _bubbles;
 		private int _bubbleSemaphore;
 		private bool[] _bubbleAutoHide;
+		private bool _reinitializeNeeded;
 
         #pragma warning restore 414
         #endregion
@@ -128,7 +130,8 @@ namespace Mariasek.SharedClient
         {
             base.Initialize();
 
-            _aiConfig = new Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection();
+			Game.CardTextures = _settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
+			_aiConfig = new Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection();
 
             _aiConfig.Add("AiCheating", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
@@ -173,7 +176,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("RuleThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "RuleThreshold",
-                    Value = "90"
+                    Value = "95"
                 });
             _aiConfig.Add("RuleThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
@@ -188,7 +191,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Hra", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
                     Name = "GameThreshold.Hra",
-                    Value = "0|50|70|90|99"
+                    Value = "0|50|65|80|95"
                 });
             _aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                 {
@@ -392,8 +395,8 @@ namespace Mariasek.SharedClient
             { 
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(Game.VirtualScreenWidth / 2f - 125, 1),
-                Width = 250,
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 140, 1),
+                Width = 280,
                 Height = 50,
                 ZIndex = 100,
 				Anchor = AnchorType.Top
@@ -404,7 +407,7 @@ namespace Mariasek.SharedClient
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Middle,
                 Position = new Vector2(10, 1),
-                Width = 250,
+                Width = 280,
                 Height = 50,
                 ZIndex = 100,
 				Anchor = AnchorType.Top
@@ -414,8 +417,8 @@ namespace Mariasek.SharedClient
             { 
                 HorizontalAlign = HorizontalAlignment.Right,
                 VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(Game.VirtualScreenWidth - 260, 1),
-                Width = 250,
+                Position = new Vector2(Game.VirtualScreenWidth - 290, 1),
+                Width = 280,
                 Height = 50,
                 ZIndex = 100,
 				Anchor = AnchorType.Top
@@ -505,6 +508,7 @@ namespace Mariasek.SharedClient
                 ZIndex = 100
             };
             _bubble3.Hide();
+			_bubbles = new[] { _bubble1, _bubble2, _bubble3 };
 			_bubbleAutoHide = new [] {false, false, false};
 			flekBtn = new ToggleButton(this)
             {
@@ -698,12 +702,23 @@ namespace Mariasek.SharedClient
             kiloBtn.Hide();
         }
 
+		public void Reinitialize()
+		{
+			DisposeChildren();
+			Initialize();
+		}
+
         public void NewGameBtnClicked(object sender)
         {
             CancelRunningTask();
 			_trumpLabel1.Hide();
 			_trumpLabel2.Hide();
 			_trumpLabel3.Hide();
+			if (_reinitializeNeeded)
+			{
+				Reinitialize();
+				_reinitializeNeeded = false;
+			}
             _gameTask = Task.Run(() => {
                 if (File.Exists(_errorFilePath))
                 {
@@ -809,6 +824,17 @@ namespace Mariasek.SharedClient
 				{
 					_trumpLabels[i].Text = g.players[i].Name;
 					_trumpLabels[i].Show();
+				}
+				if (File.Exists(_endGameFilePath))
+				{
+					try
+					{
+						File.Delete(_endGameFilePath);
+					}
+					catch (Exception e)
+					{
+						System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
+					}
 				}
 				g.PlayGame(_cancellationTokenSource.Token);
             },  _cancellationTokenSource.Token);
@@ -1151,15 +1177,18 @@ namespace Mariasek.SharedClient
             _hintBtn.IsEnabled = false;
             _synchronizationContext.Send(_ =>
             {
-                UpdateHand(); //abych nevidel karty co jsem hodil do talonu                
-                foreach (var gfButton in gfButtons)
-                {
-                    gfButton.Show();
-                }
-                if (!_settings.HintEnabled || !_msgLabel.IsVisible) //abych neprepsal napovedu
-                {
-                    ShowMsgLabel("Co řekneš?", false);
-                }
+                UpdateHand(); //abych nevidel karty co jsem hodil do talonu
+				this.Invoke(() =>
+				{
+					foreach (var gfButton in gfButtons)
+					{
+						gfButton.Show();
+					}
+					if (!_settings.HintEnabled || !_msgLabel.IsVisible) //abych neprepsal napovedu
+					{
+						ShowMsgLabel("Co řekneš?", false);
+					}
+				});
                 _state = GameState.ChooseGameFlavour;
             }, null);
             WaitForUIThread();
@@ -1173,15 +1202,18 @@ namespace Mariasek.SharedClient
         {
             g.ThrowIfCancellationRequested();
             UpdateHand(cardToHide: _trumpCardChosen); //abych nevidel karty co jsem hodil do talonu
-            foreach (var gtButton in gtButtons)
-            {
-                gtButton.IsEnabled = ((Hra)gtButton.Tag & validGameTypes) == (Hra)gtButton.Tag;
-                gtButton.Show();
-            }
-            if (!_settings.HintEnabled || !_msgLabel.IsVisible) //abych neprepsal napovedu
-            {
-                ShowMsgLabel("Co budeš hrát?", false);
-            }
+			this.Invoke(() =>
+			{
+				foreach (var gtButton in gtButtons)
+				{
+					gtButton.IsEnabled = ((Hra)gtButton.Tag & validGameTypes) == (Hra)gtButton.Tag;
+					gtButton.Show();
+				}
+				if (!_settings.HintEnabled || !_msgLabel.IsVisible) //abych neprepsal napovedu
+				{
+					ShowMsgLabel("Co budeš hrát?", false);
+				}
+			});
             _state = GameState.ChooseGameType;
         }
 
@@ -1214,9 +1246,12 @@ namespace Mariasek.SharedClient
                 {
                     _state = GameState.Bid;
                     _bid = 0;
-                    ShowBidButtons(bidding);
-                    _okBtn.IsEnabled = true;
-                    _okBtn.Show();
+					this.Invoke(() =>
+					{
+						ShowBidButtons(bidding);
+						_okBtn.IsEnabled = true;
+						_okBtn.Show();
+					});
                 }, null);
             WaitForUIThread();
             return _bid;
@@ -1668,6 +1703,10 @@ namespace Mariasek.SharedClient
 
         public void SettingsChanged(object sender, SettingsChangedEventArgs e)
         {
+			if (_settings != null && _settings.CardDesign != e.Settings.CardDesign)
+			{
+				_reinitializeNeeded = true;
+			}
             _settings = e.Settings;
             if (_progress1 != null)
             {
@@ -1803,26 +1842,24 @@ namespace Mariasek.SharedClient
 
 		private void ShowBubble(int bubbleNo, string message, bool autoHide = true)
 		{
-			var bubbles = new[] { _bubble1, _bubble2, _bubble3 };
-
 			Console.WriteLine("ShowBubble ({0}, \"{1}\", {2}) ->", bubbleNo + 1, message, autoHide);
 			this.Invoke(() =>
 				{
-					if (bubbles[bubbleNo].IsVisible && !_bubbleAutoHide[bubbleNo])
+					if (_bubbles[bubbleNo].IsVisible && !_bubbleAutoHide[bubbleNo])
 					{
 						Console.WriteLine("Bubble {0} hide old {1}", bubbleNo + 1, _bubbleAutoHide[bubbleNo] ? "auto" : "manual");
 					}
 					Console.WriteLine("Bubble {0} show [{1}]: {2}", bubbleNo+1, message, _bubbleAutoHide[bubbleNo] ? "auto" : "manual");
 					_bubbleAutoHide[bubbleNo] = autoHide;
-                    bubbles[bubbleNo].Text = message;
-                    bubbles[bubbleNo].Show();
+                    _bubbles[bubbleNo].Text = message;
+                    _bubbles[bubbleNo].Show();
                 });
             if (autoHide)
             {
 				this.Wait(_bubbleTime)
 					.Invoke(() =>
 					{
-						bubbles[bubbleNo].Hide();
+						_bubbles[bubbleNo].Hide();
 						Console.WriteLine("Bubble {0} hide [{1}]: {2}", bubbleNo+1, message, _bubbleAutoHide[bubbleNo] ? "auto" : "manual");
 					});
             }
@@ -1855,11 +1892,9 @@ namespace Mariasek.SharedClient
 
 		private void HideThinkingMessage()
 		{
-			var bubbles = new[] { _bubble1, _bubble2, _bubble3 };
-
 			HideMsgLabel();
 			this.ClearOperations();			//MainScene holds bubble operations
-			foreach (var bubble in bubbles)
+			foreach (var bubble in _bubbles)
 			{
 				bubble.Hide();
 			}

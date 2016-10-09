@@ -9,10 +9,10 @@ namespace Mariasek.SharedClient
     /// <summary>
     /// This is a game component that implements IUpdateable.
     /// </summary>
-    public partial class GameComponent : Microsoft.Xna.Framework.GameComponent
+	public partial class GameComponent : Microsoft.Xna.Framework.GameComponent
     {
         private GameComponent _parent;
-
+		private bool _disposed;
         protected new MariasekMonoGame Game;
         protected List<GameComponent> Children = new List<GameComponent>();
         protected ConcurrentQueue<GameComponentOperation> ScheduledOperations = new ConcurrentQueue<GameComponentOperation>();
@@ -117,6 +117,31 @@ namespace Mariasek.SharedClient
 
             base.Initialize();
         }
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				//dispose unmanaged resources here
+			}
+			//dispose managed resources here
+			DisposeChildren();
+			base.Dispose(disposing);
+		}
+
+		public void DisposeChildren()
+		{
+			for (var i = 0; i < Children.Count; i++)
+			{
+				var child = Children[i];
+
+				if (child != null)
+				{
+					child.Dispose();
+				}
+			}
+			Children.Clear();
+		}
 
         protected virtual void GameRestarted()
         {

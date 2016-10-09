@@ -10,6 +10,12 @@ namespace Mariasek.SharedClient
         None
     }
 
+	public enum CardFace
+	{
+		Single,
+		Double
+	}
+
     public class GameSettings
     {
         public bool HintEnabled { get; set; }
@@ -21,6 +27,7 @@ namespace Mariasek.SharedClient
         public int GameTypeSimulationsPerSecond { get; set; }
         public int RoundSimulationsPerSecond { get; set; }
         public int CurrentStartingPlayerIndex { get; set; }
+		public CardFace CardDesign { get; set; }
 
         public GameSettings()
         {
@@ -31,6 +38,7 @@ namespace Mariasek.SharedClient
             CalculationStyle = CalculationStyle.Adding;
             CurrentStartingPlayerIndex = 0;
             ThinkingTimeMs = 2000;
+			CardDesign = CardFace.Single;
         }
     }
 }

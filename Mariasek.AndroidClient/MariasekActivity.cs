@@ -17,7 +17,7 @@ using Mariasek.SharedClient;
 
 namespace Mariasek.AndroidClient
 {
-	[Activity (Label = "Mariasek", 
+	[Activity (Label = "Mariášek", 
 		MainLauncher = true,
 		Icon = "@drawable/icon",
 		Theme = "@style/Theme.Splash",

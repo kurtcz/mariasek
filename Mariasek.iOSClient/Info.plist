@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>Mariasek</string>
+	<string>Mariášek</string>
 	<key>CFBundleIconFiles</key>
 	<array>
 		<string>Icon</string>
@@ -36,6 +36,6 @@
 	<key>UIPrerenderedIcon</key>
 	<true/>
 	<key>CFBundleName</key>
-	<string>Mariasek</string>
+	<string>Mariášek</string>
 </dict>
 </plist>

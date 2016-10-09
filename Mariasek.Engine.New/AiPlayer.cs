@@ -39,7 +39,12 @@ namespace Mariasek.Engine.New
             //MaxDegreeOfParallelism = 1  //Uncomment before debugging
         };
 		public bool AdvisorMode { get; set; }
-    	public Card TrumpCard { get; set; }
+		private Card _trumpCard;
+		public Card TrumpCard
+		{
+			get { return _trumpCard; }
+			set { _trumpCard = value; _trump = value != null ? (Barva?)value.Suit : null; }
+		}
         public Probability Probabilities { get; set; }
         public AiPlayerSettings Settings { get; set; }
         
@@ -168,7 +173,6 @@ namespace Mariasek.Engine.New
             TrumpCard = hand.FirstOrDefault(i => i.Suit == trump && i.Value > Hodnota.Sedma && i.Value < Hodnota.Svrsek) ??
                        hand.OrderBy(i => i.Value).FirstOrDefault(i => i.Suit == trump);
 
-			_trump = TrumpCard.Suit;
 			_log.DebugFormat("Trump chosen: {0}", TrumpCard);
 			return TrumpCard;
         }

@@ -27,12 +27,14 @@ namespace Mariasek.SharedClient
         private Label _baseBet;
         private Label _kiloCounting;
         private Label _thinkingTime;
-        private ToggleButton _hintBtn;
+		private Label _cardFace;
+		private ToggleButton _hintBtn;
         private ToggleButton _soundBtn;
 		private LeftRightSelector _handSortingSelector;
 		private LeftRightSelector _baseBetSelector;
 		private LeftRightSelector _kiloCountingSelector;
 		private LeftRightSelector _thinkingTimeSelector;
+		private LeftRightSelector _cardFaceSelector;
         private Label _performance;
         private Button _menuBtn;
 
@@ -72,7 +74,7 @@ namespace Mariasek.SharedClient
             LoadGameSettings();
             _sounds = new Label(this)
             {
-                Position = new Vector2(10, 70),
+                Position = new Vector2(10, 10),
                 Width = (int)Game.VirtualScreenWidth / 2 - 20,
                 Height = 50,
                 Text = "Zvuk",
@@ -81,7 +83,7 @@ namespace Mariasek.SharedClient
             };
             _soundBtn = new ToggleButton(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 390, 70),
+                Position = new Vector2(Game.VirtualScreenWidth - 390, 10),
                 Width = 360,
                 Height = 50,
                 Text = _settings.SoundEnabled ? "Zapnutý" : "Vypnutý",
@@ -92,7 +94,7 @@ namespace Mariasek.SharedClient
             _soundBtn.Click += SoundBtnClick;
             _hint = new Label(this)
             {
-                Position = new Vector2(10, 130),
+                Position = new Vector2(10, 70),
                 Width = (int)Game.VirtualScreenWidth / 2 - 20,
                 Height = 50,
                 Text = "Nápověda",
@@ -101,7 +103,7 @@ namespace Mariasek.SharedClient
             };
             _hintBtn = new ToggleButton(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 390, 130),
+                Position = new Vector2(Game.VirtualScreenWidth - 390, 70),
                 Width = 360,
                 Height = 50,
                 Text = _settings.HintEnabled ? "Zapnutá" : "Vypnutá",
@@ -110,6 +112,27 @@ namespace Mariasek.SharedClient
 				BackgroundColor = Color.Transparent
             };
             _hintBtn.Click += HintBtnClick;
+			_cardFace = new Label(this)
+			{
+				Position = new Vector2(10, 130),
+				Width = (int)Game.VirtualScreenWidth / 2 - 20,
+				Height = 50,
+				Text = "Vzor karet",
+				HorizontalAlign = HorizontalAlignment.Center,
+				VerticalAlign = VerticalAlignment.Middle
+			};
+			_cardFaceSelector = new LeftRightSelector(this)
+			{
+				Position = new Vector2(Game.VirtualScreenWidth - 390, 130),
+				Width = 360,
+				Items = new SelectorItems() { { "Jednohlavé", CardFace.Single }, { "Dvouhlavé", CardFace.Double } }
+			};
+			_cardFaceSelector.SelectedIndex = _cardFaceSelector.Items.FindIndex(_settings.CardDesign);
+			_cardFaceSelector.SelectionChanged += CardFaceChanged;
+			if (_cardFaceSelector.SelectedIndex < 0)
+			{
+				_cardFaceSelector.SelectedIndex = 0;
+			}
             _handSorting = new Label(this)
             {
                 Position = new Vector2(10, 190),
@@ -254,6 +277,16 @@ namespace Mariasek.SharedClient
             SaveGameSettings();
             OnSettingsChanged();
         }
+
+		void CardFaceChanged(object sender)
+		{
+			var selector = sender as LeftRightSelector;
+			var origValue = _settings.CardDesign;
+
+			_settings.CardDesign = (CardFace)selector.SelectedValue;
+			SaveGameSettings();
+			OnSettingsChanged();
+		}
 
         void MenuBtnClick (object sender)
         {
