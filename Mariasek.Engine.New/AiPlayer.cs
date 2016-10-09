@@ -297,12 +297,12 @@ namespace Mariasek.Engine.New
                 .Where(i => i.Suit != trumpCard.Suit &&             //nevybirej trumfy
                             i.Value != Hodnota.Eso &&               //ani esa
                             hand.Count(j => i.Suit == j.Suit &&     //max. 2 karty jine nez A
-                                            i.Value != Hodnota.Eso) <= 2 &&
+                                            j.Value != Hodnota.Eso) <= 2 &&
                             !hand.HasX(i.Suit) &&                   //v barve kde neznam X ani nemam hlas
                             !(hand.HasK(i.Suit) && hand.HasQ(i.Suit)))
                 .OrderBy(i => hand.Count(j => j.Suit == i.Suit))    //vybirej od nejkratsich barev
                 .ThenBy(i => hand.Count(j => j.Suit == i.Suit &&    //v pripade stejne delky barev
-                             i.Value == Hodnota.Eso))               //dej prednost barve s esem
+                             j.Value == Hodnota.Eso))               //dej prednost barve s esem
                 .ToList());
             //potom zkus cokoli mimo trumfu,A,X,7, hlasu a samotne plivy ktera doplnuje X
             talon.AddRange(hand
@@ -315,7 +315,7 @@ namespace Mariasek.Engine.New
                             i.Value != Hodnota.Sedma &&             //ani sedmu
                             !(hand.HasX(i.Suit) &&                  //pokud mam jen X+plivu, tak nech plivu byt
                                 hand.CardCount(i.Suit) <= 2))
-                .OrderBy(i => i.Value)                              //vybirej od nejmensich karet                .Take(2 - talon.Count)
+                .OrderBy(i => i.Value)                              //vybirej od nejmensich karet
                 .ToList());
 
             //potom zkus cokoli mimo trumfu,A,X,trumfove 7, hlasu a samotne plivy ktera doplnuje X
