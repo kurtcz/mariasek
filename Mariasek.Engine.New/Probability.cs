@@ -329,18 +329,28 @@ namespace Mariasek.Engine.New
                     : _cardProbabilityForPlayer[(_myIndex + j) % Game.NumPlayers].Sum(i => i.Value.Count(k => k.Value == 1f));
                     if (uncertainCards[j].Any() && totalCards[j] - hands[j].Count() == uncertainCards[j].Count())
                     {
+						_verboseString.AppendFormat("Hand{0}: {1} total, {2} certain+generated so far, {3} uncertain remaining\n",
+						                            (_myIndex + j) % Game.NumPlayers + 1, totalCards[j], hands[j].Count(), uncertainCards[j].Count());
                         //danemu hraci musim uz dat vse co zbylo
 						for (int k = uncertainCards[j].Count() - 1; k >= 0 ; k--)
                         {
                             var c = uncertainCards[j][k];
                             hands[j].Add(c);
-							_verboseString.AppendFormat("Hand{0} += {1} (rest)\n",  (_myIndex + k + 1) % (Game.NumPlayers + 1), c);
+							_verboseString.AppendFormat("Hand{0} += {1} (rest)\n",  (_myIndex + j) % Game.NumPlayers + 1, c);
                             //a u ostatnich tim padem tuhle kartu uz nesmim brat v potaz
                             for (int l = 0; l < Game.NumPlayers + 1; l++)
                             {
                                 uncertainCards[l].Remove(c);
-								_verboseString.AppendFormat("Player{0}[{1}][{2}] = 0\n",
-									l + 1, c.Suit, c.Value);
+								if (l < Game.NumPlayers)
+								{
+									_verboseString.AppendFormat("Uncertain: Player{0}[{1}][{2}] = 0\n",
+										(_myIndex + l) % Game.NumPlayers, c.Suit, c.Value);
+								}
+								else
+								{
+									_verboseString.AppendFormat("Uncertain: Talon[{0}][{1}] = 0\n",
+										c.Suit, c.Value);
+								}
                             }
                         }
                         uncertainCards[j].Clear();

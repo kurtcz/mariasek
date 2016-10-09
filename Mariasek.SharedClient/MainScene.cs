@@ -1596,7 +1596,8 @@ namespace Mariasek.SharedClient
 					}
 					catch(Exception ex)
 					{
-						ShowMsgLabel(ex.Message, false);
+						ShowMsgLabel(string.Format("Error loading game:\n{0}", ex.Message), false);
+						return;
 					}
                     g.GameFlavourChosen += GameFlavourChosen;
                     g.GameTypeChosen += GameTypeChosen;
