@@ -316,9 +316,9 @@ namespace Mariasek.Engine.New
         /// </summary>
         private void ReduceUncertainCardSet(List<Card>[] hands, int[] totalCards, List<Card>[] uncertainCards)
         {
-			_verboseString.Append("ReduceUcertainCardSet -> Enter\n");
-            //Pozor!!!: u vsech techto vstupnich promennych plati, ze index 0 == ja ale u _cardProbabilityForPlayer je _myIndex == ja
-            while (true)
+			_verboseString.Append("ReduceUncertainCardSet -> Enter\n");
+			//Pozor!!!: u vsech techto vstupnich promennych plati, ze index 0 == ja ale u _cardProbabilityForPlayer je _myIndex == ja
+			while (true)
             {
                 bool reduced = false;
 
@@ -368,7 +368,7 @@ namespace Mariasek.Engine.New
                     break;
                 }
             }
-			_verboseString.Append("ReduceUcertainCardSet <- Exit\n");
+			_verboseString.Append("ReduceUncertainCardSet <- Exit\n");
         }
 
         public float Deviation
@@ -441,20 +441,24 @@ namespace Mariasek.Engine.New
 
             _verboseString.Clear();
             _verboseString.AppendFormat("GenerateHands(round: {0}, starting: Player{1} -> Enter\n", roundNumber, roundStarterIndex + 1);
-            //zacneme tim, ze rozdelime jiste karty
-            for (int i = 0; i < Game.NumPlayers; i++)
+			//zacneme tim, ze rozdelime jiste karty
+			for (int i = 0; i < Game.NumPlayers; i++)
             {
                 hands[i].AddRange(certainCards[i]);
-                foreach(var c in certainCards[i])
+				foreach(var c in certainCards[i])
                 {
 					_verboseString.AppendFormat("Hand{0} += {1} (certain)\n", (_myIndex + i) % Game.NumPlayers + 1, c);
                 }
-            }
+				_verboseString.AppendFormat("Player {0}: {1} total, {2} certain, {3} uncertain cards\n",
+					(_myIndex + i) % Game.NumPlayers + 1, totalCards[i], certainCards[i].Count(), uncertainCards[i].Count());
+			}
 			hands[talonIndex].AddRange(certainCards[talonIndex]);
 			foreach (var c in certainCards[talonIndex])
 			{
 				_verboseString.AppendFormat("Talon += {0} (certain)\n", c);
 			}
+			_verboseString.AppendFormat("Talon: {0} total, {1} certain, {2} uncertain cards\n",
+                totalCards[talonIndex], certainCards[talonIndex].Count(), uncertainCards[talonIndex].Count());
 			ReduceUncertainCardSet(hands, totalCards, uncertainCards);
             //projdeme vsechny nejiste karty a zkusime je rozdelit podle pravdepodobnosti jednotlivym hracum (nebo do talonu)
             foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().OrderByDescending(h => h))
@@ -876,8 +880,8 @@ namespace Mariasek.Engine.New
             }
 
             sb.AppendFormat("\n\nPossible combinations:\t{0}", PossibleCombinations(playerIndex, roundNumber - 1));
-            
-            return sb.ToString();
+
+			return sb.ToString();
         }
     }
 }

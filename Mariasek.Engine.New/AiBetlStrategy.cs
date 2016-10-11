@@ -22,6 +22,22 @@ namespace Mariasek.Engine.New
 
 			Barva? bannedSuit = null;
 
+			if (RoundNumber == 1 && TeamMateIndex == -1)
+			{
+				yield return new AiRule()
+				{
+					Order = 0,
+					Description = "Vytlač jedinou díru v barvě",
+					SkipSimulations = true,
+					ChooseCard1 = () =>
+					{
+						var cardsToPlay = hands[MyIndex].Where(i => i.Value == Hodnota.Sedma && hands[MyIndex].CardCount(i.Suit) == 7);
+
+						return cardsToPlay.ToList().RandomOneOrDefault();
+					}
+				};
+			}
+
 			if (RoundNumber == 2 && _rounds != null && _rounds[0] != null) //pri simulaci hry jsou skutecny kola jeste neodehrany
 			{
 				if (_rounds[0].c1.Suit == _rounds[0].c2.Suit && _rounds[0].c1.Suit == _rounds[0].c3.Suit)

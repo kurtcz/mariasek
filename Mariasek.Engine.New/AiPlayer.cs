@@ -58,20 +58,20 @@ namespace Mariasek.Engine.New
                 RoundsToCompute = 1,
                 CardSelectionStrategy = CardSelectionStrategy.MaxCount,
                 SimulationsPerGameType = 100,
-                MaxSimulationTimeMs = 3000,
+                MaxSimulationTimeMs = 2000,
                 SimulationsPerRound = 250,
-                RuleThreshold = 0.9f,
-                RuleThresholdForGameType = new Dictionary<Hra, float> {{ Hra.Hra, 0.9f }, { Hra.Sedma, 0.9f }, { Hra.Kilo, 0.99f }, { Hra.Betl, 0.9f }, { Hra.Durch, 0.9f }},
+                RuleThreshold = 0.95f,
+                RuleThresholdForGameType = new Dictionary<Hra, float> {{ Hra.Kilo, 0.99f }},
                 GameThresholds = new [] { 0.75f, 0.8f, 0.85f, 0.9f, 0.95f },
                 GameThresholdsForGameType = new Dictionary<Hra, float[]>
                                             {
-                                                { Hra.Hra,        new[] { 0.50f, 0.65f, 0.75f, 0.85f, 0.95f } },
-                                                { Hra.Sedma,      new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
-                                                { Hra.SedmaProti, new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
+                                                { Hra.Hra,        new[] { 0.00f, 0.50f, 0.65f, 0.80f, 0.95f } },
+                                                //{ Hra.Sedma,      new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
+                                                //{ Hra.SedmaProti, new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
                                                 { Hra.Kilo,       new[] { 0.80f, 0.85f, 0.90f, 0.95f, 0.99f } },
                                                 { Hra.KiloProti,  new[] { 0.95f, 0.96f, 0.97f, 0.98f, 0.99f } },
                                                 { Hra.Betl,       new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
-                                                { Hra.Durch,      new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } }
+                                                { Hra.Durch,      new[] { 0.80f, 0.85f, 0.90f, 0.95f, 0.99f } }
                                             },
                 MaxDoubleCount = 5,
                 SigmaMultiplier = 0
@@ -213,9 +213,10 @@ namespace Mariasek.Engine.New
 				return new Tuple<Card, int, int, int>(i, hand.CardCount(i.Suit), holesDelta, holes);
 			}).Where(i => i.Item4 > 0);
 
-			//nejprve vezmi karty od nejkratsich barev (1 karta)
+			//nejprve vezmi karty od nejkratsich barev a alespon stredni hodnoty (1 karta > devitka)
             //radime podle poctu poctu der ktere odstranime sestupne, poctu der celkem sestupne a hodnoty karty sestupne
-			var talon = holesByCard.Where(i => i.Item2 == 1)				//CardCount
+			var talon = holesByCard.Where(i => i.Item2 == 1)// &&			    //CardCount
+			                                   //i.Item1.Value > Hodnota.Devitka)
 			                       .OrderByDescending(i => i.Item3)			//holesDelta
 			                       .ThenByDescending(i => i.Item4)			//holes
 			                       .ThenByDescending(i => i.Item1.BadValue)
@@ -1282,27 +1283,21 @@ namespace Mariasek.Engine.New
 
                 for (var i = 0; i < Game.NumPlayers; i++)
                 {
-                    _log.DebugFormat("{0}'s probabilities for {1}:\n{2}", Name, _g.players[i].Name, Probabilities.FriendlyString(i, _g.RoundNumber));
+					_log.DebugFormat("{0}'s probabilities for {1}:\n{2}", Name, _g.players[i].Name, Probabilities.FriendlyString(i, r.number));
                 }
                 var simulations = (int)Math.Min(Settings.SimulationsPerRound,
                     Math.Max(Probabilities.PossibleCombinations((PlayerIndex + 1) % Game.NumPlayers, r.number),
                              Probabilities.PossibleCombinations((PlayerIndex + 2) % Game.NumPlayers, r.number)));
                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = 0, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Generuju karty"});
-                var source = Probabilities.GenerateHands(_g.RoundNumber, roundStarterIndex, simulations);
+				var source = Probabilities.GenerateHands(r.number, roundStarterIndex, simulations);
                 var progress = 0;
                 var start = DateTime.Now;
-                var prematureEnd = false;
-                var options = new ParallelOptions
-                {
-                    MaxDegreeOfParallelism = 1
-                };
 
                 Parallel.ForEach(source, options, (hands, loopState) =>
                 {
                     ThrowIfCancellationRequested();
                     if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     {
-                        prematureEnd = true;
                         loopState.Stop();
                     }
                     var computationResult = ComputeGame(hands, r.c1, r.c2);
@@ -1965,11 +1960,6 @@ namespace Mariasek.Engine.New
             }
 
             return false;
-        }
-
-        private void RoundFinished(object sender, Round r)
-        {
-            Probabilities.UpdateProbabilities(r.number, r.player1.PlayerIndex, r.c1, r.c2, r.c3, r.hlas3);
         }
     }
 }

@@ -1,43 +1,43 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Hra Kolo="0" Zacina="Hrac2" Voli="Hrac2">
-  <Verze>0.5.6126.38669</Verze>
+<Hra Kolo="0" Zacina="Hrac3" Voli="Hrac3">
+  <Verze>0.5.6127.1423</Verze>
   <Hrac1>
-    <Karta Barva="Cerveny" Hodnota="Desitka" />
-    <Karta Barva="Cerveny" Hodnota="Spodek" />
-    <Karta Barva="Cerveny" Hodnota="Devitka" />
+    <Karta Barva="Cerveny" Hodnota="Eso" />
     <Karta Barva="Cerveny" Hodnota="Sedma" />
+    <Karta Barva="Zeleny" Hodnota="Eso" />
     <Karta Barva="Zeleny" Hodnota="Desitka" />
-    <Karta Barva="Kule" Hodnota="Kral" />
-    <Karta Barva="Kule" Hodnota="Spodek" />
-    <Karta Barva="Kule" Hodnota="Osma" />
-    <Karta Barva="Kule" Hodnota="Sedma" />
+    <Karta Barva="Zeleny" Hodnota="Devitka" />
+    <Karta Barva="Zeleny" Hodnota="Osma" />
+    <Karta Barva="Zeleny" Hodnota="Sedma" />
+    <Karta Barva="Kule" Hodnota="Devitka" />
     <Karta Barva="Zaludy" Hodnota="Svrsek" />
+    <Karta Barva="Zaludy" Hodnota="Devitka" />
   </Hrac1>
   <Hrac2>
     <Karta Barva="Kule" Hodnota="Eso" />
-    <Karta Barva="Zaludy" Hodnota="Eso" />
-    <Karta Barva="Kule" Hodnota="Devitka" />
+    <Karta Barva="Kule" Hodnota="Kral" />
+    <Karta Barva="Kule" Hodnota="Sedma" />
+    <Karta Barva="Cerveny" Hodnota="Desitka" />
+    <Karta Barva="Cerveny" Hodnota="Kral" />
+    <Karta Barva="Cerveny" Hodnota="Svrsek" />
     <Karta Barva="Zaludy" Hodnota="Osma" />
     <Karta Barva="Cerveny" Hodnota="Osma" />
-    <Karta Barva="Zaludy" Hodnota="Sedma" />
-    <Karta Barva="Zaludy" Hodnota="Kral" />
-    <Karta Barva="Cerveny" Hodnota="Kral" />
     <Karta Barva="Zeleny" Hodnota="Svrsek" />
-    <Karta Barva="Cerveny" Hodnota="Svrsek" />
-    <Karta Barva="Zeleny" Hodnota="Osma" />
-    <Karta Barva="Zeleny" Hodnota="Eso" />
+    <Karta Barva="Zaludy" Hodnota="Kral" />
   </Hrac2>
   <Hrac3>
-    <Karta Barva="Zeleny" Hodnota="Kral" />
+    <Karta Barva="Zaludy" Hodnota="Desitka" />
     <Karta Barva="Zeleny" Hodnota="Spodek" />
     <Karta Barva="Zaludy" Hodnota="Spodek" />
-    <Karta Barva="Zaludy" Hodnota="Devitka" />
-    <Karta Barva="Zeleny" Hodnota="Devitka" />
-    <Karta Barva="Zaludy" Hodnota="Desitka" />
-    <Karta Barva="Kule" Hodnota="Svrsek" />
-    <Karta Barva="Cerveny" Hodnota="Eso" />
-    <Karta Barva="Zeleny" Hodnota="Sedma" />
+    <Karta Barva="Zaludy" Hodnota="Eso" />
+    <Karta Barva="Zeleny" Hodnota="Kral" />
+    <Karta Barva="Cerveny" Hodnota="Spodek" />
     <Karta Barva="Kule" Hodnota="Desitka" />
+    <Karta Barva="Kule" Hodnota="Svrsek" />
+    <Karta Barva="Kule" Hodnota="Osma" />
+    <Karta Barva="Kule" Hodnota="Spodek" />
+    <Karta Barva="Zaludy" Hodnota="Sedma" />
+    <Karta Barva="Cerveny" Hodnota="Devitka" />
   </Hrac3>
   <Talon />
   <Stychy />

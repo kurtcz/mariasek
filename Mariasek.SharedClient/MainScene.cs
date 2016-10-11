@@ -460,7 +460,7 @@ namespace Mariasek.SharedClient
             };
 			_hand = new GameComponents.Hand(this, new Card[0])
 			{
-				Centre = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight - 60),
+				Centre = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight - 65),
 				ZIndex = 50,
 				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Main : AnchorType.Bottom
 			};
