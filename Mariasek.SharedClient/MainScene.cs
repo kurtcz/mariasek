@@ -78,7 +78,6 @@ namespace Mariasek.SharedClient
 		private TextBox[] _bubbles;
 		private int _bubbleSemaphore;
 		private bool[] _bubbleAutoHide;
-		private bool _reinitializeNeeded;
 
         #pragma warning restore 414
         #endregion
@@ -702,23 +701,12 @@ namespace Mariasek.SharedClient
             kiloBtn.Hide();
         }
 
-		public void Reinitialize()
-		{
-			DisposeChildren();
-			Initialize();
-		}
-
         public void NewGameBtnClicked(object sender)
         {
             CancelRunningTask();
 			_trumpLabel1.Hide();
 			_trumpLabel2.Hide();
 			_trumpLabel3.Hide();
-			if (_reinitializeNeeded)
-			{
-				Reinitialize();
-				_reinitializeNeeded = false;
-			}
             _gameTask = Task.Run(() => {
                 if (File.Exists(_errorFilePath))
                 {
@@ -1702,12 +1690,22 @@ namespace Mariasek.SharedClient
             }
         }
 
+		private void UpdateCardTextures(GameComponent parent, Texture2D oldTexture, Texture2D newTexture)
+		{
+			var sprite = parent as Sprite;
+
+			if (sprite != null && sprite.Texture == oldTexture)
+			{
+				sprite.Texture = newTexture;
+			}
+			foreach (var child in parent.ChildElements)
+			{
+				UpdateCardTextures(child, oldTexture, newTexture);
+			}
+		}
+
         public void SettingsChanged(object sender, SettingsChangedEventArgs e)
         {
-			if (_settings != null && _settings.CardDesign != e.Settings.CardDesign)
-			{
-				_reinitializeNeeded = true;
-			}
             _settings = e.Settings;
             if (_progress1 != null)
             {
@@ -1733,6 +1731,15 @@ namespace Mariasek.SharedClient
             }
             SortHand(null);
             SoundEffect.MasterVolume = _settings.SoundEnabled ? 1f : 0f;
+
+			var oldTextures = Game.CardTextures;
+			var newTextures = _settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
+
+			if (oldTextures != newTextures)
+			{
+				UpdateCardTextures(this, oldTextures, newTextures);
+				Game.CardTextures = newTextures;
+			}
         }
 
         public void SuggestTrump(Card trumpCard)

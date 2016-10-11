@@ -67,15 +67,10 @@ namespace Mariasek.SharedClient.GameComponents
             get { return _isMoving; } 
             private set { _isMoving = value; } 
         }
-
         private Texture2D _spriteTexture;
-        //private Vector2 _position;
-        private Vector2 _scale;
+		private Vector2 _scale;
         private float _rotationAngle;
-        //private DateTime? _waitEnd;
         private Rectangle _spriteRectangle;
-
-        //private ConcurrentQueue<SpriteOperation> _transformations = new ConcurrentQueue<SpriteOperation>();
 
         //TODO: Call parent constructor
         public Sprite(GameComponent parent, Texture2D texture, Rectangle? spriteRectangle = null, Vector2? rotationOrigin = null)
@@ -84,13 +79,13 @@ namespace Mariasek.SharedClient.GameComponents
             Init(texture, spriteRectangle, rotationOrigin);
         }
 
-        public Sprite(GameComponent parent, ContentManager content, string name)
-            : base(parent)
-        {
-            _spriteTexture = content.Load<Texture2D>(name);
-            Name = name;
-            Init(_spriteTexture);
-        }
+        //public Sprite(GameComponent parent, ContentManager content, string name)
+        //    : base(parent)
+        //{
+        //    _spriteTexture = content.Load<Texture2D>(name);
+        //    Name = name;
+        //    Init(_spriteTexture);
+        //}
 
         private void Init(Texture2D texture, Rectangle? spriteRectangle = null, Vector2? rotationOrigin = null)
         {

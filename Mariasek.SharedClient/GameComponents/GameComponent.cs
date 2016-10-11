@@ -15,6 +15,7 @@ namespace Mariasek.SharedClient
 		private bool _disposed;
         protected new MariasekMonoGame Game;
         protected List<GameComponent> Children = new List<GameComponent>();
+		public IReadOnlyCollection<GameComponent> ChildElements { get { return Children; } }
         protected ConcurrentQueue<GameComponentOperation> ScheduledOperations = new ConcurrentQueue<GameComponentOperation>();
         protected class GameComponentOperation
         {

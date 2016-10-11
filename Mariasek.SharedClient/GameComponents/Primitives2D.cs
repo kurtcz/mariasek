@@ -403,7 +403,7 @@ namespace Mariasek.SharedClient.GameComponents
 
         public static void DrawLine(this SpriteBatch spriteBatch, Vector2 point, float length, float angle, Color color, float thickness, float opacity)
 		{
-			if (pixel == null)
+			if (pixel == null || pixel.IsDisposed)
 			{
 				CreateThePixel(spriteBatch);
 			}
