@@ -53,7 +53,7 @@ namespace Mariasek.Engine.New
         public List<Card> talon { get; private set; }
         public Round[] rounds { get; private set; }
         public Round CurrentRound { get { return RoundNumber > 0  && RoundNumber <= 10 ? rounds[RoundNumber - 1] : null; } }
-        public int RoundNumber { get; private set; }
+		public int RoundNumber { get; private set; }
         public Bidding Bidding { get; private set; }
         public string Author { get; set; }
 #if !PORTABLE
@@ -64,6 +64,7 @@ namespace Mariasek.Engine.New
 		public Func<Version> GetVersion { get; set; }
 #endif
         public string Comment { get; set; }
+		public StringBuilder DebugString { get; private set; }
 
         #endregion
 
@@ -174,6 +175,7 @@ namespace Mariasek.Engine.New
         {
             BaseBet = 1f;
             BiddingDebugInfo = new StringBuilder();
+			DebugString = new StringBuilder();
 #if PORTABLE
             GetFileStream = _ => new MemoryStream(); //dummy stream factory
 #endif
@@ -425,6 +427,8 @@ namespace Mariasek.Engine.New
         public void SaveGame(Stream fileStream, bool saveDebugInfo = false)
         {
             var startingPlayerIndex = GameStartingPlayerIndex;
+			var roundNumber = RoundNumber;
+
             if(CurrentRound != null)
             {
                 if (CurrentRound.roundWinner == null)
@@ -440,7 +444,7 @@ namespace Mariasek.Engine.New
                     {
                         CurrentRound.player2.Hand.Add(CurrentRound.c2);
                     }
-                    RoundNumber--;
+                    roundNumber--;
                 }
                 else
                 {
@@ -449,10 +453,10 @@ namespace Mariasek.Engine.New
             }
             var gameDto = new GameDto
             {
-                Kolo = CurrentRound != null ? RoundNumber + 1 : 0,
+                Kolo = CurrentRound != null ? roundNumber + 1 : 0,
                 Voli = (Hrac) GameStartingPlayerIndex,
-                Trumf = RoundNumber > 0 ? trump : null,
-                Typ = RoundNumber > 0 ? (Hra?) GameType : null,
+                Trumf = roundNumber > 0 ? trump : null,
+                Typ = roundNumber > 0 ? (Hra?) GameType : null,
                 Zacina = (Hrac) startingPlayerIndex,
                 Autor = Author,
                 Verze = Version.ToString(),
@@ -581,11 +585,13 @@ namespace Mariasek.Engine.New
                         for (; RoundNumber <= NumRounds; RoundNumber++)
                         {
                             var r = new Round(this, roundWinner);
-                            OnRoundStarted(r);
+							DebugString.AppendFormat("Starting round {0}\n", RoundNumber);
+							OnRoundStarted(r);
 
                             rounds[RoundNumber - 1] = r;
                             roundWinner = r.PlayRound();
 
+							DebugString.AppendFormat("Finished round {0}\n", RoundNumber);
                             OnRoundFinished(r);
                             if(IsGameOver(r))
                             {

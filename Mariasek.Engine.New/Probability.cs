@@ -33,6 +33,7 @@ namespace Mariasek.Engine.New
         private List<Card> _myTalon;
         private StringBuilder _debugString;
 		private StringBuilder _verboseString;
+		public StringBuilder ExternalDebugString;
         private readonly List<int> _gameBidders;
         private int _sevenIndex;
 
@@ -48,6 +49,7 @@ namespace Mariasek.Engine.New
             _myTalon = talon;
             _debugString = new StringBuilder();
 			_verboseString = new StringBuilder();
+			ExternalDebugString = new StringBuilder();
 			_debugString.AppendFormat("ctor\nhand:\n{0}\ntalon:\n{1}", 
 				_myHand, _talon != null ? _talon.Any() ? string.Format("{0} {1}", _talon[0], _talon[1]) : "empty" : "null");
             var GenerateTalonProbabilities = talon == null;
@@ -596,8 +598,8 @@ namespace Mariasek.Engine.New
                         _myIndex+1, i < Game.NumPlayers ? string.Format("Player{0}", i+1) : "talon", FriendlyString(i, roundNumber));
                 }
 
-				throw new InvalidOperationException(string.Format("Badly generated hands for player {0}, round {1}:{2}\n{3}\nGenerovani:\n{4}\nHistorie:\n{5}\n", 
-					_myIndex + 1, roundNumber, sb.ToString(), friendlyString.ToString(), _verboseString.ToString(), _debugString.ToString()));
+				throw new InvalidOperationException(string.Format("Badly generated hands for player {0}, round {1}:{2}\n{3}\nGenerovani:\n{4}\nHistorie:\n{5}\nExterni:\n{6}\n", 
+                              _myIndex + 1, roundNumber, sb.ToString(), friendlyString.ToString(), _verboseString.ToString(), _debugString.ToString(), ExternalDebugString.ToString()));
             }
             _log.DebugFormat("Finished generating hands for player{0}\n{1}", _myIndex + 1, sb.ToString());
 			_verboseString.Append("GenerateHands <- Exit\n");

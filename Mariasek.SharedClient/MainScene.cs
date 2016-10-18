@@ -132,101 +132,116 @@ namespace Mariasek.SharedClient
 			Game.CardTextures = _settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
 			_aiConfig = new Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection();
 
-            _aiConfig.Add("AiCheating", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "AiCheating",
-                    Value = "false"
-                });
-            _aiConfig.Add("RoundsToCompute", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "RoundsToCompute",
-                    Value = "1"
-                });
-            _aiConfig.Add("CardSelectionStrategy", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "CardSelectionStrategy",
-                    Value = "MaxCount"
-                });
-            _aiConfig.Add("SimulationsPerGameType", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "SimulationsPerGameType",
-                    Value = "1000"
-                });
-            _aiConfig.Add("SimulationsPerGameTypePerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "SimulationsPerGameTypePerSecond",
-                    Value = _settings.GameTypeSimulationsPerSecond.ToString()
-                });
-            _aiConfig.Add("MaxSimulationTimeMs", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "MaxSimulationTimeMs",
-                    Value = _settings.ThinkingTimeMs.ToString()
-                });
-            _aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "SimulationsPerRound",
-                    Value = "1000"
-                });
-            _aiConfig.Add("SimulationsPerRoundPerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "SimulationsPerRoundPerSecond",
-                    Value = _settings.RoundSimulationsPerSecond.ToString()
-                });
-            _aiConfig.Add("RuleThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "RuleThreshold",
-                    Value = "95"
-                });
-            _aiConfig.Add("RuleThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "RuleThreshold.Kilo",
-                    Value = "99"
-                });
-            _aiConfig.Add("GameThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "GameThreshold",
-                    Value = "75|80|85|90|95"
-                });
-            _aiConfig.Add("GameThreshold.Hra", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "GameThreshold.Hra",
-                    Value = "0|50|65|80|95"
-                });
-            _aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "GameThreshold.Kilo",
-                    Value = "80|85|90|95|99"
-                });
-            _aiConfig.Add("GameThreshold.KiloProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "GameThreshold.KiloProti",
-                    Value = "90|95|97|98|99"
-                });
-            _aiConfig.Add("GameThreshold.Betl", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "GameThreshold.Betl",
-					Value = "75|80|85|90|95"
-                });
-            _aiConfig.Add("GameThreshold.Durch", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "GameThreshold.Durch",
-                    Value = "80|85|90|95|99"
-                });
-            _aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "MaxDoubleCount",
-                    Value = "5"
-                });
-            _aiConfig.Add("SigmaMultiplier", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "SigmaMultiplier",
-                    Value = "0"
-                });
-            _aiConfig.Add("BaseBet", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-                {
-                    Name = "BaseBet",
-                    Value = "1"
-                });
+			_aiConfig.Add("AiCheating", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "AiCheating",
+				Value = "false"
+			});
+			_aiConfig.Add("RoundsToCompute", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "RoundsToCompute",
+				Value = "1"
+			});
+			_aiConfig.Add("CardSelectionStrategy", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "CardSelectionStrategy",
+				Value = "MaxCount"
+			});
+			_aiConfig.Add("SimulationsPerGameType", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "SimulationsPerGameType",
+				Value = "250"
+			});
+			_aiConfig.Add("SimulationsPerGameTypePerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "SimulationsPerGameTypePerSecond",
+				Value = _settings.GameTypeSimulationsPerSecond.ToString()
+			});
+			_aiConfig.Add("MaxSimulationTimeMs", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "MaxSimulationTimeMs",
+				Value = _settings.ThinkingTimeMs.ToString()
+			});
+			_aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "SimulationsPerRound",
+				Value = "250"
+			});
+			_aiConfig.Add("SimulationsPerRoundPerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "SimulationsPerRoundPerSecond",
+				Value = _settings.RoundSimulationsPerSecond.ToString()
+			});
+			_aiConfig.Add("RuleThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "RuleThreshold",
+				Value = "95"
+			});
+			_aiConfig.Add("RuleThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "RuleThreshold.Kilo",
+				Value = "99"
+			});
+			_aiConfig.Add("GameThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "GameThreshold",
+				Value = "75|80|85|90|95"
+			});
+			_aiConfig.Add("GameThreshold.Hra", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "GameThreshold.Hra",
+				Value = "0|55|65|80|95"
+			});
+			_aiConfig.Add("GameThreshold.Sedma", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "GameThreshold.Betl",
+				Value = "70|80|85|90|95"
+			});
+			_aiConfig.Add("GameThreshold.SedmaProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "GameThreshold.Betl",
+				Value = "70|80|85|90|95"
+			});
+			_aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "GameThreshold.Kilo",
+				Value = "80|85|90|95|99"
+			});
+			_aiConfig.Add("GameThreshold.KiloProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "GameThreshold.KiloProti",
+				Value = "90|95|97|98|99"
+			});
+			//_aiConfig.Add("GameThreshold.Betl", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			//{
+			//    Name = "GameThreshold.Betl",
+			//    Value = "75|80|85|90|95"
+			//});
+			_aiConfig.Add("GameThreshold.Durch", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "GameThreshold.Durch",
+				Value = "80|85|90|95|99"
+			});
+			_aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "MaxDoubleCount",
+				Value = "5"
+			});
+			_aiConfig.Add("SigmaMultiplier", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "SigmaMultiplier",
+				Value = "0"
+			});
+			_aiConfig.Add("BaseBet", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "BaseBet",
+				Value = "1"
+			});
+			_aiConfig.Add("GameFlavourSelectionStrategy", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "GameFlavourSelectionStrategy",
+				Value = "Fast"
+			});
             
             _synchronizationContext = SynchronizationContext.Current;
             _hlasy = new []
@@ -1095,7 +1110,12 @@ namespace Mariasek.SharedClient
             }
             _state = GameState.NotPlaying;
             _gameFlavourChosen = (GameFlavour)(sender as Button).Tag;
-            _evt.Set();
+			if (_gameFlavourChosen == GameFlavour.Bad)
+			{
+				SortHand(null); //presusporadame karty
+				UpdateHand();
+			}
+			_evt.Set();
         }
 
         public void BidButtonClicked(object sender)
@@ -1309,6 +1329,8 @@ namespace Mariasek.SharedClient
                         //protihrac z ruky zavolil betl nebo durch
                         //var str = _gameFlavourChosenEventArgs.Flavour == GameFlavour.Good ? "Dobrá" : "Špatná";
                         //ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, str);
+						SortHand(null); //preusporadame karty
+						UpdateHand();
                     }
                 }
                 else
@@ -1321,6 +1343,8 @@ namespace Mariasek.SharedClient
                     else
                     {
                         _trumpCardChosen = null;
+						SortHand(null); //preusporadame karty
+						UpdateHand();
                     }
                 }
 				//UpdateHand(cardToHide: _trumpCardChosen);
@@ -1333,12 +1357,14 @@ namespace Mariasek.SharedClient
 				{
 					ShowThinkingMessage((e.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
 				}
-				if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Bad &&
-				    e.Player.PlayerIndex != 0 &&
-				    g.OriginalGameStartingPlayerIndex == 0)
+				if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Bad) 
 				{
-					_hlasy[0][0].Hide();
-					UpdateHand(); //abych vratil trumfovou kartu zpet do ruky
+					SortHand(null); //preusporadame karty
+					if (e.Player.PlayerIndex != 0 && g.OriginalGameStartingPlayerIndex == 0)
+					{
+						_hlasy[0][0].Hide();
+						UpdateHand(); //abych vratil trumfovou kartu zpet do ruky
+					}
 				}
 			}
             _firstTimeGameFlavourChosen = false;
@@ -1357,7 +1383,7 @@ namespace Mariasek.SharedClient
                     {
 						_trumpLabels[i].Text = g.players[i].Name;
                     }
-                    _trumpLabels[e.GameStartingPlayerIndex].Text = string.Format("{0}: {1}", g.players[e.GameStartingPlayerIndex].Name, g.GameType.ToDescription(g.trump));
+					_trumpLabels[e.GameStartingPlayerIndex].Text = string.Format("{0}: {1}", g.players[e.GameStartingPlayerIndex].Name, g.GameType.ToDescription(g.trump));
 					if(e.TrumpCard != null)
                     {
                         imgs[e.GameStartingPlayerIndex].Sprite.SpriteRectangle = e.TrumpCard.ToTextureRect();
@@ -1742,7 +1768,7 @@ namespace Mariasek.SharedClient
 			}
         }
 
-        public void SuggestTrump(Card trumpCard)
+        public void SuggestTrump(Card trumpCard, int? t = null)
         {
 			_progress1.Progress = _progress1.Max;
             if (_settings.HintEnabled)
@@ -1750,13 +1776,15 @@ namespace Mariasek.SharedClient
                 _hintBtn.IsEnabled = true;
 				HintBtnFunc = () =>
 				{
+					var msg = string.Format("{0} {1}ms", trumpCard, t);
+
 					_hand.HighlightCard(trumpCard);
-					ShowMsgLabel(trumpCard.ToString(), false); //Docasne, zjistit kdy radi kartu kterou jsem nemohl videt
+					ShowMsgLabel(msg, false); //Docasne, zjistit kdy radi kartu kterou jsem nemohl videt
 				}; 
 			}
         }
 
-        public void SuggestTalon(List<Card> talon)
+        public void SuggestTalon(List<Card> talon, int? t = null)
         {
 			_progress1.Progress = _progress1.Max;
             if (_settings.HintEnabled)
@@ -1766,32 +1794,33 @@ namespace Mariasek.SharedClient
                 {
                     _hand.HighlightCard(talon[0]);
                     _hand.HighlightCard(talon[1]);
+					ShowMsgLabel(string.Format("{0}ms", t), false);
                 };
             }
         }
 
-        public void SuggestGameFlavour(string flavour)
+        public void SuggestGameFlavour(string flavour, int? t = null)
         {
 			_progress1.Progress = _progress1.Max;
             if (_settings.HintEnabled)
             {
                 _hintBtn.IsEnabled = true;
-                HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", flavour), false);
+                HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0} {1}ms", flavour, t), false);
             }
         }
 
-        public void SuggestGameType(string gameType)
+        public void SuggestGameType(string gameType, int? t = null)
         {
 			_progress1.Progress = _progress1.Max;
             _hintBtn.IsEnabled = true;
-            HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", gameType), false);
+            HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0} {1}ms", gameType, t), false);
         }
 
 		public void SuggestGameTypeNew(Hra gameType)
 		{
 			foreach (var gtButton in gtButtons)
 			{
-				if ((gameType & (Hra)gtButton.Tag) != 0)
+				if ((gameType & (Hra)gtButton.Tag) == (Hra)gtButton.Tag)
 				{
 					gtButton.BorderColor = Color.Green;
 				}
@@ -1808,14 +1837,14 @@ namespace Mariasek.SharedClient
 			gfSpatnaButton.BorderColor = (gameType & (Hra.Betl | Hra.Durch)) != 0 ? Color.Green : Color.White;
 		}
 
-		public void SuggestBidsAndDoubles(string bid)
+		public void SuggestBidsAndDoubles(string bid, int? t = null)
         {
 			_progress1.Progress = _progress1.Max;
             _hintBtn.IsEnabled = true;
-            HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", bid), false);
+            HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0} {1}ms", bid, t), false);
         }
 
-        public void SuggestCardToPlay(Card cardToPlay, string hint)
+        public void SuggestCardToPlay(Card cardToPlay, string hint, int? t = null)
         {
 			_progress1.Progress = _progress1.Max;
             _hintBtn.IsEnabled = true;
@@ -1824,7 +1853,7 @@ namespace Mariasek.SharedClient
                 ShowMsgLabel(hint, false);
                 if (!_hand.HighlightCard(cardToPlay))
                 {
-                    var msg = string.Format("Chyba simulace: hráč nemá {0}", cardToPlay);
+                    var msg = string.Format("Chyba simulace: hráč nemá {0} {1}ms", cardToPlay, t);
                     ShowMsgLabel(msg, false);
                 }
             };

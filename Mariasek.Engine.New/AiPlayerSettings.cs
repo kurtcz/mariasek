@@ -18,6 +18,12 @@ namespace Mariasek.Engine.New
         AverageScore = 2
     }
 
+	public enum GameFlavourSelectionStrategy
+	{
+		Standard = 0,
+		Fast = 1
+	}
+
     public class AiPlayerSettings
     {
         public bool Cheat { get; set; }
@@ -34,6 +40,7 @@ namespace Mariasek.Engine.New
         public Dictionary<Hra, float[]> GameThresholdsForGameType { get; set; }
         public int MaxDoubleCount { get; set; }
         public int SigmaMultiplier { get; set; }
+		public GameFlavourSelectionStrategy GameFlavourSelectionStrategy { get; set; }
 
 #if !PORTABLE
         public override string ToString()

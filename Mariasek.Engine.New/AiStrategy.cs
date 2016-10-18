@@ -518,7 +518,7 @@ namespace Mariasek.Engine.New
                                 }
                                 if (!muzuVytlacitTrumf)
                                 {
-                                    cardsToPlay = hands[MyIndex].Where(i => i.Suit == _trump && i.Value != Hodnota.Sedma);
+									cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && i.Value != Hodnota.Sedma);
                                 }
 
                                 return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
@@ -703,10 +703,10 @@ namespace Mariasek.Engine.New
                         if (count > maxCount)
                         {
                             cardsToPlay.Clear();
-                            cardsToPlay = new List<Card>
-                                                    {
-                                                        ValidCards(hands[MyIndex]).First(i => i.Suit == barva && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka)
-                                                    };
+							cardsToPlay = new List<Card>
+													{
+														ValidCards(hands[MyIndex]).First(i => i.Suit == barva && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka)
+													};
                             maxCount = count;
                         }
                         else if (count == maxCount && count > 0)
