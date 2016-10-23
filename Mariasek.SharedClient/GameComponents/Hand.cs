@@ -187,7 +187,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
-        private void CardClicked(object sender)
+		private void CardClicked(object sender)
         {
             Card = (Card)(sender as SpriteButton).Tag;
             if (Click != null)
@@ -215,7 +215,23 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
-        public void ShowArc(float arcAngle)
+		public void AllowDragging()
+		{
+			foreach (var sprite in _sprites.Where(i => i != null))
+			{
+				sprite.CanDrag = true;
+			}
+		}
+
+		public void ForbidDragging()
+		{
+			foreach (var sprite in _sprites.Where(i => i != null))
+			{
+				sprite.CanDrag = false;
+			}
+		}
+
+		public void ShowArc(float arcAngle)
         {
             var hh = _sprites.Where(i => i != null && i.IsVisible).ToList();
             float angle0 = (float)Math.PI / 2;

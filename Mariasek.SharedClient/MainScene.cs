@@ -1147,15 +1147,17 @@ namespace Mariasek.SharedClient
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = true;
             _hintBtn.IsEnabled = false;
-            _synchronizationContext.Send(_ =>
-                {
-                    ShowMsgLabel("Vyber trumfovou kartu", false);
-                    _state = GameState.ChooseTrump;
-                    _hand.Show();
-                    UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
-                }, null);
+			_synchronizationContext.Send(_ =>
+				{
+					ShowMsgLabel("Vyber trumfovou kartu", false);
+					_state = GameState.ChooseTrump;
+					_hand.Show();
+					UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
+					_hand.AllowDragging();
+				}, null);
             WaitForUIThread();
             _hintBtn.IsEnabled = false;
+			_hand.ForbidDragging();
             return _cardClicked;
         }
 
@@ -1245,10 +1247,6 @@ namespace Mariasek.SharedClient
         {
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = false;
-            //_synchronizationContext.Send(_ =>
-            //    {
-            //        UpdateHand();
-            //    }, null);
             _hand.AnimationEvent.Wait();
             _synchronizationContext.Send(_ =>
                 {
@@ -1296,9 +1294,11 @@ namespace Mariasek.SharedClient
                     }
                     _cardsPlayed[0].Hide();
                     UpdateHand();
+					_hand.AllowDragging();
                 }, null);
             WaitForUIThread();
             _hintBtn.IsEnabled = false;
+			_hand.ForbidDragging();
             return _cardClicked;
         }
 

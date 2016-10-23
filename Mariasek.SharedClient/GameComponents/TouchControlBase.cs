@@ -22,9 +22,9 @@ namespace Mariasek.SharedClient.GameComponents
         private const float maxClickTimeMs = 500;
         private float _touchHeldTimeMs;
         private bool _touchHeldConsumed;
+		private static TouchControlBase _draggedObject;
 
         protected int TouchId = -1;
-        private bool _touchHeld;
 
         public bool IsClicked { get; private set; }
         public SoundEffect ClickSound { get; set; }
@@ -149,7 +149,7 @@ namespace Mariasek.SharedClient.GameComponents
 			                                                                                                (i.Position.Y - ScaleMatrix.M42) / ScaleMatrix.M22)));
 
             IsClicked = false;
-            if (_touchHeld)
+			if (TouchId != -1)	//if touch held
             {
                 _touchHeldTimeMs += (float) gameTime.ElapsedGameTime.TotalMilliseconds;
             }
@@ -157,46 +157,48 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 if (CollidesWithPosition(tl.Position))
                 {
-                    if (tl.State == TouchLocationState.Pressed || tl.State == TouchLocationState.Moved)
+					if (_draggedObject == null && (tl.State == TouchLocationState.Pressed || tl.State == TouchLocationState.Moved))
                     {
-                        if (!_touchHeld)
-                        {
-                            _touchHeldTimeMs = 0;
-                            TouchId = tl.Id;
-                            OnTouchDown(tl);
-                        }
-                        _touchHeld = true;
-                        if (!_touchHeldConsumed)
-                        {
-                            _touchHeldConsumed = OnTouchHeld(_touchHeldTimeMs, tl);
-                        }
+						if (TouchId == -1)	//first time down
+						{
+							_draggedObject = this;
+							_touchHeldTimeMs = 0;
+							TouchId = tl.Id;
+							OnTouchDown(tl);
+						}
+						if (!_touchHeldConsumed)
+						{
+							_touchHeldConsumed = OnTouchHeld(_touchHeldTimeMs, tl);
+						}
                     }
                     else if (tl.Id == TouchId && tl.State == TouchLocationState.Released)
                     {
-                        _touchHeld = false;
+						_draggedObject = null;
                         _touchHeldConsumed = false;
-                        TouchId = -1;
-                        OnTouchUp(tl);
-                        IsClicked = _touchHeldTimeMs <= maxClickTimeMs;
-                        if (IsClicked)
-                        {
-                            OnClick();
-                        }
+						TouchId = -1;
+
+						OnTouchUp(tl);
+
+						IsClicked = _touchHeldTimeMs <= maxClickTimeMs;
+						if (IsClicked)
+						{
+							OnClick();
+						}
                     }
                 }
                 else if (tl.Id == TouchId && tl.State == TouchLocationState.Moved)
                 {
-                    if (!_touchHeldConsumed)
-                    {
-                        _touchHeldConsumed = OnTouchHeld(_touchHeldTimeMs, tl);
-                    }
+					if (!_touchHeldConsumed)
+					{
+						_touchHeldConsumed = OnTouchHeld(_touchHeldTimeMs, tl);
+					}
                 }
                 else if (tl.Id == TouchId && tl.State == TouchLocationState.Released)
                 {
-                    _touchHeld = false;
-                    _touchHeldConsumed = false;
-                    TouchId = -1;
-                    OnTouchUp(tl);
+					_draggedObject = null;
+					_touchHeldConsumed = false;
+					TouchId = -1;
+					OnTouchUp(tl);
                 }
                 else
                 {

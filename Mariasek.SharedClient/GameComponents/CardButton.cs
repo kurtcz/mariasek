@@ -18,8 +18,11 @@ namespace Mariasek.SharedClient.GameComponents
     {
         private Sprite _reverseSprite;
         private bool _doneFlipping = true;
+		private Vector2 _origPosition;
+		private Vector2 _origTouchLocation;
+		private const int MinimalDragDistance = 100;
 
-        private bool _isSelected;
+		private bool _isSelected;
         public bool IsSelected
         { 
             get { return _isSelected; } 
@@ -49,6 +52,8 @@ namespace Mariasek.SharedClient.GameComponents
             _reverseSprite = new Sprite(this, Game.ReverseTexture) { Name = "Backsprite", Position = Position, Scale = Game.CardScaleFactor };
             _reverseSprite.Hide();
         }
+
+		public bool CanDrag { get; set; }
 
         public override Vector2 Position
         {
@@ -200,13 +205,37 @@ namespace Mariasek.SharedClient.GameComponents
 
         protected override void OnTouchDown(TouchLocation tl)
         {
-            base.OnTouchDown(tl);
+			_origPosition = Position;
+			_origTouchLocation = tl.Position;
+			System.Diagnostics.Debug.WriteLine(string.Format("{0}: DOWN state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position));
         }
 
-        protected override void OnTouchUp(TouchLocation tl)
+        protected override bool OnTouchHeld(float touchHeldTimeMs, TouchLocation tl)
         {
-            base.OnTouchUp(tl);
+			System.Diagnostics.Debug.WriteLine(string.Format("{0}: HELD state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position));
+			if (CanDrag)
+			{
+				Position = new Vector2(_origPosition.X + tl.Position.X - _origTouchLocation.X, _origPosition.Y + tl.Position.Y - _origTouchLocation.Y);
+			}
+            
+			return !CanDrag;
         }
+
+		protected override void OnTouchUp(TouchLocation tl)
+		{
+			System.Diagnostics.Debug.WriteLine(string.Format("{0}: UP state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position));
+			if (CanDrag)
+			{
+				if (Vector2.Distance(tl.Position, _origTouchLocation) >= MinimalDragDistance)
+				{
+					OnClick();
+				}
+				else
+				{
+					Position = _origPosition;
+				}
+			}
+		}
 
         protected override void OnClick()
         {

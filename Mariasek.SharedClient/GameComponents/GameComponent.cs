@@ -37,7 +37,28 @@ namespace Mariasek.SharedClient
 
         public string Name { get; set; }
         public virtual bool IsEnabled { get; set; }
-        public bool IsVisible { get; private set; }
+		private bool _isVisible;
+        public bool IsVisible
+		{
+			get
+			{
+				//if any of the parents are not visible then the child is also not visible, but will retain its own state
+				var current = this;
+
+				for (; current.Parent != null; current = current.Parent)
+				{
+					if (current._isVisible == false)
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+			private set
+			{
+				_isVisible = value;
+			}
+		}
         public GameComponent Parent
         { 
             get { return _parent; }
