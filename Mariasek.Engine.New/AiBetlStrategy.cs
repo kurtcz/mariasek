@@ -90,6 +90,16 @@ namespace Mariasek.Engine.New
                                                     Round.WinningCard(i, j, k, null) == j)));
                     }
 
+					if (RoundNumber == 2 && _rounds != null && _rounds[0] != null) //pri simulaci hry jsou skutecny kola jeste neodehrany
+					{
+						//zahrat viteznou kartu v 2. kole (kolega asi nezna barvu voliciho hrace z prvniho kola)
+						var winner = cardsToPlay.FirstOrDefault(i => i.Suit == _rounds[0].c1.Suit);
+
+						if (winner != null)
+						{
+							return winner;
+						}
+					}
                     return cardsToPlay.ToList().RandomOneOrDefault();
                 }
             };
