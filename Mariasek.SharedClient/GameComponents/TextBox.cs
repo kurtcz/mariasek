@@ -179,38 +179,30 @@ namespace Mariasek.SharedClient.GameComponents
         /// </summary>
         void UpdateVerticalScrollbar()
         {
-            if (Height >= BoundsRect.Height)
-            {
-                _minVerticalScrollOffset = 0;
-                _maxVerticalScrollOffset = 0;
-            }
-            switch (VerticalAlign)
-            {
-                case VerticalAlignment.Top:
-                    if (Height < BoundsRect.Height)
-                    {
-                        _minVerticalScrollOffset = Height - BoundsRect.Height;
-                        _maxVerticalScrollOffset = 0;
-                    }
-                    VerticalScrollOffset = 0;
-                    break;
-                case VerticalAlignment.Middle:
-                    if (Height < BoundsRect.Height)
-                    {
-                        _minVerticalScrollOffset = Height - BoundsRect.Height / 2;
-                        _maxVerticalScrollOffset = BoundsRect.Height / 2;
-                    }
-                    VerticalScrollOffset = Height / 2;
-                    break;
-                case VerticalAlignment.Bottom:
-                    if (Height < BoundsRect.Height)
-                    {
-                        _minVerticalScrollOffset = Height;
-                        _maxVerticalScrollOffset = BoundsRect.Height;
-                    }
-                    VerticalScrollOffset = Height;
-                    break;
-            }
+			if (Height >= BoundsRect.Height)
+			{
+				_minVerticalScrollOffset = 0;
+				_maxVerticalScrollOffset = 0;
+			}
+			else
+			{
+				switch (VerticalAlign)
+				{
+					case VerticalAlignment.Top:
+						_minVerticalScrollOffset = Height - BoundsRect.Height;
+						_maxVerticalScrollOffset = 0;
+						break;
+					case VerticalAlignment.Middle:
+						_minVerticalScrollOffset = (Height - BoundsRect.Height) / 2;
+						_maxVerticalScrollOffset = (BoundsRect.Height - Height) / 2;
+						break;
+					case VerticalAlignment.Bottom:
+						_minVerticalScrollOffset = 0;
+						_maxVerticalScrollOffset = BoundsRect.Height - Height;
+						break;
+				}
+			}
+			VerticalScrollOffset = 0;
             UpdateVerticalScrollbarPosition();
         }
 
@@ -247,6 +239,15 @@ namespace Mariasek.SharedClient.GameComponents
                 }
                 _scrollBarPosition.X = Position.X + Width - _scrollBarWidth;
                 _scrollBarPosition.Y = Position.Y - VerticalScrollOffset * (Height - _scrollBarHeight) / (BoundsRect.Height - Height);
+				switch (VerticalAlign)
+				{
+					case VerticalAlignment.Middle:
+						_scrollBarPosition.Y += (Height - _scrollBarHeight) / 2;
+						break;
+					case VerticalAlignment.Bottom:
+						_scrollBarPosition.Y += (Height - _scrollBarHeight);
+						break;
+				}
             }
             else if(_scrollBarTexture != null)
             {
@@ -264,11 +265,13 @@ namespace Mariasek.SharedClient.GameComponents
         {
             _touchDownLocation = tl;
             _touchHeldLocation = tl;
+			System.Diagnostics.Debug.WriteLine("Down: {0} BR: {1} VO: {2}", tl.Position, BoundsRect, VerticalScrollOffset);
         }
 
         void HandleTouchUp (object sender, TouchLocation tl)
         {
             _previoustouchHeldLocation = _touchHeldLocation;
+			System.Diagnostics.Debug.WriteLine("Up: {0} BR: {1} VO: {2}", tl.Position, BoundsRect, VerticalScrollOffset);
         }
 
         bool HandleTouchHeld (object sender, float touchHeldTimeMs, TouchLocation tl)
@@ -277,6 +280,7 @@ namespace Mariasek.SharedClient.GameComponents
 
             _previoustouchHeldLocation = _touchHeldLocation;
             _touchHeldLocation = tl;
+			System.Diagnostics.Debug.WriteLine("Held: {0} BR: {1} VO: {2}", tl.Position, BoundsRect, VerticalScrollOffset);
 
             return handled;
         }
@@ -287,6 +291,10 @@ namespace Mariasek.SharedClient.GameComponents
 
             var distance = _touchHeldLocation.Position.Y - _previoustouchHeldLocation.Position.Y;
             VerticalScrollOffset += (int)distance;
+			if ((int)distance != 0)
+			{
+				System.Diagnostics.Debug.WriteLine("Update: distance: {0} VO: {1}", distance, VerticalScrollOffset);
+			}
         }
 
         public override void Draw(GameTime gameTime)
@@ -294,30 +302,30 @@ namespace Mariasek.SharedClient.GameComponents
             if (Anchor == Game.CurrentRenderingGroup &&
 			    IsVisible)
             {
-                var position = Position;
+				var textPosition = Position;
 
-                switch (HorizontalAlign)
-                {
-                    case HorizontalAlignment.Center:
-                        position.X += Width / 2f;
-                        break;
-                    case HorizontalAlignment.Right:
-                        position.X += Width;
-                        break;
-                }
-                switch (VerticalAlign)
-                {
-                    case VerticalAlignment.Middle:
-                        position.Y += Height / 2f;
-                        break;
-                    case VerticalAlignment.Bottom:
-                        position.Y += Height;
-                        break;
-                }
-                position.Y += VerticalScrollOffset;
+	            switch (HorizontalAlign)
+	            {
+	                case HorizontalAlignment.Center:
+	                    textPosition.X += Width / 2f;
+	                    break;
+	                case HorizontalAlignment.Right:
+	                    textPosition.X += Width;
+	                    break;
+	            }
+	            switch (VerticalAlign)
+	            {
+	                case VerticalAlignment.Middle:
+	                    textPosition.Y += Height / 2f;
+	                    break;
+	                case VerticalAlignment.Bottom:
+	                    textPosition.Y += Height;
+	                    break;
+	            }
+				textPosition.Y += VerticalScrollOffset;
 
                 _backgroundShape.Draw(gameTime);
-                DrawTextAtPosition(position);
+                DrawTextAtPosition(textPosition);
 
                 if (_scrollBarTexture != null)
                 {

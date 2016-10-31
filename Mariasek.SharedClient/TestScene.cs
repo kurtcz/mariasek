@@ -1,20 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Threading;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-//using Microsoft.Xna.Framework.GamerServices;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Input.Touch;
-using Microsoft.Xna.Framework.Storage;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Media;
 
 using Mariasek.SharedClient.GameComponents;
 using Mariasek.SharedClient.BmFont;
@@ -35,7 +22,12 @@ namespace Mariasek.SharedClient
         private Button button;
         private SpriteButton spriteButton;
         private SpriteButton spriteButton0;
-        private TextBox box;
+        private TextBox box1;
+		private TextBox box2;
+		private TextBox box3;
+		private TextBox box4;
+		private TextBox box5;
+		private TextBox box6;
         private CardButton cb;
         private bool firstTime = true;
 
@@ -72,11 +64,11 @@ namespace Mariasek.SharedClient
                     new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Cerveny, Mariasek.Engine.New.Hodnota.Kral),
                     new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Cerveny, Mariasek.Engine.New.Hodnota.Svrsek)
             };
-            cb = new CardButton(this, new Sprite(this, Game.CardTextures, cards[0].ToTextureRect()){ Name = "FrontSprite" })
-            {
-                    Name = "cb",
-                    Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f)
-            };
+            //cb = new CardButton(this, new Sprite(this, Game.CardTextures, cards[0].ToTextureRect()){ Name = "FrontSprite" })
+            //{
+            //        Name = "cb",
+            //        Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f)
+            //};
 //            cb.Click += CardButtonClick;
 //            spriteButton0 = new SpriteButton(this,
 //                new Sprite(this, Game.CardTextures)
@@ -99,153 +91,156 @@ namespace Mariasek.SharedClient
 //                    Position = new Vector2(Game.VirtualScreenWidth / 2f + 200, Game.VirtualScreenHeight / 2f)
 //                };
 //            hand = new Hand(this, cards) { Centre = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight - 60) };
-            rect = new RectangleShape(this)
-                {
-                    Position = new Vector2(100,10),//Game.VirtualScreenWidth - 300, 60),
-                    Width = 400,
-                    Height = 100,
-                    BackgroundColors = new List<Color>
-                        {
-                            Color.Navy
-                        },
-                    BorderColors = new List<Color>
-                        {
-                            Color.White
-                        },
-                    BorderRadius = 10,
-                    //BorderShadow = 5,
-                    BorderThickness = 3,
-                    //InitialShadowIntensity = 0.9f,
-                    //FinalShadowIntensity = 0.1f
-                };
-            rect.UpdateTexture();
-/*            spriteButton0 = new SpriteButton(this)
-                {
-                    Sprite = new Sprite(this, Game.Content, "revers")
-                        {
-                            Tint = Color.Yellow
-                        },
-                    Position = new Vector2(Game.VirtualScreenWidth - 100, 60),
-                };
-            spriteButton = new SpriteButton(this)
-                {
-                    Sprite = new Sprite(this, Game.Content, "revers")
-                        { 
-                            RotationAngle = (float)Math.PI / 2 
-                        },
-                    Position = new Vector2(Game.VirtualScreenWidth - 300, 60)
-                };*/
-//            button = new Button(this)
-//            {
-//                    Text = "Click me",
-//                    Position = new Vector2(100, 200)
-//            };
-            label = new Label(this)
+            //rect = new RectangleShape(this)
+            //    {
+            //        Position = new Vector2(100,10),//Game.VirtualScreenWidth - 300, 60),
+            //        Width = 400,
+            //        Height = 100,
+            //        BackgroundColors = new List<Color>
+            //            {
+            //                Color.Navy
+            //            },
+            //        BorderColors = new List<Color>
+            //            {
+            //                Color.White
+            //            },
+            //        BorderRadius = 10,
+            //        //BorderShadow = 5,
+            //        BorderThickness = 3,
+            //        //InitialShadowIntensity = 0.9f,
+            //        //FinalShadowIntensity = 0.1f
+            //    };
+            //rect.UpdateTexture();
+			//label = new Label(this)
+   //         {
+   //                 Text = "Příliš žluťoučký kůň úpěl ďábelské ódy",
+   //                 TextColor = Color.Yellow,
+   //                 Position = new Vector2(0, 0),
+   //                 Width = 500,
+   //                 Height = 50
+   //         };
+   //         label2 = new Label(this)
+   //             {
+   //                 Text = "Příliš žluťoučký kůň úpěl ďábelské ódy",
+   //                 TextColor = Color.Yellow,
+   //                 Position = new Vector2(Game.VirtualScreenWidth - 500, 0),
+   //                 Width = 500,
+   //                 Height = 50,
+   //                 HorizontalAlign = HorizontalAlignment.Right
+   //             };
+   //         label3 = new Label(this)
+   //             {
+   //                 Text = "Příliš žluťoučký kůň úpěl ďábelské ódy",
+   //                 TextColor = Color.Yellow,
+   //                 Position = new Vector2(0, Game.VirtualScreenHeight - 50),
+   //                 Width = 500,
+   //                 Height = 50,
+   //                 VerticalAlign = VerticalAlignment.Bottom
+   //             };
+   //         label4 = new Label(this)
+   //             {
+   //                 Text = "Příliš žluťoučký kůň úpěl ďábelské ódy",
+   //                 TextColor = Color.Yellow,
+   //                 Position = new Vector2(Game.VirtualScreenWidth - 500, Game.VirtualScreenHeight - 50),
+   //                 Width = 500,
+   //                 Height = 50,
+   //                 HorizontalAlign = HorizontalAlignment.Right,
+   //                 VerticalAlign = VerticalAlignment.Bottom
+   //             };
+
+            box1 = new TextBox(this)
             {
-                    Text = "Příliš žluťoučký kůň úpěl ďábelské ódy",
-                    TextColor = Color.Yellow,
-                    Position = new Vector2(0, 0),
-                    Width = 500,
-                    Height = 50
+                Position = new Vector2(50, 50),
+                Width = 200,
+                Height = 200,
+                BackgroundColor = Color.DimGray,
+                TextColor = Color.Yellow,
+                BorderColor = Color.Yellow,
+                Opacity = 0.8f,
+				VerticalAlign = VerticalAlignment.Top,
+                Text = "Lajn 1\nLajn 222\nLajn 33\nLajn 4444\nLajn 5\nLajn 6\nLajn 7\nLajn 8"
             };
-            label2 = new Label(this)
-                {
-                    Text = "Příliš žluťoučký kůň úpěl ďábelské ódy",
-                    TextColor = Color.Yellow,
-                    Position = new Vector2(Game.VirtualScreenWidth - 500, 0),
-                    Width = 500,
-                    Height = 50,
-                    HorizontalAlign = HorizontalAlignment.Right
-                };
-            label3 = new Label(this)
-                {
-                    Text = "Příliš žluťoučký kůň úpěl ďábelské ódy",
-                    TextColor = Color.Yellow,
-                    Position = new Vector2(0, Game.VirtualScreenHeight - 50),
-                    Width = 500,
-                    Height = 50,
-                    VerticalAlign = VerticalAlignment.Bottom
-                };
-            label4 = new Label(this)
-                {
-                    Text = "Příliš žluťoučký kůň úpěl ďábelské ódy",
-                    TextColor = Color.Yellow,
-                    Position = new Vector2(Game.VirtualScreenWidth - 500, Game.VirtualScreenHeight - 50),
-                    Width = 500,
-                    Height = 50,
-                    HorizontalAlign = HorizontalAlignment.Right,
-                    VerticalAlign = VerticalAlignment.Bottom
-                };
+			box2 = new TextBox(this)
+			{
+				Position = new Vector2(300, 50),
+				Width = 200,
+				Height = 200,
+				BackgroundColor = Color.DimGray,
+				TextColor = Color.Yellow,
+				BorderColor = Color.Yellow,
+				Opacity = 0.8f,
+				VerticalAlign = VerticalAlignment.Middle,
+				Text = "Lajn 1\nLajn 222\nLajn 33\nLajn 4444\nLajn 5\nLajn 6\nLajn 7\nLajn 8"
+			};
+			box3 = new TextBox(this)
+			{
+				Position = new Vector2(550, 50),
+				Width = 200,
+				Height = 200,
+				BackgroundColor = Color.DimGray,
+				TextColor = Color.Yellow,
+				BorderColor = Color.Yellow,
+				Opacity = 0.8f,
+				VerticalAlign = VerticalAlignment.Bottom,
+				Text = "Lajn 1\nLajn 222\nLajn 33\nLajn 4444\nLajn 5\nLajn 6\nLajn 7\nLajn 8"
+			};
 
-            //hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
-//            hand.ShowArc((float)Math.PI / 2);
-            //hand.ShowTest();
-
-//            box = new TextBox(this)
-//            {
-//                Position = new Vector2(100, 10),
-//                Width = 400,
-//                Height = 100,
-//                BackgroundColor = Color.DimGray,
-////                TextColor = Color.Yellow,
-////                BorderColor = Color.Yellow,
-////                TextRenderer = Game.FontRenderers["BM2Font"],
-//
-////                    Position = new Vector2(Game.VirtualScreenWidth / 2 - 75, Game.VirtualScreenHeight / 2 - 100),
-////                    Width = 150,
-////                    Height = 50,
-////                    BackgroundColor = new Color(0x40, 0x40, 0x40),
-//                    TextColor = Color.Yellow,
-//                    BorderColor = Color.Yellow,
-//                    Opacity = 0.8f,
-//                    Text = "Lajn 1\nLajn 222\nLajn 33\nLajn 4444\nLajn 5\nLajn 6\nLajn 7\nLajn 8"
-//            };
-//            button = new Button(this)
-//                {
-//                    Position = new Vector2(100, 300),
-//                    Width = 400,
-//                    Height = 100,
-//                    BackgroundColor = Color.Brown,
-//                    TextColor = Color.Yellow,
-//                    BorderColor = Color.Yellow,
-////                    TextRenderer = Game.FontRenderers["BM2Font"],
-//                    Text = "Line 1\nLine 222\nLine 33\nLine 4444\nLine 5\nLine 6\nLine 7\nLine 8"
-//                };
-        }
+			box4 = new TextBox(this)
+			{
+				Position = new Vector2(50, 300),
+				Width = 200,
+				Height = 200,
+				BackgroundColor = Color.DimGray,
+				TextColor = Color.Yellow,
+				BorderColor = Color.Yellow,
+				Opacity = 0.8f,
+				HorizontalAlign = HorizontalAlignment.Left,
+				VerticalAlign = VerticalAlignment.Top,
+				Text = "Příliš žluťoučký kůň úpěl ďábelské ódy"
+			};
+			box5 = new TextBox(this)
+			{
+				Position = new Vector2(300, 300),
+				Width = 200,
+				Height = 200,
+				BackgroundColor = Color.DimGray,
+				TextColor = Color.Yellow,
+				BorderColor = Color.Yellow,
+				Opacity = 0.8f,
+				HorizontalAlign = HorizontalAlignment.Center,
+				VerticalAlign = VerticalAlignment.Middle,
+				Text = "Příliš žluťoučký kůň úpěl ďábelské ódy"
+			};
+			box6 = new TextBox(this)
+			{
+				Position = new Vector2(550, 300),
+				Width = 200,
+				Height = 200,
+				BackgroundColor = Color.DimGray,
+				TextColor = Color.Yellow,
+				BorderColor = Color.Yellow,
+				Opacity = 0.8f,
+				HorizontalAlign = HorizontalAlignment.Right,
+				VerticalAlign = VerticalAlignment.Bottom,
+				Text = "Příliš žluťoučký kůň úpěl ďábelské ódy"
+			};
+		}
 
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
 
-            if (!cb.Sprite.IsBusy)
-            {
-                cb.FlipToBack(1)
-                  .FlipToFront(1);
-            }
-//            if (!hand.IsMoving)
-//            {
-//                if (t == null || t.Status == TaskStatus.RanToCompletion)
-//                {
-//                    t = Task.Factory.StartNew(() =>
-//                        {
-//                            Thread.Sleep(1000);
-//                            if (hand.IsStraight)
-//                            {
-//                                hand.ShowArc((float)Math.PI / 2);
-//                            }
-//                            else
-//                            {
-//                                hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
-//                            }
-//                        });
-//                }
-//            }
+            //if (!cb.Sprite.IsBusy)
+            //{
+            //    cb.FlipToBack(1)
+            //      .FlipToFront(1);
+            //}
         }
 
-        public void CardButtonClick(object sender)
-        {
-            cb.FlipToBack(1).FlipToFront(1);
-        }
+        //public void CardButtonClick(object sender)
+        //{
+        //    cb.FlipToBack(1).FlipToFront(1);
+        //}
     }
 }
 
