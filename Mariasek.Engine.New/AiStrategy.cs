@@ -281,6 +281,7 @@ namespace Mariasek.Engine.New
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
                                                                   ValidCards(i, j, hands[player3]).Any(k =>
                                                                         k.Value == Hodnota.Eso &&
+                                                                        k.Suit != _trump &&
                                                                         Round.WinningCard(i, j, k, _trump) != j &&
                                                                         ((!hands[player2].HasX(k.Suit)) ||      //2. hrac nema desitku nebo uz barvu nezna a navic ma jeste nejake trumfy
                                                                          (!hands[player2].HasSuit(k.Suit) &&
@@ -591,7 +592,7 @@ namespace Mariasek.Engine.New
                                                                   !hands[player3].HasSuit(_trump))));
                     }
 
-                    return cardsToPlay.ToList().RandomOneOrDefault();
+					return cardsToPlay.ToList().OrderByDescending(i => i.Value).FirstOrDefault();
                 }
             };
 
@@ -644,7 +645,7 @@ namespace Mariasek.Engine.New
             {
                 Order = 12,
                 Description = "hrát dlouhou barvu (mimo A, X)",
-				UseThreshold = true, //protoze muzu omylem vytlacit A,X ze spoluhrace
+				UseThreshold = (_gameType & Hra.Sedma) == 0, //true protoze muzu omylem vytlacit A,X ze spoluhrace (u sedmy mi to tolik nevadi)
 				ChooseCard1 = () =>
                 {
                     var cardsToPlay = new List<Card>();
@@ -704,9 +705,9 @@ namespace Mariasek.Engine.New
                         {
                             cardsToPlay.Clear();
 							cardsToPlay = new List<Card>
-													{
-														ValidCards(hands[MyIndex]).First(i => i.Suit == barva && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka)
-													};
+							{
+								ValidCards(hands[MyIndex]).First(i => i.Suit == barva && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka)
+							};
                             maxCount = count;
                         }
                         else if (count == maxCount && count > 0)
@@ -729,10 +730,10 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 13,
-                Description = "hrát cokoli mimo A, X",
+                Description = "hrát cokoli mimo A, X, trumf",
                 ChooseCard1 = () =>
                 {
-                    var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka);
+					var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka && i.Suit != _trump);
 
                     if (TeamMateIndex == player2)
                     {

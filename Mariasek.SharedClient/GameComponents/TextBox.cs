@@ -255,6 +255,11 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
+		public void ScrollToBottom()
+		{
+			VerticalScrollOffset = _minVerticalScrollOffset;
+		}
+
         void HandleTouchDown (object sender, TouchLocation tl)
         {
             _touchDownLocation = tl;

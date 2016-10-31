@@ -26,6 +26,7 @@ namespace Mariasek.SharedClient.GameComponents
 
         protected int TouchId = -1;
 
+		public bool CanDrag { get; set; }
         public bool IsClicked { get; private set; }
         public SoundEffect ClickSound { get; set; }
 
@@ -157,16 +158,16 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 if (CollidesWithPosition(tl.Position))
                 {
-					if (_draggedObject == null && (tl.State == TouchLocationState.Pressed || tl.State == TouchLocationState.Moved))
-                    {
-						if (TouchId == -1)	//first time down
+					if ((tl.State == TouchLocationState.Pressed || tl.State == TouchLocationState.Moved))
+                    {						
+						if (_draggedObject == null)// && TouchId == -1)	//first time down
 						{
 							_draggedObject = this;
 							_touchHeldTimeMs = 0;
 							TouchId = tl.Id;
 							OnTouchDown(tl);
 						}
-						if (!_touchHeldConsumed)
+						if (_draggedObject == this && !_touchHeldConsumed)
 						{
 							_touchHeldConsumed = OnTouchHeld(_touchHeldTimeMs, tl);
 						}

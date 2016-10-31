@@ -144,7 +144,7 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth - 230,
                 Height = (int)Game.VirtualScreenHeight - 120,
                 HorizontalAlign = HorizontalAlignment.Left,
-                VerticalAlign = VerticalAlignment.Top
+				VerticalAlign = VerticalAlignment.Top
             };
             _historyBox.Hide();
 			_footer = new Label(this)
@@ -225,6 +225,7 @@ namespace Mariasek.SharedClient
             var ratio = total != 0 ? (wins * 100f / total) : 0f;
 
             _historyBox.Text = sb.ToString();
+			_historyBox.ScrollToBottom();
             _stat.Text = string.Format("Odehráno her:\n{0}\nZ toho výher:\n{1}\nPoměr: {2:N0}%\nPříště začíná:\n{3}", 
                 total, wins, ratio, 
                 (Game.MainScene.g != null && Game.MainScene.g.players != null)

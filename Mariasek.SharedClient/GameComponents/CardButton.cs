@@ -53,8 +53,6 @@ namespace Mariasek.SharedClient.GameComponents
             _reverseSprite.Hide();
         }
 
-		public bool CanDrag { get; set; }
-
         public override Vector2 Position
         {
             get { return base.Position; }

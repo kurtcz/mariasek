@@ -935,9 +935,9 @@ namespace Mariasek.SharedClient
 
         public void SendBtnClicked(object sender)
         {
-            if (Game.EmailSender != null && g != null)
+            if (Game.EmailSender != null)
             {
-                if (g.IsRunning)
+                if (g != null && g.IsRunning)
                 {
                     using (var fs = GetFileStream(Path.GetFileName(_savedGameFilePath)))
                     {
