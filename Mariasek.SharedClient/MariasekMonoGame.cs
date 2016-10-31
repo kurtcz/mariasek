@@ -190,9 +190,9 @@ namespace Mariasek.SharedClient
             ClapSound = Content.Load<SoundEffect>("clap");
             CoughSound = Content.Load<SoundEffect>("cough");
             BooSound = Content.Load<SoundEffect>("boo");
-            //            TestScene = new TestScene(this);
-            //            TestScene.Initialize();
-            //            TestScene.SetActive();
+            //TestScene = new TestScene(this);
+            //TestScene.Initialize();
+            //TestScene.SetActive();
 
             MenuScene = new MenuScene(this);           
             SettingsScene = new SettingsScene(this);
