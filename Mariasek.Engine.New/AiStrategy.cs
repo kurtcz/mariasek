@@ -452,7 +452,8 @@ namespace Mariasek.Engine.New
 									Round.WinningCard(i, j, k, _trump) == i))).ToList();
 						if(topCards.Any())	//a pokud mám nějaké nejvyšší karty ve hře
 						{
-							cardsToPlay =  ValidCards(hands[MyIndex]).Where(i => !hands[MyIndex].HasA(i.Suit) && //a pokud mám plívy v barvě
+							cardsToPlay =  ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                !hands[MyIndex].HasA(i.Suit) && //a pokud mám plívy v barvě
 								!hands[MyIndex].HasX(i.Suit) && 
 								!hands[player2].HasA(i.Suit) && //ve které ani jeden soupeř/spoluhráč nemá A,X
 								!hands[player2].HasX(i.Suit) &&
