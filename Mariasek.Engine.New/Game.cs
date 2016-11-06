@@ -891,7 +891,7 @@ namespace Mariasek.Engine.New
             GameType = 0;
             talon = new List<Card>();
 			//ptame se na barvu
-            while(GameType < Hra.Durch)
+            while(true)
             {
                 if(gameTypeForPlayer.All(i => i == 0) && bidForPlayer.All(i => i == 0))
                 {

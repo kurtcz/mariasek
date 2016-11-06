@@ -474,7 +474,7 @@ namespace Mariasek.Engine.New
                 {
                     IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
 
-                    if (TeamMateIndex == -1)
+                    if (TeamMateIndex == -1 && hands[MyIndex].CardCount(_trump) >= 3)
                     {
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&                           //pokud mam trumfy
                                                                 (hands[player2].HasSuit(_trump) ||                        //a aspon jeden ze souperu ma taky trumfy
@@ -489,7 +489,7 @@ namespace Mariasek.Engine.New
                                                                                          (j.Value == Hodnota.Eso ||
                                                                                           j.Value == Hodnota.Desitka)))));
 						//cardsToPlay.Count() nyni muze byt rovno 0
-						if (cardsToPlay.Count() <
+						if (cardsToPlay.Count() - 1 <					//-1 abych mel pojistene, ze mi zbyde dost trumfu
                             Math.Max(hands[player2].CardCount(_trump),
                                      hands[player3].CardCount(_trump)))
                         {
@@ -1112,6 +1112,11 @@ namespace Mariasek.Engine.New
                                                                                 ValidCards(c1, i, hands[player3]).All(j => i.IsHigherThan(j, _trump)));
                     }
 
+                    if (cardsToPlay.Count() > 1 && RoundNumber <= 7)
+                    {
+                        //nezbavovat se zbytecne brzo trumfovy sedmy abych moh pripadne uhrat tichou sedmu
+                        cardsToPlay = cardsToPlay.Where(i => !(i.Suit == _trump && i.Value == Hodnota.Sedma));
+                    }
                     return cardsToPlay.OrderByDescending(i => i.Value).LastOrDefault();
                 }
 
@@ -1392,6 +1397,11 @@ namespace Mariasek.Engine.New
                         //: -oc
                         cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka &&
                                                                                     Round.WinningCard(c1, c2, i, _trump) != c1);
+                    }
+                    if (cardsToPlay.Count() > 1 && RoundNumber <= 7)
+                    {
+                        //nezbavovat se zbytecne brzo trumfovy sedmy abych moh pripadne uhrat tichou sedmu
+                        cardsToPlay = cardsToPlay.Where(i => !(i.Suit == _trump && i.Value == Hodnota.Sedma));
                     }
                     return cardsToPlay.OrderByDescending(i => i.Value).LastOrDefault();
                 }

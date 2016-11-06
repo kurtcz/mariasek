@@ -51,7 +51,21 @@ namespace Mariasek.AndroidClient
             g.OnRestart();
         }
 
-        protected override void OnSaveInstanceState (Bundle outState)
+		protected override void OnResume()
+		{
+			System.Diagnostics.Debug.WriteLine("OnResume()");
+			base.OnResume();
+			//g.OnRestart();
+		}
+
+		protected override void OnPause()
+		{
+			System.Diagnostics.Debug.WriteLine("OnPause()");
+			base.OnPause();
+			//g.OnRestart();
+		}
+
+		protected override void OnSaveInstanceState (Bundle outState)
         {
             //Save: outState.PutInt ("click_count", _counter);
             g.OnSaveInstanceState();
