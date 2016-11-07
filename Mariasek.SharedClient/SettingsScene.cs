@@ -324,6 +324,7 @@ namespace Mariasek.SharedClient
             var xml = new XmlSerializer(typeof(GameSettings));
             try
             {
+                MainScene.CreateDirectoryForFilePath(_settingsFilePath);
                 using (var fs = File.Open(_settingsFilePath, FileMode.Create))
                 {
                     xml.Serialize(fs, _settings);

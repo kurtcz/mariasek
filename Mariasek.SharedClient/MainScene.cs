@@ -94,12 +94,17 @@ namespace Mariasek.SharedClient
         public int CurrentStartingPlayerIndex = -1;
         private Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
 
-        private string _historyFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.history");
-        private string _deckFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.deck");
-        private string _savedGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "SavedGame.hra");
-		private string _newGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_temp.hra");
-        private string _errorFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_error.hra");
-        private string _endGameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "_end.hra");
+#if __IOS__
+        private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+#elif __ANDROID__
+        private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+#endif
+        private string _historyFilePath = Path.Combine(_path, "Mariasek.history");
+        private string _deckFilePath = Path.Combine(_path, "Mariasek.deck");
+        private string _savedGameFilePath = Path.Combine(_path, "SavedGame.hra");
+		private string _newGameFilePath = Path.Combine(_path, "_temp.hra");
+        private string _errorFilePath = Path.Combine(_path, "_error.hra");
+        private string _endGameFilePath = Path.Combine(_path, "_end.hra");
 
         private Action HintBtnFunc;
         private GameState _state;
@@ -596,13 +601,28 @@ namespace Mariasek.SharedClient
             ClearTable(true);
         }
 
+        /// <summary>
+        /// Gets the file stream. Callback function used from Mariasek.Engine.New.Game
+        /// </summary>
         private static Stream GetFileStream(string filename)
         {
-            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), filename);
+            var path = Path.Combine(_path, filename);
+
+            CreateDirectoryForFilePath(path);
 
             return new FileStream(path, FileMode.Create);
         }
-			
+
+        public static void CreateDirectoryForFilePath(string path)
+        {
+            var dir = Path.GetDirectoryName(path);
+
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+        }
+
         public void LoadHistory()
         {
             try
@@ -626,6 +646,7 @@ namespace Mariasek.SharedClient
             {
 				var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
 
+                CreateDirectoryForFilePath(_historyFilePath);
 				using (var fs = File.Open(_historyFilePath, FileMode.Create))
                 {
                     xml.Serialize(fs, Game.Money);
@@ -659,6 +680,7 @@ namespace Mariasek.SharedClient
         {
             try
             {
+                CreateDirectoryForFilePath(_deckFilePath);
                 using (var fs = File.Open(_deckFilePath, FileMode.Create))
                 {
                     _deck.SaveDeck(fs);
@@ -801,7 +823,12 @@ namespace Mariasek.SharedClient
                 {
                     btn.Hide();
                 }
+                foreach (var bubble in _bubbles)
+                {
+                    bubble.Hide();
+                }
                 _hand.ClearOperations();
+                this.ClearOperations();
                 _hintBtn.IsEnabled = false;
                 if(_settings.HintEnabled)
                 {
@@ -1423,12 +1450,14 @@ namespace Mariasek.SharedClient
         public void BidMade(object sender, BidEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine(string.Format("!!BidMade: {0} ({1})", e.Player.PlayerIndex+1, e.Description));
-			if (e.Player.PlayerIndex != 0)
+			//if (e.Player.PlayerIndex != 0)
 			{
 				_progressBars[e.Player.PlayerIndex].Progress = _progressBars[e.Player.PlayerIndex].Max;
 			}
 			ShowBubble(e.Player.PlayerIndex, e.Description);
-			if (e.Player.PlayerIndex != 2)
+            //premysleci bublinu nezobrazuj pokud bude premyslet clovek
+            //nebo pokud se naposledy vyslovil volici hrac a uz dal neflekuje (budeme hrat)
+            if (e.Player.PlayerIndex != 2 && e.Player.PlayerIndex != g.GameStartingPlayerIndex && e.BidMade != 0)
 			{
 				ShowThinkingMessage((e.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
 			}
@@ -1599,6 +1628,7 @@ namespace Mariasek.SharedClient
 			_trumpLabel3.Hide();
 			if(!string.IsNullOrEmpty(gameToLoadString) && g == null)
             {
+                CreateDirectoryForFilePath(_savedGameFilePath);
 				using (var fs = File.Open(_savedGameFilePath, FileMode.Create))
 				using (var sw = new StreamWriter(fs))
 				{
@@ -1699,6 +1729,7 @@ namespace Mariasek.SharedClient
             {
                 try
                 {
+                    CreateDirectoryForFilePath(_savedGameFilePath);
                     using (var fs = File.Open(_savedGameFilePath, FileMode.Create))
                     {
                         g.SaveGame(fs);
