@@ -78,6 +78,7 @@ namespace Mariasek.SharedClient
 		private TextBox[] _bubbles;
 		private int _bubbleSemaphore;
 		private bool[] _bubbleAutoHide;
+        private bool _skipBidBubble;
 
         #pragma warning restore 414
         #endregion
@@ -99,6 +100,7 @@ namespace Mariasek.SharedClient
 #elif __ANDROID__
         private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
 #endif
+        private string _archivePath = Path.Combine(_path, "Archive");
         private string _historyFilePath = Path.Combine(_path, "Mariasek.history");
         private string _deckFilePath = Path.Combine(_path, "Mariasek.deck");
         private string _savedGameFilePath = Path.Combine(_path, "SavedGame.hra");
@@ -636,7 +638,7 @@ namespace Mariasek.SharedClient
             }
             catch(Exception e)
             {
-                System.Diagnostics.Debug.WriteLine(string.Format("Cannot load history\n{0}", e.Message));
+                System.Diagnostics.Debug.WriteLine("Cannot load history\n{0}", e.Message);
             }
         }
 
@@ -654,7 +656,7 @@ namespace Mariasek.SharedClient
             }
             catch(Exception e)
             {
-                System.Diagnostics.Debug.WriteLine(string.Format("Cannot save history\n{0}", e.Message));
+                System.Diagnostics.Debug.WriteLine("Cannot save history\n{0}", e.Message);
             }
         }
 
@@ -689,6 +691,48 @@ namespace Mariasek.SharedClient
             catch(Exception e)
             {
                 System.Diagnostics.Debug.WriteLine(string.Format("Cannot save deck\n{0}", e.Message));
+            }
+        }
+
+        private int GetGameCount(string path)
+        {
+            try
+            {
+                var lastFile = Path.GetFileName(Directory.GetFiles(path, "*-????????.def.hra").Last());
+                var countString = lastFile.Substring(0, lastFile.IndexOf('-'));
+
+                return int.Parse(countString);
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine("Cannot determine file count in folder {0}\n{1}", path, e.Message);
+            }
+
+            return 0;
+        }
+
+        private string GetBaseFileName(string path)
+        {
+            var count = GetGameCount(path);
+
+            return string.Format("{0:0000}-{1}", count + 1, DateTime.Now.ToString("yyyyMMdd"));
+        }
+
+        public void ArchiveGame()
+        {
+            try
+            {
+                var baseFileName = GetBaseFileName(_archivePath);
+                var newGameArchivePath = Path.Combine(_archivePath, string.Format("{0}.def.hra", baseFileName));
+                var endGameArchivePath = Path.Combine(_archivePath, string.Format("{0}.end.hra", baseFileName));
+
+                CreateDirectoryForFilePath(newGameArchivePath);
+                File.Copy(_newGameFilePath, newGameArchivePath);
+                File.Copy(_endGameFilePath, endGameArchivePath);
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine("Cannot archive game\n{0}", e.Message);
             }
         }
 
@@ -1427,12 +1471,25 @@ namespace Mariasek.SharedClient
                     imgs[e.GameStartingPlayerIndex].ShowBackSide();
                     imgs[e.GameStartingPlayerIndex].FlipToFront();
                 })
+                .Wait(500)
+                .Invoke(() =>
+                {
+                    _bubbleAutoHide[e.GameStartingPlayerIndex] = true;
+                    _bubbles[e.GameStartingPlayerIndex].Text = g.GameType.ToDescription(g.trump);
+                    _bubbles[e.GameStartingPlayerIndex].Show();
+                })
                 .Wait(2000)
+                .Invoke(() =>
+                {
+                    _bubbles[e.GameStartingPlayerIndex].Hide();
+                })
+                .Wait(1000)
                 .Invoke(() =>
                 {
                     imgs[e.GameStartingPlayerIndex].Hide();
                     UpdateHand();
                 });
+                _skipBidBubble = true;  //abychom nezobrazovali bublinu znovu v BidMade()
             }
             else if (e.GameStartingPlayerIndex == 0)
             {
@@ -1450,11 +1507,12 @@ namespace Mariasek.SharedClient
         public void BidMade(object sender, BidEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine(string.Format("!!BidMade: {0} ({1})", e.Player.PlayerIndex+1, e.Description));
-			//if (e.Player.PlayerIndex != 0)
-			{
-				_progressBars[e.Player.PlayerIndex].Progress = _progressBars[e.Player.PlayerIndex].Max;
-			}
-			ShowBubble(e.Player.PlayerIndex, e.Description);
+			_progressBars[e.Player.PlayerIndex].Progress = _progressBars[e.Player.PlayerIndex].Max;
+            if (!_skipBidBubble)
+            {
+                ShowBubble(e.Player.PlayerIndex, e.Description);
+            }
+            _skipBidBubble = false;
             //premysleci bublinu nezobrazuj pokud bude premyslet clovek
             //nebo pokud se naposledy vyslovil volici hrac a uz dal neflekuje (budeme hrat)
             if (e.Player.PlayerIndex != 2 && e.Player.PlayerIndex != g.GameStartingPlayerIndex && e.BidMade != 0)
@@ -1587,7 +1645,10 @@ namespace Mariasek.SharedClient
 
             _deck = g.GetDeckFromLastGame();
             SaveDeck();
-
+            if (g.rounds[0] != null)
+            {
+                ArchiveGame();
+            }
             var value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
             if (value > 0)
             {
