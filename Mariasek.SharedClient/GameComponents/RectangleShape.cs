@@ -192,60 +192,80 @@ namespace Mariasek.SharedClient.GameComponents
 
             Vector2 origin = Vector2.Zero;
             Vector2 point = new Vector2(x, y);
+            float alpha = 1f;
+            var antialiasingWidth = 1f;
 
             if (x < borderThickness + borderRadius)
             {
                 if (y < borderRadius + borderThickness)
+                {
                     origin = new Vector2(borderRadius + borderThickness, borderRadius + borderThickness);
-                else if (y > height - (borderRadius + borderThickness))
-                    origin = new Vector2(borderRadius + borderThickness, height - (borderRadius + borderThickness));
+                    alpha = 0f;
+                }
+                else if (y >= height - (borderRadius + borderThickness))
+                {
+                    origin = new Vector2(borderRadius + borderThickness, height - (borderRadius + borderThickness) - 1);
+                    alpha = 0f;
+                }
                 else
                     origin = new Vector2(borderRadius + borderThickness, y);
             }
-            else if (x > width - (borderRadius + borderThickness))
+            else if (x >= width - (borderRadius + borderThickness))
             {
                 if (y < borderRadius + borderThickness)
-                    origin = new Vector2(width - (borderRadius + borderThickness), borderRadius + borderThickness);
-                else if (y > height - (borderRadius + borderThickness))
-                    origin = new Vector2(width - (borderRadius + borderThickness), height - (borderRadius + borderThickness));
+                {
+                    origin = new Vector2(width - (borderRadius + borderThickness) - 1, borderRadius + borderThickness);
+                    alpha = 0f;
+                }
+                else if (y >= height - (borderRadius + borderThickness))
+                {
+                    origin = new Vector2(width - (borderRadius + borderThickness) - 1, height - (borderRadius + borderThickness) - 1);
+                    alpha = 0f;
+                }
                 else
-                    origin = new Vector2(width - (borderRadius + borderThickness), y);
+                    origin = new Vector2(width - (borderRadius + borderThickness) - 1, y);
             }
             else
             {
                 if (y < borderRadius + borderThickness)
                     origin = new Vector2(x, borderRadius + borderThickness);
-                else if (y > height - (borderRadius + borderThickness))
-                    origin = new Vector2(x, height - (borderRadius + borderThickness));
+                else if (y >= height - (borderRadius + borderThickness))
+                    origin = new Vector2(x, height - (borderRadius + borderThickness) - 1);
             }
 
             if (!origin.Equals(Vector2.Zero))
             {
                 float distance = Vector2.Distance(point, origin);
 
-                if (distance > borderRadius + borderThickness)
+                if (distance > borderRadius + borderThickness + antialiasingWidth)
                 {
                     return Color.Transparent;
                 }
                 else if (distance > borderRadius)
                 {
+                    //compute antialiasing for rounded corners
+                    if (alpha < 1f)
+                    {
+                        alpha = distance >= borderRadius + borderThickness ? (antialiasingWidth - (distance - (borderRadius + borderThickness))) / antialiasingWidth : 1;
+                    }
+
                     if (borderColors.Count > 2)
                     {
                         float modNum = distance - borderRadius;
 
                         if (modNum < borderThickness / 2)
                         {
-                            return Color.Lerp(borderColors[2], borderColors[1], (float)((modNum) / (borderThickness / 2.0)));
+                            return Color.Lerp(borderColors[2], borderColors[1], (float)((modNum) / (borderThickness / 2.0))) * alpha;
                         }
                         else
                         {
-                            return Color.Lerp(borderColors[1], borderColors[0], (float)((modNum - (borderThickness / 2.0)) / (borderThickness / 2.0)));
+                            return Color.Lerp(borderColors[1], borderColors[0], (float)((modNum - (borderThickness / 2.0)) / (borderThickness / 2.0))) * alpha;
                         }
                     }
 
 
                     if (borderColors.Count > 0)
-                        return borderColors[0];
+                        return borderColors[0] * alpha;
                 }
                 else if (distance > borderRadius - borderShadow)
                 {

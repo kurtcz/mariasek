@@ -533,7 +533,7 @@ namespace Mariasek.SharedClient
 			_bubbleAutoHide = new [] {false, false, false};
 			flekBtn = new ToggleButton(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2f - 230, Game.VirtualScreenHeight / 2f - 150),
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 230, Game.VirtualScreenHeight / 2f - 155),
                 Width = 150,
                 Height = 50,
                 Tag = Hra.Hra | Hra.Kilo | Hra.Betl | Hra.Durch,
@@ -544,7 +544,7 @@ namespace Mariasek.SharedClient
             flekBtn.Hide();
             sedmaBtn = new ToggleButton(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2f - 75, Game.VirtualScreenHeight / 2f - 150),
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 75, Game.VirtualScreenHeight / 2f - 155),
                 Width = 150,
                 Height = 50,
                 Tag = Hra.Sedma | Hra.SedmaProti,
@@ -554,7 +554,7 @@ namespace Mariasek.SharedClient
             sedmaBtn.Hide();
             kiloBtn = new ToggleButton(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2f + 80, Game.VirtualScreenHeight / 2f - 150),
+                Position = new Vector2(Game.VirtualScreenWidth / 2f + 80, Game.VirtualScreenHeight / 2f - 155),
                 Width = 150,
                 Height = 50,
                 Tag = Hra.KiloProti,

@@ -135,7 +135,7 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 BackgroundColors = new List<Color> { Color.SaddleBrown },
                 BorderColors = new List<Color> { Color.White },
-                BorderRadius = 5,
+                BorderRadius = 3,
                 BorderThickness = 3,
                 Opacity = 0.7f
             };
