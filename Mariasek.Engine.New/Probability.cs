@@ -125,7 +125,10 @@ namespace Mariasek.Engine.New
 
                         _cardProbabilityForPlayer[i][b][h] = (float)1 / totalUncertainCards;
 						//pokud nekdo hlasil kilo nebo sedmu, zvednu mu pravdepodobnosti trumfovych karet
-						//ostatnim naopak pravdepodobnosti snizimm
+						//ostatnim naopak pravdepodobnosti snizim
+
+                        //TODO: tyhle pravdepodobnosti by mely zaviset na tom kolik mam na zacatku hry ja sam trumfu
+                        //(pokud mam ja 3 trumfy a souper hlasi sedmu nebo kilo tak ma asi skoro urcite vsechny zbivajici)
 						if (_trump.HasValue && b == _trump.Value)
 						{
 							if (_hundredIndex >= 0)

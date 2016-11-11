@@ -104,6 +104,7 @@ namespace Mariasek.SharedClient
         private string _historyFilePath = Path.Combine(_path, "Mariasek.history");
         private string _deckFilePath = Path.Combine(_path, "Mariasek.deck");
         private string _savedGameFilePath = Path.Combine(_path, "SavedGame.hra");
+        private string _testGameFilePath = Path.Combine(_path, "test.hra");
 		private string _newGameFilePath = Path.Combine(_path, "_temp.hra");
         private string _errorFilePath = Path.Combine(_path, "_error.hra");
         private string _endGameFilePath = Path.Combine(_path, "_end.hra");
@@ -157,7 +158,7 @@ namespace Mariasek.SharedClient
 			_aiConfig.Add("SimulationsPerGameType", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			{
 				Name = "SimulationsPerGameType",
-				Value = "250"
+				Value = "300"
 			});
 			_aiConfig.Add("SimulationsPerGameTypePerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			{
@@ -321,9 +322,9 @@ namespace Mariasek.SharedClient
                 Text = "?",
                 Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 30),
                 Width = 50,
-                TextColor = Color.SaddleBrown,
+                TextColor = new Color(0x60, 0x30, 0x10),//Color.SaddleBrown,
                 BackgroundColor = Color.White,
-                BorderColor = Color.SaddleBrown,
+                BorderColor = new Color(0x60, 0x30, 0x10),//Color.SaddleBrown,
                 ZIndex = 100,
 				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main
             };
@@ -1680,21 +1681,27 @@ namespace Mariasek.SharedClient
 
         #endregion
 
+        public bool CanLoadGame()
+        {
+            return File.Exists(_testGameFilePath);
+        }
+
         public void LoadGame()
         {
-			var gameToLoadString = ResourceLoader.GetEmbeddedResourceString(this.GetType().Assembly, "GameToLoad");
+			//var gameToLoadString = ResourceLoader.GetEmbeddedResourceString(this.GetType().Assembly, "GameToLoad");
 
-			_trumpLabel1.Hide();
+            _trumpLabel1.Hide();
 			_trumpLabel2.Hide();
 			_trumpLabel3.Hide();
-			if(!string.IsNullOrEmpty(gameToLoadString) && g == null)
+			//if(!string.IsNullOrEmpty(gameToLoadString) && g == null)
+            if(g == null)
             {
-                CreateDirectoryForFilePath(_savedGameFilePath);
-				using (var fs = File.Open(_savedGameFilePath, FileMode.Create))
-				using (var sw = new StreamWriter(fs))
-				{
-					sw.Write(gameToLoadString);
-				}
+                //CreateDirectoryForFilePath(_savedGameFilePath);
+				//using (var fs = File.Open(_savedGameFilePath, FileMode.Create))
+				//using (var sw = new StreamWriter(fs))
+				//{
+				//	sw.Write(gameToLoadString);
+				//}
                 SetActive();
                 _cancellationTokenSource = new CancellationTokenSource();
                 _gameTask = Task.Run(() => 
@@ -1712,8 +1719,9 @@ namespace Mariasek.SharedClient
 
 					try
 					{
-						using (var fs = File.Open(_savedGameFilePath, FileMode.Open))
-	                    {                            
+						//using (var fs = File.Open(_savedGameFilePath, FileMode.Open))
+                        using (var fs = File.Open(_testGameFilePath, FileMode.Open))
+	                    {
 	                        g.LoadGame(fs);
 	                    }
 					}
@@ -1886,10 +1894,10 @@ namespace Mariasek.SharedClient
                 _hintBtn.IsEnabled = true;
 				HintBtnFunc = () =>
 				{
-					var msg = string.Format("{0} {1}ms", trumpCard, t);
+					var msg = string.Format("{0}", trumpCard);
 
 					_hand.HighlightCard(trumpCard);
-					ShowMsgLabel(msg, false); //Docasne, zjistit kdy radi kartu kterou jsem nemohl videt
+					//ShowMsgLabel(msg, false); //Docasne, zjistit kdy radi kartu kterou jsem nemohl videt
 				}; 
 			}
         }
@@ -1904,7 +1912,7 @@ namespace Mariasek.SharedClient
                 {
                     _hand.HighlightCard(talon[0]);
                     _hand.HighlightCard(talon[1]);
-					ShowMsgLabel(string.Format("{0}ms", t), false);
+					//ShowMsgLabel(string.Format("{0}ms", t), false);
                 };
             }
         }
@@ -1915,7 +1923,7 @@ namespace Mariasek.SharedClient
             if (_settings.HintEnabled)
             {
                 _hintBtn.IsEnabled = true;
-                HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0} {1}ms", flavour, t), false);
+                HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", flavour), false);
             }
         }
 
@@ -1923,7 +1931,7 @@ namespace Mariasek.SharedClient
         {
 			_progress1.Progress = _progress1.Max;
             _hintBtn.IsEnabled = true;
-            HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0} {1}ms", gameType, t), false);
+            HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", gameType), false);
         }
 
 		public void SuggestGameTypeNew(Hra gameType)
@@ -1951,7 +1959,7 @@ namespace Mariasek.SharedClient
         {
 			_progress1.Progress = _progress1.Max;
             _hintBtn.IsEnabled = true;
-            HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0} {1}ms", bid, t), false);
+            HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", bid), false);
         }
 
         public void SuggestCardToPlay(Card cardToPlay, string hint, int? t = null)
@@ -1963,7 +1971,7 @@ namespace Mariasek.SharedClient
                 ShowMsgLabel(hint, false);
                 if (!_hand.HighlightCard(cardToPlay))
                 {
-                    var msg = string.Format("Chyba simulace: hráč nemá {0} {1}ms", cardToPlay, t);
+                    var msg = string.Format("Chyba simulace: hráč nemá {0}", cardToPlay);
                     ShowMsgLabel(msg, false);
                 }
             };

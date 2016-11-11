@@ -11,7 +11,7 @@ namespace Mariasek.SharedClient.GameComponents
 {
     public class Button : TouchControlBase
     {
-        private Color _origButtonColor = Color.SaddleBrown;
+        private Color _origButtonColor = new Color(0x60, 0x30, 0x10);//Color.SaddleBrown;
         private Color _origTextColor = Color.White;
         private RectangleShape _buttonShape;
         protected Label _buttonText;
@@ -133,7 +133,7 @@ namespace Mariasek.SharedClient.GameComponents
         {
             _buttonShape = new RectangleShape(this)
             {
-                BackgroundColors = new List<Color> { Color.SaddleBrown },
+                BackgroundColors = new List<Color> { _origButtonColor },//Color.SaddleBrown },
                 BorderColors = new List<Color> { Color.White },
                 BorderRadius = 3,
                 BorderThickness = 3,

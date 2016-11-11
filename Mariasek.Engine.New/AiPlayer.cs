@@ -706,7 +706,7 @@ namespace Mariasek.Engine.New
 					Interlocked.Add(ref progress, Settings.SimulationsPerGameType);
 				}
 			}
-					OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0 });
+			OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0 });
 
 			//vyber vhodnou hru podle vysledku simulace
 			var opponent = TeamMateIndex == (PlayerIndex + 1) % Game.NumPlayers
@@ -876,9 +876,9 @@ namespace Mariasek.Engine.New
 				hiCardsPerSuit.Add(b, hiCards);
 			}
 
-			//max 4 vysoke karty celkove a max 2 v jedne barve => 2 pujdou do talonu, treti kartou zacnu hrat, ctvrtou diru risknu
+			//max 5 vysokych karet celkove a max 2 v jedne barve => 2 pujdou do talonu, treti kartou zacnu hrat, ctvrtou a patou diru risknu
 			//nebo max jedna barva s hodne vysokymi kartami ale prave jednou dirou (musim mit sedmu v dane barve)
-			if ((hiCardsPerSuit.Sum(i => i.Value) <= 4 && hiCardsPerSuit.All(i => i.Value <= 2)) ||
+			if ((hiCardsPerSuit.Sum(i => i.Value) <= 5 && hiCardsPerSuit.All(i => i.Value <= 2)) ||
 			    (hiCardsPerSuit.Count(i => i.Value > 2 && holesPerSuit[i.Key] == 1 && Hand.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key)) == 1))
 			{
 				return true;
@@ -1319,8 +1319,8 @@ namespace Mariasek.Engine.New
 					_log.DebugFormat("{0}'s probabilities for {1}:\n{2}", Name, _g.players[i].Name, Probabilities.FriendlyString(i, r.number));
                 }
                 var simulations = (int)Math.Min(Settings.SimulationsPerRound,
-                    Math.Max(Probabilities.PossibleCombinations((PlayerIndex + 1) % Game.NumPlayers, r.number),
-                             Probabilities.PossibleCombinations((PlayerIndex + 2) % Game.NumPlayers, r.number)));
+                    Math.Max(Probabilities.PossibleCombinations((PlayerIndex + 1) % Game.NumPlayers, r.number), //*3 abych snizil sanci ze budu generovat nektere kombinace vickrat
+                             Probabilities.PossibleCombinations((PlayerIndex + 2) % Game.NumPlayers, r.number))) * 3;
                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = 0, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Generuju karty"});
 				var source = Probabilities.GenerateHands(r.number, roundStarterIndex, simulations);
                 var progress = 0;
