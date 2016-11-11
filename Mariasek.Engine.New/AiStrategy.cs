@@ -371,6 +371,7 @@ namespace Mariasek.Engine.New
             {
                 Order = 7,
                 Description = "snaž se vytlačit eso",
+                UseThreshold = TeamMateIndex == player2, //abych omylem nevytlacil eso ze sveho spoluhrace pokud je na tahu hned po mne
                 ChooseCard1 = () =>
                 {
                     IEnumerable<Card> cardsToPlay;

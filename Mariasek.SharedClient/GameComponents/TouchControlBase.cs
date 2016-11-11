@@ -19,7 +19,7 @@ namespace Mariasek.SharedClient.GameComponents
     /// </summary>
     public abstract class TouchControlBase : GameComponent
     {
-        private const float maxClickTimeMs = 500;
+        private const float maxClickTimeMs = 250;
         private float _touchHeldTimeMs;
         private bool _touchHeldConsumed;
 		private static TouchControlBase _draggedObject;
@@ -150,41 +150,48 @@ namespace Mariasek.SharedClient.GameComponents
 			                                                                                                (i.Position.Y - ScaleMatrix.M42) / ScaleMatrix.M22)));
 
             IsClicked = false;
-			if (TouchId != -1)	//if touch held
+            if (TouchId != -1)  //if touch held
             {
-                _touchHeldTimeMs += (float) gameTime.ElapsedGameTime.TotalMilliseconds;
+                _touchHeldTimeMs += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
             }
             foreach (var tl in currTouches)
             {
                 if (CollidesWithPosition(tl.Position))
                 {
-					if ((tl.State == TouchLocationState.Pressed || tl.State == TouchLocationState.Moved))
-                    {						
-						if (_draggedObject == null)// && TouchId == -1)	//first time down
-						{
-							_draggedObject = this;
-							_touchHeldTimeMs = 0;
-							TouchId = tl.Id;
-							OnTouchDown(tl);
-						}
-						if (_draggedObject == this && !_touchHeldConsumed)
-						{
-							_touchHeldConsumed = OnTouchHeld(_touchHeldTimeMs, tl);
-						}
+                    if ((tl.State == TouchLocationState.Pressed || tl.State == TouchLocationState.Moved))
+                    {
+                        if (_draggedObject == null)// && TouchId == -1)	//first time down
+                        {
+                            _draggedObject = this;
+                            _touchHeldTimeMs = 0;
+                            TouchId = tl.Id;
+                            OnTouchDown(tl);
+                        }
+                        if (_draggedObject == this && !_touchHeldConsumed)
+                        {
+                            _touchHeldConsumed = OnTouchHeld(_touchHeldTimeMs, tl);
+                        }
                     }
                     else if (tl.Id == TouchId && tl.State == TouchLocationState.Released)
                     {
-						_draggedObject = null;
+                        _draggedObject = null;
                         _touchHeldConsumed = false;
-						TouchId = -1;
+                        TouchId = -1;
 
-						OnTouchUp(tl);
+                        OnTouchUp(tl);
 
-						IsClicked = _touchHeldTimeMs <= maxClickTimeMs;
-						if (IsClicked)
-						{
-							OnClick();
-						}
+                        IsClicked = _touchHeldTimeMs <= maxClickTimeMs;
+                        if (IsClicked)
+                        {
+                            OnClick();
+                        }
+                    }
+                }
+                else if (tl.Id == TouchId && tl.State == TouchLocationState.Moved)
+                {
+                    if (!_touchHeldConsumed)
+                    {
+                        _touchHeldConsumed = OnTouchHeld(_touchHeldTimeMs, tl);
                     }
                 }
                 else if (tl.Id == TouchId && tl.State == TouchLocationState.Moved)
@@ -206,7 +213,6 @@ namespace Mariasek.SharedClient.GameComponents
                     //System.Diagnostics.Debug.WriteLine(string.Format("{0}: OUT state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position));
                 }
             }
-
             base.Update(gameTime);
         } 
     }

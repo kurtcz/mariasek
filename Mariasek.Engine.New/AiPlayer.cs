@@ -1444,7 +1444,7 @@ namespace Mariasek.Engine.New
                         if (cardToPlay != null)
                         {
                             DebugInfo.Card = bestRuleWithThreshold.Key;
-                            DebugInfo.Rule = bestRuleWithThreshold.Value.First().Description;
+                            DebugInfo.Rule = bestRuleWithThreshold.Value.First(i => i.UseThreshold).Description;
                             DebugInfo.RuleCount = bestRuleWithThreshold.Value.Count;
                             DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count); //tohle by se melo rovnat poctu simulaci
                             DebugInfo.AllChoices = cardRules.Where(i => i.Value.Any(j => j.UseThreshold))

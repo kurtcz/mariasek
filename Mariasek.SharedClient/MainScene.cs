@@ -173,7 +173,7 @@ namespace Mariasek.SharedClient
 			_aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			{
 				Name = "SimulationsPerRound",
-				Value = "250"
+				Value = "1000"
 			});
 			_aiConfig.Add("SimulationsPerRoundPerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			{

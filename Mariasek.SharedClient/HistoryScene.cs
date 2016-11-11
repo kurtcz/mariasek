@@ -225,7 +225,8 @@ namespace Mariasek.SharedClient
             var ratio = total != 0 ? (wins * 100f / total) : 0f;
 
             _historyBox.Text = sb.ToString();
-			//_historyBox.ScrollToBottom();
+            _historyChart.ScrollToEnd();
+			_historyBox.ScrollToBottom();
             _stat.Text = string.Format("Odehráno her:\n{0}\nZ toho výher:\n{1}\nPoměr: {2:N0}%\nPříště začíná:\n{3}", 
                 total, wins, ratio, 
                 (Game.MainScene.g != null && Game.MainScene.g.players != null)
@@ -283,6 +284,12 @@ namespace Mariasek.SharedClient
         public void SettingsChanged(object sender, SettingsChangedEventArgs e)
         {
             _settings = e.Settings;
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+            _historyChart.IsEnabled = !_historyBox.IsVisible;
         }
     }
 }
