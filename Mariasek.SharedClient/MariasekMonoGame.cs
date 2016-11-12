@@ -80,6 +80,7 @@ namespace Mariasek.SharedClient
         public SoundEffect ClapSound { get; private set; }
         public SoundEffect CoughSound { get; private set; }
         public SoundEffect BooSound { get; private set; }
+        public SoundEffect LaughSound { get; private set; }
         public IEmailSender EmailSender { get; private set; }
         public readonly Vector2 CardScaleFactor;
 
@@ -190,6 +191,7 @@ namespace Mariasek.SharedClient
             ClapSound = Content.Load<SoundEffect>("clap");
             CoughSound = Content.Load<SoundEffect>("cough");
             BooSound = Content.Load<SoundEffect>("boo");
+            LaughSound = Content.Load<SoundEffect>("laugh");
             //TestScene = new TestScene(this);
             //TestScene.Initialize();
             //TestScene.SetActive();

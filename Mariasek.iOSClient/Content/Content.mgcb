@@ -55,3 +55,9 @@
 /processorParam:Quality=Best
 /build:watch-tick.wav
 
+#begin laugh.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:laugh.wav
+

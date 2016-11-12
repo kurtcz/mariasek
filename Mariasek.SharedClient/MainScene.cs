@@ -1598,6 +1598,17 @@ namespace Mariasek.SharedClient
 
         public void RoundFinished(object sender, Round r)
         {
+            var roundWinnerIndex = r.roundWinner.PlayerIndex;
+
+            //pokud hrajeme hru v barve a sebereme nekomu desitku nebo eso, tak se zasmej
+            if ((g.GameType & (Mariasek.Engine.New.Hra.Betl | Mariasek.Engine.New.Hra.Durch)) == 0 &&
+                (r.player1.PlayerIndex != roundWinnerIndex && r.player1.TeamMateIndex != roundWinnerIndex && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka)) ||
+                (r.player2.PlayerIndex != roundWinnerIndex && r.player2.TeamMateIndex != roundWinnerIndex && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka)) ||
+                (r.player3.PlayerIndex != roundWinnerIndex && r.player3.TeamMateIndex != roundWinnerIndex && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka)))
+            {
+                _synchronizationContext.Send(_ =>
+                { Game.LaughSound.Play(); }, null);
+            }
             if (r.number <= 10)
             {
                 g.ThrowIfCancellationRequested();
@@ -1665,7 +1676,7 @@ namespace Mariasek.SharedClient
             _settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
             Game.SettingsScene.UpdateSettings(_settings);
 
-            if(results.MoneyWon[0] >= 4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] >= 2))
+            if(g.rounds[0] != null && (results.MoneyWon[0] >= 4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] >= 2)))
             {
                 Game.ClapSound.Play();
             }

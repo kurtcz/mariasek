@@ -223,3 +223,9 @@
 /processorParam:TextureFormat=Color
 /build:marias2.png
 
+#begin laugh.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:laugh.wav
+
