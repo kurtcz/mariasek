@@ -80,7 +80,12 @@ namespace Mariasek.iOSClient
 		{
 			app.IdleTimerDisabled = false; //conserve battery when sleeping
 		}
-		#endif
+        #endif
+
+        public override void WillTerminate(UIApplication application)
+        {
+            game.Dispose();
+        }
     }
 
     #if MONOMAC

@@ -737,7 +737,7 @@ namespace Mariasek.SharedClient
             }
         }
 
-        private void CancelRunningTask()
+        public void CancelRunningTask()
         {
             if (_gameTask != null && _gameTask.Status == TaskStatus.Running)
             {

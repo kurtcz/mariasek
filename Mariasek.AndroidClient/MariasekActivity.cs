@@ -36,13 +36,44 @@ namespace Mariasek.AndroidClient
             System.Diagnostics.Debug.WriteLine("OnCreate()");
 			base.OnCreate (bundle);
 
-            //Load: _counter = outState.GetInt ("click_count", 0);
+            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
             // Create our OpenGL view, and display it
 			g = new MariasekMonoGame (this);
             SetContentView (g.Services.GetService<View>());
             g.Run();
 		}
+
+        protected override void OnStart()
+        {
+            System.Diagnostics.Debug.WriteLine("OnStart()");
+            base.OnStart();
+        }
+
+        protected override void OnPause()
+        {
+            System.Diagnostics.Debug.WriteLine("OnPause()");
+            base.OnPause();
+        }
+
+		protected override void OnResume()
+		{
+			System.Diagnostics.Debug.WriteLine("OnResume()");
+			base.OnResume();
+		}
+
+        protected override void OnStop()
+        {
+            System.Diagnostics.Debug.WriteLine("OnStop()");
+            base.OnStop();
+        }
+
+        protected override void OnDestroy()
+        {
+            System.Diagnostics.Debug.WriteLine("OnDestroy()");
+            g.Dispose();
+            base.OnDestroy();
+        }
 
         protected override void OnRestart()
         {
@@ -51,25 +82,28 @@ namespace Mariasek.AndroidClient
             g.OnRestart();
         }
 
-		protected override void OnResume()
-		{
-			System.Diagnostics.Debug.WriteLine("OnResume()");
-			base.OnResume();
-			//g.OnRestart();
-		}
-
-		protected override void OnPause()
-		{
-			System.Diagnostics.Debug.WriteLine("OnPause()");
-			base.OnPause();
-			//g.OnRestart();
-		}
-
 		protected override void OnSaveInstanceState (Bundle outState)
         {
-            //Save: outState.PutInt ("click_count", _counter);
+            System.Diagnostics.Debug.WriteLine("OnSaveInstanceState()");
             g.OnSaveInstanceState();
             base.OnSaveInstanceState (outState);    
+        }
+
+        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
+        {
+            System.Diagnostics.Debug.WriteLine("OnUnhandledException()");
+            //StartActivity(typeof(MariasekActivity));    //start a new instance
+            //Process.KillProcess(Process.MyPid());       //kill the old instace
+            //System.Environment.Exit(0);
+            var intent = new Intent(this, typeof(MariasekActivity));
+            intent.AddFlags(ActivityFlags.ClearTop | ActivityFlags.ClearTask | ActivityFlags.NewTask);
+
+            var pendingIntent = PendingIntent.GetActivity(Application.Context, 0, intent, PendingIntentFlags.UpdateCurrent);
+            var mgr = (AlarmManager)Application.BaseContext.GetSystemService(Context.AlarmService);
+            mgr.Set(AlarmType.Rtc, SystemClock.CurrentThreadTimeMillis() + 1000, pendingIntent);
+
+            Finish();
+            System.Environment.Exit(2);
         }
 
         public void SendEmail(string[] recipients, string subject, string body, string[] attachments)

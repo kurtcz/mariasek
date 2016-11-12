@@ -215,6 +215,12 @@ namespace Mariasek.SharedClient
 //#endif
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            MainScene.CancelRunningTask();
+            base.Dispose(disposing);
+        }
+
         public delegate void RestartedEventHandler();
         public event RestartedEventHandler Restarted;
 
