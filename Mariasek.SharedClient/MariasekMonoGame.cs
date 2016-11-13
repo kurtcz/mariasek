@@ -101,7 +101,7 @@ namespace Mariasek.SharedClient
 			Graphics.SupportedOrientations = DisplayOrientation.LandscapeRight |
 											 DisplayOrientation.LandscapeLeft;	
             Graphics.ApplyChanges();
-            CardScaleFactor = new Vector2(1.2f, 1.2f);
+            CardScaleFactor = new Vector2(1.4f, 1.4f);
             EmailSender = emailSender;
 		}
 
