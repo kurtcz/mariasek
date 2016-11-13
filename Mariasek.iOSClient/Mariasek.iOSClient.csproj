@@ -105,6 +105,8 @@
     <None Include="Content\cough.wav" />
     <None Include="Content\watch-tick.wav" />
     <None Include="Content\laugh.wav" />
+    <None Include="Content\na pankraci.mp3" />
+    <None Include="Content\tavern-ambience-looping.wav" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="GameThumbnail.png" />

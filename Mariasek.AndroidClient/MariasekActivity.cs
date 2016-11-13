@@ -53,12 +53,14 @@ namespace Mariasek.AndroidClient
         protected override void OnPause()
         {
             System.Diagnostics.Debug.WriteLine("OnPause()");
+            g.OnPaused();
             base.OnPause();
         }
 
 		protected override void OnResume()
 		{
 			System.Diagnostics.Debug.WriteLine("OnResume()");
+            g.OnResume();
 			base.OnResume();
 		}
 

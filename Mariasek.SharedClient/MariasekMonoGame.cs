@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Storage;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
+using Microsoft.Xna.Framework.Media;
 using Mariasek.SharedClient.GameComponents;
 #endregion
 
@@ -81,6 +82,8 @@ namespace Mariasek.SharedClient
         public SoundEffect CoughSound { get; private set; }
         public SoundEffect BooSound { get; private set; }
         public SoundEffect LaughSound { get; private set; }
+        public SoundEffectInstance AmbientSound { get; private set; }
+        public Song NaPankraciSong { get; private set; }
         public IEmailSender EmailSender { get; private set; }
         public readonly Vector2 CardScaleFactor;
 
@@ -103,6 +106,8 @@ namespace Mariasek.SharedClient
             Graphics.ApplyChanges();
             CardScaleFactor = new Vector2(1.4f, 1.4f);
             EmailSender = emailSender;
+            Resumed += GameResumed;
+            Paused += GamePaused;
 		}
 
         public static Version Version
@@ -192,6 +197,17 @@ namespace Mariasek.SharedClient
             CoughSound = Content.Load<SoundEffect>("cough");
             BooSound = Content.Load<SoundEffect>("boo");
             LaughSound = Content.Load<SoundEffect>("laugh");
+
+            AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
+            AmbientSound.IsLooped = true;
+            AmbientSound.Volume = 0;
+            AmbientSound.Play();
+
+            NaPankraciSong = Content.Load<Song>("na pankraci");
+            MediaPlayer.Volume = 0;
+            MediaPlayer.Play(NaPankraciSong);
+            MediaPlayer.IsRepeating = true;
+
             //TestScene = new TestScene(this);
             //TestScene.Initialize();
             //TestScene.SetActive();
@@ -223,6 +239,28 @@ namespace Mariasek.SharedClient
             base.Dispose(disposing);
         }
 
+        public delegate void ResumedEventHandler();
+        public event ResumedEventHandler Resumed;
+
+        public void OnResume()
+        {
+            if (Resumed != null)
+            {
+                Resumed();
+            }
+        }
+
+        public delegate void PausedEventHandler();
+        public event PausedEventHandler Paused;
+
+        public void OnPaused()
+        {
+            if (Paused != null)
+            {
+                Paused();
+            }
+        }
+
         public delegate void RestartedEventHandler();
         public event RestartedEventHandler Restarted;
 
@@ -233,6 +271,7 @@ namespace Mariasek.SharedClient
                 Restarted();
             }
         }
+
         public delegate void SaveInstanceStateEventHandler();
         public event SaveInstanceStateEventHandler SaveInstanceState;
 
@@ -242,6 +281,25 @@ namespace Mariasek.SharedClient
             {
                 SaveInstanceState();
             }
+        }
+
+        private void GameResumed()
+        {
+            if (AmbientSound != null && NaPankraciSong != null)
+            {
+                AmbientSound.Play();
+                MediaPlayer.Play(NaPankraciSong);
+                MediaPlayer.IsRepeating = true;
+            }
+        }
+
+        private void GamePaused()
+        {
+            if (AmbientSound != null)
+            {
+                AmbientSound.Stop();
+            }
+            MediaPlayer.Stop();
         }
 
 		/// <summary>

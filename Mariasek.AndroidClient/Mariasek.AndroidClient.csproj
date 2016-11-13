@@ -93,6 +93,7 @@
     <AndroidAsset Include="Assets\Content\watch-tick.wav" />
     <AndroidAsset Include="Assets\Content\marias2.png" />
     <AndroidAsset Include="Assets\Content\laugh.wav" />
+    <AndroidAsset Include="Assets\Content\na pankraci.mp3" />
   </ItemGroup>
   <Import Project="..\Mariasek.SharedClient\Mariasek.SharedClient.projitems" Label="Shared" Condition="Exists('..\Mariasek.SharedClient\Mariasek.SharedClient.projitems')" />
   <Import Project="..\packages\MonoGame.Binaries.3.2.3-alpha\build\MonoAndroid\MonoGame.Binaries.targets" Condition="Exists('..\packages\MonoGame.Binaries.3.2.3-alpha\build\MonoAndroid\MonoGame.Binaries.targets')" />
