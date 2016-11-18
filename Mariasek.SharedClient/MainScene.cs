@@ -1887,7 +1887,7 @@ namespace Mariasek.SharedClient
             SortHand(null);
             SoundEffect.MasterVolume = _settings.SoundEnabled ? 1f : 0f;
             Game.AmbientSound.Volume = _settings.SoundEnabled ? 0.2f : 0f;
-            MediaPlayer.Volume = _settings.SoundEnabled ? 0.1f : 0f;
+            Microsoft.Xna.Framework.Media.MediaPlayer.Volume = _settings.SoundEnabled ? 0.1f : 0f;
 
 			var oldTextures = Game.CardTextures;
 			var newTextures = _settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;

@@ -1,6 +1,4 @@
-﻿#define LOADGAME
-#region Using Statements
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
@@ -12,7 +10,6 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 using Microsoft.Xna.Framework.Media;
 using Mariasek.SharedClient.GameComponents;
-#endregion
 
 namespace Mariasek.SharedClient
 {
@@ -204,9 +201,9 @@ namespace Mariasek.SharedClient
             AmbientSound.Play();
 
             NaPankraciSong = Content.Load<Song>("na pankraci");
-            MediaPlayer.Volume = 0;
-            MediaPlayer.Play(NaPankraciSong);
-            MediaPlayer.IsRepeating = true;
+            Microsoft.Xna.Framework.Media.MediaPlayer.Volume = 0;
+            Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
+            Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
 
             //TestScene = new TestScene(this);
             //TestScene.Initialize();
@@ -225,12 +222,10 @@ namespace Mariasek.SharedClient
 			//GenerateScene.Initialize();
 
             MenuScene.SetActive();
-            //#if LOADGAME
             if (MainScene.CanLoadGame())
             {
                 MainScene.LoadGame();
             }
-//#endif
         }
 
         protected override void Dispose(bool disposing)
@@ -288,8 +283,8 @@ namespace Mariasek.SharedClient
             if (AmbientSound != null && NaPankraciSong != null)
             {
                 AmbientSound.Play();
-                MediaPlayer.Play(NaPankraciSong);
-                MediaPlayer.IsRepeating = true;
+                Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
+                Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
             }
         }
 
@@ -299,7 +294,7 @@ namespace Mariasek.SharedClient
             {
                 AmbientSound.Stop();
             }
-            MediaPlayer.Stop();
+            Microsoft.Xna.Framework.Media.MediaPlayer.Stop();
         }
 
 		/// <summary>
