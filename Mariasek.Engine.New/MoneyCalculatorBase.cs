@@ -31,6 +31,7 @@ namespace Mariasek.Engine.New
             get { return (_gameType & Hra.Betl) == 0 && (_gameType & Hra.Durch) == 0; }
         }
 
+        public bool GamePlayed { get; private set; }
         public float BaseBet { get; set; }
         public Hra GameType { get { return _gameType; } }
         public int PointsWon { get; private set; }
@@ -92,6 +93,7 @@ namespace Mariasek.Engine.New
             _gameStartingPlayerIndex = g.GameStartingPlayerIndex;
             PlayerNames = g.players.Select(i => i.Name).ToArray();
             BaseBet = g.BaseBet;
+            GamePlayed = g.rounds[0] != null;
 
             if(ci == null)
             {

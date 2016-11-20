@@ -185,10 +185,6 @@ namespace Mariasek.Engine.New
                 //zrus priznak u her ktere cele kolo nikdo neflekoval aby uz nesly flekovat dal
                 AdjustValidBidsForPlayer(i, j);
                 
-                if (Bids == 0)
-                {
-                    break;
-                }
                 var bid = _g.players[i].GetBidsAndDoubles(this);
                 //nastav priznak co hrac hlasil a flekoval
                 SetLastBidder(_g.players[i], bid);
@@ -199,6 +195,13 @@ namespace Mariasek.Engine.New
                 _g.AddBiddingDebugInfo(e.Player.PlayerIndex);
                 _g.OnBidMade(e);
                 _g.ThrowIfCancellationRequested();
+
+                var teamMate = _g.players[i].TeamMateIndex;
+                //pokud volici hrac mlci nebo pokud mlci druhy z protihracu pricemz prvni nic nerikal, tak muzeme flekovani ukoncit
+                if (bid == 0 && (teamMate == -1 || (teamMate == _g.players[(i + 2) % Game.NumPlayers].PlayerIndex && PlayerBids[teamMate] == 0)))
+                {
+                    break;
+                }
             }
 
             return gameType;

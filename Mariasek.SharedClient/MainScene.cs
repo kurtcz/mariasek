@@ -53,6 +53,7 @@ namespace Mariasek.SharedClient
         private ClickableArea _overlay;
         private Button _menuBtn;
         private Button _sendBtn;
+        private Button _newGameBtn;
         private Button _okBtn;
         private Button[] gtButtons, gfButtons, bidButtons;
         private Button gtHraButton;
@@ -306,7 +307,8 @@ namespace Mariasek.SharedClient
                 Text = "Menu",
                 Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 30),
                 ZIndex = 100,
-				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                Width = 150
             };
             _menuBtn.Click += MenuBtnClicked;
             _sendBtn = new Button(this)
@@ -314,9 +316,20 @@ namespace Mariasek.SharedClient
                 Text = "Odeslat",
                 Position = new Vector2(10, Game.VirtualScreenHeight / 2f + 30),
                 ZIndex = 100,
-				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                Width = 150
             };
             _sendBtn.Click += SendBtnClicked;
+            _newGameBtn = new Button(this)
+            {
+                Text = "Nová hra",
+                Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 90),
+                ZIndex = 100,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                Width = 150
+            };
+            _newGameBtn.Click += NewGameBtnClicked;
+            _newGameBtn.Hide();
             _hintBtn = new Button(this)
             {
                 Text = "?",
@@ -715,8 +728,39 @@ namespace Mariasek.SharedClient
         private string GetBaseFileName(string path)
         {
             var count = GetGameCount(path);
+            var gt = string.Empty;
 
-            return string.Format("{0:0000}-{1}", count + 1, DateTime.Now.ToString("yyyyMMdd"));
+            if ((g.GameType & Hra.Sedma) != 0)
+            {
+                if ((g.GameType & Hra.Hra) != 0)
+                {
+                    gt = "sedma";
+                }
+                else
+                {
+                    gt = "stosedm";
+                }
+            }
+            else
+            {
+                if ((g.GameType & Hra.Hra) != 0)
+                {
+                    gt = "hra";
+                }
+                else if ((g.GameType & Hra.Kilo) != 0)
+                {
+                    gt = "kilo";
+                }
+                else if ((g.GameType & Hra.Betl) != 0)
+                {
+                    gt = "betl";
+                }
+                else if ((g.GameType & Hra.Durch) != 0)
+                {
+                    gt = "durch";
+                }
+            }
+            return string.Format("{0:0000}-{1}.{2}", count + 1, gt, DateTime.Now.ToString("yyyyMMdd"));
         }
 
         public void ArchiveGame()
@@ -789,6 +833,7 @@ namespace Mariasek.SharedClient
 			_trumpLabel1.Hide();
 			_trumpLabel2.Hide();
 			_trumpLabel3.Hide();
+            _newGameBtn.Hide();
             _gameTask = Task.Run(() => {
                 if (File.Exists(_errorFilePath))
                 {
@@ -1598,26 +1643,31 @@ namespace Mariasek.SharedClient
 
         public void RoundFinished(object sender, Round r)
         {
-            var roundWinnerIndex = r.roundWinner.PlayerIndex;
-
-            //pokud hrajeme hru v barve a sebereme nekomu desitku nebo eso, tak se zasmej
-            if ((g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
-                ((r.player1.PlayerIndex != roundWinnerIndex && r.player1.TeamMateIndex != roundWinnerIndex && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka)) ||
-                 (r.player2.PlayerIndex != roundWinnerIndex && r.player2.TeamMateIndex != roundWinnerIndex && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka)) ||
-                 (r.player3.PlayerIndex != roundWinnerIndex && r.player3.TeamMateIndex != roundWinnerIndex && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))))
-            {
-                _synchronizationContext.Send(_ =>
-                { Game.LaughSound.Play(); }, null);
-            }
             if (r.number <= 10)
             {
-                g.ThrowIfCancellationRequested();
-                _synchronizationContext.Send(_ =>
+                //    g.ThrowIfCancellationRequested();
+                //    _synchronizationContext.Send(_ =>
+                //        {
+                //            ShowMsgLabel("Klikni kamkoli", false);
+                //            ShowInvisibleClickableOverlay();
+                //            _state = GameState.RoundFinished;
+                //        }, null);
+                this.Wait(1000)
+                     .Invoke(() =>
                     {
-                        ShowMsgLabel("Klikni kamkoli", false);
-                        ShowInvisibleClickableOverlay();
-                        _state = GameState.RoundFinished;
-                    }, null);
+                        var roundWinnerIndex = r.roundWinner.PlayerIndex;
+
+                    //pokud hrajeme hru v barve a sebereme nekomu desitku nebo eso, tak se zasmej
+                    if ((g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+                            ((r.player1.PlayerIndex != roundWinnerIndex && r.player1.TeamMateIndex != roundWinnerIndex && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka)) ||
+                             (r.player2.PlayerIndex != roundWinnerIndex && r.player2.TeamMateIndex != roundWinnerIndex && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka)) ||
+                             (r.player3.PlayerIndex != roundWinnerIndex && r.player3.TeamMateIndex != roundWinnerIndex && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))))
+                        {
+                            _synchronizationContext.Send(_ =>
+                            { Game.LaughSound.Play(); }, null);
+                        }
+                        ClearTableAfterRoundFinished();
+                    });
                 WaitForUIThread();
             }
         }
@@ -1654,6 +1704,7 @@ namespace Mariasek.SharedClient
             HideInvisibleClickableOverlay();
 			HideThinkingMessage();
             ShowMsgLabelLeftRight(leftMessage.ToString(), rightMessage.ToString());
+            _newGameBtn.Show();
 
             _deck = g.GetDeckFromLastGame();
             SaveDeck();
@@ -1720,7 +1771,9 @@ namespace Mariasek.SharedClient
                     g = new Mariasek.Engine.New.Game()
                         {
                             SkipBidding = false,
-                            BaseBet = _settings.BaseBet
+                            GetFileStream = GetFileStream,
+                            BaseBet = _settings.BaseBet,
+                            GetVersion = () => MariasekMonoGame.Version
                         };
                     g.RegisterPlayers(
                         new HumanPlayer(g, _aiConfig, this, _settings.HintEnabled) { Name = "Hráč 1" },
@@ -2167,9 +2220,9 @@ namespace Mariasek.SharedClient
 
         private void OverlayTouchUp(object sender, TouchLocation tl)
         {
-            _state = GameState.NotPlaying;
-            ClearTableAfterRoundFinished();
-            HideMsgLabel();
+            //_state = GameState.NotPlaying;
+            //ClearTableAfterRoundFinished();
+            //HideMsgLabel();
             HideInvisibleClickableOverlay();
         }
 

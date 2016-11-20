@@ -209,6 +209,21 @@ namespace Mariasek.Engine.New
         {
             var sb = new StringBuilder();
 
+            if (!GamePlayed)
+            {
+                sb.Append("Nehrálo se\n");
+            }
+            else
+            {
+                if (MoneyWon[0] > 0)
+                {
+                    sb.Append("Vyhráls ...\n");
+                }
+                else if (MoneyWon[0] < 0)
+                {
+                    sb.Append("Prohráls ...\n");
+                }
+            }
             foreach (var gt in Enum.GetValues(typeof(Hra)).Cast<Hra>().Where(i => (_gameType & i) != 0))
             {
                 var won = false;
@@ -281,6 +296,10 @@ namespace Mariasek.Engine.New
                         break;
                 }
 
+                if ((gt & (Hra.SedmaProti | Hra.KiloProti)) == 0)
+                {
+                    sb.AppendFormat("{0}: ", PlayerNames[_gameStartingPlayerIndex]);
+                }
                 sb.AppendFormat("{0} {1}{2}{3}\t{4}\n{5}", 
                     status, 
                     gt.ToString().ToLower(), 
