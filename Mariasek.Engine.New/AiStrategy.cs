@@ -347,6 +347,10 @@ namespace Mariasek.Engine.New
 
                     if (TeamMateIndex == -1)
                     {
+                        if ((_gameType & Hra.Kilo) == 0) //mimo kilo nepouzivat
+                        {
+                            return null;
+                        }
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&                       //pokud mam trumf
                                                                 i.Value != Hodnota.Desitka &&                         //a neni to desitka
                                                                 ((hands[player2].HasX(_trump) ||                      //a aspon jeden ze souperu ma trumfove A nebo X
