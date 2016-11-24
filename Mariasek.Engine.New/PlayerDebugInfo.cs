@@ -9,6 +9,11 @@ namespace Mariasek.Engine.New
     {
         public RuleDebugInfo[] AllChoices { get; set; }
 		public TimeSpan ComputationTime { get; set; }
+
+        public PlayerDebugInfo()
+        {
+            AllChoices = new RuleDebugInfo[0];
+        }
     }
 
     public class RuleDebugInfo

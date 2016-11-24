@@ -143,11 +143,14 @@ namespace Mariasek.SharedClient
             }
             _talon = _scene.ChooseTalon();
 
-            _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon)
-			{
-				ExternalDebugString = _aiPlayer._debugString
-			};
-            _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
+            if (_aiPlayer != null)
+            {
+                _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon)
+                {
+                    ExternalDebugString = _aiPlayer._debugString
+                };
+                _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
+            }
             CancelAiTask();
             return _talon;
         }

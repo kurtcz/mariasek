@@ -95,7 +95,7 @@ namespace Mariasek.SharedClient
         private int _aiMessageIndex;
         public int CurrentStartingPlayerIndex = -1;
         private Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
-
+        public string[] PlayerNames = { "Já", "Karel", "Pepa" };
 #if __IOS__
         private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
 #elif __ANDROID__
@@ -847,9 +847,9 @@ namespace Mariasek.SharedClient
 					GetVersion = () => MariasekMonoGame.Version
                 };
                 g.RegisterPlayers(
-                    new HumanPlayer(g, _aiConfig, this, _settings.HintEnabled) { Name = "Hráč 1" },
-                    new AiPlayer(g, _aiConfig) { Name = "Hráč 2" },
-                    new AiPlayer(g, _aiConfig) { Name = "Hráč 3" }
+                    new HumanPlayer(g, _aiConfig, this, _settings.HintEnabled) { Name = PlayerNames[0] },
+                    new AiPlayer(g, _aiConfig) { Name = PlayerNames[1] },
+                    new AiPlayer(g, _aiConfig) { Name = PlayerNames[2] }
                 );
                 CurrentStartingPlayerIndex = _settings.CurrentStartingPlayerIndex; //TODO: zrusit CurrentStartingPlayerIndex a pouzivat jen _settings.CurrentStartingPlayerIndex
                 CurrentStartingPlayerIndex = (CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers;

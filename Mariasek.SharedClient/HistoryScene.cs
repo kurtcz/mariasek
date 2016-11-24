@@ -119,7 +119,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(350, 20),
                 Width = 120,
                 Height = 50,
-                Text = "Hráč 1",
+                Text = Game.MainScene.PlayerNames[0],
                 TextColor = _historyChart.Colors[0]
             };
             _player2 = new Label(this)
@@ -127,7 +127,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(485, 20),
                 Width = 120,
                 Height = 50,
-                Text = "Hráč 2 (AI)",
+                Text = Game.MainScene.PlayerNames[1],
                 TextColor = _historyChart.Colors[1]
             };
             _player3 = new Label(this)
@@ -135,7 +135,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(630, 20),
                 Width = 120,
                 Height = 50,
-                Text = "Hráč 3 (AI)",
+                Text = Game.MainScene.PlayerNames[2],
                 TextColor = _historyChart.Colors[2]
             };
             _historyBox = new TextBox(this)
