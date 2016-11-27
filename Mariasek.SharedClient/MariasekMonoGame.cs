@@ -126,7 +126,7 @@ namespace Mariasek.SharedClient
 		protected override void Initialize ()
 		{
             System.Diagnostics.Debug.WriteLine("Initialize()");
-			// TODO: Add your initialization logic here
+            // TODO: Add your initialization logic here
 
             var width = Math.Max(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             var height = Math.Min(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);

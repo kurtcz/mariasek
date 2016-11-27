@@ -211,17 +211,17 @@ namespace Mariasek.Engine.New
 
             if (!GamePlayed)
             {
-                sb.Append("Nehrálo se\n");
+                sb.Append("Nehrálo se\t\n");
             }
             else
             {
                 if (MoneyWon[0] > 0)
                 {
-                    sb.Append("Vyhráls ...\n");
+                    sb.Append("Vyhráls ...\t\n");
                 }
                 else if (MoneyWon[0] < 0)
                 {
-                    sb.Append("Prohráls ...\n");
+                    sb.Append("Prohráls ...\t\n");
                 }
             }
             foreach (var gt in Enum.GetValues(typeof(Hra)).Cast<Hra>().Where(i => (_gameType & i) != 0))
@@ -241,7 +241,7 @@ namespace Mariasek.Engine.New
                         genre = Genre.Feminine;
                         multiplier = _bidding.GameMultiplier;
                         money = GameMoneyWon;
-                        score = string.Format("Skóre: {0}:{1}\n", PointsWon, PointsLost);
+                        score = string.Format("Skóre: {0}:{1}\t\n", PointsWon, PointsLost);
                         break;
                     case Hra.Sedma:
                         won = SevenWon;
@@ -255,7 +255,7 @@ namespace Mariasek.Engine.New
                         genre = Genre.Neutral;
                         multiplier = _bidding.GameMultiplier;
                         money = HundredMoneyWon;
-                        score = string.Format("Skóre: {0}:{1}{2}\n", PointsWon, PointsLost, won ? string.Empty : string.Format("\nDo kila schází: {0} bodů", 100 - (BasicPointsWon + MaxHlasWon)));
+                        score = string.Format("Skóre: {0}:{1}{2}\t\n", PointsWon, PointsLost, won ? string.Empty : string.Format("\nDo kila schází: {0} bodů", 100 - (BasicPointsWon + MaxHlasWon)));
                         break;
                     case Hra.SedmaProti:
                         won = SevenAgainstWon;

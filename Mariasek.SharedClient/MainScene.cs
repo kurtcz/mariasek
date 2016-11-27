@@ -203,12 +203,12 @@ namespace Mariasek.SharedClient
 			});
 			_aiConfig.Add("GameThreshold.Sedma", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			{
-				Name = "GameThreshold.Betl",
+				Name = "GameThreshold.Sedma",
 				Value = "70|80|85|90|95"
 			});
 			_aiConfig.Add("GameThreshold.SedmaProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			{
-				Name = "GameThreshold.Betl",
+				Name = "GameThreshold.SedmaProti",
 				Value = "70|80|85|90|95"
 			});
 			_aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
@@ -221,11 +221,11 @@ namespace Mariasek.SharedClient
 				Name = "GameThreshold.KiloProti",
 				Value = "95|96|97|98|99"
 			});
-			//_aiConfig.Add("GameThreshold.Betl", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			//{
-			//    Name = "GameThreshold.Betl",
-			//    Value = "75|80|85|90|95"
-			//});
+			_aiConfig.Add("GameThreshold.Betl", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+			    Name = "GameThreshold.Betl",
+			    Value = "65|75|85|90|95"
+			});
 			_aiConfig.Add("GameThreshold.Durch", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			{
 				Name = "GameThreshold.Durch",
@@ -1698,6 +1698,7 @@ namespace Mariasek.SharedClient
                 {
                     rightMessage.Append(tokens[1]);
                 }
+                    
                 leftMessage.Append("\n");
                 rightMessage.Append("\n");
             }
