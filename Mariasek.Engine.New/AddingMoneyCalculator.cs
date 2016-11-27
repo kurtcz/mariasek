@@ -149,11 +149,11 @@ namespace Mariasek.Engine.New
                 {
                     if (HundredAgainstWon)
                     {
-                        HundredAgainstMoneyWon = - HundredValue * _bidding.GameMultiplier * (PointsLost - 90) / 10;
+                        HundredAgainstMoneyWon = - HundredValue * _bidding.HundredAgainstMultiplier * (PointsLost - 90) / 10;
                     }
                     else
                     {
-                        HundredAgainstMoneyWon = HundredValue * _bidding.GameMultiplier * (100 - BasicPointsLost - MaxHlasLost) / 10;
+                        HundredAgainstMoneyWon = HundredValue * _bidding.HundredAgainstMultiplier * (100 - BasicPointsLost - MaxHlasLost) / 10;
                     }
                     money += HundredAgainstMoneyWon;
                 }

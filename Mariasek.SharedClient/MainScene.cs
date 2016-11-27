@@ -219,7 +219,7 @@ namespace Mariasek.SharedClient
 			_aiConfig.Add("GameThreshold.KiloProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			{
 				Name = "GameThreshold.KiloProti",
-				Value = "90|95|97|98|99"
+				Value = "95|96|97|98|99"
 			});
 			//_aiConfig.Add("GameThreshold.Betl", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			//{
@@ -1776,9 +1776,9 @@ namespace Mariasek.SharedClient
                             GetVersion = () => MariasekMonoGame.Version
                         };
                     g.RegisterPlayers(
-                        new HumanPlayer(g, _aiConfig, this, _settings.HintEnabled) { Name = "Hráč 1" },
-                        new AiPlayer(g, _aiConfig) { Name = "Hráč 2" },
-                        new AiPlayer(g, _aiConfig) { Name = "Hráč 3" }
+                        new HumanPlayer(g, _aiConfig, this, _settings.HintEnabled) { Name = PlayerNames[0] },
+                        new AiPlayer(g, _aiConfig) { Name = PlayerNames[1] },
+                        new AiPlayer(g, _aiConfig) { Name = PlayerNames[2] }
                     );
 
 					try

@@ -190,7 +190,7 @@ namespace Mariasek.SharedClient
 
                 for (var j = 0; j < Game.Money.Count; j++)
                 {
-                    sums[i] += Game.Money[j].MoneyWon[i];
+                    sums[i] += Game.Money[j].MoneyWon[i] * _settings.BaseBet;
                     series[i][j + 1] = new Vector2(j + 1, sums[i]);
                     if (maxWon < sums[i])
                     {
@@ -213,9 +213,9 @@ namespace Mariasek.SharedClient
             foreach (var historyItem in Game.Money)
             {                
                 sb.AppendFormat("\t\t{0}\t{1}\t{2}\n", 
-                    historyItem.MoneyWon[0].ToString("C", culture), 
-                    historyItem.MoneyWon[1].ToString("C", culture), 
-                    historyItem.MoneyWon[2].ToString("C", culture));
+                                (historyItem.MoneyWon[0] * _settings.BaseBet).ToString("C", culture), 
+                                (historyItem.MoneyWon[1] * _settings.BaseBet).ToString("C", culture), 
+                                (historyItem.MoneyWon[2] * _settings.BaseBet).ToString("C", culture));
                 if (historyItem.MoneyWon[0] > 0)
                 {
                     wins++;

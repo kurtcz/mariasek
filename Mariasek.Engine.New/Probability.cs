@@ -21,6 +21,7 @@ namespace Mariasek.Engine.New
         private int _gameStarterIndex;
         private Barva? _trump;
         private readonly Dictionary<Barva, Dictionary<Hodnota, float>>[] _cardProbabilityForPlayer;
+        private readonly List<Card>[] _cardsPlayedByPlayer;
         private static RandomMT mt = new RandomMT((ulong)(DateTime.Now - DateTime.MinValue).TotalMilliseconds);
 		private readonly List<int> _playerWeights;
 		private List<Hand[]> generatedHands;
@@ -61,8 +62,13 @@ namespace Mariasek.Engine.New
 
             _gameBidders.Add(gameStarterIndex);
             _cardProbabilityForPlayer = new Dictionary<Barva, Dictionary<Hodnota, float>>[Game.NumPlayers + 1];
+            _cardsPlayedByPlayer = new List<Card>[Game.NumPlayers];
             for (var i = 0; i < Game.NumPlayers + 1; i++)
             {
+                if (i < Game.NumPlayers)
+                {
+                    _cardsPlayedByPlayer[i] = new List<Card>();
+                }
                 _cardProbabilityForPlayer[i] = new Dictionary<Barva, Dictionary<Hodnota, float>>();
                 foreach (var b in Enum.GetValues(typeof (Barva)).Cast<Barva>())
                 {
@@ -109,61 +115,101 @@ namespace Mariasek.Engine.New
         /// </summary>
         private void UpdateUncertainCardsProbability()
         {
+            var gameStarterInitialExpectedTrumps = -1f;
             for (var i = 0; i < Game.NumPlayers + 1; i++)
             {
-                if (i == _myIndex)
+                var ii = (_gameStarterIndex + i) % (Game.NumPlayers + 1);
+                if (ii == _myIndex)
                 {
                     continue;
                 }
                 foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
                 {
-                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _cardProbabilityForPlayer[i][b][h] > 0f &&
-                                                                                                 _cardProbabilityForPlayer[i][b][h] < 1f))
+                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _cardProbabilityForPlayer[ii][b][h] > 0f &&
+                                                                                                 _cardProbabilityForPlayer[ii][b][h] < 1f))
                     {
                         //totalUncertainCards is computed only over those players who can have such card (with probability 0.5)
-						int totalUncertainCards = _cardProbabilityForPlayer.Count(j => j[b][h] > 0f && j[b][h] < 1f);
+                        var totalUncertainCards = _cardProbabilityForPlayer.Count(j => j[b][h] > 0f && j[b][h] < 1f);
 
-                        _cardProbabilityForPlayer[i][b][h] = (float)1 / totalUncertainCards;
-						//pokud nekdo hlasil kilo nebo sedmu, zvednu mu pravdepodobnosti trumfovych karet
-						//ostatnim naopak pravdepodobnosti snizim
+                        _cardProbabilityForPlayer[ii][b][h] = (float)1 / totalUncertainCards;
+                        //pokud nekdo hlasil kilo nebo sedmu, zvednu mu pravdepodobnosti trumfovych karet
+                        //ostatnim naopak pravdepodobnosti snizim
 
                         //TODO: tyhle pravdepodobnosti by mely zaviset na tom kolik mam na zacatku hry ja sam trumfu
                         //(pokud mam ja 3 trumfy a souper hlasi sedmu nebo kilo tak ma asi skoro urcite vsechny zbivajici)
-						if (_trump.HasValue && b == _trump.Value)
-						{
+                        if (_trump.HasValue && b == _trump.Value)
+                        {
+                            var playedTrumps = i != talonIndex ? _cardsPlayedByPlayer[ii].Count(j => j.Suit == b) : 0;
+                            var certainTrumps = _cardProbabilityForPlayer[ii][b].Count(j => j.Value == 1);//pocet jistych trumfu pro daneho hrace
+                            var totalUncertainTrumps = _cardProbabilityForPlayer.SelectMany(j => j[b].Where(k => k.Value > 0f && k.Value < 1f)
+                                                                                                     .Select(k => k.Key))
+                                                                                .Distinct().Count();//celkovy pocet nejistych trumfu pro vsechny
+                            float initialExpectedTrumps = -1f;
+                            float currentExpectedTrumps;
+                            float epsilon = 0.001f;
+
 							if (_hundredIndex >= 0)
 							{
-								if (i == _hundredIndex)
-								{
-									_cardProbabilityForPlayer[i][b][h] = 0.875f; //7/8 nevolil jsem a trumf ma asi spis ten co volil
-								}
-								else if (_myIndex != _hundredIndex)
-								{
-									_cardProbabilityForPlayer[i][b][h] = 0.0625f; //1/2 * 1/8 nez spoluhrac a talon
-								}
-							}
+                                if (ii == _hundredIndex) //pocet trumfu pro toho kdo volil
+                                {
+                                    initialExpectedTrumps = Math.Min(7, totalUncertainTrumps + 1) - epsilon; //+1 za trumfovou kartu kterou jsme videli
+                                    gameStarterInitialExpectedTrumps = initialExpectedTrumps;
+                                }
+                                else if (_myIndex != _hundredIndex) //stovku volil nekdo jiny
+                                {
+                                    if (ii != talonIndex) //pocet trumfu pro meho spoluhrace
+                                    {
+                                        initialExpectedTrumps = 8 - gameStarterInitialExpectedTrumps - 2 * epsilon;
+                                    }
+                                    else //pocet trumfu do talonu
+                                    {
+                                        initialExpectedTrumps = 2 * epsilon;
+                                    }
+                                }
+                            }
 							else if (_sevenIndex >= 0)
 							{
-								if (i == _sevenIndex)
-								{
-									_cardProbabilityForPlayer[i][b][h] = 0.75f; //6/8 nevolil jsem a trumf ma asi spis ten co volil
-								}
-								else if (_myIndex != _sevenIndex)
-								{
-									_cardProbabilityForPlayer[i][b][h] = 0.125f; //1/8 nez spoluhrac a talon
-								}
-							}
+                                if (ii == _sevenIndex) //pocet trumfu pro toho kdo volil
+                                {
+                                    initialExpectedTrumps = Math.Min(6, totalUncertainTrumps + 1) - epsilon; //+1 za trumfovou kartu kterou jsme videli
+                                    gameStarterInitialExpectedTrumps = initialExpectedTrumps;
+                                }
+                                else if (_myIndex != _sevenIndex) //sedmu volil nekdo jiny
+                                {
+                                    if (ii != talonIndex) //pocet trumfu pro meho spoluhrace
+                                    {
+                                        initialExpectedTrumps = 8 - gameStarterInitialExpectedTrumps - 2 * epsilon;
+                                    }
+                                    else //pocet trumfu do talonu
+                                    {
+                                        initialExpectedTrumps = 2 * epsilon;
+                                    }
+                                }
+                            }
 							else if (_gameIndex >= 0)
 							{
-								if (i == _sevenIndex)
-								{
-									_cardProbabilityForPlayer[i][b][h] = 0.5f; //4/8 nevolil jsem a trumf ma asi spis ten co volil
-								}
-								else if (_myIndex != _sevenIndex)
-								{
-									_cardProbabilityForPlayer[i][b][h] = 0.25f; //2/8 nez spoluhrac a talonn
-								}
-							}
+                                if (ii == _gameIndex) //pocet trumfu pro toho kdo volil
+                                {
+                                    initialExpectedTrumps = Math.Min(5, totalUncertainTrumps + 1) - epsilon; //+1 za trumfovou kartu kterou jsme videli
+                                    gameStarterInitialExpectedTrumps = initialExpectedTrumps;
+                                }
+                                else if (_myIndex != _gameIndex) //hru volil nekdo jiny
+                                {
+                                    if (ii != talonIndex) //pocet trumfu pro meho spoluhrace
+                                    {
+                                        initialExpectedTrumps = 8 - gameStarterInitialExpectedTrumps - 2 * epsilon;
+                                    }
+                                    else //pocet trumfu do talonu
+                                    {
+                                        initialExpectedTrumps = 2 * epsilon;
+                                    }
+                                }
+                            }
+                            currentExpectedTrumps = initialExpectedTrumps - playedTrumps - certainTrumps;
+                            if (currentExpectedTrumps > 0)
+                            {
+                                _cardProbabilityForPlayer[ii][b][h] = currentExpectedTrumps / totalUncertainTrumps;
+                            }
 						}
                     }
                 }
@@ -701,6 +747,7 @@ namespace Mariasek.Engine.New
 			{
 				_gameIndex = e.GameStartingPlayerIndex;
 			}
+            UpdateUncertainCardsProbability();
 			_debugString.Append(FriendlyString(0));
 			_debugString.Append("-----\n");
         }
@@ -719,6 +766,7 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Kral] = 0f;
                 _cardProbabilityForPlayer[talonIndex][c1.Suit][Hodnota.Kral] = 0f;
             }
+            _cardsPlayedByPlayer[roundStarterIndex].Add(c1);
             ReduceUcertainCardSet();
             UpdateUncertainCardsProbability();
 			_debugString.Append(FriendlyString(roundNumber));
@@ -739,7 +787,8 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c2.Suit][Hodnota.Kral] = 0f;
                 _cardProbabilityForPlayer[talonIndex][c2.Suit][Hodnota.Kral] = 0f;
             }
-            //ReduceUcertainCardSet();
+            _cardsPlayedByPlayer[(roundStarterIndex + 1) % Game.NumPlayers].Add(c2);
+            ReduceUcertainCardSet();
             if (c2.Suit != c1.Suit || c2.IsLowerThan(c1, _trump))
             {
                 if (c2.Suit == c1.Suit)
@@ -776,6 +825,7 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Kral] = 1f;
                 _cardProbabilityForPlayer[talonIndex][c3.Suit][Hodnota.Kral] = 0f;
             }
+            _cardsPlayedByPlayer[(roundStarterIndex + 2) % Game.NumPlayers].Add(c3);
             ReduceUcertainCardSet();
             if (c2.Suit != c1.Suit || c2.IsLowerThan(c1, _trump))
             {
