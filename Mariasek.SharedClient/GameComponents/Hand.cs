@@ -49,8 +49,8 @@ namespace Mariasek.SharedClient.GameComponents
         private CardButton[] _sprites = new CardButton[12];
 
         private const int ZIndexBase = 50;
-        const int CardWidth = 65;
-        const int CardHeight = 112;
+        public const int CardWidth = 65;
+        public const int CardHeight = 112;
 
         public delegate void ClickEventHandler(object sender);
         public event ClickEventHandler Click;

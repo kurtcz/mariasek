@@ -211,17 +211,17 @@ namespace Mariasek.Engine.New
 
             if (!GamePlayed)
             {
-                sb.Append("Nehrálo se\n");
+                sb.Append("Nehrálo se\t»»»»»»\n");
             }
             else
             {
                 if (MoneyWon[0] > 0)
                 {
-                    sb.Append("Vyhráls ...\n");
+                    sb.Append("Vyhráls ...\t»»»»»»\n");
                 }
                 else if (MoneyWon[0] < 0)
                 {
-                    sb.Append("Prohráls ...\n");
+                    sb.Append("Prohráls ...\t»»»»»»\n");
                 }
             }
             foreach (var gt in Enum.GetValues(typeof(Hra)).Cast<Hra>().Where(i => (_gameType & i) != 0))

@@ -54,6 +54,7 @@ namespace Mariasek.SharedClient
         private Button _menuBtn;
         private Button _sendBtn;
         private Button _newGameBtn;
+        private Button _reviewGameBtn;
         private Button _okBtn;
         private Button[] gtButtons, gfButtons, bidButtons;
         private Button gtHraButton;
@@ -73,6 +74,7 @@ namespace Mariasek.SharedClient
         private Label _msgLabel;
         private Label _msgLabelLeft;
         private Label _msgLabelRight;
+        private Label _totalBalance;
         private ProgressIndicator _progress1, _progress2, _progress3;
         private ProgressIndicator[] _progressBars;
         private TextBox _bubble1,  _bubble2,  _bubble3;
@@ -80,6 +82,7 @@ namespace Mariasek.SharedClient
 		private int _bubbleSemaphore;
 		private bool[] _bubbleAutoHide;
         private bool _skipBidBubble;
+        private GameReview _review;
 
         #pragma warning restore 414
         #endregion
@@ -320,6 +323,16 @@ namespace Mariasek.SharedClient
                 Width = 150
             };
             _sendBtn.Click += SendBtnClicked;
+            _reviewGameBtn = new Button(this)
+            {
+                Text = "Průběh hry",
+                Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 150),
+                ZIndex = 100,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                Width = 150
+            };
+            _reviewGameBtn.Click += ReviewGameBtnClicked;
+            _reviewGameBtn.Hide();
             _newGameBtn = new Button(this)
             {
                 Text = "Nová hra",
@@ -475,9 +488,9 @@ namespace Mariasek.SharedClient
             { 
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(120, 20),
+                Position = new Vector2(120, 45),
                 Width = (int)Game.VirtualScreenWidth - 240,
-                Height = (int)Game.VirtualScreenHeight - 40,
+                Height = (int)Game.VirtualScreenHeight - 80,
                 TextColor = Color.Yellow,
                 TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
                 ZIndex = 100
@@ -486,10 +499,20 @@ namespace Mariasek.SharedClient
             { 
                 HorizontalAlign = HorizontalAlignment.Right,
                 VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(120, 20),
+                Position = new Vector2(120, 45),
                 Width = (int)Game.VirtualScreenWidth - 240,
-                Height = (int)Game.VirtualScreenHeight - 40,
+                Height = (int)Game.VirtualScreenHeight - 80,
                 TextColor = Color.Yellow,
+                TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
+                ZIndex = 100
+            };
+            _totalBalance = new Label(this)
+            {
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle,
+                Position = new Vector2(120, (int)Game.VirtualScreenHeight - 60),
+                Width = (int)Game.VirtualScreenWidth - 240,
+                Height = 40,
                 TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
                 ZIndex = 100
             };
@@ -712,10 +735,12 @@ namespace Mariasek.SharedClient
         {
             try
             {
-                var lastFile = Path.GetFileName(Directory.GetFiles(path, "*-????????.def.hra").Last());
-                var countString = lastFile.Substring(0, lastFile.IndexOf('-'));
+                var lastFile1 = Path.GetFileName(Directory.GetFiles(path, "*.????????.def.hra").OrderBy(i => i).Last());
+                var lastFile2 = Path.GetFileName(Directory.GetFiles(path, "*.????????.end.hra").OrderBy(i => i).Last());
+                var countString1 = lastFile1.Substring(0, lastFile1.IndexOf('-'));
+                var countString2 = lastFile2.Substring(0, lastFile2.IndexOf('-'));
 
-                return int.Parse(countString);
+                return Math.Max(int.Parse(countString1), int.Parse(countString2));
             }
             catch (Exception e)
             {
@@ -827,6 +852,26 @@ namespace Mariasek.SharedClient
             kiloBtn.Hide();
         }
 
+        public void ReviewGameBtnClicked(object sender)
+        {
+            if (_review.IsVisible)
+            {
+                _reviewGameBtn.Text = "Průběh hry";
+                _review.Hide();
+                _msgLabelLeft.Show();
+                _msgLabelRight.Show();
+                _totalBalance.Show();
+            }
+            else
+            {
+                _reviewGameBtn.Text = "Vyúčtování";
+                _msgLabelLeft.Hide();
+                _msgLabelRight.Hide();
+                _totalBalance.Hide();
+                _review.Show();
+            }
+        }
+
         public void NewGameBtnClicked(object sender)
         {
             CancelRunningTask();
@@ -901,6 +946,11 @@ namespace Mariasek.SharedClient
                 BackgroundTint = Color.White;
                 ClearTable(true);
                 HideMsgLabel();
+                _reviewGameBtn.Hide();
+                if (_review != null)
+                {
+                    _review.Hide();
+                }
                 foreach (var btn in gtButtons)
                 {
                     btn.Hide();
@@ -1702,9 +1752,20 @@ namespace Mariasek.SharedClient
                 leftMessage.Append("\n");
                 rightMessage.Append("\n");
             }
+            _review = new GameReview(this)
+            {
+                Position = new Vector2(120, 45),
+                Width = (int)Game.VirtualScreenWidth - 120,
+                Height = (int)Game.VirtualScreenHeight - 55
+            };
+            _review.Hide();
+            _reviewGameBtn.Show();
             HideInvisibleClickableOverlay();
 			HideThinkingMessage();
             ShowMsgLabelLeftRight(leftMessage.ToString(), rightMessage.ToString());
+            var totalWon = Game.Money.Sum(i => i.MoneyWon[0]);
+            _totalBalance.Text = string.Format("Celkem jsem {0}: {1}", totalWon >= 0 ? "vyhrál" : "prohrál", totalWon.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+            _totalBalance.Show();
             _newGameBtn.Show();
 
             _deck = g.GetDeckFromLastGame();
@@ -1818,6 +1879,11 @@ namespace Mariasek.SharedClient
 
                     ClearTable(true);
                     HideMsgLabel();
+                    _reviewGameBtn.Hide();
+                    if (_review != null)
+                    {
+                        _review.Hide();
+                    }
                     foreach (var btn in gtButtons)
                     {
                         btn.Hide();
@@ -2062,6 +2128,14 @@ namespace Mariasek.SharedClient
             }
         }
 
+        public void DeleteArchiveFolder()
+        {
+            foreach (var game in Directory.GetFiles(_archivePath))
+            {
+                File.Delete(game);
+            }
+        }
+
 		private void ShowBubble(int bubbleNo, string message, bool autoHide = true)
 		{
 			Console.WriteLine("!!ShowBubble ({0}, \"{1}\", {2}) ->", bubbleNo + 1, message, autoHide);
@@ -2146,6 +2220,7 @@ namespace Mariasek.SharedClient
             _msgLabel.Hide();
             _msgLabelLeft.Hide();
             _msgLabelRight.Hide();
+            _totalBalance.Hide();
 
             if (_winningHand != null)
             {
@@ -2172,6 +2247,7 @@ namespace Mariasek.SharedClient
             _msgLabelRight.Text = rightMessage;
             _msgLabelLeft.Show();
             _msgLabelRight.Show();
+            _totalBalance.Show();
         }
 
         public void HideMsgLabel()
@@ -2179,6 +2255,7 @@ namespace Mariasek.SharedClient
             _msgLabel.Hide();
             _msgLabelLeft.Hide();
             _msgLabelRight.Hide();
+            _totalBalance.Hide();
             _okBtn.Hide();
         }
 
@@ -2222,8 +2299,8 @@ namespace Mariasek.SharedClient
         private void OverlayTouchUp(object sender, TouchLocation tl)
         {
             //_state = GameState.NotPlaying;
-            //ClearTableAfterRoundFinished();
-            //HideMsgLabel();
+            ClearTableAfterRoundFinished();
+            HideMsgLabel();
             HideInvisibleClickableOverlay();
         }
 

@@ -48,6 +48,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)SavedGame\ResourceLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\LeftRightSelector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GeneratorScene.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ScrollBox.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\GameReview.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)SavedGame\SavedGame.hra">

@@ -26,6 +26,7 @@ namespace Mariasek.SharedClient.GameComponents
         public virtual VerticalAlignment VerticalAlign { get; set; }
         public virtual HorizontalAlignment HorizontalAlign { get; set; }
         public virtual FontRenderer TextRenderer { get; set; }
+        public bool UseCommonScissorRect { get; set; }
 
         protected Rectangle BoundsRect;
 
@@ -74,27 +75,39 @@ namespace Mariasek.SharedClient.GameComponents
 
         protected void DrawTextAtPosition(Vector2 position)
         {
-            Game.SpriteBatch.End();
-            var origClippingRectangle = Game.SpriteBatch.GraphicsDevice.ScissorRectangle;
-            //we need to create a new sprite batch instance that is going to use a clipping rectangle
-            Game.SpriteBatch.GraphicsDevice.ScissorRectangle = new Rectangle((int)(ScaleMatrix.M41 + Position.X*ScaleMatrix.M11), 
-                                                                 (int)(ScaleMatrix.M42 + Position.Y*ScaleMatrix.M22), 
-                                                                 (int)(Width*ScaleMatrix.M11), 
-                                                                 (int)(Height*ScaleMatrix.M22));
+            if (UseCommonScissorRect)
+            {
+                TextRenderer.DrawText(
+                    Game.SpriteBatch,
+                    Text,
+                    position,
+                    TextColor * Opacity,
+                    (Alignment)VerticalAlign | (Alignment)HorizontalAlign);
+            }
+            else
+            {
+                Game.SpriteBatch.End();
+                var origClippingRectangle = Game.SpriteBatch.GraphicsDevice.ScissorRectangle;
+                //we need to create a new sprite batch instance that is going to use a clipping rectangle
+                Game.SpriteBatch.GraphicsDevice.ScissorRectangle = new Rectangle((int)(ScaleMatrix.M41 + Position.X * ScaleMatrix.M11),
+                                                                     (int)(ScaleMatrix.M42 + Position.Y * ScaleMatrix.M22),
+                                                                     (int)(Width * ScaleMatrix.M11),
+                                                                     (int)(Height * ScaleMatrix.M22));
 
-            Game.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, new RasterizerState { ScissorTestEnable = true }, null, ScaleMatrix);
+                Game.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, new RasterizerState { ScissorTestEnable = true }, null, ScaleMatrix);
 
-            TextRenderer.DrawText(
-                Game.SpriteBatch, 
-                Text, 
-                position,
-                TextColor * Opacity, 
-                (Alignment)VerticalAlign | (Alignment)HorizontalAlign);   
+                TextRenderer.DrawText(
+                    Game.SpriteBatch,
+                    Text,
+                    position,
+                    TextColor * Opacity,
+                    (Alignment)VerticalAlign | (Alignment)HorizontalAlign);
 
-            Game.SpriteBatch.End();
+                Game.SpriteBatch.End();
 
-            Game.SpriteBatch.GraphicsDevice.ScissorRectangle = origClippingRectangle;
-            Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, ScaleMatrix);
+                Game.SpriteBatch.GraphicsDevice.ScissorRectangle = origClippingRectangle;
+                Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, ScaleMatrix);
+            }
         }
     }
 }

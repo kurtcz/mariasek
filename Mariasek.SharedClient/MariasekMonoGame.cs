@@ -125,6 +125,8 @@ namespace Mariasek.SharedClient
 		/// </summary>
 		protected override void Initialize ()
 		{
+
+
             System.Diagnostics.Debug.WriteLine("Initialize()");
             // TODO: Add your initialization logic here
 
