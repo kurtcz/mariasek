@@ -384,7 +384,7 @@ namespace Mariasek.Engine.New
 				//jiank vybirame betlovej talon
 				if (AdvisorMode && (_talon == null || !_talon.Any()))
 				{
-					if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType ||
+                    if ((_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0) ||
 					   (_gameType == Hra.Betl))
 					{
 						_talon = ChooseDurchTalon(Hand, null);
@@ -398,7 +398,7 @@ namespace Mariasek.Engine.New
             else
             {
                 //protihrac nejdriv sjede simulaci nanecisto (bez talonu) a potom znovu s kartami talonu a vybere novy talon
-                if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType)
+                if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0)
                 {
                     _talon = ChooseDurchTalon(Hand, null);
                 }
@@ -444,13 +444,13 @@ namespace Mariasek.Engine.New
                     //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
                     //Zapamatujeme si vysledek a pouzijeme ho i v ChooseGameFlavour() a ChooseGameType()
                     RunGameSimulations(bidding, PlayerIndex, true, true);
-                    if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType)
+                    if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0)
                     {
                         _talon = ChooseDurchTalon(Hand, null);
                         DebugInfo.Rule = "Durch";
                         DebugInfo.RuleCount = _durchBalance;
                     }
-                    else if (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * Settings.SimulationsPerGameType)
+                    else if (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && _betlSimulations > 0)
                     {
                         _talon = ChooseBetlTalon(Hand, null);
                         DebugInfo.Rule = "Betl";
@@ -481,7 +481,7 @@ namespace Mariasek.Engine.New
             else if (_gameType == Hra.Betl)
             {
 				//pokud nam vysel durch nebo pokud 
-                if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType)
+                if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0)
                 {
 					_talon = ChooseDurchTalon(Hand, null);
 					DebugInfo.RuleCount = _durchBalance;
@@ -492,8 +492,8 @@ namespace Mariasek.Engine.New
             }
             else
             {
-                if ((_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType) ||
-                    (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * Settings.SimulationsPerGameType))
+                if ((_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0) ||
+                    (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && _betlSimulations > 0))
                 {
 					DebugInfo.RuleCount = Math.Max(_durchBalance, _betlBalance);
                     return GameFlavour.Bad;
@@ -666,7 +666,7 @@ namespace Mariasek.Engine.New
 				totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
                     (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
 				OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0 });
-				if (source == null)
+                if (source == null && tempSource.Any())
                 {
                     source = tempSource.ToArray();
                 }
@@ -851,11 +851,22 @@ namespace Mariasek.Engine.New
 				holesPerSuit.Add(b, holes);
 				hiHolePerSuit.Add(b, hiHole);
 			}
-			var desitka = new Card(Barva.Cerveny, Hodnota.Desitka);
-			if (holesPerSuit.All(i => i.Value == 0 || hiHolePerSuit[i.Key].BadValue <= desitka.BadValue))
-			{
-				return true;
-			}
+            if (PlayerIndex == _g.GameStartingPlayerIndex)
+            {
+                var minHole = new Card(Barva.Cerveny, Hodnota.Desitka);
+                if (holesPerSuit.All(i => i.Value == 0 || hiHolePerSuit[i.Key].BadValue <= minHole.BadValue))
+                {
+                    return true;
+                }
+            }
+            else //pokud se rozmyslim, zda vzit talon a hrat durcha, tak mam mensi pozadavky
+            {
+                var minHole = new Card(Barva.Cerveny, Hodnota.Spodek);
+                if (holesPerSuit.All(i => i.Value == 0 || hiHolePerSuit[i.Key].BadValue <= minHole.BadValue || Hand.CardCount(i.Key) <= 2))
+                {
+                    return true;
+                }
+            }
 			return false;
 		}
 
@@ -1166,7 +1177,7 @@ namespace Mariasek.Engine.New
             }
             //durch flekuju jen pokud jsem volil sam durch a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem nevolil a nejde teoreticky uhrat            
-            if (((PlayerIndex == _g.GameStartingPlayerIndex && _durchBalance / (float)_durchSimulations >= durchThreshold) ||
+            if (((PlayerIndex == _g.GameStartingPlayerIndex && _durchSimulations > 0 && _durchBalance / (float)_durchSimulations >= durchThreshold) ||
 			     (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) == 4)) && 
 			    (bidding.Bids & Hra.Durch) != 0)
             {
@@ -1174,7 +1185,7 @@ namespace Mariasek.Engine.New
                 minRuleCount = Math.Min(minRuleCount, _durchBalance);
             }
             //betla flekuju jen pokud jsem volil sam betla a v simulacich jsem ho uhral dost casto
-            if (PlayerIndex == _g.GameStartingPlayerIndex && _betlBalance / (float)_betlSimulations >= betlThreshold && 
+            if (PlayerIndex == _g.GameStartingPlayerIndex && _betlSimulations > 0 && _betlBalance / (float)_betlSimulations >= betlThreshold && 
 			    (bidding.Bids & Hra.Betl) != 0)
             {
                 bid |= bidding.Bids & Hra.Betl;

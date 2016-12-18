@@ -64,28 +64,28 @@ namespace Mariasek.Engine.New
             return string.Empty;
         }
 
-        public static string ToDescription(this Hra gt, Barva? trump)
+        public static string ToDescription(this Hra gt, Barva? trump = null)
         {
             if ((gt & Hra.Hra) != 0)
             {
                 if ((gt & Hra.Sedma) != 0)
                 {
-                    return string.Format("Sedma {0}", trump.Value.ToDescription());
+                    return string.Format("Sedma {0}", trump != null ? trump.Value.ToDescription() : "");
                 }
                 else
                 {
-                    return string.Format("Hra {0}", trump.Value.ToDescription());
+                    return string.Format("Hra {0}", trump != null ? trump.Value.ToDescription() : "");
                 }
             }
             else if ((gt & Hra.Kilo) != 0)
             {
                 if ((gt & Hra.Sedma) != 0)
                 {
-                    return string.Format("Stosedm {0}", trump.Value.ToDescription());
+                    return string.Format("Stosedm {0}", trump != null ? trump.Value.ToDescription() : "");
                 }
                 else
                 {
-                    return string.Format("Kilo {0}", trump.Value.ToDescription());
+                    return string.Format("Kilo {0}", trump != null ? trump.Value.ToDescription() : "");
                 }
             }
             else if (gt == Hra.Betl)

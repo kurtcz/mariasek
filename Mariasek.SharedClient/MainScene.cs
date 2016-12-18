@@ -202,7 +202,7 @@ namespace Mariasek.SharedClient
 			_aiConfig.Add("GameThreshold.Hra", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			{
 				Name = "GameThreshold.Hra",
-				Value = "0|55|65|80|95"
+				Value = "0|40|60|80|95"
 			});
 			_aiConfig.Add("GameThreshold.Sedma", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			{
@@ -227,12 +227,12 @@ namespace Mariasek.SharedClient
 			_aiConfig.Add("GameThreshold.Betl", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			{
 			    Name = "GameThreshold.Betl",
-			    Value = "65|75|85|90|95"
+			    Value = "65|75|85|95|99"
 			});
 			_aiConfig.Add("GameThreshold.Durch", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			{
 				Name = "GameThreshold.Durch",
-				Value = "80|85|90|95|99"
+				Value = "65|75|85|95|99"
 			});
 			_aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			{
@@ -1759,6 +1759,7 @@ namespace Mariasek.SharedClient
                 Height = (int)Game.VirtualScreenHeight - 55
             };
             _review.Hide();
+            _reviewGameBtn.Text = "Průběh hry";
             _reviewGameBtn.Show();
             HideInvisibleClickableOverlay();
 			HideThinkingMessage();

@@ -16,14 +16,14 @@ namespace Mariasek.Engine.New
 
     [XmlInclude(typeof(AddingMoneyCalculator))]
     [XmlInclude(typeof(MultiplyingMoneyCalculator))]
-    [XmlRoot(ElementName="Money")]
+    [XmlRoot(ElementName = "Money")]
     public abstract class MoneyCalculatorBase
     {
         protected Hra _gameType;
         protected Barva? _trump;
         protected Bidding _bidding;
         protected int _gameStartingPlayerIndex;
-        
+
         protected string[] PlayerNames;
 
         public bool GoodGame
@@ -34,6 +34,7 @@ namespace Mariasek.Engine.New
         public bool GamePlayed { get; private set; }
         public float BaseBet { get; set; }
         public Hra GameType { get { return _gameType; } }
+        public string GameTypeString { get; set; }
         public int PointsWon { get; private set; }
         public int PointsLost { get; private set; }
         public int BasicPointsWon { get; private set; }
@@ -89,6 +90,7 @@ namespace Mariasek.Engine.New
         {
             _gameType = g.GameType;
             _trump = g.trump;
+            GameTypeString = _gameType.ToDescription(null);
             _bidding = g.Bidding;
             _gameStartingPlayerIndex = g.GameStartingPlayerIndex;
             PlayerNames = g.players.Select(i => i.Name).ToArray();
@@ -237,6 +239,7 @@ namespace Mariasek.Engine.New
         {
             _gameType = gameType;
             _trump = trump;
+            GameTypeString = _gameType.ToDescription(null);
             _bidding = bidding;
             _gameStartingPlayerIndex = gameStartingPlayerIndex;
 

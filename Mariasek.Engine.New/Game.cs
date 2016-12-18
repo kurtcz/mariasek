@@ -906,6 +906,10 @@ namespace Mariasek.Engine.New
                 {
                     break;
                 }
+                if (GameType == Hra.Durch)
+                {
+                    canChooseFlavour = false;
+                }
                 if(!firstTime && nextPlayer == GameStartingPlayer)
                 {
                     canChooseFlavour = false;

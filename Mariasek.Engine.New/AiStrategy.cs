@@ -37,6 +37,10 @@ namespace Mariasek.Engine.New
         {
             var player2 = (MyIndex + 1) % Game.NumPlayers;
             var player3 = (MyIndex + 2) % Game.NumPlayers;
+            var lastRound = RoundNumber >= 2 ? _rounds[RoundNumber - 2] : null;
+            var lastPlayer1 = lastRound != null ? lastRound.player1.PlayerIndex : -1;
+            var lastOpponentLeadSuit = lastRound != null ? lastRound.c1.Suit : Barva.Cerveny;
+            var isLastPlayer1Opponent = lastPlayer1 != MyIndex && lastPlayer1 != TeamMateIndex;
 
             if (RoundNumber == 9)
             {
@@ -425,6 +429,9 @@ namespace Mariasek.Engine.New
                         //Hraj plivu.
                         //Odmazeme si tim slabou kartu driv nez na ni bude moct souper namazat svoje A, X.
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&                                 //Pokud mam plivy(ani A, X ani trumf)
+                                                                (lastRound == null || 
+                                                                 !isLastPlayer1Opponent || 
+                                                                 lastOpponentLeadSuit != i.Suit) &&   //pokud je to jina barva nez kterou souper nesl v minulem kole
                                                                 !hands[MyIndex].HasA(i.Suit) &&                                 //v barve kde neznam ani A ani X
                                                                 !hands[MyIndex].HasX(i.Suit) &&
                                                                 hands[MyIndex].HasSuit(_trump) &&                               //a nejake trumfy
@@ -448,7 +455,10 @@ namespace Mariasek.Engine.New
 					{						
 						var topCards = ValidCards(hands[MyIndex]).Where(i => 
                             i.Suit != _trump &&
-							hands[player2].All(j => 
+                            (lastRound == null ||
+                             !isLastPlayer1Opponent ||
+                             lastOpponentLeadSuit != i.Suit) &&   //pokud je to jina barva nez kterou souper nesl v minulem kole
+                            hands[player2].All(j => 
 								hands[player3].All(k =>
 									Round.WinningCard(i, j, k, _trump) == i))).ToList();
 						if(topCards.Any())	//a pokud mám nějaké nejvyšší karty ve hře
@@ -470,7 +480,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 9,
-                Description = "vytáhnout trumfy",
+                Description = "vytáhnout trumfy", //TODO: hrat porad stejnou barvu jako v predchozich kolech pokud to jde
                 ChooseCard1 = () =>
                 {
                     IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
@@ -624,7 +634,7 @@ namespace Mariasek.Engine.New
                                                                 ValidCards(i, hands[player2]).Any(j =>
                                                                     j.Value != Hodnota.Eso &&
                                                                     j.Value != Hodnota.Desitka &&
-                                                                    ValidCards(i, j, hands[player3]).All(k => Round.WinningCard(i, j, k, _trump) != k)));
+                                                                    ValidCards(i, j, hands[player3]).All(k => Round.WinningCard(i, j, k, _trump) == i)));
                     }
                     else
                     {
@@ -636,7 +646,7 @@ namespace Mariasek.Engine.New
                                                                     ValidCards(i, j, hands[player3]).Any(k =>
                                                                         k.Value != Hodnota.Eso &&
                                                                         k.Value != Hodnota.Desitka &&
-                                                                        Round.WinningCard(i, j, k, _trump) != j)));
+                                                                        Round.WinningCard(i, j, k, _trump) == i)));
                     }
 
                     return cardsToPlay.OrderByDescending(i => i.Value).LastOrDefault();

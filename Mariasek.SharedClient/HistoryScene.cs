@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework.Storage;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Media;
 
+using Mariasek.Engine.New;
 using Mariasek.SharedClient.GameComponents;
 
 namespace Mariasek.SharedClient
@@ -211,8 +212,9 @@ namespace Mariasek.SharedClient
             _historyChart.Data = series;
 
             foreach (var historyItem in Game.Money)
-            {                
-                sb.AppendFormat("\t\t{0}\t{1}\t{2}\n", 
+            {
+                sb.AppendFormat("{0,-8}\t{1}\t{2}\t{3}\n",
+                                string.IsNullOrWhiteSpace(historyItem.GameTypeString) ? "?": historyItem.GameTypeString,
                                 (historyItem.MoneyWon[0] * _settings.BaseBet).ToString("C", culture), 
                                 (historyItem.MoneyWon[1] * _settings.BaseBet).ToString("C", culture), 
                                 (historyItem.MoneyWon[2] * _settings.BaseBet).ToString("C", culture));
