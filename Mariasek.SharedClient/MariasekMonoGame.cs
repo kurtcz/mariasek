@@ -38,12 +38,13 @@ namespace Mariasek.SharedClient
         public TouchCollection TouchCollection { get; private set; }
         public SpriteBatch SpriteBatch { get; private set; }
         public Scene CurrentScene { get; set; }
-        public TestScene TestScene { get; private set; }
+        //public TestScene TestScene { get; private set; }
         public MainScene MainScene { get; private set; }
         public MenuScene MenuScene { get; private set; }
         public SettingsScene SettingsScene { get; private set; }
         public HistoryScene HistoryScene { get; private set; }
-		public GeneratorScene GenerateScene { get; private set; }
+        public StatScene StatScene { get; private set; }
+		//public GeneratorScene GenerateScene { get; private set; }
 
 		public Texture2D CardTextures { get; set; }
         public Texture2D CardTextures1 { get; private set; }
@@ -182,7 +183,7 @@ namespace Mariasek.SharedClient
             ReverseTexture = Content.Load<Texture2D>("revers");
             FontRenderers = new Dictionary<string, FontRenderer>
             {
-                { "BMFont", FontRenderer.GetFontRenderer(this, "BMFont.fnt", "BMFont_0", "BMFont_1") },
+                { "BMFont", FontRenderer.GetFontRenderer(this, 5, 8, "BMFont.fnt", "BMFont_0", "BMFont_1") },
                 { "BM2Font", FontRenderer.GetFontRenderer(this, "BM2Font.fnt", "BM2Font_0", "BM2Font_1") },
                 { "SegoeUI40Outl", FontRenderer.GetFontRenderer(this, "SegoeUI40Outl.fnt", "SegoeUI40Outl_0", "SegoeUI40Outl_1", "SegoeUI40Outl_2") },
                 { "LuckiestGuy32Outl", FontRenderer.GetFontRenderer(this, "LuckiestGuy32Outl.fnt", "LuckiestGuy32Outl_0", "LuckiestGuy32Outl_1", "LuckiestGuy32Outl_2") }
@@ -214,11 +215,13 @@ namespace Mariasek.SharedClient
             MenuScene = new MenuScene(this);           
             SettingsScene = new SettingsScene(this);
             HistoryScene = new HistoryScene(this);
+            StatScene = new StatScene(this);
             MainScene = new MainScene(this);
 			//GenerateScene = new GeneratorScene(this);
 
             MenuScene.Initialize();
             HistoryScene.Initialize();
+            StatScene.Initialize();
             SettingsScene.Initialize();
             MainScene.Initialize();
 			//GenerateScene.Initialize();

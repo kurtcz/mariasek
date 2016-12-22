@@ -512,20 +512,37 @@ namespace Mariasek.SharedClient.GameComponents
 
 		#endregion
 
+        #region DrawPolygon
 
-		#region DrawArc
+        public static void DrawPolygon(this SpriteBatch spriteBatch, Vector2 center, List<Vector2>vertices, Color color, float thickness)
+        {
+            DrawPoints(spriteBatch, center, vertices, color, thickness, 1.0f);
+        }
 
-		/// <summary>
-		/// Draw a arc
-		/// </summary>
-		/// <param name="spriteBatch">The destination drawing surface</param>
-		/// <param name="center">The center of the arc</param>
-		/// <param name="radius">The radius of the arc</param>
-		/// <param name="sides">The number of sides to generate</param>
-		/// <param name="startingAngle">The starting angle of arc, 0 being to the east, increasing as you go clockwise</param>
-		/// <param name="radians">The number of radians to draw, clockwise from the starting angle</param>
-		/// <param name="color">The color of the arc</param>
-		public static void DrawArc(this SpriteBatch spriteBatch, Vector2 center, float radius, int sides, float startingAngle, float radians, Color color)
+        public static void DrawPolygon(this SpriteBatch spriteBatch, Vector2 center, List<Vector2>vertices, Color color, float thickness, float opacity)
+        {
+            if (vertices.Count > 0)
+            {
+                vertices.Add(vertices[0]);
+            }
+            DrawPoints(spriteBatch, center, vertices, color, thickness, opacity);
+        }
+
+        #endregion
+
+        #region DrawArc
+
+        /// <summary>
+        /// Draw a arc
+        /// </summary>
+        /// <param name="spriteBatch">The destination drawing surface</param>
+        /// <param name="center">The center of the arc</param>
+        /// <param name="radius">The radius of the arc</param>
+        /// <param name="sides">The number of sides to generate</param>
+        /// <param name="startingAngle">The starting angle of arc, 0 being to the east, increasing as you go clockwise</param>
+        /// <param name="radians">The number of radians to draw, clockwise from the starting angle</param>
+        /// <param name="color">The color of the arc</param>
+        public static void DrawArc(this SpriteBatch spriteBatch, Vector2 center, float radius, int sides, float startingAngle, float radians, Color color)
 		{
 			DrawArc(spriteBatch, center, radius, sides, startingAngle, radians, color, 1.0f);
 		}

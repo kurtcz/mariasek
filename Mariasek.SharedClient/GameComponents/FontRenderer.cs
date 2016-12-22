@@ -38,13 +38,20 @@ namespace Mariasek.SharedClient.GameComponents
     {
         private Dictionary<char, FontChar> _characterMap;
         private FontFile _fontFile;
-        private int _lineSpacing = 5;
-        private int _tabWidthChars = 5;
+        private const float DefaultLineSpacing = 5f;
+        private const float DefaultTabWidthChars = 5f;
+        private float _lineSpacing;
+        private float _tabWidthChars;
         private Texture2D[] _textures;
         private MariasekMonoGame _game;
         public static FontRenderer[] Fonts { get; private set; }
 
         public static FontRenderer GetFontRenderer(MariasekMonoGame game, string fontDescriptorFile, params string[] fontBitmapFiles)
+        {
+            return GetFontRenderer(game, DefaultLineSpacing, DefaultTabWidthChars, fontDescriptorFile, fontBitmapFiles);
+        }
+
+        public static FontRenderer GetFontRenderer(MariasekMonoGame game, float lineSpacing, float tabWidthChars, string fontDescriptorFile, params string[] fontBitmapFiles)
         {
             var fontFilePath = Path.Combine(game.Content.RootDirectory, fontDescriptorFile);
             FontRenderer textRenderer;
@@ -53,18 +60,20 @@ namespace Mariasek.SharedClient.GameComponents
                 var fontFile = FontLoader.Load(stream);
                 var fontTextures = fontBitmapFiles.Select(i => game.Content.Load<Texture2D>(i)).ToArray();
 
-                textRenderer = new FontRenderer(game, fontFile, fontTextures);
+                textRenderer = new FontRenderer(game, fontFile, fontTextures, lineSpacing, tabWidthChars);
                 stream.Close();
 
                 return textRenderer;
             }
         }
 
-        public FontRenderer (MariasekMonoGame game, FontFile fontFile, Texture2D[] fontTextures)
+        public FontRenderer (MariasekMonoGame game, FontFile fontFile, Texture2D[] fontTextures, float lineSpacing = DefaultLineSpacing, float tabWidthChars = DefaultTabWidthChars)
         {
             _game = game;
             _fontFile = fontFile;
             _textures = fontTextures;
+            _lineSpacing = lineSpacing;
+            _tabWidthChars = tabWidthChars;
             _characterMap = new Dictionary<char, FontChar>();
 
             foreach(var fontCharacter in _fontFile.Chars)
@@ -76,8 +85,8 @@ namespace Mariasek.SharedClient.GameComponents
 
         public Rectangle GetBoundsRect(string[] lines)
         {
-            var width = 0;
-            var height = 0;
+            var width = 0f;
+            var height = 0f;
             var linewidth = 0;
             var lineheight = 0;
 
@@ -106,7 +115,7 @@ namespace Mariasek.SharedClient.GameComponents
                 lineheight = 0;
             }
 
-            return new Rectangle(0, 0, width, height);
+            return new Rectangle(0, 0, (int)Math.Ceiling(width), (int)Math.Ceiling(height));
         }
 
         public Rectangle DrawText(SpriteBatch spriteBatch, string text, Vector2 position, Color color, Alignment alignment = Alignment.TopLeft)

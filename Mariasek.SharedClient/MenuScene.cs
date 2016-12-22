@@ -136,7 +136,7 @@ namespace Mariasek.SharedClient
 
 		private void GenerateClicked(object sender)
 		{
-			Game.GenerateScene.SetActive();
+			//Game.GenerateScene.SetActive();
 		}
 
 		public override void Update(GameTime gameTime)

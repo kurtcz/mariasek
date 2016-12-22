@@ -23,6 +23,7 @@ namespace Mariasek.SharedClient
         private Button _menuButton;
         private ToggleButton _tableButton;
         private ToggleButton _chartButton;
+        private Button _statsButton;
         private Button _resetHistoryButton;
         private Label _stat;
         private Label _header;
@@ -66,7 +67,7 @@ namespace Mariasek.SharedClient
             };
             _menuButton = new Button(this)
             {
-                Position = new Vector2(10, 10),
+                Position = new Vector2(10, (int)Game.VirtualScreenHeight - 60),
                 Width = 200,
                 Height = 50,
                 Text = "Menu",
@@ -75,7 +76,7 @@ namespace Mariasek.SharedClient
             _menuButton.Click += MenuClicked;
             _chartButton = new ToggleButton(this)
             {
-                Position = new Vector2(10, (int)Game.VirtualScreenHeight - 120),
+                Position = new Vector2(10, (int)Game.VirtualScreenHeight - 180),
                 Width = 95,
                 Height = 50,
                 Text = "Graf",
@@ -85,16 +86,25 @@ namespace Mariasek.SharedClient
             _chartButton.Click += ChartButtonClicked;
             _tableButton = new ToggleButton(this)
             {
-                Position = new Vector2(115, (int)Game.VirtualScreenHeight - 120),
+                Position = new Vector2(115, (int)Game.VirtualScreenHeight - 180),
                 Width = 95,
                 Height = 50,
                 Text = "Tabulka",
 				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _tableButton.Click += TableButtonClicked;
+            _statsButton = new Button(this)
+            {
+                Position = new Vector2(10, (int)Game.VirtualScreenHeight - 120),
+                Width = 200,
+                Height = 50,
+                Text = "Statistika",
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
+            };
+            _statsButton.Click += StatsButtonClicked;
             _resetHistoryButton = new Button(this)
             {
-                Position = new Vector2(10, (int)Game.VirtualScreenHeight - 60),
+                Position = new Vector2(10, 10),
                 Width = 200,
                 Height = 50,
                 Text = "Smazat historii",
@@ -213,7 +223,7 @@ namespace Mariasek.SharedClient
 
             foreach (var historyItem in Game.Money)
             {
-                sb.AppendFormat("{0,-8}\t{1}\t{2}\t{3}\n",
+                sb.AppendFormat(" {0,-7}\t{1}\t{2}\t{3}\n",
                                 string.IsNullOrWhiteSpace(historyItem.GameTypeString) ? "?": historyItem.GameTypeString,
                                 (historyItem.MoneyWon[0] * _settings.BaseBet).ToString("C", culture), 
                                 (historyItem.MoneyWon[1] * _settings.BaseBet).ToString("C", culture), 
@@ -268,6 +278,12 @@ namespace Mariasek.SharedClient
                 _historyBox.Invoke(() => { _historyBox.Show(); })
                     .MoveTo(_origPosition, 5000);
             }
+        }
+
+        private void StatsButtonClicked(object sender)
+        {
+            Game.StatScene.PopulateControls();
+            Game.StatScene.SetActive();
         }
 
         private void ResetHistoryClicked(object sender)
