@@ -499,10 +499,11 @@ namespace Mariasek.Engine.New
                                                                  (hands[MyIndex].Any(j => j.Suit != _trump &&             //nebo mam a muzu uhrat nejake A, X v jine barve
                                                                                          (j.Value == Hodnota.Eso ||
                                                                                           j.Value == Hodnota.Desitka)))));
-						//cardsToPlay.Count() nyni muze byt rovno 0
-						if (cardsToPlay.Count() - 1 <					//-1 abych mel pojistene, ze mi zbyde dost trumfu
-                            Math.Max(hands[player2].CardCount(_trump),
-                                     hands[player3].CardCount(_trump)))
+                        var maxTrumps = Math.Max(hands[player2].CardCount(_trump),
+                                                 hands[player3].CardCount(_trump));
+                        //cardsToPlay.Count() nyni muze byt rovno 0
+						if (cardsToPlay.Count() - 1 < maxTrumps &&					//-1 abych mel pojistene, ze mi zbyde dost trumfu
+                            maxTrumps > 0)
                         {
                             //nemam dost trumfu vyssich nez souperovy trumfy
                             if ((_gameType & Hra.Kilo) == 0)
