@@ -26,6 +26,8 @@ namespace Mariasek.SharedClient.GameComponents
         public float MaxValue { get; set; }
         public string[] Series { get; set; }
         public bool ShowAxis { get; set; }
+        public bool ShowGridLines { get; set; }
+        public float GridInterval { get; set; }
         public Color AxisColor { get; set; }
         public Color[] Colors { get; set; }
         public float LineThickness { get; set; }
@@ -48,9 +50,11 @@ namespace Mariasek.SharedClient.GameComponents
             Opacity = 1f;
             LineThickness = 2f;
             AxisThickness = 1f;
-            DataMarkerSize = 9f;
+            DataMarkerSize = 20f;
             DataMarkerShape = DataMarkerShape.Square;
             ShowAxis = true;
+            ShowGridLines = true;
+            GridInterval = 0.25f;
             TextRenderer = Game.FontRenderers["BMFont"];
         }
 
@@ -81,16 +85,49 @@ namespace Mariasek.SharedClient.GameComponents
                             Primitives2D.DrawLine(Game.SpriteBatch, centre, centre + radius * angleVector, AxisColor, AxisThickness, Opacity);
                         }
                     }
+                    if (i == 0 && ShowGridLines)
+                    {
+                        for (var j = 0f; j <= 1; j += GridInterval)
+                        {
+                            if (j * GridInterval >= MinValue && j * GridInterval <= MaxValue)
+                            {
+                                for (var k = 0; k < Data[i].Length; k++)
+                                {
+                                    var l = k == Data[i].Length - 1 ? 0 : k + 1;
+                                    var angle = Math.PI * 2 / Data[i].Length;
+                                    var distance = (j - MinValue) * radius / (MaxValue - MinValue);
+                                    var angleVector1 = -new Vector2((float)Math.Cos(k * angle), (float)Math.Sin(k * angle));
+                                    var angleVector2 = -new Vector2((float)Math.Cos(l * angle), (float)Math.Sin(l * angle));
+
+                                    if (distance < 0 || distance > radius)
+                                    {
+                                        break;
+                                    }
+                                    Primitives2D.DrawLine(Game.SpriteBatch, centre + distance * angleVector1, centre + distance * angleVector2, AxisColor, AxisThickness, Opacity * 0.5f);
+                                }
+                            }
+                        }
+                    }
                     if (Series.Length > 0 && Data[i].Length > 0)
                     {
+                        var outOfBounds = false;
                         points[i] = new Vector2[Data[i].Length];
                         for (var j = 0; j < Data[i].Length; j++)
                         {
-                            var size = radius * (Data[i][j] - MinValue) / (MaxValue - MinValue);
+                            var distance = (Data[i][j] - MinValue) * radius / (MaxValue - MinValue);
                             var angle = Math.PI * 2 / Data[i].Length;
-                            var angleVector = - new Vector2((float)Math.Cos(j * angle), (float)Math.Sin(j * angle));
+                            var angleVector = -new Vector2((float)Math.Cos(j * angle), (float)Math.Sin(j * angle));
 
-                            points[i][j] = size * angleVector;
+                            if (distance < 0 || distance > radius)
+                            {
+                                outOfBounds = true;
+                                break;
+                            }
+                            points[i][j] = distance * angleVector;
+                        }
+                        if (outOfBounds)
+                        {
+                            break;
                         }
                         Primitives2D.DrawPolygon(Game.SpriteBatch, centre, points[i].ToList(), Colors[i], LineThickness, Opacity);
                     }

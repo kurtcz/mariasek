@@ -40,9 +40,12 @@ namespace Mariasek.SharedClient
         private ToggleButton _moneyButton;
         private RadarChart _chart;
         private Label[] _chartLabels;
-        private TextBox _text;
+        private TextBox _summary;
+        private TextBox _details;
         private string _effectivityText;
+        private string _effectivitySummary;
         private string _moneyText;
+        private string _moneySummary;
 
         public StatScene(MariasekMonoGame game)
             : base(game)
@@ -90,11 +93,20 @@ namespace Mariasek.SharedClient
                 MinValue = -0.1f,
                 MaxValue = 1.1f
             };
-            _text = new TextBox(this)
+            _summary = new TextBox(this)
             {
                 Position = new Vector2(210, 10),
                 Width = (int)Game.VirtualScreenWidth - 210,
-                Height = (int)Game.VirtualScreenHeight - 20,
+                Height = 200,
+                HorizontalAlign = HorizontalAlignment.Left,
+                VerticalAlign = VerticalAlignment.Top,
+                TextRenderer = Game.FontRenderers["BMFont"]
+            };
+            _details = new TextBox(this)
+            {
+                Position = new Vector2(210, 210),
+                Width = (int)Game.VirtualScreenWidth - 210,
+                Height = (int)Game.VirtualScreenHeight - 220,
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
                 TextRenderer = Game.FontRenderers["BMFont"]
@@ -184,11 +196,13 @@ namespace Mariasek.SharedClient
             var stats = Game.Money.GroupBy(g => g.GameTypeString.TrimEnd());
             var sbGames = new StringBuilder();
             var sbMoney = new StringBuilder();
+            var sbGamesSummary = new StringBuilder();
+            var sbMoneySummary = new StringBuilder();
             var totalGroup = new MyGrouping<string, MoneyCalculatorBase>();
 
             totalGroup.Key = "Souhrn";
             totalGroup.AddRange(Game.Money);
-            AppendStatsForGameType(totalGroup, sbGames, sbMoney);
+            AppendStatsForGameType(totalGroup, sbGamesSummary, sbMoneySummary);
             foreach (var stat in stats.OrderBy(g => g.Key))
             {
                 AppendStatsForGameType(stat, sbGames, sbMoney);
@@ -196,7 +210,9 @@ namespace Mariasek.SharedClient
 
             PopulateRadarChart();
             _effectivityText = sbGames.ToString();
+            _effectivitySummary = sbGamesSummary.ToString();
             _moneyText = sbMoney.ToString();
+            _moneySummary = sbMoneySummary.ToString();
             EffectivityButtonClicked(this);
         }
 
@@ -339,14 +355,16 @@ namespace Mariasek.SharedClient
         {
             _effectivityButton.IsSelected = true;
             _moneyButton.IsSelected = false;
-            _text.Text = _effectivityText;
+            _summary.Text = _effectivitySummary;
+            _details.Text = _effectivityText;
         }
 
         private void MoneyButtonClicked(object sender)
         {
             _effectivityButton.IsSelected = false;
             _moneyButton.IsSelected = true;
-            _text.Text = _moneyText;
+            _summary.Text = _moneySummary;
+            _details.Text = _moneyText;
         }
 
         private void BackButtonClicked(object sender)

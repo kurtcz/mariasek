@@ -98,7 +98,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(10, (int)Game.VirtualScreenHeight - 120),
                 Width = 200,
                 Height = 50,
-                Text = "Statistika",
+                Text = "Statistiky",
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _statsButton.Click += StatsButtonClicked;
@@ -241,9 +241,7 @@ namespace Mariasek.SharedClient
 			_historyBox.ScrollToBottom();
             _stat.Text = string.Format("Odehráno her:\n{0}\nZ toho výher:\n{1}\nPoměr: {2:N0}%\nPříště začíná:\n{3}", 
                 total, wins, ratio, 
-                (Game.MainScene.g != null && Game.MainScene.g.players != null)
-                ? Game.MainScene.g.players[(Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers].Name
-                : string.Format("Hráč {0}", (Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers + 1));
+                Game.MainScene.PlayerNames[(Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers]);
 
             var sum1 = Game.Money.Sum(i => i.MoneyWon[0] * _settings.BaseBet).ToString("C", culture);
             var sum2 = Game.Money.Sum(i => i.MoneyWon[1] * _settings.BaseBet).ToString("C", culture);
