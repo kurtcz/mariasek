@@ -102,7 +102,17 @@ namespace Mariasek.SharedClient.GameComponents
 			get { return _height; }
 			set { _height = value; UpdateControls(); }
 		}
-
+        public override AnchorType Anchor 
+        { 
+            get { return base.Anchor; } 
+            set
+            {
+                base.Anchor = value;
+                _leftButton.Anchor = value;
+                _rightButton.Anchor = value;
+                _valueLabel.Anchor = value;
+            }
+        }
 		public delegate void SelectionChangedEventHandler(object sender);
 		public event SelectionChangedEventHandler SelectionChanged;
 

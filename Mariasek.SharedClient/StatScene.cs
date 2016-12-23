@@ -18,6 +18,15 @@ using Mariasek.SharedClient.GameComponents;
 
 namespace Mariasek.SharedClient
 {
+    [Flags]
+    public enum StatMode
+    {
+        Efectivity = 1,
+        Gain = 2,
+        Leader = 4,
+        Defence = 8
+    };
+
     public class MyGrouping<TKey, TValue> : List<TValue>, IGrouping<TKey, TValue>
     {
         public TKey Key { get; set; }
@@ -36,16 +45,22 @@ namespace Mariasek.SharedClient
     {
         private GameSettings _settings;
         private Button _backButton;
-        private ToggleButton _effectivityButton;
-        private ToggleButton _moneyButton;
+        private LeftRightSelector _effectivityMoneySelector;
+        private LeftRightSelector _leaderDefenceSelector;
         private RadarChart _chart;
         private Label[] _chartLabels;
         private TextBox _summary;
         private TextBox _details;
-        private string _effectivityText;
-        private string _effectivitySummary;
-        private string _moneyText;
-        private string _moneySummary;
+        private string _effectivityText = string.Empty;
+        private string _effectivitySummary = string.Empty;
+        private string _defenceEffectivityText = string.Empty;
+        private string _defenceEffectivitySummary = string.Empty;
+        private string _moneyText = string.Empty;
+        private string _moneySummary = string.Empty;
+        private string _defenceMoneyText = string.Empty;
+        private string _defenceMoneySummary = string.Empty;
+        private float[][] _points = new float[Mariasek.Engine.New.Game.NumPlayers][];
+        private float[][] _defencePoints = new float[Mariasek.Engine.New.Game.NumPlayers][];
 
         public StatScene(MariasekMonoGame game)
             : base(game)
@@ -56,25 +71,24 @@ namespace Mariasek.SharedClient
         {
             base.Initialize();
 
-            _effectivityButton = new ToggleButton(this)
+            _effectivityMoneySelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(10, (int)Game.VirtualScreenHeight - 180),
-                Width = 200,
-                Height = 50,
-                Text = "Úspěšnost",
-                IsSelected = true,
+                Position = new Vector2(0, (int)Game.VirtualScreenHeight - 180),
+                Width = 220,
+                Items = new SelectorItems() { { "Efektivita", StatMode.Efectivity }, { "Výhra", StatMode.Gain } },
+                SelectedIndex = 0,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
-            _effectivityButton.Click += EffectivityButtonClicked;
-            _moneyButton = new ToggleButton(this)
+            _effectivityMoneySelector.SelectionChanged += StatModeSelectorClicked;
+            _leaderDefenceSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(10, (int)Game.VirtualScreenHeight - 120),
-                Width = 200,
-                Height = 50,
-                Text = "Výhra",
+                Position = new Vector2(0, (int)Game.VirtualScreenHeight - 120),
+                Width = 220,
+                Items = new SelectorItems() { { "Při volbě", StatMode.Leader }, { "V obraně", StatMode.Defence } },
+                SelectedIndex = 0,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
-            _moneyButton.Click += MoneyButtonClicked;
+            _leaderDefenceSelector.SelectionChanged += StatModeSelectorClicked;
             _backButton = new Button(this)
             {
                 Position = new Vector2(10, (int)Game.VirtualScreenHeight - 60),
@@ -198,29 +212,37 @@ namespace Mariasek.SharedClient
             var sbMoney = new StringBuilder();
             var sbGamesSummary = new StringBuilder();
             var sbMoneySummary = new StringBuilder();
+            var sbDefenceGames = new StringBuilder();
+            var sbDefenceMoney = new StringBuilder();
+            var sbDefenceGamesSummary = new StringBuilder();
+            var sbDefenceMoneySummary = new StringBuilder();
             var totalGroup = new MyGrouping<string, MoneyCalculatorBase>();
 
             totalGroup.Key = "Souhrn";
             totalGroup.AddRange(Game.Money);
-            AppendStatsForGameType(totalGroup, sbGamesSummary, sbMoneySummary);
+            AppendStatsForGameType(totalGroup, sbGamesSummary, sbMoneySummary, sbDefenceGamesSummary, sbDefenceMoneySummary);
             foreach (var stat in stats.OrderBy(g => g.Key))
             {
-                AppendStatsForGameType(stat, sbGames, sbMoney);
+                AppendStatsForGameType(stat, sbGames, sbMoney, sbDefenceGames, sbDefenceMoney);
             }
 
             PopulateRadarChart();
             _effectivityText = sbGames.ToString();
             _effectivitySummary = sbGamesSummary.ToString();
+            _defenceEffectivityText = sbDefenceGames.ToString();
+            _defenceEffectivitySummary = sbDefenceGamesSummary.ToString();
             _moneyText = sbMoney.ToString();
             _moneySummary = sbMoneySummary.ToString();
-            EffectivityButtonClicked(this);
+            _defenceMoneyText = sbDefenceMoney.ToString();
+            _defenceMoneySummary = sbDefenceMoneySummary.ToString();
+            StatModeSelectorClicked(this);
         }
 
         private void PopulateRadarChart()
         {
             var stats = Game.Money.GroupBy(g => g.GameTypeString.TrimEnd()).Where(i => !string.IsNullOrWhiteSpace(i.Key)).ToList();
             var maxValue = 0f;
-            var points = new float[Mariasek.Engine.New.Game.NumPlayers][];
+            var maxDefenceValue = 0f;
             var allStats = new[]
             {
                 new MyGrouping<string, MoneyCalculatorBase>()
@@ -252,7 +274,8 @@ namespace Mariasek.SharedClient
             stats = stats.OrderBy(i => i.Key).ToList();
             for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
             {
-                points[i] = new float[stats.Count()];
+                _points[i] = new float[stats.Count()];
+                _defencePoints[i] = new float[stats.Count()];
             }
 
             for (var i = 0; i < stats.Count(); i++)
@@ -277,6 +300,19 @@ namespace Mariasek.SharedClient
                 var gamesRatio1 = gamesPlayed1 > 0 ? gamesWon1 / (float)gamesPlayed1 : 0f;
                 var gamesRatio2 = gamesPlayed2 > 0 ? gamesWon2 / (float)gamesPlayed2 : 0f;
                 var gamesRatio3 = gamesPlayed3 > 0 ? gamesWon3 / (float)gamesPlayed3 : 0f;
+                var defencesPlayed1 = gamesPlayed2 + gamesPlayed3;
+                var defencesPlayed2 = gamesPlayed1 + gamesPlayed3;
+                var defencesPlayed3 = gamesPlayed1 + gamesPlayed2;
+                var defencesWon1 = gamesLost2 + gamesLost3;
+                var defencesWon2 = gamesLost1 + gamesLost3;
+                var defencesWon3 = gamesLost1 + gamesLost2;
+                var defencesLost1 = gamesWon2 + gamesWon3;
+                var defencesLost2 = gamesWon1 + gamesWon3;
+                var defencesLost3 = gamesWon1 + gamesWon2;
+                var defencesRatio1 = defencesPlayed1 > 0 ? defencesWon1 / (float)defencesPlayed1 : 0f;
+                var defencesRatio2 = defencesPlayed2 > 0 ? defencesWon2 / (float)defencesPlayed2 : 0f;
+                var defencesRatio3 = defencesPlayed3 > 0 ? defencesWon3 / (float)defencesPlayed3 : 0f;
+
 
                 if (maxValue < gamesRatio1)
                 {
@@ -290,14 +326,36 @@ namespace Mariasek.SharedClient
                 {
                     maxValue = gamesRatio3;
                 }
-                points[0][i] = gamesRatio1;
-                points[1][i] = gamesRatio2;
-                points[2][i] = gamesRatio3;
+                if (maxDefenceValue < defencesRatio1)
+                {
+                    maxDefenceValue = defencesRatio1;
+                }
+                if (maxDefenceValue < defencesRatio2)
+                {
+                    maxDefenceValue = defencesRatio2;
+                }
+                if (maxDefenceValue < defencesRatio3)
+                {
+                    maxDefenceValue = defencesRatio3;
+                }
+                _points[0][i] = gamesRatio1;
+                _points[1][i] = gamesRatio2;
+                _points[2][i] = gamesRatio3;
+                _defencePoints[0][i] = defencesRatio1;
+                _defencePoints[1][i] = defencesRatio2;
+                _defencePoints[2][i] = defencesRatio3;
             }
-            _chart.Data = points;
+            if (((StatMode)_leaderDefenceSelector.SelectedValue & StatMode.Leader) != 0)
+            {
+                _chart.Data = _points;
+            }
+            else
+            {
+                _chart.Data = _defencePoints;
+            }
         }
 
-        private void AppendStatsForGameType(IGrouping<string, MoneyCalculatorBase> stat, StringBuilder sbGames, StringBuilder sbMoney)
+        private void AppendStatsForGameType(IGrouping<string, MoneyCalculatorBase> stat, StringBuilder sbGames, StringBuilder sbMoney, StringBuilder sbDefenceGames, StringBuilder sbDefenceMoney)
         {
             var gameTypeString = stat.Key;
             var games1 = stat.Where(i => (i.MoneyWon[0] > 0 && i.MoneyWon[1] < 0 && i.MoneyWon[2] < 0) ||
@@ -315,21 +373,54 @@ namespace Mariasek.SharedClient
             var gamesPlayed1 = gamesWon1 + gamesLost1;
             var gamesPlayed2 = gamesWon2 + gamesLost2;
             var gamesPlayed3 = gamesWon3 + gamesLost3;
+            var defencesPlayed1 = gamesPlayed2 + gamesPlayed3;
+            var defencesPlayed2 = gamesPlayed1 + gamesPlayed3;
+            var defencesPlayed3 = gamesPlayed1 + gamesPlayed2;
+            var defencesWon1 = gamesLost2 + gamesLost3;
+            var defencesWon2 = gamesLost1 + gamesLost3;
+            var defencesWon3 = gamesLost1 + gamesLost2;
+            var defencesLost1 = gamesWon2 + gamesWon3;
+            var defencesLost2 = gamesWon1 + gamesWon3;
+            var defencesLost3 = gamesWon1 + gamesWon2;
             var gamesRatio1 = gamesPlayed1 > 0 ? gamesWon1 / (float)gamesPlayed1 : 0f;
             var gamesRatio2 = gamesPlayed2 > 0 ? gamesWon2 / (float)gamesPlayed2 : 0f;
             var gamesRatio3 = gamesPlayed3 > 0 ? gamesWon3 / (float)gamesPlayed3 : 0f;
+            var defencesRatio1 = defencesPlayed1 > 0 ? defencesWon1 / (float)defencesPlayed1 : 0f;
+            var defencesRatio2 = defencesPlayed2 > 0 ? defencesWon2 / (float)defencesPlayed2 : 0f;
+            var defencesRatio3 = defencesPlayed3 > 0 ? defencesWon3 / (float)defencesPlayed3 : 0f;
             var moneyBalance1 = games1.Sum(i => i.MoneyWon[0] * _settings.BaseBet);
             var moneyBalance2 = games2.Sum(i => i.MoneyWon[1] * _settings.BaseBet);
             var moneyBalance3 = games3.Sum(i => i.MoneyWon[2] * _settings.BaseBet);
+            var defenceMoneyBalance1 = games2.Sum(i => -i.MoneyWon[1] * _settings.BaseBet) + games3.Sum(i => -i.MoneyWon[2] * _settings.BaseBet);
+            var defenceMoneyBalance2 = games2.Sum(i => -i.MoneyWon[0] * _settings.BaseBet) + games3.Sum(i => -i.MoneyWon[2] * _settings.BaseBet);
+            var defenceMoneyBalance3 = games3.Sum(i => -i.MoneyWon[0] * _settings.BaseBet) + games2.Sum(i => -i.MoneyWon[1] * _settings.BaseBet);
             var moneyMin1 = gamesPlayed1 > 0 ? games1.Min(i => i.MoneyWon[0] * _settings.BaseBet) : 0f;
             var moneyMin2 = gamesPlayed2 > 0 ? games2.Min(i => i.MoneyWon[1] * _settings.BaseBet) : 0f;
             var moneyMin3 = gamesPlayed3 > 0 ? games3.Min(i => i.MoneyWon[2] * _settings.BaseBet) : 0f;
+            var defenceMoneyMin1 = gamesPlayed2 > 0 ? games2.Min(i => -i.MoneyWon[1] * _settings.BaseBet) : 0f + 
+                                   gamesPlayed3 > 0 ? games3.Min(i => -i.MoneyWon[2] * _settings.BaseBet) : 0f;
+            var defenceMoneyMin2 = gamesPlayed1 > 0 ? games1.Min(i => -i.MoneyWon[0] * _settings.BaseBet) : 0f +
+                                   gamesPlayed3 > 0 ? games3.Min(i => -i.MoneyWon[2] * _settings.BaseBet) : 0f;
+            var defenceMoneyMin3 = gamesPlayed1 > 0 ? games1.Min(i => -i.MoneyWon[0] * _settings.BaseBet) : 0f +
+                                   gamesPlayed2 > 0 ? games2.Min(i => -i.MoneyWon[1] * _settings.BaseBet) : 0f;
             var moneyAvg1 = gamesPlayed1 > 0 ? games1.Average(i => i.MoneyWon[0] * _settings.BaseBet) : 0f;
             var moneyAvg2 = gamesPlayed2 > 0 ? games2.Average(i => i.MoneyWon[1] * _settings.BaseBet) : 0f;
             var moneyAvg3 = gamesPlayed3 > 0 ? games3.Average(i => i.MoneyWon[2] * _settings.BaseBet) : 0f;
+            var defenceMoneyAvg1 = gamesPlayed2 > 0 ? games2.Average(i => -i.MoneyWon[1] * _settings.BaseBet) : 0f + 
+                                   gamesPlayed3 > 0 ? games3.Average(i => -i.MoneyWon[2] * _settings.BaseBet) : 0f;
+            var defenceMoneyAvg2 = gamesPlayed1 > 0 ? games1.Average(i => -i.MoneyWon[0] * _settings.BaseBet) : 0f + 
+                                   gamesPlayed3 > 0 ? games3.Average(i => -i.MoneyWon[2] * _settings.BaseBet) : 0f;
+            var defenceMoneyAvg3 = gamesPlayed1 > 0 ? games1.Average(i => -i.MoneyWon[0] * _settings.BaseBet) : 0f +
+                                   gamesPlayed2 > 0 ? games2.Average(i => -i.MoneyWon[1] * _settings.BaseBet) : 0f;
             var moneyMax1 = gamesPlayed1 > 0 ? games1.Max(i => i.MoneyWon[0] * _settings.BaseBet) : 0f;
             var moneyMax2 = gamesPlayed2 > 0 ? games2.Max(i => i.MoneyWon[1] * _settings.BaseBet) : 0f;
             var moneyMax3 = gamesPlayed3 > 0 ? games3.Max(i => i.MoneyWon[2] * _settings.BaseBet) : 0f;
+            var defenceMoneyMax1 = gamesPlayed2 > 0 ? games2.Max(i => -i.MoneyWon[1] * _settings.BaseBet) : 0f + 
+                                   gamesPlayed3 > 0 ? games3.Max(i => -i.MoneyWon[2] * _settings.BaseBet) : 0f;
+            var defenceMoneyMax2 = gamesPlayed1 > 0 ? games1.Max(i => -i.MoneyWon[0] * _settings.BaseBet) : 0f +
+                                   gamesPlayed3 > 0 ? games3.Max(i => -i.MoneyWon[2] * _settings.BaseBet) : 0f;
+            var defenceMoneyMax3 = gamesPlayed1 > 0 ? games1.Max(i => -i.MoneyWon[0] * _settings.BaseBet) : 0f +
+                                   gamesPlayed2 > 0 ? games2.Max(i => -i.MoneyWon[1] * _settings.BaseBet) : 0f;
             var culture = CultureInfo.CreateSpecificCulture("cs-CZ");
 
             sbGames.AppendFormat("{0,-7}\tHer\tVýher\tProher\tPoměr\n", gameTypeString);
@@ -343,6 +434,18 @@ namespace Mariasek.SharedClient
             sbMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.MainScene.PlayerNames[1], moneyBalance2.ToString("F2", culture), moneyMin2.ToString("F2", culture), moneyAvg2.ToString("F2", culture), moneyMax2.ToString("F2", culture));
             sbMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.MainScene.PlayerNames[2], moneyBalance3.ToString("F2", culture), moneyMin3.ToString("F2", culture), moneyAvg3.ToString("F2", culture), moneyMax3.ToString("F2", culture));
             sbMoney.Append("__________________________________________________________\n");
+
+            sbDefenceGames.AppendFormat("{0,-7}\tHer\tVýher\tProher\tPoměr\n", gameTypeString);
+            sbDefenceGames.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4:F0}%\n", Game.MainScene.PlayerNames[0], defencesPlayed1, defencesWon1, defencesLost1, defencesRatio1 * 100);
+            sbDefenceGames.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4:F0}%\n", Game.MainScene.PlayerNames[1], defencesPlayed2, defencesWon2, defencesLost2, defencesRatio2 * 100);
+            sbDefenceGames.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4:F0}%\n", Game.MainScene.PlayerNames[2], defencesPlayed3, defencesWon3, defencesLost3, defencesRatio3 * 100);
+            sbDefenceGames.Append("__________________________________________________________\n");
+
+            sbDefenceMoney.AppendFormat("{0,-7}\tVýhra\tMin\tPrůměr\tMax\n", gameTypeString);
+            sbDefenceMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.MainScene.PlayerNames[0], defenceMoneyBalance1.ToString("F2", culture), defenceMoneyMin1.ToString("F2", culture), defenceMoneyAvg1.ToString("F2", culture), defenceMoneyMax1.ToString("F2", culture));
+            sbDefenceMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.MainScene.PlayerNames[1], defenceMoneyBalance2.ToString("F2", culture), defenceMoneyMin2.ToString("F2", culture), defenceMoneyAvg2.ToString("F2", culture), defenceMoneyMax2.ToString("F2", culture));
+            sbDefenceMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.MainScene.PlayerNames[2], defenceMoneyBalance3.ToString("F2", culture), defenceMoneyMin3.ToString("F2", culture), defenceMoneyAvg3.ToString("F2", culture), defenceMoneyMax3.ToString("F2", culture));
+            sbDefenceMoney.Append("__________________________________________________________\n");
             //sbMoney.Append("«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»\n");
         }
 
@@ -351,20 +454,38 @@ namespace Mariasek.SharedClient
             _settings = e.Settings;
         }
 
-        private void EffectivityButtonClicked(object sender)
+        private void StatModeSelectorClicked(object sender)
         {
-            _effectivityButton.IsSelected = true;
-            _moneyButton.IsSelected = false;
-            _summary.Text = _effectivitySummary;
-            _details.Text = _effectivityText;
-        }
-
-        private void MoneyButtonClicked(object sender)
-        {
-            _effectivityButton.IsSelected = false;
-            _moneyButton.IsSelected = true;
-            _summary.Text = _moneySummary;
-            _details.Text = _moneyText;
+            if (((StatMode)_effectivityMoneySelector.SelectedValue & StatMode.Efectivity) != 0)
+            {
+                if (((StatMode)_leaderDefenceSelector.SelectedValue & StatMode.Leader) != 0)
+                {
+                    _summary.Text = _effectivitySummary;
+                    _details.Text = _effectivityText;
+                    _chart.Data = _points;
+                }
+                else
+                {
+                    _summary.Text = _defenceEffectivitySummary;
+                    _details.Text = _defenceEffectivityText;
+                    _chart.Data = _defencePoints;
+                }
+            }
+            else
+            {
+                if (((StatMode)_leaderDefenceSelector.SelectedValue & StatMode.Leader) != 0)
+                {
+                    _summary.Text = _moneySummary;
+                    _details.Text = _moneyText;
+                    _chart.Data = _points;
+                }
+                else
+                {
+                    _summary.Text = _defenceMoneySummary;
+                    _details.Text = _defenceMoneyText;
+                    _chart.Data = _defencePoints;
+                }
+            }
         }
 
         private void BackButtonClicked(object sender)
