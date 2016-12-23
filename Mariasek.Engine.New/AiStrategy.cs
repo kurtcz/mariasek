@@ -259,42 +259,42 @@ namespace Mariasek.Engine.New
                 }
             };
 
-            yield return new AiRule()
-            {
-                Order = 4,
-                Description = "uhrát spoluhráčovo A",
-                UseThreshold = true,
-                ChooseCard1 = () =>
-                {
-                    var cardsToPlay = Enumerable.Empty<Card>();
+            //yield return new AiRule()
+            //{
+            //    Order = 4,
+            //    Description = "uhrát spoluhráčovo A",
+            //    UseThreshold = true,
+            //    ChooseCard1 = () =>
+            //    {
+            //        var cardsToPlay = Enumerable.Empty<Card>();
 
-                    if (TeamMateIndex == player2)
-                    {
-                        //: co-
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).Any(j =>
-                                                                    j.Value == Hodnota.Eso &&
-                                                                    j.Suit != _trump &&
-                                                                    ValidCards(i, j, hands[player3]).All(k => Round.WinningCard(i, j, k, _trump) == j) &&
-                                                                    ((!hands[player3].HasX(j.Suit)) || //souper nema X
-                                                                     (hands[player3].HasAtMostNCardsOfSuit(j.Suit, 1) &&
-                                                                      hands[player3].HasSuit(_trump))))); //nebo ma posledni kartu v barve a navic jeste nejake trumfy
-                    }
-                    else if (TeamMateIndex == player3)
-                    {
-                        //: c-o
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
-                                                                  ValidCards(i, j, hands[player3]).Any(k =>
-                                                                        k.Value == Hodnota.Eso &&
-                                                                        k.Suit != _trump &&
-                                                                        Round.WinningCard(i, j, k, _trump) != j &&
-                                                                        ((!hands[player2].HasX(k.Suit)) ||      //2. hrac nema desitku nebo uz barvu nezna a navic ma jeste nejake trumfy
-                                                                         (!hands[player2].HasSuit(k.Suit) &&
-                                                                          hands[player2].HasSuit(_trump))))));
-                    }
+            //        if (TeamMateIndex == player2)
+            //        {
+            //            //: co-
+            //            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).Any(j =>
+            //                                                        j.Value == Hodnota.Eso &&
+            //                                                        j.Suit != _trump &&
+            //                                                        ValidCards(i, j, hands[player3]).All(k => Round.WinningCard(i, j, k, _trump) == j) &&
+            //                                                        ((!hands[player3].HasX(j.Suit)) || //souper nema X
+            //                                                         (hands[player3].HasAtMostNCardsOfSuit(j.Suit, 1) &&
+            //                                                          hands[player3].HasSuit(_trump))))); //nebo ma posledni kartu v barve a navic jeste nejake trumfy
+            //        }
+            //        else if (TeamMateIndex == player3)
+            //        {
+            //            //: c-o
+            //            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
+            //                                                      ValidCards(i, j, hands[player3]).Any(k =>
+            //                                                            k.Value == Hodnota.Eso &&
+            //                                                            k.Suit != _trump &&
+            //                                                            Round.WinningCard(i, j, k, _trump) != j &&
+            //                                                            ((!hands[player2].HasX(k.Suit)) ||      //2. hrac nema desitku nebo uz barvu nezna a navic ma jeste nejake trumfy
+            //                                                             (!hands[player2].HasSuit(k.Suit) &&
+            //                                                              hands[player2].HasSuit(_trump))))));
+            //        }
 
-                    return cardsToPlay.ToList().RandomOneOrDefault();
-                }
-            };
+            //        return cardsToPlay.ToList().RandomOneOrDefault();
+            //    }
+            //};
 
             yield return new AiRule()
             {

@@ -79,7 +79,7 @@
     <IpaPackageName>
     </IpaPackageName>
     <MtouchLink>Full</MtouchLink>
-    <CodesignProvision>8a1c12d6-591e-47f9-a2c9-ea39ced2b16d</CodesignProvision>
+    <CodesignProvision>325bb617-196e-40a7-9218-32374e48e8df</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

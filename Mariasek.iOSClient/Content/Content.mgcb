@@ -67,3 +67,9 @@
 /processorParam:Quality=Best
 /build:tavern-ambience-looping.wav
 
+#begin na pankraci.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:na pankraci.mp3
+

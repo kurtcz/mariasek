@@ -100,7 +100,7 @@ namespace Mariasek.SharedClient
         private Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
         public string[] PlayerNames = { "Já", "Karel", "Pepa" };
 #if __IOS__
-        private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+        private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 #elif __ANDROID__
         private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
 #endif
@@ -488,8 +488,8 @@ namespace Mariasek.SharedClient
             { 
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(120, 45),
-                Width = (int)Game.VirtualScreenWidth - 240,
+                Position = new Vector2(160, 45),
+                Width = (int)Game.VirtualScreenWidth - 280,
                 Height = (int)Game.VirtualScreenHeight - 80,
                 TextColor = Color.Yellow,
                 TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
@@ -499,8 +499,8 @@ namespace Mariasek.SharedClient
             { 
                 HorizontalAlign = HorizontalAlignment.Right,
                 VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(120, 45),
-                Width = (int)Game.VirtualScreenWidth - 240,
+                Position = new Vector2(160, 45),
+                Width = (int)Game.VirtualScreenWidth - 280,
                 Height = (int)Game.VirtualScreenHeight - 80,
                 TextColor = Color.Yellow,
                 TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
@@ -1754,8 +1754,8 @@ namespace Mariasek.SharedClient
             }
             _review = new GameReview(this)
             {
-                Position = new Vector2(120, 45),
-                Width = (int)Game.VirtualScreenWidth - 120,
+                Position = new Vector2(160, 45),
+                Width = (int)Game.VirtualScreenWidth - 160,
                 Height = (int)Game.VirtualScreenHeight - 55
             };
             _review.Hide();
