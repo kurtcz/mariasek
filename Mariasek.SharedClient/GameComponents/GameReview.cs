@@ -61,7 +61,6 @@ namespace Mariasek.SharedClient.GameComponents
                     UseCommonScissorRect = true
                 };
             }
-
             for (var i = 0; i < Rounds.Length; i++)
             {
                 if (Game.MainScene.g.rounds[i] == null || Game.MainScene.g.rounds[i].c3 == null)

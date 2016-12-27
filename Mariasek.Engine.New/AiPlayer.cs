@@ -1037,19 +1037,19 @@ namespace Mariasek.Engine.New
             var allChoices = new List<RuleDebugInfo> ();
             allChoices.Add(new RuleDebugInfo
             {
-                Rule = string.Format("{0} {1}", Hra.Hra, _trump),
+                Rule = Hra.Hra.ToDescription(_trump),
                 RuleCount = _gamesBalance,
                 TotalRuleCount = Settings.SimulationsPerGameType
             });
             allChoices.Add(new RuleDebugInfo
             {
-                Rule = string.Format("{0} {1}", Hra.Hra | Hra.Sedma, _trump),
+                Rule = (Hra.Hra|Hra.Sedma).ToDescription(_trump),
                 RuleCount = _sevensBalance,
                 TotalRuleCount = Settings.SimulationsPerGameType
             });
             allChoices.Add(new RuleDebugInfo
             {
-                Rule = string.Format("{0} {1}", Hra.Kilo, _trump),
+                Rule = Hra.Kilo.ToDescription(_trump),
                 RuleCount = _hundredsBalance,
                 TotalRuleCount = Settings.SimulationsPerGameType
             });
