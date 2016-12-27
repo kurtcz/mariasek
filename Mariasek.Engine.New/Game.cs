@@ -306,9 +306,9 @@ namespace Mariasek.Engine.New
             InitPlayers();
 #if !PORTABLE
             var programFolder = System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
-            SaveGame(System.IO.Path.Combine(programFolder, "_temp.hra"));
+            SaveGame(System.IO.Path.Combine(programFolder, "_def.hra"));
 #else
-            using (var fs = GetFileStream("_temp.hra"))
+            using (var fs = GetFileStream("_def.hra"))
             {
                 SaveGame(fs);
             }
@@ -356,6 +356,26 @@ namespace Mariasek.Engine.New
 
             Author = gameData.Autor;
             Comment = gameData.Komentar;
+            Bidding = new Bidding(this);
+            foreach (var flek in gameData.Fleky)
+            {
+                switch (flek.Hra)
+                {
+                    case Hra.Hra:
+                    case Hra.Kilo:
+                        Bidding._gameFlek = flek.Pocet + 1; break;
+                    case Hra.Sedma:
+                        Bidding._sevenFlek = flek.Pocet + 1; break;
+                    case Hra.SedmaProti:
+                        Bidding._sevenAgainstFlek = flek.Pocet + 1; break;
+                    case Hra.KiloProti:
+                        Bidding._hundredAgainstFlek = flek.Pocet + 1; break;
+                    case Hra.Betl:
+                    case Hra.Durch:
+                        Bidding._betlDurchFlek = flek.Pocet + 1; break;
+                }
+            }
+            //Bidding.PlayerBids je ztracene, ale pro hrani ho nepotrebujeme
             players[0].Hand.AddRange(gameData.Hrac1.Select(i => new Card(i.Barva, i.Hodnota)));
             players[1].Hand.AddRange(gameData.Hrac2.Select(i => new Card(i.Barva, i.Hodnota)));
             players[2].Hand.AddRange(gameData.Hrac3.Select(i => new Card(i.Barva, i.Hodnota)));
@@ -460,6 +480,38 @@ namespace Mariasek.Engine.New
                     startingPlayerIndex = CurrentRound.roundWinner.PlayerIndex;
                 }
             }
+            var fleky = Enum.GetValues(typeof(Hra))
+                            .Cast<Hra>()
+                            .Where(gt => Bidding != null && Bidding.PlayerBids.Any(bid => (gt & bid) != 0))
+                            .Select(gt =>
+            {
+                var flek = 0;
+                switch (gt)
+                {
+                    case Hra.Hra:
+                    case Hra.Kilo:
+                        flek = Bidding._gameFlek; break;
+                    case Hra.Sedma:
+                        flek = Bidding._sevenFlek; break;
+                    case Hra.SedmaProti:
+                        flek = Bidding._sevenAgainstFlek; break;
+                    case Hra.KiloProti:
+                        flek = Bidding._hundredAgainstFlek; break;
+                    case Hra.Betl:
+                    case Hra.Durch:
+                        flek = Bidding._betlDurchFlek; break;
+                }
+
+                return new Flek
+                {
+                    Hra = gt,
+                    Pocet = flek - 1
+                };
+            }).ToArray();
+            if (fleky.All(i => i.Pocet == 0))
+            {
+                fleky = new Flek[0];
+            }
             var gameDto = new GameDto
             {
                 Kolo = CurrentRound != null ? roundNumber + 1 : 0,
@@ -489,6 +541,7 @@ namespace Mariasek.Engine.New
                         Barva = i.Suit,
                         Hodnota = i.Value
                     }).ToArray(),
+                Fleky = fleky,
                 Stychy = rounds.Where(r => r != null)
                     .Select(r => new Stych
                     {
@@ -573,10 +626,6 @@ namespace Mariasek.Engine.New
                     Bidding = new Bidding(this); //TEST!!!
                     ChooseGame();
                     RoundNumber++;
-                }
-                else
-                {
-                    Bidding = new Bidding(this); 
                 }
 
                 if(ShouldPlayGame())

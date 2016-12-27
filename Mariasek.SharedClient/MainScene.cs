@@ -107,9 +107,9 @@ namespace Mariasek.SharedClient
         private string _archivePath = Path.Combine(_path, "Archive");
         private string _historyFilePath = Path.Combine(_path, "Mariasek.history");
         private string _deckFilePath = Path.Combine(_path, "Mariasek.deck");
-        private string _savedGameFilePath = Path.Combine(_path, "SavedGame.hra");
+        private string _savedGameFilePath = Path.Combine(_path, "_temp.hra");
         private string _testGameFilePath = Path.Combine(_path, "test.hra");
-		private string _newGameFilePath = Path.Combine(_path, "_temp.hra");
+		private string _newGameFilePath = Path.Combine(_path, "_def.hra");
         private string _errorFilePath = Path.Combine(_path, "_error.hra");
         private string _endGameFilePath = Path.Combine(_path, "_end.hra");
 
@@ -194,46 +194,46 @@ namespace Mariasek.SharedClient
 				Name = "RuleThreshold.Kilo",
 				Value = "99"
 			});
-			_aiConfig.Add("GameThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "GameThreshold",
-				Value = "75|80|85|90|95"
-			});
-			_aiConfig.Add("GameThreshold.Hra", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "GameThreshold.Hra",
-				Value = "0|40|60|80|95"
-			});
-			_aiConfig.Add("GameThreshold.Sedma", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "GameThreshold.Sedma",
-				Value = "70|80|85|90|95"
-			});
-			_aiConfig.Add("GameThreshold.SedmaProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "GameThreshold.SedmaProti",
-				Value = "70|80|85|90|95"
-			});
-			_aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "GameThreshold.Kilo",
-				Value = "80|85|90|95|99"
-			});
+            _aiConfig.Add("GameThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "GameThreshold",
+                Value = "75|80|85|90|95"
+            });
+            _aiConfig.Add("GameThreshold.Hra", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "GameThreshold.Hra",
+                Value = "0|40|60|80|95"
+            });
+            _aiConfig.Add("GameThreshold.Sedma", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "GameThreshold.Sedma",
+                Value = "70|80|85|90|95"
+            });
+            _aiConfig.Add("GameThreshold.SedmaProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "GameThreshold.SedmaProti",
+                Value = "70|80|85|90|95"
+            });
+            _aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "GameThreshold.Kilo",
+                Value = "80|85|90|95|99"
+            });
 			_aiConfig.Add("GameThreshold.KiloProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			{
 				Name = "GameThreshold.KiloProti",
 				Value = "95|96|97|98|99"
 			});
-			_aiConfig.Add("GameThreshold.Betl", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-			    Name = "GameThreshold.Betl",
-			    Value = "65|75|85|95|99"
-			});
-			_aiConfig.Add("GameThreshold.Durch", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "GameThreshold.Durch",
-				Value = "65|75|85|95|99"
-			});
+            _aiConfig.Add("GameThreshold.Betl", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "GameThreshold.Betl",
+                Value = "65|75|85|95|99"
+            });
+            _aiConfig.Add("GameThreshold.Durch", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "GameThreshold.Durch",
+                Value = "65|75|85|95|99"
+            });
 			_aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			{
 				Name = "MaxDoubleCount",
@@ -635,7 +635,6 @@ namespace Mariasek.SharedClient
 
             LoadHistory();
             Game.SettingsScene.LoadGameSettings(false);
-
             Background = Game.Content.Load<Texture2D>("wood2");
             ClearTable(true);
         }
@@ -1808,10 +1807,15 @@ namespace Mariasek.SharedClient
 
         public bool CanLoadGame()
         {
+            return File.Exists(_savedGameFilePath);
+        }
+
+        public bool CanLoadTestGame()
+        {
             return File.Exists(_testGameFilePath);
         }
 
-        public void LoadGame()
+        public void LoadGame(bool testGame = false)
         {
 			//var gameToLoadString = ResourceLoader.GetEmbeddedResourceString(this.GetType().Assembly, "GameToLoad");
 
@@ -1846,8 +1850,7 @@ namespace Mariasek.SharedClient
 
 					try
 					{
-						//using (var fs = File.Open(_savedGameFilePath, FileMode.Open))
-                        using (var fs = File.Open(_testGameFilePath, FileMode.Open))
+                        using (var fs = File.Open(testGame ? _testGameFilePath : _savedGameFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 	                    {
 	                        g.LoadGame(fs);
 	                    }
@@ -1855,7 +1858,11 @@ namespace Mariasek.SharedClient
 					catch(Exception ex)
 					{
 						ShowMsgLabel(string.Format("Error loading game:\n{0}", ex.Message), false);
-						return;
+                        if (!testGame)
+                        {
+                            File.Delete(_savedGameFilePath);
+                        }
+                        return;
 					}
                     g.GameFlavourChosen += GameFlavourChosen;
                     g.GameTypeChosen += GameTypeChosen;
@@ -1897,10 +1904,6 @@ namespace Mariasek.SharedClient
                     {
                         btn.Hide();
                     }
-                    if(g.CurrentRound != null)
-                    {
-                        _trumpLabels[g.GameStartingPlayerIndex].Text = g.GameType.ToDescription(g.trump);
-                    }
                     if(g.GameStartingPlayerIndex != 0)
                     {
                         g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, false);
@@ -1914,11 +1917,18 @@ namespace Mariasek.SharedClient
                         _canShowTrumpHint = false;
                     }
 					for (var i = 0; i < _trumpLabels.Count(); i++)
-					{
-						_trumpLabels[i].Text = g.players[i].Name;
+                    {
+                        _trumpLabels[i].Text = g.players[i].Name;
 						_trumpLabels[i].Show();
 					}
-					File.Delete(_savedGameFilePath);
+                    if (g.CurrentRound != null)
+                    {
+                        _trumpLabels[g.GameStartingPlayerIndex].Text = string.Format("{0}: {1}", g.players[g.GameStartingPlayerIndex].Name, g.GameType.ToDescription(g.trump));
+                    }
+                    if (!testGame)
+                    {
+                        File.Delete(_savedGameFilePath);
+                    }
                     g.PlayGame(_cancellationTokenSource.Token);
                 },  _cancellationTokenSource.Token);
             }

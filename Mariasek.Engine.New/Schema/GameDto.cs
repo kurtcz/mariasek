@@ -68,6 +68,8 @@ namespace Mariasek.Engine.New.Schema
         [XmlArray]
         public Karta[] Talon;
         [XmlArray]
+        public Flek[] Fleky;
+        [XmlArray]
         public Stych[] Stychy;
         [XmlElement]
         public Zuctovani Zuctovani;
@@ -146,6 +148,14 @@ namespace Mariasek.Engine.New.Schema
         public Hodnota Hodnota;
         [XmlIgnore]
         public string Poznamka;
+    }
+
+    public class Flek
+    {
+        [XmlAttribute]
+        public Hra Hra;
+        [XmlAttribute]
+        public int Pocet;
     }
 
     public class Stych

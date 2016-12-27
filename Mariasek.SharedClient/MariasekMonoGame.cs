@@ -231,6 +231,10 @@ namespace Mariasek.SharedClient
             {
                 MainScene.LoadGame();
             }
+            else if (MainScene.CanLoadTestGame())
+            {
+                MainScene.LoadGame(testGame: true);
+            }
         }
 
         protected override void Dispose(bool disposing)

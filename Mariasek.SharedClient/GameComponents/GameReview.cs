@@ -60,17 +60,6 @@ namespace Mariasek.SharedClient.GameComponents
                     ZIndex = 200,
                     UseCommonScissorRect = true
                 };
-                if (i < Mariasek.Engine.New.Game.NumPlayers)
-                {
-                    var ii = (Game.MainScene.g.GameStartingPlayerIndex + i) % Mariasek.Engine.New.Game.NumPlayers;
-                    Hands[i] = new Sprite[Mariasek.Engine.New.Game.NumRounds];
-                    Names[i].Text = Game.MainScene.g.players[ii].Name;
-                }
-                else
-                {
-                    Hands[i] = new Sprite[2];
-                    Names[i].Text = "Talon";
-                }
             }
 
             for (var i = 0; i < Rounds.Length; i++)
@@ -102,12 +91,12 @@ namespace Mariasek.SharedClient.GameComponents
 
                 Rounds[i][0] = new Sprite(this, Game.CardTextures, rect)
                 {
-                    Position = new Vector2(210, 100 + (i + 4) * (Hand.CardHeight + 50) + 30),
+                    Position = new Vector2(200, 100 + (i + 4) * (Hand.CardHeight + 50) + 30),
                     ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3
                 };
                 Labels[i][0] = new Label(this)
                 {
-                    Position = new Vector2(210 + 3 * Hand.CardWidth - 20, 100 + (i + 4 - 0.5f) * (Hand.CardHeight + 50) + 20),
+                    Position = new Vector2(200 + 3 * Hand.CardWidth - 20, 100 + (i + 4 - 0.5f) * (Hand.CardHeight + 50) + 20),
                     Width = 600,
                     Height = 40,
                     Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player1.Name, Game.MainScene.g.rounds[i].player1.PlayerIndex == 0 ? "-" : debugNote1 != null ? debugNote1.Split('\n')[0] : "-"),
@@ -153,6 +142,9 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 var ii = (Game.MainScene.g.GameStartingPlayerIndex + i) % Mariasek.Engine.New.Game.NumPlayers;
                 var hand = new List<Card>(_initialHands[ii].Sort(false, Game.MainScene.g.trump.HasValue ? false : true));
+
+                Hands[i] = new Sprite[hand.Count];
+                Names[i].Text = Game.MainScene.g.players[ii].Name;
                 for (var j = 0; j < hand.Count; j++)
                 {
                     var rect = hand[j].ToTextureRect();
@@ -163,6 +155,8 @@ namespace Mariasek.SharedClient.GameComponents
                     };
                 }
             }
+            Hands[3] = new Sprite[_initialHands[3].Count];
+            Names[3].Text = "Talon";
             for (var j = 0; j < _initialHands[3].Count; j++)
             {
                 var rect = _initialHands[3][j].ToTextureRect();

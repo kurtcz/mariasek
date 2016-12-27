@@ -228,36 +228,36 @@ namespace Mariasek.Engine.New
                 }
             };
 
-            yield return new AiRule()
-            {
-                Order = 3,
-                Description = "uhrát spoluhráčovu X",
-                UseThreshold = true,
-                ChooseCard1 = () =>
-                {
-                    var cardsToPlay = Enumerable.Empty<Card>();
+            //yield return new AiRule()
+            //{
+            //    Order = 3,
+            //    Description = "uhrát spoluhráčovu X",
+            //    UseThreshold = true,
+            //    ChooseCard1 = () =>
+            //    {
+            //        var cardsToPlay = Enumerable.Empty<Card>();
 
-                    if (TeamMateIndex == player2)
-                    {
-                        //: co-
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).Any(j =>
-                                                                    j.Value == Hodnota.Desitka &&
-                                                                    j.Suit != _trump &&
-                                                                    ValidCards(i, j, hands[player3]).All(k => j.IsHigherThan(k, _trump))));
-                    }
-                    else if (TeamMateIndex == player3)
-                    {
-                        //: c-o
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
-                                                                  ValidCards(i, j, hands[player3]).Any(k =>
-                                                                      k.Value == Hodnota.Desitka &&
-                                                                      j.Suit != _trump &&
-                                                                      Round.WinningCard(i, j, k, _trump) != j)));
-                    }
+            //        if (TeamMateIndex == player2)
+            //        {
+            //            //: co-
+            //            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).Any(j =>
+            //                                                        j.Value == Hodnota.Desitka &&
+            //                                                        j.Suit != _trump &&
+            //                                                        ValidCards(i, j, hands[player3]).All(k => j.IsHigherThan(k, _trump))));
+            //        }
+            //        else if (TeamMateIndex == player3)
+            //        {
+            //            //: c-o
+            //            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
+            //                                                      ValidCards(i, j, hands[player3]).Any(k =>
+            //                                                          k.Value == Hodnota.Desitka &&
+            //                                                          j.Suit != _trump &&
+            //                                                          Round.WinningCard(i, j, k, _trump) != j)));
+            //        }
 
-                    return cardsToPlay.ToList().RandomOneOrDefault();
-                }
-            };
+            //        return cardsToPlay.ToList().RandomOneOrDefault();
+            //    }
+            //};
 
             //yield return new AiRule()
             //{
@@ -743,17 +743,51 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 13,
-                Description = "hrát cokoli mimo A, X, trumf",
+                Description = "hrát cokoli mimo A, X, trumf", //me i spoluhracovy
                 ChooseCard1 = () =>
                 {
-					var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka && i.Suit != _trump);
-
                     if (TeamMateIndex == player2)
                     {
+                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
+                                                                                i.Value != Hodnota.Desitka &&
+                                                                                i.Suit != _trump &&
+                                                                                ValidCards(i, hands[player2]).All(j => 
+                                                                                      j.Value != Hodnota.Eso && j.Value != Hodnota.Desitka && j.Suit != _trump));
+                        if (!cardsToPlay.Any())
+                        {
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
+                                                                                i.Value != Hodnota.Desitka &&
+                                                                                i.Suit != _trump &&
+                                                                                ValidCards(i, hands[player2]).All(j =>
+                                                                                      j.Value != Hodnota.Eso && j.Value != Hodnota.Desitka));
+                        }
                         return cardsToPlay.OrderByDescending(i => i.Value).LastOrDefault();
                     }
-                    else
+                    else if (TeamMateIndex == player3)
                     {
+                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
+                                                                                i.Value != Hodnota.Desitka &&
+                                                                                i.Suit != _trump &&
+                                                                                ValidCards(i, hands[player2]).Any(j => 
+                                                                                      ValidCards(i, j, hands[player3]).All(k =>
+                                                                                           k.Value != Hodnota.Eso && k.Value != Hodnota.Desitka && k.Suit != _trump)));
+                        if (!cardsToPlay.Any())
+                        {
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
+                                                                                i.Value != Hodnota.Desitka &&
+                                                                                i.Suit != _trump &&
+                                                                                ValidCards(i, hands[player2]).Any(j =>
+                                                                                      ValidCards(i, j, hands[player3]).All(k =>
+                                                                                           k.Value != Hodnota.Eso && k.Value != Hodnota.Desitka)));
+                        }
+                        return cardsToPlay.OrderByDescending(i => i.Value).LastOrDefault();
+                    }
+                    else //TeamMateIndex == -1
+                    {
+                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
+                                    i.Value != Hodnota.Desitka &&
+                                    i.Suit != _trump);
+
                         return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
                     }
                 }

@@ -253,8 +253,7 @@ namespace Mariasek.Engine.New
 				var msg = talon == null ? "(null)" : "Count: " + talon.Count;
 				throw new InvalidOperationException("Bad talon: " + msg);
 			}
-
-			return talon;
+            return talon;
         }
 
         private List<Card> ChooseDurchTalon(List<Card> hand, Card trumpCard)
