@@ -1190,9 +1190,13 @@ namespace Mariasek.Engine.New
                 bid |= bidding.Bids & Hra.Betl;
                 minRuleCount = Math.Min(minRuleCount, _betlBalance);
             }
+            if (minRuleCount == int.MaxValue)
+            {
+                minRuleCount = _gamesBalance;
+            }
             DebugInfo.Rule = bid.ToString();
 			DebugInfo.RuleCount = minRuleCount;
-			DebugInfo.TotalRuleCount = Settings.SimulationsPerGameType;
+            DebugInfo.TotalRuleCount = _gameType == Hra.Betl ? _betlSimulations : _gameType == Hra.Durch ? _durchSimulations : _goodSimulations;
             var allChoices = new List<RuleDebugInfo>();
             allChoices.Add(new RuleDebugInfo
             {

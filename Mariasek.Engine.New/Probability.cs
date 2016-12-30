@@ -16,15 +16,15 @@ namespace Mariasek.Engine.New
 #else
         private static readonly ILog _log = new DummyLogWrapper();
 #endif
-        
+
         private int _myIndex;
         private int _gameStarterIndex;
         private Barva? _trump;
         private readonly Dictionary<Barva, Dictionary<Hodnota, float>>[] _cardProbabilityForPlayer;
         private readonly List<Card>[] _cardsPlayedByPlayer;
         private static RandomMT mt = new RandomMT((ulong)(DateTime.Now - DateTime.MinValue).TotalMilliseconds);
-		private readonly List<int> _playerWeights;
-		private List<Hand[]> generatedHands;
+        private readonly List<int> _playerWeights;
+        private List<Hand[]> generatedHands;
 
         public const int talonIndex = Game.NumPlayers;
 
@@ -33,13 +33,15 @@ namespace Mariasek.Engine.New
         private List<Card> _talon;
         private List<Card> _myTalon;
         private StringBuilder _debugString;
-		private StringBuilder _verboseString;
-		public StringBuilder ExternalDebugString;
+        private StringBuilder _verboseString;
+        public StringBuilder ExternalDebugString;
         private readonly List<int> _gameBidders;
-		private int _gameIndex;
+        private int _gameIndex;
         private int _sevenIndex;
-		private int _hundredIndex;
-        private int _gameStarterInitialExpectedTrumps;
+        private int _hundredIndex;
+        private float _gameStarterInitialExpectedTrumps;
+        private Dictionary<Hra, float> _initialExpectedTrumpsPerGameType = new Dictionary<Hra, float>() { { Hra.Hra, 3f }, { Hra.Sedma, 5f }, { Hra.Kilo, 7f}};
+        private float _gameStarterCurrentExpectedTrumps = 3f;
 
         public Probability(int myIndex, int gameStarterIndex, Hand myHand, Barva? trump, List<Card> talon = null)
         {
@@ -111,8 +113,6 @@ namespace Mariasek.Engine.New
 			_debugString.Append("-----\n");
         }
 
-        private int gameStarterCurrentExpectedTrumps = 4;
-
         /// <summary>
         /// Changes the probability of uncertain cards from 0.5 to the actual probability
         /// </summary>
@@ -143,17 +143,17 @@ namespace Mariasek.Engine.New
                             var totalUncertainTrumps = _cardProbabilityForPlayer.SelectMany(j => j[b].Where(k => k.Value > 0f && k.Value < 1f)
                                                                                                      .Select(k => k.Key))
                                                                                 .Distinct().Count();//celkovy pocet nejistych trumfu pro vsechny
-                            var currentExpectedTrumps = 0;
+                            var currentExpectedTrumps = 0f;
                             const float epsilon = 0.01f;
 
                             if (ii == _gameStarterIndex)
                             {
                                 currentExpectedTrumps = _gameStarterInitialExpectedTrumps - certainTrumps - playedTrumps;
-                                gameStarterCurrentExpectedTrumps = currentExpectedTrumps;
+                                _gameStarterCurrentExpectedTrumps = currentExpectedTrumps;
                             }
                             else if (ii != talonIndex)
                             {
-                                currentExpectedTrumps = totalUncertainTrumps - gameStarterCurrentExpectedTrumps;
+                                currentExpectedTrumps = totalUncertainTrumps - _gameStarterCurrentExpectedTrumps;
                             }
                             else
                             {
@@ -721,15 +721,15 @@ namespace Mariasek.Engine.New
             {
                 if (_hundredIndex >= 0)
                 {
-                    _gameStarterInitialExpectedTrumps = 7;
+                    _gameStarterInitialExpectedTrumps = _initialExpectedTrumpsPerGameType[Hra.Kilo];
                 }
                 else if (_sevenIndex >= 0)
                 {
-                    _gameStarterInitialExpectedTrumps = 5;
+                    _gameStarterInitialExpectedTrumps = _initialExpectedTrumpsPerGameType[Hra.Sedma];
                 }
                 else
                 {
-                    _gameStarterInitialExpectedTrumps = 4;
+                    _gameStarterInitialExpectedTrumps = _initialExpectedTrumpsPerGameType[Hra.Hra];
                 }
             }
             UpdateUncertainCardsProbability();

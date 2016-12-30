@@ -34,6 +34,7 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _width = value;
                 _clickableArea.Width = value;
+                UpdateVerticalScrollbar();
             }
         }
 
@@ -45,13 +46,14 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _height = value;
                 _clickableArea.Height = value;
+                UpdateVerticalScrollbar();
             }
         }
 
         public Color ScrollBarColor { get; set; }
 
         private Rectangle _boundsRect;
-        protected Rectangle BoundsRect { get { return _boundsRect; } set { _boundsRect = value; UpdateVerticalScrollbar(); } }
+        protected virtual Rectangle BoundsRect { get { return _boundsRect; } set { _boundsRect = value; UpdateVerticalScrollbar(); } }
 
         public int VerticalScrollOffset
         {

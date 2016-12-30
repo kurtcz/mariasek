@@ -55,6 +55,7 @@ namespace Mariasek.SharedClient
         private Button _sendBtn;
         private Button _newGameBtn;
         private Button _reviewGameBtn;
+        private ToggleButton _reviewGameToggleBtn;
         private Button _okBtn;
         private Button[] gtButtons, gfButtons, bidButtons;
         private Button gtHraButton;
@@ -333,6 +334,15 @@ namespace Mariasek.SharedClient
             };
             _reviewGameBtn.Click += ReviewGameBtnClicked;
             _reviewGameBtn.Hide();
+            _reviewGameToggleBtn = new ToggleButton(this)
+            {
+                Text = "Průběh hry",
+                Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 90),
+                ZIndex = 90,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                Width = 150
+            };
+            _reviewGameToggleBtn.Click += ReviewGameBtnClicked;
             _newGameBtn = new Button(this)
             {
                 Text = "Nová hra",
@@ -853,21 +863,43 @@ namespace Mariasek.SharedClient
 
         public void ReviewGameBtnClicked(object sender)
         {
-            if (_review.IsVisible)
+            if (_review == null || !_review.IsVisible)
             {
-                _reviewGameBtn.Text = "Průběh hry";
-                _review.Hide();
-                _msgLabelLeft.Show();
-                _msgLabelRight.Show();
-                _totalBalance.Show();
+                if (g.IsRunning)
+                {
+                    _review = new GameReview(this)
+                    {
+                        Position = new Vector2(160, 45),
+                        Width = (int)Game.VirtualScreenWidth - 160,
+                        Height = (int)Game.VirtualScreenHeight - 55,
+                        BackgroundColor = Color.Black,
+                        ZIndex = 200
+                    };
+                    _review.Show();
+                }
+                else
+                {
+                    _reviewGameBtn.Text = "Vyúčtování";
+                    _msgLabelLeft.Hide();
+                    _msgLabelRight.Hide();
+                    _totalBalance.Hide();
+                    _review.Show();
+                }
             }
             else
             {
-                _reviewGameBtn.Text = "Vyúčtování";
-                _msgLabelLeft.Hide();
-                _msgLabelRight.Hide();
-                _totalBalance.Hide();
-                _review.Show();
+                if (g.IsRunning)
+                {
+                    _review.Hide();
+                }
+                else
+                {
+                    _reviewGameBtn.Text = "Průběh hry";
+                    _review.Hide();
+                    _msgLabelLeft.Show();
+                    _msgLabelRight.Show();
+                    _totalBalance.Show();
+                }
             }
         }
 
@@ -946,6 +978,8 @@ namespace Mariasek.SharedClient
                 ClearTable(true);
                 HideMsgLabel();
                 _reviewGameBtn.Hide();
+                _reviewGameToggleBtn.Show();
+                _reviewGameToggleBtn.IsSelected = false;
                 if (_review != null)
                 {
                     _review.Hide();
@@ -1755,9 +1789,11 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(160, 45),
                 Width = (int)Game.VirtualScreenWidth - 160,
-                Height = (int)Game.VirtualScreenHeight - 55
+                Height = (int)Game.VirtualScreenHeight - 55,
+                BackgroundColor = Color.Transparent
             };
             _review.Hide();
+            _reviewGameToggleBtn.Hide();
             _reviewGameBtn.Text = "Průběh hry";
             _reviewGameBtn.Show();
             HideInvisibleClickableOverlay();
@@ -1888,6 +1924,7 @@ namespace Mariasek.SharedClient
                     ClearTable(true);
                     HideMsgLabel();
                     _reviewGameBtn.Hide();
+                    _reviewGameToggleBtn.Show();
                     if (_review != null)
                     {
                         _review.Hide();

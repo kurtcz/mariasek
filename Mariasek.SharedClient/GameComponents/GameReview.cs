@@ -7,12 +7,47 @@ namespace Mariasek.SharedClient.GameComponents
 {
     public class GameReview : ScrollBox
     {
+        private RectangleShape _background;
         private List<Mariasek.Engine.New.Card>[] _initialHands;
         public Sprite[][] Hands;
         public Sprite[][] Rounds;
         public Label[] Names;
         public Label[] RoundNum;
         public Label[][] Labels;
+        public Color BackgroundColor;
+
+        public override Vector2 Position
+        {
+            get
+            {
+                return base.Position;
+            }
+            set
+            {
+                base.Position = value;
+                if (_background != null)
+                {
+                    _background.Position = value;
+                }
+            }
+        }
+
+        protected override Rectangle BoundsRect
+        {
+            get
+            {
+                return base.BoundsRect;
+            }
+            set
+            {
+                base.BoundsRect = value;
+                if (_background != null)
+                {
+                    _background.Width = value.Width;
+                    _background.Height = value.Height;
+                }
+            }
+        }
 
         public override void Show()
         {
@@ -35,8 +70,15 @@ namespace Mariasek.SharedClient.GameComponents
         public GameReview(GameComponent parent)
             : base (parent)
         {
-            var zIndex = 100;
+            const int headLength = Mariasek.Engine.New.Game.NumPlayers + 1;
+            var roundsLength = Game.MainScene.g.CurrentRound != null ? Game.MainScene.g.CurrentRound.number : 0;
 
+            _background = new RectangleShape(this)
+            {
+                BackgroundColors = new List<Color> { BackgroundColor },
+                BorderColors = new List<Color> { BackgroundColor },
+                Opacity = 0.5f
+            };
             _initialHands = new List<Mariasek.Engine.New.Card>[Mariasek.Engine.New.Game.NumPlayers + 1];
             Hands = new Sprite[Mariasek.Engine.New.Game.NumPlayers+1][];
             Names = new Label[Mariasek.Engine.New.Game.NumPlayers + 1];
@@ -67,6 +109,10 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     continue;
                 }
+                if (i > roundsLength)
+                {
+                    roundsLength = i;
+                }
                 RoundNum[i] = new Label(this)
                 {
                     Position = new Vector2(200 - 0.5f * Hand.CardWidth, 100 + (i + 4 - 0.5f) * (Hand.CardHeight + 50) + 20),
@@ -90,12 +136,12 @@ namespace Mariasek.SharedClient.GameComponents
 
                 Rounds[i][0] = new Sprite(this, Game.CardTextures, rect)
                 {
-                    Position = new Vector2(200, 100 + (i + 4) * (Hand.CardHeight + 50) + 30),
+                    Position = new Vector2(200, 100 + (i + headLength) * (Hand.CardHeight + 50) + 30),
                     ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3
                 };
                 Labels[i][0] = new Label(this)
                 {
-                    Position = new Vector2(200 + 3 * Hand.CardWidth - 20, 100 + (i + 4 - 0.5f) * (Hand.CardHeight + 50) + 20),
+                    Position = new Vector2(200 + 3 * Hand.CardWidth - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight + 50) + 20),
                     Width = 600,
                     Height = 40,
                     Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player1.Name, Game.MainScene.g.rounds[i].player1.PlayerIndex == 0 ? "-" : debugNote1 != null ? debugNote1.Split('\n')[0] : "-"),
@@ -105,12 +151,12 @@ namespace Mariasek.SharedClient.GameComponents
                 rect = Game.MainScene.g.rounds[i].c2.ToTextureRect();
                 Rounds[i][1] = new Sprite(this, Game.CardTextures, rect)
                 {
-                    Position = new Vector2(200 + Hand.CardWidth - 10, 100 + (i + 4) * (Hand.CardHeight + 50) + 40),
+                    Position = new Vector2(200 + Hand.CardWidth - 10, 100 + (i + Mariasek.Engine.New.Game.NumPlayers + 1) * (Hand.CardHeight + 50) + 40),
                     ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 1
                 };
                 Labels[i][1] = new Label(this)
                 {
-                    Position = new Vector2(200 + 3 * Hand.CardWidth - 20, 100 + (i + 4 - 0.5f) * (Hand.CardHeight + 50) + 50),
+                    Position = new Vector2(200 + 3 * Hand.CardWidth - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight + 50) + 50),
                     Width = 600,
                     Height = 40,
                     Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player2.Name, Game.MainScene.g.rounds[i].player2.PlayerIndex == 0 ? "-" : debugNote2 != null ? debugNote2.Split('\n')[0] : "-"),
@@ -120,12 +166,12 @@ namespace Mariasek.SharedClient.GameComponents
                 rect = Game.MainScene.g.rounds[i].c3.ToTextureRect();
                 Rounds[i][2] = new Sprite(this, Game.CardTextures, rect)
                 {
-                    Position = new Vector2(200 + 2 * (Hand.CardWidth - 10), 100 + (i + 4) * (Hand.CardHeight + 50) + 50),
+                    Position = new Vector2(200 + 2 * (Hand.CardWidth - 10), 100 + (i + headLength) * (Hand.CardHeight + 50) + 50),
                     ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 2
                 };
                 Labels[i][2] = new Label(this)
                 {
-                    Position = new Vector2(200 + 3 * Hand.CardWidth - 20, 100 + (i + 4 - 0.5f) * (Hand.CardHeight + 50) + 80),
+                    Position = new Vector2(200 + 3 * Hand.CardWidth - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight + 50) + 80),
                     Width = 600,
                     Height = 40,
                     Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player3.Name, Game.MainScene.g.rounds[i].player3.PlayerIndex == 0 ? "-" : debugNote3 != null ? debugNote3.Split('\n')[0] : "-"),
@@ -134,7 +180,7 @@ namespace Mariasek.SharedClient.GameComponents
                 };
             }
             _initialHands[3] = Game.MainScene.g.talon;
-            BoundsRect = new Rectangle(200, 40, (int)Game.VirtualScreenWidth - 160, 1915);//(Mariasek.Engine.New.Game.NumRounds + Mariasek.Engine.New.Game.NumPlayers + 1) * (Hand.CardHeight + 50) - Height);
+            BoundsRect = new Rectangle(0, 0, (int)Game.VirtualScreenWidth - (int)Position.X, (roundsLength + headLength) * (Hand.CardHeight + 50) - (int)Position.Y);
             ScrollBarColor = Color.Transparent;
 
             for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
