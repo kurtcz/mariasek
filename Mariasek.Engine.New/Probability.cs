@@ -40,7 +40,7 @@ namespace Mariasek.Engine.New
         private int _sevenIndex;
         private int _hundredIndex;
         private float _gameStarterInitialExpectedTrumps;
-        private Dictionary<Hra, float> _initialExpectedTrumpsPerGameType = new Dictionary<Hra, float>() { { Hra.Hra, 3f }, { Hra.Sedma, 5f }, { Hra.Kilo, 7f}};
+        //private Dictionary<Hra, float> _initialExpectedTrumpsPerGameType = new Dictionary<Hra, float>() { { Hra.Hra, 3f }, { Hra.Sedma, 5f }, { Hra.Kilo, 7f}};
         private float _gameStarterCurrentExpectedTrumps = 3f;
 
         public Probability(int myIndex, int gameStarterIndex, Hand myHand, Barva? trump, List<Card> talon = null)
@@ -721,20 +721,53 @@ namespace Mariasek.Engine.New
             {
                 if (_hundredIndex >= 0)
                 {
-                    _gameStarterInitialExpectedTrumps = _initialExpectedTrumpsPerGameType[Hra.Kilo];
+                    _gameStarterInitialExpectedTrumps = GetGameStarterInitialExpectedTrumps(Hra.Kilo);
                 }
                 else if (_sevenIndex >= 0)
                 {
-                    _gameStarterInitialExpectedTrumps = _initialExpectedTrumpsPerGameType[Hra.Sedma];
+                    _gameStarterInitialExpectedTrumps = GetGameStarterInitialExpectedTrumps(Hra.Sedma);
                 }
                 else
                 {
-                    _gameStarterInitialExpectedTrumps = _initialExpectedTrumpsPerGameType[Hra.Hra];
+                    _gameStarterInitialExpectedTrumps = GetGameStarterInitialExpectedTrumps(Hra.Hra);
                 }
             }
             UpdateUncertainCardsProbability();
 			_debugString.Append(FriendlyString(0));
 			_debugString.Append("-----\n");
+        }
+
+        private float GetGameStarterInitialExpectedTrumps(Hra gameType)
+        {
+            var myInitialTrumpCount = _myHand.CardCount(_trump.Value);
+
+            switch (gameType)
+            {
+                case Hra.Kilo:
+                    return Math.Min(7, 8 - myInitialTrumpCount);
+                case Hra.Sedma:
+                    switch (myInitialTrumpCount)
+                    {
+                        case 7:
+                            return 1f;
+                        case 6:
+                            return 2f;
+                        case 5:
+                            return 3f;
+                        case 4:
+                            return 4f;
+                        default:
+                            return 4.5f;
+                    }
+                default:
+                    switch (myInitialTrumpCount)
+                    {
+                        case 7:
+                            return 1f;
+                        default:
+                            return (8 - myInitialTrumpCount) / 2f;
+                    }
+            }
         }
 
         public void UpdateProbabilities(int roundNumber, int roundStarterIndex, Card c1, bool hlas1)

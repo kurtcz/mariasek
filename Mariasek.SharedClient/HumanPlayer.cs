@@ -198,7 +198,7 @@ namespace Mariasek.SharedClient
                                 var i = 0;
                                 foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(j => j.RuleCount > 0))
     							{
-                                    msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (i++) % 3 == 2 ? "\n" : "\t"));
+                                    msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount : -1, (i++) % 3 == 2 ? "\n" : "\t"));
     							}
                                 _scene.SuggestGameType(msg.ToString(), _t1-_t0);
                                 //nasimulovany talon musime nahradit skutecnym pokud ho uz znam, jinak to udelam v ChooseTalon
@@ -274,11 +274,11 @@ namespace Mariasek.SharedClient
                         var temp = new Bidding(_g.Bidding);
                         temp.SetLastBidder(_aiPlayer, gameType);
                         var e = temp.GetEventArgs(_aiPlayer, gameType, 0);
-                        var msg = new StringBuilder(string.Format("{0} ({1}%)\n", e.Description, 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount));
+                        var msg = new StringBuilder(string.Format("{0} ({1}%)\n", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1));
                         var i = 0;
                         foreach(var debugInfo in _aiPlayer.DebugInfo.AllChoices)
                         {                        
-                            msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (i++) % 4 == 3 ? "\n" : "\t"));
+                            msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, _aiPlayer.DebugInfo.TotalRuleCount > 0 ?100 * debugInfo.RuleCount / debugInfo.TotalRuleCount : -1, (i++) % 4 == 3 ? "\n" : "\t"));
                         }
                         _scene.SuggestGameType(msg.ToString(), _t1 - _t0);
                     }, _cancellationTokenSource.Token);
@@ -302,7 +302,7 @@ namespace Mariasek.SharedClient
                         temp.SetLastBidder(_aiPlayer, bid);                         //nasimulovat reakci (tato operace manipuluje s vnitrnim stavem - proto pracujeme s kopii)
                         var e = temp.GetEventArgs(_aiPlayer, bid, _previousBid);    //a zformatovat ji do stringu
 
-						_scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount), _t1 - _t0);						
+						_scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1), _t1 - _t0);						
                     }, _cancellationTokenSource.Token);
             }
             var bd = _scene.GetBidsAndDoubles(bidding);
@@ -323,7 +323,7 @@ namespace Mariasek.SharedClient
                     { 
 						_t1 = Environment.TickCount;
                         var cardToplay = _aiPlayer.PlayCard(r);
-                        var hint = string.Format("{2}\n{0} ({1}%)\n", _aiPlayer.DebugInfo.Rule, (100 * _aiPlayer.DebugInfo.RuleCount) / _aiPlayer.DebugInfo.TotalRuleCount, _aiPlayer.DebugInfo.Card);
+                        var hint = string.Format("{2}\n{0} ({1}%)\n", _aiPlayer.DebugInfo.Rule, _aiPlayer.DebugInfo.TotalRuleCount > 0 ?100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1, _aiPlayer.DebugInfo.Card);
 
 						_scene.SuggestCardToPlay(_aiPlayer.DebugInfo.Card, hint, _t1 - _t0);
                     }, _cancellationTokenSource.Token);

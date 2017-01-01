@@ -867,6 +867,10 @@ namespace Mariasek.SharedClient
             {
                 if (g.IsRunning)
                 {
+                    if (_review != null)
+                    {
+                        _review.Dispose();
+                    }
                     _review = new GameReview(this)
                     {
                         Position = new Vector2(160, 45),
@@ -1784,6 +1788,10 @@ namespace Mariasek.SharedClient
                     
                 leftMessage.Append("\n");
                 rightMessage.Append("\n");
+            }
+            if (_review != null)
+            {
+                _review.Dispose();
             }
             _review = new GameReview(this)
             {
