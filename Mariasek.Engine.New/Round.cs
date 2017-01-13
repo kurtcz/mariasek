@@ -102,6 +102,7 @@ namespace Mariasek.Engine.New
 
             //musim nejak overit, ze karty jsou validni a pokud ne tak to hraci oznamit a akci opakovat
             c1 = player1.PlayCard(this);
+            player1.Hand.Remove(c1);
             foreach(var choice in player1.DebugInfo.AllChoices)
             {
                 allRules.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, player1.DebugInfo.TotalRuleCount);
@@ -113,11 +114,11 @@ namespace Mariasek.Engine.New
                 hlasPoints1 = c1.Suit == _g.trump.Value ? 40 : 20;
             }
             if (hlas1) player1.Hlasy++;
-            player1.Hand.Remove(c1);
             _g.ThrowIfCancellationRequested();
             _g.OnCardPlayed(this);
             
             c2 = player2.PlayCard(this);
+            player2.Hand.Remove(c2);
             allRules.Clear();
             foreach (var choice in player2.DebugInfo.AllChoices)
             {
@@ -129,11 +130,11 @@ namespace Mariasek.Engine.New
                 hlasPoints2 = c2.Suit == _g.trump.Value ? 40 : 20;
             }
             if (hlas2) player2.Hlasy++;
-            player2.Hand.Remove(c2);
             _g.ThrowIfCancellationRequested(); 
             _g.OnCardPlayed(this);
             
             c3 = player3.PlayCard(this);
+            player3.Hand.Remove(c3);
             allRules.Clear();
             foreach (var choice in player3.DebugInfo.AllChoices)
             {
@@ -145,7 +146,6 @@ namespace Mariasek.Engine.New
                 hlasPoints3 = c3.Suit == _g.trump.Value ? 40 : 20;
             }
             if (hlas3) player3.Hlasy++;
-            player3.Hand.Remove(c3);
             _g.ThrowIfCancellationRequested(); 
             _g.OnCardPlayed(this);
 

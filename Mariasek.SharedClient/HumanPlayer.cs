@@ -325,6 +325,7 @@ namespace Mariasek.SharedClient
                         var cardToplay = _aiPlayer.PlayCard(r);
                         var hint = string.Format("{2}\n{0} ({1}%)\n", _aiPlayer.DebugInfo.Rule, _aiPlayer.DebugInfo.TotalRuleCount > 0 ?100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1, _aiPlayer.DebugInfo.Card);
 
+                        _scene.SimulatedSuccessRate = _aiPlayer.DebugInfo.TotalRuleCount > 0 ? _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1;
 						_scene.SuggestCardToPlay(_aiPlayer.DebugInfo.Card, hint, _t1 - _t0);
                     }, _cancellationTokenSource.Token);
             }

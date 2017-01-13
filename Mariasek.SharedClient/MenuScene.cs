@@ -107,7 +107,7 @@ namespace Mariasek.SharedClient
                 Width = 400,
                 Height = 34,
                 HorizontalAlign = HorizontalAlignment.Right,
-                Text = "©2016 Tomáš Němec",
+                Text = "©2017 Tomáš Němec",
 				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Bottom
             };
         }

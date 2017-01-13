@@ -117,20 +117,16 @@ namespace Mariasek.Engine.New
                         var lo = hands[MyIndex].Where(i => //vezmi karty nizsi nez souperi
 										hands[player2].Any(j => j.Suit == i.Suit && j.IsHigherThan(i, null)) ||
                                             hands[player3].Any(j => j.Suit == i.Suit && j.IsHigherThan(i, null)));
-						var hi = lo.Where(i => //vezmi karty Vyssi nez souperi
-										hands[player2].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)) ||
-										  hands[player3].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)));
-						var hiBySuit = hi.GroupBy(i => i.Suit);
-						var singleHiCards = hiBySuit.Where(i => i.Count() == 1).Select(i => i.First()).ToList();
+                        var hi = lo.ToDictionary(k => k, v => //vezmi karty Vyssi nez souperi
+                                        Math.Max(hands[player2].Count(j => j.Suit == v.Suit && v.IsHigherThan(j, null)),
+                                                 hands[player3].Count(j => j.Suit == v.Suit && v.IsHigherThan(j, null))))
+                                   .OrderByDescending(i => i.Value)
+                                   .ThenByDescending(i => i.Key.BadValue);
 
-						if (singleHiCards.Any())	//pokud to jde odmazat si zaroven i celou barvu
-						{
-							cardsToPlay.AddRange(singleHiCards);
-						}
-						else
-						{
-							cardsToPlay = hi.ToList();
-						}
+                        if (hi.Any())
+                        {
+                            cardsToPlay.Add(hi.First().Key);
+                        }
                         //je treba odmazavat pokud to jde, v nejhorsim hru neuhraju, simulace by mely ukazat
                     }
                     else

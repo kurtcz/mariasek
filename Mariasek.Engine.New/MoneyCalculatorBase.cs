@@ -74,6 +74,8 @@ namespace Mariasek.Engine.New
 
         [XmlArray]
         public int[] MoneyWon { get; protected set; }
+        [XmlElement]
+        public float SimulatedSuccessRate { get; set; } //set from MainScene
 
         protected CultureInfo _ci;
 
@@ -83,6 +85,7 @@ namespace Mariasek.Engine.New
             PlayerNames = new[] { "Hráč1", "Hráč2", "Hráč3"};
             BaseBet = 1f;
             _ci = new CultureInfo("cs-CZ");
+            SimulatedSuccessRate = -1;
         }
 
         //vola se na konci hry
@@ -96,6 +99,7 @@ namespace Mariasek.Engine.New
             PlayerNames = g.players.Select(i => i.Name).ToArray();
             BaseBet = g.BaseBet;
             GamePlayed = g.rounds[0] != null;
+            SimulatedSuccessRate = -1;
 
             if(ci == null)
             {
@@ -242,6 +246,7 @@ namespace Mariasek.Engine.New
             GameTypeString = _gameType.ToDescription(null);
             _bidding = bidding;
             _gameStartingPlayerIndex = gameStartingPlayerIndex;
+            SimulatedSuccessRate = -1;
 
             if (GoodGame)
             {

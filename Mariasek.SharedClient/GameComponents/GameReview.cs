@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Mariasek.Engine.New;
 
@@ -14,7 +15,20 @@ namespace Mariasek.SharedClient.GameComponents
         public Label[] Names;
         public Label[] RoundNum;
         public Label[][] Labels;
-        public Color BackgroundColor;
+        private Color _backgroundColor;
+        public Color BackgroundColor
+        {
+            get { return _backgroundColor; }
+            set
+            {
+                _backgroundColor = value;
+                if (_background != null)
+                {
+                    _background.BorderColors = new List<Color> { value };
+                    _background.BackgroundColors = new List<Color> { value };
+                }
+            }
+        }
 
         public override Vector2 Position
         {
@@ -68,7 +82,7 @@ namespace Mariasek.SharedClient.GameComponents
         }
 
         public GameReview(GameComponent parent)
-            : base (parent)
+            : base(parent)
         {
             const int headLength = Mariasek.Engine.New.Game.NumPlayers + 1;
             var roundsLength = Game.MainScene.g.CurrentRound != null ? Game.MainScene.g.CurrentRound.number : 0;
@@ -77,16 +91,18 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 BackgroundColors = new List<Color> { BackgroundColor },
                 BorderColors = new List<Color> { BackgroundColor },
-                Opacity = 0.5f
+                Opacity = 0.8f,
+                Width = BoundsRect.Width,
+                Height = BoundsRect.Height
             };
             _initialHands = new List<Mariasek.Engine.New.Card>[Mariasek.Engine.New.Game.NumPlayers + 1];
-            Hands = new Sprite[Mariasek.Engine.New.Game.NumPlayers+1][];
+            Hands = new Sprite[Mariasek.Engine.New.Game.NumPlayers + 1][];
             Names = new Label[Mariasek.Engine.New.Game.NumPlayers + 1];
             RoundNum = new Label[Mariasek.Engine.New.Game.NumRounds];
             Rounds = new Sprite[Mariasek.Engine.New.Game.NumRounds][];
             Labels = new Label[Mariasek.Engine.New.Game.NumRounds][];
 
-            for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers+1; i++)
+            for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers + 1; i++)
             {
                 _initialHands[i] = new List<Mariasek.Engine.New.Card>();
                 if (i < Mariasek.Engine.New.Game.NumPlayers)
@@ -123,22 +139,34 @@ namespace Mariasek.SharedClient.GameComponents
                     ZIndex = 200,
                     UseCommonScissorRect = true
                 };
+                var r = Game.MainScene.g.rounds[i];
                 Rounds[i] = new Sprite[Mariasek.Engine.New.Game.NumPlayers];
                 Labels[i] = new Label[Mariasek.Engine.New.Game.NumPlayers];
-                _initialHands[Game.MainScene.g.rounds[i].player1.PlayerIndex].Add(Game.MainScene.g.rounds[i].c1);
-                _initialHands[Game.MainScene.g.rounds[i].player2.PlayerIndex].Add(Game.MainScene.g.rounds[i].c2);
-                _initialHands[Game.MainScene.g.rounds[i].player3.PlayerIndex].Add(Game.MainScene.g.rounds[i].c3);
+                _initialHands[r.player1.PlayerIndex].Add(r.c1);
+                _initialHands[r.player2.PlayerIndex].Add(r.c2);
+                _initialHands[r.player3.PlayerIndex].Add(r.c3);
 
-                var rect = Game.MainScene.g.rounds[i].c1.ToTextureRect();
-                var debugNote1 = Game.MainScene.g.rounds[i].debugNote1;
-                var debugNote2 = Game.MainScene.g.rounds[i].debugNote2;
-                var debugNote3 = Game.MainScene.g.rounds[i].debugNote3;
+                var rect = r.c1.ToTextureRect();
+                var debugNote1 = r.debugNote1;
+                var debugNote2 = r.debugNote2;
+                var debugNote3 = r.debugNote3;
 
                 Rounds[i][0] = new Sprite(this, Game.CardTextures, rect)
                 {
                     Position = new Vector2(200, 100 + (i + headLength) * (Hand.CardHeight + 50) + 30),
                     ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3
                 };
+                if (Game.MainScene.g.trump.HasValue && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka))
+                {
+                    if (r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].PlayerIndex || r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].TeamMateIndex)
+                    {
+                        Rounds[i][0].Tint = Color.LightGreen;
+                    }
+                    else
+                    {
+                        Rounds[i][0].Tint = Color.LightPink;
+                    }
+                }
                 Labels[i][0] = new Label(this)
                 {
                     Position = new Vector2(200 + 3 * Hand.CardWidth - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight + 50) + 20),
@@ -154,6 +182,17 @@ namespace Mariasek.SharedClient.GameComponents
                     Position = new Vector2(200 + Hand.CardWidth - 10, 100 + (i + Mariasek.Engine.New.Game.NumPlayers + 1) * (Hand.CardHeight + 50) + 40),
                     ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 1
                 };
+                if (Game.MainScene.g.trump.HasValue && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka))
+                {
+                    if (r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].PlayerIndex || r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].TeamMateIndex)
+                    {
+                        Rounds[i][1].Tint = Color.LightGreen;
+                    }
+                    else
+                    {
+                        Rounds[i][1].Tint = Color.LightPink;
+                    }
+                }
                 Labels[i][1] = new Label(this)
                 {
                     Position = new Vector2(200 + 3 * Hand.CardWidth - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight + 50) + 50),
@@ -169,6 +208,17 @@ namespace Mariasek.SharedClient.GameComponents
                     Position = new Vector2(200 + 2 * (Hand.CardWidth - 10), 100 + (i + headLength) * (Hand.CardHeight + 50) + 50),
                     ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 2
                 };
+                if (Game.MainScene.g.trump.HasValue && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))
+                {
+                    if (r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].PlayerIndex || r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].TeamMateIndex)
+                    {
+                        Rounds[i][2].Tint = Color.LightGreen;
+                    }
+                    else
+                    {
+                        Rounds[i][2].Tint = Color.LightPink;
+                    }
+                }
                 Labels[i][2] = new Label(this)
                 {
                     Position = new Vector2(200 + 3 * Hand.CardWidth - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight + 50) + 80),
@@ -193,11 +243,25 @@ namespace Mariasek.SharedClient.GameComponents
                 for (var j = 0; j < hand.Count; j++)
                 {
                     var rect = hand[j].ToTextureRect();
+                    var hlas = Game.MainScene.g.trump.HasValue &&
+                               hand[j].Value == Hodnota.Kral && hand.Any(k => k.Value == Hodnota.Svrsek && k.Suit == hand[j].Suit) ||
+                               hand[j].Value == Hodnota.Svrsek && hand.Any(k => k.Value == Hodnota.Kral && k.Suit == hand[j].Suit);
                     Hands[i][j] = new Sprite(this, Game.CardTextures, rect)
                     {
                         Position = new Vector2(200 + j * (Hand.CardWidth - 10), 100 + i * (Hand.CardHeight + 50) + 30),
                         ZIndex = i * Mariasek.Engine.New.Game.NumRounds + j
                     };
+                    if (hlas)
+                    {
+                        if (Game.MainScene.g.players[ii].PlayerIndex == 0 || Game.MainScene.g.players[ii].TeamMateIndex == 0)
+                        {
+                            Hands[i][j].Tint = Color.LightGreen;
+                        }
+                        else
+                        {
+                            Hands[i][j].Tint = Color.LightPink;
+                        }
+                    }
                 }
             }
             Hands[3] = new Sprite[_initialHands[3].Count];

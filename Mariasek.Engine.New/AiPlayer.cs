@@ -191,6 +191,7 @@ namespace Mariasek.Engine.New
 				//pro kazdou kartu spocitej diry (mensi karty v barve ktere nemam)
 				var holes = 0;
 				var holesDelta = 0;
+                var higherCards = 0;
 
 				foreach (var h in Enum.GetValues(typeof(Hodnota))
 									 .Cast<Hodnota>()
@@ -201,8 +202,17 @@ namespace Mariasek.Engine.New
 						holes++;
 					}
 				}
-				//mam v ruce mensi kartu v barve?
-				var card2 = hand.Where(j => j.Suit == i.Suit && j.BadValue < i.BadValue).OrderByDescending(j => j.BadValue).FirstOrDefault();
+                foreach (var h in Enum.GetValues(typeof(Hodnota))
+                                     .Cast<Hodnota>()
+                                     .Where(h => !i.IsHigherThan(new Card(i.Suit, h), null)))
+                {
+                    if (!hand.Any(j => j.Suit == i.Suit && j.Value == h))
+                    {
+                        higherCards++;
+                    }
+                }
+                //mam v ruce mensi kartu v barve?
+                var card2 = hand.Where(j => j.Suit == i.Suit && j.BadValue < i.BadValue).OrderByDescending(j => j.BadValue).FirstOrDefault();
 
 				if (card2 != null)
 				{
@@ -217,20 +227,30 @@ namespace Mariasek.Engine.New
 					holesDelta = holes;
 				}
 
-				return new Tuple<Card, int, int, int>(i, hand.CardCount(i.Suit), holesDelta, holes);
+				return new Tuple<Card, int, int, int, int>(i, hand.CardCount(i.Suit), holesDelta, holes, higherCards);
 			}).Where(i => i.Item4 > 0);
 
-			//nejprve vezmi karty od nejkratsich barev a alespon stredni hodnoty (1 karta > devitka)
-            //radime podle poctu poctu der ktere odstranime sestupne, poctu der celkem sestupne a hodnoty karty sestupne
-			var talon = holesByCard.Where(i => i.Item2 == 1)// &&			    //CardCount
-			                                   //i.Item1.Value > Hodnota.Devitka)
-			                       .OrderByDescending(i => i.Item3)			//holesDelta
-			                       .ThenByDescending(i => i.Item4)			//holes
-			                       .ThenByDescending(i => i.Item1.BadValue)
+            //nejprve vem karty ktere jsou ve hre nejvyssi a tudiz nejvice rizikove (A, K)
+            var talon = holesByCard.Where(i => i.Item5 == 0)// &&               //CardCount
+                                   .OrderByDescending(i => i.Item1.BadValue)
                                    .Take(2)
-			                       .Select(i => i.Item1)					//Card
+                                   .Select(i => i.Item1)                    //Card
                                    .ToList();
-			if (talon.Count < 2)
+
+            if (talon.Count < 2)
+            {
+                //potom vezmi karty od nejkratsich barev a alespon stredni hodnoty (1 karta > devitka)
+                //radime podle poctu poctu der ktere odstranime sestupne, poctu der celkem sestupne a hodnoty karty sestupne
+                talon.AddRange(holesByCard.Where(i => i.Item2 == 1 && i.Item5 > 0)// &&			    //CardCount
+                                          //i.Item1.Value > Hodnota.Devitka)
+                                          .OrderByDescending(i => i.Item3)          //holesDelta
+                                          .ThenByDescending(i => i.Item4)           //holes
+                                          .ThenByDescending(i => i.Item1.BadValue)
+                                          .Take(2 - talon.Count)
+                                          .Select(i => i.Item1)					//Card
+                                          .ToList());
+            }
+            if (talon.Count < 2)
 			{
 				//dopln kartami od delsich barev
 				talon.AddRange(holesByCard.Where(i => !talon.Contains(i.Item1))		//Card
@@ -1129,7 +1149,7 @@ namespace Mariasek.Engine.New
             //nove muzu flekovat sedmu protoze ji zohlednuju v pravdepodobnostnim rozlozeni
             if (_sevensBalance / (float)_goodSimulations >= sevenThreshold && (bidding.Bids & Hra.Sedma) != 0)
             {
-                bid |=bidding.Bids & Hra.Sedma;
+                bid |= bidding.Bids & Hra.Sedma;
                 minRuleCount = Math.Min(minRuleCount, _sevensBalance);
             }
             //kilo flekuju jen pokud jsem volil sam kilo a v simulacich jsem ho uhral dost casto
@@ -1159,8 +1179,8 @@ namespace Mariasek.Engine.New
             }
             //kilo proti flekuju jen pokud jsem hlasil sam kilo proti a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem volil trumf a je nemozne aby meli protihraci kilo (nemaji hlas)
-            if (((PlayerIndex != _g.GameStartingPlayerIndex && _hundredsAgainstBalance / (float)_goodSimulations >= hundredAgainstThreshold) ||
-                 (PlayerIndex == _g.GameStartingPlayerIndex && //_hundredsAgainstBalance == Settings.SimulationsPerGameType))); //never monte carlu, dej na pravdepodobnost
+            if ((//(PlayerIndex != _g.GameStartingPlayerIndex && _hundredsAgainstBalance / (float)_goodSimulations >= hundredAgainstThreshold) ||
+                 (PlayerIndex == _g.GameStartingPlayerIndex && _gamesBalance / (float)_goodSimulations >= gameThreshold && //_hundredsAgainstBalance == Settings.SimulationsPerGameType))); //never monte carlu, dej na pravdepodobnost
                                                               (Probabilities.HlasProbability((PlayerIndex + 1) % Game.NumPlayers) == 0) &&
 			      											  (Probabilities.HlasProbability((PlayerIndex + 2) % Game.NumPlayers) == 0))) && 
 			    (bidding.Bids & Hra.KiloProti) != 0)

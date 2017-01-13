@@ -195,19 +195,19 @@ namespace Mariasek.Engine.New
             }
         }
 
-        protected Renonc IsCardValid(Card c)
+        public Renonc IsCardValid(Card c)
         {
             var trump = (_g.GameType & (Hra.Betl | Hra.Durch)) == 0 ? _g.trump : (Barva?)null;
             return IsCardValid(Hand, trump, _g.GameType, TeamMateIndex, c, true);
         }
 
-        protected Renonc IsCardValid(Card c, Card first)
+        public Renonc IsCardValid(Card c, Card first)
         {
             var trump = (_g.GameType & (Hra.Betl | Hra.Durch)) == 0 ? _g.trump : (Barva?)null;
             return IsCardValid(Hand, trump, _g.GameType, TeamMateIndex, c, first);
         }
 
-        protected Renonc IsCardValid(Card c, Card first, Card second)
+        public Renonc IsCardValid(Card c, Card first, Card second)
         {
             var trump = (_g.GameType & (Hra.Betl | Hra.Durch)) == 0 ? _g.trump : (Barva?)null;
             return IsCardValid(Hand, trump, _g.GameType, TeamMateIndex, c, first, second);

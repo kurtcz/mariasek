@@ -126,6 +126,7 @@ namespace Mariasek.SharedClient
         private volatile Card _cardClicked;
         private volatile Card _trumpCardChosen;
         private volatile List<Card> _talon;
+        public float SimulatedSuccessRate;
 
         public MainScene(MariasekMonoGame game)
             : base(game)
@@ -134,67 +135,61 @@ namespace Mariasek.SharedClient
             Game.SaveInstanceState += SaveGame;
         }
 
-        /// <summary>
-        /// Allows the game component to perform any initialization it needs to before starting
-        /// to run.  This is where it can query for any required services and load content.
-        /// </summary>
-        public override void Initialize()
+        private void PopulateAiConfig()
         {
-            base.Initialize();
+            //TODO: Nastavit prahy podle uspesnosti v predchozich zapasech
+            _aiConfig = new Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection();
 
-			Game.CardTextures = _settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
-			_aiConfig = new Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection();
-
-			_aiConfig.Add("AiCheating", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "AiCheating",
-				Value = "false"
-			});
-			_aiConfig.Add("RoundsToCompute", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "RoundsToCompute",
-				Value = "1"
-			});
-			_aiConfig.Add("CardSelectionStrategy", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "CardSelectionStrategy",
-				Value = "MaxCount"
-			});
-			_aiConfig.Add("SimulationsPerGameType", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "SimulationsPerGameType",
-				Value = "300"
-			});
-			_aiConfig.Add("SimulationsPerGameTypePerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "SimulationsPerGameTypePerSecond",
-				Value = _settings.GameTypeSimulationsPerSecond.ToString()
-			});
-			_aiConfig.Add("MaxSimulationTimeMs", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "MaxSimulationTimeMs",
-				Value = _settings.ThinkingTimeMs.ToString()
-			});
-			_aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "SimulationsPerRound",
-				Value = "1000"
-			});
-			_aiConfig.Add("SimulationsPerRoundPerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "SimulationsPerRoundPerSecond",
-				Value = _settings.RoundSimulationsPerSecond.ToString()
-			});
-			_aiConfig.Add("RuleThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "RuleThreshold",
-				Value = "95"
-			});
-			_aiConfig.Add("RuleThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "RuleThreshold.Kilo",
-				Value = "99"
-			});
+            _aiConfig.Add("AiCheating", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "AiCheating",
+                Value = "false"
+            });
+            _aiConfig.Add("RoundsToCompute", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "RoundsToCompute",
+                Value = "1"
+            });
+            _aiConfig.Add("CardSelectionStrategy", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "CardSelectionStrategy",
+                Value = "MaxCount"
+            });
+            _aiConfig.Add("SimulationsPerGameType", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "SimulationsPerGameType",
+                Value = "300"
+            });
+            _aiConfig.Add("SimulationsPerGameTypePerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "SimulationsPerGameTypePerSecond",
+                Value = _settings.GameTypeSimulationsPerSecond.ToString()
+            });
+            _aiConfig.Add("MaxSimulationTimeMs", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "MaxSimulationTimeMs",
+                Value = _settings.ThinkingTimeMs.ToString()
+            });
+            _aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "SimulationsPerRound",
+                Value = "1000"
+            });
+            _aiConfig.Add("SimulationsPerRoundPerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "SimulationsPerRoundPerSecond",
+                Value = _settings.RoundSimulationsPerSecond.ToString()
+            });
+            _aiConfig.Add("RuleThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "RuleThreshold",
+                Value = "95"
+            });
+            _aiConfig.Add("RuleThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "RuleThreshold.Kilo",
+                Value = "99"
+            });
             _aiConfig.Add("GameThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold",
@@ -208,53 +203,64 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Sedma", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Sedma",
-                Value = "70|80|85|90|95"
+                Value = "60|70|75|85|95"
             });
             _aiConfig.Add("GameThreshold.SedmaProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.SedmaProti",
-                Value = "70|80|85|90|95"
+                Value = "60|70|75|85|95"
             });
             _aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Kilo",
-                Value = "80|85|90|95|99"
+                Value = "70|80|90|95|99"
             });
-			_aiConfig.Add("GameThreshold.KiloProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "GameThreshold.KiloProti",
-				Value = "95|96|97|98|99"
-			});
+            _aiConfig.Add("GameThreshold.KiloProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "GameThreshold.KiloProti",
+                Value = "95|96|97|98|99"
+            });
             _aiConfig.Add("GameThreshold.Betl", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Betl",
-                Value = "65|75|85|95|99"
+                Value = "55|65|75|85|95"
             });
             _aiConfig.Add("GameThreshold.Durch", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Durch",
                 Value = "65|75|85|95|99"
             });
-			_aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "MaxDoubleCount",
-				Value = "5"
-			});
-			_aiConfig.Add("SigmaMultiplier", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "SigmaMultiplier",
-				Value = "0"
-			});
-			_aiConfig.Add("BaseBet", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "BaseBet",
-				Value = "1"
-			});
-			_aiConfig.Add("GameFlavourSelectionStrategy", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "GameFlavourSelectionStrategy",
-				Value = "Fast"
-			});
+            _aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "MaxDoubleCount",
+                Value = "5"
+            });
+            _aiConfig.Add("SigmaMultiplier", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "SigmaMultiplier",
+                Value = "0"
+            });
+            _aiConfig.Add("BaseBet", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "BaseBet",
+                Value = "1"
+            });
+            _aiConfig.Add("GameFlavourSelectionStrategy", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "GameFlavourSelectionStrategy",
+                Value = "Fast"
+            });        }
+
+        /// <summary>
+        /// Allows the game component to perform any initialization it needs to before starting
+        /// to run.  This is where it can query for any required services and load content.
+        /// </summary>
+        public override void Initialize()
+        {
+            base.Initialize();
+
+			Game.CardTextures = _settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
+            PopulateAiConfig();
             
             _synchronizationContext = SynchronizationContext.Current;
             _hlasy = new []
@@ -1763,6 +1769,7 @@ namespace Mariasek.SharedClient
         {
             _state = GameState.GameFinished;
 
+            results.SimulatedSuccessRate = SimulatedSuccessRate;
             Game.Money.Add(results);
             SaveHistory();
 
@@ -1807,7 +1814,7 @@ namespace Mariasek.SharedClient
             HideInvisibleClickableOverlay();
 			HideThinkingMessage();
             ShowMsgLabelLeftRight(leftMessage.ToString(), rightMessage.ToString());
-            var totalWon = Game.Money.Sum(i => i.MoneyWon[0]);
+            var totalWon = Game.Money.Sum(i => i.MoneyWon[0]) * _settings.BaseBet;
             _totalBalance.Text = string.Format("Celkem jsem {0}: {1}", totalWon >= 0 ? "vyhrál" : "prohrál", totalWon.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
             _totalBalance.Show();
             _newGameBtn.Show();

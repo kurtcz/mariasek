@@ -49,10 +49,30 @@ namespace Mariasek.Engine.New
                     if (GameWon)
                     {
                         GameMoneyWon = GameValue * _bidding.GameMultiplier;
+                        if (QuietHundredWon)
+                        {
+                            GameMoneyWon = GameValue * (1 << (_bidding.GameMultiplier - 1)) * (PointsWon - 90) / 10;
+                        }
                     }
                     else
                     {
                         GameMoneyWon = - GameValue * _bidding.GameMultiplier;
+                        if (QuietHundredAgainstWon)
+                        {
+                            GameMoneyWon = - GameValue * (1 << (_bidding.GameMultiplier - 1)) * (PointsLost - 90) / 10;
+                        }
+                    }
+                    if ((_gameType & Hra.KiloProti) != 0)
+                    {
+                        if (HundredAgainstWon)
+                        {
+                            GameMoneyWon = HundredValue * (1 << (_bidding.GameMultiplier - 1) + (_bidding.HundredAgainstMultiplier - 1)) * (PointsLost - 90) / 10;
+                        }
+                        else
+                        {
+                            HundredAgainstMoneyWon = - HundredValue * (1 << (_bidding.GameMultiplier - 1) + (_bidding.HundredAgainstMultiplier - 1)) * (100 - BasicPointsLost - MaxHlasLost) / 10;
+                        }
+                        money += HundredAgainstMoneyWon;
                     }
                     money += GameMoneyWon;
                 }
@@ -161,7 +181,7 @@ namespace Mariasek.Engine.New
                 {
                     if (QuietHundredAgainstWon)
                     {
-                        QuietHundredAgainstMoneyWon = - QuietHundredValue * (1 << (_bidding.GameMultiplier - 1)) * (PointsLost - 90) / 10;
+                        QuietHundredAgainstMoneyWon = - GameValue * (1 << (_bidding.GameMultiplier - 1)) * (PointsLost - 90) / 10; //nepouzivam QuietHundredValue, protoze uz jsem vise zapocital hru
                         money += QuietHundredAgainstMoneyWon;
                     }
                 }
