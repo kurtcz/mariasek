@@ -22,8 +22,8 @@ namespace Mariasek.Engine.New
 #endif   
         private new Barva _trump { get { return base._trump.Value; } } //dirty
 
-		public AiStrategy(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds)
-            :base(trump, gameType, hands, rounds)
+        public AiStrategy(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, Probability probabilities)
+            :base(trump, gameType, hands, rounds, probabilities)
         {
         }
 
@@ -142,6 +142,49 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 1,
+                Description = "vytlačit trumf",
+                SkipSimulations = true,
+                ChooseCard1 = () =>
+                {
+                    var cardsToPlay = Enumerable.Empty<Card>();
+
+                    if (TeamMateIndex == -1)
+                    {
+                        //: c--
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &
+                                                                i.Value != Hodnota.Eso &&
+                                                                i.Suit != _trump &&
+                                                                       ((_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0 &&
+                                                                         _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0) ||
+                                                                        (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0 &&
+                                                                         _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0)));
+                    }
+                    else if (TeamMateIndex == player2)
+                    {
+                        //: co-
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &
+                                                                i.Value != Hodnota.Eso &&
+                                                                i.Suit != _trump &&
+                                                                       (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0 &&
+                                                                        _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0));
+                    }
+                    else
+                    {
+                        //: c-o                        
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &
+                                                                i.Value != Hodnota.Eso &&
+                                                                i.Suit != _trump &&
+                                                                       (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0 &&
+                                                                        _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0));
+                    }
+
+                    return cardsToPlay.ToList().RandomOneOrDefault();
+                }
+            };
+
+            yield return new AiRule()
+            {
+                Order = 2,
                 Description = "hraj vítěznou X",
                 UseThreshold = true,
                 ChooseCard1 = () =>
@@ -182,7 +225,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 2,
+                Order = 3,
                 //Description = "hraj viteznou A pokud souper nema X",
                 Description = TeamMateIndex == -1 ? "hraj vítěznou A" : "hraj vítěznou A pokud soupeř nemá X",
                 UseThreshold = true,
@@ -548,7 +591,7 @@ namespace Mariasek.Engine.New
             {
                 Order = 10,
                 Description = "snaž se vytlačit trumf",
-                UseThreshold = true, //protoze muzu omylem vytlacit A,X ze spoluhrace
+                UseThreshold = TeamMateIndex != -1, //protoze muzu omylem vytlacit A,X ze spoluhrace
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = Enumerable.Empty<Card>();
@@ -556,53 +599,51 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex == -1)
                     {
                         //: c--
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka && 
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
                                                                 i.Value != Hodnota.Eso &&
                                                                 i.Suit != _trump &&
-                                                                ((!hands[player2].HasSuit(i.Suit) &&    //ani jeden souper nezna barvu a aspon jeden ma trumfy nebo
-                                                                  !hands[player3].HasSuit(i.Suit) &&
-                                                                  (hands[player2].HasSuit(_trump) ||
-                                                                   hands[player3].HasSuit(_trump))) ||
-                                                                 (!hands[player2].HasSuit(i.Suit) &&    //2.hrac nezna barvu a ma max. stejne trumfu jako ja tlacnych
-                                                                  hands[player2].HasSuit(_trump) &&
-                                                                  hands[player2].HasAtMostNCardsOfSuit(_trump, hands[MyIndex].CardCount(i.Suit))) ||
-                                                                 (!hands[player3].HasSuit(i.Suit) &&    //3. hrac nezna barvu a ma max. stejne trumfu jako ja tlacnych
-                                                                  hands[player3].HasSuit(_trump) &&
-                                                                  hands[player3].HasAtMostNCardsOfSuit(_trump, hands[MyIndex].CardCount(i.Suit))) ||
-                                                                 (!hands[player2].HasSuit(i.Suit) &&    //2.hrac nezna barvu a ma trumfy a 3.hrac ma max stejne karet v barve jako ja
-                                                                  hands[player2].HasSuit(_trump) &&
-                                                                  hands[player3].HasAtMostNCardsOfSuit(i.Suit, hands[MyIndex].CardCount(i.Suit))) ||
-                                                                 (!hands[player3].HasSuit(i.Suit) &&    //3.hrac nezna barvu a ma trumfy a 2.hrac ma max stejne karet v barve jako ja
-                                                                  hands[player3].HasSuit(_trump) &&
-                                                                  hands[player2].HasAtMostNCardsOfSuit(i.Suit, hands[MyIndex].CardCount(i.Suit)))));
+                                                                ((!hands[player2].HasSuit(i.Suit) &&    //jeden nebo druhy souper nezna barvu a ma trumfy
+                                                                  hands[player2].HasSuit(_trump)) ||
+                                                                 (!hands[player3].HasSuit(i.Suit) &&
+                                                                  hands[player3].HasSuit(_trump))));
                     }
                     else if (TeamMateIndex == player2)
                     {
                         //: co-
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
-                                                                i.Value != Hodnota.Eso &&
-                                                                i.Suit != _trump &&
-                                                                !hands[player3].HasSuit(i.Suit) &&      //pokud 3. hrac nezna barvu a ma trumfy a
-                                                                hands[player3].HasSuit(_trump) &&
-                                                                ((hands[player2].HasSuit(i.Suit) &&     //2.hrac zna barvu a aspon jedna z tech co muze hrat neni desitka nebo eso
-                                                                  ValidCards(i, hands[player2]).Any(j => j.Value != Hodnota.Desitka && 
-                                                                                                         j.Value != Hodnota.Eso)) ||
-                                                                 (!hands[player2].HasSuit(i.Suit) &&    //nebo nezna ani barvu ani nema trumf
-                                                                  !hands[player2].HasSuit(_trump))));
+                                                            i.Value != Hodnota.Eso &&
+                                                            i.Suit != _trump &&
+                                                            !hands[player3].HasSuit(i.Suit) &&      //pokud 3. hrac nezna barvu a ma trumfy a
+                                                            hands[player3].HasSuit(_trump) &&
+                                                            ((hands[player2].HasSuit(i.Suit) &&     //2.hrac zna barvu a aspon jedna z tech co muze hrat neni desitka nebo eso
+                                                              ValidCards(i, hands[player2]).Any(j => j.Value != Hodnota.Desitka &&
+                                                                                                     j.Value != Hodnota.Eso)) ||
+                                                             (!hands[player2].HasSuit(i.Suit) &&    //nebo nezna ani barvu ani nema trumf
+                                                              !hands[player2].HasSuit(_trump))));
                     }
                     else
                     {
-                        //: c-o
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &
+                                                                i.Value != Hodnota.Eso &&
+                                                                i.Suit != _trump &&
+                                                                       (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0 &&
+                                                                        _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0));
+
+                        if (!cardsToPlay.Any())
+                        {
+
+                            //: c-o
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
                                                                 i.Value != Hodnota.Eso &&
                                                                 i.Suit != _trump &&
                                                                 !hands[player2].HasSuit(i.Suit) &&      //pokud 2. hrac nezna barvu a ma trumfy a
                                                                 hands[player2].HasSuit(_trump) &&
                                                                 ((hands[player3].HasSuit(i.Suit) &&     //3.hrac zna barvu a aspon jedna z tech co muze hrat neni desitka nebo eso
-                                                                  hands[player3].All(j => ValidCards(i, j, hands[player3]).Any(k => k.Value != Hodnota.Desitka && 
+                                                                  hands[player3].All(j => ValidCards(i, j, hands[player3]).Any(k => k.Value != Hodnota.Desitka &&
                                                                                                                                     k.Value != Hodnota.Eso))) ||
                                                                  (!hands[player3].HasSuit(i.Suit) &&    //nebo nezna ani barvu ani nema trumf
                                                                   !hands[player3].HasSuit(_trump))));
+                        }
                     }
 
 					return cardsToPlay.ToList().OrderByDescending(i => i.Value).FirstOrDefault();
