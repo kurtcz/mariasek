@@ -203,7 +203,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Sedma", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Sedma",
-                Value = "60|70|75|85|95"
+                Value = "50|70|75|85|95"
             });
             _aiConfig.Add("GameThreshold.SedmaProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -213,7 +213,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Kilo",
-                Value = "70|80|90|95|99"
+                Value = "60|70|75|85|95"
             });
             _aiConfig.Add("GameThreshold.KiloProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {

@@ -165,8 +165,10 @@ namespace Mariasek.Engine.New
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &
                                                                 i.Value != Hodnota.Eso &&
                                                                 i.Suit != _trump &&
-                                                                       (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0 &&
-                                                                        _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0));
+                                                                _probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0 &&
+                                                                _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0 &&
+                                                                (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0 ||
+                                                                 _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0));
                     }
                     else
                     {
@@ -174,8 +176,10 @@ namespace Mariasek.Engine.New
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &
                                                                 i.Value != Hodnota.Eso &&
                                                                 i.Suit != _trump &&
-                                                                       (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0 &&
-                                                                        _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0));
+                                                                _probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0 &&
+                                                                _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 &&
+                                                                (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 ||
+                                                                 _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0));
                     }
 
                     return cardsToPlay.ToList().RandomOneOrDefault();
