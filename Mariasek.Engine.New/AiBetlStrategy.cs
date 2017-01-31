@@ -31,7 +31,7 @@ namespace Mariasek.Engine.New
 					SkipSimulations = true,
 					ChooseCard1 = () =>
 					{
-						var cardsToPlay = hands[MyIndex].Where(i => i.Value == Hodnota.Sedma && hands[MyIndex].CardCount(i.Suit) == 7);
+                        var cardsToPlay = hands[MyIndex].Where(i => i.Value == Hodnota.Sedma && hands[MyIndex].CardCount(i.Suit) == 7 && hands[MyIndex].HasA(i.Suit));
 
 						return cardsToPlay.ToList().RandomOneOrDefault();
 					}

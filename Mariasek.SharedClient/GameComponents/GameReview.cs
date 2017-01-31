@@ -127,7 +127,7 @@ namespace Mariasek.SharedClient.GameComponents
                 }
                 if (i > roundsLength)
                 {
-                    roundsLength = i;
+                    roundsLength = i + 1;
                 }
                 RoundNum[i] = new Label(this)
                 {

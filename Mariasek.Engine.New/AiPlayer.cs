@@ -1096,6 +1096,7 @@ namespace Mariasek.Engine.New
         {
             Hra bid = 0;
             var gameThreshold = bidding._gameFlek < Settings.GameThresholdsForGameType[Hra.Hra].Length ? Settings.GameThresholdsForGameType[Hra.Hra][bidding._gameFlek] : 1f;
+            var gameThresholdPrevious = bidding._gameFlek > 2 && bidding._gameFlek - 2 < Settings.GameThresholdsForGameType[Hra.Hra].Length ? Settings.GameThresholdsForGameType[Hra.Hra][bidding._gameFlek - 2] : 1f;
             var sevenThreshold = bidding._sevenFlek < Settings.GameThresholdsForGameType[Hra.Sedma].Length ? Settings.GameThresholdsForGameType[Hra.Sedma][bidding._sevenFlek] : 1f;
             var hundredThreshold = bidding._gameFlek < Settings.GameThresholdsForGameType[Hra.Kilo].Length ? Settings.GameThresholdsForGameType[Hra.Kilo][bidding._gameFlek] : 1f;
             var sevenAgainstThreshold = bidding._sevenAgainstFlek < Settings.GameThresholdsForGameType[Hra.SedmaProti].Length ? Settings.GameThresholdsForGameType[Hra.SedmaProti][bidding._sevenAgainstFlek] : 1f;
@@ -1131,12 +1132,14 @@ namespace Mariasek.Engine.New
                     //RunGameSimulations(bidding, _g.GameStartingPlayerIndex, false, true);
                 }
             }
-            //TODO: pouzit skutecny pocet simulaci misto Settings.SimulationsPerGameType !!!
-            //Flekovani se u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) pokud trham (flek) a mam aspon 2 trumfy nebo kolega flekoval (tutti a vys),
+            //Flekovani se u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) pokud trham (flek) a mam aspon 2 trumfy 
+            //nebo kolega flekoval a ja mam nejakou hlasku a citil jsem se na flek jiz minule (tutti a vys),
             //ostatni flekujeme pouze pokud zvolenou hru volici hrac nemuze uhrat
-            if (_gamesBalance / (float)_goodSimulations >= gameThreshold && _g.trump.HasValue &&
-			    ((Hand.HasK(_g.trump.Value) || Hand.HasQ(_g.trump.Value) && Hand.CardCount(_g.trump.Value) >= 2) || _teamMateDoubledGame) && 
-			    (bidding.Bids & Hra.Hra) != 0)
+            if (((_gamesBalance / (float)_goodSimulations >= gameThreshold && 
+                  (Hand.HasK(_g.trump.Value) || Hand.HasQ(_g.trump.Value) && Hand.CardCount(_g.trump.Value) >= 2)) || 
+                 (_teamMateDoubledGame && _gamesBalance / (float)_goodSimulations >= gameThresholdPrevious && 
+                  Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit)))) &&
+                (bidding.Bids & Hra.Hra) != 0)
             {
                 bid |= bidding.Bids & Hra.Hra;
                 minRuleCount = Math.Min(minRuleCount, _gamesBalance);
@@ -1162,10 +1165,10 @@ namespace Mariasek.Engine.New
                 bid |= bidding.Bids & Hra.Kilo;
                 minRuleCount = Math.Min(minRuleCount, _hundredsBalance);
             }
-            //sedmu proti flekuju jen pokud jsem hlasil sam sedmu proti a v simulacich jsem ji uhral dost casto
+            //sedmu proti flekuju jen pokud jsem hlasil sam sedmu proti a v simulacich jsem ji uhral dost casto a navic mam aspon 3 trumfy
             //nebo pokud jsem volil trumf a v simulacich ani jednou nevysla
             //?! Pokud bych chtel simulovat sance na to, ze volici hrac hlasenou sedmu neuhraje, tak musim nejak generovat "karty na sedmu" (aspon 4-5 trumfu) a ne nahodne karty
-            if (((PlayerIndex != _g.GameStartingPlayerIndex && _sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold) ||
+            if (((PlayerIndex != _g.GameStartingPlayerIndex && _sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold && Hand.CardCount(_g.trump.Value) >= 3) ||
 			     (PlayerIndex == _g.GameStartingPlayerIndex && _sevensAgainstBalance == _goodSimulations)) && 
 			    (bidding.Bids & Hra.SedmaProti) != 0)
             {
