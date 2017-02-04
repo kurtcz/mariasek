@@ -809,12 +809,15 @@ namespace Mariasek.Engine.New
             ReduceUcertainCardSet();
             if (c2.Suit != c1.Suit || c2.IsLowerThan(c1, _trump))
             {
+                //druhy hrac nepriznal barvu nebo nesel vejs
                 if (c2.Suit == c1.Suit)
                 {
+                    //druhy hrac nesel vejs
                     SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 1) % Game.NumPlayers, c1);
                 }
                 else
                 {
+                    //druhy hrac nepriznal barvu
 					SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 1) % Game.NumPlayers, new Card(c1.Suit, Hodnota.Sedma));
                     if (_trump.HasValue && c2.Suit != _trump.Value)
                     {
@@ -850,11 +853,13 @@ namespace Mariasek.Engine.New
                 //druhy hrac nepriznal barvu nebo nesel vejs
                 if (c3.Suit != c1.Suit || c3.IsLowerThan(c1, _trump))
                 {
+                    //treti hrac nepriznal barvu nebo nesel vejs
                     if (c3.Suit == c1.Suit)
                     {
-                        if (_trump.HasValue && c2.Suit != _trump.Value)
+                        //treti hrac nesel vejs
+                        if (_trump.HasValue && c2.Suit != _trump.Value || !_trump.HasValue)
                         {
-                            //druhy hrac nehral trumf a treti hrac nesel vejs
+                            //druhy hrac nepriznal barvu ani nehral trumf a treti hrac nesel vejs
                             SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 2) % Game.NumPlayers, c1);
                         }
                     }
@@ -867,7 +872,7 @@ namespace Mariasek.Engine.New
                             //a navic nehral trumfem
                             SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 2) % Game.NumPlayers, new Card(_trump.Value, Hodnota.Sedma));
                         }
-                        else if (c2.Suit == _trump && c3.IsLowerThan(c2, _trump))
+                        else if (_trump.HasValue && c2.Suit == _trump.Value && c3.IsLowerThan(c2, _trump))
                         {
                             //druhy i treti hrac hrali trumfem ale treti hrac hral mensim trumfem nez druhy hrac
                             SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 2) % Game.NumPlayers, c2);
@@ -880,12 +885,15 @@ namespace Mariasek.Engine.New
                 //druhy hrac priznal barvu a sel vejs
                 if (c3.Suit != c2.Suit || c3.IsLowerThan(c2, _trump))
                 {
+                    //treti hrac nepriznal barvu nebo nesel vejs
                     if (c3.Suit == c2.Suit)
                     {
+                        //treti hrac nesel vejs
                         SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 2) % Game.NumPlayers, c2);
                     }
                     else
                     {
+                        //treti hrac nepriznal barvu
                         SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 2) % Game.NumPlayers, new Card(c1.Suit, Hodnota.Sedma));
                         if (_trump.HasValue && c3.Suit != _trump.Value)
                         {
@@ -924,14 +932,21 @@ namespace Mariasek.Engine.New
 
                 if (!c.IsHigherThan(c2, _trump))
                 {
-                    _cardProbabilityForPlayer[playerIndex][c.Suit][h] = 0f;
+                    _cardProbabilityForPlayer[playerIndex][c2.Suit][h] = 0f;
                     //pokud uz nikdo jiny kartu mit nemuze, tak upravim pravdepodobnosti
-                    if (_cardProbabilityForPlayer[otherPlayerIndex][c.Suit][h] > 0f &&
-                        _cardProbabilityForPlayer[otherPlayerIndex][c.Suit][h] < 1f &&
-                        _cardProbabilityForPlayer[_myIndex][c.Suit][h] == 0f &&
-                        _cardProbabilityForPlayer[talonIndex][c.Suit][h] == 0f)
+                    if (_cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] > 0f &&
+                        _cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] < 1f &&
+                        _cardProbabilityForPlayer[_myIndex][c2.Suit][h] == 0f &&
+                        _cardProbabilityForPlayer[talonIndex][c2.Suit][h] == 0f)
                     {
-                        _cardProbabilityForPlayer[otherPlayerIndex][c.Suit][h] = 1f;
+                        _cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] = 1f;
+                    }
+                    else if (_cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] == 0f &&
+                        _cardProbabilityForPlayer[_myIndex][c2.Suit][h] == 0f &&
+                        _cardProbabilityForPlayer[talonIndex][c2.Suit][h] > 0f &&
+                        _cardProbabilityForPlayer[talonIndex][c2.Suit][h] < 1f)
+                    {
+                        _cardProbabilityForPlayer[talonIndex][c2.Suit][h] = 1f;
                     }
                 }
             }

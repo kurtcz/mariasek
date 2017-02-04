@@ -532,7 +532,7 @@ namespace Mariasek.Engine.New
                 {
                     IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
 
-                    if (TeamMateIndex == -1 && hands[MyIndex].CardCount(_trump) >= 3)
+                    if (TeamMateIndex == -1 && hands[MyIndex].CardCount(_trump) >= 5 - RoundNumber)
                     {
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&                           //pokud mam trumfy
                                                                 (hands[player2].HasSuit(_trump) ||                        //a aspon jeden ze souperu ma taky trumfy

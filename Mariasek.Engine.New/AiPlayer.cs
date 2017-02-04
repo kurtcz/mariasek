@@ -913,10 +913,12 @@ namespace Mariasek.Engine.New
 				hiCardsPerSuit.Add(b, hiCards);
 			}
 
-			//max 5 vysokych karet celkove a max 2 v jedne barve => 2 pujdou do talonu, treti kartou zacnu hrat, ctvrtou a patou diru risknu
+			//max 5 vysokych karet celkove a max 2 v jedne barve => 2 pujdou do talonu, treti kartou zacnu hrat, dalsi diry risknu
 			//nebo max jedna barva s hodne vysokymi kartami ale prave jednou dirou (musim mit sedmu v dane barve)
 			if ((hiCardsPerSuit.Sum(i => i.Value) <= 5 && hiCardsPerSuit.All(i => i.Value <= 2)) ||
-			    (hiCardsPerSuit.Count(i => i.Value > 2 && holesPerSuit[i.Key] == 1 && Hand.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key)) == 1))
+			    (hiCardsPerSuit.Count(i => i.Value > 2 &&
+                 holesPerSuit[i.Key] == 1 &&
+                 Hand.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key)) == 1))
 			{
 				return true;
 			}
