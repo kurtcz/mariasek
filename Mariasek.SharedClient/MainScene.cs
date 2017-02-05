@@ -892,9 +892,11 @@ namespace Mariasek.SharedClient
                     ZIndex = 200
                 };
                 _review.Show();
+                _hand.IsEnabled = false;
             }
             else
             {
+                _hand.IsEnabled = true;
                 if (g.IsRunning)
                 {
                     _review.Hide();
