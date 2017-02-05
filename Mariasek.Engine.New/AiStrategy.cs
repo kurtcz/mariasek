@@ -970,8 +970,8 @@ namespace Mariasek.Engine.New
                             ValidCards(c1, hands[MyIndex])
                                 .Where(i => i.Value == Hodnota.Desitka &&
                                             (i.Suit != _trump ||                //viteznou X hrajem jen kdyz neni trumfova
-                                             (hands[player1].HasA(_trump) &&    //nebo je trumfova a hrozi, ze pokud ji nezahraju ted,
-                                              validCardCount <= 2)) &&          //tak mi ji pozdejc souper vytahne trumfovym esem
+                                             hands[player1].HasA(_trump)) &&    //nebo je trumfova a hrozi, ze pokud ji nezahraju ted,
+                                                                                //tak mi ji pozdejc souper vytahne trumfovym esem
                                             ValidCards(c1, i, hands[player3]).All(j => Round.WinningCard(c1, i, j, _trump) == i));
                     }
                     else if (TeamMateIndex == player1)
@@ -990,8 +990,8 @@ namespace Mariasek.Engine.New
                             ValidCards(c1, hands[MyIndex])
                                 .Where(i => i.Value == Hodnota.Desitka &&
                                             (i.Suit != _trump ||                //viteznou X hrajem jen kdyz neni trumfova
-                                             (hands[player1].HasA(_trump) &&    //nebo je trumfova a hrozi, ze pokud ji nezahraju ted,
-                                              validCardCount <= 2)) &&          //tak mi ji pozdejc souper vytahne trumfovym esem
+                                             hands[player1].HasA(_trump)) &&    //nebo je trumfova a hrozi, ze pokud ji nezahraju ted,
+                                                                                //tak mi ji pozdejc souper vytahne trumfovym esem
                                             ValidCards(c1, i, hands[player3]).All(j => Round.WinningCard(c1, i, j, _trump) != c1));
                     }
 
@@ -1388,6 +1388,7 @@ namespace Mariasek.Engine.New
                         cardsToPlay =
                             ValidCards(c1, c2, hands[MyIndex])
                                 .Where(i => i.Value == Hodnota.Desitka &&
+                                            (i.Suit != _trump || hands[player1].HasA(_trump) || hands[player2].HasA(_trump)) &&
                                             Round.WinningCard(c1, c2, i, _trump) == i);
                     }
                     else if (TeamMateIndex == (MyIndex + 1) % Game.NumPlayers)
@@ -1396,6 +1397,7 @@ namespace Mariasek.Engine.New
                         cardsToPlay =
                             ValidCards(c1, c2, hands[MyIndex])
                                 .Where(i => i.Value == Hodnota.Desitka &&
+                                            (i.Suit != _trump || hands[player2].HasA(_trump)) &&
                                             Round.WinningCard(c1, c2, i, _trump) != c2);
                     }
                     else
@@ -1404,6 +1406,7 @@ namespace Mariasek.Engine.New
                         cardsToPlay =
                             ValidCards(c1, c2, hands[MyIndex])
                                 .Where(i => i.Value == Hodnota.Desitka &&
+                                            (i.Suit != _trump || hands[player1].HasA(_trump)) &&
                                             Round.WinningCard(c1, c2, i, _trump) != c1);
                     }
 

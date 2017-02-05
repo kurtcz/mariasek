@@ -231,7 +231,7 @@ namespace Mariasek.Engine.New
 			}).Where(i => i.Item4 > 0);
 
             //nejprve vem karty ktere jsou ve hre nejvyssi a tudiz nejvice rizikove (A, K)
-            var talon = holesByCard.Where(i => i.Item5 == 0)// &&               //CardCount
+            var talon = holesByCard.Where(i => i.Item2 < 7 && i.Item5 == 0)// &&               
                                    .OrderByDescending(i => i.Item1.BadValue)
                                    .Take(2)
                                    .Select(i => i.Item1)                    //Card
@@ -253,7 +253,7 @@ namespace Mariasek.Engine.New
             if (talon.Count < 2)
 			{
 				//dopln kartami od delsich barev
-				talon.AddRange(holesByCard.Where(i => !talon.Contains(i.Item1))		//Card
+				talon.AddRange(holesByCard.Where(i => i.Item2 < 7 &&  !talon.Contains(i.Item1))		//Card
 				               		   	  .OrderByDescending(i => i.Item3)			//holesDelta
 				               			  .ThenByDescending(i => i.Item4)			//holes
 									   	  .ThenByDescending(i => i.Item1.BadValue)
@@ -913,9 +913,10 @@ namespace Mariasek.Engine.New
 				hiCardsPerSuit.Add(b, hiCards);
 			}
 
-			//max 5 vysokych karet celkove a max 2 v jedne barve => 2 pujdou do talonu, treti kartou zacnu hrat, dalsi diry risknu
+			//max 5 vysokych karet celkove a max 3 v jedne barve => 2 pujdou do talonu, treti kartou zacnu hrat, dalsi diry risknu
+            //pokud jsem puvodne nevolil, je sance, ze nekterou diru zalepi talon ...
 			//nebo max jedna barva s hodne vysokymi kartami ale prave jednou dirou (musim mit sedmu v dane barve)
-			if ((hiCardsPerSuit.Sum(i => i.Value) <= 5 && hiCardsPerSuit.All(i => i.Value <= 2)) ||
+			if ((hiCardsPerSuit.Sum(i => i.Value) <= 5 && hiCardsPerSuit.All(i => i.Value <= 3)) ||
 			    (hiCardsPerSuit.Count(i => i.Value > 2 &&
                  holesPerSuit[i.Key] == 1 &&
                  Hand.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key)) == 1))
@@ -1025,6 +1026,11 @@ namespace Mariasek.Engine.New
 
             if ((validGameTypes & (Hra.Betl | Hra.Durch)) != 0)
             {
+                if (AdvisorMode)
+                {
+                    var bidding = new Bidding(_g);
+                    RunGameSimulations(bidding, PlayerIndex, false, true);
+                }
                 if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * Settings.SimulationsPerGameType ||
 				    validGameTypes == Hra.Durch)
                 {
@@ -1137,11 +1143,11 @@ namespace Mariasek.Engine.New
             //Flekovani se u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) pokud trham (flek) a mam aspon 2 trumfy 
             //nebo kolega flekoval a ja mam nejakou hlasku a citil jsem se na flek jiz minule (tutti a vys),
             //ostatni flekujeme pouze pokud zvolenou hru volici hrac nemuze uhrat
-            if (((_gamesBalance / (float)_goodSimulations >= gameThreshold && 
+            if ((bidding.Bids & Hra.Hra) != 0 &&
+                ((_gamesBalance / (float)_goodSimulations >= gameThreshold && 
                   (Hand.HasK(_g.trump.Value) || Hand.HasQ(_g.trump.Value) && Hand.CardCount(_g.trump.Value) >= 2)) || 
                  (_teamMateDoubledGame && _gamesBalance / (float)_goodSimulations >= gameThresholdPrevious && 
-                  Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit)))) &&
-                (bidding.Bids & Hra.Hra) != 0)
+                  Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit)))))
             {
                 bid |= bidding.Bids & Hra.Hra;
                 minRuleCount = Math.Min(minRuleCount, _gamesBalance);
@@ -1152,7 +1158,7 @@ namespace Mariasek.Engine.New
             //    (PlayerIndex != _g.GameStartingPlayerIndex && _sevensBalance == Settings.SimulationsPerGameType))
 
             //nove muzu flekovat sedmu protoze ji zohlednuju v pravdepodobnostnim rozlozeni
-            if (_sevensBalance / (float)_goodSimulations >= sevenThreshold && (bidding.Bids & Hra.Sedma) != 0)
+            if ((bidding.Bids & Hra.Sedma) != 0 && _sevensBalance / (float)_goodSimulations >= sevenThreshold)
             {
                 bid |= bidding.Bids & Hra.Sedma;
                 minRuleCount = Math.Min(minRuleCount, _sevensBalance);
@@ -1160,9 +1166,9 @@ namespace Mariasek.Engine.New
             //kilo flekuju jen pokud jsem volil sam kilo a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem nevolil a je nemozne aby mel volici hrac kilo (nema hlas)
             //?! Pokud bych chtel simulovat sance na to, ze volici hrac hlasene kilo neuhraje, tak musim nejak generovat "karty na kilo" (aspon 1 hlas) a ne nahodne karty
-            if (((PlayerIndex == _g.GameStartingPlayerIndex && _hundredsBalance / (float)_goodSimulations >= gameThreshold) ||
-			     (PlayerIndex != _g.GameStartingPlayerIndex && Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0)) && 
-			    (bidding.Bids & Hra.Kilo) != 0)
+            if ((bidding.Bids & Hra.Kilo) != 0 &&
+                ((PlayerIndex == _g.GameStartingPlayerIndex && _hundredsBalance / (float)_goodSimulations >= gameThreshold) ||
+			     (PlayerIndex != _g.GameStartingPlayerIndex && Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0)))
             {
                 bid |= bidding.Bids & Hra.Kilo;
                 minRuleCount = Math.Min(minRuleCount, _hundredsBalance);
@@ -1170,9 +1176,9 @@ namespace Mariasek.Engine.New
             //sedmu proti flekuju jen pokud jsem hlasil sam sedmu proti a v simulacich jsem ji uhral dost casto a navic mam aspon 3 trumfy
             //nebo pokud jsem volil trumf a v simulacich ani jednou nevysla
             //?! Pokud bych chtel simulovat sance na to, ze volici hrac hlasenou sedmu neuhraje, tak musim nejak generovat "karty na sedmu" (aspon 4-5 trumfu) a ne nahodne karty
-            if (((PlayerIndex != _g.GameStartingPlayerIndex && _sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold && Hand.CardCount(_g.trump.Value) >= 3) ||
-			     (PlayerIndex == _g.GameStartingPlayerIndex && _sevensAgainstBalance == _goodSimulations)) && 
-			    (bidding.Bids & Hra.SedmaProti) != 0)
+            if ((bidding.Bids & Hra.SedmaProti) != 0 &&
+                ((PlayerIndex != _g.GameStartingPlayerIndex && _sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold && Hand.CardCount(_g.trump.Value) >= 3) ||
+			     (PlayerIndex == _g.GameStartingPlayerIndex && _sevensAgainstBalance == _goodSimulations)))
             {
                 //if (_numberOfDoubles == 1 && PlayerIndex != _g.GameStartingPlayerIndex)
                 //{
@@ -1184,11 +1190,11 @@ namespace Mariasek.Engine.New
             }
             //kilo proti flekuju jen pokud jsem hlasil sam kilo proti a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem volil trumf a je nemozne aby meli protihraci kilo (nemaji hlas)
-            if ((//(PlayerIndex != _g.GameStartingPlayerIndex && _hundredsAgainstBalance / (float)_goodSimulations >= hundredAgainstThreshold) ||
+            if ((bidding.Bids & Hra.KiloProti) != 0 &&
+                (//(PlayerIndex != _g.GameStartingPlayerIndex && _hundredsAgainstBalance / (float)_goodSimulations >= hundredAgainstThreshold) ||
                  (PlayerIndex == _g.GameStartingPlayerIndex && _gamesBalance / (float)_goodSimulations >= gameThreshold && //_hundredsAgainstBalance == Settings.SimulationsPerGameType))); //never monte carlu, dej na pravdepodobnost
                                                               (Probabilities.HlasProbability((PlayerIndex + 1) % Game.NumPlayers) == 0) &&
-			      											  (Probabilities.HlasProbability((PlayerIndex + 2) % Game.NumPlayers) == 0))) && 
-			    (bidding.Bids & Hra.KiloProti) != 0)
+			      											  (Probabilities.HlasProbability((PlayerIndex + 2) % Game.NumPlayers) == 0))))
             {
                 //if (_numberOfDoubles == 1 && PlayerIndex != _g.GameStartingPlayerIndex)
                 //{
@@ -1201,16 +1207,16 @@ namespace Mariasek.Engine.New
             }
             //durch flekuju jen pokud jsem volil sam durch a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem nevolil a nejde teoreticky uhrat            
-            if (((PlayerIndex == _g.GameStartingPlayerIndex && _durchSimulations > 0 && _durchBalance / (float)_durchSimulations >= durchThreshold) ||
-			     (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) == 4)) && 
-			    (bidding.Bids & Hra.Durch) != 0)
+            if ((bidding.Bids & Hra.Durch) != 0 &&
+                ((PlayerIndex == _g.GameStartingPlayerIndex && _durchSimulations > 0 && _durchBalance / (float)_durchSimulations >= durchThreshold) ||
+			     (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) == 4)))
             {
                 bid |= bidding.Bids & Hra.Durch;
                 minRuleCount = Math.Min(minRuleCount, _durchBalance);
             }
             //betla flekuju jen pokud jsem volil sam betla a v simulacich jsem ho uhral dost casto
-            if (PlayerIndex == _g.GameStartingPlayerIndex && _betlSimulations > 0 && _betlBalance / (float)_betlSimulations >= betlThreshold && 
-			    (bidding.Bids & Hra.Betl) != 0)
+            if ((bidding.Bids & Hra.Betl) != 0 &&
+                PlayerIndex == _g.GameStartingPlayerIndex && _betlSimulations > 0 && _betlBalance / (float)_betlSimulations >= betlThreshold)
             {
                 bid |= bidding.Bids & Hra.Betl;
                 minRuleCount = Math.Min(minRuleCount, _betlBalance);

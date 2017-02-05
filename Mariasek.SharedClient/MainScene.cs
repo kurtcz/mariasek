@@ -203,7 +203,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Sedma", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Sedma",
-                Value = "50|70|75|85|95"
+                Value = "40|70|75|85|95"
             });
             _aiConfig.Add("GameThreshold.SedmaProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -223,7 +223,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Betl", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Betl",
-                Value = "55|65|75|85|95"
+                Value = "50|65|75|85|95"
             });
             _aiConfig.Add("GameThreshold.Durch", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -334,7 +334,7 @@ namespace Mariasek.SharedClient
             {
                 Text = "Průběh hry",
                 Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 150),
-                ZIndex = 100,
+                ZIndex = 90,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
                 Width = 150
             };
@@ -648,6 +648,7 @@ namespace Mariasek.SharedClient
 				Anchor = AnchorType.Top
             };
             _progressBars = new [] { _progress1, _progress2, _progress3 };
+            Children.Sort((a, b) => a.ZIndex - b.ZIndex);
 
             LoadHistory();
             Game.SettingsScene.LoadGameSettings(false);
@@ -871,30 +872,26 @@ namespace Mariasek.SharedClient
         {
             if (_review == null || !_review.IsVisible)
             {
-                if (g.IsRunning)
-                {
-                    if (_review != null)
-                    {
-                        _review.Dispose();
-                    }
-                    _review = new GameReview(this)
-                    {
-                        Position = new Vector2(160, 45),
-                        Width = (int)Game.VirtualScreenWidth - 160,
-                        Height = (int)Game.VirtualScreenHeight - 55,
-                        BackgroundColor = Color.Black,
-                        ZIndex = 200
-                    };
-                    _review.Show();
-                }
-                else
+                if (!g.IsRunning)
                 {
                     _reviewGameBtn.Text = "Vyúčtování";
                     _msgLabelLeft.Hide();
                     _msgLabelRight.Hide();
                     _totalBalance.Hide();
-                    _review.Show();
                 }
+                if (_review != null)
+                {
+                    _review.Dispose();
+                }
+                _review = new GameReview(this)
+                {
+                    Position = new Vector2(160, 45),
+                    Width = (int)Game.VirtualScreenWidth - 160,
+                    Height = (int)Game.VirtualScreenHeight - 55,
+                    BackgroundColor = g.IsRunning ? Color.Black : Color.Transparent,
+                    ZIndex = 200
+                };
+                _review.Show();
             }
             else
             {
@@ -1800,14 +1797,6 @@ namespace Mariasek.SharedClient
             {
                 _review.Dispose();
             }
-            _review = new GameReview(this)
-            {
-                Position = new Vector2(160, 45),
-                Width = (int)Game.VirtualScreenWidth - 160,
-                Height = (int)Game.VirtualScreenHeight - 55,
-                BackgroundColor = Color.Transparent
-            };
-            _review.Hide();
             _reviewGameToggleBtn.Hide();
             _reviewGameBtn.Text = "Průběh hry";
             _reviewGameBtn.Show();

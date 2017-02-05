@@ -121,7 +121,7 @@ namespace Mariasek.SharedClient.GameComponents
         {
             if (Max == 0 || Max - Min == 0)
             {
-                return Width / 3;
+                return Width;
             }
 
             return progress * _maxProgressWidth / (Max - Min);

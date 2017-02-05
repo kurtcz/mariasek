@@ -92,7 +92,7 @@ namespace Mariasek.SharedClient.GameComponents
             Sprite.Hide();
         }
 
-        public CardButton FlipToFront(float speed = 2f)
+        public CardButton FlipToFront(float speed = 4f)
         {
             var slim = new Vector2
             {
@@ -131,7 +131,7 @@ namespace Mariasek.SharedClient.GameComponents
             return this;
         }
 
-        public CardButton FlipToBack(float speed = 2f)
+        public CardButton FlipToBack(float speed = 4f)
         {
             var slim = new Vector2
                 {
