@@ -8,14 +8,14 @@ namespace Mariasek.Engine.New
 {
     public static class AiStrategyFactory
     {
-        public static AiStrategyBase GetAiStrategy(Game g, Hra? gameType, Barva? trump, Hand[] hands, Round[] rounds, Probability probabilities, string name, int playerIndex, int teamMateIndex, int? initialRoundNumber)
+        public static AiStrategyBase GetAiStrategy(Game g, Hra? gameType, Barva? trump, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities, string name, int playerIndex, int teamMateIndex, int? initialRoundNumber)
         {
             var gt = gameType.HasValue ? gameType.Value : g.GameType;
 
             switch(gt)
             {
                 case Hra.Durch:
-                    return new AiDurchStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, probabilities)
+                    return new AiDurchStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, teamMatesSuits, probabilities)
                     {
                         MyIndex = playerIndex,
                         MyName = name,
@@ -23,7 +23,7 @@ namespace Mariasek.Engine.New
                         RoundNumber = initialRoundNumber.HasValue ? initialRoundNumber.Value : g.RoundNumber
                     };
                 case Hra.Betl:
-                    return new AiBetlStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, probabilities)
+                    return new AiBetlStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, teamMatesSuits, probabilities)
                     {
                         MyIndex = playerIndex,
                         MyName = name,
@@ -31,7 +31,7 @@ namespace Mariasek.Engine.New
                         RoundNumber = initialRoundNumber.HasValue ? initialRoundNumber.Value : g.RoundNumber
                     };
                 default:
-                    return new AiStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, probabilities)
+                    return new AiStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, teamMatesSuits, probabilities)
                     {
                         MyIndex = playerIndex,
                         MyName = name,

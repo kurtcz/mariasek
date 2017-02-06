@@ -22,8 +22,8 @@ namespace Mariasek.Engine.New
 #endif   
         private new Barva _trump { get { return base._trump.Value; } } //dirty
 
-        public AiStrategy(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, Probability probabilities)
-            :base(trump, gameType, hands, rounds, probabilities)
+        public AiStrategy(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities)
+            :base(trump, gameType, hands, rounds, teamMatesSuits, probabilities)
         {
         }
 
@@ -523,7 +523,7 @@ namespace Mariasek.Engine.New
                                                                 ((!hands[player2].HasSuit(i.Suit) &&    //jeden nebo druhy souper nezna barvu a ma trumfy
                                                                   hands[player2].HasSuit(_trump)) ||
                                                                  (!hands[player3].HasSuit(i.Suit) &&
-                                                                  hands[player3].HasSuit(_trump))));
+                                                                  hands[player3].HasSuit(_trump)))).ToList();
                     }
                     else if (TeamMateIndex == player2)
                     {
@@ -537,7 +537,7 @@ namespace Mariasek.Engine.New
                                                               ValidCards(i, hands[player2]).Any(j => j.Value != Hodnota.Desitka &&
                                                                                                      j.Value != Hodnota.Eso)) ||
                                                              (!hands[player2].HasSuit(i.Suit) &&    //nebo nezna ani barvu ani nema trumf
-                                                              !hands[player2].HasSuit(_trump))));
+                                                              !hands[player2].HasSuit(_trump)))).ToList();
                     }
                     else
                     {
@@ -545,7 +545,7 @@ namespace Mariasek.Engine.New
                                                                 i.Value != Hodnota.Eso &&
                                                                 i.Suit != _trump &&
                                                                        (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0 &&
-                                                                        _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0));
+                                                                        _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0)).ToList();
 
                         if (!cardsToPlay.Any())
                         {
@@ -560,11 +560,16 @@ namespace Mariasek.Engine.New
                                                                   hands[player3].All(j => ValidCards(i, j, hands[player3]).Any(k => k.Value != Hodnota.Desitka &&
                                                                                                                                     k.Value != Hodnota.Eso))) ||
                                                                  (!hands[player3].HasSuit(i.Suit) &&    //nebo nezna ani barvu ani nema trumf
-                                                                  !hands[player3].HasSuit(_trump))));
+                                                                  !hands[player3].HasSuit(_trump)))).ToList();
                         }
                     }
 
-					return cardsToPlay.ToList().OrderByDescending(i => i.Value).FirstOrDefault();
+                    //pokud spoluhrac flekoval tak hraj jeho barvy prednostne
+                    if (cardsToPlay.Any(i => _teamMatesSuits.Contains(i.Suit)))
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
+                    }
+					return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
                 }
             };
 
@@ -764,6 +769,12 @@ namespace Mariasek.Engine.New
                             }
                         }
 
+                        //pokud spoluhrac flekoval tak hraj jeho barvy prednostne
+                        if (_teamMatesSuits.Contains(barva) & count > 0)
+                        {
+                            cardsToPlay.Add(ValidCards(hands[MyIndex]).First(i => i.Suit == barva && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka));
+                            break;
+                        }
                         if (ValidCards(hands[MyIndex]).Any(i => i.Suit == barva && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka))
                         {
                             if (count > maxCount)

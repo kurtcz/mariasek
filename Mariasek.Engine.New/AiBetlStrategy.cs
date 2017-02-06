@@ -8,8 +8,8 @@ namespace Mariasek.Engine.New
 {
     public class AiBetlStrategy : AiStrategyBase
     {
-        public AiBetlStrategy(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, Probability probabilities)
-            : base(trump, gameType, hands, rounds, probabilities)
+        public AiBetlStrategy(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities)
+            : base(trump, gameType, hands, rounds, teamMatesSuits, probabilities)
         {
         }
 

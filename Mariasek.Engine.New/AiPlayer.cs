@@ -37,6 +37,8 @@ namespace Mariasek.Engine.New
         private bool _initialSimulation;
         private bool _teamMateDoubledGame;
         private bool _shouldMeasureThroughput;
+        private List<Barva> _teamMatesSuits;
+
         private ParallelOptions options = new ParallelOptions
         {
             //MaxDegreeOfParallelism = 1  //Uncomment before debugging
@@ -84,6 +86,7 @@ namespace Mariasek.Engine.New
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
 			_debugString = g.DebugString;
+            _teamMatesSuits = new List<Barva>();
             DebugInfo = new PlayerDebugInfo();
             g.GameLoaded += GameLoaded;
             g.GameFlavourChosen += GameFlavourChosen;
@@ -130,7 +133,7 @@ namespace Mariasek.Engine.New
             Settings.MaxDoubleCount = int.Parse(parameters["MaxDoubleCount"].Value);
             Settings.SigmaMultiplier = int.Parse(parameters["SigmaMultiplier"].Value);
 			Settings.GameFlavourSelectionStrategy = (GameFlavourSelectionStrategy)Enum.Parse(typeof(GameFlavourSelectionStrategy), parameters["GameFlavourSelectionStrategy"].Value);
-
+            _teamMatesSuits = new List<Barva>();
             //Settings.SimulationsPerGameType = Settings.SimulationsPerGameTypePerSecond * Settings.MaxSimulationTimeMs / 1000;
             //Settings.SimulationsPerRound = Settings.SimulationsPerRoundPerSecond * Settings.MaxSimulationTimeMs / 1000;
         }
@@ -1346,6 +1349,13 @@ namespace Mariasek.Engine.New
             else
             {
                 Probabilities.UpdateProbabilities(r.number, r.player1.PlayerIndex, r.c1, r.hlas1);
+                if (r.player1.PlayerIndex == TeamMateIndex && _teamMateDoubledGame)
+                {
+                    if (_teamMatesSuits.All(i => i != r.c1.Suit))
+                    {
+                        _teamMatesSuits.Add(r.c1.Suit);
+                    }
+                }
             }
         }
 
@@ -1766,7 +1776,7 @@ namespace Mariasek.Engine.New
             {
                 trump = _g.trump;
             }
-            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.rounds, Probabilities, playerName, playerIndex, teamMateIndex, initialRoundNumber);
+            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.rounds, _teamMatesSuits, Probabilities, playerName, playerIndex, teamMateIndex, initialRoundNumber);
             
             _log.DebugFormat("Round {0}. Starting simulation for {1}", _g.RoundNumber, _g.players[PlayerIndex].Name);
             if (c1 != null) _log.DebugFormat("First card: {0}", c1);
