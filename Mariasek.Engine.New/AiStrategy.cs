@@ -448,6 +448,7 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex == -1 && hands[MyIndex].CardCount(_trump) >= 5 - RoundNumber)
                     {
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&                           //pokud mam trumfy
+                                                                (i.Value != Hodnota.Desitka || (!hands[player2].HasA(_trump) && !hands[player3].HasA(_trump))) &&
                                                                 (hands[player2].HasSuit(_trump) ||                        //a aspon jeden ze souperu ma taky trumfy
                                                                  hands[player3].HasSuit(_trump)) &&
                                                                 hands[MyIndex].CardCount(_trump) > hands[player2].CardCount(_trump) &&  //a pokud jich mam vic nez
@@ -710,17 +711,18 @@ namespace Mariasek.Engine.New
                 {
                     var cardsToPlay = new List<Card>();
                     var maxCount = 0;
-
+                    var vk = ValidCards(hands[MyIndex]);
+                                        
                     foreach (var barva in Enum.GetValues(typeof(Barva)).Cast<Barva>().Where(i => i != _trump))
                     {
-                        var count = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka).Count(i => i.Suit == barva);
+                        var count = ValidCards(hands[MyIndex]).Count(i => i.Suit == barva);
 
                         //pokud bych hranim barvy vytlacil ze spoluhrace A nebo X ktere by souper sebral trumfem tak barvu nehraj
                         //pokud bych hranim barvy vytlacil ze spoluhrace trumf ktery by souper nebral trumfem a zatoven by nehral A, X tak bravu nehraj
                         if (TeamMateIndex == player2)
                         {
-                            if (ValidCards(hands[MyIndex]).Any(i => i.Suit == barva &&
-                                                        ValidCards(i, hands[player2])
+                            if (ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka)
+                                                          .Any(i => i.Suit == barva && ValidCards(i, hands[player2])
                                                             .All(j => (j.Value == Hodnota.Eso ||
                                                                        j.Value == Hodnota.Desitka) &&
                                                                       ValidCards(i, j, hands[player3]).Any(k =>
@@ -728,8 +730,8 @@ namespace Mariasek.Engine.New
                             {
                                 count = 0;
                             }
-                            if (ValidCards(hands[MyIndex]).Any(i => i.Suit == barva &&
-                                                        ValidCards(i, hands[player2])
+                            if (ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka)
+                                                          .Any(i => i.Suit == barva && ValidCards(i, hands[player2])
                                                             .All(j => j.Suit == _trump &&
                                                                       ValidCards(i, j, hands[player3]).Any(k =>
                                                                           k.Suit != _trump && 
@@ -741,8 +743,8 @@ namespace Mariasek.Engine.New
                         }
                         else if (TeamMateIndex == player3)
                         {
-                            if (ValidCards(hands[MyIndex]).Any(i => i.Suit == barva &&
-                                                        ValidCards(i, hands[player2])
+                            if (ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka)
+                                                          .Any(i => i.Suit == barva && ValidCards(i, hands[player2])
                                                             .Any(j => ValidCards(i, j, hands[player3]).All(k =>
                                                                           (k.Value == Hodnota.Eso ||
                                                                            k.Value == Hodnota.Desitka) &&
@@ -750,8 +752,8 @@ namespace Mariasek.Engine.New
                             {
                                 count = 0;
                             }
-                            if (ValidCards(hands[MyIndex]).Any(i => i.Suit == barva &&
-                                                        ValidCards(i, hands[player2])
+                            if (ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka)
+                                                          .Any(i => i.Suit == barva && ValidCards(i, hands[player2])
                                                             .Any(j => ValidCards(i, j, hands[player3]).All(k =>
                                                                           j.Suit != _trump &&
                                                                           k.Suit == _trump &&
@@ -761,18 +763,22 @@ namespace Mariasek.Engine.New
                                 count = 0;
                             }
                         }
-                        if (count > maxCount)
+
+                        if (ValidCards(hands[MyIndex]).Any(i => i.Suit == barva && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka))
                         {
-                            cardsToPlay.Clear();
-							cardsToPlay = new List<Card>
-							{
-								ValidCards(hands[MyIndex]).First(i => i.Suit == barva && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka)
-							};
-                            maxCount = count;
-                        }
-                        else if (count == maxCount && count > 0)
-                        {
-                            cardsToPlay.Add(ValidCards(hands[MyIndex]).First(i => i.Suit == barva && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka));
+                            if (count > maxCount)
+                            {
+                                cardsToPlay.Clear();
+                                cardsToPlay = new List<Card>
+                            {
+                                ValidCards(hands[MyIndex]).First(i => i.Suit == barva && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka)
+                            };
+                                maxCount = count;
+                            }
+                            else if (count == maxCount && count > 0)
+                            {
+                                cardsToPlay.Add(ValidCards(hands[MyIndex]).First(i => i.Suit == barva && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka));
+                            }
                         }
                     }
 

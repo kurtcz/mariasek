@@ -391,9 +391,9 @@ namespace Mariasek.SharedClient
             var moneyBalance1 = games1.Sum(i => i.MoneyWon[0] * _settings.BaseBet);
             var moneyBalance2 = games2.Sum(i => i.MoneyWon[1] * _settings.BaseBet);
             var moneyBalance3 = games3.Sum(i => i.MoneyWon[2] * _settings.BaseBet);
-            var defenceMoneyBalance1 = games2.Sum(i => -i.MoneyWon[1] * _settings.BaseBet) + games3.Sum(i => -i.MoneyWon[2] * _settings.BaseBet);
-            var defenceMoneyBalance2 = games2.Sum(i => -i.MoneyWon[0] * _settings.BaseBet) + games3.Sum(i => -i.MoneyWon[2] * _settings.BaseBet);
-            var defenceMoneyBalance3 = games3.Sum(i => -i.MoneyWon[0] * _settings.BaseBet) + games2.Sum(i => -i.MoneyWon[1] * _settings.BaseBet);
+            var defenceMoneyBalance1 = (games2.Sum(i => -i.MoneyWon[1] * _settings.BaseBet) + games3.Sum(i => -i.MoneyWon[2] * _settings.BaseBet))/2;
+            var defenceMoneyBalance2 = (games1.Sum(i => -i.MoneyWon[0] * _settings.BaseBet) + games3.Sum(i => -i.MoneyWon[2] * _settings.BaseBet))/2;
+            var defenceMoneyBalance3 = (games1.Sum(i => -i.MoneyWon[0] * _settings.BaseBet) + games2.Sum(i => -i.MoneyWon[1] * _settings.BaseBet))/2;
             var moneyMin1 = gamesPlayed1 > 0 ? games1.Min(i => i.MoneyWon[0] * _settings.BaseBet) : 0f;
             var moneyMin2 = gamesPlayed2 > 0 ? games2.Min(i => i.MoneyWon[1] * _settings.BaseBet) : 0f;
             var moneyMin3 = gamesPlayed3 > 0 ? games3.Min(i => i.MoneyWon[2] * _settings.BaseBet) : 0f;
