@@ -223,7 +223,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Betl", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Betl",
-                Value = "50|65|75|85|95"
+                Value = "55|65|75|85|95"
             });
             _aiConfig.Add("GameThreshold.Durch", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
