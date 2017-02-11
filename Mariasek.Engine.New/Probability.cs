@@ -249,6 +249,79 @@ namespace Mariasek.Engine.New
                    - p[0] * p[1] * p[2] * p[3];
         }
 
+        public bool CertainlyHasAOrXAndNothingElseInSuit(int playerIndex, Barva b)
+        {
+            bool AXpossible = false;
+            bool othersPossible = false;
+
+            foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+            {
+                if (_cardProbabilityForPlayer[playerIndex][b][h] > 0)
+                {
+                    if ((h == Hodnota.Eso || h == Hodnota.Desitka))
+                    {
+                        AXpossible = true;
+                    }
+                    else
+                    {
+                        othersPossible = true;
+                    }
+                }
+            }
+
+            return AXpossible && !othersPossible;
+        }
+
+        public float HasSolitaryX(int playerIndex, Barva suit, int roundNumber)
+        {
+            return AnyOfTheseCardsButNothingElseInSuitProbability(playerIndex, suit, roundNumber, Hodnota.Desitka);
+        }
+
+        public float HasAOrXAndNothingElse(int playerIndex, Barva suit, int roundNumber)
+        {
+            return AnyOfTheseCardsButNothingElseInSuitProbability(playerIndex, suit, roundNumber, Hodnota.Eso, Hodnota.Desitka);
+        }
+
+        public float AnyOfTheseCardsButNothingElseInSuitProbability(int playerIndex, Barva suit, int roundNumber, params Hodnota[] values)
+        {
+            //pokud ma hrac jiste kartu ktera neni na seznamu, tak vrat nulu
+            if (_cardProbabilityForPlayer[playerIndex][suit].Any(i => !values.Contains(i.Key) && i.Value == 1f))
+            {
+                return 0f;
+            }
+            //pokud hrac jiste nema ani jednu z karet na seznamu, tak vrat nulu
+            if (_cardProbabilityForPlayer[playerIndex][suit].All(i => !values.Contains(i.Key) || i.Value == 0f))
+            {
+                return 0f;
+            }
+
+            var listedCertainCardsInSuit = values.Count(h =>_cardProbabilityForPlayer[playerIndex][suit][h] == 1f);
+            var uncertainCardsInSuit = _cardProbabilityForPlayer[playerIndex][suit].Count(i => i.Value > 0f && i.Value < 1f);
+
+            //pokud hrac nema zadne nejiste karty v barve tak vrat podle toho jestli ma v barve nejake karty jiste nebo ne
+            if (uncertainCardsInSuit == 0)
+            {
+                return listedCertainCardsInSuit > 0 ? 1f : 0f;
+            }
+
+            //hrac ma nejake nejiste karty v barve
+            var uncertainCards = _cardProbabilityForPlayer[playerIndex].Sum(b => b.Value.Count(h => h.Value > 0f && h.Value < 1f));
+            var uncertainCardsNotInSuit = uncertainCards - uncertainCardsInSuit;
+            var certainCards = _cardProbabilityForPlayer[playerIndex].Sum(b => b.Value.Count(h => h.Value == 1f));
+            var totalCards = 10 - roundNumber + 1;
+            var unknownCards = totalCards - certainCards;
+            var numerator = 0f;
+            var n = values.Length - listedCertainCardsInSuit;
+
+            //do citatele dame vsechny k-tice ktere hrac v dane barve muze mit a do jmenovatele vsechny kombinace
+            for (var k = 1; k < n && k < unknownCards; k++)
+            {
+                numerator += CNK(uncertainCardsInSuit, k) * CNK(uncertainCardsNotInSuit, unknownCards - k);
+            }
+
+            return numerator / CNK(uncertainCards, unknownCards);
+        }
+
         private long CNK(int n, int k)
         {
             long numerator = 1;

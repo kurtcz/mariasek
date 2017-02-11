@@ -153,7 +153,8 @@ namespace Mariasek.Engine.New
                     score += 10;
                 if (hand.HasX(b))
                     score += 10;
-
+                if (hand.Has7(b) && count >= 4)
+                    score += count * 10;
                 score += count;
             }
             _log.DebugFormat("Trump score for {0}: {1}", b, score);
@@ -1377,6 +1378,7 @@ namespace Mariasek.Engine.New
             else
             {
                 var canSkipSimulations = CanSkipSimulations(r.c1, r.c2);
+                var goodGame = (_gameType & (Hra.Betl | Hra.Durch)) == 0;
 
                 for (var i = 0; i < Game.NumPlayers; i++)
                 {
@@ -1386,10 +1388,21 @@ namespace Mariasek.Engine.New
                     Math.Max(Probabilities.PossibleCombinations((PlayerIndex + 1) % Game.NumPlayers, r.number), //*3 abych snizil sanci ze budu generovat nektere kombinace vickrat
                              Probabilities.PossibleCombinations((PlayerIndex + 2) % Game.NumPlayers, r.number))) * 3;
                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = 0, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Generuju karty"});
-				var source = Probabilities.GenerateHands(r.number, roundStarterIndex, simulations);
+                var source = goodGame && _g.CurrentRound != null
+                               ? Probabilities.GenerateHands(r.number, roundStarterIndex, 1) 
+                               : Probabilities.GenerateHands(r.number, roundStarterIndex, simulations);
                 var progress = 0;
                 var start = DateTime.Now;
 
+                if (goodGame && _g.CurrentRound != null)
+                {
+                    //pokud je hra v behu tak u klasicke hry nepotrebujeme paralelni vypocty
+                    //protoze ted pouzivame pravdepodobnostni pravidla
+                    options = new ParallelOptions
+                    {
+                        MaxDegreeOfParallelism = 1
+                    };
+                }
                 Parallel.ForEach(source, options, (hands, loopState) =>
                 {
                     ThrowIfCancellationRequested();

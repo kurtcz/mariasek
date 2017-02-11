@@ -80,7 +80,7 @@ namespace Mariasek.Engine.New
             {
                 hlasPoints2 = c2.Suit == _g.trump.Value ? 40 : 20;
             }
-            if (hlas2) player1.Hlasy++;
+            if (hlas2) player2.Hlasy++;
             player2.Hand.Remove(c2);
             _g.OnCardPlayed(this);
 
@@ -89,7 +89,7 @@ namespace Mariasek.Engine.New
             {
                 hlasPoints3 = c3.Suit == _g.trump.Value ? 40 : 20;
             }
-            if (hlas3) player1.Hlasy++;
+            if (hlas3) player3.Hlasy++;
             player3.Hand.Remove(c3);
             _g.OnCardPlayed(this);
 
