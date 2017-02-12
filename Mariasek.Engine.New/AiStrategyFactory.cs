@@ -31,7 +31,7 @@ namespace Mariasek.Engine.New
                         RoundNumber = initialRoundNumber.HasValue ? initialRoundNumber.Value : g.RoundNumber
                     };
                 default:
-                    return new AiStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, teamMatesSuits, probabilities)
+                    return new AiStrategy2(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, teamMatesSuits, probabilities)
                     {
                         MyIndex = playerIndex,
                         MyName = name,

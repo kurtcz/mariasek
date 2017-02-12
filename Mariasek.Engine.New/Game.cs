@@ -436,10 +436,10 @@ namespace Mariasek.Engine.New
             var programFolder = System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
             SaveGame(System.IO.Path.Combine(programFolder, "_temp.hra"));
 #else
-            using (var fs = GetFileStream("_temp.hra"))
-            {
-                SaveGame(fs);
-            }
+            //using (var fs = GetFileStream("_temp.hra"))
+            //{
+            //    SaveGame(fs);
+            //}
 #endif        
         }
 

@@ -285,7 +285,7 @@ namespace Mariasek.SharedClient.GameComponents
 
         public override void Update(GameTime gameTime)
         {
-            if (_textureUpdateNeeded)
+            if (_textureUpdateNeeded || _texture == null || _texture.IsDisposed)
             {
                 UpdateTexture();
             }

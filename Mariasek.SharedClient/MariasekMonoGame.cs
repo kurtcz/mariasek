@@ -227,19 +227,15 @@ namespace Mariasek.SharedClient
 			//GenerateScene.Initialize();
 
             MenuScene.SetActive();
-            if (MainScene.CanLoadGame())
-            {
-                MainScene.LoadGame();
-            }
-            else if (MainScene.CanLoadTestGame())
-            {
-                MainScene.LoadGame(testGame: true);
-            }
+            MainScene.ResumeGame();
         }
 
         protected override void Dispose(bool disposing)
         {
-            MainScene.CancelRunningTask();
+            if (MainScene != null)
+            {
+                MainScene.CancelRunningTask();
+            }
             base.Dispose(disposing);
         }
 
@@ -265,6 +261,17 @@ namespace Mariasek.SharedClient
             }
         }
 
+        public delegate void StartedEventHandler();
+        public event StartedEventHandler Started;
+
+        public void OnStart()
+        {
+            if (Started != null)
+            {
+                Started();
+            }
+        }
+
         public delegate void RestartedEventHandler();
         public event RestartedEventHandler Restarted;
 
@@ -273,6 +280,17 @@ namespace Mariasek.SharedClient
             if (Restarted != null)
             {
                 Restarted();
+            }
+        }
+
+        public delegate void StoppedEventHandler();
+        public event StoppedEventHandler Stopped;
+
+        public void OnStop()
+        {
+            if (Stopped != null)
+            {
+                Stopped();
             }
         }
 

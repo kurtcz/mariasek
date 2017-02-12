@@ -67,6 +67,7 @@ namespace Mariasek.AndroidClient
         protected override void OnStop()
         {
             System.Diagnostics.Debug.WriteLine("OnStop()");
+            g.OnStop();
             base.OnStop();
         }
 

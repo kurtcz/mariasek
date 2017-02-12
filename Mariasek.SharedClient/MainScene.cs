@@ -132,7 +132,8 @@ namespace Mariasek.SharedClient
             : base(game)
         {
             Game.SettingsScene.SettingsChanged += SettingsChanged;
-            Game.SaveInstanceState += SaveGame;
+            Game.Stopped += SaveGame;
+            Game.Started += ResumeGame;
         }
 
         private void PopulateAiConfig()
@@ -1745,7 +1746,7 @@ namespace Mariasek.SharedClient
                 //            _state = GameState.RoundFinished;
                 //        }, null);
                 this.Wait(1000)
-                     .Invoke(() =>
+                    .Invoke(() =>
                     {
                         var roundWinnerIndex = r.roundWinner.PlayerIndex;
 
@@ -1947,10 +1948,13 @@ namespace Mariasek.SharedClient
                     {
                         btn.Hide();
                     }
-                    if(g.GameStartingPlayerIndex != 0)
-                    {
+                    if(g.GameStartingPlayerIndex != 0 || g.GameType != 0)
+                    {                        
                         g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, false);
-                        ShowThinkingMessage(g.GameStartingPlayerIndex);
+                        if (g.GameType == 0)
+                        {
+                            ShowThinkingMessage(g.GameStartingPlayerIndex);
+                        }
                         _hand.Show();
                         UpdateHand();
                     }
@@ -1964,7 +1968,7 @@ namespace Mariasek.SharedClient
                         _trumpLabels[i].Text = g.players[i].Name;
 						_trumpLabels[i].Show();
 					}
-                    if (g.CurrentRound != null)
+                    if (g.GameType != 0)
                     {
                         _trumpLabels[g.GameStartingPlayerIndex].Text = string.Format("{0}: {1}", g.players[g.GameStartingPlayerIndex].Name, g.GameType.ToDescription(g.trump));
                     }
@@ -1979,7 +1983,7 @@ namespace Mariasek.SharedClient
 
         public void SaveGame()
         {
-            if (g != null && g.IsRunning)
+            if (g != null && g.GameType != 0 && g.IsRunning)
             {
                 try
                 {
@@ -1993,6 +1997,18 @@ namespace Mariasek.SharedClient
                 {
                     System.Diagnostics.Debug.WriteLine(string.Format("Cannot save game\n{0}", e.Message));
                 }
+            }
+        }
+
+        public void ResumeGame()
+        {
+            if (CanLoadGame())
+            {
+                LoadGame();
+            }
+            else if (CanLoadTestGame())
+            {
+                LoadGame(testGame: true);
             }
         }
 

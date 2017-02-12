@@ -342,6 +342,12 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 HorizontalScrollOffset = new Vector2(Width - _chartWidth(), 0);
             }
+
+            if (_target == null || _target.IsDisposed || _target.IsContentLost ||
+                _verticalAxisTarget == null || _verticalAxisTarget.IsDisposed || _verticalAxisTarget.IsContentLost)
+            {
+                UpdateSprite();
+            }
         }
 
         public override void Draw(GameTime gameTime)
