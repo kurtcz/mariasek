@@ -11,6 +11,7 @@ namespace Mariasek.SharedClient.GameComponents
 {
     public class Button : TouchControlBase
     {
+        private Color _highlightColor = new Color(0x99, 0x4d, 0x1a);
         private Color _origButtonColor = new Color(0x60, 0x30, 0x10);//Color.SaddleBrown;
         private Color _origTextColor = Color.White;
         private RectangleShape _buttonShape;
@@ -162,19 +163,20 @@ namespace Mariasek.SharedClient.GameComponents
 
         protected override void OnTouchDown(TouchLocation tl)
         {
-            _buttonShape.BackgroundColors[0] = Color.LightSalmon;
+            _buttonShape.BackgroundColors[0] = _highlightColor;
+            _buttonShape.UpdateTexture();
             base.OnTouchDown(tl);
         }
 
         protected override void OnTouchUp(TouchLocation tl)
         {
-            _buttonShape.BackgroundColors[0] = Color.White;
+            _buttonShape.BackgroundColors[0] = _origButtonColor;
+            _buttonShape.UpdateTexture();
             base.OnTouchUp(tl);
         }
 
         protected override void OnClick()
         {
-            _buttonShape.BackgroundColors[0] = Color.LightGreen;
             ClickSound.Play();
             base.OnClick();
         }

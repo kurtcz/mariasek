@@ -1339,22 +1339,27 @@ namespace Mariasek.Engine.New
 
         private void CardPlayed(object sender, Round r)
         {
-            if (r.c3 != null)
+            UpdateProbabilitiesAfterCardPlayed(Probabilities, r.number, r.player1.PlayerIndex, r.c1, r.c2, r.c3, r.hlas1, r.hlas2, r.hlas3, TeamMateIndex, _teamMatesSuits, _teamMateDoubledGame);
+        }
+
+        private static void UpdateProbabilitiesAfterCardPlayed(Probability probabilities, int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas1, bool hlas2, bool hlas3, int teamMateIndex, List<Barva> teamMatesSuits, bool teamMateDoubledGame)
+        {
+            if (c3 != null)
             {
-                Probabilities.UpdateProbabilities(r.number, r.player1.PlayerIndex, r.c1, r.c2, r.c3, r.hlas3);
+                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, c2, c3, hlas3);
             }
-            else if (r.c2 != null)
+            else if (c2 != null)
             {
-                Probabilities.UpdateProbabilities(r.number, r.player1.PlayerIndex, r.c1, r.c2, r.hlas2);
+                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, c2, hlas2);
             }
             else
             {
-                Probabilities.UpdateProbabilities(r.number, r.player1.PlayerIndex, r.c1, r.hlas1);
-                if (r.player1.PlayerIndex == TeamMateIndex && _teamMateDoubledGame)
+                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, hlas1);
+                if (roundStarterIndex == teamMateIndex && teamMateDoubledGame)
                 {
-                    if (_teamMatesSuits.All(i => i != r.c1.Suit))
+                    if (teamMatesSuits.All(i => i != c1.Suit))
                     {
-                        _teamMatesSuits.Add(r.c1.Suit);
+                        teamMatesSuits.Add(c1.Suit);
                     }
                 }
             }
@@ -1789,7 +1794,14 @@ namespace Mariasek.Engine.New
             {
                 trump = _g.trump;
             }
-            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.rounds, _teamMatesSuits, Probabilities, playerName, playerIndex, teamMateIndex, initialRoundNumber);
+
+            var prob = Probabilities.Clone();
+            var teamMatesSuits = new List<Barva>();
+            foreach (var suit in _teamMatesSuits)
+            {
+                teamMatesSuits.Add(suit);
+            }
+            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.rounds, teamMatesSuits, prob, playerName, playerIndex, teamMateIndex, initialRoundNumber);
             
             _log.DebugFormat("Round {0}. Starting simulation for {1}", _g.RoundNumber, _g.players[PlayerIndex].Name);
             if (c1 != null) _log.DebugFormat("First card: {0}", c1);
@@ -1850,18 +1862,24 @@ namespace Mariasek.Engine.New
                 var roundWinnerCard = Round.WinningCard(c1, c2, c3, trump);
                 var roundWinnerIndex = roundWinnerCard == c1 ? roundStarterIndex : (roundWinnerCard == c2 ? (roundStarterIndex + 1) % Game.NumPlayers : (roundStarterIndex + 2) % Game.NumPlayers);
                 var roundScore = Round.ComputePointsWon(c1, c2, c3, aiStrategy.RoundNumber);
-
                 result.Rounds.Add(new RoundDebugContext
                 {
                     RoundStarterIndex = roundStarterIndex,
                     c1 = c1,
                     c2 = c2,
                     c3 = c3,
+                    //hlas123
                     r1 = r1 != null ? r1.Description : null,
                     r2 = r2 != null ? r2.Description : null,
                     r3 = r3 != null ? r3.Description : null,
                     RoundWinnerIndex = roundWinnerIndex
                 });
+                var hlas1 = _trump.HasValue && c1.Value == Hodnota.Svrsek && hands[player1].HasK(c1.Suit);
+                var hlas2 = _trump.HasValue && c2.Value == Hodnota.Svrsek && hands[player2].HasK(c2.Suit);
+                var hlas3 = _trump.HasValue && c3.Value == Hodnota.Svrsek && hands[player3].HasK(c3.Suit);
+                UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, _teamMatesSuits, _teamMateDoubledGame);
+                UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, _teamMatesSuits, _teamMateDoubledGame);
+                UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, _teamMatesSuits, _teamMateDoubledGame);
                 _log.TraceFormat("Simulation round {2} won by {0}. Points won: {1}", _g.players[roundWinnerIndex].Name, roundScore, aiStrategy.RoundNumber);
                 if (firstTime)
                 {
@@ -1874,6 +1892,9 @@ namespace Mariasek.Engine.New
                 {
                     result.Final7Won = roundWinnerCard.Suit == trump.Value && roundWinnerCard.Value == Hodnota.Sedma && roundWinnerIndex == _g.GameStartingPlayerIndex;
                 }
+                hands[player1].Remove(c1);
+                hands[player2].Remove(c2);
+                hands[player3].Remove(c3);
                 aiStrategy.MyIndex = roundWinnerIndex;
                 aiStrategy.TeamMateIndex = _g.players[roundWinnerIndex].TeamMateIndex;
                 player1 = aiStrategy.MyIndex;

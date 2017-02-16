@@ -20,10 +20,10 @@ namespace Mariasek.Engine.New
         private int _myIndex;
         private int _gameStarterIndex;
         private Barva? _trump;
-        private readonly Dictionary<Barva, Dictionary<Hodnota, float>>[] _cardProbabilityForPlayer;
-        private readonly List<Card>[] _cardsPlayedByPlayer;
+        private Dictionary<Barva, Dictionary<Hodnota, float>>[] _cardProbabilityForPlayer;
+        private List<Card>[] _cardsPlayedByPlayer;
         private static RandomMT mt = new RandomMT((ulong)(DateTime.Now - DateTime.MinValue).TotalMilliseconds);
-        private readonly List<int> _playerWeights;
+        private List<int> _playerWeights;
         private List<Hand[]> generatedHands;
 
         public const int talonIndex = Game.NumPlayers;
@@ -35,7 +35,7 @@ namespace Mariasek.Engine.New
         private StringBuilder _debugString;
         private StringBuilder _verboseString;
         public StringBuilder ExternalDebugString;
-        private readonly List<int> _gameBidders;
+        private List<int> _gameBidders;
         private int _gameIndex;
         private int _sevenIndex;
         private int _hundredIndex;
@@ -111,6 +111,48 @@ namespace Mariasek.Engine.New
             UpdateUncertainCardsProbability();
 			_debugString.Append(FriendlyString(0));
 			_debugString.Append("-----\n");
+        }
+
+        public Probability Clone()
+        {
+            var clone = new Probability(_myIndex, _gameStarterIndex, _myHand, _trump, _talon);
+
+            clone._cardsPlayedByPlayer = new List<Card>[_cardsPlayedByPlayer.Length];
+            clone._cardProbabilityForPlayer = new Dictionary<Barva, Dictionary<Hodnota, float>>[Game.NumPlayers + 1];
+
+            for (var i = 0; i < _cardsPlayedByPlayer.Length; i++)
+            {
+                clone._cardsPlayedByPlayer[i] = new List<Card>();
+                for (var j = 0; j < _cardsPlayedByPlayer[i].Count; j++)
+                {
+                    clone._cardsPlayedByPlayer[i].Add(_cardsPlayedByPlayer[i][j]);
+                }
+            }
+            for (var i = 0; i < _cardProbabilityForPlayer.Count(); i++)
+            {
+                clone._cardProbabilityForPlayer[i] = new Dictionary<Barva, Dictionary<Hodnota, float>>();
+                foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                {
+                    clone._cardProbabilityForPlayer[i][b] = new Dictionary<Hodnota, float>();
+                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+                    {
+                        clone._cardProbabilityForPlayer[i][b][h] = _cardProbabilityForPlayer[i][b][h];
+                    }
+                }
+            }
+            if (_myTalon != null)
+            {
+                clone._myTalon = new List<Card>();
+                foreach (var c in _myTalon)
+                {
+                    clone._myTalon.Add(c);
+                }
+            }
+            clone.generatedHands = generatedHands;
+            clone._playerWeights = _playerWeights;
+            clone._gameBidders = _gameBidders;
+
+            return clone; 
         }
 
         /// <summary>
@@ -203,7 +245,25 @@ namespace Mariasek.Engine.New
             var certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value == 1f));
             var totalCards = 10 - roundNumber;
 
-            return (float)CNK(n, totalCards - certainCards) / CNK(uncertainCards, totalCards - certainCards);
+            return (float)CNK(n, totalCards - certainCards) / (float)CNK(uncertainCards, totalCards - certainCards);
+        }
+
+        public float CardHigherThanCardProbability(int playerIndex, Card c, int roundNumber)
+        {
+            if (_cardProbabilityForPlayer[playerIndex].Any(i => i.Value.Any(j => j.Value == 1f &&
+                                                                                 c.IsLowerThan(new Card(i.Key, j.Key), _trump))))
+            {
+                return 1f;
+            }
+
+            var uncertainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 1f));
+            var certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value == 1f));
+            var totalCards = 10 - roundNumber;
+            var hiCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value > 0f &&
+                                                                                             c.IsLowerThan(new Card(i.Key, j.Key), _trump)));
+
+            return (float)(CNK(uncertainCards, totalCards - certainCards) - CNK(uncertainCards - hiCards, totalCards - certainCards)) /
+                   (float)CNK(uncertainCards, totalCards - certainCards);
         }
 
         public float SuitHigherThanCardProbability(int playerIndex, Card c, int roundNumber)
@@ -230,7 +290,7 @@ namespace Mariasek.Engine.New
             var certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value == 1f));
             var totalCards = 10 - roundNumber;
 
-            return (float)CNK(n, totalCards - certainCards) / CNK(uncertainCards, totalCards - certainCards);
+            return (float)CNK(n, totalCards - certainCards) / (float)CNK(uncertainCards, totalCards - certainCards);
         }
 
         public float HlasProbability(int playerIndex)
@@ -319,7 +379,7 @@ namespace Mariasek.Engine.New
                 numerator += CNK(uncertainCardsInSuit, k) * CNK(uncertainCardsNotInSuit, unknownCards - k);
             }
 
-            return numerator / CNK(uncertainCards, unknownCards);
+            return numerator / (float)CNK(uncertainCards, unknownCards);
         }
 
         private long CNK(int n, int k)

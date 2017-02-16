@@ -23,5 +23,8 @@ namespace Mariasek.Engine.New
         public int points1 { get; set; }
         public int points2 { get; set; }
         public int points3 { get; set; }
+
+        public AbstractPlayer RoundStarter { get; set; }
+        public AbstractPlayer RoundWinner { get; set; }
     }
 }

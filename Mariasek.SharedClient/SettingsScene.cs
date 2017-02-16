@@ -185,28 +185,27 @@ namespace Mariasek.SharedClient
 			};
 			_kiloCountingSelector.SelectedIndex = _kiloCountingSelector.Items.FindIndex(_settings.CalculationStyle);
 			_kiloCountingSelector.SelectionChanged += KiloCountingChanged;
-			_thinkingTime = new Label(this)
-			{
-				Position = new Vector2(10, 370),
-				Width = (int)Game.VirtualScreenWidth / 2 - 20,
-				Height = 50,
-				Text = "Jak dlouho AI přemýšlí",
-				HorizontalAlign = HorizontalAlignment.Center,
-				VerticalAlign = VerticalAlignment.Middle
-			};
-			_thinkingTimeSelector = new LeftRightSelector(this)
-			{
-				Position = new Vector2(Game.VirtualScreenWidth - 390, 370),
-				Width = 360,
-				Items = new SelectorItems() { { "Krátce", 2000 }, { "Středně", 4000 }, { "Dlouho", 6000 } }
-			};
-			_thinkingTimeSelector.SelectedIndex = _thinkingTimeSelector.Items.FindIndex(_settings.ThinkingTimeMs);
-			_thinkingTimeSelector.SelectionChanged += ThinkingTimeChanged;
-			if (_thinkingTimeSelector.SelectedIndex < 0)
-			{
-				_thinkingTimeSelector.SelectedIndex = 0;
-			}
-
+            //_thinkingTime = new Label(this)
+            //{
+            //	Position = new Vector2(10, 370),
+            //	Width = (int)Game.VirtualScreenWidth / 2 - 20,
+            //	Height = 50,
+            //	Text = "Jak dlouho AI přemýšlí",
+            //	HorizontalAlign = HorizontalAlignment.Center,
+            //	VerticalAlign = VerticalAlignment.Middle
+            //};
+            //_thinkingTimeSelector = new LeftRightSelector(this)
+            //{
+            //	Position = new Vector2(Game.VirtualScreenWidth - 390, 370),
+            //	Width = 360,
+            //	Items = new SelectorItems() { { "Krátce", 2000 }, { "Středně", 4000 }, { "Dlouho", 6000 } }
+            //};
+            //_thinkingTimeSelector.SelectedIndex = _thinkingTimeSelector.Items.FindIndex(_settings.ThinkingTimeMs);
+            //_thinkingTimeSelector.SelectionChanged += ThinkingTimeChanged;
+            //if (_thinkingTimeSelector.SelectedIndex < 0)
+            //{
+            //	_thinkingTimeSelector.SelectedIndex = 0;
+            //}
             _menuBtn = new Button(this)
             {
                 Position = new Vector2(10, Game.VirtualScreenHeight - 60),
@@ -307,6 +306,7 @@ namespace Mariasek.SharedClient
                 using (var fs = File.Open(_settingsFilePath, FileMode.Open))
                 {
                     _settings = (GameSettings)xml.Deserialize(fs);
+                    _settings.ThinkingTimeMs = 2000;
                 }
             }
             catch(Exception e)
@@ -314,9 +314,8 @@ namespace Mariasek.SharedClient
                 System.Diagnostics.Debug.WriteLine(string.Format("Cannot load settings\n{0}", e.Message));
                 _settings = new GameSettings();
             }
-            _performance.Text = string.Format("Výkon simulace: {0} her/s, {1} kol/s", 
-                _settings.GameTypeSimulationsPerSecond > 0 ? _settings.GameTypeSimulationsPerSecond.ToString() : "?", 
-                _settings.RoundSimulationsPerSecond > 0 ? _settings.RoundSimulationsPerSecond.ToString() : "?");
+            _performance.Text = string.Format("Výkon simulace: {0} her/s", 
+                _settings.GameTypeSimulationsPerSecond > 0 ? _settings.GameTypeSimulationsPerSecond.ToString() : "?");
         }
 
         public void SaveGameSettings()
