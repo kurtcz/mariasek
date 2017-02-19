@@ -1027,6 +1027,7 @@ namespace Mariasek.SharedClient
                     ShowThinkingMessage(g.GameStartingPlayerIndex);
                     _hand.Show();
                     UpdateHand();
+                    _hand.AnimationEvent.Wait();
                 }
                 else
                 {
@@ -1049,7 +1050,7 @@ namespace Mariasek.SharedClient
 						System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
 					}
 				}
-				g.PlayGame(_cancellationTokenSource.Token);
+                g.PlayGame(_cancellationTokenSource.Token);
             },  _cancellationTokenSource.Token);
         }
             
@@ -1236,12 +1237,12 @@ namespace Mariasek.SharedClient
                         });
                     _hand.IsEnabled = false;
                     break;
-                //case GameState.ChooseGameType:
                 case GameState.Play:
                     if (_cardClicked == null)
                         return;
                     _state = GameState.NotPlaying;
                     HideMsgLabel();
+                    origPosition = button.Position;
                     if (_cardClicked.Value == Hodnota.Svrsek && g.players[0].Hand.HasK(_cardClicked.Suit))
                     {
                         targetSprite = _hlasy[0][g.players[0].Hlasy].Sprite;
@@ -1252,15 +1253,14 @@ namespace Mariasek.SharedClient
                         targetSprite = _cardsPlayed[0];
                         targetSprite.ZIndex = _cardsPlayed[0].ZIndex;
                     }
-                    origPosition = targetSprite.Position;
-                    targetSprite.Position = button.Position;
-                    targetSprite.SpriteRectangle = _cardClicked.ToTextureRect();
-                    targetSprite.Show();
-                    button.Hide();
-                    targetSprite
+                    button
                         .MoveTo(origPosition, 1000)
                         .Invoke(() =>
                         {
+                            targetSprite.SpriteRectangle = _cardClicked.ToTextureRect();
+                            targetSprite.Show();
+                            button.Hide();
+                            button.Position = origPosition;
                             _evt.Set();
                         });
                     _hand.IsEnabled = false;
@@ -1650,6 +1650,9 @@ namespace Mariasek.SharedClient
             if (!_skipBidBubble)
             {
                 ShowBubble(e.Player.PlayerIndex, e.Description);
+                _evt.Reset();
+                this.Invoke(() => _evt.Set());
+                _evt.WaitOne();
             }
             _skipBidBubble = false;
             //premysleci bublinu nezobrazuj pokud bude premyslet clovek
@@ -1698,19 +1701,22 @@ namespace Mariasek.SharedClient
 						ShowThinkingMessage((lastPlayer.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
 					}
                     rect = lastCard.ToTextureRect();
-                    if (lastHlas)
+                    this.Invoke(() =>
                     {
-                        _hlasy[lastPlayer.PlayerIndex][lastPlayer.Hlasy - 1].Sprite.SpriteRectangle = rect;
-                        _hlasy[lastPlayer.PlayerIndex][lastPlayer.Hlasy - 1].Show();
-                    }
-                    else
-                    {
-                        _cardsPlayed[lastPlayer.PlayerIndex].SpriteRectangle = rect;
-                        _cardsPlayed[lastPlayer.PlayerIndex].Show();
-                    }
+                        if (lastHlas)
+                        {
+                            _hlasy[lastPlayer.PlayerIndex][lastPlayer.Hlasy - 1].Sprite.SpriteRectangle = rect;
+                            _hlasy[lastPlayer.PlayerIndex][lastPlayer.Hlasy - 1].Show();
+                        }
+                        else
+                        {
+                            _cardsPlayed[lastPlayer.PlayerIndex].SpriteRectangle = rect;
+                            _cardsPlayed[lastPlayer.PlayerIndex].Show();
+                        }
 
-                    _hand.DeselectAllCards();
-                    _hand.ShowArc((float)Math.PI / 2);
+                        _hand.DeselectAllCards();
+                        _hand.ShowArc((float)Math.PI / 2);
+                    });
                 }, null);
         }
 

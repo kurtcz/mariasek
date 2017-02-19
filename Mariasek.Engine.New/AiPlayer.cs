@@ -1144,13 +1144,12 @@ namespace Mariasek.Engine.New
                     //RunGameSimulations(bidding, _g.GameStartingPlayerIndex, false, true);
                 }
             }
-            //Flekovani se u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) pokud trham (flek) a mam aspon 2 trumfy 
+            //Flekovani se u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) pokud trham (flek) nebo mam sam apson 2 hlasy
             //nebo kolega flekoval a ja mam nejakou hlasku a citil jsem se na flek jiz minule (tutti a vys),
             //ostatni flekujeme pouze pokud zvolenou hru volici hrac nemuze uhrat
             if ((bidding.Bids & Hra.Hra) != 0 &&
-                ((_gamesBalance / (float)_goodSimulations >= gameThreshold && 
-                  (Hand.HasK(_g.trump.Value) || Hand.HasQ(_g.trump.Value) || Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2) && 
-                  Hand.CardCount(_g.trump.Value) >= 2)) || 
+                (_gamesBalance / (float)_goodSimulations >= gameThreshold && 
+                 (Hand.HasK(_g.trump.Value) || Hand.HasQ(_g.trump.Value) || Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2)) || 
                  (_teamMateDoubledGame && _gamesBalance / (float)_goodSimulations >= gameThresholdPrevious && 
                   Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit))))
             {
