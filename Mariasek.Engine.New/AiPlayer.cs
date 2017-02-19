@@ -1124,17 +1124,14 @@ namespace Mariasek.Engine.New
             }
             if (_moneyCalculations == null)
             {
-                if (bidding.BetlDurchMultiplier == 0)
+                //mame flekovat hru
+                //kilo simulovat nema cenu, hrac ho asi ma, takze flekovat stejne nebudeme
+                if (bidding.BetlDurchMultiplier == 0 && ((bidding.Bids & (Hra.Hra | Hra.Sedma)) != 0))
                 {
-                    //mame flekovat hru
-                    //kilo simulovat nema cenu, hrac ho asi ma, takze flekovat stejne nebudeme
-                    if (_g.GameType != Hra.Kilo)
+                    if (_initialSimulation)
                     {
-                        if (_initialSimulation)
-                        {
-                            RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, false);
-                            _initialSimulation = false;
-                        }
+                        RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, false);
+                        _initialSimulation = false;
                     }
                 }
                 else

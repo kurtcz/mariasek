@@ -18,17 +18,23 @@ namespace Mariasek.Engine.New.Logger
         }
         public void Debug(object message)
         {
+#if DEBUG            
             System.Diagnostics.Debug.WriteLine(message);
+#endif
         }
         public void Debug(object message, Exception exception)
         {
+#if DEBUG            
             System.Diagnostics.Debug.WriteLine(message);
             System.Diagnostics.Debug.WriteLine(exception.Message);
             System.Diagnostics.Debug.WriteLine(exception.StackTrace);
+#endif
         }
         public void DebugFormat(string format, params object[] args)
         {
-            Error(string.Format(format, args));
+#if DEBUG            
+            Debug(string.Format(format, args));
+#endif
         }
         public void Error(object message)
         {
@@ -55,17 +61,23 @@ namespace Mariasek.Engine.New.Logger
         }
         public void Info(object message)
         {
+#if DEBUG   
             System.Diagnostics.Debug.WriteLine(message);
+#endif
         }
         public void Info(object message, Exception exception)
         {
+#if DEBUG            
             System.Diagnostics.Debug.WriteLine(message);
             System.Diagnostics.Debug.WriteLine(exception.Message);
             System.Diagnostics.Debug.WriteLine(exception.StackTrace);
+#endif
         }
         public void InfoFormat(string format, params object[] args)
         {
-            Error(string.Format(format, args));
+#if DEBUG            
+            Info(string.Format(format, args));
+#endif
         }
         public void Warn(object message)
         {

@@ -96,7 +96,8 @@ namespace Mariasek.SharedClient
 		{
             System.Diagnostics.Debug.WriteLine("MariasekMonoGame()");
 			Graphics = new GraphicsDeviceManager (this);
-			Content.RootDirectory = "Content";	            
+			Content.RootDirectory = "Content";
+            IsFixedTimeStep = false;
 			Graphics.IsFullScreen = true;
 			//make sure SupportedOrientations is set accordingly to ActivityAttribute.ScreenOrientation
 			Graphics.SupportedOrientations = DisplayOrientation.LandscapeRight |
