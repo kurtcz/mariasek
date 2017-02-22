@@ -159,8 +159,13 @@ namespace Mariasek.Engine.New
 
         public void Remove(Card c)
         {
-            _hand.Remove(c);
-            Update();
+            //_hand.Remove(c);
+            var index = _hand.FindIndex(i => i == c);
+            if (index >= 0)
+            {
+                _hand[index] = null;
+                Update();
+            }
         }
 
         public int RemoveAll(Predicate<Card> predicate)
@@ -170,33 +175,32 @@ namespace Mariasek.Engine.New
 
         public IEnumerable<Card> Where(Func<Card, bool> predicate)
         {
-            return _hand.Where(predicate);
+            return _hand.Where(i => i != null).Where(predicate);
         }
 
         public IEnumerable<IGrouping<TKey, Card>> GroupBy<TKey>(Func<Card, TKey> predicate)
         {
-            return _hand.GroupBy<Card, TKey>(predicate);
+            return _hand.Where(i => i != null).GroupBy<Card, TKey>(predicate);
         }
 
         public bool Any(Func<Card, bool> predicate)
         {
-            var x = _hand.GroupBy(g => g.Suit);
-            return _hand.Any(predicate);
+            return _hand.Where(i => i != null).Any(predicate);
         }
 
         public bool All(Func<Card, bool> predicate)
         {
-            return _hand.All(predicate);
+            return _hand.Where(i => i != null).All(predicate);
         }
 
         public int Count(Func<Card, bool> predicate)
         {
-            return _hand.Count(predicate);
+            return _hand.Where(i => i != null).Count(predicate);
         }
 
         public Hodnota Min(Barva suit, Barva? trump)
         {
-            var cards = _hand.Where(c => c.Suit == suit);
+            var cards = _hand.Where(i => i != null).Where(c => c.Suit == suit);
 
             if(cards.Any())
             {
@@ -207,7 +211,7 @@ namespace Mariasek.Engine.New
 
         public Hodnota Max(Barva suit, Barva? trump)
         {
-            var cards = _hand.Where(c => c.Suit == suit);
+            var cards = _hand.Where(i => i != null).Where(c => c.Suit == suit);
 
             if (cards.Any())
             {
@@ -218,40 +222,40 @@ namespace Mariasek.Engine.New
 
         public Card First(Func<Card, bool> predicate)
         {
-            return _hand.First(predicate);
+            return _hand.Where(i => i != null).First(predicate);
         }
 
         public Card FirstOrDefault(Func<Card, bool> predicate)
         {
-            return _hand.FirstOrDefault(predicate);
+            return _hand.Where(i => i != null).FirstOrDefault(predicate);
         }
 
         public Card FirstOrDefault()
         {
-            return _hand.FirstOrDefault();
+            return _hand.Where(i => i != null).FirstOrDefault();
         }
 
         public Card RandomOneOrDefault()
         {
-            return _hand.RandomOneOrDefault();
+            return _hand.Where(i => i != null).ToList().RandomOneOrDefault();
         }
 
         public static implicit operator List<Card>(Hand h)
         {
-            return h._hand;
+            return h._hand.Where(i => i != null).ToList();
         }
 
         private void Update()
         {
             foreach (var suit in Enum.GetValues(typeof(Barva)).Cast<Barva>())
             {
-                _count[suit] = _hand.Count(i => i.Suit == suit);
-                _hasSolitaryX[suit] = _hand.Any(i => i.Value == Hodnota.Desitka && i.Suit == suit) && _count[suit] == 1;
-                _hasA[suit] = _hand.Any(i => i.Value == Hodnota.Eso && i.Suit == suit);
-                _hasX[suit] = _hand.Any(i => i.Value == Hodnota.Desitka && i.Suit == suit);
-                _hasK[suit] = _hand.Any(i => i.Value == Hodnota.Kral && i.Suit == suit);
-                _hasQ[suit] = _hand.Any(i => i.Value == Hodnota.Svrsek && i.Suit == suit);
-                _has7[suit] = _hand.Any(i => i.Value == Hodnota.Sedma && i.Suit == suit);
+                _count[suit] = _hand.Where(i => i != null).Count(i => i.Suit == suit);
+                _hasSolitaryX[suit] = _hand.Where(i => i != null).Any(i => i.Value == Hodnota.Desitka && i.Suit == suit) && _count[suit] == 1;
+                _hasA[suit] = _hand.Where(i => i != null).Any(i => i.Value == Hodnota.Eso && i.Suit == suit);
+                _hasX[suit] = _hand.Where(i => i != null).Any(i => i.Value == Hodnota.Desitka && i.Suit == suit);
+                _hasK[suit] = _hand.Where(i => i != null).Any(i => i.Value == Hodnota.Kral && i.Suit == suit);
+                _hasQ[suit] = _hand.Where(i => i != null).Any(i => i.Value == Hodnota.Svrsek && i.Suit == suit);
+                _has7[suit] = _hand.Where(i => i != null).Any(i => i.Value == Hodnota.Sedma && i.Suit == suit);
             }
         }
 
@@ -302,7 +306,7 @@ namespace Mariasek.Engine.New
 
         public int CardCount(Barva suit)
         {
-            return _hand.Count(i => i.Suit == suit);
+            return _hand.Where(i => i != null).Count(i => i.Suit == suit);
         }
 
         public void Sort(bool ascending = false, bool badGameSorting = false)
@@ -319,7 +323,7 @@ namespace Mariasek.Engine.New
                 sb.AppendFormat(" {0}: ", b);
                 foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().OrderByDescending(h => h))
                 {
-                    var card = _hand.FirstOrDefault(c => c.Suit == b && c.Value == h);
+                    var card = _hand.FirstOrDefault(c => c != null && c.Suit == b && c.Value == h);
                     sb.Append(card != null ? card.CharCode : '-');
                 }
             }

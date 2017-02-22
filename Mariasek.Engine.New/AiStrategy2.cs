@@ -25,7 +25,25 @@ namespace Mariasek.Engine.New
 
         public AiStrategy2(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities)
             : base(trump, gameType, hands, rounds, teamMatesSuits, probabilities)
+        {      
+        }
+
+        //: - souper
+        //: o spoluhrac
+        //: c libovolna karta
+        //: X desitka
+        //: A eso
+
+        protected override IEnumerable<AiRule> GetRules1(Hand[] hands)
         {
+            var player2 = (MyIndex + 1) % Game.NumPlayers;
+            var player3 = (MyIndex + 2) % Game.NumPlayers;
+            var lastRound = RoundNumber >= 2 ? _rounds[RoundNumber - 2] : null;
+            var lastPlayer1 = lastRound != null ? lastRound.player1.PlayerIndex : -1;
+            var lastOpponentLeadSuit = lastRound != null ? lastRound.c1.Suit : Barva.Cerveny;
+            var isLastPlayer1Opponent = lastPlayer1 != MyIndex && lastPlayer1 != TeamMateIndex;
+
+            _bannedSuits.Clear();
             if (TeamMateIndex != -1)
             {
                 foreach (var r in _rounds.Where(i => i != null && i.c3 != null))
@@ -63,23 +81,7 @@ namespace Mariasek.Engine.New
                         _bannedSuits.Add(r.c3.Suit);
                     }
                 }
-            }        
-        }
-
-        //: - souper
-        //: o spoluhrac
-        //: c libovolna karta
-        //: X desitka
-        //: A eso
-
-        protected override IEnumerable<AiRule> GetRules1(Hand[] hands)
-        {
-            var player2 = (MyIndex + 1) % Game.NumPlayers;
-            var player3 = (MyIndex + 2) % Game.NumPlayers;
-            var lastRound = RoundNumber >= 2 ? _rounds[RoundNumber - 2] : null;
-            var lastPlayer1 = lastRound != null ? lastRound.player1.PlayerIndex : -1;
-            var lastOpponentLeadSuit = lastRound != null ? lastRound.c1.Suit : Barva.Cerveny;
-            var isLastPlayer1Opponent = lastPlayer1 != MyIndex && lastPlayer1 != TeamMateIndex;
+            }
 
             if (RoundNumber == 9)
             {
@@ -204,6 +206,7 @@ namespace Mariasek.Engine.New
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
                                                                 i.Value != Hodnota.Eso &&
                                                                 i.Suit != _trump &&
+                                                                !_bannedSuits.Contains(i.Suit) &&
                                                                 _probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0f &&
                                                                 _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0f &&
                                                                 _probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0f &&
@@ -219,6 +222,7 @@ namespace Mariasek.Engine.New
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
                                                                 i.Value != Hodnota.Eso &&
                                                                 i.Suit != _trump &&
+                                                                !_bannedSuits.Contains(i.Suit) &&
                                                                 _probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0f &&
                                                                 _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0f &&
                                                                 _probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0f &&

@@ -42,6 +42,7 @@ namespace Mariasek.Engine.New
         private ParallelOptions options = new ParallelOptions
         {
             //MaxDegreeOfParallelism = 1  //Uncomment before debugging
+            //MaxDegreeOfParallelism = Environment.ProcessorCount * 8
         };
 		public bool AdvisorMode { get; set; }
 		private Card _trumpCard;
@@ -600,23 +601,25 @@ namespace Mariasek.Engine.New
                     {
                         tempSource.Enqueue(hh);
                     }
-                    if((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
+                    if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     {
                         prematureEnd = true;
                         loopState.Stop();
                     }
-                    Interlocked.Increment(ref actualSimulations);
-                    var hands = new Hand[Game.NumPlayers + 1];
-                    for(var i = 0; i < hands.Length; i++)
+                    else
                     {
-                        hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
-                    }
-                    UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
+                        Interlocked.Increment(ref actualSimulations);
+                        var hands = new Hand[Game.NumPlayers + 1];
+                        for (var i = 0; i < hands.Length; i++)
+                        {
+                            hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
+                        }
+                        UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
 
-                    // to ?? vypada chybne
-                    var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : Hra.Sedma, 10, 1); 
-                    gameComputationResults.Enqueue(gameComputationResult);
-                    
+                        // to ?? vypada chybne
+                        var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : Hra.Sedma, 10, 1);
+                        gameComputationResults.Enqueue(gameComputationResult);
+                    }                    
                     var val = Interlocked.Increment(ref progress);
                         OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju hru"});
                 });
@@ -1411,22 +1414,25 @@ namespace Mariasek.Engine.New
                     {
                         loopState.Stop();
                     }
-                    var computationResult = ComputeGame(hands, r.c1, r.c2);
-
-                    if (!cardScores.TryAdd(computationResult.CardToPlay, new ConcurrentQueue<GameComputationResult>(new[] { computationResult })))
+                    else
                     {
-                        cardScores[computationResult.CardToPlay].Enqueue(computationResult);
-                    }
+                        var computationResult = ComputeGame(hands, r.c1, r.c2);
+
+                        if (!cardScores.TryAdd(computationResult.CardToPlay, new ConcurrentQueue<GameComputationResult>(new[] { computationResult })))
+                        {
+                            cardScores[computationResult.CardToPlay].Enqueue(computationResult);
+                        }
                     
-                    var val = Interlocked.Increment(ref progress);
-                    OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Simuluju hru"});
+                        var val = Interlocked.Increment(ref progress);
+                        OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Simuluju hru" });
 
-                    if (computationResult.Rule == AiRule.PlayTheOnlyValidCard ||
-					    computationResult.Rule.SkipSimulations ||
-					    canSkipSimulations)    //We have only one card to play, so there is really no need to compute anything
-                    {
-                        OnGameComputationProgress(new GameComputationProgressEventArgs { Current = simulations, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0});
-                        loopState.Stop();
+                        if (computationResult.Rule == AiRule.PlayTheOnlyValidCard ||
+                            computationResult.Rule.SkipSimulations ||
+                            canSkipSimulations)    //We have only one card to play, so there is really no need to compute anything
+                        {
+                            OnGameComputationProgress(new GameComputationProgressEventArgs { Current = simulations, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0 });
+                            loopState.Stop();
+                        }
                     }
                 });
                 if (_shouldMeasureThroughput) // only do this 1st time when we calculate most to get a more realistic benchmark
@@ -1792,6 +1798,7 @@ namespace Mariasek.Engine.New
             }
 
             var prob = Probabilities.Clone();
+            prob.UseDebugString = false;    //otherwise we are being really slooow
             var teamMatesSuits = new List<Barva>();
             foreach (var suit in _teamMatesSuits)
             {
