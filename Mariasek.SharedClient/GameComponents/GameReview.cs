@@ -154,7 +154,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Rounds[i][0] = new Sprite(this, Game.CardTextures, rect)
                 {
                     Position = new Vector2(200, 100 + (i + headLength) * (Hand.CardHeight + 50) + 30),
-                    ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3
+                    ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 1
                 };
                 if (Game.MainScene.g.trump.HasValue && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka))
                 {
@@ -181,7 +181,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Rounds[i][1] = new Sprite(this, Game.CardTextures, rect)
                 {
                     Position = new Vector2(200 + Hand.CardWidth - 10, 100 + (i + Mariasek.Engine.New.Game.NumPlayers + 1) * (Hand.CardHeight + 50) + 40),
-                    ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 1
+                    ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 2
                 };
                 if (Game.MainScene.g.trump.HasValue && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka))
                 {
@@ -208,7 +208,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Rounds[i][2] = new Sprite(this, Game.CardTextures, rect)
                 {
                     Position = new Vector2(200 + 2 * (Hand.CardWidth - 10), 100 + (i + headLength) * (Hand.CardHeight + 50) + 50),
-                    ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 2
+                    ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 3
                 };
                 if (Game.MainScene.g.trump.HasValue && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))
                 {
@@ -252,7 +252,7 @@ namespace Mariasek.SharedClient.GameComponents
                     Hands[i][j] = new Sprite(this, Game.CardTextures, rect)
                     {
                         Position = new Vector2(200 + j * (Hand.CardWidth - 10), 100 + i * (Hand.CardHeight + 50) + 30),
-                        ZIndex = i * Mariasek.Engine.New.Game.NumRounds + j
+                        ZIndex = i * Mariasek.Engine.New.Game.NumRounds + j + 1
                     };
                     if (hlas)
                     {
@@ -275,7 +275,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Hands[3][j] = new Sprite(this, Game.CardTextures, rect)
                 {
                     Position = new Vector2(200 + j * (Hand.CardWidth - 10), 100 + 3 * (Hand.CardHeight + 50) + 30),
-                    ZIndex = Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + j
+                    ZIndex = Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + j + 1
                 };
             }
         }

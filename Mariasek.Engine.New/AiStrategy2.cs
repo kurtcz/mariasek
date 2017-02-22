@@ -289,7 +289,9 @@ namespace Mariasek.Engine.New
                                                                                     _probabilities.CardProbability(player3, new Card(b, Hodnota.Eso)) > 0));
                         if (suits.Any())
                         {
-                            var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => suits.Contains(i.Suit) && i.Value != Hodnota.Desitka);
+                            var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => suits.Contains(i.Suit) && 
+                                                                                    i.Value != Hodnota.Desitka &&
+                                                                                    i.Value >= Hodnota.Spodek);
 
                             return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
                         }
