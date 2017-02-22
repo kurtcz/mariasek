@@ -34,6 +34,7 @@ namespace Mariasek.SharedClient.GameComponents
         }
 
         public bool IsFaceUp { get { return Sprite.IsVisible; } }
+        public Vector2 PreDragPosition { get; private set; }
 
         public CardButton(GameComponent parent)
             : base(parent)
@@ -62,6 +63,7 @@ namespace Mariasek.SharedClient.GameComponents
                 if (!Sprite.IsMoving)
                 {
                     _reverseSprite.Position = value;
+                    PreDragPosition = value;
                 }
             }
         }
@@ -205,7 +207,7 @@ namespace Mariasek.SharedClient.GameComponents
         {
 			_origPosition = Position;
 			_origTouchLocation = tl.Position;
-			System.Diagnostics.Debug.WriteLine(string.Format("{0}: DOWN state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position));
+            System.Diagnostics.Debug.WriteLine(string.Format("{0}: DOWN state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position));
         }
 
         protected override bool OnTouchHeld(float touchHeldTimeMs, TouchLocation tl)

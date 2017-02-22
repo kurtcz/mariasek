@@ -194,7 +194,8 @@ namespace Mariasek.SharedClient
                                 }
                                 var gameType = _aiPlayer.ChooseGameType(validGameTypes);
                                 var e = _g.Bidding.GetEventArgs(_aiPlayer, gameType, 0);
-                                var msg = new StringBuilder(string.Format("{0} ({1}%)\n", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1));
+                                //var msg = new StringBuilder(string.Format("{0} ({1}%)\n", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1));
+                                var msg = new StringBuilder(string.Format("{0}\n", e.Description));
                                 var i = 0;
                                 foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(j => j.RuleCount > 0))
     							{
@@ -274,7 +275,8 @@ namespace Mariasek.SharedClient
                         var temp = new Bidding(_g.Bidding);
                         temp.SetLastBidder(_aiPlayer, gameType);
                         var e = temp.GetEventArgs(_aiPlayer, gameType, 0);
-                        var msg = new StringBuilder(string.Format("{0} ({1}%)\n", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1));
+                        //var msg = new StringBuilder(string.Format("{0} ({1}%)\n", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1));
+                        var msg = new StringBuilder(string.Format("{0}\n", e.Description));
                         var i = 0;
                         foreach(var debugInfo in _aiPlayer.DebugInfo.AllChoices)
                         {                        

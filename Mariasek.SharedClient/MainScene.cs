@@ -1039,6 +1039,7 @@ namespace Mariasek.SharedClient
 					_trumpLabels[i].Text = g.players[i].Name;
 					_trumpLabels[i].Show();
 				}
+                _hlasy[0][0].Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f + 20);
 				if (File.Exists(_endGameFilePath))
 				{
 					try
@@ -1260,7 +1261,7 @@ namespace Mariasek.SharedClient
                             targetSprite.SpriteRectangle = _cardClicked.ToTextureRect();
                             targetSprite.Show();
                             button.Hide();
-                            button.Position = origPosition;
+                            button.Position = button.PreDragPosition;
                             _evt.Set();
                         });
                     _hand.IsEnabled = false;

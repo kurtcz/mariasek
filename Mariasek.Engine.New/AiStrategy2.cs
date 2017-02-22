@@ -721,7 +721,9 @@ namespace Mariasek.Engine.New
                     {
                         //-co
                         return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Desitka &&
-                                                                                  !c1.IsHigherThan(i, _trump));
+                                                                                  !c1.IsHigherThan(i, _trump) &&
+                                                                                  (i.Suit != _trump ||
+                                                                                   _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Eso)) == 0));
                     }
                     else
                     {
@@ -1023,16 +1025,23 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex == -1)
                     {
                         return ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Desitka &&
+                                                                                      (i.Suit != _trump ||
+                                                                                       (_probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Eso)) == 0 &&
+                                                                                        _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0)) &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) == i);
                     }
                     else if (TeamMateIndex == player1)
                     {
                         return ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Desitka &&
+                                                                                      (i.Suit != _trump ||
+                                                                                       _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0) &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) != c2);
                     }
                     else
                     {
                         return ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Desitka &&
+                                                                                      (i.Suit != _trump ||
+                                                                                       _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Eso)) == 0) &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) != c1);
                     }
                 }
