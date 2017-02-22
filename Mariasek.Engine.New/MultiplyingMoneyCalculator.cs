@@ -155,7 +155,7 @@ namespace Mariasek.Engine.New
                     }
                     else
                     {
-                        var mojeBody = BasicPointsWon - MaxHlasWon;
+                        var mojeBody = BasicPointsWon + MaxHlasWon;
                         var hlasyProti = PointsLost - BasicPointsLost;
 
                         HundredMoneyWon = - HundredValue * (1 << (_bidding.GameMultiplier - 1)) * (100 + hlasyProti - mojeBody) / 10;
