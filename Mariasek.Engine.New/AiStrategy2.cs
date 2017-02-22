@@ -885,7 +885,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule
             {
                 Order = 7,
-                Description = "hrát nízkou kartu",
+                Description = "hrát nízkou kartu mimo A,X",
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
                 {
@@ -904,7 +904,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule
             {
                 Order = 8,
-                Description = "hrát cokoli",
+                Description = "hrát nízkou kartu",
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
                 {
@@ -1073,7 +1073,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule
             {
                 Order = 3,
-                Description = "hraj cokoli",
+                Description = "hrát nízkou kartu",
                 SkipSimulations = true,
                 ChooseCard3 = (Card c1, Card c2) =>
                 {

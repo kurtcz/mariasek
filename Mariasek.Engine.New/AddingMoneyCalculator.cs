@@ -70,7 +70,10 @@ namespace Mariasek.Engine.New
                         }
                         else
                         {
-                            HundredAgainstMoneyWon = HundredValue * _bidding.HundredAgainstMultiplier * (100 - BasicPointsLost - MaxHlasLost) / 10;
+                            var bodyProti = BasicPointsLost + MaxHlasLost;
+                            var mojeHlasy = PointsWon - BasicPointsWon;
+
+                            HundredAgainstMoneyWon = HundredValue * _bidding.HundredAgainstMultiplier * (100 + mojeHlasy - bodyProti) / 10;
                         }
                         money += HundredAgainstMoneyWon;
                     }
@@ -152,7 +155,10 @@ namespace Mariasek.Engine.New
                     }
                     else
                     {
-                        HundredMoneyWon = - HundredValue * _bidding.GameMultiplier * (100 - BasicPointsWon - MaxHlasWon) / 10;
+                        var mojeBody = BasicPointsWon - MaxHlasWon;
+                        var hlasyProti = PointsLost - BasicPointsLost;
+
+                        HundredMoneyWon = - HundredValue * _bidding.GameMultiplier * (100 + hlasyProti - mojeBody) / 10;
                     }
                     money += HundredMoneyWon;
                 }

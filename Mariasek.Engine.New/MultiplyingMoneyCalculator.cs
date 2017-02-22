@@ -70,7 +70,10 @@ namespace Mariasek.Engine.New
                         }
                         else
                         {
-                            HundredAgainstMoneyWon = - HundredValue * (1 << (_bidding.GameMultiplier - 1) + (_bidding.HundredAgainstMultiplier - 1)) * (100 - BasicPointsLost - MaxHlasLost) / 10;
+                            var bodyProti = BasicPointsLost + MaxHlasLost;
+                            var mojeHlasy = PointsWon - BasicPointsWon;
+
+                            HundredAgainstMoneyWon = - HundredValue * (1 << (_bidding.GameMultiplier - 1) + (_bidding.HundredAgainstMultiplier - 1)) * (100 + mojeHlasy - bodyProti) / 10;
                         }
                         money += HundredAgainstMoneyWon;
                     }
@@ -152,7 +155,10 @@ namespace Mariasek.Engine.New
                     }
                     else
                     {
-                        HundredMoneyWon = - HundredValue * (1 << (_bidding.GameMultiplier - 1)) * (100 - BasicPointsWon - MaxHlasWon) / 10;
+                        var mojeBody = BasicPointsWon - MaxHlasWon;
+                        var hlasyProti = PointsLost - BasicPointsLost;
+
+                        HundredMoneyWon = - HundredValue * (1 << (_bidding.GameMultiplier - 1)) * (100 + hlasyProti - mojeBody) / 10;
                     }
                     money += HundredMoneyWon;
                 }
@@ -173,7 +179,10 @@ namespace Mariasek.Engine.New
                     }
                     else
                     {
-                        HundredAgainstMoneyWon = HundredValue * (1 << (_bidding.GameMultiplier - 1)) * (100 - BasicPointsLost - MaxHlasLost) / 10;
+                        var bodyProti = BasicPointsLost + MaxHlasLost;
+                        var mojeHlasy = PointsWon - BasicPointsWon;
+
+                        HundredAgainstMoneyWon = HundredValue * (1 << (_bidding.GameMultiplier - 1)) * (100 + mojeHlasy - bodyProti) / 10;
                     }
                     money += HundredAgainstMoneyWon;
                 }
