@@ -159,7 +159,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("SimulationsPerGameType", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "SimulationsPerGameType",
-                Value = "100"
+                Value = "500"
             });
             _aiConfig.Add("SimulationsPerGameTypePerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -174,7 +174,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "SimulationsPerRound",
-                Value = "1000"
+                Value = "500"
             });
             _aiConfig.Add("SimulationsPerRoundPerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -204,7 +204,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Sedma", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Sedma",
-                Value = "40|70|75|85|95"
+                Value = "35|65|75|85|95"
             });
             _aiConfig.Add("GameThreshold.SedmaProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -214,7 +214,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Kilo",
-                Value = "60|70|75|85|95"
+                Value = "55|75|80|85|95"
             });
             _aiConfig.Add("GameThreshold.KiloProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {

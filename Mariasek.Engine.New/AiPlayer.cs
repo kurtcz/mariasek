@@ -898,6 +898,10 @@ namespace Mariasek.Engine.New
 
 		public bool ShouldChooseBetl()
 		{
+            var talon = ChooseBetlTalon(Hand, null);                //nasimuluj talon
+            var hh = PlayerIndex == _g.GameStartingPlayerIndex 
+                                    ? Hand 
+                                    : Hand.Where(i => !talon.Contains(i)).ToList();
 			var holesPerSuit = new Dictionary<Barva, int>();
 			var hiCardsPerSuit = new Dictionary<Barva, int>();
 			foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
@@ -908,7 +912,7 @@ namespace Mariasek.Engine.New
 				foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
 				{
 					var c = new Card(b, h);
-					var n = Hand.Count(i => i.Suit == b && i.BadValue > c.BadValue && !Hand.Contains(c));
+					var n = hh.Count(i => i.Suit == b && i.BadValue > c.BadValue && !hh.Contains(c));
 
 					if (n > 0)
 					{
@@ -926,7 +930,7 @@ namespace Mariasek.Engine.New
 			if ((hiCardsPerSuit.Sum(i => i.Value) <= 4 && hiCardsPerSuit.All(i => i.Value <= 3)) ||
 			    (hiCardsPerSuit.Count(i => i.Value > 2 &&
                  holesPerSuit[i.Key] == 1 &&
-                 Hand.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key)) == 1))
+                 hh.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key)) == 1))
 			{
 				return true;
 			}
