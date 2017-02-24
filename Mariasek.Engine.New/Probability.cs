@@ -115,6 +115,20 @@ namespace Mariasek.Engine.New
             _debugString.Append("-----\n");
         }
 
+        public void Set(Hand[] hands)
+        {
+            for (var i = 0; i < _cardProbabilityForPlayer.Count(); i++)
+            {
+                foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                {
+                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+                    {
+                        _cardProbabilityForPlayer[i][b][h] = hands[i].Count(j => j.Suit == b && j.Value == h);
+                    }
+                }
+            }            
+        }
+
         public Probability Clone()
         {
             var clone = (Probability)MemberwiseClone();

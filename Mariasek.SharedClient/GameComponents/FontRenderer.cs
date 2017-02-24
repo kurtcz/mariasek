@@ -150,6 +150,11 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     dx -= lineRect.Width / 2f;
                 }
+                //vyska radku bude da nezavisle na textu
+                if (_characterMap.TryGetValue('X', out fc))
+                {
+                    lineHeight = fc.YOffset + fc.Height;
+                }
                 foreach (char c in line)
                 {
                     if (_characterMap.TryGetValue(c, out fc))
@@ -158,7 +163,7 @@ namespace Mariasek.SharedClient.GameComponents
                         var charPosition = new Vector2(dx + fc.XOffset, dy + fc.YOffset);
 
                         spriteBatch.Draw(_textures[fc.Page], charPosition, sourceRectangle, color);
-                        lineHeight = Math.Max(fc.YOffset + fc.Height, lineHeight);
+                        //lineHeight = Math.Max(fc.YOffset + fc.Height, lineHeight);
                         dx += fc.XAdvance;
                     }
                     else if (c == '\t')
@@ -172,16 +177,8 @@ namespace Mariasek.SharedClient.GameComponents
                         dx = nextTab;
                     }
                 }
-                if (lineHeight == 0)
-                {
-                    if (_characterMap.TryGetValue('X', out fc))
-                    {
-                        lineHeight = fc.YOffset + fc.Height;
-                    }
-                }
                 dx = position.X;
                 dy += lineHeight + _lineSpacing;
-                lineHeight = 0;
             }
 
             return boundsRect;

@@ -93,6 +93,7 @@ namespace Mariasek.SharedClient.GameComponents
 
             UpdateSprite();
 			Game.Activated += (sender, e) => UpdateSprite();
+            Game.GraphicsDevice.DeviceReset += (sender, e) => UpdateSprite();
         }
 
         private Vector2 LogicalToPhysical(Vector2 point)
@@ -244,7 +245,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             Game.SpriteBatch.End();
             //restore the original backbuffer as the render target
-            Game.SpriteBatch.GraphicsDevice.SetRenderTarget(null); 
+            Game.SpriteBatch.GraphicsDevice.SetRenderTarget(null);
         }
 
         public override bool CollidesWithPosition(Vector2 position)

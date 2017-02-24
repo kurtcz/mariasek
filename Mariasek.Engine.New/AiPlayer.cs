@@ -1797,7 +1797,12 @@ namespace Mariasek.Engine.New
                 trump = _g.trump;
             }
 
+            var useGeneratedHandsForProbabilities = roundsToCompute > 1;        //initial game simulations
             var prob = Probabilities.Clone();
+            if (useGeneratedHandsForProbabilities)                              //all probabilities are based on generated hands (either 0 or 1)
+            {
+                prob.Set(hands);
+            }
             prob.UseDebugString = false;    //otherwise we are being really slooow
             var teamMatesSuits = new List<Barva>();
             foreach (var suit in _teamMatesSuits)
@@ -1877,12 +1882,6 @@ namespace Mariasek.Engine.New
                     r3 = r3 != null ? r3.Description : null,
                     RoundWinnerIndex = roundWinnerIndex
                 });
-                var hlas1 = _trump.HasValue && c1.Value == Hodnota.Svrsek && hands[player1].HasK(c1.Suit);
-                var hlas2 = _trump.HasValue && c2.Value == Hodnota.Svrsek && hands[player2].HasK(c2.Suit);
-                var hlas3 = _trump.HasValue && c3.Value == Hodnota.Svrsek && hands[player3].HasK(c3.Suit);
-                UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, _teamMatesSuits, _teamMateDoubledGame);
-                UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, _teamMatesSuits, _teamMateDoubledGame);
-                UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, _teamMatesSuits, _teamMateDoubledGame);
                 _log.TraceFormat("Simulation round {2} won by {0}. Points won: {1}", _g.players[roundWinnerIndex].Name, roundScore, aiStrategy.RoundNumber);
                 if (firstTime)
                 {
@@ -1898,6 +1897,19 @@ namespace Mariasek.Engine.New
                 hands[player1].Remove(c1);
                 hands[player2].Remove(c2);
                 hands[player3].Remove(c3);
+                var hlas1 = _trump.HasValue && c1.Value == Hodnota.Svrsek && hands[player1].HasK(c1.Suit);
+                var hlas2 = _trump.HasValue && c2.Value == Hodnota.Svrsek && hands[player2].HasK(c2.Suit);
+                var hlas3 = _trump.HasValue && c3.Value == Hodnota.Svrsek && hands[player3].HasK(c3.Suit);
+                if (useGeneratedHandsForProbabilities)
+                {
+                    prob.Set(hands);
+                }
+                else
+                {
+                    UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, _teamMatesSuits, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, _teamMatesSuits, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, _teamMatesSuits, _teamMateDoubledGame);
+                }
                 aiStrategy.MyIndex = roundWinnerIndex;
                 aiStrategy.TeamMateIndex = _g.players[roundWinnerIndex].TeamMateIndex;
                 player1 = aiStrategy.MyIndex;

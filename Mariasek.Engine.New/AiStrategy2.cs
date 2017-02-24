@@ -488,7 +488,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 7,
-                Description = "hrát vítěznou X",
+                Description = "hrát vítěznou kartu",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
                 {
@@ -496,31 +496,40 @@ namespace Mariasek.Engine.New
 
                     if (TeamMateIndex == -1)
                     {
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Desitka &&
-                                                                            _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0 &&
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => (i.Suit != _trump &&            //trumfu se zbytecne nezbavovat
+                                                                             i.Value != Hodnota.Eso) &&                                                                            
+                                                                            Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                .Where(h => h > i.Value)
+                                                                                .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0) &&
                                                                             (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 1 ||
                                                                              _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&
-                                                                            _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0 &&
+                                                                            Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                .Where(h => h > i.Value)
+                                                                                .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0) &&
                                                                             (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 ||
                                                                              _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0)).ToList();
-                        return cardsToPlay.RandomOneOrDefault();
                     }
                     else if (TeamMateIndex == player2)
                     {
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Desitka &&
-                                                                            _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0 &&
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => (i.Suit != _trump &&
+                                                                             i.Value != Hodnota.Eso) &&
+                                                                            Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                .Where(h => h > i.Value)
+                                                                                .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0) &&
                                                                             (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 ||
                                                                              _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0)).ToList();
-                        return cardsToPlay.RandomOneOrDefault();
                     }
                     else
                     {
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Desitka &&
-                                                                            _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0 &&
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => (i.Suit != _trump &&
+                                                                             i.Value != Hodnota.Eso) &&
+                                                                            Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                .Where(h => h > i.Value)
+                                                                                .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0) &&
                                                                             (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 1 ||
                                                                              _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0)).ToList();
-                        return cardsToPlay.RandomOneOrDefault();
                     }
+                    return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
                 }
             };
 
