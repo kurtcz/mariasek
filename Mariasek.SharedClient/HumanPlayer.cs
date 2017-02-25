@@ -172,9 +172,9 @@ namespace Mariasek.SharedClient
                     }
                     if (_aiPlayer != null)
                     {
-						var gt2 = _aiPlayer.ChooseGameTypeNew(validGameTypes);
-						_scene.SuggestGameTypeNew(gt2);
-						_scene.SuggestGameFlavourNew(gt2);
+						//var gt2 = _aiPlayer.ChooseGameTypeNew(validGameTypes);
+						//_scene.SuggestGameTypeNew(gt2);
+						//_scene.SuggestGameFlavourNew(gt2);
 
 						_t0 = Environment.TickCount;
                         _aiTask = Task.Run(() =>
@@ -202,6 +202,8 @@ namespace Mariasek.SharedClient
                                     msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount : -1, (i++) % 3 == 2 ? "\n" : "\t"));
     							}
                                 _scene.SuggestGameType(msg.ToString(), _t1-_t0);
+                                _scene.SuggestGameTypeNew(gameType);
+                                _scene.SuggestGameFlavourNew(gameType);
                                 //nasimulovany talon musime nahradit skutecnym pokud ho uz znam, jinak to udelam v ChooseTalon
                                 if (_talon != null)
                                 {
@@ -239,6 +241,7 @@ namespace Mariasek.SharedClient
 						var msg = string.Format("{0} ({1}%)\n", flavour.ToDescription(), _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1);
 
 						_scene.SuggestGameFlavour(msg, _t1 - _t0);
+                        _scene.SuggestGameFlavourNew(flavour);
                         //nasimulovany talon musime nahradit skutecnym pokud ho uz znam, jinak to udelam v ChooseTalon
                         if(_talon != null)
                         {
@@ -264,8 +267,8 @@ namespace Mariasek.SharedClient
             }
             if (_aiPlayer != null)
             {
-				var gt2 = _aiPlayer.ChooseGameTypeNew(validGameTypes);
-				_scene.SuggestGameTypeNew(gt2);
+				//var gt2 = _aiPlayer.ChooseGameTypeNew(validGameTypes);
+				//_scene.SuggestGameTypeNew(gt2);
 
 				_t0 = Environment.TickCount;
                 _aiTask = Task.Run(() =>
@@ -283,6 +286,7 @@ namespace Mariasek.SharedClient
                             msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, _aiPlayer.DebugInfo.TotalRuleCount > 0 ?100 * debugInfo.RuleCount / debugInfo.TotalRuleCount : -1, (i++) % 4 == 3 ? "\n" : "\t"));
                         }
                         _scene.SuggestGameType(msg.ToString(), _t1 - _t0);
+                        _scene.SuggestGameTypeNew(gameType);
                     }, _cancellationTokenSource.Token);
             }
             var gt = _scene.ChooseGameType(validGameTypes);
@@ -304,7 +308,8 @@ namespace Mariasek.SharedClient
                         temp.SetLastBidder(_aiPlayer, bid);                         //nasimulovat reakci (tato operace manipuluje s vnitrnim stavem - proto pracujeme s kopii)
                         var e = temp.GetEventArgs(_aiPlayer, bid, _previousBid);    //a zformatovat ji do stringu
 
-						_scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1), _t1 - _t0);						
+						_scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1), _t1 - _t0);
+                        _scene.SuggestGameTypeNew(bid);
                     }, _cancellationTokenSource.Token);
             }
             var bd = _scene.GetBidsAndDoubles(bidding);

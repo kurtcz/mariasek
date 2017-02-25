@@ -92,7 +92,7 @@ namespace Mariasek.SharedClient
         {
         }
 
-        public MariasekMonoGame (IEmailSender emailSender)
+        public MariasekMonoGame(IEmailSender emailSender)
 		{
             System.Diagnostics.Debug.WriteLine("MariasekMonoGame()");
 			Graphics = new GraphicsDeviceManager (this);
@@ -127,10 +127,7 @@ namespace Mariasek.SharedClient
 		/// </summary>
 		protected override void Initialize ()
 		{
-
-
             System.Diagnostics.Debug.WriteLine("Initialize()");
-            // TODO: Add your initialization logic here
 
             var width = Math.Max(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             var height = Math.Min(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);

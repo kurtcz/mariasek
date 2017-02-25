@@ -89,30 +89,24 @@ namespace Mariasek.SharedClient.GameComponents
             var height = 0f;
             var linewidth = 0;
             var lineheight = 0;
+            FontChar fc;
 
+            if (_characterMap.TryGetValue('X', out fc))
+            {
+                lineheight = fc.Height + fc.YOffset;
+            }
             foreach (var line in lines)
             {
-                FontChar fc;
-
                 foreach (char c in line)
                 {
                     if (_characterMap.TryGetValue(c, out fc))
                     {
                         linewidth += fc.XAdvance;
-                        lineheight = Math.Max(fc.Height + fc.YOffset, lineheight);
-                    }
-                }
-                if (lineheight == 0)
-                {
-                    if (_characterMap.TryGetValue('X', out fc))
-                    {
-                        lineheight = fc.Height + fc.YOffset;
                     }
                 }
                 height += lineheight + _lineSpacing;
                 width = Math.Max(linewidth, width);
                 linewidth = 0;
-                lineheight = 0;
             }
 
             return new Rectangle(0, 0, (int)Math.Ceiling(width), (int)Math.Ceiling(height));

@@ -54,6 +54,7 @@ namespace Mariasek.SharedClient
         private Button _menuBtn;
         private Button _sendBtn;
         private Button _newGameBtn;
+        private Button _repeatGameBtn;
         private Button _reviewGameBtn;
         private ToggleButton _reviewGameToggleBtn;
         private Button _okBtn;
@@ -100,10 +101,10 @@ namespace Mariasek.SharedClient
         public int CurrentStartingPlayerIndex = -1;
         private Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
         public string[] PlayerNames = { "Já", "Karel", "Pepa" };
-#if __IOS__
-        private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-#elif __ANDROID__
+#if __ANDROID__
         private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+#else   //#elif __IOS__
+        private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 #endif
         private string _archivePath = Path.Combine(_path, "Archive");
         private string _historyFilePath = Path.Combine(_path, "Mariasek.history");
@@ -204,7 +205,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Sedma", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Sedma",
-                Value = "35|65|75|85|95"
+                Value = "40|60|75|85|95"
             });
             _aiConfig.Add("GameThreshold.SedmaProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -313,6 +314,27 @@ namespace Mariasek.SharedClient
                 IsEnabled = false
             };
             _overlay.TouchUp += OverlayTouchUp;
+            //tlacitka na leve strane
+            _newGameBtn = new Button(this)
+            {
+                Text = "Nová hra",
+                Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 150),
+                ZIndex = 100,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                Width = 150
+            };
+            _newGameBtn.Click += NewGameBtnClicked;
+            _newGameBtn.Hide();
+            _repeatGameBtn = new Button(this)
+            {
+                Text = "Opakovat",
+                Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 90),
+                ZIndex = 100,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                Width = 150
+            };
+            _repeatGameBtn.Click += RepeatGameBtnClicked;
+            _repeatGameBtn.Hide();
             _menuBtn = new Button(this)
             {
                 Text = "Menu",
@@ -322,44 +344,35 @@ namespace Mariasek.SharedClient
                 Width = 150
             };
             _menuBtn.Click += MenuBtnClicked;
-            _sendBtn = new Button(this)
-            {
-                Text = "Odeslat",
-                Position = new Vector2(10, Game.VirtualScreenHeight / 2f + 30),
-                ZIndex = 100,
-				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
-                Width = 150
-            };
-            _sendBtn.Click += SendBtnClicked;
             _reviewGameBtn = new Button(this)
             {
                 Text = "Průběh hry",
-                Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 150),
-                ZIndex = 90,
+                Position = new Vector2(10, Game.VirtualScreenHeight / 2f + 30),
+                ZIndex = 100,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
                 Width = 150
             };
             _reviewGameBtn.Click += ReviewGameBtnClicked;
             _reviewGameBtn.Hide();
+            //tlacitka na prave strane
+            _sendBtn = new Button(this)
+            {
+                Text = "@",
+                Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 150),
+                ZIndex = 100,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main,
+                Width = 50
+            };
+            _sendBtn.Click += SendBtnClicked;
             _reviewGameToggleBtn = new ToggleButton(this)
             {
-                Text = "Průběh hry",
-                Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 90),
-                ZIndex = 90,
-                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
-                Width = 150
+                Text = "i",
+                Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 90),
+                ZIndex = 100,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main,
+                Width = 50
             };
             _reviewGameToggleBtn.Click += ReviewGameBtnClicked;
-            _newGameBtn = new Button(this)
-            {
-                Text = "Nová hra",
-                Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 90),
-                ZIndex = 100,
-                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
-                Width = 150
-            };
-            _newGameBtn.Click += NewGameBtnClicked;
-            _newGameBtn.Hide();
             _hintBtn = new Button(this)
             {
                 Text = "?",
@@ -372,6 +385,7 @@ namespace Mariasek.SharedClient
 				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main
             };
             _hintBtn.Click += HintBtnClicked;
+            //tlacitka ve hre
             _okBtn = new Button(this)
             {
                 Text = "OK",
@@ -654,6 +668,7 @@ namespace Mariasek.SharedClient
             LoadHistory();
             Game.SettingsScene.LoadGameSettings(false);
             Background = Game.Content.Load<Texture2D>("wood2");
+            BackgroundTint = Color.DimGray;
             ClearTable(true);
         }
 
@@ -913,6 +928,12 @@ namespace Mariasek.SharedClient
             }
         }
 
+        public void RepeatGameBtnClicked(object sender)
+        {
+            File.Copy(_newGameFilePath, _savedGameFilePath);
+            LoadGame();
+        }
+
         public void NewGameBtnClicked(object sender)
         {
             CancelRunningTask();
@@ -920,6 +941,7 @@ namespace Mariasek.SharedClient
 			_trumpLabel2.Hide();
 			_trumpLabel3.Hide();
             _newGameBtn.Hide();
+            _repeatGameBtn.Hide();
             _gameTask = Task.Run(() => {
                 if (File.Exists(_errorFilePath))
                 {
@@ -984,7 +1006,6 @@ namespace Mariasek.SharedClient
 
                 _state = GameState.NotPlaying;
 
-                BackgroundTint = Color.White;
                 ClearTable(true);
                 HideMsgLabel();
                 _reviewGameBtn.Hide();
@@ -996,14 +1017,17 @@ namespace Mariasek.SharedClient
                 }
                 foreach (var btn in gtButtons)
                 {
+                    btn.BorderColor = Color.White;
                     btn.Hide();
                 }
                 foreach(var btn in gfButtons)
                 {
+                    btn.BorderColor = Color.White;
                     btn.Hide();
                 }
                 foreach(var btn in bidButtons)
                 {
+                    btn.BorderColor = Color.White;
                     btn.Hide();
                 }
                 foreach (var bubble in _bubbles)
@@ -1780,7 +1804,6 @@ namespace Mariasek.SharedClient
             Game.Money.Add(results);
             SaveHistory();
 
-            BackgroundTint = Color.DimGray;
             ClearTable(true);
             _hand.UpdateHand(new Card[0]);
             _hintBtn.IsEnabled = false;
@@ -1817,6 +1840,7 @@ namespace Mariasek.SharedClient
             _totalBalance.Text = string.Format("Celkem jsem {0}: {1}", totalWon >= 0 ? "vyhrál" : "prohrál", totalWon.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
             _totalBalance.Show();
             _newGameBtn.Show();
+            _repeatGameBtn.Show();
 
             _deck = g.GetDeckFromLastGame();
             SaveDeck();
@@ -1869,18 +1893,14 @@ namespace Mariasek.SharedClient
         {
 			//var gameToLoadString = ResourceLoader.GetEmbeddedResourceString(this.GetType().Assembly, "GameToLoad");
 
+            CancelRunningTask();
             _trumpLabel1.Hide();
-			_trumpLabel2.Hide();
-			_trumpLabel3.Hide();
-			//if(!string.IsNullOrEmpty(gameToLoadString) && g == null)
+            _trumpLabel2.Hide();
+            _trumpLabel3.Hide();
+            _newGameBtn.Hide();
+            _repeatGameBtn.Hide();
             if(g == null)
             {
-                //CreateDirectoryForFilePath(_savedGameFilePath);
-				//using (var fs = File.Open(_savedGameFilePath, FileMode.Create))
-				//using (var sw = new StreamWriter(fs))
-				//{
-				//	sw.Write(gameToLoadString);
-				//}
                 SetActive();
                 _cancellationTokenSource = new CancellationTokenSource();
                 _gameTask = Task.Run(() => 
@@ -1939,21 +1959,40 @@ namespace Mariasek.SharedClient
                     HideMsgLabel();
                     _reviewGameBtn.Hide();
                     _reviewGameToggleBtn.Show();
+                    _reviewGameToggleBtn.IsSelected = false;
                     if (_review != null)
                     {
                         _review.Hide();
                     }
                     foreach (var btn in gtButtons)
                     {
+                        btn.BorderColor = Color.White;
                         btn.Hide();
                     }
-                    foreach(var btn in gfButtons)
+                    foreach (var btn in gfButtons)
                     {
+                        btn.BorderColor = Color.White;
                         btn.Hide();
                     }
-                    foreach(var btn in bidButtons)
+                    foreach (var btn in bidButtons)
                     {
+                        btn.BorderColor = Color.White;
                         btn.Hide();
+                    }
+                    foreach (var bubble in _bubbles)
+                    {
+                        bubble.Hide();
+                    }
+                    _hand.ClearOperations();
+                    this.ClearOperations();
+                    _hintBtn.IsEnabled = false;
+                    if (_settings.HintEnabled)
+                    {
+                        _hintBtn.Show();
+                    }
+                    else
+                    {
+                        _hintBtn.Hide();
                     }
                     if(g.GameStartingPlayerIndex != 0 || g.GameType != 0)
                     {                        
@@ -2161,9 +2200,16 @@ namespace Mariasek.SharedClient
 
 		public void SuggestGameFlavourNew(Hra gameType)
 		{
-			gfDobraButton.BorderColor = (gameType & (Hra.Betl | Hra.Durch)) == 0 ? Color.Green : Color.White;
-			gfSpatnaButton.BorderColor = (gameType & (Hra.Betl | Hra.Durch)) != 0 ? Color.Green : Color.White;
+            var flavour = (gameType & (Hra.Betl | Hra.Durch)) == 0 ? GameFlavour.Good : GameFlavour.Bad;
+
+            SuggestGameFlavourNew(flavour);
 		}
+
+        public void SuggestGameFlavourNew(GameFlavour flavour)
+        {
+            gfDobraButton.BorderColor = flavour == GameFlavour.Good ? Color.Green : Color.White;
+            gfSpatnaButton.BorderColor = flavour == GameFlavour.Bad ? Color.Green : Color.White;
+        }
 
 		public void SuggestBidsAndDoubles(string bid, int? t = null)
         {
