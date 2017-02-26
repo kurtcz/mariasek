@@ -643,6 +643,8 @@ namespace Mariasek.Engine.New
                         for (; RoundNumber <= NumRounds; RoundNumber++)
                         {
                             var r = new Round(this, roundWinner);
+
+                            RoundSanityCheck();
 							DebugString.AppendFormat("Starting round {0}\n", RoundNumber);
 							OnRoundStarted(r);
 
@@ -718,6 +720,19 @@ namespace Mariasek.Engine.New
             finally
             {
                 IsRunning = false;
+            }
+        }
+
+        private void RoundSanityCheck()
+        {
+            var cardsPlayed = rounds.Where(i => i != null && i.c3 != null).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).ToList();
+
+            for (var i = 0; i < NumPlayers; i++)
+            {
+                foreach (var c in cardsPlayed)
+                {
+                    players[i].Hand.Remove(c);
+                }
             }
         }
 

@@ -210,7 +210,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.SedmaProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.SedmaProti",
-                Value = "60|70|75|85|95"
+                Value = "50|70|75|85|95"
             });
             _aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -225,7 +225,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Betl", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Betl",
-                Value = "55|65|75|85|95"
+                Value = "60|65|75|85|95"
             });
             _aiConfig.Add("GameThreshold.Durch", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -931,6 +931,7 @@ namespace Mariasek.SharedClient
         public void RepeatGameBtnClicked(object sender)
         {
             File.Copy(_newGameFilePath, _savedGameFilePath);
+            g = null;
             LoadGame();
         }
 
@@ -1699,8 +1700,10 @@ namespace Mariasek.SharedClient
                     Card lastCard;
                     AbstractPlayer lastPlayer;
                     bool lastHlas;
-                    Rectangle rect = default(Rectangle);
-
+                    Rectangle rect1 = g.CurrentRound.c1 != null ? g.CurrentRound.c1.ToTextureRect() : default(Rectangle);
+                    Rectangle rect2 = g.CurrentRound.c2 != null ? g.CurrentRound.c2.ToTextureRect() : default(Rectangle);
+                    Rectangle rect3 = g.CurrentRound.c3 != null ? g.CurrentRound.c3.ToTextureRect() : default(Rectangle);
+                    
                     if (g.CurrentRound.c3 != null)
                     {
                         lastCard = g.CurrentRound.c3;
@@ -1725,18 +1728,46 @@ namespace Mariasek.SharedClient
 					{
 						ShowThinkingMessage((lastPlayer.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
 					}
-                    rect = lastCard.ToTextureRect();
                     this.Invoke(() =>
                     {
-                        if (lastHlas)
+                        if (g.CurrentRound.c1 != null)
                         {
-                            _hlasy[lastPlayer.PlayerIndex][lastPlayer.Hlasy - 1].Sprite.SpriteRectangle = rect;
-                            _hlasy[lastPlayer.PlayerIndex][lastPlayer.Hlasy - 1].Show();
+                            if (g.CurrentRound.hlas1)
+                            {
+                                _hlasy[g.CurrentRound.player1.PlayerIndex][g.CurrentRound.player1.Hlasy - 1].Sprite.SpriteRectangle = rect1;
+                                _hlasy[g.CurrentRound.player1.PlayerIndex][g.CurrentRound.player1.Hlasy - 1].Show();
+                            }
+                            else
+                            {
+                                _cardsPlayed[g.CurrentRound.player1.PlayerIndex].SpriteRectangle = rect1;
+                                _cardsPlayed[g.CurrentRound.player1.PlayerIndex].Show();
+                            }
                         }
-                        else
+                        if (g.CurrentRound.c2 != null)
                         {
-                            _cardsPlayed[lastPlayer.PlayerIndex].SpriteRectangle = rect;
-                            _cardsPlayed[lastPlayer.PlayerIndex].Show();
+                            if (g.CurrentRound.hlas2)
+                            {
+                                _hlasy[g.CurrentRound.player2.PlayerIndex][g.CurrentRound.player2.Hlasy - 1].Sprite.SpriteRectangle = rect2;
+                                _hlasy[g.CurrentRound.player2.PlayerIndex][g.CurrentRound.player2.Hlasy - 1].Show();
+                            }
+                            else
+                            {
+                                _cardsPlayed[g.CurrentRound.player2.PlayerIndex].SpriteRectangle = rect2;
+                                _cardsPlayed[g.CurrentRound.player2.PlayerIndex].Show();
+                            }
+                        }
+                        if (g.CurrentRound.c3 != null)
+                        {
+                            if (g.CurrentRound.hlas3)
+                            {
+                                _hlasy[g.CurrentRound.player3.PlayerIndex][g.CurrentRound.player3.Hlasy - 1].Sprite.SpriteRectangle = rect3;
+                                _hlasy[g.CurrentRound.player3.PlayerIndex][g.CurrentRound.player3.Hlasy - 1].Show();
+                            }
+                            else
+                            {
+                                _cardsPlayed[g.CurrentRound.player3.PlayerIndex].SpriteRectangle = rect3;
+                                _cardsPlayed[g.CurrentRound.player3.PlayerIndex].Show();
+                            }
                         }
 
                         _hand.DeselectAllCards();
