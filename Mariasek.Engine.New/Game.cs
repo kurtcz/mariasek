@@ -48,6 +48,7 @@ namespace Mariasek.Engine.New
         public CalculationStyle CalculationStyle { get; set; }
         public bool IsRunning { get; private set; }
         public Hra GameType { get; private set; }
+        public float GameTypeConfidence { get; private set; }
         public Barva? trump { get; private set; }
         public Card TrumpCard { get; private set; }
         public List<Card> talon { get; private set; }
@@ -1035,6 +1036,7 @@ namespace Mariasek.Engine.New
                     }
                     validGameTypes = GetValidGameTypesForPlayer(nextPlayer, gameFlavour, minimalBid);
                     GameType = GameStartingPlayer.ChooseGameType(validGameTypes); //TODO: zkontrolovat ze hrac nezvolil nelegalni variantu
+                    GameTypeConfidence = GameStartingPlayer.DebugInfo.TotalRuleCount > 0 ? (float)GameStartingPlayer.DebugInfo.RuleCount / (float)GameStartingPlayer.DebugInfo.TotalRuleCount : -1f;
                     minimalBid = Hra.Durch;
                     gameTypeForPlayer[GameStartingPlayerIndex] = GameType;
                     OnGameTypeChosen(new GameTypeChosenEventArgs
@@ -1067,6 +1069,7 @@ namespace Mariasek.Engine.New
                 //hrac1 vybira normalni hru
                 validGameTypes = GetValidGameTypesForPlayer(GameStartingPlayer, GameFlavour.Good, minimalBid);
                 GameType = GameStartingPlayer.ChooseGameType(validGameTypes);
+                GameTypeConfidence = GameStartingPlayer.DebugInfo.TotalRuleCount > 0 ? (float)GameStartingPlayer.DebugInfo.RuleCount / (float)GameStartingPlayer.DebugInfo.TotalRuleCount : -1f;
                 OnGameTypeChosen(new GameTypeChosenEventArgs
                 {
                     GameStartingPlayerIndex = GameStartingPlayerIndex,
@@ -1119,7 +1122,7 @@ namespace Mariasek.Engine.New
 			}
 			foreach (var choice in players[playerIndex].DebugInfo.AllChoices.Where(i => i != null))
             {
-                BiddingDebugInfo.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, GameStartingPlayer.DebugInfo.TotalRuleCount);
+                BiddingDebugInfo.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, players[playerIndex].DebugInfo.TotalRuleCount);
             }
         }
         #endregion

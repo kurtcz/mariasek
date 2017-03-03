@@ -380,7 +380,8 @@ namespace Mariasek.Engine.New
                     var cardsToPlay = new List<Card>();
 
                     //TODO: zjistit jestli je tohle pravidlo jine pro zacinajiciho hrace a pro soupere
-                    var cards = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit != c1.Suit)
+                    var cards = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit != c1.Suit &&
+                                                                          i.Value != Hodnota.Sedma)         //sedmu nema smysl odmazavat
                                                                 .GroupBy(i => i.Suit)
                                                                 .OrderBy(g => g.Count())
                                                                 .Select(g => g.ToList()).FirstOrDefault();

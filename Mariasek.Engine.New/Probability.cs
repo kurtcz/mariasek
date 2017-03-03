@@ -908,29 +908,11 @@ namespace Mariasek.Engine.New
             switch (gameType)
             {
                 case Hra.Kilo:
-                    return Math.Min(7, 8 - myInitialTrumpCount);
+                    return Math.Min(6, 8 - myInitialTrumpCount);
                 case Hra.Sedma:
-                    switch (myInitialTrumpCount)
-                    {
-                        case 7:
-                            return 1f;
-                        case 6:
-                            return 2f;
-                        case 5:
-                            return 3f;
-                        case 4:
-                            return 4f;
-                        default:
-                            return 4.5f;
-                    }
+                    return Math.Min(5, 8 - myInitialTrumpCount);
                 default:
-                    switch (myInitialTrumpCount)
-                    {
-                        case 7:
-                            return 1f;
-                        default:
-                            return (8 - myInitialTrumpCount) / 2f;
-                    }
+                    return Math.Min(4, 8 - myInitialTrumpCount);
             }
         }
 

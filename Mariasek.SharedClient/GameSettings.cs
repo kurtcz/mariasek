@@ -20,6 +20,7 @@ namespace Mariasek.SharedClient
     {
         public bool HintEnabled { get; set; }
         public bool SoundEnabled { get; set; }
+        public bool BgSoundEnabled { get; set; }
         public SortMode SortMode { get; set; }
         public float BaseBet { get; set; }
         public int ThinkingTimeMs { get; set; }
@@ -33,6 +34,7 @@ namespace Mariasek.SharedClient
         {
             HintEnabled = true;
             SoundEnabled = true;
+            BgSoundEnabled = true;
             SortMode = SortMode.Descending;
             BaseBet = 1f;
             CalculationStyle = CalculationStyle.Adding;

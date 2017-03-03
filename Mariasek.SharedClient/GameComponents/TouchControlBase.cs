@@ -19,7 +19,7 @@ namespace Mariasek.SharedClient.GameComponents
     /// </summary>
     public abstract class TouchControlBase : GameComponent
     {
-        private const float maxClickTimeMs = 250;
+        private const float maxClickTimeMs = 500;
         private float _touchHeldTimeMs;
         private bool _touchHeldConsumed;
 		private static TouchControlBase _draggedObject;

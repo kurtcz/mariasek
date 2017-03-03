@@ -35,6 +35,7 @@ namespace Mariasek.Engine.New
         public float BaseBet { get; set; }
         public Hra GameType { get { return _gameType; } }
         public string GameTypeString { get; set; }
+        public float GameTypeConfidence { get; set; }
         public int PointsWon { get; private set; }
         public int PointsLost { get; private set; }
         public int BasicPointsWon { get; private set; }
@@ -94,6 +95,7 @@ namespace Mariasek.Engine.New
             _gameType = g.GameType;
             _trump = g.trump;
             GameTypeString = _gameType.ToDescription(null);
+            GameTypeConfidence = g.GameTypeConfidence;
             _bidding = g.Bidding;
             _gameStartingPlayerIndex = g.GameStartingPlayerIndex;
             PlayerNames = g.players.Select(i => i.Name).ToArray();

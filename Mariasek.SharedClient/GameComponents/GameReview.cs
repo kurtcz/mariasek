@@ -242,7 +242,10 @@ namespace Mariasek.SharedClient.GameComponents
                 var hand = new List<Card>(_initialHands[ii].Sort(false, Game.MainScene.g.trump.HasValue ? false : true));
 
                 Hands[i] = new Sprite[hand.Count];
-                Names[i].Text = Game.MainScene.g.players[ii].Name;
+                Names[i].Text = i == 0 ? string.Format("{0}: {1} ({2:0}%)", Game.MainScene.g.players[ii].Name, 
+                                                                            Game.MainScene.g.GameType.ToDescription(), 
+                                                                            Game.MainScene.g.GameTypeConfidence * 100) 
+                                       : Game.MainScene.g.players[ii].Name;
                 for (var j = 0; j < hand.Count; j++)
                 {
                     var rect = hand[j].ToTextureRect();

@@ -200,22 +200,22 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Hra", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Hra",
-                Value = "0|40|60|80|95"
+                Value = "0|25|50|75|95"
             });
             _aiConfig.Add("GameThreshold.Sedma", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Sedma",
-                Value = "40|60|75|85|95"
+                Value = "50|60|75|85|95"
             });
             _aiConfig.Add("GameThreshold.SedmaProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.SedmaProti",
-                Value = "50|70|75|85|95"
+                Value = "50|60|75|85|95"
             });
             _aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Kilo",
-                Value = "55|75|80|85|95"
+                Value = "70|75|80|85|95"
             });
             _aiConfig.Add("GameThreshold.KiloProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -225,7 +225,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Betl", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Betl",
-                Value = "60|65|75|85|95"
+                Value = "65|75|85|95|99"
             });
             _aiConfig.Add("GameThreshold.Durch", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -235,7 +235,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "MaxDoubleCount",
-                Value = "5"
+                Value = "3"
             });
             _aiConfig.Add("SigmaMultiplier", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -251,7 +251,8 @@ namespace Mariasek.SharedClient
             {
                 Name = "GameFlavourSelectionStrategy",
                 Value = "Fast"
-            });        }
+            });
+        }
 
         /// <summary>
         /// Allows the game component to perform any initialization it needs to before starting
@@ -2153,8 +2154,8 @@ namespace Mariasek.SharedClient
             }
             SortHand(null);
             SoundEffect.MasterVolume = _settings.SoundEnabled ? 1f : 0f;
-            Game.AmbientSound.Volume = _settings.SoundEnabled ? 0.2f : 0f;
-            Microsoft.Xna.Framework.Media.MediaPlayer.Volume = _settings.SoundEnabled ? 0.1f : 0f;
+            Game.AmbientSound.Volume = _settings.BgSoundEnabled ? 0.2f : 0f;
+            Microsoft.Xna.Framework.Media.MediaPlayer.Volume = _settings.BgSoundEnabled ? 0.1f : 0f;
 
 			var oldTextures = Game.CardTextures;
 			var newTextures = _settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
