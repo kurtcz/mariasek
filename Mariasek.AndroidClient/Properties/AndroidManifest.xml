@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="0.5" package="com.tnemec.mariasek.android" android:installLocation="auto" android:versionCode="25">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="0.5" package="com.tnemec.mariasek.android" android:installLocation="auto" android:versionCode="26">
 	<uses-sdk android:minSdkVersion="14" android:targetSdkVersion="17" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<application android:label="Mariášek"></application>

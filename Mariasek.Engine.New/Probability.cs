@@ -264,27 +264,44 @@ namespace Mariasek.Engine.New
             return (float)CNK(n, totalCards - certainCards) / (float)CNK(uncertainCards, totalCards - certainCards);
         }
 
-        public float CardHigherThanCardProbability(int playerIndex, Card c, int roundNumber)
-        {
-            if (_cardProbabilityForPlayer[playerIndex].Any(i => i.Value.Any(j => j.Value == 1f &&
-                                                                                 c.IsLowerThan(new Card(i.Key, j.Key), _trump))))
-            {
-                return 1f;
-            }
+        //public float CardHigherThanCardProbability(int playerIndex, Card c, int roundNumber)
+        //{
+        //    if (_cardProbabilityForPlayer[playerIndex].Any(i => i.Value.Any(j => j.Value == 1f &&
+        //                                                                         c.IsLowerThan(new Card(i.Key, j.Key), _trump))))
+        //    {
+        //        return 1f;
+        //    }
 
-            var uncertainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 1f));
-            var certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value == 1f));
-            var totalCards = 10 - roundNumber;
-            var hiCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value > 0f &&
-                                                                                             c.IsLowerThan(new Card(i.Key, j.Key), _trump)));
+        //    var uncertainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 1f));
+        //    var certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value == 1f));
+        //    var totalCards = 10 - roundNumber;
+        //    var hiCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value > 0f &&
+        //                                                                                     c.IsLowerThan(new Card(i.Key, j.Key), _trump)));
+        //    var hiCardsInSuit = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value > 0f &&
+        //                                                                                      c.Suit == i.Key &&
+        //                                                                                      c.Value < j.Key));
+        //    var trumps = _cardProbabilityForPlayer[playerIndex][_trump.Value].Count(i => i.Value > 0f);
 
-            return (float)(CNK(uncertainCards, totalCards - certainCards) - CNK(uncertainCards - hiCards, totalCards - certainCards)) /
-                   (float)CNK(uncertainCards, totalCards - certainCards);
-        }
+        //    return (float)(CNK(uncertainCards, totalCards - certainCards) - CNK(uncertainCards - hiCards, totalCards - certainCards)) /
+        //           (float)CNK(uncertainCards, totalCards - certainCards);
+        //}
 
         public float SuitHigherThanCardProbability(int playerIndex, Card c, int roundNumber)
         {
-            return 1 - NoSuitHigherThanCardProbability(playerIndex, c, roundNumber);
+            //if (_cardProbabilityForPlayer[playerIndex][c.Suit].Where(h => h.Key > c.Value).Any(h => h.Value == 1f))
+            //{
+            //    return 1f;
+            //}
+            //if (_cardProbabilityForPlayer[playerIndex][c.Suit].Where(h => h.Key > c.Value).All(h => h.Value == 0f))
+            //{
+            //    return 0f;
+            //}
+
+            //var uncertainHighCardsInSuit = _cardProbabilityForPlayer[playerIndex][c.Suit].Count(h => h.Key > c.Value && h.Value > 0f && h.Value < 1f);
+            //var x = (float)((1 << uncertainHighCardsInSuit) - 1) / (float)(1 << uncertainHighCardsInSuit);
+            var y = 1 - NoSuitHigherThanCardProbability(playerIndex, c, roundNumber);
+
+            return y;
         }
 
         public float NoSuitHigherThanCardProbability(int playerIndex, Card c, int roundNumber)

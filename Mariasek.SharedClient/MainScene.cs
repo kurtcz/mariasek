@@ -84,6 +84,7 @@ namespace Mariasek.SharedClient
 		private int _bubbleSemaphore;
 		private bool[] _bubbleAutoHide;
         private bool _skipBidBubble;
+        private bool _updateCardsPosition;
         private GameReview _review;
 
         #pragma warning restore 414
@@ -205,7 +206,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Sedma", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Sedma",
-                Value = "50|60|75|85|95"
+                Value = "35|55|75|85|95"
             });
             _aiConfig.Add("GameThreshold.SedmaProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -1287,7 +1288,7 @@ namespace Mariasek.SharedClient
                             targetSprite.SpriteRectangle = _cardClicked.ToTextureRect();
                             targetSprite.Show();
                             button.Hide();
-                            button.Position = button.PreDragPosition;
+                            _updateCardsPosition = true;
                             _evt.Set();
                         });
                     _hand.IsEnabled = false;
@@ -2092,7 +2093,8 @@ namespace Mariasek.SharedClient
 
         public void UpdateHand(bool flipCardsUp = false, int cardsNotRevealed = 0, Card cardToHide = null)
         {
-            _hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide);
+            _hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide, updatePosition: _updateCardsPosition);
+            _updateCardsPosition = false;
             _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
             if(flipCardsUp)
             {

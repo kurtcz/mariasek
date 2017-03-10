@@ -92,8 +92,14 @@ namespace Mariasek.SharedClient.GameComponents
             VerticalGridLineColor = Color.Gray;
 
             UpdateSprite();
-			Game.Activated += (sender, e) => UpdateSprite();
-            Game.GraphicsDevice.DeviceReset += (sender, e) => UpdateSprite();
+			//Game.Activated += (sender, e) => ScheduleSpriteUpdate();
+            Game.GraphicsDevice.DeviceReset += (sender, e) => ScheduleSpriteUpdate();
+            Game.Resumed += () => ScheduleSpriteUpdate();
+        }
+
+        private void ScheduleSpriteUpdate()
+        {
+            this.Invoke(() => UpdateSprite());
         }
 
         private Vector2 LogicalToPhysical(Vector2 point)

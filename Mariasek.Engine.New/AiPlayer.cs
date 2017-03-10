@@ -515,8 +515,9 @@ namespace Mariasek.Engine.New
             }
             else if (_gameType == Hra.Betl)
             {
-				//pokud nam vysel durch nebo pokud 
-                if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0)
+                //pouzivam vyssi prahy: pokud nam vysel durch (beru 95% prah), abych kompenzoval, ze simulace nejsou presne
+                var thresholdIndex = Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 3);    //95%
+                if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][thresholdIndex] * _durchSimulations && _durchSimulations > 0)
                 {
 					_talon = ChooseDurchTalon(Hand, null);
 					DebugInfo.RuleCount = _durchBalance;
@@ -529,6 +530,9 @@ namespace Mariasek.Engine.New
             }
             else
             {
+                //pouzivam vyssi prahy: pokud nam vysel betl nebo durch (beru 85% resp. 95% prah), abych kompenzoval, ze simulace nejsou presne
+                var betlThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Betl].Length - 1, 3);     //95%
+                var durchThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 3);    //95%
                 if ((_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0) ||
                     (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && _betlSimulations > 0))
                 {
@@ -1149,6 +1153,7 @@ namespace Mariasek.Engine.New
             Hra bid = 0;
             var gameThreshold = bidding._gameFlek < Settings.GameThresholdsForGameType[Hra.Hra].Length ? Settings.GameThresholdsForGameType[Hra.Hra][bidding._gameFlek] : 1f;
             var gameThresholdPrevious = bidding._gameFlek > 1 && bidding._gameFlek - 1 < Settings.GameThresholdsForGameType[Hra.Hra].Length ? Settings.GameThresholdsForGameType[Hra.Hra][bidding._gameFlek - 1] : 1f;
+            var gameThresholdNext = bidding._gameFlek < Settings.GameThresholdsForGameType[Hra.Hra].Length - 1 ? Settings.GameThresholdsForGameType[Hra.Hra][bidding._gameFlek + 1] : 1f;
             var sevenThreshold = bidding._sevenFlek < Settings.GameThresholdsForGameType[Hra.Sedma].Length ? Settings.GameThresholdsForGameType[Hra.Sedma][bidding._sevenFlek] : 1f;
             var hundredThreshold = bidding._gameFlek < Settings.GameThresholdsForGameType[Hra.Kilo].Length ? Settings.GameThresholdsForGameType[Hra.Kilo][bidding._gameFlek] : 1f;
             var sevenAgainstThreshold = bidding._sevenAgainstFlek < Settings.GameThresholdsForGameType[Hra.SedmaProti].Length ? Settings.GameThresholdsForGameType[Hra.SedmaProti][bidding._sevenAgainstFlek] : 1f;
@@ -1182,15 +1187,28 @@ namespace Mariasek.Engine.New
                 }
             }
             //Flekovani se u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) pokud trham (flek) nebo mam sam apson 2 hlasy
+            //nebo pokud jsem volil a mam aspon jeden hlas a trham trumfovy hlas nebo ho netrham a mam aspon dva hlasy (re)
+            //nebo pokud jsem volil sedmu a trham trumfovy hlas (re)
+            //nebo mam hlas a citim se na flek (tutti a vys)
             //nebo kolega flekoval a ja mam nejakou hlasku a citil jsem se na flek jiz minule (tutti a vys),
             //ostatni flekujeme pouze pokud zvolenou hru volici hrac nemuze uhrat
             if ((bidding.Bids & Hra.Hra) != 0 &&
-                (_gamesBalance / (float)_goodSimulations >= gameThreshold && 
-                 (Hand.HasK(_g.trump.Value) || 
-                  Hand.HasQ(_g.trump.Value) || 
-                  Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2)) || 
+                ((_gamesBalance / (float)_goodSimulations >= gameThreshold && 
+                 ((TeamMateIndex == -1 && 
+                   (Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2 ||
+                    ((Hand.HasK(_trump.Value) || 
+                      Hand.HasQ(_trump.Value)) &&
+                     (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b)) ||
+                      (_gameType & Hra.Sedma) != 0) ||
+                      (_gamesBalance / (float)_goodSimulations >= gameThresholdNext)))) ||
+                  (TeamMateIndex != -1 &&
+                   ((bidding.GameMultiplier > 2 && Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit))) ||
+                    (bidding.GameMultiplier < 2 &&
+                     (Hand.HasK(_g.trump.Value) || 
+                      Hand.HasQ(_g.trump.Value) || 
+                      Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2)))))) ||
                  (_teamMateDoubledGame && _gamesBalance / (float)_goodSimulations >= gameThresholdPrevious && 
-                  Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit))))
+                  Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit)))))
             {
                 bid |= bidding.Bids & Hra.Hra;
                 minRuleCount = Math.Min(minRuleCount, _gamesBalance);

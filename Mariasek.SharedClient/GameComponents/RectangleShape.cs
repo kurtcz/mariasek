@@ -123,6 +123,14 @@ namespace Mariasek.SharedClient.GameComponents
         public RectangleShape(GameComponent parent)
             :base (parent)
         {
+            //Game.Activated += (sender, e) => ScheduleTextureUpdate();
+            Game.GraphicsDevice.DeviceReset += (sender, e) => ScheduleTextureUpdate();
+            Game.Resumed += () => ScheduleTextureUpdate();
+        }
+
+        private void ScheduleTextureUpdate()
+        {
+            _textureUpdateNeeded = true;
         }
 
         public void UpdateTexture()

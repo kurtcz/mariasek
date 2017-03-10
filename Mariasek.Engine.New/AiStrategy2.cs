@@ -22,6 +22,7 @@ namespace Mariasek.Engine.New
 #endif   
         private new Barva _trump { get { return base._trump.Value; } } //dirty
         private List<Barva> _bannedSuits = new List<Barva>();
+        private const float _riskFactor = 0.25f;
 
         public AiStrategy2(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities)
             : base(trump, gameType, hands, rounds, teamMatesSuits, probabilities)
@@ -77,6 +78,49 @@ namespace Mariasek.Engine.New
                              r.c3.Suit == r.c1.Suit &&
                              r.roundWinner.PlayerIndex != r.player3.PlayerIndex &&
                              r.roundWinner.PlayerIndex != MyIndex)
+                    {
+                        _bannedSuits.Add(r.c3.Suit);
+                    }
+                }
+            }
+            else //TeamMateIndex == -1
+            {
+                foreach (var r in _rounds.Where(i => i != null && i.c3 != null))
+                {
+                    if (r.player1.PlayerIndex == MyIndex &&
+                        ((r.c2.Suit != r.c1.Suit &&
+                          r.c2.Suit != _trump &&
+                          (r.c2.Value == Hodnota.Eso ||
+                           r.c2.Value == Hodnota.Desitka) &&
+                           (_probabilities.CardProbability(r.player2.PlayerIndex, new Card(r.c1.Suit, Hodnota.Eso)) > 0 ||
+                            _probabilities.CardProbability(r.player2.PlayerIndex, new Card(r.c1.Suit, Hodnota.Desitka)) > 0)) ||
+                         ((r.c3.Value == Hodnota.Eso ||
+                           r.c3.Value == Hodnota.Desitka) &&
+                           (_probabilities.CardProbability(r.player3.PlayerIndex, new Card(r.c1.Suit, Hodnota.Eso)) > 0 ||
+                            _probabilities.CardProbability(r.player3.PlayerIndex, new Card(r.c1.Suit, Hodnota.Desitka)) > 0))) &&
+                        r.roundWinner.PlayerIndex != MyIndex)
+                    {
+                        _bannedSuits.Add(r.c1.Suit);
+                    }
+                    else if (r.player2.PlayerIndex == MyIndex &&
+                        (r.c3.Suit != r.c1.Suit &&
+                         r.c3.Suit != _trump &&
+                         (r.c3.Value == Hodnota.Eso ||
+                          r.c3.Value == Hodnota.Desitka) &&
+                          (_probabilities.CardProbability(r.player3.PlayerIndex, new Card(r.c1.Suit, Hodnota.Eso)) > 0 ||
+                           _probabilities.CardProbability(r.player3.PlayerIndex, new Card(r.c1.Suit, Hodnota.Desitka)) > 0)) &&
+                        r.roundWinner.PlayerIndex != MyIndex)
+                    {
+                        _bannedSuits.Add(r.c2.Suit);
+                    }
+                    else if (r.player3.PlayerIndex == MyIndex &&
+                        (r.c2.Suit != r.c1.Suit &&
+                         r.c2.Suit != _trump &&
+                         (r.c2.Value == Hodnota.Eso ||
+                          r.c2.Value == Hodnota.Desitka) &&
+                          (_probabilities.CardProbability(r.player2.PlayerIndex, new Card(r.c1.Suit, Hodnota.Eso)) > 0 ||
+                           _probabilities.CardProbability(r.player2.PlayerIndex, new Card(r.c1.Suit, Hodnota.Desitka)) > 0)) &&
+                        r.roundWinner.PlayerIndex != MyIndex)
                     {
                         _bannedSuits.Add(r.c3.Suit);
                     }
@@ -195,6 +239,7 @@ namespace Mariasek.Engine.New
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &
                                                                 i.Value != Hodnota.Eso &&
                                                                 i.Suit != _trump &&
+                                                                !_bannedSuits.Contains(i.Suit) &&
                                                                 ((_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0f &&
                                                                   _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0f) ||
                                                                  (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0f &&
@@ -245,7 +290,7 @@ namespace Mariasek.Engine.New
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = new List<Card>();
-                    const float SollitaryXThreshold = 0.25f; //odpovida dvoum moznym kartam z nichz jedna je X
+                    const float SollitaryXThreshold = _riskFactor; //odpovida dvoum moznym kartam z nichz jedna je X
 
                     if (TeamMateIndex == -1)
                     {
@@ -354,6 +399,51 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 5,
+                Description = "zkusit uhrát bodovanou kartu",
+                SkipSimulations = true,
+                ChooseCard1 = () =>
+                {
+                    if (TeamMateIndex == -1 && (_gameType & Hra.Kilo) == 0)
+                    {
+                        //c--
+                        var myPlayedCards = _rounds.Where(r => r != null && r.c3 != null)
+                                                   .Select(r =>
+                                                    {
+                                                        if (r.player1.PlayerIndex == MyIndex)
+                                                        {
+                                                            return r.c1;
+                                                        }
+                                                        else if (r.player2.PlayerIndex == MyIndex)
+                                                        {
+                                                            return r.c2;
+                                                        }
+                                                        else
+                                                        {
+                                                            return r.c3;
+                                                        }
+                                                    }).ToList();
+                        var myInitialHand = new List<Card>();
+                        myInitialHand.AddRange((List<Card>)hands[MyIndex]);
+                        myInitialHand.AddRange(myPlayedCards);
+
+                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                           (i.Value == Hodnota.Eso ||
+                                                                            (i.Value == Hodnota.Desitka &&
+                                                                             _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0 &&
+                                                                             _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0)) &&
+                                                                           _probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= _riskFactor &&
+                                                                           _probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= _riskFactor &&
+                                                                           myInitialHand.Count(j => j.Suit == i.Suit) <= 2 &&
+                                                                           myInitialHand.Count(j => j.Suit == _trump) <= 5).ToList();
+                        return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
+                    }
+                    return null;
+                }
+            };
+
+            yield return new AiRule()
+            {
+                Order = 6,
                 Description = "hrát dlouhou barvu mimo A,X,trumf",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -368,6 +458,7 @@ namespace Mariasek.Engine.New
                                             .OrderBy(b => Math.Min(_probabilities.SuitProbability(player2, b, RoundNumber),
                                                                    _probabilities.SuitProbability(player3, b, RoundNumber)))
                                             .Where(b => b != _trump &&
+                                                        !_bannedSuits.Contains(b) &&
                                                         ValidCards(hands[MyIndex]).Any(i => i.Suit == b &&
                                                                                             i.Value != Hodnota.Eso &&
                                                                                             i.Value != Hodnota.Desitka));
@@ -462,7 +553,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 6,
+                Order = 7,
                 Description = "obětuj plonkovou X",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -489,7 +580,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 7,
+                Order = 8,
                 Description = "hrát vítěznou kartu",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -537,7 +628,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 8,
+                Order = 9,
                 Description = "hrát vítězné A",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -577,7 +668,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 9,
+                Order = 10,
                 Description = "hrát cokoli mimo A,X,trumf",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -593,7 +684,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 10,
+                Order = 11,
                 Description = "hrát cokoli mimo A,X",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -607,7 +698,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 11,
+                Order = 12,
                 Description = "hrát cokoli",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -735,10 +826,12 @@ namespace Mariasek.Engine.New
                     {
                         //-co
                         return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Desitka &&
-                                                                                  !c1.IsHigherThan(i, _trump) &&
+                                                                                  c1.IsLowerThan(i, _trump) &&
                                                                                   (i.Suit != _trump ||                          //pokud to neni trumfova X
                                                                                    (hands[MyIndex].CardCount(i.Suit) <= 2 &&    //nebo pokud mam 2 a mene trumfu
-                                                                                    !hands[MyIndex].HasA(i.Suit))));            //a navic nemam trumfove A
+                                                                                    !hands[MyIndex].HasA(i.Suit) &&
+                                                                                    (c1.Suit != i.Suit ||
+                                                                                     c1.Value != Hodnota.Eso))));            //a navic nemam trumfove A
                     }
                     else
                     {
@@ -750,9 +843,11 @@ namespace Mariasek.Engine.New
                         //-c-
                         //oc-
                         return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Desitka &&
-                                                                                  (!c1.IsHigherThan(i, _trump) ||       //vitezna X
+                                                                                  (c1.IsLowerThan(i, _trump) ||       //vitezna X
                                                                                    (TeamMateIndex == player1 &&         //nebo zacinal spoluhrac
-                                                                                    !hiCards.Any())) &&                 //a hral nejvyssi kartu co ve hre zbyva
+                                                                                    !hiCards.Any() &&                   //a hral nejvyssi kartu co ve hre zbyva
+                                                                                    i.Suit != _trump)) &&               //a pokud karta neni trumfova X
+                                                                                  (c1.Suit != _trump || !hands[MyIndex].HasA(i.Suit)) && //trumfovou X hraju jen kdyz nemam A
                                                                                   _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0 &&
                                                                                   (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 ||
                                                                                    _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0));
@@ -773,7 +868,7 @@ namespace Mariasek.Engine.New
                         //-c-
                         return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                   i.Suit != _trump &&
-                                                                                  !c1.IsHigherThan(i, _trump) &&
+                                                                                  c1.IsLowerThan(i, _trump) &&
                                                                                   (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 ||
                                                                                    _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
                                                                                    _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) == 0 &&
@@ -787,7 +882,7 @@ namespace Mariasek.Engine.New
                         //-co
                         return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                   i.Suit != _trump &&
-                                                                                  !c1.IsHigherThan(i, _trump) &&
+                                                                                  c1.IsLowerThan(i, _trump) &&
                                                                                   _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) == 0);
                     }
                     else
@@ -800,7 +895,7 @@ namespace Mariasek.Engine.New
                         //oc-
                         return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                   i.Suit != _trump &&
-                                                                                  (!c1.IsHigherThan(i, _trump) ||       //vitezna X
+                                                                                  (c1.IsLowerThan(i, _trump) ||       //vitezna X
                                                                                    !hiCards.Any()) &&                   //nebo spoluhraca hral nejvyssi kartu co ve hre zbyva
                                                                                   (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 ||
                                                                                    _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
@@ -828,7 +923,7 @@ namespace Mariasek.Engine.New
                                                                          i.Value >= Hodnota.Spodek &&
                                                                          (i.Suit != _trump ||
                                                                           _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) == 0) &&
-                                                                         !c1.IsHigherThan(i, _trump) &&
+                                                                         c1.IsLowerThan(i, _trump) &&
                                                                          _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) > 0)
                                                              .OrderByDescending(i => i.Value)
                                                              .FirstOrDefault();
@@ -851,8 +946,11 @@ namespace Mariasek.Engine.New
                                                                          (i.Value == Hodnota.Desitka ||
                                                                           (i.Value == Hodnota.Eso &&        //eso namaz jen kdyz nemuzu chytit desitku nebo pri kilu (proti)
                                                                            (_probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) == 0 ||
-                                                                            (_gameType & (Hra.Kilo | Hra.KiloProti)) != 0))) &&
-                                                                         _probabilities.CardHigherThanCardProbability(player3, c1, RoundNumber) >= 0.75f)
+                                                                            (((_gameType & (Hra.Kilo | Hra.KiloProti)) != 0) &&
+                                                                             _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) < 1)))) &&
+                                                                         ((_probabilities.SuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1 - _riskFactor) ||
+                                                                          (_probabilities.SuitProbability(player3, c1.Suit, RoundNumber) <= _riskFactor &&
+                                                                           _probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 - _riskFactor)))
                                                              .OrderBy(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber))    //namaz v barve kterou souper nema
                                                              .ToList()
                                                              .FirstOrDefault();
@@ -1037,7 +1135,7 @@ namespace Mariasek.Engine.New
 
                         //zkus zahrat trumfovou sedmu nakonec pokud to jde
                         //toho docilime tak, ze v devatem kole nebudeme hrat trumfovou sedmu aby zustala do posledniho kola
-                        return cardsToPlay.FirstOrDefault(i => i.Suit != _trump || i.Value != Hodnota.Sedma) ??
+                        return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault(i => i.Suit != _trump || i.Value != Hodnota.Sedma) ??
                                cardsToPlay.ToList().RandomOneOrDefault();
                     }
                 };
@@ -1055,7 +1153,11 @@ namespace Mariasek.Engine.New
                         return ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Desitka &&
                                                                                       (i.Suit != _trump ||              //pokud to neni trumfova X
                                                                                        (!hands[MyIndex].HasA(i.Suit) && //nebo pokud mam 2 a mene trumfu a nemam trumfove A
-                                                                                        hands[MyIndex].CardCount(i.Suit) <= 2)) &&
+                                                                                        hands[MyIndex].CardCount(i.Suit) <= 2 &&
+                                                                                        (c1.Suit != i.Suit ||           //a pokud nikdo nehral trumfove eso v tomto kole
+                                                                                         c1.Value != Hodnota.Eso) &&
+                                                                                        (c2.Suit != i.Suit ||
+                                                                                         c2.Value != Hodnota.Eso))) &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) == i);
                     }
                     else if (TeamMateIndex == player1)
@@ -1063,7 +1165,11 @@ namespace Mariasek.Engine.New
                         return ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Desitka &&
                                                                                       (i.Suit != _trump ||              //pokud to neni trumfova X
                                                                                        (!hands[MyIndex].HasA(i.Suit) && //nebo pokud mam 2 a mene trumfu a nemam trumfove A
-                                                                                        hands[MyIndex].CardCount(i.Suit) <= 2)) &&
+                                                                                        hands[MyIndex].CardCount(i.Suit) <= 2 &&
+                                                                                        (c1.Suit != i.Suit ||           //a pokud nikdo nehral trumfove eso v tomto kole
+                                                                                         c1.Value != Hodnota.Eso) &&
+                                                                                        (c2.Suit != i.Suit ||
+                                                                                         c2.Value != Hodnota.Eso))) &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) != c2);
                     }
                     else
@@ -1071,7 +1177,11 @@ namespace Mariasek.Engine.New
                         return ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Desitka &&
                                                                                       (i.Suit != _trump ||              //pokud to neni trumfova X
                                                                                        (!hands[MyIndex].HasA(i.Suit) && //nebo pokud mam 2 a mene trumfu a nemam trumfove A
-                                                                                        hands[MyIndex].CardCount(i.Suit) <= 2)) &&
+                                                                                        hands[MyIndex].CardCount(i.Suit) <= 2 &&
+                                                                                        (c1.Suit != i.Suit ||           //a pokud nikdo nehral trumfove eso v tomto kole
+                                                                                         c1.Value != Hodnota.Eso) &&
+                                                                                        (c2.Suit != i.Suit ||
+                                                                                         c2.Value != Hodnota.Eso))) &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) != c1);
                     }
                 }

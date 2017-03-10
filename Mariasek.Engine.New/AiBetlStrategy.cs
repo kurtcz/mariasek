@@ -100,7 +100,7 @@ namespace Mariasek.Engine.New
 							return winner;
 						}
 					}
-                    return cardsToPlay.ToList().RandomOneOrDefault();
+                    return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                 }
             };
 

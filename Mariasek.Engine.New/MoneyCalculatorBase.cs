@@ -173,16 +173,11 @@ namespace Mariasek.Engine.New
                     lastWinningCard.Value == Hodnota.Sedma;
                     QuietSevenAgainstWon = SevenAgainstWon && (_gameType & Hra.SedmaProti) == 0;
 
-                    var gameStarterLastCard = GetGameStarterLastCard(finalRound, g.GameStartingPlayer);
-                    var killedSeven = GetKilledSeven(finalRound);
+                    var playerIndexWithKilledSeven = GetPlayerIndexWithKilledSeven(finalRound);
+                    var killedSeven = playerIndexWithKilledSeven >= 0;
 
-                    KilledSeven = killedSeven &&
-                        gameStarterLastCard.Suit == g.trump.Value &&
-                        gameStarterLastCard.Value == Hodnota.Sedma;
-
-                    KilledSevenAgainst = killedSeven &&
-                        (gameStarterLastCard.Suit != g.trump.Value ||
-                            gameStarterLastCard.Value != Hodnota.Sedma);
+                    KilledSeven = killedSeven && playerIndexWithKilledSeven == g.GameStartingPlayerIndex;
+                    KilledSevenAgainst = killedSeven && playerIndexWithKilledSeven != g.GameStartingPlayerIndex;
                 }
                 else //hra se nehrala
                 {
@@ -222,17 +217,22 @@ namespace Mariasek.Engine.New
             MoneyWon = new int[Game.NumPlayers];
         }
 
-        private bool GetKilledSeven(Round finalRound)
+        private int GetPlayerIndexWithKilledSeven(Round finalRound)
         {
             if (!_trump.HasValue)
             {
-                return false;
+                return -1;
             }
 
             var winningCard = Round.WinningCard(finalRound.c1, finalRound.c2, finalRound.c3, _trump);
             var finalCards = new [] { finalRound.c1, finalRound.c2, finalRound.c3 };
-
-            return winningCard.Value != Hodnota.Sedma && finalCards.Any(i => i.Suit == _trump.Value && i.Value == Hodnota.Sedma);
+            var playerIndexWithTrumpSeven = finalCards.ToList()
+                                             .FindIndex(i => i.Suit == _trump.Value && i.Value == Hodnota.Sedma);
+            return playerIndexWithTrumpSeven >= 0
+                    ? (winningCard.Value != Hodnota.Sedma
+                         ? playerIndexWithTrumpSeven
+                         : -1)
+                    : -1;
         }
 
         protected MoneyCalculatorBase(Game g, Bidding bidding, GameComputationResult res)
@@ -282,26 +282,6 @@ namespace Mariasek.Engine.New
                 BetlWon = res.Rounds.All(i => i.RoundWinnerIndex != _gameStartingPlayerIndex);
             }
             MoneyWon = new int[Game.NumPlayers];
-        }
-
-        private Card GetGameStarterLastCard(Round finalRound, AbstractPlayer gameStartingPlayer)
-        {
-            Card gameStarterLastCard;
-
-            if (finalRound.player1 == gameStartingPlayer)
-            {
-                gameStarterLastCard = finalRound.c1;
-            }
-            else if (finalRound.player2 == gameStartingPlayer)
-            {
-                gameStarterLastCard = finalRound.c2;
-            }
-            else
-            {
-                gameStarterLastCard = finalRound.c3;
-            }
-
-            return gameStarterLastCard;
         }
 
         public abstract void CalculateMoney();

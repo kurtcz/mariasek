@@ -97,7 +97,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
-        public void UpdateHand(IList<Card> hand, int cardsNotRevealed = 0, Card cardToHide = null)
+        public void UpdateHand(IList<Card> hand, int cardsNotRevealed = 0, Card cardToHide = null, bool updatePosition = false)
         {
             var cardStrings = new StringBuilder();
 
@@ -118,8 +118,8 @@ namespace Mariasek.SharedClient.GameComponents
                 }
 
                 var rect = hand[i].ToTextureRect();
-
-                if (_sprites[i] == null)
+                var refreshSprites = _sprites[i] == null;
+                if (refreshSprites)
                 {
                     _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures) { Name = string.Format("HandSprite{0}", i + 1), Scale = Game.CardScaleFactor})
                     { Name = string.Format("HandButton{0}", i + 1), ZIndex = 50 + i };
@@ -130,6 +130,10 @@ namespace Mariasek.SharedClient.GameComponents
                 _sprites[i].Sprite.SpriteRectangle = rect;
                 _sprites[i].Tag = hand[i];
                 _sprites[i].Sprite.Tag = hand[i];
+                if (updatePosition && !refreshSprites)
+                {
+                    _sprites[i].Position = _sprites[i].PreDragPosition;
+                }
                 if((Card)_sprites[i].Tag == cardToHide)
                 {
                     _sprites[i].Hide();
