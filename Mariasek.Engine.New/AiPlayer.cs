@@ -1238,7 +1238,11 @@ namespace Mariasek.Engine.New
             //nebo pokud jsem volil trumf a v simulacich ani jednou nevysla
             //?! Pokud bych chtel simulovat sance na to, ze volici hrac hlasenou sedmu neuhraje, tak musim nejak generovat "karty na sedmu" (aspon 4-5 trumfu) a ne nahodne karty
             if ((bidding.Bids & Hra.SedmaProti) != 0 &&
-                ((PlayerIndex != _g.GameStartingPlayerIndex && _sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold && Hand.CardCount(_g.trump.Value) >= 3) ||
+                (//(PlayerIndex != _g.GameStartingPlayerIndex && _sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold && Hand.CardCount(_g.trump.Value) >= 3) ||
+                 (PlayerIndex != _g.GameStartingPlayerIndex && 
+                  ((Hand.CardCount(_g.trump.Value) >= 4 &&              //neohlizej se na simulace, sedmu proti hlasim kdyz mam aspon 4 trumfy a vsechny barvy nebo aspon 5 trumfu
+                   Hand.Select(i => i.Suit).Distinct().Count() == 4) ||
+                   Hand.CardCount(_g.trump.Value) >= 5)) ||
 			     (PlayerIndex == _g.GameStartingPlayerIndex && _sevensAgainstBalance == _goodSimulations)))
             {
                 //if (_numberOfDoubles == 1 && PlayerIndex != _g.GameStartingPlayerIndex)

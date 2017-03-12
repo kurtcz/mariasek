@@ -1288,7 +1288,8 @@ namespace Mariasek.SharedClient
                             targetSprite.SpriteRectangle = _cardClicked.ToTextureRect();
                             targetSprite.Show();
                             button.Hide();
-                            _updateCardsPosition = true;
+                            //button.Position = button.PreDragPosition;
+                            //_updateCardsPosition = true;
                             _evt.Set();
                         });
                     _hand.IsEnabled = false;
@@ -2093,7 +2094,7 @@ namespace Mariasek.SharedClient
 
         public void UpdateHand(bool flipCardsUp = false, int cardsNotRevealed = 0, Card cardToHide = null)
         {
-            _hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide, updatePosition: _updateCardsPosition);
+            _hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide);
             _updateCardsPosition = false;
             _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
             if(flipCardsUp)

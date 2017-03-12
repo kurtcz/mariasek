@@ -97,7 +97,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
-        public void UpdateHand(IList<Card> hand, int cardsNotRevealed = 0, Card cardToHide = null, bool updatePosition = false)
+        public void UpdateHand(IList<Card> hand, int cardsNotRevealed = 0, Card cardToHide = null)
         {
             var cardStrings = new StringBuilder();
 
@@ -130,10 +130,6 @@ namespace Mariasek.SharedClient.GameComponents
                 _sprites[i].Sprite.SpriteRectangle = rect;
                 _sprites[i].Tag = hand[i];
                 _sprites[i].Sprite.Tag = hand[i];
-                if (updatePosition && !refreshSprites)
-                {
-                    _sprites[i].Position = _sprites[i].PreDragPosition;
-                }
                 if((Card)_sprites[i].Tag == cardToHide)
                 {
                     _sprites[i].Hide();
@@ -239,6 +235,7 @@ namespace Mariasek.SharedClient.GameComponents
         {
             var hh = _sprites.Where(i => i != null && i.IsVisible).ToList();
             float angle0 = (float)Math.PI / 2;
+            var targetPosition = Vector2.Zero;
             var r = 300f;
 
             var cardsToSkip = (12 - hh.Count) / 2;
@@ -246,10 +243,15 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 var angle = angle0 - arcAngle / 12 * (i /*+ cardsToSkip*/ - hh.Count()/2.0f/* + 0.5f*/);
                 float rotationAngle = -angle + (float)Math.PI / 2;
-                var targetPosition = new Vector2(Centre.X + r * (float)Math.Cos(angle),
-                                                 Centre.Y + r * 0.75f - r * (float)Math.Sin(angle));
+                targetPosition = new Vector2(Centre.X + r * (float)Math.Cos(angle),
+                                             Centre.Y + r * 0.75f - r * (float)Math.Sin(angle));
 
                 hh[i].Slerp(targetPosition, rotationAngle, Game.CardScaleFactor.X, 400, 2f, 1f);
+            }
+            var hiddenCards = _sprites.Where(i => i != null && !i.IsVisible).ToList();
+            for (var i = 0; i < hiddenCards.Count; i++)
+            {
+                hiddenCards[i].Position = targetPosition;
             }
             IsStraight = false;
             AnimationEvent.Reset();
@@ -261,6 +263,7 @@ namespace Mariasek.SharedClient.GameComponents
             var padding = 10;
             /* This code shows cards in one row */
             float rowWidth = CardWidth * hh.Count + padding * (hh.Count - 1);
+            var targetPosition = Vector2.Zero;
 
             if (rowWidth > width - CardWidth)
             {
@@ -272,10 +275,15 @@ namespace Mariasek.SharedClient.GameComponents
                                 ? -rowWidth / 2f + i * rowWidth / (hh.Count - 1)
                                 : -rowWidth / 2f;
                 var y_offset = 0;
-                var targetPosition = new Vector2(Centre.X + x_offset, Centre.Y + y_offset);
                 var targetAngle = 0f;
+                targetPosition = new Vector2(Centre.X + x_offset, Centre.Y + y_offset);
 
                 hh[i].Slerp(targetPosition, targetAngle, Game.CardScaleFactor.X, 400, 2f, 1f);
+            }
+            var hiddenCards = _sprites.Where(i => i != null && !i.IsVisible).ToList();
+            for (var i = 0; i < hiddenCards.Count; i++)
+            {
+                hiddenCards[i].Position = targetPosition;
             }
             IsStraight = true;
 
