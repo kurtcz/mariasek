@@ -30,11 +30,11 @@ namespace Mariasek.Engine.New
 
         public AddingMoneyCalculator(Game g, Bidding bidding, GameComputationResult res)
             : base(g, bidding, res)
-        {            
+        {
         }
 
         public AddingMoneyCalculator(Hra gameType, Barva? trump, int gameStartingPlayerIndex, Bidding bidding, GameComputationResult res)
-            :base(gameType, trump, gameStartingPlayerIndex, bidding, res)
+            : base(gameType, trump, gameStartingPlayerIndex, bidding, res)
         {
         }
 
@@ -56,7 +56,7 @@ namespace Mariasek.Engine.New
                     }
                     else
                     {
-                        GameMoneyWon = - GameValue * _bidding.GameMultiplier;
+                        GameMoneyWon = -GameValue * _bidding.GameMultiplier;
                         if (QuietHundredAgainstWon)
                         {
                             GameMoneyWon = 2 * GameMoneyWon * (PointsLost - 90) / 10;
@@ -66,7 +66,7 @@ namespace Mariasek.Engine.New
                     {
                         if (HundredAgainstWon)
                         {
-                            GameMoneyWon = 2 * GameMoneyWon * (PointsLost - 90) / 10;
+                            HundredAgainstMoneyWon = 2 * GameMoneyWon * (PointsLost - 90) / 10;
                         }
                         else
                         {
@@ -142,7 +142,7 @@ namespace Mariasek.Engine.New
                     }
                     else
                     {
-                        KilledSevenMoneyWon = - KilledSevenValue;
+                        KilledSevenMoneyWon = -KilledSevenValue;
                     }
                     money += KilledSevenMoneyWon;
                 }
@@ -158,7 +158,7 @@ namespace Mariasek.Engine.New
                         var mojeBody = BasicPointsWon + MaxHlasWon;
                         var hlasyProti = PointsLost - BasicPointsLost;
 
-                        HundredMoneyWon = - HundredValue * _bidding.GameMultiplier * (100 + hlasyProti - mojeBody) / 10;
+                        HundredMoneyWon = -HundredValue * _bidding.GameMultiplier * (100 + hlasyProti - mojeBody) / 10;
                     }
                     money += HundredMoneyWon;
                 }
@@ -186,173 +186,13 @@ namespace Mariasek.Engine.New
             {
                 if (i == _gameStartingPlayerIndex)
                 {
-                    MoneyWon[i] = 2*money;
+                    MoneyWon[i] = 2 * money;
                 }
                 else
                 {
                     MoneyWon[i] = -money;
                 }
             }
-        }
-
-        enum Genre
-        {
-            Masculine,
-            Feminine,
-            Neutral
-        }
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-
-            if (!GamePlayed)
-            {
-                sb.Append("Nehrálo se\t»»»»»»\n");
-            }
-            else
-            {
-                if (MoneyWon[0] > 0)
-                {
-                    sb.Append("Vyhráls ...\t»»»»»»\n");
-                }
-                else if (MoneyWon[0] < 0)
-                {
-                    sb.Append("Prohráls ...\t»»»»»»\n");
-                }
-            }
-            foreach (var gt in Enum.GetValues(typeof(Hra)).Cast<Hra>().Where(i => (_gameType & i) != 0))
-            {
-                var won = false;
-                var multiplier = 0;
-                var genre = Genre.Masculine;
-                var status = string.Empty;
-                var other = string.Empty;
-                var score = string.Empty;
-                var money = 0;
-
-                switch (gt)
-                {
-                    case Hra.Hra:
-                        won = GameWon;
-                        genre = Genre.Feminine;
-                        multiplier = _bidding.GameMultiplier;
-                        money = GameMoneyWon;
-                        score = string.Format("Skóre: {0}:{1}\t \n", PointsWon, PointsLost);
-                        break;
-                    case Hra.Sedma:
-                        won = SevenWon;
-                        genre = Genre.Feminine;
-                        multiplier = _bidding.SevenMultiplier;
-                        money = SevenMoneyWon + KilledSevenMoneyWon;
-                        other = KilledSeven ? " zabitá" : string.Empty;
-                        break;
-                    case Hra.Kilo:
-                        won = HundredWon;
-                        genre = Genre.Neutral;
-                        multiplier = _bidding.GameMultiplier;
-                        money = HundredMoneyWon;
-                        score = string.Format("Skóre: {0}:{1}{2}\t \n", PointsWon, PointsLost, won ? string.Empty : string.Format("\nDo kila schází: {0} bodů", 100 - (BasicPointsWon + MaxHlasWon)));
-                        break;
-                    case Hra.SedmaProti:
-                        won = SevenAgainstWon;
-                        genre = Genre.Feminine;
-                        multiplier = _bidding.SevenAgainstMultiplier;
-                        money = SevenAgainstMoneyWon;
-                        other = KilledSeven ? " zabitá" : string.Empty;
-                        break;
-                    case Hra.KiloProti:
-                        won = HundredAgainstWon;
-                        genre = Genre.Neutral;
-                        multiplier = _bidding.HundredAgainstMultiplier;
-                        money = HundredAgainstMoneyWon;
-                        break;
-                    case Hra.Betl:
-                        won = BetlWon;
-                        genre = Genre.Masculine;
-                        multiplier = _bidding.BetlDurchMultiplier;
-                        money = BetlMoneyWon;
-                        break;
-                    case Hra.Durch:
-                        won = DurchWon;
-                        genre = Genre.Masculine;
-                        multiplier = _bidding.BetlDurchMultiplier;
-                        money = DurchMoneyWon;
-                        break;
-                }
-                switch(genre)
-                {
-                    case Genre.Masculine:
-                        status = won ? "Vyhranej" : "Prohranej";
-                        break;
-                    case Genre.Feminine:
-                        status = won ? "Vyhraná" : "Prohraná";
-                        break;
-                    case Genre.Neutral:
-                        status = won ? "Vyhraný" : "Prohraný";
-                        break;
-                }
-
-                if ((gt & (Hra.SedmaProti | Hra.KiloProti)) == 0)
-                {
-                    sb.AppendFormat("{0}: ", PlayerNames[_gameStartingPlayerIndex]);
-                }
-                sb.AppendFormat("{0} {1}{2}{3}\t{4}\n{5}", 
-                    status, 
-                    gt.ToString().ToLower(), 
-                    multiplier > 1 ? string.Format(" ({0}x flek)", MultiplierToDoubleCount(multiplier)) : string.Empty, 
-                    other, 
-                    (money * BaseBet).ToString("C", _ci),
-                    score);
-            }
-            if (QuietHundredWon)
-            {
-                sb.AppendFormat("Tichý kilo ({0} bodů)\t{1}\n", PointsWon, (QuietHundredMoneyWon * BaseBet).ToString("C", _ci));
-            }
-            if (QuietHundredAgainstWon)
-            {
-                sb.AppendFormat("Tichý kilo proti ({0} bodů)\t{1}\n", PointsLost, (QuietHundredAgainstMoneyWon * BaseBet).ToString("C", _ci));
-            }
-            if (QuietSevenWon)
-            {
-                sb.AppendFormat("Tichá sedma\t{0}\n", (QuietSevenMoneyWon * BaseBet).ToString("C", _ci));
-            }
-            if (KilledSeven && (_gameType & Hra.Sedma) == 0)
-            {
-                sb.AppendFormat("Tichá sedma zabitá\t{0}\n", (KilledSevenMoneyWon * BaseBet).ToString("C", _ci));
-            }
-            if (QuietSevenAgainstWon)
-            {
-                sb.AppendFormat("Tichá sedma proti\t{0}\n", (QuietSevenAgainstMoneyWon * BaseBet).ToString("C", _ci));
-            }
-            if (KilledSevenAgainst && (_gameType & Hra.SedmaProti) == 0)
-            {
-                sb.AppendFormat("Tichá sedma proti zabitá\t{0}\n", (KilledSevenAgainstMoneyWon * BaseBet).ToString("C", _ci));
-            }
-            if (_trump.HasValue && _trump.Value == Barva.Cerveny)
-            {
-                sb.AppendFormat("V červenejch:\t{0}\n", (MoneyWon[_gameStartingPlayerIndex] / 2 * BaseBet).ToString("C", _ci));
-            }
-            for (var i = 0; i < Game.NumPlayers; i++)
-            {
-                sb.AppendFormat("\n{0}:\t{1}",
-                    PlayerNames[(_gameStartingPlayerIndex + i) % Game.NumPlayers], (MoneyWon[(_gameStartingPlayerIndex + i) % Game.NumPlayers] * BaseBet).ToString("C", _ci));
-            }
-
-            return sb.ToString();
-        }
-
-        private int MultiplierToDoubleCount(int multiplier)
-        {
-            for(var i = 0; multiplier != 0; i++, multiplier >>= 1)
-            {
-                if((multiplier & 1) != 0)
-                {
-                    return i;
-                }
-            }
-
-            return 0;
         }
     }
 }

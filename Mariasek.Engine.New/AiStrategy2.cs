@@ -458,7 +458,7 @@ namespace Mariasek.Engine.New
                                             .OrderBy(b => Math.Min(_probabilities.SuitProbability(player2, b, RoundNumber),
                                                                    _probabilities.SuitProbability(player3, b, RoundNumber)))
                                             .Where(b => b != _trump &&
-                                                        !_bannedSuits.Contains(b) &&
+                                                        !_bannedSuits.Contains(b) &&                                                    
                                                         ValidCards(hands[MyIndex]).Any(i => i.Suit == b &&
                                                                                             i.Value != Hodnota.Eso &&
                                                                                             i.Value != Hodnota.Desitka));
@@ -489,10 +489,10 @@ namespace Mariasek.Engine.New
                                                                                             i.Value != Hodnota.Eso &&
                                                                                             i.Value != Hodnota.Desitka &&
                                                                                             Enum.GetValues(typeof(Hodnota))                 //musi byt sance, ze spoluhrac ma
-                                                                                                .Cast<Hodnota>().Any(h => h > i.Value &&    //v barve i neco jineho nez A nebo X
-                                                                                                                          h != Hodnota.Eso &&
-                                                                                                                          h != Hodnota.Desitka &&
-                                                                                                                          _probabilities.CardProbability(player2, new Card(i.Suit, h)) > 0)));
+                                                                                                .Cast<Hodnota>().Count(h => h > i.Value &&    //v barve i neco jineho nez A nebo X
+                                                                                                                            h != Hodnota.Eso &&
+                                                                                                                            h != Hodnota.Desitka &&
+                                                                                                                            _probabilities.CardProbability(player2, new Card(i.Suit, h)) > 0) > 2));
                             if (suits.Any())
                             {
                                 var preferredSuits = suits.Where(b => _teamMatesSuits.Contains(b)).ToList();
@@ -526,10 +526,10 @@ namespace Mariasek.Engine.New
                                                                                             i.Value != Hodnota.Eso &&
                                                                                             i.Value != Hodnota.Desitka &&
                                                                                             Enum.GetValues(typeof(Hodnota))                 //musi byt sance, ze spoluhrac ma
-                                                                                                .Cast<Hodnota>().Any(h => h > i.Value &&    //v barve i neco jineho nez A nebo X
-                                                                                                                          h != Hodnota.Eso &&
-                                                                                                                          h != Hodnota.Desitka &&
-                                                                                                                          _probabilities.CardProbability(player3, new Card(i.Suit, h)) > 0)));
+                                                                                                .Cast<Hodnota>().Count(h => h > i.Value &&    //v barve i neco jineho nez A nebo X
+                                                                                                                            h != Hodnota.Eso &&
+                                                                                                                            h != Hodnota.Desitka &&
+                                                                                                                            _probabilities.CardProbability(player3, new Card(i.Suit, h)) > 0) > 2));
                             if (suits.Any())
                             {
                                 var preferredSuits = suits.Where(b => _teamMatesSuits.Contains(b)).ToList();
