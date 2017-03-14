@@ -84,7 +84,6 @@ namespace Mariasek.SharedClient.GameComponents
             : base(parent)
         {
             _clickableArea = new ClickableArea(this);
-            Position = Vector2.Zero;
             Width = 100;
             Height = 100;
             ScrollBarColor = Color.White;

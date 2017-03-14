@@ -40,6 +40,24 @@ namespace Mariasek.SharedClient.GameComponents
             return gameComponent.MoveToImpl(targetPosition, speed) as T;
         }
 
+        public static T Fade<T>(this T gameComponent, float targetOpacity, float speed = 1f)
+            where T : GameComponent
+        {
+            return gameComponent.FadeImpl(targetOpacity, speed) as T;
+        }
+
+        public static T FadeIn<T>(this T gameComponent, float speed = 1f)
+            where T : GameComponent
+        {
+            return gameComponent.FadeImpl(1f, speed) as T;
+        }
+
+        public static T FadeOut<T>(this T gameComponent, float speed = 1f)
+            where T : GameComponent
+        {
+            return gameComponent.FadeImpl(0f, speed) as T;
+        }
+
         public static T ScaleTo<T>(this T sprite, float targetScale, float speed = 1f)
             where T : Sprite
         {

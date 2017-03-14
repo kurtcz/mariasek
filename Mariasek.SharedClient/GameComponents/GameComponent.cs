@@ -12,7 +12,6 @@ namespace Mariasek.SharedClient
 	public partial class GameComponent : Microsoft.Xna.Framework.GameComponent
     {
         private GameComponent _parent;
-		private bool _disposed;
         protected new MariasekMonoGame Game;
         protected List<GameComponent> Children = new List<GameComponent>();
 		public IReadOnlyCollection<GameComponent> ChildElements { get { return Children; } }
@@ -25,6 +24,7 @@ namespace Mariasek.SharedClient
             public int WaitMs;
             public Vector2 Position { get; set; }
             public float Speed { get; set; }
+            public float Opacity { get; set; }
         }
         protected class GameComponentOperationType
         {
@@ -32,6 +32,7 @@ namespace Mariasek.SharedClient
             public const int Condition = 2;
             public const int Wait = 4;
             public const int Move = 8;
+            public const int Fade = 16;
         }
         private DateTime? _waitEnd;
 
@@ -59,6 +60,7 @@ namespace Mariasek.SharedClient
 				_isVisible = value;
 			}
 		}
+        public virtual float Opacity { get; set; }
         public GameComponent Parent
         { 
             get { return _parent; }
@@ -194,10 +196,10 @@ namespace Mariasek.SharedClient
         public GameComponent WaitUntilImpl(Func<bool> condition)
         {
             ScheduledOperations.Enqueue(new GameComponentOperation
-                {
-                    OperationType = GameComponentOperationType.Condition,
-                    ConditionFunc = condition
-                });
+            {
+                OperationType = GameComponentOperationType.Condition,
+                ConditionFunc = condition
+            });
 
             return this;
         }
@@ -205,10 +207,10 @@ namespace Mariasek.SharedClient
         public GameComponent InvokeImpl(Action handler)
         {
             ScheduledOperations.Enqueue(new GameComponentOperation
-                {
-                    OperationType = GameComponentOperationType.Action,
-                    ActionHandler = handler
-                });
+            {
+                OperationType = GameComponentOperationType.Action,
+                ActionHandler = handler
+            });
 
             return this;
         }
@@ -216,10 +218,10 @@ namespace Mariasek.SharedClient
         public GameComponent WaitImpl(int milliseconds)
         {
             ScheduledOperations.Enqueue(new GameComponentOperation
-                {
-                    OperationType = GameComponentOperationType.Wait,
-                    WaitMs = milliseconds
-                });
+            {
+                OperationType = GameComponentOperationType.Wait,
+                WaitMs = milliseconds
+            });
 
             return this;
         }
@@ -227,15 +229,26 @@ namespace Mariasek.SharedClient
         public GameComponent MoveToImpl(Vector2 targetPosition, float speed = 100f)
         {
             ScheduledOperations.Enqueue(new GameComponentOperation
-                {
-                    OperationType = GameComponentOperationType.Move,
-                    Position = targetPosition,
-                    Speed = speed
-                });
+            {
+                OperationType = GameComponentOperationType.Move,
+                Position = targetPosition,
+                Speed = speed
+            });
 
             return this;
         }
 
+        public GameComponent FadeImpl(float targetOpacity, float speed = 100f)
+        {
+            ScheduledOperations.Enqueue(new GameComponentOperation
+            {
+                OperationType = GameComponentOperationType.Fade,
+                Opacity = targetOpacity,
+                Speed = speed
+            });
+
+            return this;
+        }
 
         public void ClearOperations()
         {
@@ -263,7 +276,9 @@ namespace Mariasek.SharedClient
 
                 var moveVector = Vector2.Subtract(operation.Position, Position);
                 var normalizedDirection = moveVector.Length() == 0 ? moveVector : Vector2.Normalize(moveVector);
+                var fadeDirection = Math.Sign(operation.Opacity - Opacity);
                 var positionDiff = operation.Speed * deltaTime * normalizedDirection;
+                var fadeDiff = operation.Speed * deltaTime * fadeDirection;
 
                 if (operation.OperationType == GameComponentOperationType.Wait)
                 {
@@ -291,6 +306,25 @@ namespace Mariasek.SharedClient
                         operation.ActionHandler();
                     }
                     ScheduledOperations.TryDequeue(out operation);
+                }
+                else if (operation.OperationType == GameComponentOperationType.Fade)
+                {
+                    if (fadeDiff != 0)
+                    {
+                        if ((fadeDiff > 0 && Opacity + fadeDiff > operation.Opacity) ||
+                            (fadeDiff < 0 && Opacity + fadeDiff < operation.Opacity))
+                        {
+                            Opacity = operation.Opacity;
+                        }
+                        else
+                        {
+                            Opacity += fadeDiff;
+                        }
+                    }
+                    if (Opacity == operation.Opacity)
+                    {
+                        ScheduledOperations.TryDequeue(out operation);
+                    }
                 }
                 else if (operation.OperationType == GameComponentOperationType.Move)
                 {

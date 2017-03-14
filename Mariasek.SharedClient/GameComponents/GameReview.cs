@@ -16,6 +16,7 @@ namespace Mariasek.SharedClient.GameComponents
         public Label[] RoundNum;
         public Label[][] Labels;
         private Color _backgroundColor;
+        private bool _positionSet;
         public Color BackgroundColor
         {
             get { return _backgroundColor; }
@@ -30,6 +31,91 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
+        public override float Opacity
+        {
+            get { return base.Opacity; }
+            set
+            {
+                base.Opacity = value;
+                if (Hands != null)
+                {
+                    for (var i = 0; i < Hands.Length; i++)
+                    {
+                        if (Hands[i] == null)
+                        {
+                            continue;
+                        }
+                        for (var j = 0; j < Hands[i].Length; j++)
+                        {
+                            if (Hands[i][j] == null)
+                            {
+                                continue;
+                            }
+                            Hands[i][j].Opacity = value;
+                        }
+                    }
+                }
+                if (Rounds != null)
+                {
+                    for (var i = 0; i < Rounds.Length; i++)
+                    {
+                        if (Rounds[i] == null)
+                        {
+                            continue;
+                        }
+                        for (var j = 0; j < Rounds[i].Length; j++)
+                        {
+                            if (Rounds[i][j] == null)
+                            {
+                                continue;
+                            }
+                            Rounds[i][j].Opacity = value;
+                        }
+                    }
+                }
+                if (Names != null)
+                {
+                    for (var i = 0; i < Names.Length; i++)
+                    {
+                        if (Names[i] == null)
+                        {
+                            continue;
+                        }
+                        Names[i].Opacity = value;
+                    }
+                }
+                if (RoundNum != null)
+                {
+                    for (var i = 0; i < RoundNum.Length; i++)
+                    {
+                        if (RoundNum[i] == null)
+                        {
+                            continue;
+                        }
+                        RoundNum[i].Opacity = value;
+                    }
+                }
+                if (Labels != null)
+                {
+                    for (var i = 0; i < Labels.Length; i++)
+                    {
+                        if (Labels[i] == null)
+                        {
+                            continue;
+                        }
+                        for (var j = 0; j < Labels[i].Length; j++)
+                        {
+                            if (Labels[i][j] == null)
+                            {
+                                continue;
+                            }
+                            Labels[i][j].Opacity = value;
+                        }
+                    }
+                }
+            }
+        }
+
         public override Vector2 Position
         {
             get
@@ -38,11 +124,93 @@ namespace Mariasek.SharedClient.GameComponents
             }
             set
             {
+                var positionDiff = value - base.Position;
+
                 base.Position = value;
                 if (_background != null)
                 {
                     _background.Position = value;
                 }
+                if (_positionSet)
+                {
+                    if (Hands != null)
+                    {
+                        for (var i = 0; i < Hands.Length; i++)
+                        {
+                            if (Hands[i] == null)
+                            {
+                                continue;
+                            }
+                            for (var j = 0; j < Hands[i].Length; j++)
+                            {
+                                if (Hands[i][j] == null)
+                                {
+                                    continue;
+                                }
+                                Hands[i][j].Position += positionDiff;
+                            }
+                        }
+                    }
+                    if (Rounds != null)
+                    {
+                        for (var i = 0; i < Rounds.Length; i++)
+                        {
+                            if (Rounds[i] == null)
+                            {
+                                continue;
+                            }
+                            for (var j = 0; j < Rounds[i].Length; j++)
+                            {
+                                if (Rounds[i][j] == null)
+                                {
+                                    continue;
+                                }
+                                Rounds[i][j].Position += positionDiff;
+                            }
+                        }
+                    }
+                    if (Names != null)
+                    {
+                        for (var i = 0; i < Names.Length; i++)
+                        {
+                            if (Names[i] == null)
+                            {
+                                continue;
+                            }
+                            Names[i].Position += positionDiff;
+                        }
+                    }
+                    if (RoundNum != null)
+                    {
+                        for (var i = 0; i < RoundNum.Length; i++)
+                        {
+                            if (RoundNum[i] == null)
+                            {
+                                continue;
+                            }
+                            RoundNum[i].Position += positionDiff;
+                        }
+                    }
+                    if (Labels != null)
+                    {
+                        for (var i = 0; i < Labels.Length; i++)
+                        {
+                            if (Labels[i] == null)
+                            {
+                                continue;
+                            }
+                            for (var j = 0; j < Labels[i].Length; j++)
+                            {
+                                if (Labels[i][j] == null)
+                                {
+                                    continue;
+                                }
+                                Labels[i][j].Position += positionDiff;
+                            }
+                        }
+                    }
+                }
+                _positionSet = true;
             }
         }
 

@@ -47,7 +47,6 @@ namespace Mariasek.SharedClient.GameComponents
             get { return _spriteTexture; }
             set { _spriteTexture = value; }
         }
-        public float Opacity { get; set; }
         public Color Tint { get; set; }
         public Vector2 RotationOrigin { get; set; }
         public Rectangle SpriteRectangle

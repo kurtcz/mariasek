@@ -22,7 +22,6 @@ namespace Mariasek.SharedClient.GameComponents
         public virtual int Height { get; set; }
         public virtual string Text { get; set; }
         public virtual Color TextColor { get; set; }
-        public virtual float Opacity { get; set; }
         public virtual VerticalAlignment VerticalAlign { get; set; }
         public virtual HorizontalAlignment HorizontalAlign { get; set; }
         public virtual FontRenderer TextRenderer { get; set; }

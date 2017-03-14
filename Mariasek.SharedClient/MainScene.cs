@@ -129,6 +129,14 @@ namespace Mariasek.SharedClient
         private volatile Card _trumpCardChosen;
         private volatile List<Card> _talon;
         public float SimulatedSuccessRate;
+        private Vector2 _msgLabelLeftOrigPosition;
+        private Vector2 _msgLabelLeftHiddenPosition;
+        private Vector2 _msgLabelRightOrigPosition;
+        private Vector2 _msgLabelRightHiddenPosition;
+        private Vector2 _totalBalanceOrigPosition;
+        private Vector2 _totalBalanceHiddenPosition;
+        private Vector2 _reviewOrigPosition;
+        private Vector2 _reviewHiddenPosition;
 
         public MainScene(MariasekMonoGame game)
             : base(game)
@@ -305,9 +313,9 @@ namespace Mariasek.SharedClient
             };
             _cardsPlayed = new []
             {
-                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f - 100), Scale = Game.CardScaleFactor, Name="CardsPlayed1", ZIndex = 10 },
-                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f - 50, Game.VirtualScreenHeight / 2f - 140), Scale = Game.CardScaleFactor, Name="CardsPlayed2", ZIndex = 10 },
-                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f + 50, Game.VirtualScreenHeight / 2f - 150), Scale = Game.CardScaleFactor, Name="CardsPlayed3", ZIndex = 10 }
+                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f - 90), Scale = Game.CardScaleFactor, Name="CardsPlayed1", ZIndex = 10 },
+                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f - 50, Game.VirtualScreenHeight / 2f - 130), Scale = Game.CardScaleFactor, Name="CardsPlayed2", ZIndex = 10 },
+                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f + 50, Game.VirtualScreenHeight / 2f - 140), Scale = Game.CardScaleFactor, Name="CardsPlayed3", ZIndex = 10 }
             };
             _overlay = new ClickableArea(this)
             {
@@ -521,24 +529,28 @@ namespace Mariasek.SharedClient
             { 
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(160, 45),
+                Position = new Vector2(165, 45),
                 Width = (int)Game.VirtualScreenWidth - 280,
                 Height = (int)Game.VirtualScreenHeight - 80,
                 TextColor = Color.Yellow,
                 TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
                 ZIndex = 100
             };
+            _msgLabelLeftOrigPosition = new Vector2(160, 45);
+            _msgLabelLeftHiddenPosition = new Vector2(160, 45 - Game.VirtualScreenHeight);
             _msgLabelRight = new Label(this)
             { 
                 HorizontalAlign = HorizontalAlignment.Right,
                 VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(160, 45),
+                Position = new Vector2(165, 45),
                 Width = (int)Game.VirtualScreenWidth - 280,
                 Height = (int)Game.VirtualScreenHeight - 80,
                 TextColor = Color.Yellow,
                 TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
                 ZIndex = 100
             };
+            _msgLabelRightOrigPosition = new Vector2(160, 45);
+            _msgLabelRightHiddenPosition = new Vector2(160, 45 - Game.VirtualScreenHeight);
             _totalBalance = new Label(this)
             {
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -549,6 +561,8 @@ namespace Mariasek.SharedClient
                 TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
                 ZIndex = 100
             };
+            _totalBalanceOrigPosition = new Vector2(120, (int)Game.VirtualScreenHeight - 60);
+            _totalBalanceHiddenPosition = new Vector2(120, -60);
 			_hand = new GameComponents.Hand(this, new Card[0])
 			{
 				Centre = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight - 65),
@@ -886,30 +900,55 @@ namespace Mariasek.SharedClient
             kiloBtn.Hide();
         }
 
+        private void RefreshReview()
+        {
+            if (_review != null)
+            {
+                _review.Dispose();
+            }
+            _review = new GameReview(this)
+            {
+                Position = new Vector2(160, 45),
+                Width = (int)Game.VirtualScreenWidth - 160,
+                Height = (int)Game.VirtualScreenHeight - 55,
+                BackgroundColor = g.IsRunning ? Color.Black : Color.Transparent,
+                ZIndex = 200
+            };
+        }
+
         public void ReviewGameBtnClicked(object sender)
         {
+            var origPosition = new Vector2(160, 45);
+            var hiddenPosition = new Vector2(160, 45 + Game.VirtualScreenHeight);
+
             if (_review == null || !_review.IsVisible)
             {
-                if (!g.IsRunning)
+                if (g.IsRunning)
+                {
+                    RefreshReview();
+                    _review.Opacity = 0f;
+                    _review.Show();
+                    _review.FadeIn(4f);
+                }
+                else
                 {
                     _reviewGameBtn.Text = "Vyúčtování";
-                    _msgLabelLeft.Hide();
-                    _msgLabelRight.Hide();
-                    _totalBalance.Hide();
+                    HideGameScore();
+                    _totalBalance//.WaitUntil(() => !_totalBalance.IsVisible)
+                                 .Invoke(() =>
+                                 {
+                                     if (_review == null)
+                                     {
+                                         RefreshReview();
+                                     }
+                                     //_review.Opacity = 0f;
+                                     //_review.Show();
+                                     //_review.FadeIn(4f);
+                                     _review.Position = hiddenPosition;
+                                     _review.Show();
+                                     _review.MoveTo(origPosition, 2000);
+                                 });
                 }
-                if (_review != null)
-                {
-                    _review.Dispose();
-                }
-                _review = new GameReview(this)
-                {
-                    Position = new Vector2(160, 45),
-                    Width = (int)Game.VirtualScreenWidth - 160,
-                    Height = (int)Game.VirtualScreenHeight - 55,
-                    BackgroundColor = g.IsRunning ? Color.Black : Color.Transparent,
-                    ZIndex = 200
-                };
-                _review.Show();
                 _hand.IsEnabled = false;
             }
             else
@@ -917,15 +956,28 @@ namespace Mariasek.SharedClient
                 _hand.IsEnabled = true;
                 if (g.IsRunning)
                 {
-                    _review.Hide();
+                    _review.Opacity = 1f;
+                    _review.Show();
+                    _review.FadeOut(4f)
+                           .Invoke(() => _review.Hide());
                 }
                 else
                 {
                     _reviewGameBtn.Text = "Průběh hry";
-                    _review.Hide();
-                    _msgLabelLeft.Show();
-                    _msgLabelRight.Show();
-                    _totalBalance.Show();
+                    //_review.Opacity = 1f;
+                    //_review.Show();
+                    //_review.FadeOut(4f)
+                    //       .Invoke(() =>
+                    //{
+                    //    _review.Hide();
+                    //    ShowGameScore();
+                    //});
+                    _review.MoveTo(hiddenPosition, 2000)
+                           .Invoke(() =>
+                    {
+                        _review.Hide();
+                    });
+                    ShowGameScore();
                 }
             }
         }
@@ -1863,18 +1915,20 @@ namespace Mariasek.SharedClient
             if (_review != null)
             {
                 _review.Dispose();
+                _review = null;
             }
             _reviewGameToggleBtn.Hide();
             _reviewGameBtn.Text = "Průběh hry";
             _reviewGameBtn.Show();
             HideInvisibleClickableOverlay();
 			HideThinkingMessage();
-            ShowMsgLabelLeftRight(leftMessage.ToString(), rightMessage.ToString());
             var totalWon = Game.Money.Sum(i => i.MoneyWon[0]) * _settings.BaseBet;
             _totalBalance.Text = string.Format("Celkem jsem {0}: {1}", totalWon >= 0 ? "vyhrál" : "prohrál", totalWon.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
-            _totalBalance.Show();
             _newGameBtn.Show();
             _repeatGameBtn.Show();
+            _msgLabelLeft.Text = leftMessage.ToString();
+            _msgLabelRight.Text = rightMessage.ToString();
+            ShowGameScore();
 
             _deck = g.GetDeckFromLastGame();
             SaveDeck();
@@ -2399,13 +2453,26 @@ namespace Mariasek.SharedClient
             }
         }
 
-        private void ShowMsgLabelLeftRight(string leftMessage, string rightMessage)
+        private void ShowGameScore()
         {
-            _msgLabelLeft.Text = leftMessage;
-            _msgLabelRight.Text = rightMessage;
+            _msgLabelLeft.Position = _msgLabelLeftHiddenPosition;
+            _msgLabelRight.Position = _msgLabelRightHiddenPosition;
+            _totalBalance.Position = _totalBalanceHiddenPosition;
+
             _msgLabelLeft.Show();
             _msgLabelRight.Show();
             _totalBalance.Show();
+
+            _msgLabelLeft.MoveTo(_msgLabelLeftOrigPosition, 2000);
+            _msgLabelRight.MoveTo(_msgLabelRightOrigPosition, 2000);
+            _totalBalance.MoveTo(_totalBalanceOrigPosition, 2000);
+        }
+
+        private void HideGameScore()
+        {
+            _msgLabelLeft.MoveTo(_msgLabelLeftHiddenPosition, 2000).Invoke(() => _msgLabelLeft.Hide());
+            _msgLabelRight.MoveTo(_msgLabelRightHiddenPosition, 2000).Invoke(() => _msgLabelRight.Hide());
+            _totalBalance.MoveTo(_totalBalanceHiddenPosition, 2000).Invoke(() => _totalBalance.Hide());
         }
 
         public void HideMsgLabel()

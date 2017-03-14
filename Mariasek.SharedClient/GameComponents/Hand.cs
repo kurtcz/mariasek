@@ -66,6 +66,7 @@ namespace Mariasek.SharedClient.GameComponents
                 { Name = string.Format("HandButton{0}", i + 1), ZIndex = ZIndexBase + i };
                 _sprites[i].Click += CardClicked;
                 _sprites[i].Name = string.Format("HandButton{0}", i + 1);
+                _sprites[i].Position = Centre;
             }
             AnimationEvent = new ManualResetEventSlim(true);
         }
@@ -315,7 +316,7 @@ namespace Mariasek.SharedClient.GameComponents
             for (var i = 0; i < _sprites.Length && _sprites[i] != null; i++, targetPosition += delta)
             {
                 _sprites[i].Position = initialPosition;
-                _sprites[i].MoveTo(targetPosition);
+                _sprites[i].MoveTo(targetPosition, 200f);
             }
             AnimationEvent.Reset();
         }
