@@ -531,7 +531,7 @@ namespace Mariasek.Engine.New
             else
             {
                 //pouzivam vyssi prahy: pokud nam vysel betl nebo durch (beru 85% resp. 95% prah), abych kompenzoval, ze simulace nejsou presne
-                var betlThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Betl].Length - 1, 3);     //95%
+                var betlThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Betl].Length - 1, 4);     //99%
                 var durchThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 3);    //95%
                 if ((_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0) ||
                     (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && _betlSimulations > 0))
@@ -1256,8 +1256,8 @@ namespace Mariasek.Engine.New
             //kilo proti flekuju jen pokud jsem hlasil sam kilo proti a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem volil trumf a je nemozne aby meli protihraci kilo (nemaji hlas)
             if ((bidding.Bids & Hra.KiloProti) != 0 &&
-                ((PlayerIndex != _g.GameStartingPlayerIndex && _hundredsAgainstBalance / (float)_goodSimulations >= hundredAgainstThreshold) ||
-                 (PlayerIndex == _g.GameStartingPlayerIndex && _gamesBalance / (float)_goodSimulations >= gameThreshold && //_hundredsAgainstBalance == Settings.SimulationsPerGameType))); //never monte carlu, dej na pravdepodobnost
+                (//(PlayerIndex != _g.GameStartingPlayerIndex && _hundredsAgainstBalance / (float)_goodSimulations >= hundredAgainstThreshold) ||
+                 (//PlayerIndex == _g.GameStartingPlayerIndex && _gamesBalance / (float)_goodSimulations >= gameThreshold && //_hundredsAgainstBalance == Settings.SimulationsPerGameType))); //never monte carlu, dej na pravdepodobnost
                                                               (Probabilities.HlasProbability((PlayerIndex + 1) % Game.NumPlayers) == 0) &&
 			      											  (Probabilities.HlasProbability((PlayerIndex + 2) % Game.NumPlayers) == 0))))
             {

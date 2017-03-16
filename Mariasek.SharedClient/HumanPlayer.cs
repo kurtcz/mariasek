@@ -195,13 +195,13 @@ namespace Mariasek.SharedClient
                                 var gameType = _aiPlayer.ChooseGameType(validGameTypes);
                                 var e = _g.Bidding.GetEventArgs(_aiPlayer, gameType, 0);
                                 //var msg = new StringBuilder(string.Format("{0} ({1}%)\n", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1));
-                                var msg = new StringBuilder(string.Format("{0}\n", e.Description));
-                                var i = 0;
+                                var msg = new StringBuilder();
+                                var k = 0;
                                 foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(j => j.RuleCount > 0))
     							{
-                                    msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * debugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1, (i++) % 3 == 2 ? "\n" : "\t"));
+                                    msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * debugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1, (k++) % 2 == 1 ? "\n" : "\t"));
     							}
-                                _scene.SuggestGameType(msg.ToString(), _t1-_t0);
+                                _scene.SuggestGameType(e.Description, msg.ToString(), _t1-_t0);
                                 _scene.SuggestGameTypeNew(gameType);
                                 _scene.SuggestGameFlavourNew(gameType);
                                 //nasimulovany talon musime nahradit skutecnym pokud ho uz znam, jinak to udelam v ChooseTalon
@@ -279,13 +279,13 @@ namespace Mariasek.SharedClient
                         temp.SetLastBidder(_aiPlayer, gameType);
                         var e = temp.GetEventArgs(_aiPlayer, gameType, 0);
                         //var msg = new StringBuilder(string.Format("{0} ({1}%)\n", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1));
-                        var msg = new StringBuilder(string.Format("{0}\n", e.Description));
-                        var i = 0;
-                        foreach(var debugInfo in _aiPlayer.DebugInfo.AllChoices)
+                        var msg = new StringBuilder();
+                        var k = 0;
+                        foreach(var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(i => i.RuleCount > 0))
                         {                        
-                            msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * debugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1, (i++) % 2 == 1 ? "\n" : "\t"));
+                            msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * debugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1, (k++) % 2 == 1 ? "\n" : "\t"));
                         }
-                        _scene.SuggestGameType(msg.ToString(), _t1 - _t0);
+                        _scene.SuggestGameType(e.Description, msg.ToString(), _t1 - _t0);
                         _scene.SuggestGameTypeNew(gameType);
                     }, _cancellationTokenSource.Token);
             }
@@ -308,7 +308,8 @@ namespace Mariasek.SharedClient
                         temp.SetLastBidder(_aiPlayer, bid);                         //nasimulovat reakci (tato operace manipuluje s vnitrnim stavem - proto pracujeme s kopii)
                         var e = temp.GetEventArgs(_aiPlayer, bid, _previousBid);    //a zformatovat ji do stringu
 
-						_scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1), _t1 - _t0);
+						_scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1), 
+                                               string.Empty, _t1 - _t0);
                         _scene.SuggestGameTypeNew(bid);
                     }, _cancellationTokenSource.Token);
             }

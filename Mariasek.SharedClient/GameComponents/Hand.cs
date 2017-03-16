@@ -75,6 +75,7 @@ namespace Mariasek.SharedClient.GameComponents
             : base(parent)
         {
             AnimationEvent = new ManualResetEventSlim();
+            Centre = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight - 65);
             UpdateHand(hand);
         }
 
@@ -236,7 +237,7 @@ namespace Mariasek.SharedClient.GameComponents
         {
             var hh = _sprites.Where(i => i != null && i.IsVisible).ToList();
             float angle0 = (float)Math.PI / 2;
-            var targetPosition = Vector2.Zero;
+            var targetPosition = Centre;
             var r = 300f;
 
             var cardsToSkip = (12 - hh.Count) / 2;
@@ -264,7 +265,7 @@ namespace Mariasek.SharedClient.GameComponents
             var padding = 10;
             /* This code shows cards in one row */
             float rowWidth = CardWidth * hh.Count + padding * (hh.Count - 1);
-            var targetPosition = Vector2.Zero;
+            var targetPosition = Centre;
 
             if (rowWidth > width - CardWidth)
             {
@@ -293,7 +294,7 @@ namespace Mariasek.SharedClient.GameComponents
 
 		public void ShowWinningHand(int playerIndex)
         {
-            var initialPosition = Vector2.Zero;
+            var initialPosition = Centre;
             var delta = Vector2.Zero;
 
             switch (playerIndex)

@@ -74,6 +74,7 @@ namespace Mariasek.SharedClient
         private Label _trumpLabel1, _trumpLabel2, _trumpLabel3;
         private Label[] _trumpLabels;
         private Label _msgLabel;
+        private Label _msgLabelSmall;
         private Label _msgLabelLeft;
         private Label _msgLabelRight;
         private Label _totalBalance;
@@ -84,7 +85,6 @@ namespace Mariasek.SharedClient
 		private int _bubbleSemaphore;
 		private bool[] _bubbleAutoHide;
         private bool _skipBidBubble;
-        private bool _updateCardsPosition;
         private GameReview _review;
 
         #pragma warning restore 414
@@ -525,6 +525,16 @@ namespace Mariasek.SharedClient
                 TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
                 ZIndex = 100
             };
+            _msgLabelSmall = new Label(this)
+            {
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle,
+                Position = new Vector2(10, 60),
+                Width = (int)Game.VirtualScreenWidth - 20,
+                Height = (int)Game.VirtualScreenHeight - 120,
+                TextColor = Color.Yellow,
+                ZIndex = 100
+            };
             _msgLabelLeft = new Label(this)
             { 
                 HorizontalAlign = HorizontalAlignment.Left,
@@ -533,7 +543,7 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth - 280,
                 Height = (int)Game.VirtualScreenHeight - 80,
                 TextColor = Color.Yellow,
-                TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
+                //TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
                 ZIndex = 100
             };
             _msgLabelLeftOrigPosition = new Vector2(160, 45);
@@ -546,7 +556,7 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth - 280,
                 Height = (int)Game.VirtualScreenHeight - 80,
                 TextColor = Color.Yellow,
-                TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
+                //TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
                 ZIndex = 100
             };
             _msgLabelRightOrigPosition = new Vector2(160, 45);
@@ -565,7 +575,6 @@ namespace Mariasek.SharedClient
             _totalBalanceHiddenPosition = new Vector2(120, -60);
 			_hand = new GameComponents.Hand(this, new Card[0])
 			{
-				Centre = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight - 65),
 				ZIndex = 50,
 				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Main : AnchorType.Bottom
 			};
@@ -2149,7 +2158,6 @@ namespace Mariasek.SharedClient
         public void UpdateHand(bool flipCardsUp = false, int cardsNotRevealed = 0, Card cardToHide = null)
         {
             _hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide);
-            _updateCardsPosition = false;
             _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
             if(flipCardsUp)
             {
@@ -2265,11 +2273,16 @@ namespace Mariasek.SharedClient
             }
         }
 
-        public void SuggestGameType(string gameType, int? t = null)
+        public void SuggestGameType(string gameType, string allChoices, int? t = null)
         {
 			_progress1.Progress = _progress1.Max;
             _hintBtn.IsEnabled = true;
-            HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", gameType), false);
+            HintBtnFunc = () =>
+            {
+                ShowMsgLabel(string.Format("Nápověda:\n{0}", gameType), false);
+                _msgLabelSmall.Text = string.Format("\n\n\n\n{0}", allChoices);
+                _msgLabelSmall.Show();
+            };
         }
 
 		public void SuggestGameTypeNew(Hra gameType)
@@ -2430,6 +2443,7 @@ namespace Mariasek.SharedClient
                 _stareStychy[2].Hide();
             }
             _msgLabel.Hide();
+            _msgLabelSmall.Hide();
             _msgLabelLeft.Hide();
             _msgLabelRight.Hide();
             _totalBalance.Hide();
@@ -2478,6 +2492,7 @@ namespace Mariasek.SharedClient
         public void HideMsgLabel()
         {
             _msgLabel.Hide();
+            _msgLabelSmall.Hide();
             _msgLabelLeft.Hide();
             _msgLabelRight.Hide();
             _totalBalance.Hide();
