@@ -289,8 +289,8 @@ namespace Mariasek.Engine.New
                 var holes = 0;
 
                 foreach (var h in Enum.GetValues(typeof(Hodnota))
-                                     .Cast<Hodnota>()
-                                     .Where(h => i.IsLowerThan(new Card(i.Suit, h), null)))
+                                      .Cast<Hodnota>()
+                                      .Where(h => i.IsLowerThan(new Card(i.Suit, h), null)))
                 {
                     if (!hand.Any(j => j.Suit == i.Suit && j.Value == h))
                     {
@@ -301,11 +301,14 @@ namespace Mariasek.Engine.New
                 return new Tuple<Card, int>(i, holes);
             }).Where(i => i.Item2 > 0);
 
-            var talon = holesByCard.OrderByDescending(i => i.Item2)
-                                   .ThenBy(i => i.Item1.Value)
-                                   .Select(i => i.Item1)
-                                   .Take(2)
-                                   .ToList();
+            var talon = hand.Where(i => hand.CardCount(i.Suit) <= 2 && //nejdriv zkus odmazat kratkou barvu ve ktere nemam eso
+                                        !hand.HasA(i.Suit))
+                            .Take(2)
+                            .ToList();
+            talon.AddRange(holesByCard.OrderByDescending(i => i.Item2) //pak doplnime kartama v barvach s nejvice dirama
+                                      .ThenBy(i => i.Item1.Value)
+                                      .Select(i => i.Item1)
+                                      .Take(2 - talon.Count()));
             var count = talon.Count();
 
             //pokud je potreba, doplnime o nejake nizke karty
@@ -531,10 +534,10 @@ namespace Mariasek.Engine.New
             else
             {
                 //pouzivam vyssi prahy: pokud nam vysel betl nebo durch (beru 85% resp. 95% prah), abych kompenzoval, ze simulace nejsou presne
-                var betlThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Betl].Length - 1, 4);     //99%
-                var durchThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 3);    //95%
-                if ((_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0) ||
-                    (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && _betlSimulations > 0))
+                var betlThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Betl].Length - 1, 1);     //75%
+                var durchThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 2);    //95%
+                if ((_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][durchThresholdIndex] * _durchSimulations && _durchSimulations > 0) ||
+                    (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][betlThresholdIndex] * _betlSimulations && _betlSimulations > 0))
                 {
                     if (_betlSimulations > 0 && (_durchSimulations == 0 || (float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations))
                     {
@@ -731,6 +734,7 @@ namespace Mariasek.Engine.New
                 {
                     source = tempSource.ToArray();
                 }
+                start = DateTime.Now;
 				if (!fastSelection || ShouldChooseDurch())
 				{
 					_debugString.AppendFormat("Simulating durch. fast guess: {0}\n", ShouldChooseDurch());
@@ -741,8 +745,13 @@ namespace Mariasek.Engine.New
 						{
 							tempSource.Enqueue(hands);
 						}
-						//nasimuluj ze volici hrac vybral trumfy a/nebo talon
-						if (_g.GameType == Hra.Betl || PlayerIndex == _g.GameStartingPlayerIndex)
+                        if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
+                        {
+                            prematureEnd = true;
+                            loopState.Stop();
+                        }
+                        //nasimuluj ze volici hrac vybral trumfy a/nebo talon
+                        if (_g.GameType == Hra.Betl || PlayerIndex == _g.GameStartingPlayerIndex)
 						{   //pokud jsem volil ja tak v UpdateGeneratedHandsByChoosingTalon() pouziju skutecne zvoleny trumf
 							UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, _g.GameStartingPlayerIndex);
 						}
@@ -923,7 +932,16 @@ namespace Mariasek.Engine.New
             else //pokud se rozmyslim, zda vzit talon a hrat durcha, tak mam mensi pozadavky
             {
                 var minHole = new Card(Barva.Cerveny, Hodnota.Spodek);
-                if (holesPerSuit.All(i => i.Value == 0 || hiHolePerSuit[i.Key].BadValue <= minHole.BadValue || Hand.CardCount(i.Key) <= 2))
+                var topCards = Hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                   .Where(h => new Card(Barva.Cerveny, h).BadValue > i.BadValue)
+                                                   .All(h => Probabilities.CardProbability(_g.GameStartingPlayerIndex, new Card(i.Suit, h)) == 0 &&
+                                                             Probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, h)) == 0))
+                                   .ToList();
+                if (holesPerSuit.All(i => i.Value == 0 || 
+                                          hiHolePerSuit[i.Key].BadValue <= minHole.BadValue ||
+                                          (topCards.Count(j => j.Suit == i.Key) > 0 &&              //barva ve ktere mam o 2 mene nejvyssich karet nez der 
+                                           topCards.Count(j => j.Suit == i.Key) + 2 >= i.Value) ||  //doufam v dobrou rozlozenost (simulace ukaze)
+                                          Hand.CardCount(i.Key) <= 2))
                 {
                     return true;
                 }
