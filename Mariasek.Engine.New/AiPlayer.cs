@@ -1186,27 +1186,32 @@ namespace Mariasek.Engine.New
                     //RunGameSimulations(bidding, _g.GameStartingPlayerIndex, false, true);
                 }
             }
-            //Flekovani se u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) pokud trham (flek) nebo mam sam apson 2 hlasy
-            //nebo pokud jsem volil a mam aspon jeden hlas a trham trumfovy hlas nebo ho netrham a mam aspon dva hlasy (re)
-            //nebo pokud jsem volil sedmu a trham trumfovy hlas (re)
-            //nebo mam hlas a citim se na flek (tutti a vys)
-            //nebo kolega flekoval a ja mam nejakou hlasku a citil jsem se na flek jiz minule (tutti a vys),
-            //ostatni flekujeme pouze pokud zvolenou hru volici hrac nemuze uhrat
+            //Flekovani u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) 
             if ((bidding.Bids & Hra.Hra) != 0 &&
-                ((_gamesBalance / (float)_goodSimulations >= gameThreshold && 
-                 ((TeamMateIndex == -1 && 
-                   (Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2 ||
-                    ((Hand.HasK(_trump.Value) || 
-                      Hand.HasQ(_trump.Value)) &&
-                     (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b)) ||
-                      (_gameType & Hra.Sedma) != 0) ||
-                      (_gamesBalance / (float)_goodSimulations >= gameThresholdNext)))) ||
-                  (TeamMateIndex != -1 &&
-                   ((bidding.GameMultiplier > 2 && Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit))) ||
-                    (bidding.GameMultiplier < 2 &&
-                     (Hand.HasK(_g.trump.Value) || 
-                      Hand.HasQ(_g.trump.Value) || 
-                      Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2)))))) ||
+                ((_gamesBalance / (float)_goodSimulations >= gameThreshold &&                  
+                    //pokud jsem volil (re a vys) a:
+                    //trham trumfovy hlas a mam aspon jeden hlas
+                    //nebo ho netrham a mam aspon dva hlasy
+                    //nebo ho netrham, hraju sedmu a jsem si hodne jistej (pouzivam vyssi prah)
+                    ((TeamMateIndex == -1 && 
+                      (Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2 ||
+                       ((Hand.HasK(_trump.Value) || 
+                         Hand.HasQ(_trump.Value)) &&
+                        (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b)) ||
+                         ((_gameType & Hra.Sedma) != 0 &&
+                          (_gamesBalance / (float)_goodSimulations >= gameThresholdNext))))) ||
+                     //nebo jsem nevolil a:
+                     // - (flek) trham trumfovou hlasku nebo mam aspon dva hlasy nebo
+                     // - (tutti a vys) mam hlas a citim se na flek
+                     (TeamMateIndex != -1 &&
+                      ((bidding.GameMultiplier > 2 && 
+                            Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit))) ||
+                       (bidding.GameMultiplier < 2 &&
+                            (Hand.HasK(_g.trump.Value) || 
+                             Hand.HasQ(_g.trump.Value) || 
+                             Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2))))))) ||
+                 
+                 //nebo kolega flekoval a ja mam nejakou hlasku a citil jsem se na flek jiz minule (tutti a vys),
                  (_teamMateDoubledGame && _gamesBalance / (float)_goodSimulations >= gameThresholdPrevious && 
                   Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit)))))
             {
