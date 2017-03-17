@@ -77,6 +77,8 @@ namespace Mariasek.SharedClient
         private Label _msgLabelSmall;
         private Label _msgLabelLeft;
         private Label _msgLabelRight;
+        //private Label _gameResult;
+        private TextBox _gameResult;
         private Label _totalBalance;
         private ProgressIndicator _progress1, _progress2, _progress3;
         private ProgressIndicator[] _progressBars;
@@ -133,6 +135,8 @@ namespace Mariasek.SharedClient
         private Vector2 _msgLabelLeftHiddenPosition;
         private Vector2 _msgLabelRightOrigPosition;
         private Vector2 _msgLabelRightHiddenPosition;
+        private Vector2 _gameResultOrigPosition;
+        private Vector2 _gameResultHiddenPosition;
         private Vector2 _totalBalanceOrigPosition;
         private Vector2 _totalBalanceHiddenPosition;
         private Vector2 _reviewOrigPosition;
@@ -538,29 +542,56 @@ namespace Mariasek.SharedClient
             _msgLabelLeft = new Label(this)
             { 
                 HorizontalAlign = HorizontalAlignment.Left,
-                VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(165, 45),
+                VerticalAlign = VerticalAlignment.Top,
+                Position = new Vector2(165, 140),
                 Width = (int)Game.VirtualScreenWidth - 280,
-                Height = (int)Game.VirtualScreenHeight - 80,
+                Height = (int)Game.VirtualScreenHeight - 210,
                 TextColor = Color.Yellow,
                 //TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
                 ZIndex = 100
             };
-            _msgLabelLeftOrigPosition = new Vector2(160, 45);
-            _msgLabelLeftHiddenPosition = new Vector2(160, 45 - Game.VirtualScreenHeight);
+            _msgLabelLeftOrigPosition = new Vector2(160, 140);
+            _msgLabelLeftHiddenPosition = new Vector2(160, 140 - Game.VirtualScreenHeight);
             _msgLabelRight = new Label(this)
             { 
                 HorizontalAlign = HorizontalAlignment.Right,
-                VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(165, 45),
+                VerticalAlign = VerticalAlignment.Top,
+                Position = new Vector2(165, 140),
                 Width = (int)Game.VirtualScreenWidth - 280,
-                Height = (int)Game.VirtualScreenHeight - 80,
+                Height = (int)Game.VirtualScreenHeight - 210,
                 TextColor = Color.Yellow,
                 //TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
                 ZIndex = 100
             };
-            _msgLabelRightOrigPosition = new Vector2(160, 45);
-            _msgLabelRightHiddenPosition = new Vector2(160, 45 - Game.VirtualScreenHeight);
+            _msgLabelRightOrigPosition = new Vector2(160, 140);
+            _msgLabelRightHiddenPosition = new Vector2(160, 140 - Game.VirtualScreenHeight);
+            //_gameResult = new Label(this)
+            //{
+            //    HorizontalAlign = HorizontalAlignment.Center,
+            //    VerticalAlign = VerticalAlignment.Middle,
+            //    Position = new Vector2(120, 80),
+            //    Width = (int)Game.VirtualScreenWidth - 240,
+            //    Height = 40,
+            //    TextColor = Color.Yellow,
+            //    TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
+            //    ZIndex = 100
+            //};
+            //_gameResultOrigPosition = new Vector2(120, 80);
+            //_gameResultHiddenPosition = Vector2(120, 80 - Game.VirtualScreenHeight);
+            _gameResult = new TextBox(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 125, 80),
+                Width = 250,
+                Height = 50,
+                BackgroundColor = new Color(0x40, 0x40, 0x40),
+                TextColor = Color.Yellow,
+                Opacity = 0.8f,
+                VerticalAlign = VerticalAlignment.Middle,
+                HorizontalAlign = HorizontalAlignment.Center,
+                ZIndex = 100
+            };
+            _gameResultOrigPosition = new Vector2(Game.VirtualScreenWidth / 2 - 125, 80);
+            _gameResultHiddenPosition = new Vector2(Game.VirtualScreenWidth / 2 - 125, 80 - Game.VirtualScreenHeight);
             _totalBalance = new Label(this)
             {
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -1905,12 +1936,18 @@ namespace Mariasek.SharedClient
             //multi-line string needs to be split into two strings separated by a tab on each line
             var leftMessage = new StringBuilder();
             var rightMessage = new StringBuilder();
+            var firstWord = string.Empty;
 
             foreach (var line in g.Results.ToString().Split('\n'))
             {
                 var tokens = line.Split('\t');
                 if (tokens.Length > 0)
                 {
+                    if (firstWord == string.Empty)
+                    {
+                        firstWord = tokens[0];
+                        continue;
+                    }
                     leftMessage.Append(tokens[0]);
                 }
                 if (tokens.Length > 1)
@@ -1935,6 +1972,19 @@ namespace Mariasek.SharedClient
             _totalBalance.Text = string.Format("Celkem jsem {0}: {1}", totalWon >= 0 ? "vyhrál" : "prohrál", totalWon.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
             _newGameBtn.Show();
             _repeatGameBtn.Show();
+            if (!results.GamePlayed)
+            {
+                _gameResult.BorderColor = Color.Yellow;
+            }
+            else if (results.MoneyWon[0] > 0)
+            {
+                _gameResult.BorderColor = Color.Green;
+            }
+            else
+            {
+                _gameResult.BorderColor = Color.Red;
+            }
+            _gameResult.Text = firstWord;
             _msgLabelLeft.Text = leftMessage.ToString();
             _msgLabelRight.Text = rightMessage.ToString();
             ShowGameScore();
@@ -2446,6 +2496,7 @@ namespace Mariasek.SharedClient
             _msgLabelSmall.Hide();
             _msgLabelLeft.Hide();
             _msgLabelRight.Hide();
+            _gameResult.Hide();
             _totalBalance.Hide();
 
             if (_winningHand != null)
@@ -2471,14 +2522,17 @@ namespace Mariasek.SharedClient
         {
             _msgLabelLeft.Position = _msgLabelLeftHiddenPosition;
             _msgLabelRight.Position = _msgLabelRightHiddenPosition;
+            _gameResult.Position = _gameResultHiddenPosition;
             _totalBalance.Position = _totalBalanceHiddenPosition;
 
             _msgLabelLeft.Show();
             _msgLabelRight.Show();
+            _gameResult.Show();
             _totalBalance.Show();
 
             _msgLabelLeft.MoveTo(_msgLabelLeftOrigPosition, 2000);
             _msgLabelRight.MoveTo(_msgLabelRightOrigPosition, 2000);
+            _gameResult.MoveTo(_gameResultOrigPosition, 2000);
             _totalBalance.MoveTo(_totalBalanceOrigPosition, 2000);
         }
 
@@ -2486,6 +2540,7 @@ namespace Mariasek.SharedClient
         {
             _msgLabelLeft.MoveTo(_msgLabelLeftHiddenPosition, 2000).Invoke(() => _msgLabelLeft.Hide());
             _msgLabelRight.MoveTo(_msgLabelRightHiddenPosition, 2000).Invoke(() => _msgLabelRight.Hide());
+            _gameResult.MoveTo(_gameResultHiddenPosition, 2000).Invoke(() => _gameResult.Hide());
             _totalBalance.MoveTo(_totalBalanceHiddenPosition, 2000).Invoke(() => _totalBalance.Hide());
         }
 
@@ -2495,6 +2550,7 @@ namespace Mariasek.SharedClient
             _msgLabelSmall.Hide();
             _msgLabelLeft.Hide();
             _msgLabelRight.Hide();
+            _gameResult.Hide();
             _totalBalance.Hide();
             _okBtn.Hide();
         }

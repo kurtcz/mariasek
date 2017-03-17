@@ -280,11 +280,15 @@ namespace Mariasek.Engine.New
             {
                 if (MoneyWon[0] > 0)
                 {
-                    sb.Append("Vyhráls ...\t»»»»»»\n");
+                    sb.Append("Vyhráls!\t»»»»»»\n");
                 }
                 else if (MoneyWon[0] < 0)
                 {
-                    sb.Append("Prohráls ...\t»»»»»»\n");
+                    sb.Append("Prohráls!\t»»»»»»\n");
+                }
+                else
+                {
+                    sb.Append("Plichta\t»»»»»»\n");
                 }
             }
             foreach (var gt in Enum.GetValues(typeof(Hra)).Cast<Hra>().Where(i => (_gameType & i) != 0))
