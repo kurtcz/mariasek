@@ -290,7 +290,7 @@ namespace Mariasek.Engine.New
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = new List<Card>();
-                    const float SollitaryXThreshold = _riskFactor; //odpovida dvoum moznym kartam z nichz jedna je X
+                    const float SollitaryXThreshold = 12.5f; //odpovida trem moznym kartam z nichz jedna je X
 
                     if (TeamMateIndex == -1)
                     {

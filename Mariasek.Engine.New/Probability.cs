@@ -406,6 +406,12 @@ namespace Mariasek.Engine.New
             var numerator = 0f;
             var n = values.Length - listedCertainCardsInSuit;
 
+            //pokud mam jiste nejakou z karet na seznamu, potom je pravdepodobnost rovna pravdepodobnosti, ze nemam zadnou z karet co neni na seznamu
+            if (listedCertainCardsInSuit > 0)
+            {
+                return CNK(uncertainCardsNotInSuit, unknownCards) / CNK(uncertainCards, unknownCards);
+            }
+
             //do citatele dame vsechny k-tice ktere hrac v dane barve muze mit a do jmenovatele vsechny kombinace
             for (var k = 1; k < n && k < unknownCards; k++)
             {
