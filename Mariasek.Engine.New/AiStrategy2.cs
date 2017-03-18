@@ -1153,7 +1153,9 @@ namespace Mariasek.Engine.New
                         return ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Desitka &&
                                                                                       (i.Suit != _trump ||              //pokud to neni trumfova X
                                                                                        (!hands[MyIndex].HasA(i.Suit) && //nebo pokud mam 2 a mene trumfu a nemam trumfove A
-                                                                                        hands[MyIndex].CardCount(i.Suit) <= 2 &&
+                                                                                        (hands[MyIndex].CardCount(i.Suit) <= 2 ||   //nebo hraju sedmu a
+                                                                                         (hands[MyIndex].CardCount(i.Suit) <= 3 &&  //mam 3 a mene trumfu a nemam trumfove A
+                                                                                          (_gameType & Hra.Sedma) != 0)) &&
                                                                                         (c1.Suit != i.Suit ||           //a pokud nikdo nehral trumfove eso v tomto kole
                                                                                          c1.Value != Hodnota.Eso) &&
                                                                                         (c2.Suit != i.Suit ||
