@@ -114,7 +114,30 @@ namespace Mariasek.SharedClient
                 Height = 200,
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
-                TextRenderer = Game.FontRenderers["BMFont"]
+                TextRenderer = Game.FontRenderers["BMFont"],
+                Tabs = new[]
+                {
+                    new Tab
+                    {
+                        TabPosition = 375,
+                        TabAlignment = HorizontalAlignment.Right
+                    },
+                    new Tab
+                    {
+                        TabPosition = 500,
+                        TabAlignment = HorizontalAlignment.Right
+                    },
+                    new Tab
+                    {
+                        TabPosition = 625,
+                        TabAlignment = HorizontalAlignment.Right
+                    },
+                    new Tab
+                    {
+                        TabPosition = 750,
+                        TabAlignment = HorizontalAlignment.Right
+                    }
+                }
             };
             _details = new TextBox(this)
             {
@@ -123,7 +146,30 @@ namespace Mariasek.SharedClient
                 Height = (int)Game.VirtualScreenHeight - 220,
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
-                TextRenderer = Game.FontRenderers["BMFont"]
+                TextRenderer = Game.FontRenderers["BMFont"],
+                Tabs = new[]
+                {
+                    new Tab
+                    {
+                        TabPosition = 375,
+                        TabAlignment = HorizontalAlignment.Right
+                    },
+                    new Tab
+                    {
+                        TabPosition = 500,
+                        TabAlignment = HorizontalAlignment.Right
+                    },
+                    new Tab
+                    {
+                        TabPosition = 625,
+                        TabAlignment = HorizontalAlignment.Right
+                    },
+                    new Tab
+                    {
+                        TabPosition = 750,
+                        TabAlignment = HorizontalAlignment.Right
+                    }
+                }
             };
             Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;

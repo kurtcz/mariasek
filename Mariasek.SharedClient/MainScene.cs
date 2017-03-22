@@ -1972,15 +1972,15 @@ namespace Mariasek.SharedClient
             _totalBalance.Text = string.Format("Celkem jsem {0}: {1}", totalWon >= 0 ? "vyhrál" : "prohrál", totalWon.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
             _newGameBtn.Show();
             _repeatGameBtn.Show();
-            if (!results.GamePlayed)
+            if (!results.GamePlayed || results.MoneyWon[0] == 0)
             {
-                _gameResult.BorderColor = Color.Yellow;
+                _gameResult.BorderColor = Color.Blue;
             }
             else if (results.MoneyWon[0] > 0)
             {
                 _gameResult.BorderColor = Color.Green;
             }
-            else
+            else //(results.MoneyWon[0] < 0)
             {
                 _gameResult.BorderColor = Color.Red;
             }

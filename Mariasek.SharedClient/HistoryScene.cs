@@ -135,7 +135,7 @@ namespace Mariasek.SharedClient
             };
             _player2 = new Label(this)
             {
-                Position = new Vector2(485, 20),
+                Position = new Vector2(510, 20),
                 Width = 120,
                 Height = 50,
                 Text = Game.MainScene.PlayerNames[1],
@@ -143,7 +143,7 @@ namespace Mariasek.SharedClient
             };
             _player3 = new Label(this)
             {
-                Position = new Vector2(630, 20),
+                Position = new Vector2(670, 20),
                 Width = 120,
                 Height = 50,
                 Text = Game.MainScene.PlayerNames[2],
@@ -155,7 +155,25 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth - 230,
                 Height = (int)Game.VirtualScreenHeight - 120,
                 HorizontalAlign = HorizontalAlignment.Left,
-				VerticalAlign = VerticalAlignment.Bottom
+				VerticalAlign = VerticalAlignment.Bottom,
+                Tabs = new[]
+                {
+                    new Tab
+                    {
+                        TabPosition = 400,
+                        TabAlignment = HorizontalAlignment.Right
+                    },
+                    new Tab
+                    {
+                        TabPosition = 560,
+                        TabAlignment = HorizontalAlignment.Right
+                    },
+                    new Tab
+                    {
+                        TabPosition = 720,
+                        TabAlignment = HorizontalAlignment.Right
+                    }
+                }
             };
             _historyBox.Hide();
 			_footer = new Label(this)
@@ -163,7 +181,25 @@ namespace Mariasek.SharedClient
 				Position = new Vector2(220, Game.VirtualScreenHeight - 50),
 				Width = (int)Game.VirtualScreenWidth - 230,
 				Height = 50,
-				TextColor = Color.Yellow
+				TextColor = Color.Yellow,
+                Tabs = new[]
+                {
+                    new Tab
+                    {
+                        TabPosition = 400,
+                        TabAlignment = HorizontalAlignment.Right
+                    },
+                    new Tab
+                    {
+                        TabPosition = 560,
+                        TabAlignment = HorizontalAlignment.Right
+                    },
+                    new Tab
+                    {
+                        TabPosition = 720,
+                        TabAlignment = HorizontalAlignment.Right
+                    }
+                }
 			};
             Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;

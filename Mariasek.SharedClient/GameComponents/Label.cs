@@ -26,6 +26,7 @@ namespace Mariasek.SharedClient.GameComponents
         public virtual HorizontalAlignment HorizontalAlign { get; set; }
         public virtual FontRenderer TextRenderer { get; set; }
         public bool UseCommonScissorRect { get; set; }
+        public Tab[] Tabs { get; set; }
 
         protected Rectangle BoundsRect;
 
@@ -38,6 +39,7 @@ namespace Mariasek.SharedClient.GameComponents
             Opacity = 1f;
             TextRenderer = Game.FontRenderers["BM2Font"];
             Text = Name;
+            Tabs = null;
         }
 
         public override void Draw(GameTime gameTime)
@@ -81,7 +83,8 @@ namespace Mariasek.SharedClient.GameComponents
                     Text,
                     position,
                     TextColor * Opacity,
-                    (Alignment)VerticalAlign | (Alignment)HorizontalAlign);
+                    (Alignment)VerticalAlign | (Alignment)HorizontalAlign,
+                    Tabs);
             }
             else
             {
@@ -100,7 +103,8 @@ namespace Mariasek.SharedClient.GameComponents
                     Text,
                     position,
                     TextColor * Opacity,
-                    (Alignment)VerticalAlign | (Alignment)HorizontalAlign);
+                    (Alignment)VerticalAlign | (Alignment)HorizontalAlign,
+                    Tabs);
 
                 Game.SpriteBatch.End();
 
