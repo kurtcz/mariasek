@@ -213,17 +213,17 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Hra", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Hra",
-                Value = "0|25|50|75|95"
+                Value = "0|30|55|85|95"
             });
             _aiConfig.Add("GameThreshold.Sedma", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Sedma",
-                Value = "25|50|75|85|95"
+                Value = "25|65|75|85|95"
             });
             _aiConfig.Add("GameThreshold.SedmaProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.SedmaProti",
-                Value = "50|60|75|85|95"
+                Value = "70|75|80|85|95"
             });
             _aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
