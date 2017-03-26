@@ -451,8 +451,11 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex == -1)
                     {
                         //c--
-                        if (_probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 ||
-                            _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0)
+                        if ((_probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 ||
+                             _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0) &&
+                            (((_gameType & Hra.Sedma)!=0 &&             //pokud hraju sedmu tak se pokusim uhrat A,X nize 
+                              hands[MyIndex].CardCount(_trump) > 1) ||  //a dalsi karty pripadne hrat v ramci "hrat cokoli mimo A,X,trumf a dalsich"
+                             (hands[MyIndex].CardCount(_trump) > 0)))   //to same pokud jsem volil, sedmu nehraju a uz nemam zadny trumf v ruce
                         {
                             var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                             .OrderBy(b => Math.Min(_probabilities.SuitProbability(player2, b, RoundNumber),
@@ -558,21 +561,27 @@ namespace Mariasek.Engine.New
                 SkipSimulations = true,
                 ChooseCard1 = () =>
                 {
-                    var topCards = hands[MyIndex].Count(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                 .Where(h => h > i.Value)
-                                                                 .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0 &&
-                                                                           _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0));
-                    var solitaryXs = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                         .Where(b => hands[MyIndex].HasSolitaryX(b) &&                                      //plonkova X
-                                                (_probabilities.CardProbability(player2, new Card(b, Hodnota.Eso)) > 0 ||   //aby byla plonkova tak musi byt A jeste ve hre
-                                                 _probabilities.CardProbability(player3, new Card(b, Hodnota.Eso)) > 0))
-                                         .Select(b => new Card(b, Hodnota.Desitka))
-                                         .ToList();
-                    var totalCards = 10 - RoundNumber + 1;
-
-                    if (solitaryXs.Count > 0 && topCards == totalCards - solitaryXs.Count)
+                    if (TeamMateIndex != -1 ||
+                        (((_gameType & Hra.Sedma) != 0 &&           //pokud jsem volil a hraju sedmu a mam ji jako posledni trumf, tak se pokusim uhrat A,X nize 
+                          hands[MyIndex].CardCount(_trump) > 1) ||  //a dalsi karty pripadne hrat v ramci "hrat cokoli mimo A,X,trumf a dalsich"
+                         (hands[MyIndex].CardCount(_trump) > 0)))   //to same pokud jsem volil, sedmu nehraju a uz nemam zadny trumf v ruce
                     {
-                        return solitaryXs.RandomOneOrDefault();
+                        var topCards = hands[MyIndex].Count(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                     .Where(h => h > i.Value)
+                                                                     .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0 &&
+                                                                               _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0));
+                        var solitaryXs = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                             .Where(b => hands[MyIndex].HasSolitaryX(b) &&                                      //plonkova X
+                                                    (_probabilities.CardProbability(player2, new Card(b, Hodnota.Eso)) > 0 ||   //aby byla plonkova tak musi byt A jeste ve hre
+                                                     _probabilities.CardProbability(player3, new Card(b, Hodnota.Eso)) > 0))
+                                             .Select(b => new Card(b, Hodnota.Desitka))
+                                             .ToList();
+                        var totalCards = 10 - RoundNumber + 1;
+
+                        if (solitaryXs.Count > 0 && topCards == totalCards - solitaryXs.Count)
+                        {
+                            return solitaryXs.RandomOneOrDefault();
+                        }
                     }
                     return null;
                 }
