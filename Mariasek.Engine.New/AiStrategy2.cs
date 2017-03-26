@@ -285,31 +285,31 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 2,
-                Description = "vytáhnout plonkovou X",
+                Description = "zkusit vytáhnout plonkovou X",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = new List<Card>();
-                    const float SollitaryXThreshold = 12.5f; //odpovida trem moznym kartam z nichz jedna je X
+                    const float SolitaryXThreshold = 0.25f; //odpovida dvoum moznym kartam z nichz jedna je X nebo jiste X plus dvoum dalsim nejistym kartam
 
                     if (TeamMateIndex == -1)
                     {
                         //c--
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
-                                                                            (_probabilities.HasSolitaryX(player2, i.Suit, RoundNumber) >= SollitaryXThreshold ||
-                                                                             _probabilities.HasSolitaryX(player3, i.Suit, RoundNumber) >= SollitaryXThreshold)).ToList();
+                                                                            (_probabilities.HasSolitaryX(player2, i.Suit, RoundNumber) >= SolitaryXThreshold ||
+                                                                             _probabilities.HasSolitaryX(player3, i.Suit, RoundNumber) >= SolitaryXThreshold)).ToList();
                     }
                     else if (TeamMateIndex == player2)
                     {
                         //co-
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
-                                                                            _probabilities.HasSolitaryX(player3, i.Suit, RoundNumber) >= SollitaryXThreshold).ToList();
+                                                                            _probabilities.HasSolitaryX(player3, i.Suit, RoundNumber) >= SolitaryXThreshold).ToList();
                     }
                     else
                     {
                         //c-o
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
-                                                                            _probabilities.HasSolitaryX(player2, i.Suit, RoundNumber) >= SollitaryXThreshold).ToList();
+                                                                            _probabilities.HasSolitaryX(player2, i.Suit, RoundNumber) >= SolitaryXThreshold).ToList();
                     }
 
                     return cardsToPlay.RandomOneOrDefault();
