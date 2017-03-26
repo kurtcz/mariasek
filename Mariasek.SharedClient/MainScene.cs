@@ -1241,7 +1241,7 @@ namespace Mariasek.SharedClient
             ShowMsgLabel(msg1, false);
             if (Game.EmailSender != null)
             {
-                Game.EmailSender.SendEmail(new[] { "tnemec78@gmail.com" }, "Mariasek crash report", msg2, new[] { _newGameFilePath, _errorFilePath });
+                Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek crash report", msg2, new[] { _newGameFilePath, _errorFilePath });
             }
         }
 
@@ -1274,11 +1274,11 @@ namespace Mariasek.SharedClient
                     {
                         g.SaveGame(fs, saveDebugInfo: true);
                     }
-                    Game.EmailSender.SendEmail(new[] { "tnemec78@gmail.com" }, "Mariasek game feedback", "", new[] { _newGameFilePath, _savedGameFilePath });
+                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek game feedback", "", new[] { _newGameFilePath, _savedGameFilePath });
                 }
                 else
                 {
-                    Game.EmailSender.SendEmail(new[] { "tnemec78@gmail.com" }, "Mariasek game feedback", "", new[] { _newGameFilePath, _endGameFilePath });
+                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek game feedback", "", new[] { _newGameFilePath, _endGameFilePath });
                 }
             }
         }

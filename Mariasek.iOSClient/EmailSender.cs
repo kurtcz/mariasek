@@ -23,7 +23,7 @@ namespace Mariasek.iOSClient
 				if (MFMailComposeViewController.CanSendMail)
 				{
 					var mailController = new MFMailComposeViewController();
-					mailController.SetToRecipients(new string[] { "tnemec78@gmail.com" });
+					mailController.SetToRecipients(new string[] { "mariasek.app@gmail.com" });
 					mailController.SetSubject("Mariasek iOS test");
 					mailController.SetMessageBody("this is a test", false);
 					if (attachments != null)

@@ -202,7 +202,7 @@ namespace Mariasek.SharedClient
 			{
 				var files = Directory.GetFiles(_dataFolder);
 
-				Game.EmailSender.SendEmail(new[] { "tnemec78@gmail.com" }, "Mariasek volby", string.Format("{0} files attached", files.Count()), files);
+				Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek volby", string.Format("{0} files attached", files.Count()), files);
 
 				foreach (var file in files)
 				{
