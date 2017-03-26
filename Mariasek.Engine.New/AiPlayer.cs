@@ -1280,7 +1280,7 @@ namespace Mariasek.Engine.New
             //kilo proti flekuju jen pokud jsem hlasil sam kilo proti a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem volil trumf a je nemozne aby meli protihraci kilo (nemaji hlas)
             if ((bidding.Bids & Hra.KiloProti) != 0 &&
-                ((PlayerIndex != _g.GameStartingPlayerIndex && _hundredsAgainstBalance / (float)_goodSimulations >= hundredAgainstThreshold) ||
+                (//(PlayerIndex != _g.GameStartingPlayerIndex && _hundredsAgainstBalance / (float)_goodSimulations >= hundredAgainstThreshold) ||
                  (PlayerIndex == _g.GameStartingPlayerIndex && //_gamesBalance / (float)_goodSimulations >= gameThreshold && //_hundredsAgainstBalance == Settings.SimulationsPerGameType))); //never monte carlu, dej na pravdepodobnost
                   (Probabilities.HlasProbability((PlayerIndex + 1) % Game.NumPlayers) == 0) &&
 				  (Probabilities.HlasProbability((PlayerIndex + 2) % Game.NumPlayers) == 0))))
