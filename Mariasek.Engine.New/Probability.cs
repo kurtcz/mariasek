@@ -413,9 +413,9 @@ namespace Mariasek.Engine.New
             }
 
             //do citatele dame vsechny k-tice ktere hrac v dane barve muze mit a do jmenovatele vsechny kombinace
-            for (var k = 1; k < n && k < unknownCards; k++)
+            for (var k = 1; k <= n && k <= unknownCards; k++)
             {
-                numerator += CNK(uncertainCardsInSuit, k) * CNK(uncertainCardsNotInSuit, unknownCards - k);
+                numerator += CNK(n, k) * CNK(uncertainCardsNotInSuit, unknownCards - k);
             }
 
             return numerator / (float)CNK(uncertainCards, unknownCards);
