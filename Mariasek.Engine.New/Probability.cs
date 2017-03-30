@@ -259,7 +259,7 @@ namespace Mariasek.Engine.New
             var n = _cardProbabilityForPlayer[playerIndex].Where(i => i.Key != b).Sum(i =>i.Value.Count(h => h.Value > 0f && h.Value < 1f));
             var uncertainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 1f));
             var certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value == 1f));
-            var totalCards = 10 - roundNumber;
+            var totalCards = 10 - roundNumber + 1;
 
             return (float)CNK(n, totalCards - certainCards) / (float)CNK(uncertainCards, totalCards - certainCards);
         }
@@ -274,7 +274,7 @@ namespace Mariasek.Engine.New
 
         //    var uncertainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 1f));
         //    var certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value == 1f));
-        //    var totalCards = 10 - roundNumber;
+        //    var totalCards = 10 - roundNumber + 1;
         //    var hiCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value > 0f &&
         //                                                                                     c.IsLowerThan(new Card(i.Key, j.Key), _trump)));
         //    var hiCardsInSuit = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value > 0f &&
@@ -321,7 +321,7 @@ namespace Mariasek.Engine.New
                     _cardProbabilityForPlayer[playerIndex][c.Suit].Where(i => i.Key < c.Value).Count(h => h.Value > 0f && h.Value < 1f);
             var uncertainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 1f));
             var certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value == 1f));
-            var totalCards = 10 - roundNumber;
+            var totalCards = 10 - roundNumber + 1;
 
             return (float)CNK(n, totalCards - certainCards) / (float)CNK(uncertainCards, totalCards - certainCards);
         }
@@ -439,7 +439,7 @@ namespace Mariasek.Engine.New
         {
             var certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value == 1f));
             var uncertainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value > 0f && j.Value < 1f));
-            var totalCards = 10 - roundNumber;
+            var totalCards = 10 - roundNumber + 1;
 
             return CNK(uncertainCards, totalCards - certainCards);
         }
