@@ -1215,10 +1215,10 @@ namespace Mariasek.Engine.New
                     ((TeamMateIndex == -1 && 
                       (Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2 ||
                        ((Hand.HasK(_trump.Value) || 
-                         Hand.HasQ(_trump.Value)) &&
-                        (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b)) ||
-                         ((_gameType & Hra.Sedma) != 0 &&
-                          (_gamesBalance / (float)_goodSimulations >= gameThresholdNext))))) ||
+                         Hand.HasQ(_trump.Value)) && true)) ||
+                        //(Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b)) ||
+                        // ((_gameType & Hra.Sedma) != 0 &&
+                        //  (_gamesBalance / (float)_goodSimulations >= gameThresholdNext))))) ||
                      //nebo jsem nevolil a:
                      // - (flek) trham trumfovou hlasku nebo mam aspon dva hlasy nebo
                      // - (tutti a vys) mam hlas a citim se na flek
@@ -1262,6 +1262,7 @@ namespace Mariasek.Engine.New
             //nebo pokud jsem volil trumf a v simulacich ani jednou nevysla
             //?! Pokud bych chtel simulovat sance na to, ze volici hrac hlasenou sedmu neuhraje, tak musim nejak generovat "karty na sedmu" (aspon 4-5 trumfu) a ne nahodne karty
             if ((bidding.Bids & Hra.SedmaProti) != 0 &&
+                bidding.SevenAgainstMultiplier <= 2 && //flekujeme jen do re
                 (//(PlayerIndex != _g.GameStartingPlayerIndex && _sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold && Hand.CardCount(_g.trump.Value) >= 3) ||
                  (PlayerIndex != _g.GameStartingPlayerIndex && 
                   ((Hand.CardCount(_g.trump.Value) >= 4 &&              //neohlizej se na simulace, sedmu proti hlasim kdyz mam aspon 4 trumfy a vsechny barvy nebo aspon 5 trumfu

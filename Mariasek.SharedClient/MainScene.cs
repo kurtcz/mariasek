@@ -1647,8 +1647,9 @@ namespace Mariasek.SharedClient
             g.ThrowIfCancellationRequested();
 
             _gameFlavourChosenEventArgs = e;
+            _gameFlavourChosen = _gameFlavourChosenEventArgs.Flavour;
             if(_firstTimeGameFlavourChosen)
-            {                
+            {
                 if (g.GameStartingPlayerIndex != 0)
                 {
                     _progressBars[g.GameStartingPlayerIndex].Progress = _progressBars[g.GameStartingPlayerIndex].Max;
@@ -1665,7 +1666,8 @@ namespace Mariasek.SharedClient
                         //protihrac z ruky zavolil betl nebo durch
                         //var str = _gameFlavourChosenEventArgs.Flavour == GameFlavour.Good ? "Dobrá" : "Špatná";
                         //ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, str);
-						SortHand(null); //preusporadame karty
+                        _trumpCardChosen = null;
+                        SortHand(null); //preusporadame karty
 						UpdateHand();
                     }
                 }
