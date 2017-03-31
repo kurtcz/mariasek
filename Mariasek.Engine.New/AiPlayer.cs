@@ -1142,7 +1142,7 @@ namespace Mariasek.Engine.New
             });
             allChoices.Add(new RuleDebugInfo
             {
-                Rule = (Hra.Hra|Hra.Sedma).ToDescription(_trump),
+                Rule = (Hra.Hra | Hra.Sedma).ToDescription(_trump),
                 RuleCount = _sevensBalance
             });
             allChoices.Add(new RuleDebugInfo
@@ -1327,8 +1327,14 @@ namespace Mariasek.Engine.New
             });
 			allChoices.Add(new RuleDebugInfo
             {
-                Rule = (Hra.Hra | Hra.Sedma).ToString(),
+                Rule = Hra.Sedma.ToString(),
                 RuleCount = _sevensBalance,
+                TotalRuleCount = _goodSimulations
+            });
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = Hra.SedmaProti.ToString(),
+                RuleCount = _sevensAgainstBalance,
                 TotalRuleCount = _goodSimulations
             });
             allChoices.Add(new RuleDebugInfo
