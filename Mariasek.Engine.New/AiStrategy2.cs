@@ -471,7 +471,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 6,
-                Description = "zkusit uhrát bodovanou kartu",
+                Description = "zkusit uhrát bodovanou kartu",   //v nekterych situacich by se vyplatilo tohle pravidlo hrat jako prvni ... kdy presne? ... nebo vzdy?
                 SkipSimulations = true,
                 ChooseCard1 = () =>
                 {
@@ -503,8 +503,8 @@ namespace Mariasek.Engine.New
                                                                             (i.Value == Hodnota.Desitka &&
                                                                              _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0 &&
                                                                              _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0)) &&
-                                                                           _probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= _riskFactor &&
-                                                                           _probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= _riskFactor &&
+                                                                           _probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - _riskFactor &&
+                                                                           _probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - _riskFactor &&
                                                                            myInitialHand.Count(j => j.Suit == i.Suit) <= 2 &&
                                                                            myInitialHand.Count(j => j.Suit == _trump) <= 5).ToList();
                         return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
