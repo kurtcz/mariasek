@@ -780,25 +780,70 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 12,
-                Description = "hrát cokoli mimo A,X",
+                Description = "zbavit se plev",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
                 {
-                    var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
-                                                                            i.Value != Hodnota.Desitka &&
-                                                                            !_bannedSuits.Contains(i.Suit)).ToList();
-                    if (!cardsToPlay.Any())
+                    var topCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                 .Where(h => h > i.Value)
+                                                                 .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0 &&
+                                                                           _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0)).ToList();
+                    if (topCards.Any())
                     {
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
-                                                                            i.Value != Hodnota.Desitka).ToList();
+                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                !topCards.Contains(i)).ToList();
+
+                        return cardsToPlay.RandomOneOrDefault();
                     }
-                    return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                    return null;
                 }
             };
 
+            if ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 || !hands[MyIndex].Has7(_trump))
+            {
+                yield return new AiRule()
+                {
+                    Order = 13,
+                    Description = "hrát cokoli mimo A,X",
+                    SkipSimulations = true,
+                    ChooseCard1 = () =>
+                    {
+                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
+                                                                                i.Value != Hodnota.Desitka &&
+                                                                                !_bannedSuits.Contains(i.Suit)).ToList();
+                        if (!cardsToPlay.Any())
+                        {
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
+                                                                                i.Value != Hodnota.Desitka).ToList();
+                        }
+                        return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                    }
+                };
+            }
+            else
+            {
+                yield return new AiRule()
+                {
+                    Order = 14,
+                    Description = "hrát cokoli mimo trumf",
+                    SkipSimulations = true,
+                    ChooseCard1 = () =>
+                    {
+                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                !_bannedSuits.Contains(i.Suit)).ToList();
+                        if (!cardsToPlay.Any())
+                        {
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump).ToList();
+                        }
+
+                        return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                    }
+                };
+            }
+
             yield return new AiRule()
             {
-                Order = 13,
+                Order = 15,
                 Description = "hrát cokoli",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
