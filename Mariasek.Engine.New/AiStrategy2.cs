@@ -297,11 +297,13 @@ namespace Mariasek.Engine.New
                     {
                         //c--
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
-                                                                       (i.Suit == _trump || 
-                                                                        ((_probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - _riskFactor ||
-                                                                          _probabilities.SuitProbability(player2, _trump, RoundNumber) <= _riskFactor) &&
-                                                                         (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - _riskFactor ||
-                                                                          _probabilities.SuitProbability(player3, _trump, RoundNumber) <= _riskFactor))) &&
+                                                                            (i.Suit == _trump || 
+                                                                             ((_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 1 ||
+                                                                               (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - _riskFactor &&
+                                                                                _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0)) &&
+                                                                              (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 ||
+                                                                               (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - _riskFactor &&
+                                                                                _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0)))) &&
                                                                             (_probabilities.HasSolitaryX(player2, i.Suit, RoundNumber) >= SolitaryXThreshold ||
                                                                              _probabilities.HasSolitaryX(player3, i.Suit, RoundNumber) >= SolitaryXThreshold)).ToList();
                     }
@@ -310,8 +312,9 @@ namespace Mariasek.Engine.New
                         //co-
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
                                                                             (i.Suit == _trump ||
-                                                                             _probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - _riskFactor ||
-                                                                             _probabilities.SuitProbability(player3, _trump, RoundNumber) <= _riskFactor) &&
+                                                                             (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 ||
+                                                                              (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - _riskFactor &&
+                                                                               _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0))) &&
                                                                             _probabilities.HasSolitaryX(player3, i.Suit, RoundNumber) >= SolitaryXThreshold).ToList();
                     }
                     else
@@ -319,8 +322,9 @@ namespace Mariasek.Engine.New
                         //c-o
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
                                                                             (i.Suit == _trump ||
-                                                                             _probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - _riskFactor ||
-                                                                             _probabilities.SuitProbability(player2, _trump, RoundNumber) <= _riskFactor) &&
+                                                                             (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 1 ||
+                                                                              (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - _riskFactor &&
+                                                                               _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0))) &&
                                                                             _probabilities.HasSolitaryX(player2, i.Suit, RoundNumber) >= SolitaryXThreshold).ToList();
                     }
 
@@ -375,8 +379,12 @@ namespace Mariasek.Engine.New
                         var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > 0 ||
                                                                                                _probabilities.CardProbability(player3, new Card(_trump, h)) > 0).ToList();
                         var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
-
-                        if (holes.Count > 0 && topTrumps.Count >= holes.Count)
+                        var lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                     .Any(h => h > i.Value &&
+                                                                               (_probabilities.CardProbability(player2, new Card(i.Suit, h)) > 0 ||
+                                                                                _probabilities.CardProbability(player3, new Card(i.Suit, h)) > 0))).ToList();
+                        
+                        if (holes.Count > 0 && topTrumps.Count >= holes.Count && lowCards.Count < hands[MyIndex].CardCount(_trump))
                         {
                             cardsToPlay = topTrumps;
                         }
@@ -386,8 +394,11 @@ namespace Mariasek.Engine.New
                         //co-
                         var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player3, new Card(_trump, h)) > 0).ToList();
                         var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
+                        var lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                     .Any(h => h > i.Value &&
+                                                                               _probabilities.CardProbability(player3, new Card(i.Suit, h)) > 0)).ToList();
 
-                        if (holes.Count > 0 && topTrumps.Count >= holes.Count)
+                        if (holes.Count > 0 && topTrumps.Count >= holes.Count && lowCards.Count < hands[MyIndex].CardCount(_trump))
                         {
                             cardsToPlay = topTrumps;
                         }
@@ -397,8 +408,11 @@ namespace Mariasek.Engine.New
                         //c-o
                         var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > 0).ToList();
                         var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
+                        var lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                     .Any(h => h > i.Value &&
+                                                                               _probabilities.CardProbability(player2, new Card(i.Suit, h)) > 0)).ToList();
 
-                        if (holes.Count > 0 && topTrumps.Count >= holes.Count)
+                        if (holes.Count > 0 && topTrumps.Count >= holes.Count && lowCards.Count < hands[MyIndex].CardCount(_trump))
                         {
                             cardsToPlay = topTrumps;
                         }
