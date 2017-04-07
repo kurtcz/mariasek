@@ -228,7 +228,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold.Kilo",
-                Value = "70|75|80|85|95"
+                Value = "55|70|80|85|95"
             });
             _aiConfig.Add("GameThreshold.KiloProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
