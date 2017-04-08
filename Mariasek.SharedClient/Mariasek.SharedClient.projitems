@@ -47,7 +47,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\LineChart.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SavedGame\ResourceLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\LeftRightSelector.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)GeneratorScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ScrollBox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\GameReview.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StatScene.cs" />
