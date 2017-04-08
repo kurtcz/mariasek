@@ -14,12 +14,13 @@ using Microsoft.Xna.Framework.Media;
 
 using Mariasek.SharedClient.GameComponents;
 using Mariasek.Engine.New;
+using System.Linq;
 
 namespace Mariasek.SharedClient
 {
     public class SettingsScene : Scene
     {
-        private string _settingsFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.settings");
+        public string _settingsFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.settings");
 
         private Label _hint;
         private Label _sounds;
@@ -39,6 +40,7 @@ namespace Mariasek.SharedClient
 		private LeftRightSelector _cardFaceSelector;
         private Label _performance;
         private Button _menuBtn;
+        private Button _aiBtn;
 
         private GameSettings _settings;
 
@@ -76,8 +78,8 @@ namespace Mariasek.SharedClient
             LoadGameSettings();
             _sounds = new Label(this)
             {
-                Position = new Vector2(10, 10),
-                Width = (int)Game.VirtualScreenWidth / 2 - 20,
+                Position = new Vector2(200, 10),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Zvuk",
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -85,8 +87,8 @@ namespace Mariasek.SharedClient
             };
             _bgsounds = new Label(this)
             {
-                Position = new Vector2(10, 70),
-                Width = (int)Game.VirtualScreenWidth / 2 - 20,
+                Position = new Vector2(200, 70),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Zvuk pozadí",
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -94,8 +96,8 @@ namespace Mariasek.SharedClient
             };
             _soundBtn = new ToggleButton(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 390, 10),
-                Width = 360,
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 10),
+                Width = 270,
                 Height = 50,
                 Text = _settings.SoundEnabled ? "Zapnutý" : "Vypnutý",
                 IsSelected = _settings.SoundEnabled,
@@ -105,8 +107,8 @@ namespace Mariasek.SharedClient
             _soundBtn.Click += SoundBtnClick;
             _bgsoundBtn = new ToggleButton(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 390, 70),
-                Width = 360,
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 70),
+                Width = 270,
                 Height = 50,
                 Text = _settings.BgSoundEnabled ? "Zapnutý" : "Vypnutý",
                 IsSelected = _settings.BgSoundEnabled,
@@ -116,8 +118,8 @@ namespace Mariasek.SharedClient
             _bgsoundBtn.Click += BgSoundBtnClick;
             _hint = new Label(this)
             {
-                Position = new Vector2(10, 130),
-                Width = (int)Game.VirtualScreenWidth / 2 - 20,
+                Position = new Vector2(200, 130),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Nápověda",
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -125,8 +127,8 @@ namespace Mariasek.SharedClient
             };
             _hintBtn = new ToggleButton(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 390, 130),
-                Width = 360,
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 130),
+                Width = 270,
                 Height = 50,
                 Text = _settings.HintEnabled ? "Zapnutá" : "Vypnutá",
                 IsSelected = _settings.HintEnabled,
@@ -136,8 +138,8 @@ namespace Mariasek.SharedClient
             _hintBtn.Click += HintBtnClick;
 			_cardFace = new Label(this)
 			{
-				Position = new Vector2(10, 190),
-				Width = (int)Game.VirtualScreenWidth / 2 - 20,
+				Position = new Vector2(200, 190),
+				Width = (int)Game.VirtualScreenWidth / 2 - 150,
 				Height = 50,
 				Text = "Vzor karet",
 				HorizontalAlign = HorizontalAlignment.Center,
@@ -145,8 +147,8 @@ namespace Mariasek.SharedClient
 			};
 			_cardFaceSelector = new LeftRightSelector(this)
 			{
-				Position = new Vector2(Game.VirtualScreenWidth - 390, 190),
-				Width = 360,
+				Position = new Vector2(Game.VirtualScreenWidth - 300, 190),
+				Width = 270,
 				Items = new SelectorItems() { { "Jednohlavé", CardFace.Single }, { "Dvouhlavé", CardFace.Double } }
 			};
 			_cardFaceSelector.SelectedIndex = _cardFaceSelector.Items.FindIndex(_settings.CardDesign);
@@ -157,8 +159,8 @@ namespace Mariasek.SharedClient
 			}
             _handSorting = new Label(this)
             {
-                Position = new Vector2(10, 250),
-                Width = (int)Game.VirtualScreenWidth / 2 - 20,
+                Position = new Vector2(200, 250),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Řadit karty",
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -166,16 +168,16 @@ namespace Mariasek.SharedClient
             };
 			_handSortingSelector = new LeftRightSelector(this)
 			{
-				Position = new Vector2(Game.VirtualScreenWidth - 390, 250),
-				Width = 360,
+				Position = new Vector2(Game.VirtualScreenWidth - 300, 250),
+				Width = 270,
 				Items = new SelectorItems() { { "Vzestupně", SortMode.Ascending }, { "Sestupně", SortMode.Descending }, { "Vůbec", SortMode.None } }
 			};
 			_handSortingSelector.SelectedIndex = _handSortingSelector.Items.FindIndex(_settings.SortMode);
 			_handSortingSelector.SelectionChanged += SortModeChanged;
             _baseBet = new Label(this)
             {
-                Position = new Vector2(10, 310),
-                Width = (int)Game.VirtualScreenWidth / 2 - 20,
+                Position = new Vector2(200, 310),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Hodnota hry",
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -183,8 +185,8 @@ namespace Mariasek.SharedClient
             };
 			_baseBetSelector = new LeftRightSelector(this)
 			{
-				Position = new Vector2(Game.VirtualScreenWidth - 390, 310),
-				Width = 360,
+				Position = new Vector2(Game.VirtualScreenWidth - 300, 310),
+				Width = 270,
 				Items = new SelectorItems() { { "0,10 Kč", 0.1f}, { "0,20 Kč", 0.2f}, { "0,50 Kč", 0.5f },
 											  { "1 Kč", 1f }, { "2 Kč", 2f}, { "5 Kč", 5f}, { "10 Kč", 10f} }
 			};
@@ -192,8 +194,8 @@ namespace Mariasek.SharedClient
 			_baseBetSelector.SelectionChanged += BaseBetChanged;
 			_kiloCounting = new Label(this)
 			{
-				Position = new Vector2(10, 370),
-				Width = (int)Game.VirtualScreenWidth / 2 - 20,
+				Position = new Vector2(200, 370),
+				Width = (int)Game.VirtualScreenWidth / 2 - 150,
 				Height = 50,
 				Text = "Počítání peněz u kila",
 				HorizontalAlign = HorizontalAlignment.Center,
@@ -201,8 +203,8 @@ namespace Mariasek.SharedClient
 			};
 			_kiloCountingSelector = new LeftRightSelector(this)
 			{
-				Position = new Vector2(Game.VirtualScreenWidth - 390, 370),
-				Width = 360,
+				Position = new Vector2(Game.VirtualScreenWidth - 300, 370),
+				Width = 270,
 				Items = new SelectorItems() { { "Sčítat", CalculationStyle.Adding}, { "Násobit", CalculationStyle.Multiplying} }
 			};
 			_kiloCountingSelector.SelectedIndex = _kiloCountingSelector.Items.FindIndex(_settings.CalculationStyle);
@@ -231,12 +233,21 @@ namespace Mariasek.SharedClient
             _menuBtn = new Button(this)
             {
                 Position = new Vector2(10, Game.VirtualScreenHeight - 60),
-                Width = 100,
+                Width = 200,
                 Height = 50,
                 Text = "Menu",
 				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Bottom
             };
             _menuBtn.Click += MenuBtnClick;
+            _aiBtn = new Button(this)
+            {
+                Position = new Vector2(10, Game.VirtualScreenHeight - 120),
+                Width = 200,
+                Height = 50,
+                Text = "Nastavení AI",
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Bottom
+            };
+            _aiBtn.Click += AiBtnClick;
 
             Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;
@@ -324,6 +335,11 @@ namespace Mariasek.SharedClient
             Game.MenuScene.SetActive();
         }
 
+        void AiBtnClick(object sender)
+        {
+            Game.AiSettingsScene.UpdateControls();
+            Game.AiSettingsScene.SetActive();
+        }
 
         public void LoadGameSettings(bool forceLoad = true)
         {
@@ -338,7 +354,16 @@ namespace Mariasek.SharedClient
                 using (var fs = File.Open(_settingsFilePath, FileMode.Open))
                 {
                     _settings = (GameSettings)xml.Deserialize(fs);
+                    if (_settings.Thresholds == null || !_settings.Thresholds.Any() || _settings.Thresholds.Count() != Enum.GetValues(typeof(Hra)).Cast<Hra>().Count())
+                    {
+                        _settings.ResetThresholds();
+                    }
                     _settings.ThinkingTimeMs = 2000;
+                    //fs.Seek(0, SeekOrigin.Begin);
+                    //using (var sr = new StreamReader(fs))
+                    //{
+                    //    var str = sr.ReadToEnd();
+                    //}
                 }
             }
             catch(Exception e)
@@ -360,6 +385,11 @@ namespace Mariasek.SharedClient
                 {
                     xml.Serialize(fs, _settings);
                 }
+                //using (var tw = new StringWriter())
+                //{
+                //    xml.Serialize(tw, _settings);
+                //    var str = tw.ToString();
+                //}
             }
             catch(Exception e)
             {

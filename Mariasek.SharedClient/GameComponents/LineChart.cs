@@ -113,8 +113,9 @@ namespace Mariasek.SharedClient.GameComponents
             }
 
             var result =  
-                Vector2.UnitY * (Height - DataMarkerSize) + new Vector2((point.X - MinValue.X) * (_chartWidth() - DataMarkerSize) / logicalWidth + DataMarkerSize / 2, 
-                                                                        -(point.Y - MinValue.Y) * (Height - DataMarkerSize) / logicalHeight + DataMarkerSize / 2);
+                Vector2.UnitY * (Height - DataMarkerSize) + 
+                new Vector2((point.X - MinValue.X) * (_chartWidth() - DataMarkerSize) / logicalWidth + DataMarkerSize / 2, 
+                            -(point.Y - MinValue.Y) * (Height - DataMarkerSize) / logicalHeight + DataMarkerSize / 2);
 
             return result;
         }
@@ -138,7 +139,7 @@ namespace Mariasek.SharedClient.GameComponents
             //_chartWidth = (int)Math.Max(Width, _data.Length > 0 ? _data[0].Length * 25f : 0);
             //Draw onto the target rather than the back buffer
             _target = new RenderTarget2D(Game.SpriteBatch.GraphicsDevice, _chartWidth(), Height);
-            _verticalAxisTarget = new RenderTarget2D(Game.SpriteBatch.GraphicsDevice, (int)TickMarkLength, Height);
+            _verticalAxisTarget = new RenderTarget2D(Game.SpriteBatch.GraphicsDevice, (int)LogicalToPhysical(new Vector2(TickMarkLength, 0)).X, Height);
             HorizontalScrollOffset = Vector2.Zero;
 
             if (ShowYAxis)

@@ -37,8 +37,10 @@ namespace Mariasek.Engine.New
         public float RuleThreshold { get; set; }
         public Dictionary<Hra, float> RuleThresholdForGameType { get; set; }
         public float[] GameThresholds { get; set; }
-        public Dictionary<Hra, float[]> GameThresholdsForGameType { get; set; }
-        public int MaxDoubleCount { get; set; }
+        public Dictionary<Hra, float[]> GameThresholdsForGameType { get; set; } //TODO: move ThresholdSettings over here and use instead
+        //public int MaxDoubleCount { get; set; }
+        public Dictionary<Hra, int> MaxDoubleCountForGameType { get; set; }
+        public Dictionary<Hra, bool> CanPlayGameType { get; set; }
         public int SigmaMultiplier { get; set; }
 		public GameFlavourSelectionStrategy GameFlavourSelectionStrategy { get; set; }
 

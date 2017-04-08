@@ -42,6 +42,7 @@ namespace Mariasek.SharedClient
         public MainScene MainScene { get; private set; }
         public MenuScene MenuScene { get; private set; }
         public SettingsScene SettingsScene { get; private set; }
+        public AiSettingsScene AiSettingsScene { get; private set; }
         public HistoryScene HistoryScene { get; private set; }
         public StatScene StatScene { get; private set; }
 		//public GeneratorScene GenerateScene { get; private set; }
@@ -212,6 +213,7 @@ namespace Mariasek.SharedClient
 
             MenuScene = new MenuScene(this);           
             SettingsScene = new SettingsScene(this);
+            AiSettingsScene = new AiSettingsScene(this);
             HistoryScene = new HistoryScene(this);
             StatScene = new StatScene(this);
             MainScene = new MainScene(this);
@@ -221,6 +223,7 @@ namespace Mariasek.SharedClient
             HistoryScene.Initialize();
             StatScene.Initialize();
             SettingsScene.Initialize();
+            AiSettingsScene.Initialize();
             MainScene.Initialize();
 			//GenerateScene.Initialize();
 

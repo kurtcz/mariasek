@@ -51,8 +51,8 @@ namespace Mariasek.SharedClient.GameComponents
 			Width = 50;
 			Height = 50;
 			TextColor = Color.Yellow;
-			BackgroundColor = Color.Transparent;
-			BorderColor = Color.Transparent;
+			BackgroundColor = Color.TransparentBlack;
+			BorderColor = Color.TransparentBlack;
 		}
 	}
 
@@ -62,6 +62,29 @@ namespace Mariasek.SharedClient.GameComponents
 		private Button _rightButton;
 		private Button _valueLabel;
 
+        public override bool IsEnabled
+        {
+            get
+            {
+                return base.IsEnabled;
+            }
+            set
+            {
+                base.IsEnabled = value;
+                if (_leftButton != null)
+                {
+                    _leftButton.IsEnabled = value;
+                }
+                if (_rightButton != null)
+                {
+                    _rightButton.IsEnabled = value;
+                }
+                if (_valueLabel != null)
+                {
+                    _valueLabel.IsEnabled = value;
+                }
+            }
+        }
 		public SelectorItems<TValue> Items;
 		public int _selectedIndex;
 		public int SelectedIndex
@@ -77,7 +100,7 @@ namespace Mariasek.SharedClient.GameComponents
 				UpdateValue(); 
 			}
 		}
-		public TValue SelectedValue { get { return Items[SelectedIndex].Value; } }
+        public TValue SelectedValue { get { return Items[SelectedIndex].Value; } }
 		public override Vector2 Position
 		{
 			get

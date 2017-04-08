@@ -584,7 +584,7 @@ namespace Mariasek.SharedClient.GameComponents
         {
             var spline = new SplineInterpolator(points);
             var splinePoints = new List<Vector2>();
-            var splinePointsLength = (int)points.Last().X - (int)points.First().X + 1;
+            var splinePointsLength = (int)points.Last().X - (int)points.First().X;
 
             for (var i = 0; i < splinePointsLength; i++)
             {

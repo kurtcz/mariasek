@@ -73,14 +73,33 @@ namespace Mariasek.Engine.New
                 GameThresholdsForGameType = new Dictionary<Hra, float[]>
                                             {
                                                 { Hra.Hra,        new[] { 0.00f, 0.50f, 0.65f, 0.80f, 0.95f } },
-                                                //{ Hra.Sedma,      new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
-                                                //{ Hra.SedmaProti, new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
+                                                { Hra.Sedma,      new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
+                                                { Hra.SedmaProti, new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
                                                 { Hra.Kilo,       new[] { 0.80f, 0.85f, 0.90f, 0.95f, 0.99f } },
                                                 { Hra.KiloProti,  new[] { 0.95f, 0.96f, 0.97f, 0.98f, 0.99f } },
                                                 { Hra.Betl,       new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
                                                 { Hra.Durch,      new[] { 0.80f, 0.85f, 0.90f, 0.95f, 0.99f } }
                                             },
-                MaxDoubleCount = 5,
+                MaxDoubleCountForGameType = new Dictionary<Hra, int>
+                                            {
+                                                { Hra.Hra,        3 },
+                                                { Hra.Sedma,      3 },
+                                                { Hra.SedmaProti, 2 },
+                                                { Hra.Kilo,       3 },
+                                                { Hra.KiloProti,  0 },
+                                                { Hra.Betl,       3 },
+                                                { Hra.Durch,      3 }
+                                            },
+                CanPlayGameType = new Dictionary<Hra, bool>
+                                            {
+                                                { Hra.Hra,        true },
+                                                { Hra.Sedma,      true },
+                                                { Hra.SedmaProti, true },
+                                                { Hra.Kilo,       true },
+                                                { Hra.KiloProti,  false },
+                                                { Hra.Betl,       true },
+                                                { Hra.Durch,      true }
+                                            },
                 SigmaMultiplier = 0,
 				GameFlavourSelectionStrategy = GameFlavourSelectionStrategy.Standard
             };
@@ -131,7 +150,23 @@ namespace Mariasek.Engine.New
             Settings.GameThresholdsForGameType[Hra.Betl] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
             gameThresholds2 = parameters["GameThreshold.Durch"].Value;
             Settings.GameThresholdsForGameType[Hra.Durch] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
-            Settings.MaxDoubleCount = int.Parse(parameters["MaxDoubleCount"].Value);
+            //Settings.MaxDoubleCount = int.Parse(parameters["MaxDoubleCount"].Value);
+            Settings.MaxDoubleCountForGameType = new Dictionary<Hra, int>();
+            Settings.MaxDoubleCountForGameType[Hra.Hra] = int.Parse(parameters["MaxDoubleCount.Hra"].Value);
+            Settings.MaxDoubleCountForGameType[Hra.Sedma] = int.Parse(parameters["MaxDoubleCount.Sedma"].Value);
+            Settings.MaxDoubleCountForGameType[Hra.Kilo] = int.Parse(parameters["MaxDoubleCount.Kilo"].Value);
+            Settings.MaxDoubleCountForGameType[Hra.SedmaProti] = int.Parse(parameters["MaxDoubleCount.SedmaProti"].Value);
+            Settings.MaxDoubleCountForGameType[Hra.KiloProti] = int.Parse(parameters["MaxDoubleCount.KiloProti"].Value);
+            Settings.MaxDoubleCountForGameType[Hra.Betl] = int.Parse(parameters["MaxDoubleCount.Betl"].Value);
+            Settings.MaxDoubleCountForGameType[Hra.Durch] = int.Parse(parameters["MaxDoubleCount.Durch"].Value);
+            Settings.CanPlayGameType = new Dictionary<Hra, bool>();
+            Settings.CanPlayGameType[Hra.Hra] = bool.Parse(parameters["CanPlay.Hra"].Value);
+            Settings.CanPlayGameType[Hra.Sedma] = bool.Parse(parameters["CanPlay.Sedma"].Value);
+            Settings.CanPlayGameType[Hra.Kilo] = bool.Parse(parameters["CanPlay.Kilo"].Value);
+            Settings.CanPlayGameType[Hra.SedmaProti] = bool.Parse(parameters["CanPlay.SedmaProti"].Value);
+            Settings.CanPlayGameType[Hra.KiloProti] = bool.Parse(parameters["CanPlay.KiloProti"].Value);
+            Settings.CanPlayGameType[Hra.Betl] = bool.Parse(parameters["CanPlay.Betl"].Value);
+            Settings.CanPlayGameType[Hra.Durch] = bool.Parse(parameters["CanPlay.Durch"].Value);
             Settings.SigmaMultiplier = int.Parse(parameters["SigmaMultiplier"].Value);
 			Settings.GameFlavourSelectionStrategy = (GameFlavourSelectionStrategy)Enum.Parse(typeof(GameFlavourSelectionStrategy), parameters["GameFlavourSelectionStrategy"].Value);
             _teamMatesSuits = new List<Barva>();
@@ -1181,11 +1216,11 @@ namespace Mariasek.Engine.New
             var durchThreshold = bidding._betlDurchFlek < Settings.GameThresholdsForGameType[Hra.Durch].Length ? Settings.GameThresholdsForGameType[Hra.Durch][bidding._betlDurchFlek] : 1f;
 			var minRuleCount = int.MaxValue;
 
-            if (bidding.MaxDoubleCount > Settings.MaxDoubleCount)
-            {
-                //uz stacilo
-                return bid;
-            }
+            //if (bidding.MaxDoubleCount > Settings.MaxDoubleCount)
+            //{
+            //    //uz stacilo
+            //    return bid;
+            //}
             if (_moneyCalculations == null)
             {
                 //mame flekovat hru
@@ -1207,6 +1242,8 @@ namespace Mariasek.Engine.New
             }
             //Flekovani u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) 
             if ((bidding.Bids & Hra.Hra) != 0 &&
+                Settings.CanPlayGameType[Hra.Hra] &&
+                bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Hra] &&
                 ((_gamesBalance / (float)_goodSimulations >= gameThreshold &&                  
                     //pokud jsem volil (re a vys) a:
                     //trham trumfovy hlas a mam aspon jeden hlas
@@ -1243,7 +1280,10 @@ namespace Mariasek.Engine.New
             //    (PlayerIndex != _g.GameStartingPlayerIndex && _sevensBalance == Settings.SimulationsPerGameType))
 
             //nove muzu flekovat sedmu protoze ji zohlednuju v pravdepodobnostnim rozlozeni
-            if ((bidding.Bids & Hra.Sedma) != 0 && Hand.CardCount(_g.trump.Value) >= 3 && _sevensBalance / (float)_goodSimulations >= sevenThreshold)
+            if ((bidding.Bids & Hra.Sedma) != 0 &&
+                Settings.CanPlayGameType[Hra.Sedma] &&
+                bidding._sevenFlek <= Settings.MaxDoubleCountForGameType[Hra.Sedma] &&
+                Hand.CardCount(_g.trump.Value) >= 3 && _sevensBalance / (float)_goodSimulations >= sevenThreshold)
             {
                 bid |= bidding.Bids & Hra.Sedma;
                 minRuleCount = Math.Min(minRuleCount, _sevensBalance);
@@ -1252,6 +1292,8 @@ namespace Mariasek.Engine.New
             //nebo pokud jsem nevolil a je nemozne aby mel volici hrac kilo (nema hlas)
             //?! Pokud bych chtel simulovat sance na to, ze volici hrac hlasene kilo neuhraje, tak musim nejak generovat "karty na kilo" (aspon 1 hlas) a ne nahodne karty
             if ((bidding.Bids & Hra.Kilo) != 0 &&
+                Settings.CanPlayGameType[Hra.Kilo] &&
+                bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Kilo] &&
                 ((PlayerIndex == _g.GameStartingPlayerIndex && _hundredsBalance / (float)_goodSimulations >= gameThreshold) ||
 			     (PlayerIndex != _g.GameStartingPlayerIndex && Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0)))
             {
@@ -1262,6 +1304,8 @@ namespace Mariasek.Engine.New
             //nebo pokud jsem volil trumf a v simulacich ani jednou nevysla
             //?! Pokud bych chtel simulovat sance na to, ze volici hrac hlasenou sedmu neuhraje, tak musim nejak generovat "karty na sedmu" (aspon 4-5 trumfu) a ne nahodne karty
             if ((bidding.Bids & Hra.SedmaProti) != 0 &&
+                Settings.CanPlayGameType[Hra.SedmaProti] &&
+                bidding._sevenAgainstFlek <= Settings.MaxDoubleCountForGameType[Hra.SedmaProti] &&
                 bidding.SevenAgainstMultiplier <= 2 && //flekujeme jen do re
                 (//(PlayerIndex != _g.GameStartingPlayerIndex && _sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold && Hand.CardCount(_g.trump.Value) >= 3) ||
                  (PlayerIndex != _g.GameStartingPlayerIndex && 
@@ -1280,8 +1324,10 @@ namespace Mariasek.Engine.New
             }
             //kilo proti flekuju jen pokud jsem hlasil sam kilo proti a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem volil trumf a je nemozne aby meli protihraci kilo (nemaji hlas)
-            if ((bidding.Bids & Hra.KiloProti) != 0 &&
-                (//(PlayerIndex != _g.GameStartingPlayerIndex && _hundredsAgainstBalance / (float)_goodSimulations >= hundredAgainstThreshold) ||
+            if ((bidding.Bids & Hra.KiloProti) != 0 &&                
+                ((Settings.CanPlayGameType[Hra.KiloProti] &&
+                  bidding._hundredAgainstFlek <= Settings.MaxDoubleCountForGameType[Hra.KiloProti] &&
+                  (PlayerIndex != _g.GameStartingPlayerIndex && _hundredsAgainstBalance / (float)_goodSimulations >= hundredAgainstThreshold)) ||
                  (PlayerIndex == _g.GameStartingPlayerIndex && //_gamesBalance / (float)_goodSimulations >= gameThreshold && //_hundredsAgainstBalance == Settings.SimulationsPerGameType))); //never monte carlu, dej na pravdepodobnost
                   (Probabilities.HlasProbability((PlayerIndex + 1) % Game.NumPlayers) == 0) &&
 				  (Probabilities.HlasProbability((PlayerIndex + 2) % Game.NumPlayers) == 0))))
@@ -1298,6 +1344,8 @@ namespace Mariasek.Engine.New
             //durch flekuju jen pokud jsem volil sam durch a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem nevolil a nejde teoreticky uhrat            
             if ((bidding.Bids & Hra.Durch) != 0 &&
+                Settings.CanPlayGameType[Hra.Durch] &&
+                bidding._betlDurchFlek <= Settings.MaxDoubleCountForGameType[Hra.Durch] &&
                 ((PlayerIndex == _g.GameStartingPlayerIndex && _durchSimulations > 0 && _durchBalance / (float)_durchSimulations >= durchThreshold) ||
 			     (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) == 4)))
             {
@@ -1306,6 +1354,8 @@ namespace Mariasek.Engine.New
             }
             //betla flekuju jen pokud jsem volil sam betla a v simulacich jsem ho uhral dost casto
             if ((bidding.Bids & Hra.Betl) != 0 &&
+                Settings.CanPlayGameType[Hra.Betl] &&
+                bidding._betlDurchFlek <= Settings.MaxDoubleCountForGameType[Hra.Betl] &&
                 PlayerIndex == _g.GameStartingPlayerIndex && _betlSimulations > 0 && _betlBalance / (float)_betlSimulations >= betlThreshold)
             {
                 bid |= bidding.Bids & Hra.Betl;

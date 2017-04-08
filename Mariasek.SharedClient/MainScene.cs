@@ -210,46 +210,32 @@ namespace Mariasek.SharedClient
                 Name = "GameThreshold",
                 Value = "75|80|85|90|95"
             });
-            _aiConfig.Add("GameThreshold.Hra", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-            {
-                Name = "GameThreshold.Hra",
-                Value = "0|30|55|85|95"
-            });
-            _aiConfig.Add("GameThreshold.Sedma", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-            {
-                Name = "GameThreshold.Sedma",
-                Value = "25|65|75|85|95"
-            });
-            _aiConfig.Add("GameThreshold.SedmaProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-            {
-                Name = "GameThreshold.SedmaProti",
-                Value = "70|75|80|85|95"
-            });
-            _aiConfig.Add("GameThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-            {
-                Name = "GameThreshold.Kilo",
-                Value = "55|70|80|85|95"
-            });
-            _aiConfig.Add("GameThreshold.KiloProti", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-            {
-                Name = "GameThreshold.KiloProti",
-                Value = "95|96|97|98|99"
-            });
-            _aiConfig.Add("GameThreshold.Betl", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-            {
-                Name = "GameThreshold.Betl",
-                Value = "65|75|85|95|99"
-            });
-            _aiConfig.Add("GameThreshold.Durch", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-            {
-                Name = "GameThreshold.Durch",
-                Value = "65|75|85|95|99"
-            });
             _aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "MaxDoubleCount",
                 Value = "3"
             });
+            foreach (var thresholdSettings in _settings.Thresholds)
+            {
+                _aiConfig.Add(string.Format("GameThreshold.{0}", thresholdSettings.GameType.ToString()),
+                              new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                              {
+                                    Name = string.Format("GameThreshold.{0}", thresholdSettings.GameType.ToString()),
+                                    Value = thresholdSettings.Thresholds
+                              });
+                _aiConfig.Add(string.Format("MaxDoubleCount.{0}", thresholdSettings.GameType.ToString()),
+                              new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                              {
+                                  Name = string.Format("MaxDoubleCount.{0}", thresholdSettings.GameType.ToString()),
+                                  Value = thresholdSettings.MaxBidCount.ToString()
+                              });
+                _aiConfig.Add(string.Format("CanPlay.{0}", thresholdSettings.GameType.ToString()),
+                              new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                              {
+                                  Name = string.Format("CanPlay.{0}", thresholdSettings.GameType.ToString()),
+                                  Value = thresholdSettings.Use.ToString()
+                              });
+            }
             _aiConfig.Add("SigmaMultiplier", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "SigmaMultiplier",
@@ -1241,7 +1227,10 @@ namespace Mariasek.SharedClient
             ShowMsgLabel(msg1, false);
             if (Game.EmailSender != null)
             {
-                Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek crash report", msg2, new[] { _newGameFilePath, _errorFilePath });
+                Game.EmailSender.SendEmail(
+                    new[] { "mariasek.app@gmail.com" }, 
+                    "Mariasek crash report", msg2, 
+                    new[] { _newGameFilePath, _errorFilePath,  Game.SettingsScene._settingsFilePath });
             }
         }
 
@@ -1274,11 +1263,13 @@ namespace Mariasek.SharedClient
                     {
                         g.SaveGame(fs, saveDebugInfo: true);
                     }
-                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek game feedback", "", new[] { _newGameFilePath, _savedGameFilePath });
+                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek game feedback", "", 
+                                               new[] { _newGameFilePath, _savedGameFilePath, Game.SettingsScene._settingsFilePath });
                 }
                 else
                 {
-                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek game feedback", "", new[] { _newGameFilePath, _endGameFilePath });
+                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek game feedback", "", 
+                                               new[] { _newGameFilePath, _endGameFilePath, Game.SettingsScene._settingsFilePath });
                 }
             }
         }
