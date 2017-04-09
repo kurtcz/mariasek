@@ -1246,9 +1246,8 @@ namespace Mariasek.Engine.New
                 bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Hra] &&
                 ((_gamesBalance / (float)_goodSimulations >= gameThreshold &&                  
                     //pokud jsem volil (re a vys) a:
-                    //trham trumfovy hlas a mam aspon jeden hlas
+                    //trham trumfovy hlas
                     //nebo ho netrham a mam aspon dva hlasy
-                    //nebo ho netrham, hraju sedmu a jsem si hodne jistej (pouzivam vyssi prah)
                     ((TeamMateIndex == -1 && 
                       (Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2 ||
                        ((Hand.HasK(_trump.Value) || 
@@ -1279,7 +1278,7 @@ namespace Mariasek.Engine.New
             //if ((PlayerIndex == _g.GameStartingPlayerIndex && _sevensBalance / (float)Settings.SimulationsPerGameType >= sevenThreshold) ||
             //    (PlayerIndex != _g.GameStartingPlayerIndex && _sevensBalance == Settings.SimulationsPerGameType))
 
-            //nove muzu flekovat sedmu protoze ji zohlednuju v pravdepodobnostnim rozlozeni
+            //sedmu flekuju pokud mam aspon 3 trumfy
             if ((bidding.Bids & Hra.Sedma) != 0 &&
                 Settings.CanPlayGameType[Hra.Sedma] &&
                 bidding._sevenFlek <= Settings.MaxDoubleCountForGameType[Hra.Sedma] &&
@@ -1294,7 +1293,7 @@ namespace Mariasek.Engine.New
             if ((bidding.Bids & Hra.Kilo) != 0 &&
                 Settings.CanPlayGameType[Hra.Kilo] &&
                 bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Kilo] &&
-                ((PlayerIndex == _g.GameStartingPlayerIndex && _hundredsBalance / (float)_goodSimulations >= gameThreshold) ||
+                ((PlayerIndex == _g.GameStartingPlayerIndex && _hundredsBalance / (float)_goodSimulations >= hundredThreshold) ||
 			     (PlayerIndex != _g.GameStartingPlayerIndex && Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0)))
             {
                 bid |= bidding.Bids & Hra.Kilo;
@@ -1306,13 +1305,11 @@ namespace Mariasek.Engine.New
             if ((bidding.Bids & Hra.SedmaProti) != 0 &&
                 Settings.CanPlayGameType[Hra.SedmaProti] &&
                 bidding._sevenAgainstFlek <= Settings.MaxDoubleCountForGameType[Hra.SedmaProti] &&
-                bidding.SevenAgainstMultiplier <= 2 && //flekujeme jen do re
-                (//(PlayerIndex != _g.GameStartingPlayerIndex && _sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold && Hand.CardCount(_g.trump.Value) >= 3) ||
-                 (PlayerIndex != _g.GameStartingPlayerIndex && 
+                ((PlayerIndex != _g.GameStartingPlayerIndex && (_sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold ||                 
                   ((Hand.CardCount(_g.trump.Value) >= 4 &&              //neohlizej se na simulace, sedmu proti hlasim kdyz mam aspon 4 trumfy a vsechny barvy nebo aspon 5 trumfu
                    Hand.Select(i => i.Suit).Distinct().Count() == 4) ||
-                   Hand.CardCount(_g.trump.Value) >= 5)) ||
-			     (PlayerIndex == _g.GameStartingPlayerIndex && _sevensAgainstBalance == _goodSimulations)))
+                   Hand.CardCount(_g.trump.Value) >= 5))) ||
+			     (PlayerIndex == _g.GameStartingPlayerIndex && _sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold)))
             {
                 //if (_numberOfDoubles == 1 && PlayerIndex != _g.GameStartingPlayerIndex)
                 //{
