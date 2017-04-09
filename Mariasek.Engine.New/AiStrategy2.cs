@@ -22,7 +22,7 @@ namespace Mariasek.Engine.New
 #endif   
         private new Barva _trump { get { return base._trump.Value; } } //dirty
         private List<Barva> _bannedSuits = new List<Barva>();
-        private const float _riskFactor = 0.25f;
+        private const float _riskFactor = 0.275f; //0.2727f ~ (9 nad 5) / (11 nad 5)
 
         public AiStrategy2(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities)
             : base(trump, gameType, hands, rounds, teamMatesSuits, probabilities)
@@ -1421,8 +1421,12 @@ namespace Mariasek.Engine.New
                         return ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                       i.Suit != _trump &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) == i &&
-                                                                                      _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) == 0 &&
-                                                                                      _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) == 0);
+                                                                                      (_probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) == 0 ||
+                                                                                       (((_gameType & Hra.KiloProti) != 0) &&
+                                                                                        _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) < 1)) &&
+                                                                                      (_probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) == 0 ||
+                                                                                       (((_gameType & Hra.KiloProti) != 0) &&
+                                                                                        _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) < 1)));
                     }
                     else if (TeamMateIndex == player1)
                     {
@@ -1430,7 +1434,9 @@ namespace Mariasek.Engine.New
                         return ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                       i.Suit != _trump &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) != c2 &&
-                                                                                      _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) == 0);
+                                                                                      (_probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) == 0 ||
+                                                                                       (((_gameType & Hra.Kilo) != 0) &&
+                                                                                        _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) < 1)));
                     }
                     else
                     {
@@ -1438,7 +1444,9 @@ namespace Mariasek.Engine.New
                         return ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                       i.Suit != _trump &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) != c1 &&
-                                                                                      _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) == 0);
+                                                                                      (_probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) == 0 ||
+                                                                                       (((_gameType & Hra.Kilo) != 0) &&
+                                                                                        _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) < 1)));
                     }
                 }
             };

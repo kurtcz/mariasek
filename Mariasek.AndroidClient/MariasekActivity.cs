@@ -136,6 +136,7 @@ namespace Mariasek.AndroidClient
             }
             email.PutParcelableArrayListExtra(Intent.ExtraStream, uris.ToArray());
             StartActivity(email);
+            //TODO: delete attached files once they were sent
         }
 	}
 }
