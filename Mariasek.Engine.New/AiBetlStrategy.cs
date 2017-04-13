@@ -404,7 +404,14 @@ namespace Mariasek.Engine.New
                     //vyber nejkratsi barvu
                     var cardsToPlay = lo.OrderBy(g => g.Count()).Select(g => g.ToList()).FirstOrDefault();
 
-                    return cardsToPlay.RandomOneOrDefault();
+                    if (TeamMateIndex == player3)
+                    {
+                        return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+                    }
+                    else
+                    {
+                        return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+                    }
                 }
             };
         }

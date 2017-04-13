@@ -691,7 +691,7 @@ namespace Mariasek.Engine.New
                         UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
 
                         // to ?? vypada chybne
-                        var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : Hra.Sedma, 10, 1);
+                        var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : (Hra.Sedma | Hra.SedmaProti), 10, 1);
                         gameComputationResults.Enqueue(gameComputationResult);
                     }                    
                     var val = Interlocked.Increment(ref progress);

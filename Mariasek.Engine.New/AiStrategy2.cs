@@ -431,33 +431,33 @@ namespace Mariasek.Engine.New
                     SkipSimulations = true,
                     ChooseCard1 = () =>
                     {
-                        if (TeamMateIndex == -1 && (_gameType & Hra.Sedma) != 0)
+                        if ((_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0)                            //pokud se hraje sedma nebo sedma proti
                         {
-                            var trumpsLeft = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                 .Select(i => new Card(_trump, i))
-                                                 .Where(i => _probabilities.CardProbability(player2, i) > 0 ||
-                                                             _probabilities.CardProbability(player3, i) > 0);
-                            if (hands[MyIndex].CardCount(_trump) == 2 &&                            //pokud hraju sedmu a mam v ruce 2 posledni trumfy a neco tretiho
-                                trumpsLeft.Count() > 0 &&                                           //a pokud souper ma max. dva trumfy v ruce
-                                (trumpsLeft.Count() == 2 ||                                         //a pokud alespon z jeden ze souperovych trumfu je vetsi nez muj
-                                 hands[MyIndex].Any(i => i.Suit == _trump &&                        //tak hraj netrumfovou kartu at je to A nebo X
-                                                      i.Value < trumpsLeft.First().Value)))         //abychom uhrali sedmu nakonec
+                            if (TeamMateIndex == -1)
                             {
-                                return hands[MyIndex].First(i => i.Suit != _trump);
+                                var trumpsLeft = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                     .Select(i => new Card(_trump, i))
+                                                     .Where(i => _probabilities.CardProbability(player2, i) > 0 ||
+                                                                 _probabilities.CardProbability(player3, i) > 0);
+                                if (hands[MyIndex].CardCount(_trump) == 2 &&                            //a mam v ruce 2 posledni trumfy a neco tretiho
+                                    trumpsLeft.Count() > 0 &&                                           //a pokud souper ma max. dva trumfy v ruce
+                                    (trumpsLeft.Count() >= 2 ||                                         //a pokud alespon z jeden ze souperovych trumfu je vetsi nez muj
+                                     hands[MyIndex].Any(i => i.Suit == _trump &&                        //tak hraj netrumfovou kartu at je to A nebo X
+                                                          i.Value < trumpsLeft.Last().Value)))          //abychom uhrali sedmu nakonec resp. aby ji souper neuhral
+                                {
+                                    return hands[MyIndex].First(i => i.Suit != _trump);
+                                }
                             }
-                        }
-                        else if (TeamMateIndex != -1 && (_gameType & Hra.SedmaProti) != 0)
-                        {
-                            if (TeamMateIndex == player2)
+                            else if (TeamMateIndex == player2)
                             {
                                 var trumpsLeft = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                      .Select(i => new Card(_trump, i))
                                                      .Where(i => _probabilities.CardProbability(player3, i) > 0);
-                                if (hands[MyIndex].CardCount(_trump) == 2 &&                            //pokud hraju sedmu a mam v ruce 2 posledni trumfy a neco tretiho
+                                if (hands[MyIndex].CardCount(_trump) == 2 &&                            //a mam v ruce 2 posledni trumfy a neco tretiho
                                     trumpsLeft.Count() > 0 &&                                           //a pokud souper ma max. dva trumfy v ruce
-                                    (trumpsLeft.Count() == 2 ||                                         //a pokud alespon z jeden ze souperovych trumfu je vetsi nez muj
+                                    (trumpsLeft.Count() >= 2 ||                                         //a pokud alespon z jeden ze souperovych trumfu je vetsi nez muj
                                      hands[MyIndex].Any(i => i.Suit == _trump &&                        //tak hraj netrumfovou kartu at je to A nebo X
-                                                          i.Value < trumpsLeft.First().Value)))         //abychom uhrali sedmu nakonec
+                                                          i.Value < trumpsLeft.Last().Value)))          //abychom uhrali sedmu nakonec
                                 {
                                     return hands[MyIndex].First(i => i.Suit != _trump);
                                 }
@@ -469,9 +469,9 @@ namespace Mariasek.Engine.New
                                                      .Where(i => _probabilities.CardProbability(player2, i) > 0);
                                 if (hands[MyIndex].CardCount(_trump) == 2 &&                            //pokud hraju sedmu a mam v ruce 2 posledni trumfy a neco tretiho
                                     trumpsLeft.Count() > 0 &&                                           //a pokud souper ma max. dva trumfy v ruce
-                                    (trumpsLeft.Count() == 2 ||                                         //a pokud alespon z jeden ze souperovych trumfu je vetsi nez muj
+                                    (trumpsLeft.Count() >= 2 ||                                         //a pokud alespon z jeden ze souperovych trumfu je vetsi nez muj
                                      hands[MyIndex].Any(i => i.Suit == _trump &&                        //tak hraj netrumfovou kartu at je to A nebo X
-                                                          i.Value < trumpsLeft.First().Value)))         //abychom uhrali sedmu nakonec
+                                                          i.Value < trumpsLeft.Last().Value)))          //abychom uhrali sedmu nakonec
                                 {
                                     return hands[MyIndex].First(i => i.Suit != _trump);
                                 }

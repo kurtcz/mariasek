@@ -1190,7 +1190,7 @@ namespace Mariasek.SharedClient
                     }
                     ShowInvisibleClickableOverlay();
                     _hand.Hide();
-                    _winningHand = new GameComponents.Hand(this, e.winningHand.Sort(false, (g.GameType & (Hra.Betl | Hra.Durch)) != 0, g.trump).ToArray());
+                    _winningHand = new GameComponents.Hand(this, e.winningHand.Sort(false, (g.GameType & (Hra.Betl | Hra.Durch)) != 0, null, g.trump).ToArray());
                     _winningHand.ShowWinningHand(e.winner.PlayerIndex);
                     _winningHand.Show();
                     _state = GameState.RoundFinished;
@@ -1743,6 +1743,8 @@ namespace Mariasek.SharedClient
                     UpdateHand();
                 });
                 _skipBidBubble = true;  //abychom nezobrazovali bublinu znovu v BidMade()
+                SortHand(null); //presusporadame karty
+                UpdateHand();
             }
             else if (e.GameStartingPlayerIndex == 0)
             {
@@ -2388,7 +2390,7 @@ namespace Mariasek.SharedClient
                 {
 					var badGameSorting = _gameFlavourChosen == GameFlavour.Bad || (g.GameType & (Hra.Betl | Hra.Durch)) != 0;
 
-					g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, badGameSorting);
+					g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, badGameSorting, g.trump);
                 }
                 _hand.UpdateHand(g.players[0].Hand.ToArray(), 0, cardToHide);
                 _hand.SortHand(unsorted);

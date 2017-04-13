@@ -41,7 +41,7 @@ namespace Mariasek.Engine.New
 			return list;
 		}
 
-        public static IEnumerable<Card> Sort(this List<Card>hand, bool ascending, bool badGameSorting = false, Barva? lastSuit = null)
+        public static IEnumerable<Card> Sort(this List<Card>hand, bool ascending, bool badGameSorting = false, Barva? firstSuit = null, Barva? lastSuit = null)
         {
             hand.Sort((c1, c2) =>
                 {
@@ -49,7 +49,7 @@ namespace Mariasek.Engine.New
                     int s1 = Convert.ToInt16(c1.Suit);
                     int s2 = Convert.ToInt16(c2.Suit);
 
-                    if(lastSuit.HasValue)
+                    if (lastSuit.HasValue)
                     {
                         if (c1.Suit == lastSuit.Value)
                         {
@@ -58,6 +58,17 @@ namespace Mariasek.Engine.New
                         if (c2.Suit == lastSuit.Value)
                         {
                             s2 += 10;
+                        }
+                    }
+                    else if (firstSuit.HasValue)
+                    {
+                        if (c1.Suit == firstSuit.Value)
+                        {
+                            s1 -= 10;
+                        }
+                        if (c2.Suit == firstSuit.Value)
+                        {
+                            s2 -= 10;
                         }
                     }
                     if (s1 == s2)
