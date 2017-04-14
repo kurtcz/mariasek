@@ -166,7 +166,7 @@ namespace Mariasek.Engine.New
                         else if (TeamMateIndex == player2)
                         {
                             //: co-
-                            cardsToPlay = hands[MyIndex].Where(i => ValidCards(i, hands[player2]).All(j =>
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
                                                                       ValidCards(i, j, hands[player3]).All(k =>
                                                                       {
                                                                           var i2 = hands[MyIndex].First(l => l != i);
@@ -192,7 +192,7 @@ namespace Mariasek.Engine.New
                         else
                         {
                             //: c-o
-                            cardsToPlay = hands[MyIndex].Where(i => ValidCards(i, hands[player2]).All(j =>
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
                                                                       ValidCards(i, j, hands[player3]).All(k =>
                                                                       {
                                                                           var i2 = hands[MyIndex].First(l => l != i);
@@ -799,7 +799,10 @@ namespace Mariasek.Engine.New
                 }
             };
 
-            if ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 || !hands[MyIndex].Has7(_trump))
+            if ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 || 
+                ((_gameType & Hra.Kilo) != 0 && TeamMateIndex == -1) ||
+                ((_gameType & Hra.KiloProti) != 0 && TeamMateIndex != -1) ||
+                !hands[MyIndex].Has7(_trump))
             {
                 yield return new AiRule()
                 {
