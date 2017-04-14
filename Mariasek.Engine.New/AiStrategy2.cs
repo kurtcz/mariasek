@@ -1012,7 +1012,7 @@ namespace Mariasek.Engine.New
                                                                                 (i.Suit != _trump ||                  //a pokud moje X neni trumfova
                                                                                  !hands[MyIndex].HasA(_trump)) &&     //trumfovou X hraju jen kdyz nemam A
                                                                                 _probabilities.CardProbability(player3, new Card(c1.Suit, Hodnota.Eso)) == 0 &&
-                                                                                (_probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - _riskFactor ||
+                                                                                (_probabilities.NoSuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1 - _riskFactor ||
                                                                                  _probabilities.SuitProbability(player3, _trump, RoundNumber) <= _riskFactor)).ToList();
                         return cardsToPlay.RandomOneOrDefault();
                     }
