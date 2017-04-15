@@ -40,8 +40,10 @@ namespace Mariasek.Engine.New
         private List<int> _gameBidders;
         private int _gameIndex;
         private int _sevenIndex;
+        private int _sevenAgainstIndex;
         private int _hundredIndex;
-        private float _gameStarterInitialExpectedTrumps;
+        private int _hundredAgainstIndex;
+        private float[] _initialExpectedTrumps;
         //private Dictionary<Hra, float> _initialExpectedTrumpsPerGameType = new Dictionary<Hra, float>() { { Hra.Hra, 3f }, { Hra.Sedma, 5f }, { Hra.Kilo, 7f}};
         private float _gameStarterCurrentExpectedTrumps = 3f;
 
@@ -50,7 +52,9 @@ namespace Mariasek.Engine.New
             _myIndex = myIndex;
 			_gameIndex = -1;
             _sevenIndex = -1;
+            _sevenAgainstIndex = -1;
 			_hundredIndex = -1;
+            _hundredAgainstIndex = -1;
             _gameStarterIndex = gameStarterIndex;
             _trump = trump;
             _gameBidders = new List<int>();
@@ -68,8 +72,10 @@ namespace Mariasek.Engine.New
             _gameBidders.Add(gameStarterIndex);
             _cardProbabilityForPlayer = new Dictionary<Barva, Dictionary<Hodnota, float>>[Game.NumPlayers + 1];
             _cardsPlayedByPlayer = new List<Card>[Game.NumPlayers];
+            _initialExpectedTrumps = new float[Game.NumPlayers + 1];
             for (var i = 0; i < Game.NumPlayers + 1; i++)
             {
+                _initialExpectedTrumps[i] = 0f;
                 if (i < Game.NumPlayers)
                 {
                     _cardsPlayedByPlayer[i] = new List<Card>();
@@ -176,6 +182,17 @@ namespace Mariasek.Engine.New
         /// </summary>
         private void UpdateUncertainCardsProbability()
         {
+            if (_initialExpectedTrumps.All(i => i == 0) && _trump.HasValue)
+            {
+                _initialExpectedTrumps[_myIndex] = _myHand.CardCount(_trump.Value);
+                for (var i = 0; i < Game.NumPlayers + 1; i++)
+                {
+                    if (i != _myIndex && i < Game.NumPlayers)
+                    {
+                        _initialExpectedTrumps[i] = (8 - _initialExpectedTrumps[_myIndex]) / 2f;
+                    }
+                }
+            }
             for (var i = 0; i < Game.NumPlayers + 1; i++)
             {
                 var ii = (_gameStarterIndex + i) % (Game.NumPlayers + 1);
@@ -194,7 +211,7 @@ namespace Mariasek.Engine.New
 
                         //pokud nekdo jiny hlasil hru, sedmu nebo kilo, zvednu mu pravdepodobnosti trumfovych karet
                         //ostatnim naopak pravdepodobnosti snizim
-                        if (_trump.HasValue && b == _trump.Value && _myIndex != _gameStarterIndex)
+                        if (_trump.HasValue && b == _trump.Value)
                         {
                             var playedTrumps = ii != talonIndex ? _cardsPlayedByPlayer[ii].Count(j => j.Suit == b) : 0;
                             var certainTrumps = _cardProbabilityForPlayer[ii][b].Count(j => j.Value == 1);//pocet jistych trumfu pro daneho hrace
@@ -206,12 +223,19 @@ namespace Mariasek.Engine.New
 
                             if (ii == _gameStarterIndex)
                             {
-                                currentExpectedTrumps = _gameStarterInitialExpectedTrumps - certainTrumps - playedTrumps;
+                                currentExpectedTrumps = _initialExpectedTrumps[ii] - certainTrumps - playedTrumps;
                                 _gameStarterCurrentExpectedTrumps = currentExpectedTrumps;
                             }
                             else if (ii != talonIndex)
                             {
-                                currentExpectedTrumps = totalUncertainTrumps - _gameStarterCurrentExpectedTrumps;
+                                if (_myIndex == _gameStarterIndex)
+                                {
+                                    currentExpectedTrumps = _initialExpectedTrumps[ii] - certainTrumps - playedTrumps;
+                                }
+                                else
+                                {
+                                    currentExpectedTrumps = totalUncertainTrumps - _gameStarterCurrentExpectedTrumps;
+                                }
                             }
                             else
                             {
@@ -890,30 +914,35 @@ namespace Mariasek.Engine.New
             if ((e.GameType & Hra.Sedma) != 0)
             {
                 _sevenIndex = e.GameStartingPlayerIndex;
-                //TODO: poresit sedmu proti (jak zjistim kdo ji hlasil?)
             }
-			if ((e.GameType & Hra.Kilo) != 0)
-			{
-				_hundredIndex = e.GameStartingPlayerIndex;
-				//TODO: poresit kilo proti (jak zjistim kdo ji hlasil?)
-			}
-			else if((e.GameType & Hra.Hra) != 0)
-			{
-				_gameIndex = e.GameStartingPlayerIndex;
-			}
+            if ((e.GameType & Hra.Kilo) != 0)
+            {
+                _hundredIndex = e.GameStartingPlayerIndex;
+            }
+            else if((e.GameType & Hra.Hra) != 0)
+            {
+                _gameIndex = e.GameStartingPlayerIndex;
+            }
             if (e.GameStartingPlayerIndex != _myIndex && _trump.HasValue)
             {
                 if (_hundredIndex >= 0)
                 {
-                    _gameStarterInitialExpectedTrumps = GetGameStarterInitialExpectedTrumps(Hra.Kilo);
+                    _initialExpectedTrumps[e.GameStartingPlayerIndex] = GetGameStarterInitialExpectedTrumps(Hra.Kilo);
                 }
                 else if (_sevenIndex >= 0)
                 {
-                    _gameStarterInitialExpectedTrumps = GetGameStarterInitialExpectedTrumps(Hra.Sedma);
+                    _initialExpectedTrumps[e.GameStartingPlayerIndex] = GetGameStarterInitialExpectedTrumps(Hra.Sedma);
                 }
                 else
                 {
-                    _gameStarterInitialExpectedTrumps = GetGameStarterInitialExpectedTrumps(Hra.Hra);
+                    _initialExpectedTrumps[e.GameStartingPlayerIndex] = GetGameStarterInitialExpectedTrumps(Hra.Hra);
+                }
+                for (var i = 0; i < Game.NumPlayers; i++)
+                {
+                    if (i != _myIndex && i != e.GameStartingPlayerIndex)
+                    {
+                        _initialExpectedTrumps[i] = 8 - _initialExpectedTrumps[_myIndex] - _initialExpectedTrumps[e.GameStartingPlayerIndex];
+                    }
                 }
             }
             UpdateUncertainCardsProbability();
@@ -936,6 +965,62 @@ namespace Mariasek.Engine.New
                     return Math.Min(5, 8 - myInitialTrumpCount);
                 default:
                     return Math.Min(4, 8 - myInitialTrumpCount);
+            }
+        }
+
+        public void UpdateProbabilitiesAfterBidMade(BidEventArgs e, Bidding bidding)
+        {
+            if ((e.BidMade & Hra.SedmaProti) != 0 && bidding.SevenAgainstMultiplier == 1)
+            {
+                _sevenAgainstIndex = e.Player.PlayerIndex;
+                _initialExpectedTrumps[_sevenAgainstIndex] = GetNonStarterInitialExpectedTrumps(Hra.SedmaProti);
+                for (var i = 0; i < Game.NumPlayers; i++)
+                {
+                    if (i != _myIndex && i != _sevenAgainstIndex && i != _gameStarterIndex)
+                    {
+                        _initialExpectedTrumps[i] = 8 - _initialExpectedTrumps[_gameStarterIndex] - _initialExpectedTrumps[_sevenAgainstIndex];
+                    }
+                }
+            }
+            if ((e.BidMade & Hra.KiloProti) != 0 && bidding.HundredAgainstMultiplier == 1)
+            {
+                _hundredIndex = e.Player.PlayerIndex;
+                _initialExpectedTrumps[_sevenAgainstIndex] = GetNonStarterInitialExpectedTrumps(Hra.KiloProti);
+                for (var i = 0; i < Game.NumPlayers; i++)
+                {
+                    if (i != _myIndex && i != _hundredAgainstIndex && i != _gameStarterIndex)
+                    {
+                        _initialExpectedTrumps[i] = 8 - _initialExpectedTrumps[_gameStarterIndex] - _initialExpectedTrumps[_hundredAgainstIndex];
+                    }
+                }
+            }
+            UpdateUncertainCardsProbability();
+            if (UseDebugString)
+            {
+                _debugString.Append(FriendlyString(0));
+                _debugString.Append("-----\n");
+            }
+        }
+
+        private float GetNonStarterInitialExpectedTrumps(Hra gameType)
+        {
+            if (_myIndex == _sevenAgainstIndex || _myIndex == _hundredAgainstIndex)
+            {
+                return _myHand.CardCount(_trump.Value);
+            }
+            if (_myIndex != _gameStarterIndex)
+            {
+                return 8 - _initialExpectedTrumps[_myIndex] - _initialExpectedTrumps[_gameStarterIndex];
+            }
+            //_myIndex == _gameStarterIndex
+            switch (gameType)
+            {
+                case Hra.KiloProti:
+                    return Math.Min(6, 8 - _initialExpectedTrumps[_myIndex]);
+                case Hra.SedmaProti:
+                    return Math.Min(4, 8 - _initialExpectedTrumps[_myIndex]);
+                default:
+                    return Math.Min(2, 8 - _initialExpectedTrumps[_myIndex]);
             }
         }
 

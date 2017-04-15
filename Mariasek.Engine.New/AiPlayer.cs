@@ -1240,6 +1240,12 @@ namespace Mariasek.Engine.New
                     //RunGameSimulations(bidding, _g.GameStartingPlayerIndex, false, true);
                 }
             }
+            else if ((bidding.Bids & (Hra.SedmaProti | Hra.KiloProti)) != 0 && 
+                     bidding.SevenAgainstMultiplier <= 1 && 
+                     bidding.HundredAgainstMultiplier <= 1)
+            {
+                RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, false);
+            }
             //Flekovani u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) 
             if ((bidding.Bids & Hra.Hra) != 0 &&
                 Settings.CanPlayGameType[Hra.Hra] &&
@@ -1473,6 +1479,7 @@ namespace Mariasek.Engine.New
             {
                 _teamMateDoubledGame = true;
             }
+            Probabilities.UpdateProbabilitiesAfterBidMade(e, _g.Bidding);
         }
 
         private void CardPlayed(object sender, Round r)

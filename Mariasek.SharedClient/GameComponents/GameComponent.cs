@@ -270,7 +270,7 @@ namespace Mariasek.SharedClient
 
             GameComponentOperation operation;
 
-            if (ScheduledOperations.TryPeek(out operation))
+            if (ScheduledOperations.TryPeek(out operation) && operation != null)
             {
                 var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
