@@ -1766,9 +1766,6 @@ namespace Mariasek.SharedClient
             if (!_skipBidBubble)
             {
                 ShowBubble(e.Player.PlayerIndex, e.Description);
-                _evt.Reset();
-                this.Invoke(() => _evt.Set());
-                _evt.WaitOne();
             }
             _skipBidBubble = false;
             //premysleci bublinu nezobrazuj pokud bude premyslet clovek
@@ -1785,6 +1782,7 @@ namespace Mariasek.SharedClient
             {
                 return;
             }
+            EnsureBubblesHidden();
             _synchronizationContext.Send(_ =>
                 {
                     Card lastCard;
@@ -1917,6 +1915,17 @@ namespace Mariasek.SharedClient
             }
         }
 
+        private void EnsureBubblesHidden()
+        {
+            //aby se bubliny predcasne neschovaly
+            if (this.ScheduledOperations.Count() > 0)
+            {
+                _evt.Reset();
+                this.Invoke(() => _evt.Set());
+                _evt.WaitOne();
+            }
+        }
+
         public void GameFinished(object sender, MoneyCalculatorBase results)
         {
             _state = GameState.GameFinished;
@@ -1925,6 +1934,7 @@ namespace Mariasek.SharedClient
             Game.Money.Add(results);
             SaveHistory();
 
+            EnsureBubblesHidden();
             ClearTable(true);
             _hand.UpdateHand(new Card[0]);
             _hintBtn.IsEnabled = false;

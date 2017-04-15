@@ -1250,7 +1250,7 @@ namespace Mariasek.Engine.New
             if ((bidding.Bids & Hra.Hra) != 0 &&
                 Settings.CanPlayGameType[Hra.Hra] &&
                 bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Hra] &&
-                ((_gamesBalance / (float)_goodSimulations >= gameThreshold &&                  
+                ((_gamesBalance / (float)_goodSimulations >= gameThreshold &&
                     //pokud jsem volil (re a vys) a:
                     //trham trumfovy hlas
                     //nebo ho netrham a mam aspon dva hlasy
@@ -1271,7 +1271,9 @@ namespace Mariasek.Engine.New
                             (Hand.HasK(_g.trump.Value) || 
                              Hand.HasQ(_g.trump.Value) || 
                              Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2))))))) ||
-                 
+                 //nebo davam re a jsem si dost jisty nehlede na hlasy
+                 (TeamMateIndex == -1 &&
+                  _gamesBalance / (float)_goodSimulations >= gameThresholdNext) ||
                  //nebo kolega flekoval a ja mam nejakou hlasku a citil jsem se na flek jiz minule (tutti a vys),
                  (_teamMateDoubledGame && _gamesBalance / (float)_goodSimulations >= gameThresholdPrevious && 
                   Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit)))))
