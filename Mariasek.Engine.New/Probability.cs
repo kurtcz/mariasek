@@ -1068,6 +1068,20 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c2.Suit][Hodnota.Kral] = 0f;
                 _cardProbabilityForPlayer[talonIndex][c2.Suit][Hodnota.Kral] = 0f;
             }
+            if (_trump.HasValue &&
+                c1.Suit != _trump &&
+                c1.Suit == c2.Suit &&
+                c2.Value > c1.Value &&
+                c2.Value != Hodnota.Desitka &&
+                _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] > 0 &&
+                _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] < 1 &&
+                roundStarterIndex == _gameStarterIndex)
+            {
+                const float epsilon = 0.01f;
+
+                _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] = epsilon;
+                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] = 1 - epsilon;
+            }
             _cardsPlayedByPlayer[(roundStarterIndex + 1) % Game.NumPlayers].Add(c2);
             ReduceUcertainCardSet();
             if (c2.Suit != c1.Suit || c2.IsLowerThan(c1, _trump))
@@ -1114,6 +1128,19 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Kral] = 0f;
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Kral] = 1f;
                 _cardProbabilityForPlayer[talonIndex][c3.Suit][Hodnota.Kral] = 0f;
+            }
+            if (_trump.HasValue &&
+                c1.Suit != _trump &&
+                c1.Suit == c3.Suit &&
+                c3.Value > c1.Value &&
+                c2.Value != Hodnota.Desitka &&
+                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] > 0 &&
+                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] < 1)
+            {
+                const float epsilon = 0.01f;
+
+                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] = epsilon;
+                _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] = 1 - epsilon;
             }
             _cardsPlayedByPlayer[(roundStarterIndex + 2) % Game.NumPlayers].Add(c3);
             ReduceUcertainCardSet();

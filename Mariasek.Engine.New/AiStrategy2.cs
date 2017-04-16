@@ -1418,6 +1418,8 @@ namespace Mariasek.Engine.New
                 SkipSimulations = true,
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
+                    const float epsilon = 0.01f;
+
                     if (TeamMateIndex == -1)
                     {
                         //--c
@@ -1426,10 +1428,10 @@ namespace Mariasek.Engine.New
                                                                                       Round.WinningCard(c1, c2, i, _trump) == i &&
                                                                                       (_probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) == 0 ||
                                                                                        (((_gameType & Hra.KiloProti) != 0) &&
-                                                                                        _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) < 1)) &&
+                                                                                        _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) < 1 - epsilon)) &&
                                                                                       (_probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) == 0 ||
                                                                                        (((_gameType & Hra.KiloProti) != 0) &&
-                                                                                        _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) < 1)));
+                                                                                        _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) < 1 - epsilon)));
                     }
                     else if (TeamMateIndex == player1)
                     {
@@ -1439,7 +1441,7 @@ namespace Mariasek.Engine.New
                                                                                       Round.WinningCard(c1, c2, i, _trump) != c2 &&
                                                                                       (_probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) == 0 ||
                                                                                        (((_gameType & Hra.Kilo) != 0) &&
-                                                                                        _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) < 1)));
+                                                                                        _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) < 1 - epsilon)));
                     }
                     else
                     {
@@ -1449,7 +1451,7 @@ namespace Mariasek.Engine.New
                                                                                       Round.WinningCard(c1, c2, i, _trump) != c1 &&
                                                                                       (_probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) == 0 ||
                                                                                        (((_gameType & Hra.Kilo) != 0) &&
-                                                                                        _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) < 1)));
+                                                                                        _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) < 1 - epsilon)));
                     }
                 }
             };

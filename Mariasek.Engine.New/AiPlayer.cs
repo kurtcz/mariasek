@@ -1318,7 +1318,7 @@ namespace Mariasek.Engine.New
                     Hand.Select(i => i.Suit).Distinct().Count() == 4) ||
                     Hand.CardCount(_g.trump.Value) >= 5) &&
                    Hand.Count(i => i.Suit == _g.trump.Value && i.Value >= Hodnota.Spodek) >= 2)) ||
-			     (PlayerIndex == _g.GameStartingPlayerIndex && _sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold)))
+                  (PlayerIndex == _g.GameStartingPlayerIndex && _sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold))))
             {
                 //if (_numberOfDoubles == 1 && PlayerIndex != _g.GameStartingPlayerIndex)
                 //{
