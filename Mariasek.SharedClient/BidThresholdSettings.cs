@@ -16,7 +16,7 @@ namespace Mariasek.SharedClient
 		Double
 	}
 
-    public class ThresholdSettings
+    public class BidThresholdSettings
     {
         public Hra GameType { get; set; }
         public bool Use { get; set; }
@@ -37,7 +37,7 @@ namespace Mariasek.SharedClient
         public int RoundSimulationsPerSecond { get; set; }
         public int CurrentStartingPlayerIndex { get; set; }
         public CardFace CardDesign { get; set; }
-        public ThresholdSettings[] Thresholds { get; set; }
+        public BidThresholdSettings[] Thresholds { get; set; }
 
         public GameSettings()
         {
@@ -50,56 +50,56 @@ namespace Mariasek.SharedClient
             CurrentStartingPlayerIndex = 0;
             ThinkingTimeMs = 2000;
 			CardDesign = CardFace.Single;
-            Thresholds = new ThresholdSettings[0];
+            Thresholds = new BidThresholdSettings[0];
         }
 
         public void ResetThresholds()
         {
             Thresholds = new []
             {
-                new ThresholdSettings
+                new BidThresholdSettings
                 {
                     GameType = Hra.Hra,
                     Use = true,
                     MaxBidCount = 3,
                     Thresholds = "0|35|55|85"
                 },
-                new ThresholdSettings
+                new BidThresholdSettings
                 {
                     GameType = Hra.Sedma,
                     Use = true,
                     MaxBidCount = 3,
-                    Thresholds = "30|55|75|85"
+                    Thresholds = "25|50|75|90"
                 },
-                new ThresholdSettings
+                new BidThresholdSettings
                 {
                     GameType = Hra.Kilo,
                     Use = true,
                     MaxBidCount = 0,
                     Thresholds = "45|70|90|95"
                 },
-                new ThresholdSettings
+                new BidThresholdSettings
                 {
                     GameType = Hra.SedmaProti,
                     Use = true,
                     MaxBidCount = 1,
                     Thresholds = "50|75|90|95"
                 },
-                new ThresholdSettings
+                new BidThresholdSettings
                 {
                     GameType = Hra.KiloProti,
                     Use = true,
                     MaxBidCount = 0,
                     Thresholds = "100|100|100|100"
                 },
-                new ThresholdSettings
+                new BidThresholdSettings
                 {
                     GameType = Hra.Betl,
                     Use = true,
                     MaxBidCount = 0,
                     Thresholds = "65|75|80|90"
                 },
-                new ThresholdSettings
+                new BidThresholdSettings
                 {
                     GameType = Hra.Durch,
                     Use = true,

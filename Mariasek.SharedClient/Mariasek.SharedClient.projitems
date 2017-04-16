@@ -39,7 +39,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)MenuScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\FluentExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HistoryScene.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)GameSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BidThresholdSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SettingsScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SettingsChangedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ProgressIndicator.cs" />
