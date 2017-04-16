@@ -28,6 +28,7 @@ namespace Mariasek.SharedClient
 		private Button _generateBtn;
         private Label _version;
         private Label _author;
+        private Sprite[] _cards;
 
         public MenuScene(MariasekMonoGame game)
             : base(game)
@@ -73,6 +74,7 @@ namespace Mariasek.SharedClient
                     Height = 50,
                     Text = "Zamíchat karty"
                 };
+            ShuffleBtn.Click += ShuffleBtnClicked;
             _historyBtn = new Button(this)
                 {
                     Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f + 100),
@@ -81,15 +83,16 @@ namespace Mariasek.SharedClient
                     Text = "Historie"
                 };
             _historyBtn.Click += HistoryClicked;
-			//_generateBtn = new Button(this)
-			//{
-			//	Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f + 160),
-			//	Width = 200,
-			//	Height = 50,
-			//	Text = "Volit"
-			//};
-			//_generateBtn.Click += GenerateClicked;
-            
+            _cards = new Sprite[3];
+            for (var i = 0; i < _cards.Length; i++)
+            {
+                _cards[i] = new Sprite(this, Game.ReverseTexture)
+                { 
+                    Scale = Game.CardScaleFactor,
+                    Name = string.Format("card{0}", i)
+                };
+                _cards[i].Hide();
+            }
             Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;
 
@@ -110,6 +113,62 @@ namespace Mariasek.SharedClient
                 Text = "©2017 Tomáš Němec",
 				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Bottom
             };
+        }
+
+        void ShuffleBtnClicked(object sender)
+        {
+            var position1 = new Vector2(Game.VirtualScreenWidth * 3 / 4f, Game.VirtualScreenHeight / 2f);
+            var position2 = new Vector2(Game.VirtualScreenWidth * 3 / 4f + 150, Game.VirtualScreenHeight / 2f);
+            var positionX = new Vector2(Game.VirtualScreenWidth * 3 / 4f, Game.VirtualScreenHeight / 2f - 100);
+
+            if (this.ScheduledOperations.Count() > 0)
+            {                
+                return;
+            }
+            _cards[0].ZIndex = 50;
+            _cards[1].ZIndex = 51;
+            _cards[2].ZIndex = 52;
+            _cards[0].Position = position1;
+            _cards[1].Position = position1;
+            _cards[2].Position = position2;
+            _cards[0].Texture = Game.ReverseTexture;
+            _cards[1].Texture = Game.ReverseTexture;
+            _cards[2].Texture = Game.ReverseTexture;
+            _cards[0].Show();
+            _cards[1].Hide();
+            _cards[2].Hide();
+            _cards[0].FadeIn(2);
+            this.WaitUntil(() => _cards[0].Opacity == 1)
+                .Invoke(() => _cards[1].Show());
+            for (var i = 0; i < 5; i++)
+            {
+                this.Invoke(() => _cards[0].MoveTo(position2, 800))
+                    .WaitUntil(() => _cards[0].Position == position2)
+                    .Invoke(() =>
+                     {
+                         _cards[0].Hide();
+                         _cards[2].Position = position2;
+                         _cards[2].Show();
+                     })
+                    .Invoke(() => _cards[2].MoveTo(position1, 800))
+                    .WaitUntil(() => _cards[2].Position == position1)
+                    .Invoke(() =>
+                     {
+                         _cards[0].Position = position1;
+                         _cards[0].Show();
+                         _cards[2].Hide();
+                         _cards[2].Position = position2;
+                     });
+            }
+            this.Invoke(() =>
+                 {
+                     _cards[0].FadeOut(2);
+                     _cards[1].Hide();
+                     ShuffleBtn.IsSelected = false;
+                 })
+                .WaitUntil(() => _cards[0].Opacity == 0)
+                .Invoke(() => _cards[0].Hide());
+            Game.MainScene.ShuffleDeck();
         }
 
         private void NewGameClicked(object sender)

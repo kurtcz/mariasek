@@ -1015,6 +1015,24 @@ namespace Mariasek.SharedClient
             LoadGame();
         }
 
+        public void ShuffleDeck()
+        {
+            if (_deck == null)
+            {
+                LoadDeck();
+            }
+            else if (_deck.IsEmpty())
+            {
+                _deck = g.GetDeckFromLastGame();
+                if(_deck.IsEmpty())
+                {
+					LoadDeck();
+                }
+            }
+            _deck.Shuffle();
+            SaveDeck();
+        }
+
         public void NewGameBtnClicked(object sender)
         {
             CancelRunningTask();
@@ -1062,11 +1080,6 @@ namespace Mariasek.SharedClient
                     {
                         LoadDeck();
                     }
-                }
-                if (Game.MenuScene.ShuffleBtn.IsSelected)
-                {
-                    _deck.Shuffle();
-                    Game.MenuScene.ShuffleBtn.IsSelected = false;
                 }
                 _canSort = CurrentStartingPlayerIndex != 0;
 

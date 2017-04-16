@@ -107,7 +107,7 @@ namespace Mariasek.SharedClient
             get { return _zIndex; }
             set
             {
-                _zIndex = value;
+                _zIndex = Math.Max(0, Math.Min(value, 100));
                 _parent.Children.Sort((a, b) => a.ZIndex - b.ZIndex);
             }
         }

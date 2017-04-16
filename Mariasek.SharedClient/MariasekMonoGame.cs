@@ -188,7 +188,7 @@ namespace Mariasek.SharedClient
                 { "LuckiestGuy32Outl", FontRenderer.GetFontRenderer(this, "LuckiestGuy32Outl.fnt", "LuckiestGuy32Outl_0", "LuckiestGuy32Outl_1", "LuckiestGuy32Outl_2") }
             };
 
-            ClickSound = Content.Load<SoundEffect>("click");
+            ClickSound = Content.Load<SoundEffect>("watch-tick");
 			//TickSound = Content.Load<SoundEffect>("watch-tick");
             OnSound = Content.Load<SoundEffect>("on");
             OffSound = Content.Load<SoundEffect>("off");
