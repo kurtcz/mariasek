@@ -1225,7 +1225,7 @@ namespace Mariasek.Engine.New
             {
                 //mame flekovat hru
                 //kilo simulovat nema cenu, hrac ho asi ma, takze flekovat stejne nebudeme
-                if (bidding.BetlDurchMultiplier == 0 && ((bidding.Bids & (Hra.Hra | Hra.Sedma)) != 0))
+                if (bidding.BetlDurchMultiplier == 0 && ((bidding.Bids & (Hra.Hra | Hra.Sedma | Hra.SedmaProti)) != 0))
                 {
                     if (_initialSimulation)
                     {
@@ -1313,12 +1313,14 @@ namespace Mariasek.Engine.New
             if ((bidding.Bids & Hra.SedmaProti) != 0 &&
                 Settings.CanPlayGameType[Hra.SedmaProti] &&
                 bidding._sevenAgainstFlek <= Settings.MaxDoubleCountForGameType[Hra.SedmaProti] &&
-                ((PlayerIndex != _g.GameStartingPlayerIndex && (_sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold ||
-                  (((Hand.CardCount(_g.trump.Value) >= 4 &&              //neohlizej se na simulace, sedmu proti hlasim kdyz mam aspon 4 trumfy a vsechny barvy nebo aspon 5 trumfu
-                    Hand.Select(i => i.Suit).Distinct().Count() == 4) ||
-                    Hand.CardCount(_g.trump.Value) >= 5) &&
-                   Hand.Count(i => i.Suit == _g.trump.Value && i.Value >= Hodnota.Spodek) >= 2)) ||
-                  (PlayerIndex == _g.GameStartingPlayerIndex && _sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold))))
+                _sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold)
+                //(PlayerIndex != _g.GameStartingPlayerIndex &&                  
+                // (_sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold ||
+                //  (((Hand.CardCount(_g.trump.Value) >= 4 &&              //neohlizej se na simulace, sedmu proti hlasim kdyz mam aspon 4 trumfy a vsechny barvy nebo aspon 5 trumfu
+                //     Hand.Select(i => i.Suit).Distinct().Count() == 4) ||
+                //    Hand.CardCount(_g.trump.Value) >= 5) &&
+                //   Hand.Count(i => i.Suit == _g.trump.Value && i.Value >= Hodnota.Svrsek) >= 2) ||
+                //(PlayerIndex == _g.GameStartingPlayerIndex && _sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold))))
             {
                 //if (_numberOfDoubles == 1 && PlayerIndex != _g.GameStartingPlayerIndex)
                 //{
