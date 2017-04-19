@@ -52,6 +52,7 @@
     <Compile Include="AiPlayerSettings.cs" />
     <Compile Include="AiRule.cs" />
     <Compile Include="AiStrategy.cs" />
+    <Compile Include="AiStrategy2.cs" />
     <Compile Include="AiStrategyBase.cs" />
     <Compile Include="AiStrategyFactory.cs" />
     <Compile Include="Bidding.cs" />

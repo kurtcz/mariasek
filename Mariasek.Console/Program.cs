@@ -56,11 +56,17 @@ namespace Mariasek.Console
             bool finished = false;
             int iterations;
             Deck deck = null;
+            bool skipBidding = false;
+
+            bool.TryParse(ConfigurationManager.AppSettings["SkipBidding"], out skipBidding);
 
             for (iterations = 0; !finished; iterations++)
             {
                 playerSettingsReader = new Mariasek.WinSettings.PlayerSettingsReader();
-                g = new Game();
+                g = new Game()
+                {
+                    SkipBidding = skipBidding
+                };
                 g.RegisterPlayers(playerSettingsReader);
 
                 g.NewGame(gameStartingPlayerIndex: 0, deck: deck); //saves the new game as _temp.hra
@@ -112,7 +118,7 @@ namespace Mariasek.Console
             {
                 g.SaveGame(System.IO.Path.Combine(programFolder, "_konec.hra"), true);
             }
-
+            return false;
             return !desiredGameType.HasValue || (g.GameType & desiredGameType.Value) != 0;
         }
 

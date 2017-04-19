@@ -18,14 +18,16 @@ for ($i = 1; $i -le $gamesToGenerate; $i++)
 	if($gameType -eq $null)
 	{
 		& .\Mariasek.Console.exe -SkipGame | Out-Null
-		$filename = ("{0:0000}.hra" -f $i)
-		Copy-Item _temp.hra -Destination $outputDir\$filename -Force
+		$filename = ("{0:0000}.def.hra" -f $i)
+		Copy-Item _konec.hra -Destination $outputDir\$filename -Force
 	}
 	else
 	{
 		& .\Mariasek.Console.exe -GameType="$gameType" | Out-Null
-		$filename = ("{0:0000}-{1}.hra" -f $i, $gameType)
-		Copy-Item _temp.hra -Destination $outputDir\$filename -Force
+		$filename = ("{0:0000}-{1}.def.hra" -f $i, $gameType)
+		Copy-Item _def.hra -Destination $outputDir\$filename -Force
+		$filename = ("{0:0000}-{1}.end.hra" -f $i, $gameType)
+		Copy-Item _konec.hra -Destination $outputDir\$filename -Force
 		Write-Host $filename saved to $outputDir/
 	}
 }

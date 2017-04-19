@@ -1029,6 +1029,10 @@ namespace Mariasek.Engine.New
                         GameStartingPlayer.Hand.AddRange(talon);
                         talon = GameStartingPlayer.ChooseTalon();
                         GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
+                        if (GameStartingPlayer.Hand.Count() != 10)
+                        {
+                            throw new InvalidOperationException("Invalid card count during ChooseGame()");
+                        }
                     }
                     if(minimalBid == Hra.Hra)
                     {

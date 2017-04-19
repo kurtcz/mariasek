@@ -281,7 +281,7 @@ namespace Mariasek.Engine.New
             {
                 //potom vezmi karty od nejkratsich barev a alespon stredni hodnoty (1 karta > devitka)
                 //radime podle poctu poctu der ktere odstranime sestupne, poctu der celkem sestupne a hodnoty karty sestupne
-                talon.AddRange(holesByCard.Where(i => i.Item2 == 1 && i.Item5 > 0)// &&			    //CardCount
+                talon.AddRange(holesByCard.Where(i => i.Item2 == 1 && i.Item5 > 0 && !talon.Contains(i.Item1))// &&			    //CardCount
                                           //i.Item1.Value > Hodnota.Devitka)
                                           .OrderByDescending(i => i.Item3)          //holesDelta
                                           .ThenByDescending(i => i.Item4)           //holes
@@ -308,9 +308,9 @@ namespace Mariasek.Engine.New
 				talon.AddRange(hand.Where(i => !talon.Contains(i)).OrderBy(i => i.BadValue).Take(2 - talon.Count));
             }
 
-			if (talon == null || talon.Count != 2)
+			if (talon == null || talon.Distinct().Count() != 2)
 			{
-				var msg = talon == null ? "(null)" : "Count: " + talon.Count;
+				var msg = talon == null ? "(null)" : "Count: " + talon.Distinct().Count();
 				throw new InvalidOperationException("Bad talon: " + msg);
 			}
             return talon;
@@ -318,7 +318,12 @@ namespace Mariasek.Engine.New
 
         private List<Card> ChooseDurchTalon(List<Card> hand, Card trumpCard)
         {
-            var holesByCard = hand.Select(i =>
+            var talon = hand.Where(i => hand.CardCount(i.Suit) <= 2 && //nejdriv zkus odmazat kratkou barvu ve ktere nemam eso
+                                        !hand.HasA(i.Suit))
+                            .Take(2)
+                            .ToList();
+            var holesByCard = hand.Where(i => !talon.Contains(i))
+                                  .Select(i =>
             {
                 //pro kazdou kartu spocitej diry (vetsi karty v barve ktere nemam)
                 var holes = 0;
@@ -336,10 +341,6 @@ namespace Mariasek.Engine.New
                 return new Tuple<Card, int>(i, holes);
             }).Where(i => i.Item2 > 0);
 
-            var talon = hand.Where(i => hand.CardCount(i.Suit) <= 2 && //nejdriv zkus odmazat kratkou barvu ve ktere nemam eso
-                                        !hand.HasA(i.Suit))
-                            .Take(2)
-                            .ToList();
             talon.AddRange(holesByCard.OrderByDescending(i => i.Item2) //pak doplnime kartama v barvach s nejvice dirama
                                       .ThenBy(i => i.Item1.Value)
                                       .Select(i => i.Item1)
@@ -349,10 +350,10 @@ namespace Mariasek.Engine.New
             //pokud je potreba, doplnime o nejake nizke karty
             if (count < 2)
             {
-                talon.AddRange(hand.OrderBy(i => i.Value).Take(2 - count));
+                talon.AddRange(hand.Where(i => !talon.Contains(i)).OrderBy(i => i.Value).Take(2 - count));
             }
 
-			if (talon == null || talon.Count != 2)
+			if (talon == null || talon.Distinct().Count() != 2)
 			{
 				var msg = talon == null ? "(null)" : "Count: " + talon.Count;
 				throw new InvalidOperationException("Bad talon: " + msg);
