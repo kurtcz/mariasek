@@ -11,11 +11,14 @@ using Mariasek.Engine.New;
 using Mariasek.Engine.New.Configuration;
 using CLAP;
 using System.IO;
+using Accord.Neuro;
+using Accord.Neuro.Learning;
 
 namespace Mariasek.Console
 {
     class Program
     {
+        private static string nnFilename = "Mariasek.nn";
         private static IPlayerSettingsReader playerSettingsReader;
         private static string programFolder = System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
         private static string resultFilename;
@@ -129,7 +132,144 @@ namespace Mariasek.Console
             }
         }
 
+        [Verb(Aliases = "learn", Description = "Runs a neural network trainer on the test set")]
+        public static void Learn(string inputDir, double learningRate = 0.1, double momentum = 0, double targetError = 30)
+        {
+            var files = Directory.GetFiles(inputDir);
+            var data = new List<Tuple<double[], double[]>>();
+
+            System.Console.WriteLine("Populating data ...");
+            foreach (var file in files)
+            {
+                playerSettingsReader = new Mariasek.WinSettings.PlayerSettingsReader();
+                g = new Game();
+                g.RegisterPlayers(playerSettingsReader);
+
+                g.LoadGame(file);
+                var input = ConvertInput(g.GameStartingPlayer.Hand, g.trump);
+                var filename = Path.GetFileNameWithoutExtension(file);
+                var tokens = filename.Split('.');
+
+                if (!tokens.Any())
+                {
+                    return;
+                }
+
+                var code = tokens[tokens.Length - 1];
+
+                if (code.Length < 3)
+                {
+                    return;
+                }
+                int mask;
+
+                if(!int.TryParse(code.Substring(3), out mask))
+                {
+                    return;
+                }
+                var output = ConvertOutput(mask);
+                data.Add(new Tuple<double[], double[]>(input, output));
+            }
+            double[][] inputs = data.Select(i => i.Item1).ToArray();
+            double[][] outputs = data.Select(i => i.Item2).ToArray();
+            ActivationNetwork network = File.Exists(nnFilename)
+                                        ? (ActivationNetwork)ActivationNetwork.Load(nnFilename)
+                                        : new ActivationNetwork(
+                                            new SigmoidFunction(2),
+                                            32,
+                                            19,
+                                            5);
+            // create teacher
+            BackPropagationLearning teacher = new BackPropagationLearning(network)
+            {
+                LearningRate = learningRate,
+                Momentum = momentum
+            };
+
+            System.Console.WriteLine("Training in progress ...");
+            // loop
+            bool needToStop = false;
+            while (!needToStop)
+            {
+                // run epoch of learning procedure
+                double error = teacher.RunEpoch(inputs, outputs);
+                System.Console.Write("\r{0}", error);
+                needToStop = error < targetError;
+            }
+            System.Console.WriteLine("\nDone training, saving neural network to {0}", nnFilename);
+            network.Save(nnFilename);
+        }
         #endregion
+
+        [Verb(Aliases = "nn", Description = "Let the neural network choose game type")]
+        public static void TestNn(string filename)
+        {
+            var data = new List<Tuple<double[], double[]>>();
+            playerSettingsReader = new Mariasek.WinSettings.PlayerSettingsReader();
+            g = new Game();
+            g.RegisterPlayers(playerSettingsReader);
+
+            g.LoadGame(filename);
+            var input = ConvertInput(g.GameStartingPlayer.Hand, g.trump);            
+            ActivationNetwork network = new ActivationNetwork(
+                                            new SigmoidFunction(2),
+                                            32,
+                                            19,
+                                            5);
+            var output = network.Compute(input);
+
+            System.Console.WriteLine(new Hand(g.GameStartingPlayer.Hand));
+            var i = 0;
+            System.Console.WriteLine("Recommended bids:");
+            foreach (var gt in Enum.GetValues(typeof(Hra)).Cast<Hra>().Where(gt => gt != Hra.SedmaProti && gt != Hra.KiloProti))
+            {
+                if (output[i++] > 0.5)
+                {
+                    System.Console.WriteLine(gt);
+                }
+            }
+        }
+
+        private static double[] ConvertInput(List<Card> hand, Barva? trump)
+        {
+            var result = new double[32];
+
+            for(var i = 0; i < result.Length; i++)
+            {
+                result[i] = -1;
+            }
+            foreach(var c in hand)
+            {
+                result[c.Num] = 1;
+            }
+            //trumfyradit na prvnim miste
+            if (trump.HasValue &&
+                trump.Value != 0)
+            {
+                foreach(var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+                {
+                    var temp = result[(int)h];
+                    result[(int)h] = result[8 * (int)trump.Value + (int)h];
+                    result[8 * (int)trump.Value + (int)h] = temp;
+                }
+            }
+            return result.ToArray();
+        }
+
+        private static double[] ConvertOutput(int mask)
+        {
+            var result = new double[5];
+
+            for(var i = 0; i < 5; i++)
+            {
+                if ((mask & (1 << i)) != 0)
+                {
+                    result[i] = 1;
+                }
+            }
+
+            return result;
+        }
 
         private static bool PlayGame(Hra? desiredGameType = null, bool strict = false)
         {
