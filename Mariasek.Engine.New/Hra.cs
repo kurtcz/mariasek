@@ -9,8 +9,8 @@ namespace Mariasek.Engine.New
         Sedma = 2,
         Kilo = 4,
         SedmaProti = 8,
-        KiloProti = 16,
-        Betl = 32,
-        Durch = 64
+        KiloProti = 0x10,
+        Betl = 0x20,
+        Durch = 0x40
     }
 }

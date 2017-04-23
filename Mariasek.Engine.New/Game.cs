@@ -833,7 +833,7 @@ namespace Mariasek.Engine.New
             }
 			try
 			{
-				return new Deck(deck);
+				return new Deck(deck.Distinct().ToList());
 			}
 			catch (InvalidDataException e)
 			{
@@ -1087,6 +1087,10 @@ namespace Mariasek.Engine.New
                 }
             }
             _roundStartingPlayer = GameStartingPlayer;
+            if (SkipBidding)
+            {
+                Bidding.SetLastBidder(GameStartingPlayer, GameType);
+            }
         }
 
         private void CompleteUnfinishedRounds()

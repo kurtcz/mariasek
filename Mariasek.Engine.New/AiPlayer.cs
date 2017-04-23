@@ -405,7 +405,7 @@ namespace Mariasek.Engine.New
                                                i.Value == Hodnota.Svrsek) &&
                                            hand.HasK(i.Suit) && hand.HasQ(i.Suit)) &&
                                            !(i.Value == Hodnota.Sedma &&         //ani trumfovou sedmu
-                                           i.Suit == trumpCard.Suit) &&
+                                             i.Suit == trumpCard.Suit) &&
                                            !(hand.HasX(i.Suit) &&                //pokud mam jen X+plivu, tak nech plivu byt
                                            hand.CardCount(i.Suit) <= 2))
                 .OrderBy(i => i.Value)                              //vybirej od nejmensich karet
@@ -428,7 +428,7 @@ namespace Mariasek.Engine.New
             }
             talon = talon.Distinct().Take(2).ToList();
 
-			if (talon == null || talon.Count != 2)
+			if (talon == null || talon.Count != 2 || talon.Contains(trumpCard))
 			{
 				var msg = talon == null ? "(null)" : "Count: " + talon.Count;
 				throw new InvalidOperationException("Bad talon: " + msg);
@@ -448,8 +448,8 @@ namespace Mariasek.Engine.New
 				//jiank vybirame betlovej talon
 				if (AdvisorMode && (_talon == null || !_talon.Any()))
 				{
-                    if ((_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0) ||
-					   (_gameType == Hra.Betl))
+                    if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0 ||
+					    _gameType == Hra.Betl)
 					{
 						_talon = ChooseDurchTalon(Hand, null);
 					}
@@ -488,7 +488,43 @@ namespace Mariasek.Engine.New
 
         public override GameFlavour ChooseGameFlavour()
         {
-			if (_initialSimulation || AdvisorMode)
+            if (TestGameType.HasValue)
+            {
+                GameFlavour flavour;
+
+                if (TestGameType == Hra.Betl)
+                {
+                    if (_talon == null || !_talon.Any())
+                    {
+                        _talon = ChooseBetlTalon(Hand, null);
+                    }
+                    flavour = GameFlavour.Bad;
+                }
+                else if (TestGameType == Hra.Durch)
+                {
+                    if (_talon == null || !_talon.Any())
+                    {
+                        _talon = ChooseDurchTalon(Hand, null);
+                    }
+                    flavour = GameFlavour.Bad;
+                }
+                else
+                {
+                    if (PlayerIndex == _g.OriginalGameStartingPlayerIndex && (_talon == null || !_talon.Any()))
+                    {
+                        _talon = ChooseNormalTalon(Hand, TrumpCard);
+                    }
+                    flavour = GameFlavour.Good;
+                }
+                Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, _talon)
+                {
+                    ExternalDebugString = _debugString,
+                    UseDebugString = true
+                };
+
+                return flavour;
+            }
+            if (_initialSimulation || AdvisorMode)
             {
                 var bidding = new Bidding(_g);
 
@@ -1122,6 +1158,18 @@ namespace Mariasek.Engine.New
         //vola se z enginu
         public override Hra ChooseGameType(Hra validGameTypes)
         {
+            if (TestGameType.HasValue)
+            {
+                if ((TestGameType.Value & validGameTypes) == 0)
+                {
+                    TestGameType = Hra.Hra;
+                }
+                if (TestGameType.Value == Hra.Sedma)
+                {
+                    TestGameType |= Hra.Hra;
+                }
+                return TestGameType.Value;
+            }
             //TODO: urcit typ hry podle zisku ne podle pradepodobnosti
             Hra gameType;
 
@@ -1450,6 +1498,10 @@ namespace Mariasek.Engine.New
             {
                 _talon = null;
                 _initialSimulation = true;
+                if (TestGameType.HasValue && TestGameType.Value != Hra.Durch)
+                {
+                    TestGameType = null;
+                }
             }
             if (Probabilities != null) //Probabilities == null kdyz jsem nezacinal, tudiz netusim co je v talonu a nemusim nic upravovat
             {
@@ -1561,6 +1613,7 @@ namespace Mariasek.Engine.New
                 }
                 Parallel.ForEach(source, options, (hands, loopState) =>
                 {
+                    Check(hands);
                     ThrowIfCancellationRequested();
                     if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     {
@@ -1632,6 +1685,10 @@ namespace Mariasek.Engine.New
                                                                     .Select(k => k.Key).FirstOrDefault()))
                                                                     .Where(k => k != null).Distinct().ToList());
             _log.InfoFormat("Cards to choose from: {0}", cardRules.Count);
+            if (cardRules.Count == 0)
+            {
+                throw new InvalidOperationException("No card rules to choose from");
+            }
             var totalCount = cardScores.Sum(i => i.Value.Count);
 
             foreach (var cardScore in cardScores)
@@ -1886,6 +1943,8 @@ namespace Mariasek.Engine.New
                    hands[player3].Any(i => hands[gameStarterIndex].All(j => !j.IsHigherThan(i, null)));
         }
 
+        private StringBuilder x = new StringBuilder();
+
         private GameComputationResult ComputeGame(Hand[] hands, Card c1, Card c2, Barva? trump = null, Hra? gameType = null, int? roundsToCompute = null, int? initialRoundNumber = null, bool ImpersonateGameStartingPlayer = false)
         {
             var result = InitGameComputationResult(hands);
@@ -1897,6 +1956,7 @@ namespace Mariasek.Engine.New
             int teamMateIndex;
             string playerName;
 
+            Check(hands);
             if (c1 == null && c2 == null)
             {
                 if (_g.CurrentRound == null && !ImpersonateGameStartingPlayer)
@@ -1948,6 +2008,7 @@ namespace Mariasek.Engine.New
             {
                 trump = _g.trump;
             }
+            x.Append(hands[0].ToString() + "\n" + hands[1].ToString() + "\n" + hands[2].ToString() + "\n" + "\n");
 
             var useGeneratedHandsForProbabilities = roundsToCompute > 1;        //initial game simulations
             var prob = Probabilities.Clone();
@@ -2049,6 +2110,7 @@ namespace Mariasek.Engine.New
                 hands[player1].Remove(c1);
                 hands[player2].Remove(c2);
                 hands[player3].Remove(c3);
+                Check(hands);
                 var hlas1 = _trump.HasValue && c1.Value == Hodnota.Svrsek && hands[player1].HasK(c1.Suit);
                 var hlas2 = _trump.HasValue && c2.Value == Hodnota.Svrsek && hands[player2].HasK(c2.Suit);
                 var hlas3 = _trump.HasValue && c3.Value == Hodnota.Svrsek && hands[player3].HasK(c3.Suit);
@@ -2068,6 +2130,7 @@ namespace Mariasek.Engine.New
                 player2 = (aiStrategy.MyIndex + 1) % Game.NumPlayers;
                 player3 = (aiStrategy.MyIndex + 2) % Game.NumPlayers;
                 AmendGameComputationResult(result, roundStarterIndex, roundWinnerIndex, roundScore, hands, c1, c2, c3);
+                Check(hands);
                 _log.TraceFormat("Score: {0}/{1}/{2}", result.Score[0], result.Score[1], result.Score[2]);
             }
 
@@ -2075,6 +2138,14 @@ namespace Mariasek.Engine.New
                 _g.RoundNumber, _g.players[PlayerIndex].Name, result.CardToPlay, result.Rule.Description, result.Score[0], result.Score[1], result.Score[2]);
 
             return result;
+        }
+
+        private void Check(Hand[] hands)
+        {
+            if (hands[0].Count() != hands[1].Count() || hands[0].Count() != hands[2].Count())
+            {
+                throw new InvalidOperationException("Wrong hands count");
+            }
         }
 
         private bool CanSkipSimulations()

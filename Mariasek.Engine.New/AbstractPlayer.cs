@@ -42,6 +42,7 @@ namespace Mariasek.Engine.New
         /// For debuggin only: show info about the rule that the player used to make a certain move
         /// </summary>
         public PlayerDebugInfo DebugInfo { get; set; }
+        public Hra? TestGameType { get; set; }          //used when we want to generate certain game type for testing
 
         public abstract Card ChooseTrump();
         public abstract List<Card> ChooseTalon();
@@ -69,6 +70,7 @@ namespace Mariasek.Engine.New
         protected AbstractPlayer(Game g)
         {
             _g = g;
+            TestGameType = null;
             Hand = new List<Card>();
             DebugInfo = new PlayerDebugInfo();
         }

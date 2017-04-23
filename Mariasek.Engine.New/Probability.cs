@@ -119,6 +119,7 @@ namespace Mariasek.Engine.New
             UpdateUncertainCardsProbability();
             _debugString.Append(FriendlyString(0));
             _debugString.Append("-----\n");
+            Check();
         }
 
         public void Set(Hand[] hands)
@@ -589,7 +590,7 @@ namespace Mariasek.Engine.New
         {
             get
             {
-                if(generatedHands == null)
+                if(generatedHands == null || !generatedHands.Any())
                 {
                     return float.NaN;
                 }
@@ -824,10 +825,35 @@ namespace Mariasek.Engine.New
 				throw new InvalidOperationException(string.Format("Badly generated hands for player {0}, round {1}:{2}\n{3}\nGenerovani:\n{4}\nHistorie:\n{5}\nExterni:\n{6}\n", 
                               _myIndex + 1, roundNumber, sb.ToString(), friendlyString.ToString(), _verboseString.ToString(), _debugString.ToString(), ExternalDebugString.ToString()));
             }
+            _verboseString.Append("-=-=-\n");
+            _debugString.Append("-=-=-\n");
+            for (var i = 0; i < Game.NumPlayers + 1; i++)
+            {
+                _verboseString.AppendFormat("{0}\n", result[i]);
+                _debugString.AppendFormat("{0}\n", result[i]);
+            }
             _log.DebugFormat("Finished generating hands for player{0}\n{1}", _myIndex + 1, sb.ToString());
 			_verboseString.Append("GenerateHands <- Exit\n");
 
             return result;
+        }
+
+        private void Check()
+        {
+            //var certainCards = new List<List<Card>>();
+            //
+            //for (var j = 0; j < Game.NumPlayers; j++)
+            //{
+            //    certainCards.Add(_cardProbabilityForPlayer[j].SelectMany(i => i.Value.Where(k => k.Value == 1f).Select(k => new Card(i.Key, k.Key))).ToList());
+            //}
+            //if (certainCards[0].Count() != certainCards[1].Count || certainCards[0].Count() != certainCards[2].Count())
+            //{
+            //    if (certainCards[_gameStarterIndex].Count != 12)
+                if (_cardProbabilityForPlayer[_myIndex].Sum(i => i.Value.Count(j => j.Value == 1f)) == 11)
+                {
+                    throw new InvalidOperationException("Bad certain card probabilities");
+                }
+            //}
         }
 
         public void UpdateProbabilitiesAfterTalon(List<Card> hand, List<Card> talon)
@@ -862,6 +888,7 @@ namespace Mariasek.Engine.New
                 _debugString.Append(FriendlyString(0));
                 _debugString.Append("-----\n");
             }
+            Check();
         }
 
         public void UpdateProbabilitiesAfterGameFlavourChosen(GameFlavourChosenEventArgs e)
@@ -881,6 +908,15 @@ namespace Mariasek.Engine.New
 						}
 						_cardProbabilityForPlayer[talonIndex][card.Suit][card.Value] = 0.5f;
 					}
+                    foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                    {
+                        foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+                        {
+                            _cardProbabilityForPlayer[talonIndex][b][h] = _cardProbabilityForPlayer[_myIndex][b][h] == 1 ||
+                                                                          !Game.IsValidTalonCard(h, b, _trump) 
+                                                                          ? 0 : 0.5f;
+                        }
+                    }
 					UpdateUncertainCardsProbability();
 				}
 			}
@@ -889,13 +925,17 @@ namespace Mariasek.Engine.New
                 _debugString.Append(FriendlyString(0));
                 _debugString.Append("-----\n");
             }
+            Check();
         }
 
         public void UpdateProbabilitiesAfterGameTypeChosen(GameTypeChosenEventArgs e)
         {
+            Check();
             if (UseDebugString)
             {
                 _debugString.AppendFormat("GameTypeChosen {0} {1}\n", e.GameType, e.TrumpCard);
+                _debugString.Append(FriendlyString(0));
+                _debugString.Append("===");
             }
             if (e.TrumpCard == null)
             {
@@ -951,6 +991,7 @@ namespace Mariasek.Engine.New
                 _debugString.Append(FriendlyString(0));
                 _debugString.Append("-----\n");
             }
+            Check();
         }
 
         private float GetGameStarterInitialExpectedTrumps(Hra gameType)
@@ -984,8 +1025,8 @@ namespace Mariasek.Engine.New
             }
             if ((e.BidMade & Hra.KiloProti) != 0 && bidding.HundredAgainstMultiplier == 1)
             {
-                _hundredIndex = e.Player.PlayerIndex;
-                _initialExpectedTrumps[_sevenAgainstIndex] = GetNonStarterInitialExpectedTrumps(Hra.KiloProti);
+                _hundredAgainstIndex = e.Player.PlayerIndex;
+                _initialExpectedTrumps[_hundredAgainstIndex] = GetNonStarterInitialExpectedTrumps(Hra.KiloProti);
                 for (var i = 0; i < Game.NumPlayers; i++)
                 {
                     if (i != _myIndex && i != _hundredAgainstIndex && i != _gameStarterIndex)

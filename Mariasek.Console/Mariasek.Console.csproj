@@ -59,6 +59,9 @@
     <None Include="Mariasek.ConfigGenerator.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Mariasek.GameClassifier.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Mariasek.ReportGenerator.ps1">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

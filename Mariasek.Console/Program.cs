@@ -87,25 +87,68 @@ namespace Mariasek.Console
         }
 
         [Verb(Aliases="load", Description="Loads a game from a file")]
-        public static void LoadGame(string filename)
+        public static void LoadGame(string filename, [DefaultValue(false)] bool classify, string outputDir = null)
         {
-            playerSettingsReader = new Mariasek.WinSettings.PlayerSettingsReader();
-            g = new Game();
-            g.RegisterPlayers(playerSettingsReader);
+            if (!classify)
+            {
+                playerSettingsReader = new Mariasek.WinSettings.PlayerSettingsReader();
+                g = new Game();
+                g.RegisterPlayers(playerSettingsReader);
 
-            g.LoadGame(filename);
-            PlayGame();
+                g.LoadGame(filename);
+                PlayGame();
+            }
+            else
+            {
+                var gameTypes = new Dictionary<Hra, Tuple<bool, float>>();
+                foreach (var gt in Enum.GetValues(typeof(Hra)).Cast<Hra>().Where(gt => gt != Hra.SedmaProti && gt != Hra.KiloProti))
+                {
+                    playerSettingsReader = new Mariasek.WinSettings.PlayerSettingsReader();
+                    g = new Game();
+                    g.RegisterPlayers(playerSettingsReader);
+
+                    g.LoadGame(filename);
+                    var gameWon = PlayGame(gt, strict: true);
+
+                    gameTypes.Add(gt, new Tuple<bool, float>(gameWon, g.Results.MoneyWon[0]));
+                }
+                System.Console.WriteLine("-=-=-=-=-");
+                foreach (var kv in gameTypes)
+                {
+                    System.Console.WriteLine("{0}:\t{1}\t{2}", kv.Key, kv.Value.Item1 ? "won" : "lost", kv.Value.Item2.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+                }
+                var gamesWon = 0;
+                foreach (var kv in gameTypes.Where(gt => gt.Value.Item1))
+                {
+                    gamesWon |= (int)kv.Key;
+                }
+
+                var classifiedName = Path.Combine(outputDir ?? Path.GetDirectoryName(filename), 
+                                                  string.Format("{0}.0x{1:X02}.hra", Path.GetFileNameWithoutExtension(filename), gamesWon));
+                File.Copy(filename, classifiedName, true);
+            }
         }
 
         #endregion
 
-        private static bool PlayGame(Hra? desiredGameType = null)
+        private static bool PlayGame(Hra? desiredGameType = null, bool strict = false)
         {
             g.GameTypeChosen += GameTypeChosen;
             g.BidMade += BidMade;
             g.CardPlayed += CardPlayed;
             g.RoundFinished += RoundFinished;
             g.GameFinished += GameFinished;
+            if (desiredGameType.HasValue)
+            {
+                if (strict)
+                {
+                    foreach (var player in g.players)
+                    {
+                        player.TestGameType = 0;
+                    }
+                }
+                g.GameStartingPlayer.TestGameType = desiredGameType;
+            }
             g.PlayGame();
 
             System.Console.WriteLine(g.Results.ToString());
@@ -118,8 +161,15 @@ namespace Mariasek.Console
             {
                 g.SaveGame(System.IO.Path.Combine(programFolder, "_konec.hra"), true);
             }
-            return false;
-            return !desiredGameType.HasValue || (g.GameType & desiredGameType.Value) != 0;
+            return (!strict &&
+                    (g.GameType & desiredGameType.Value) != 0 &&
+                    g.Results.MoneyWon[g.GameStartingPlayerIndex] > 0 &&
+                    g.Results.MoneyWon[(g.GameStartingPlayerIndex + 1) % Game.NumPlayers] < 0 &&
+                    g.Results.MoneyWon[(g.GameStartingPlayerIndex + 2) % Game.NumPlayers] < 0) ||
+                   (strict &&
+                    g.Results.MoneyWon[0] > 0 &&
+                    g.Results.MoneyWon[1] < 0 &&
+                    g.Results.MoneyWon[2] < 0);
         }
 
         static void Main(string[] args)

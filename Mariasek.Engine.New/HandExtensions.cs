@@ -204,6 +204,11 @@ namespace Mariasek.Engine.New
             return _hand.Where(i => i != null).All(predicate);
         }
 
+        public int Count()
+        {
+            return _hand.Count(i => i != null);
+        }
+
         public int Count(Func<Card, bool> predicate)
         {
             return _hand.Where(i => i != null).Count(predicate);
