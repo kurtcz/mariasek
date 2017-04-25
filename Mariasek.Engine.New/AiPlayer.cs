@@ -23,7 +23,7 @@ namespace Mariasek.Engine.New
         public Barva? _trump;
         private Hra? _gameType;
         public List<Card> _talon; //public so that HumanPlayer can set it
-        private List<MultiplyingMoneyCalculator> _moneyCalculations;
+        private List<AddingMoneyCalculator> _moneyCalculations;
         private int _gamesBalance;
         private int _hundredsBalance;
         private int _hundredsAgainstBalance;
@@ -859,21 +859,21 @@ namespace Mariasek.Engine.New
                 ? (PlayerIndex + 2) % Game.NumPlayers : (PlayerIndex + 1) % Game.NumPlayers;
             _moneyCalculations = gameComputationResults.Select(i =>
             {
-                var calc = new MultiplyingMoneyCalculator(Hra.Sedma, _trump ?? _g.trump, GameStartingPlayerIndex, bidding, i);
+                var calc = new AddingMoneyCalculator(Hra.Sedma, _trump ?? _g.trump, GameStartingPlayerIndex, bidding, i);
 
                 calc.CalculateMoney();
 
                 return calc;
             }).Union(durchComputationResults.Select(i =>
             {
-                var calc = new MultiplyingMoneyCalculator(Hra.Durch, null, GameStartingPlayerIndex, bidding, i);
+                var calc = new AddingMoneyCalculator(Hra.Durch, null, GameStartingPlayerIndex, bidding, i);
 
                 calc.CalculateMoney();
 
                 return calc;
             })).Union(betlComputationResults.Select(i =>
             {
-                var calc = new MultiplyingMoneyCalculator(Hra.Betl, null, GameStartingPlayerIndex, bidding, i);
+                var calc = new AddingMoneyCalculator(Hra.Betl, null, GameStartingPlayerIndex, bidding, i);
 
                 calc.CalculateMoney();
 
