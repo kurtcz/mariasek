@@ -361,6 +361,19 @@ namespace Mariasek.Engine.New
                         break;
                 }
             }
+            else if ((e.BidMade & Hra.SedmaProti) != 0 &&
+                     (e.BidMade & Hra.KiloProti) != 0)
+            {
+                switch (SevenAgainstMultiplier)
+                {
+                    case 1:
+                        e.Description = "Stosedm proti";
+                        break;
+                    default:
+                        e.Description = "Na stosedm vejš";
+                        break;
+                }
+            }
             else if ((e.BidMade & Hra.SedmaProti) != 0)
             {
                 switch (SevenAgainstMultiplier)
