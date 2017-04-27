@@ -282,7 +282,7 @@ namespace Mariasek.SharedClient
                         var k = 0;
                         foreach(var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(i => i.RuleCount > 0))
                         {                        
-                            msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * debugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1, (k++) % 2 == 1 ? "\n" : "\t"));
+                            msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, debugInfo.TotalRuleCount > 0 ? 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount : -1, (k++) % 2 == 1 ? "\n" : "\t"));
                         }
                         _scene.SuggestGameType(e.Description, msg.ToString().TrimEnd(), _t1 - _t0);
                         _scene.SuggestGameTypeNew(gameType);

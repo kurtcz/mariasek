@@ -31,7 +31,8 @@ namespace Mariasek.Engine.New
         private int _sevensAgainstBalance;
         private int _betlBalance;
         private int _durchBalance;
-        private int _goodSimulations;
+        private int _gameSimulations;
+        private int _sevenSimulations;
         private int _betlSimulations;
         private int _durchSimulations;
         private bool _initialSimulation;
@@ -681,11 +682,12 @@ namespace Mariasek.Engine.New
             var gameComputationResults = new ConcurrentQueue<GameComputationResult>();
             var durchComputationResults = new ConcurrentQueue<GameComputationResult>();
             var betlComputationResults = new ConcurrentQueue<GameComputationResult>();
-            var totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
+            var totalGameSimulations = (simulateGoodGames ? 2 * Settings.SimulationsPerGameType : 0) +
                                        (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
             var progress = 0;
             var goodGamesPerSecond = 0;
             var badGamesPerSecond = 0;
+
             OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 1, Message = "Generuju karty"});
 
             //nasimuluj hry v barve
@@ -702,11 +704,12 @@ namespace Mariasek.Engine.New
             {
                 var start = DateTime.Now;
                 var actualSimulations = 0;
-                var prematureEnd = false;                
+                var actualSimulations7 = 0;
+                var prematureEnd = false;
 
-				_debugString.Append("Simulating good games\n");
+                _debugString.Append("Simulating good games\n");
                 Parallel.ForEach(source ?? Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType), options, (hh, loopState) =>
-                {                        
+                {
                     ThrowIfCancellationRequested();
                     if (source == null)
                     {
@@ -728,22 +731,65 @@ namespace Mariasek.Engine.New
                         UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
 
                         // to ?? vypada chybne
-                        var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : (Hra.Sedma | Hra.SedmaProti), 10, 1);
+                        var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : (Hra.Hra | Hra.SedmaProti), 10, 1);
                         gameComputationResults.Enqueue(gameComputationResult);
-                    }                    
+                    }
                     var val = Interlocked.Increment(ref progress);
-                        OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju hru"});
+                    OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju hru" });
                 });
                 var end = DateTime.Now;
-                Settings.SimulationsPerGameType = actualSimulations;
-                Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / Settings.MaxSimulationTimeMs * 1000);
-                //Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / (end - start).TotalMilliseconds * 1000);
-                totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
-                    (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
                 if (source == null)
                 {
                     source = tempSource.ToArray();
                 }
+                if (PlayerIndex == _g.GameStartingPlayerIndex && _gameType == null && Hand.Has7(_trump ?? _g.trump.Value))
+                {
+                    var start7 = DateTime.Now;
+
+                    _debugString.Append("Simulating sevens\n");
+                    Parallel.ForEach(source, options, (hh, loopState) =>
+                    {
+                        ThrowIfCancellationRequested();
+                        if (source == null)
+                        {
+                            tempSource.Enqueue(hh);
+                        }
+                        if ((DateTime.Now - start7).TotalMilliseconds > Settings.MaxSimulationTimeMs)
+                        {
+                            prematureEnd = true;
+                            loopState.Stop();
+                        }
+                        else
+                        {
+                            Interlocked.Increment(ref actualSimulations7);
+                            var hands = new Hand[Game.NumPlayers + 1];
+                            for (var i = 0; i < hands.Length; i++)
+                            {
+                                hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
+                            }
+
+                            UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
+
+                            // to ?? vypada chybne
+                            var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : (Hra.Sedma | Hra.SedmaProti), 10, 1);
+                            gameComputationResults.Enqueue(gameComputationResult);
+                        }
+                        var val = Interlocked.Increment(ref progress);
+
+                        OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju hru" });
+                    });
+                    _sevenSimulations = actualSimulations7;
+                }
+                else
+                {
+                    _sevenSimulations = actualSimulations;
+                }
+                _gameSimulations = actualSimulations;
+                Settings.SimulationsPerGameType = _gameSimulations;
+                Settings.SimulationsPerGameTypePerSecond = (int)((float)_gameSimulations / Settings.MaxSimulationTimeMs * 1000);
+                //Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / (end - start).TotalMilliseconds * 1000);
+                totalGameSimulations = (simulateGoodGames? _gameSimulations + _sevenSimulations : 0) +
+                    (simulateBadGames? 2 * Settings.SimulationsPerGameType : 0);
             }
             if (simulateBadGames)
             {
@@ -857,9 +903,16 @@ namespace Mariasek.Engine.New
 			//vyber vhodnou hru podle vysledku simulace
 			var opponent = TeamMateIndex == (PlayerIndex + 1) % Game.NumPlayers
                 ? (PlayerIndex + 2) % Game.NumPlayers : (PlayerIndex + 1) % Game.NumPlayers;
-            _moneyCalculations = gameComputationResults.Select(i =>
+            _moneyCalculations = gameComputationResults.Where(i => (i.GameType & Hra.Sedma) == 0).Select(i =>
             {
-                var calc = new AddingMoneyCalculator(Hra.Sedma, _trump ?? _g.trump, GameStartingPlayerIndex, bidding, i);
+                var calc = new AddingMoneyCalculator(Hra.Hra, _trump ?? _g.trump, GameStartingPlayerIndex, bidding, i);
+
+                calc.CalculateMoney();
+
+                return calc;
+            }).Union(gameComputationResults.Where(i => (i.GameType & Hra.Sedma) != 0).Select(i =>
+			{
+	            var calc = new AddingMoneyCalculator(Hra.Sedma, _trump ?? _g.trump, GameStartingPlayerIndex, bidding, i);
 
                 calc.CalculateMoney();
 
@@ -878,26 +931,25 @@ namespace Mariasek.Engine.New
                 calc.CalculateMoney();
 
                 return calc;
-            })).ToList();
-            _goodSimulations = _moneyCalculations.Count(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0);
+            }))).ToList();
             _betlSimulations = _moneyCalculations.Count(i => i.GameType == Hra.Betl);
             _durchSimulations = _moneyCalculations.Count(i => i.GameType == Hra.Durch);
 
             _gamesBalance = PlayerIndex == GameStartingPlayerIndex
-                            ? _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.GameWon)
-                            : _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.GameWon);
+                            ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => i.GameWon)
+                            : _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.GameWon);
             _hundredsBalance = PlayerIndex == GameStartingPlayerIndex
-                                ? _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.HundredWon)
-                                : _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.HundredWon);
+                                ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => i.HundredWon)
+                                : _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.HundredWon);
             _hundredsAgainstBalance = PlayerIndex == GameStartingPlayerIndex
-                                        ? _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.QuietHundredAgainstWon)
-                                        : _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.QuietHundredAgainstWon);
+                                        ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.QuietHundredAgainstWon)
+                                        : _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => i.QuietHundredAgainstWon);
             _sevensBalance = PlayerIndex == GameStartingPlayerIndex
-                                ? _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.SevenWon)
-                                : _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.SevenWon);
+                                ? _moneyCalculations.Where(i => (i.GameType & Hra.Sedma) != 0).Count(i => i.SevenWon)
+                                : _moneyCalculations.Where(i => (i.GameType & Hra.Sedma) != 0).Count(i => !i.SevenWon);
             _sevensAgainstBalance = PlayerIndex == GameStartingPlayerIndex
-                                        ? _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.SevenAgainstWon)
-                                        : _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.SevenAgainstWon);
+                                        ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.SevenAgainstWon)
+                                        : _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => i.SevenAgainstWon);
             _durchBalance = PlayerIndex == GameStartingPlayerIndex
                                 ? _moneyCalculations.Where(i => (i.GameType & Hra.Durch) != 0).Count(i => i.DurchWon)
                                 : _moneyCalculations.Where(i => (i.GameType & Hra.Durch) != 0).Count(i => !i.DurchWon);
@@ -1196,7 +1248,8 @@ namespace Mariasek.Engine.New
             }
             else
             {
-                if (_hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _goodSimulations && _goodSimulations > 0)
+                DebugInfo.TotalRuleCount = _gameSimulations;
+                if (_hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _gameSimulations && _gameSimulations > 0)
                 {
                     gameType = Hra.Kilo;
                     DebugInfo.RuleCount = _hundredsBalance;
@@ -1206,15 +1259,15 @@ namespace Mariasek.Engine.New
                     gameType = Hra.Hra;
                     DebugInfo.RuleCount = _gamesBalance;
                 }
-                if (_sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _goodSimulations && _goodSimulations > 0)
+                if (_sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)
                 {
                     if (gameType == Hra.Hra)
                     {
                         DebugInfo.RuleCount = _sevensBalance;   //u sedmy me zajima sedma, u 107 kilo
+                        DebugInfo.TotalRuleCount = _sevenSimulations;
                     }
                     gameType |= Hra.Sedma;
-                };
-                DebugInfo.TotalRuleCount = _goodSimulations;
+                }
             }
             //DebugInfo.TotalRuleCount = Settings.SimulationsPerGameType;
             DebugInfo.Rule = (gameType & (Hra.Betl | Hra.Durch)) == 0 ? string.Format("{0} {1}", gameType, _trump) : gameType.ToString();
@@ -1222,27 +1275,32 @@ namespace Mariasek.Engine.New
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = Hra.Hra.ToDescription(_trump),
-                RuleCount = _gamesBalance
+                RuleCount = _gamesBalance,
+                TotalRuleCount = _gameSimulations
             });
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = (Hra.Hra | Hra.Sedma).ToDescription(_trump),
-                RuleCount = _sevensBalance
+                RuleCount = _sevensBalance,
+                TotalRuleCount = _sevenSimulations
             });
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = Hra.Kilo.ToDescription(_trump),
-                RuleCount = _hundredsBalance
+                RuleCount = _hundredsBalance,
+                TotalRuleCount = _gameSimulations
             });
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = Hra.Betl.ToString(),
-                RuleCount = _betlBalance
+                RuleCount = _betlBalance,
+                TotalRuleCount = _betlSimulations
             });
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = Hra.Durch.ToString(),
-                RuleCount = _durchBalance
+                RuleCount = _durchBalance,
+                TotalRuleCount = _durchSimulations
             });
             DebugInfo.AllChoices = allChoices.OrderByDescending(i => i.RuleCount).ToArray();
             _log.DebugFormat("Selected game type: {0}", gameType);
@@ -1299,7 +1357,7 @@ namespace Mariasek.Engine.New
             if ((bidding.Bids & Hra.Hra) != 0 &&
                 Settings.CanPlayGameType[Hra.Hra] &&
                 bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Hra] &&
-                ((_gamesBalance / (float)_goodSimulations >= gameThreshold &&
+                ((_gamesBalance / (float)_gameSimulations >= gameThreshold &&
                     //pokud jsem volil (re a vys) a:
                     //trham trumfovy hlas
                     //nebo ho netrham a mam aspon dva hlasy
@@ -1322,9 +1380,9 @@ namespace Mariasek.Engine.New
                              Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2))))))) ||
                  //nebo davam re a jsem si dost jisty nehlede na hlasy
                  (TeamMateIndex == -1 &&
-                  _gamesBalance / (float)_goodSimulations >= gameThresholdNext) ||
+                  _gamesBalance / (float)_gameSimulations >= gameThresholdNext) ||
                  //nebo kolega flekoval a ja mam nejakou hlasku a citil jsem se na flek jiz minule (tutti a vys),
-                 (_teamMateDoubledGame && _gamesBalance / (float)_goodSimulations >= gameThresholdPrevious && 
+                 (_teamMateDoubledGame && _gamesBalance / (float)_gameSimulations >= gameThresholdPrevious && 
                   Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit)))))
             {
                 bid |= bidding.Bids & Hra.Hra;
@@ -1339,7 +1397,7 @@ namespace Mariasek.Engine.New
             if ((bidding.Bids & Hra.Sedma) != 0 &&
                 Settings.CanPlayGameType[Hra.Sedma] &&
                 bidding._sevenFlek <= Settings.MaxDoubleCountForGameType[Hra.Sedma] &&
-                Hand.CardCount(_g.trump.Value) >= 3 && _sevensBalance / (float)_goodSimulations >= sevenThreshold)
+                Hand.CardCount(_g.trump.Value) >= 3 && _sevensBalance / (float)_sevenSimulations >= sevenThreshold)
             {
                 bid |= bidding.Bids & Hra.Sedma;
                 minRuleCount = Math.Min(minRuleCount, _sevensBalance);
@@ -1350,7 +1408,7 @@ namespace Mariasek.Engine.New
             if ((bidding.Bids & Hra.Kilo) != 0 &&
                 Settings.CanPlayGameType[Hra.Kilo] &&
                 bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Kilo] &&
-                ((PlayerIndex == _g.GameStartingPlayerIndex && _hundredsBalance / (float)_goodSimulations >= hundredThreshold) ||
+                ((PlayerIndex == _g.GameStartingPlayerIndex && _hundredsBalance / (float)_gameSimulations >= hundredThreshold) ||
 			     (PlayerIndex != _g.GameStartingPlayerIndex && Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0)))
             {
                 bid |= bidding.Bids & Hra.Kilo;
@@ -1362,7 +1420,7 @@ namespace Mariasek.Engine.New
             if ((bidding.Bids & Hra.SedmaProti) != 0 &&
                 Settings.CanPlayGameType[Hra.SedmaProti] &&
                 bidding._sevenAgainstFlek <= Settings.MaxDoubleCountForGameType[Hra.SedmaProti] &&
-                _sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold)
+                _sevensAgainstBalance / (float)_gameSimulations >= sevenAgainstThreshold)
                 //(PlayerIndex != _g.GameStartingPlayerIndex &&                  
                 // (_sevensAgainstBalance / (float)_goodSimulations >= sevenAgainstThreshold ||
                 //  (((Hand.CardCount(_g.trump.Value) >= 4 &&              //neohlizej se na simulace, sedmu proti hlasim kdyz mam aspon 4 trumfy a vsechny barvy nebo aspon 5 trumfu
@@ -1384,7 +1442,7 @@ namespace Mariasek.Engine.New
             if ((bidding.Bids & Hra.KiloProti) != 0 &&                
                 ((Settings.CanPlayGameType[Hra.KiloProti] &&
                   bidding._hundredAgainstFlek <= Settings.MaxDoubleCountForGameType[Hra.KiloProti] &&
-                  (PlayerIndex != _g.GameStartingPlayerIndex && _hundredsAgainstBalance / (float)_goodSimulations >= hundredAgainstThreshold)) ||
+                  (PlayerIndex != _g.GameStartingPlayerIndex && _hundredsAgainstBalance / (float)_gameSimulations >= hundredAgainstThreshold)) ||
                  (PlayerIndex == _g.GameStartingPlayerIndex && //_gamesBalance / (float)_goodSimulations >= gameThreshold && //_hundredsAgainstBalance == Settings.SimulationsPerGameType))); //never monte carlu, dej na pravdepodobnost
                   (Probabilities.HlasProbability((PlayerIndex + 1) % Game.NumPlayers) == 0) &&
 				  (Probabilities.HlasProbability((PlayerIndex + 2) % Game.NumPlayers) == 0))))
@@ -1424,31 +1482,35 @@ namespace Mariasek.Engine.New
             }
             DebugInfo.Rule = bid.ToString();
 			DebugInfo.RuleCount = minRuleCount;
-            DebugInfo.TotalRuleCount = _gameType == Hra.Betl ? _betlSimulations : _gameType == Hra.Durch ? _durchSimulations : _goodSimulations;
+            DebugInfo.TotalRuleCount = _gameType == Hra.Betl 
+                                        ? _betlSimulations 
+                                        : _gameType == Hra.Durch 
+                                            ? _durchSimulations 
+                                            : _gameSimulations;
             var allChoices = new List<RuleDebugInfo>();
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = Hra.Hra.ToString(),
                 RuleCount = _gamesBalance,
-                TotalRuleCount = _goodSimulations
+                TotalRuleCount = _gameSimulations
             });
 			allChoices.Add(new RuleDebugInfo
             {
                 Rule = Hra.Sedma.ToString(),
                 RuleCount = _sevensBalance,
-                TotalRuleCount = _goodSimulations
+                TotalRuleCount = _sevenSimulations
             });
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = Hra.SedmaProti.ToString(),
                 RuleCount = _sevensAgainstBalance,
-                TotalRuleCount = _goodSimulations
+                TotalRuleCount = _gameSimulations
             });
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = Hra.Kilo.ToString(),
                 RuleCount = _hundredsBalance,
-                TotalRuleCount = _goodSimulations
+                TotalRuleCount = _gameSimulations
             });
             allChoices.Add(new RuleDebugInfo
             {
@@ -1957,6 +2019,8 @@ namespace Mariasek.Engine.New
             string playerName;
 
             Check(hands);
+            result.Trump = trump;
+            result.GameType = gameType ?? _g.GameType;
             if (c1 == null && c2 == null)
             {
                 if (_g.CurrentRound == null && !ImpersonateGameStartingPlayer)
@@ -2106,6 +2170,7 @@ namespace Mariasek.Engine.New
                 if (aiStrategy.RoundNumber == 10 && trump.HasValue)
                 {
                     result.Final7Won = roundWinnerCard.Suit == trump.Value && roundWinnerCard.Value == Hodnota.Sedma && roundWinnerIndex == _g.GameStartingPlayerIndex;
+                    result.Final7AgainstWon = roundWinnerCard.Suit == trump.Value && roundWinnerCard.Value == Hodnota.Sedma && roundWinnerIndex != _g.GameStartingPlayerIndex;
                 }
                 hands[player1].Remove(c1);
                 hands[player2].Remove(c2);

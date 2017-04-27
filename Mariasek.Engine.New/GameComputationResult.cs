@@ -9,6 +9,8 @@ namespace Mariasek.Engine.New
     {
         public Hand[] Hands;                    //for debugging purposees
         public List<RoundDebugContext> Rounds;  //for debugging purposees
+        public Barva? Trump { get; set; }
+        public Hra GameType { get; set; }
         public Card CardToPlay { get; set; }
         public int[] Score { get; set; }
         public int[] BasicScore { get; set; }
@@ -16,5 +18,6 @@ namespace Mariasek.Engine.New
         public AiRule Rule { get; set; }
         public Dictionary<AiRule, Card> ToplevelRuleDictionary { get; set; }
         public bool? Final7Won { get; set; }
+        public bool? Final7AgainstWon { get; set; }
     }
 }

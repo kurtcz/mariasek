@@ -1130,7 +1130,7 @@ namespace Mariasek.Engine.New
 			}
 			foreach (var choice in players[playerIndex].DebugInfo.AllChoices.Where(i => i != null))
             {
-                BiddingDebugInfo.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, players[playerIndex].DebugInfo.TotalRuleCount);
+                BiddingDebugInfo.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, choice.TotalRuleCount);
             }
         }
         #endregion
