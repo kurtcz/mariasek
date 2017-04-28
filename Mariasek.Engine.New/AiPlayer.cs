@@ -935,21 +935,23 @@ namespace Mariasek.Engine.New
             _betlSimulations = _moneyCalculations.Count(i => i.GameType == Hra.Betl);
             _durchSimulations = _moneyCalculations.Count(i => i.GameType == Hra.Durch);
 
+            Hra? goodGameType = _gameType.HasValue && (_gameType & Hra.Sedma) != 0 ? Hra.Sedma : (Hra?)null;
+
             _gamesBalance = PlayerIndex == GameStartingPlayerIndex
-                            ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => i.GameWon)
-                            : _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.GameWon);
+                            ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => i.GameWon)
+                            : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => !i.GameWon);
             _hundredsBalance = PlayerIndex == GameStartingPlayerIndex
-                                ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => i.HundredWon)
-                                : _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.HundredWon);
+                                ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => i.HundredWon)
+                                : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => !i.HundredWon);
             _hundredsAgainstBalance = PlayerIndex == GameStartingPlayerIndex
-                                        ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.QuietHundredAgainstWon)
-                                        : _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => i.QuietHundredAgainstWon);
+                                        ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => !i.QuietHundredAgainstWon)
+                                        : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => i.QuietHundredAgainstWon);
             _sevensBalance = PlayerIndex == GameStartingPlayerIndex
-                                ? _moneyCalculations.Where(i => (i.GameType & Hra.Sedma) != 0).Count(i => i.SevenWon)
-                                : _moneyCalculations.Where(i => (i.GameType & Hra.Sedma) != 0).Count(i => !i.SevenWon);
+                                ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Sedma)) != 0).Count(i => i.SevenWon)
+                                : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Sedma)) != 0).Count(i => !i.SevenWon);
             _sevensAgainstBalance = PlayerIndex == GameStartingPlayerIndex
-                                        ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.SevenAgainstWon)
-                                        : _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => i.SevenAgainstWon);
+                                        ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => !i.SevenAgainstWon)
+                                        : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => i.SevenAgainstWon);
             _durchBalance = PlayerIndex == GameStartingPlayerIndex
                                 ? _moneyCalculations.Where(i => (i.GameType & Hra.Durch) != 0).Count(i => i.DurchWon)
                                 : _moneyCalculations.Where(i => (i.GameType & Hra.Durch) != 0).Count(i => !i.DurchWon);
@@ -984,40 +986,47 @@ namespace Mariasek.Engine.New
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = "Hra",
-                RuleCount = _gamesBalance
+                RuleCount = _gamesBalance,
+                TotalRuleCount = _gameSimulations
             });
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = "Sedma",
-                RuleCount = _sevensBalance
+                RuleCount = _sevensBalance,
+                TotalRuleCount = _sevenSimulations
             });
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = "Kilo",
-                RuleCount = _hundredsBalance
+                RuleCount = _hundredsBalance,
+                TotalRuleCount = _gameSimulations
             });
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = "Sedma proti",
-                RuleCount = _sevensAgainstBalance
+                RuleCount = _sevensAgainstBalance,
+                TotalRuleCount = _gameSimulations
             });
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = "Kilo proti",
-                RuleCount = _hundredsAgainstBalance
+                RuleCount = _hundredsAgainstBalance,
+                TotalRuleCount = _gameSimulations
             });
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = "Betl",
-                RuleCount = _betlBalance
+                RuleCount = _betlBalance,
+                TotalRuleCount = _betlSimulations
             });
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = "Durch",
-                RuleCount = _durchBalance
+                RuleCount = _durchBalance,
+                TotalRuleCount = _durchSimulations
             });
             DebugInfo.AllChoices = allChoices.ToArray();
-            DebugInfo.TotalRuleCount = Settings.SimulationsPerGameType;
+            //DebugInfo.TotalRuleCount = Settings.SimulationsPerGameType;
         }
 
 		public bool ShouldChooseDurch()
@@ -1261,12 +1270,16 @@ namespace Mariasek.Engine.New
                 }
                 if (_sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)
                 {
-                    if (gameType == Hra.Hra)
-                    {
-                        DebugInfo.RuleCount = _sevensBalance;   //u sedmy me zajima sedma, u 107 kilo
-                        DebugInfo.TotalRuleCount = _sevenSimulations;
-                    }
                     gameType |= Hra.Sedma;
+                    if (gameType == Hra.Hra)    //u sedmy budu zobrazovat sedmu a u 107 kilo
+                    {
+                        DebugInfo.RuleCount = _sevensBalance;
+                    }
+                    else
+                    {
+                        DebugInfo.RuleCount = _hundredsBalance;
+                    }
+                    DebugInfo.TotalRuleCount = Math.Max(_gameSimulations, _sevenSimulations);   //abych neukazoval pravdepodobnosti > 100%
                 }
             }
             //DebugInfo.TotalRuleCount = Settings.SimulationsPerGameType;
