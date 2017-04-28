@@ -1756,8 +1756,8 @@ namespace Mariasek.SharedClient
                     UpdateHand();
                 });
                 _skipBidBubble = true;  //abychom nezobrazovali bublinu znovu v BidMade()
-                SortHand(null); //presusporadame karty
-                UpdateHand();
+                SortHand(null); //preusporadame karty
+                UpdateHand(cardToHide: e.TrumpCard);
             }
             else if (e.GameStartingPlayerIndex == 0)
             {

@@ -26,7 +26,11 @@ namespace Mariasek.Engine.New
 
         public AiStrategy2(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities)
             : base(trump, gameType, hands, rounds, teamMatesSuits, probabilities)
-        {      
+        {
+            if (!trump.HasValue)
+            {
+                throw new InvalidOperationException("AiStrategy2: trump is null");
+            }
         }
 
         //: - souper

@@ -957,19 +957,19 @@ namespace Mariasek.Engine.New
                                 ? _moneyCalculations.Where(i => (i.GameType & Hra.Betl) != 0).Count(i => i.BetlWon)
                                 : _moneyCalculations.Where(i => (i.GameType & Hra.Betl) != 0).Count(i => !i.BetlWon);
             _log.DebugFormat("** Game {0} by {1} {2} times ({3}%)", PlayerIndex == GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
-                _gamesBalance, 100 * _gamesBalance / Settings.SimulationsPerGameType);
+                             _gamesBalance, 100 * _gamesBalance / (_gameSimulations > 0 ? _gameSimulations : 1));
             _log.DebugFormat("** Hundred {0} by {1} {2} times ({3}%)", PlayerIndex == GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
-                _hundredsBalance, 100 * _hundredsBalance / Settings.SimulationsPerGameType);            //sgrupuj simulace podle vysledku skore
+                _hundredsBalance, 100 * _hundredsBalance / (_gameSimulations > 0 ? _gameSimulations : 1));            //sgrupuj simulace podle vysledku skore
             _log.DebugFormat("** Hundred against won {0} times ({1}%)",
-                _hundredsAgainstBalance, 100f * _hundredsAgainstBalance / Settings.SimulationsPerGameType);            //sgrupuj simulace podle vysledku skore
+                _hundredsAgainstBalance, 100f * _hundredsAgainstBalance / (_gameSimulations > 0 ? _gameSimulations : 1));            //sgrupuj simulace podle vysledku skore
             _log.DebugFormat("** Seven {0} by {1} {2} times ({3}%)", PlayerIndex == GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
-                _sevensBalance, 100 * _sevensBalance / Settings.SimulationsPerGameType);            //sgrupuj simulace podle vysledku skore
+                _sevensBalance, 100 * _sevensBalance / (_sevenSimulations > 0 ? _sevenSimulations : 1));            //sgrupuj simulace podle vysledku skore
             _log.DebugFormat("** Seven against won {0} times ({1}%)",
-                _sevensAgainstBalance, 100 * _sevensAgainstBalance / Settings.SimulationsPerGameType);            //sgrupuj simulace podle vysledku skore
+                _sevensAgainstBalance, 100 * _sevensAgainstBalance / (_gameSimulations > 0 ? _gameSimulations : 1));            //sgrupuj simulace podle vysledku skore
             _log.DebugFormat("** Durch won {0} times ({1}%)",
-                _durchBalance, 100 * _durchBalance / Settings.SimulationsPerGameType);            //sgrupuj simulace podle vysledku skore
+                _durchBalance, 100 * _durchBalance / (_durchSimulations > 0 ? _durchSimulations : 1));            //sgrupuj simulace podle vysledku skore
             _log.DebugFormat("** Betl won {0} times ({1}%)",
-                _betlBalance, 100 * _betlBalance / Settings.SimulationsPerGameType);            //sgrupuj simulace podle vysledku skore
+                _betlBalance, 100 * _betlBalance / (_betlSimulations > 0 ? _betlSimulations : 1));            //sgrupuj simulace podle vysledku skore
             var scores = _moneyCalculations.GroupBy(i => i.PointsWon)
                 .Select(g => new
                 {
@@ -2068,9 +2068,13 @@ namespace Mariasek.Engine.New
                 initialRoundNumber = _g.RoundNumber;
                 roundsToCompute = Settings.RoundsToCompute;
             }
-            if(!trump.HasValue && (gameType & (Hra.Betl | Hra.Durch)) == 0)
+            if (!trump.HasValue && (gameType & (Hra.Betl | Hra.Durch)) == 0)
             {
                 trump = _g.trump;
+                if (!trump.HasValue)
+                {
+                    throw new InvalidOperationException("AiPlayer: trump is null");
+                }
             }
             x.Append(hands[0].ToString() + "\n" + hands[1].ToString() + "\n" + hands[2].ToString() + "\n" + "\n");
 
