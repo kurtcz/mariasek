@@ -423,9 +423,29 @@ namespace Mariasek.Engine.New
                 OnRoundFinished(r);
             }
             RoundNumber = gameData.Kolo;
+            if (RoundNumber > 0 && 
+                ((talon == null || !talon.Any()) ||
+                 GameType == 0 ||
+                 ((GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+                  !trump.HasValue) ||
+                 players[0].Hand.Count != 10 - RoundNumber + 1 ||
+                 players[1].Hand.Count != 10 - RoundNumber + 1 ||
+                 players[2].Hand.Count != 10 - RoundNumber + 1))
+            {
+                throw new InvalidDataException("Game check failed");
+            }
             if(RoundNumber > 0)
             {
                 players[GameStartingPlayerIndex].Hand.Sort();   //voliciho hrace utridime pokud uz zvolil trumf
+                OnGameTypeChosen(new GameTypeChosenEventArgs    //dovolime hracum aby zjistili jaky jsou trumfy
+                {
+                    GameType = GameType,
+                    TrumpCard = players[GameStartingPlayerIndex].Hand
+                                                                .Where(i => i.Suit == trump)
+                                                                .OrderBy(i => i.Value)
+                                                                .First(),
+                    GameStartingPlayerIndex = GameStartingPlayerIndex
+                });
             }
             players[(GameStartingPlayerIndex + 1) % NumPlayers].Hand.Sort();
             players[(GameStartingPlayerIndex + 2) % NumPlayers].Hand.Sort();
