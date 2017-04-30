@@ -378,13 +378,27 @@ namespace Mariasek.Engine.New
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = new List<Card>();
+                    var lowCards = new List<Card>();
 
-                    //TODO: zjistit jestli je tohle pravidlo jine pro zacinajiciho hrace a pro soupere
+                    if (TeamMateIndex == player1)
+                    {
+                        lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota))
+                                                                 .Cast<Hodnota>()
+                                                                 .All(h => (int)h > i.BadValue ||
+                                                                           _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0)).ToList();
+                    }
+                    else if (TeamMateIndex == player3)
+                    {
+                        lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota))
+                                                                 .Cast<Hodnota>()
+                                                                 .All(h => (int)h > i.BadValue ||
+                                                                           _probabilities.CardProbability(player1, new Card(i.Suit, h)) == 0)).ToList();
+                    }
                     var cards = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit != c1.Suit &&
-                                                                          i.Value != Hodnota.Sedma)         //sedmu nema smysl odmazavat
-                                                                .GroupBy(i => i.Suit)
-                                                                .OrderBy(g => g.Count())
-                                                                .Select(g => g.ToList()).FirstOrDefault();
+                                                                          !lowCards.Contains(i))         //nejnizsi karty v barve nema smysl odmazavat
+                                                              .GroupBy(i => i.Suit)
+                                                              .OrderBy(g => g.Count())
+                                                              .Select(g => g.ToList()).FirstOrDefault();
                     if (cards != null)
                     {
                         cardsToPlay = cards;
@@ -513,9 +527,24 @@ namespace Mariasek.Engine.New
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = new List<Card>();
+                    var lowCards = new List<Card>();
 
-                    //TODO: zjistit jestli je tohle pravidlo jine pro zacinajiciho hrace a pro soupere
-                    var cards = ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit != c1.Suit)
+                    if (TeamMateIndex == player1)
+                    {
+                        lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota))
+                                                                 .Cast<Hodnota>()
+                                                                 .All(h => (int)h > i.BadValue ||
+                                                                           _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0)).ToList();
+                    }
+                    else
+                    {
+                        lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota))
+                                                                 .Cast<Hodnota>()
+                                                                 .All(h => (int)h > i.BadValue ||
+                                                                           _probabilities.CardProbability(player1, new Card(i.Suit, h)) == 0)).ToList();
+                    }
+                    var cards = ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit != c1.Suit &&
+                                                                              !lowCards.Contains(i))
                                                                   .GroupBy(i => i.Suit)
                                                                   .OrderBy(g => g.Count())
                                                                   .Select(g => g.ToList()).FirstOrDefault();

@@ -123,9 +123,9 @@ namespace Mariasek.SharedClient.GameComponents
         public RectangleShape(GameComponent parent)
             :base (parent)
         {
-            //Game.Activated += (sender, e) => ScheduleTextureUpdate();
+            Game.Activated += (sender, e) => ScheduleTextureUpdate();
             Game.GraphicsDevice.DeviceReset += (sender, e) => ScheduleTextureUpdate();
-            Game.Resumed += () => ScheduleTextureUpdate();
+            //Game.Resumed += () => ScheduleTextureUpdate();
         }
 
         private void ScheduleTextureUpdate()
@@ -135,6 +135,10 @@ namespace Mariasek.SharedClient.GameComponents
 
         public void UpdateTexture()
         {
+            if (_texture != null)
+            {
+                _texture.Dispose();
+            }
             _texture = CreateRoundedRectangleTexture(
                 Game.Graphics.GraphicsDevice,
                 _width,

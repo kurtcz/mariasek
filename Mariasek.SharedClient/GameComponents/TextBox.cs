@@ -148,7 +148,8 @@ namespace Mariasek.SharedClient.GameComponents
         private int _verticalScrollOffset;
         private int _minVerticalScrollOffset;
         private int _maxVerticalScrollOffset;
-            
+        private bool _textureUpdateNeeded;
+
         public TextBox(GameComponent parent)
             : base(parent)
         {
@@ -172,6 +173,12 @@ namespace Mariasek.SharedClient.GameComponents
             HorizontalAlign = HorizontalAlignment.Center;
             Width = _backgroundShape.Width;
             Height = _backgroundShape.Height;
+            Game.Activated += (sender, e) => ScheduleTextureUpdate();
+        }
+
+        void ScheduleTextureUpdate()
+        {
+            _textureUpdateNeeded = true;
         }
 
         /// <summary>
@@ -296,6 +303,10 @@ namespace Mariasek.SharedClient.GameComponents
             var distance = _touchHeldLocation.Position.Y - _previoustouchHeldLocation.Position.Y;
 			var dt = gameTime.ElapsedGameTime;
 
+            if (_textureUpdateNeeded)
+            {
+                UpdateVerticalScrollbarPosition();
+            }
 			if ((int)distance != 0)
 			{
 				_scrollingVelocity = Math.Abs(distance / dt.TotalMilliseconds);
