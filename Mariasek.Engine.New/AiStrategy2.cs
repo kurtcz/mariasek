@@ -33,21 +33,8 @@ namespace Mariasek.Engine.New
             }
         }
 
-        //: - souper
-        //: o spoluhrac
-        //: c libovolna karta
-        //: X desitka
-        //: A eso
-
-        protected override IEnumerable<AiRule> GetRules1(Hand[] hands)
+        private void BeforeGetRules()
         {
-            var player2 = (MyIndex + 1) % Game.NumPlayers;
-            var player3 = (MyIndex + 2) % Game.NumPlayers;
-            var lastRound = RoundNumber >= 2 ? _rounds[RoundNumber - 2] : null;
-            var lastPlayer1 = lastRound != null ? lastRound.player1.PlayerIndex : -1;
-            var lastOpponentLeadSuit = lastRound != null ? lastRound.c1.Suit : Barva.Cerveny;
-            var isLastPlayer1Opponent = lastPlayer1 != MyIndex && lastPlayer1 != TeamMateIndex;
-
             _bannedSuits.Clear();
             if (TeamMateIndex != -1)
             {
@@ -130,7 +117,23 @@ namespace Mariasek.Engine.New
                     }
                 }
             }
+        }
+        //: - souper
+        //: o spoluhrac
+        //: c libovolna karta
+        //: X desitka
+        //: A eso
 
+        protected override IEnumerable<AiRule> GetRules1(Hand[] hands)
+        {
+            var player2 = (MyIndex + 1) % Game.NumPlayers;
+            var player3 = (MyIndex + 2) % Game.NumPlayers;
+            var lastRound = RoundNumber >= 2 ? _rounds[RoundNumber - 2] : null;
+            var lastPlayer1 = lastRound != null ? lastRound.player1.PlayerIndex : -1;
+            var lastOpponentLeadSuit = lastRound != null ? lastRound.c1.Suit : Barva.Cerveny;
+            var isLastPlayer1Opponent = lastPlayer1 != MyIndex && lastPlayer1 != TeamMateIndex;
+
+            BeforeGetRules();
             if (RoundNumber == 9)
             {
                 yield return new AiRule()
@@ -232,6 +235,65 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 1,
+                Description = "vytáhnout trumf",
+                SkipSimulations = true,
+                ChooseCard1 = () =>
+                {
+                    var cardsToPlay = new List<Card>();
+
+                    if (TeamMateIndex == -1)
+                    {
+                        //c--
+                        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > 0 ||
+                                                                                               _probabilities.CardProbability(player3, new Card(_trump, h)) > 0).ToList();
+                        var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
+                        var lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                     .Any(h => h > i.Value &&
+                                                                               (_probabilities.CardProbability(player2, new Card(i.Suit, h)) > 0 ||
+                                                                                _probabilities.CardProbability(player3, new Card(i.Suit, h)) > 0))).ToList();
+
+                        if (holes.Count > 0 && topTrumps.Count >= holes.Count && lowCards.Count < hands[MyIndex].CardCount(_trump))
+                        {
+                            cardsToPlay = topTrumps;
+                        }
+                    }
+                    else if (TeamMateIndex == player2)
+                    {
+                        //co-
+                        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player3, new Card(_trump, h)) > 0).ToList();
+                        var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
+                        var lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                     .Any(h => h > i.Value &&
+                                                                               _probabilities.CardProbability(player3, new Card(i.Suit, h)) > 0)).ToList();
+
+                        if (holes.Count > 0 && topTrumps.Count >= holes.Count && lowCards.Count < hands[MyIndex].CardCount(_trump))
+                        {
+                            cardsToPlay = topTrumps;
+                        }
+                    }
+                    else
+                    {
+                        //c-o
+                        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > 0).ToList();
+                        var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
+                        var lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                     .Any(h => h > i.Value &&
+                                                                               _probabilities.CardProbability(player2, new Card(i.Suit, h)) > 0)).ToList();
+
+                        if (holes.Count > 0 && topTrumps.Count >= holes.Count && lowCards.Count < hands[MyIndex].CardCount(_trump))
+                        {
+                            cardsToPlay = topTrumps;
+                        }
+                    }
+
+                    return cardsToPlay.RandomOneOrDefault();
+                }
+
+            };
+
+            yield return new AiRule()
+            {
+                Order = 2,
                 Description = "vytlačit trumf",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -289,7 +351,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 2,
+                Order = 3,
                 Description = "zkusit vytáhnout plonkovou X",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -338,7 +400,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 3,
+                Order = 4,
                 Description = "zkus vytlačit eso",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -362,67 +424,6 @@ namespace Mariasek.Engine.New
                         }
                     }
                     return null;
-                }
-            };
-
-            //zbav se plev (kratka barva)
-            //zustat ve stychu
-
-            yield return new AiRule()
-            {
-                Order = 4,
-                Description = "vytáhnout trumf",
-                SkipSimulations = true,
-                ChooseCard1 = () =>
-                {
-                    var cardsToPlay = new List<Card>();
-
-                    if (TeamMateIndex == -1)
-                    {
-                        //c--
-                        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > 0 ||
-                                                                                               _probabilities.CardProbability(player3, new Card(_trump, h)) > 0).ToList();
-                        var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
-                        var lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                     .Any(h => h > i.Value &&
-                                                                               (_probabilities.CardProbability(player2, new Card(i.Suit, h)) > 0 ||
-                                                                                _probabilities.CardProbability(player3, new Card(i.Suit, h)) > 0))).ToList();
-                        
-                        if (holes.Count > 0 && topTrumps.Count >= holes.Count && lowCards.Count < hands[MyIndex].CardCount(_trump))
-                        {
-                            cardsToPlay = topTrumps;
-                        }
-                    }
-                    else if (TeamMateIndex == player2)
-                    {
-                        //co-
-                        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player3, new Card(_trump, h)) > 0).ToList();
-                        var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
-                        var lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                     .Any(h => h > i.Value &&
-                                                                               _probabilities.CardProbability(player3, new Card(i.Suit, h)) > 0)).ToList();
-
-                        if (holes.Count > 0 && topTrumps.Count >= holes.Count && lowCards.Count < hands[MyIndex].CardCount(_trump))
-                        {
-                            cardsToPlay = topTrumps;
-                        }
-                    }
-                    else
-                    {
-                        //c-o
-                        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > 0).ToList();
-                        var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
-                        var lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                     .Any(h => h > i.Value &&
-                                                                               _probabilities.CardProbability(player2, new Card(i.Suit, h)) > 0)).ToList();
-
-                        if (holes.Count > 0 && topTrumps.Count >= holes.Count && lowCards.Count < hands[MyIndex].CardCount(_trump))
-                        {
-                            cardsToPlay = topTrumps;
-                        }
-                    }
-
-                    return cardsToPlay.RandomOneOrDefault();
                 }
             };
 

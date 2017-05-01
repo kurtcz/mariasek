@@ -1176,11 +1176,12 @@ namespace Mariasek.SharedClient
         private void GameWonPrematurely (object sender, GameWonPrematurelyEventArgs e)
         {
             g.ThrowIfCancellationRequested();
-            _synchronizationContext.Send(_ =>
+            this.WaitUntil(() => _bubbles.All(i => !i.IsVisible))
+                .Invoke(() =>
                 {
-                    if((g.GameType & Hra.Betl) != 0)
+                    if ((g.GameType & Hra.Betl) != 0)
                     {
-                        if(e.roundNumber > 1)
+                        if (e.roundNumber > 1)
                         {
                             ShowMsgLabel("Už mě nechytíte", false);
                         }
@@ -1192,7 +1193,7 @@ namespace Mariasek.SharedClient
                     else
                     {
                         var finalTrumpSeven = g.trump.HasValue && e.winningHand.Any(i => i.Suit == g.trump.Value && i.Value == Hodnota.Sedma);
-                        if(e.roundNumber > 1)
+                        if (e.roundNumber > 1)
                         {
                             ShowMsgLabel(string.Format("Zbytek jde za mnou{0}", finalTrumpSeven ? ", sedma nakonec" : string.Empty), false);
                         }
@@ -1207,7 +1208,7 @@ namespace Mariasek.SharedClient
                     _winningHand.ShowWinningHand(e.winner.PlayerIndex);
                     _winningHand.Show();
                     _state = GameState.RoundFinished;
-                }, null);
+                });
             WaitForUIThread();
             ClearTable(true);
         }

@@ -402,6 +402,18 @@ namespace Mariasek.Engine.New
             rounds = new Round[NumRounds];
             foreach (var stych in gameData.Stychy.Where(i => i.Hrac1 != null && i.Hrac2 != null && i.Hrac3 != null).OrderBy(i => i.Kolo))
             {
+                if (RoundNumber == 0)
+                {
+                    OnGameTypeChosen(new GameTypeChosenEventArgs    //dovolime hracum aby zjistili jaky jsou trumfy
+                    {
+                        GameType = GameType,
+                        TrumpCard = players[GameStartingPlayerIndex].Hand
+                                                                    .Where(i => i.Suit == trump)
+                                                                    .OrderBy(i => i.Value)
+                                                                    .First(),
+                        GameStartingPlayerIndex = GameStartingPlayerIndex
+                    });
+                }
                 RoundNumber++;
                 var cards = new[] {stych.Hrac1, stych.Hrac2, stych.Hrac3};
                 
@@ -434,18 +446,9 @@ namespace Mariasek.Engine.New
             {
                 throw new InvalidDataException("Game check failed");
             }
-            if(RoundNumber > 0)
+            if (RoundNumber > 0)
             {
                 players[GameStartingPlayerIndex].Hand.Sort();   //voliciho hrace utridime pokud uz zvolil trumf
-                OnGameTypeChosen(new GameTypeChosenEventArgs    //dovolime hracum aby zjistili jaky jsou trumfy
-                {
-                    GameType = GameType,
-                    TrumpCard = players[GameStartingPlayerIndex].Hand
-                                                                .Where(i => i.Suit == trump)
-                                                                .OrderBy(i => i.Value)
-                                                                .First(),
-                    GameStartingPlayerIndex = GameStartingPlayerIndex
-                });
             }
             players[(GameStartingPlayerIndex + 1) % NumPlayers].Hand.Sort();
             players[(GameStartingPlayerIndex + 2) % NumPlayers].Hand.Sort();
@@ -656,6 +659,7 @@ namespace Mariasek.Engine.New
 
                     if (PlayerWinsGame(GameStartingPlayer))
                     {
+                        IsRunning = false;
                         OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = roundWinner.Hand });
                         CompleteUnfinishedRounds();
                     }
@@ -941,6 +945,7 @@ namespace Mariasek.Engine.New
 
                 return player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => Round.WinningCard(i, j, k, trump) == i)));
             }
+            IsRunning = false;
         }
         
         public Hra GetValidGameTypesForPlayer(AbstractPlayer player, GameFlavour gameFlavour, Hra minimalBid)
