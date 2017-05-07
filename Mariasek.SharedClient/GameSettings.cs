@@ -62,14 +62,14 @@ namespace Mariasek.SharedClient
                     GameType = Hra.Hra,
                     Use = true,
                     MaxBidCount = 3,
-                    Thresholds = "0|30|55|80"
+                    Thresholds = "0|25|60|80"
                 },
                 new BidThresholdSettings
                 {
                     GameType = Hra.Sedma,
                     Use = true,
-                    MaxBidCount = 3,
-                    Thresholds = "35|60|75|85"
+                    MaxBidCount = 2,
+                    Thresholds = "40|60|80|95"
                 },
                 new BidThresholdSettings
                 {
@@ -83,7 +83,7 @@ namespace Mariasek.SharedClient
                     GameType = Hra.SedmaProti,
                     Use = true,
                     MaxBidCount = 1,
-                    Thresholds = "40|65|80|95"
+                    Thresholds = "40|75|95|100"
                 },
                 new BidThresholdSettings
                 {
@@ -97,7 +97,7 @@ namespace Mariasek.SharedClient
                     GameType = Hra.Betl,
                     Use = true,
                     MaxBidCount = 0,
-                    Thresholds = "65|80|90|95"
+                    Thresholds = "65|75|85|95"
                 },
                 new BidThresholdSettings
                 {

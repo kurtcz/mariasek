@@ -160,7 +160,33 @@ namespace Mariasek.Engine.New
                                                                           {
                                                                               return Round.WinningCard(i2, j2, k2, _trump) == i2;
                                                                           }
-                                                                          else if (winnerCard == j)
+                                                                          else
+                                                                          {
+                                                                              return false;
+                                                                          }
+                                                                      })));
+                            //pokud to jde tak uhraj 9. i 10. stych
+                            if (cardsToPlay.Any())
+                            {
+                                //zkus zahrat trumfovou sedmu nakonec pokud to jde
+                                //toho docilime tak, ze v devatem kole nebudeme hrat trumfovou sedmu aby zustala do posledniho kola
+                                return cardsToPlay.OrderBy(i => i.Value)
+                                                  .FirstOrDefault(i => i.Suit != _trump || i.Value != Hodnota.Sedma) ??
+                                                   cardsToPlay.ToList().RandomOneOrDefault();
+                            }
+                            //jinak zkus uhrat aspon posledni stych
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
+
+                                                                      ValidCards(i, j, hands[player3]).All(k =>
+
+                                                                      {
+                                                                          var i2 = hands[MyIndex].First(l => l != i);
+                                                                          var j2 = hands[player2].First(m => m != j);
+                                                                          var k2 = hands[player3].First(n => n != k);
+
+                                                                          var winnerCard = Round.WinningCard(i, j, k, _trump);
+
+                                                                          if (winnerCard == j)
                                                                           {
                                                                               return Round.WinningCard(j2, k2, i2, _trump) == i2;
                                                                           }
@@ -174,7 +200,9 @@ namespace Mariasek.Engine.New
                         {
                             //: co-
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
+
                                                                       ValidCards(i, j, hands[player3]).All(k =>
+
                                                                       {
                                                                           var i2 = hands[MyIndex].First(l => l != i);
                                                                           var j2 = hands[player2].First(m => m != j);
@@ -192,15 +220,38 @@ namespace Mariasek.Engine.New
                                                                           }
                                                                           else
                                                                           {
-                                                                              return Round.WinningCard(k2, i2, j2, _trump) != k2;
+                                                                              return false;
                                                                           }
+                                                                      })));
+                            //pokud to jde tak uhraj 9. i 10. stych
+                            if (cardsToPlay.Any())
+                            {
+                                //zkus zahrat trumfovou sedmu nakonec pokud to jde
+                                //toho docilime tak, ze v devatem kole nebudeme hrat trumfovou sedmu aby zustala do posledniho kola
+                                return cardsToPlay.OrderBy(i => i.Value)
+                                                  .FirstOrDefault(i => i.Suit != _trump || i.Value != Hodnota.Sedma) ??
+                                                   cardsToPlay.ToList().RandomOneOrDefault();
+                            }
+                            //jinak zkus uhrat aspon posledni stych
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
+                                                                      ValidCards(i, j, hands[player3]).All(k =>
+                                                                      {
+                                                                          var i2 = hands[MyIndex].First(l => l != i);
+                                                                          var j2 = hands[player2].First(m => m != j);
+                                                                          var k2 = hands[player3].First(n => n != k);
+
+                                                                          var winnerCard = Round.WinningCard(i, j, k, _trump);
+
+                                                                          return Round.WinningCard(k2, i2, j2, _trump) != k2;
                                                                       })));
                         }
                         else
                         {
                             //: c-o
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
+
                                                                       ValidCards(i, j, hands[player3]).All(k =>
+
                                                                       {
                                                                           var i2 = hands[MyIndex].First(l => l != i);
                                                                           var j2 = hands[player2].First(m => m != j);
@@ -214,13 +265,34 @@ namespace Mariasek.Engine.New
                                                                           }
                                                                           else if (winnerCard == j)
                                                                           {
-                                                                              return Round.WinningCard(j2, k2, i2, _trump) != j2;
+                                                                              return false;
                                                                           }
                                                                           else
                                                                           {
                                                                               return Round.WinningCard(k2, i2, j2, _trump) != j2;
                                                                           }
-                                                                       })));
+                                                                      })));
+                            //pokud to jde tak uhraj 9. i 10. stych
+                            if (cardsToPlay.Any())
+                            {
+                                //zkus zahrat trumfovou sedmu nakonec pokud to jde
+                                //toho docilime tak, ze v devatem kole nebudeme hrat trumfovou sedmu aby zustala do posledniho kola
+                                return cardsToPlay.OrderBy(i => i.Value)
+                                                  .FirstOrDefault(i => i.Suit != _trump || i.Value != Hodnota.Sedma) ??
+                                                   cardsToPlay.ToList().RandomOneOrDefault();
+                            }
+                            //jinak zkus uhrat aspon posledni stych
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
+                                                                      ValidCards(i, j, hands[player3]).All(k =>
+                                                                      {
+                                                                          var i2 = hands[MyIndex].First(l => l != i);
+                                                                          var j2 = hands[player2].First(m => m != j);
+                                                                          var k2 = hands[player3].First(n => n != k);
+
+                                                                          var winnerCard = Round.WinningCard(i, j, k, _trump);
+
+                                                                          return Round.WinningCard(j2, k2, i2, _trump) != j2;
+                                                                      })));
                         }
 
                         //zkus zahrat trumfovou sedmu nakonec pokud to jde
