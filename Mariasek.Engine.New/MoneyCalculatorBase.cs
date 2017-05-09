@@ -300,6 +300,7 @@ namespace Mariasek.Engine.New
                 var other = string.Empty;
                 var score = string.Empty;
                 var money = 0;
+                var gtString = gt.ToString().ToLower();
 
                 switch (gt)
                 {
@@ -329,9 +330,10 @@ namespace Mariasek.Engine.New
                         money = HundredMoneyWon;
                         score = string.Format("Skóre: {0}:{1}{2}\t \n", PointsWon, PointsLost, won ? string.Empty : string.Format("\nDo kila schází: {0} bodů", 100 - (BasicPointsWon + MaxHlasWon)));
                         break;
-                    case Hra.SedmaProti:
+                    case Hra.SedmaProti:                        
                         won = SevenAgainstWon;
                         genre = Genre.Feminine;
+                        gtString = "sedma proti";
                         multiplier = _bidding.SevenAgainstMultiplier;
                         money = SevenAgainstMoneyWon + KilledSevenAgainstMoneyWon;
                         other = KilledSevenAgainst ? "\nzabitá" : string.Empty;
@@ -339,6 +341,7 @@ namespace Mariasek.Engine.New
                     case Hra.KiloProti:
                         won = HundredAgainstWon;
                         genre = Genre.Neutral;
+                        gtString = "kilo proti";
                         multiplier = _bidding.HundredAgainstMultiplier;
                         money = HundredAgainstMoneyWon;
                         break;
@@ -374,7 +377,7 @@ namespace Mariasek.Engine.New
                 }
                 sb.AppendFormat("{0} {1}{2}{3}\t{4}\n{5}",
                     status,
-                    gt.ToString().ToLower(),
+                    gtString,
                     multiplier > 1 ? string.Format(" ({0}x flek)", MultiplierToDoubleCount(multiplier)) : string.Empty,
                     other,
                     (money * BaseBet).ToString("C", _ci),
