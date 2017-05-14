@@ -311,7 +311,7 @@ namespace Mariasek.Engine.New
         //           (float)CNK(uncertainCards, totalCards - certainCards);
         //}
 
-        public float SuitHigherThanCardProbability(int playerIndex, Card c, int roundNumber)
+        public float SuitHigherThanCardProbability(int playerIndex, Card c, int roundNumber, bool goodGame = true)
         {
             //if (_cardProbabilityForPlayer[playerIndex][c.Suit].Where(h => h.Key > c.Value).Any(h => h.Value == 1f))
             //{
@@ -324,26 +324,37 @@ namespace Mariasek.Engine.New
 
             //var uncertainHighCardsInSuit = _cardProbabilityForPlayer[playerIndex][c.Suit].Count(h => h.Key > c.Value && h.Value > 0f && h.Value < 1f);
             //var x = (float)((1 << uncertainHighCardsInSuit) - 1) / (float)(1 << uncertainHighCardsInSuit);
-            var y = 1 - NoSuitHigherThanCardProbability(playerIndex, c, roundNumber);
+            var y = 1 - NoSuitHigherThanCardProbability(playerIndex, c, roundNumber, goodGame);
 
             return y;
         }
 
-        public float NoSuitHigherThanCardProbability(int playerIndex, Card c, int roundNumber)
+        public float NoSuitHigherThanCardProbability(int playerIndex, Card c, int roundNumber, bool goodGame = true)
         {
             //if I know at least one card for certain the case is trivial
             if (playerIndex == _myIndex)
             {
-                return _cardProbabilityForPlayer[playerIndex][c.Suit].Any(h => h.Key > c.Value && h.Value == 1f) ? 0f : 1f;
+                if (goodGame)
+                {
+                    return _cardProbabilityForPlayer[playerIndex][c.Suit].Any(h => h.Key > c.Value && h.Value == 1f) ? 0f : 1f;
+                }
+                else
+                {
+                    return _cardProbabilityForPlayer[playerIndex][c.Suit].Any(h => (int)h.Key > c.BadValue && h.Value == 1f) ? 0f : 1f;
+                }
             }
-            if (_cardProbabilityForPlayer[playerIndex][c.Suit].Any(h => h.Key > c.Value && h.Value == 1f))
+            if ((goodGame && _cardProbabilityForPlayer[playerIndex][c.Suit].Any(h => h.Key > c.Value && h.Value == 1f)) ||
+                (!goodGame && _cardProbabilityForPlayer[playerIndex][c.Suit].Any(h => (int)h.Key > c.BadValue && h.Value == 1f)))
             {
                 return 0f;
             }
 
             //let n be the total amount of uncertain cards not in c.Suit plus cards in suit smaller than c.Value
-            var n = _cardProbabilityForPlayer[playerIndex].Where(i => i.Key != c.Suit).Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 1f)) +
-                    _cardProbabilityForPlayer[playerIndex][c.Suit].Where(i => i.Key < c.Value).Count(h => h.Value > 0f && h.Value < 1f);
+            var n = goodGame
+                    ? _cardProbabilityForPlayer[playerIndex].Where(i => i.Key != c.Suit).Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 1f)) +
+                      _cardProbabilityForPlayer[playerIndex][c.Suit].Where(i => i.Key < c.Value).Count(h => h.Value > 0f && h.Value < 1f)
+                    : _cardProbabilityForPlayer[playerIndex].Where(i => i.Key != c.Suit).Sum(i => i.Value.Count(h => h.Value > 0f && h.Value< 1f)) +
+                      _cardProbabilityForPlayer[playerIndex][c.Suit].Where(i => (int)i.Key < c.BadValue).Count(h => h.Value > 0f && h.Value < 1f);
             var uncertainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 1f));
             var certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value == 1f));
             var totalCards = 10 - roundNumber + 1;
