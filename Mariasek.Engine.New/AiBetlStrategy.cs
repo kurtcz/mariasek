@@ -80,6 +80,13 @@ namespace Mariasek.Engine.New
                                             ValidCards(i, hands[player2]).Any(j =>
                                                 ValidCards(i, j, hands[player3]).All(k =>
                                                     Round.WinningCard(i, j, k, null) == k)));
+
+                        var certainCardsToPlay = cardsToPlay.Where(i => _probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0);
+
+                        if (certainCardsToPlay.Any())
+                        {
+                            return cardsToPlay.OrderBy(i => i.BadValue).First();
+                        }
                     }
                     else if (TeamMateIndex == player3)//c-o
                     {
@@ -88,6 +95,13 @@ namespace Mariasek.Engine.New
                                             ValidCards(i, hands[player2]).All(j =>
                                                 ValidCards(i, j, hands[player3]).Any(k =>
                                                     Round.WinningCard(i, j, k, null) == j)));
+
+                        var certainCardsToPlay = cardsToPlay.Where(i => _probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0);
+
+                        if (certainCardsToPlay.Any())
+                        {
+                            return cardsToPlay.OrderBy(i => i.BadValue).First();
+                        }
                     }
 
 					if (RoundNumber == 2 && _rounds != null && _rounds[0] != null) //pri simulaci hry jsou skutecny kola jeste neodehrany

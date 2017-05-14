@@ -1082,6 +1082,10 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Kral] = 0f;
                 _cardProbabilityForPlayer[talonIndex][c1.Suit][Hodnota.Kral] = 0f;
             }
+            else if (_trump.HasValue && c1.Value == Hodnota.Svrsek)
+            {
+                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Kral] = 0;
+            }
             _cardsPlayedByPlayer[roundStarterIndex].Add(c1);
             ReduceUcertainCardSet();
             UpdateUncertainCardsProbability();
@@ -1108,6 +1112,10 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c2.Suit][Hodnota.Kral] = 1f;
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c2.Suit][Hodnota.Kral] = 0f;
                 _cardProbabilityForPlayer[talonIndex][c2.Suit][Hodnota.Kral] = 0f;
+            }
+            else if (_trump.HasValue && c2.Value == Hodnota.Svrsek)
+            {
+                _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c2.Suit][Hodnota.Kral] = 0;
             }
             if (_trump.HasValue &&
                 c1.Suit != _trump &&
@@ -1169,6 +1177,10 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Kral] = 0f;
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Kral] = 1f;
                 _cardProbabilityForPlayer[talonIndex][c3.Suit][Hodnota.Kral] = 0f;
+            }
+            else if (_trump.HasValue && c3.Value == Hodnota.Svrsek)
+            {
+                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Kral] = 0;
             }
             if (_trump.HasValue &&
                 c1.Suit != _trump &&
