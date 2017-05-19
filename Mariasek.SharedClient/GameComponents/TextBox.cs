@@ -258,7 +258,10 @@ namespace Mariasek.SharedClient.GameComponents
             }
             else if(_scrollBarTexture != null)
             {
-                _scrollBarTexture.Dispose();
+                if (!_scrollBarTexture.IsDisposed)
+                {
+                    _scrollBarTexture.Dispose();
+                }
                 _scrollBarTexture = null;
             }
         }

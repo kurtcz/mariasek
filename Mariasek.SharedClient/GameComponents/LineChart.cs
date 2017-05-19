@@ -150,7 +150,7 @@ namespace Mariasek.SharedClient.GameComponents
 
                 Primitives2D.DrawLine(Game.SpriteBatch, LogicalToPhysical(new Vector2(YAxisPoint, MinValue.Y)), LogicalToPhysical(new Vector2(YAxisPoint, MaxValue.Y)), AxisColor, AxisThickness, Opacity);
 
-                if (ShowYAxisTickMarks)
+                if (ShowYAxisTickMarks && LogicalToPhysical(new Vector2(0, GridInterval.Y)).Y >= 8)
                 {
                     var offset = MinValue.Y % GridInterval.Y;
 
@@ -196,7 +196,7 @@ namespace Mariasek.SharedClient.GameComponents
             if (ShowXAxis)
             {
                 Primitives2D.DrawLine(Game.SpriteBatch, LogicalToPhysical(new Vector2(MinValue.X, XAxisPoint)), LogicalToPhysical(new Vector2(MaxValue.X, XAxisPoint)), AxisColor, AxisThickness, Opacity);
-                if (ShowXAxisTickMarks)
+                if (ShowXAxisTickMarks && LogicalToPhysical(new Vector2(GridInterval.X, 0)).X >= 8)
                 {                    
                     var offset = MinValue.X % GridInterval.X;
 

@@ -135,7 +135,7 @@ namespace Mariasek.SharedClient.GameComponents
 
         public void UpdateTexture()
         {
-            if (_texture != null)
+            if (_texture != null && !_texture.IsDisposed)
             {
                 _texture.Dispose();
             }
