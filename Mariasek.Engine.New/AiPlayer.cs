@@ -1626,7 +1626,13 @@ namespace Mariasek.Engine.New
                 RuleCount = _hundredsBalance,
                 TotalRuleCount = _gameSimulations
             });
-            allChoices.Add(new RuleDebugInfo
+			allChoices.Add(new RuleDebugInfo
+			{
+				Rule = Hra.KiloProti.ToString(),
+				RuleCount = _hundredsAgainstBalance,
+				TotalRuleCount = _gameSimulations
+			});
+			allChoices.Add(new RuleDebugInfo
             {
                 Rule = Hra.Betl.ToString(),
                 RuleCount = _betlBalance,
