@@ -36,6 +36,9 @@ namespace Mariasek.AndroidClient
             System.Diagnostics.Debug.WriteLine("OnCreate()");
 			base.OnCreate (bundle);
 
+            //handle unhandled exceptions from the UI thread
+            AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
+            //handle unhandled exceptions from background threads
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
             // Create our OpenGL view, and display it
@@ -93,23 +96,36 @@ namespace Mariasek.AndroidClient
         }
 
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
-        {
+        {            
             System.Diagnostics.Debug.WriteLine("OnUnhandledException()");
             //StartActivity(typeof(MariasekActivity));    //start a new instance
             //Process.KillProcess(Process.MyPid());       //kill the old instace
             //System.Environment.Exit(0);
-            var intent = new Intent(this, typeof(MariasekActivity));
-            intent.AddFlags(ActivityFlags.ClearTop | ActivityFlags.ClearTask | ActivityFlags.NewTask);
 
-            var pendingIntent = PendingIntent.GetActivity(Application.Context, 0, intent, PendingIntentFlags.UpdateCurrent);
-            var mgr = (AlarmManager)Application.BaseContext.GetSystemService(Context.AlarmService);
-            mgr.Set(AlarmType.Rtc, SystemClock.CurrentThreadTimeMillis() + 1000, pendingIntent);
+            //var intent = new Intent(this, typeof(MariasekActivity));
+            //intent.AddFlags(ActivityFlags.ClearTop | ActivityFlags.ClearTask | ActivityFlags.NewTask);
 
-            Finish();
-            System.Environment.Exit(2);
-        }
+            //var pendingIntent = PendingIntent.GetActivity(Application.Context, 0, intent, PendingIntentFlags.UpdateCurrent);
+            //var mgr = (AlarmManager)Application.BaseContext.GetSystemService(Context.AlarmService);
+            //mgr.Set(AlarmType.Rtc, SystemClock.CurrentThreadTimeMillis() + 1000, pendingIntent);
 
-        public void SendEmail(string[] recipients, string subject, string body, string[] attachments)
+            //Finish();
+            //System.Environment.Exit(2);
+            var ex = args.ExceptionObject as Exception;
+            var msg = ex != null ? string.Format("{0}\n{1}", ex.Message, ex.StackTrace) : "(null)";
+
+			SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek crash report", msg, new string[0]);
+		}
+
+		private void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
+		{
+			System.Diagnostics.Debug.WriteLine("OnUnhandledExceptionRaiser()");
+			var msg = string.Format("{0}\n{1}", e.Exception.Message, e.Exception.StackTrace);
+
+            SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek crash report", msg, new string[0]);
+		}
+
+		public void SendEmail(string[] recipients, string subject, string body, string[] attachments)
         {
             var email = new Intent(Android.Content.Intent.ActionSendMultiple);
             var uris = new List<Android.Net.Uri>();
