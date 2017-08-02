@@ -921,6 +921,18 @@ namespace Mariasek.Engine.New
                         var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                 !topCards.Contains(i)).ToList();
 
+                        if (TeamMateIndex != -1)
+                        {
+                            var opponentIndex = Enumerable.Range(0, Game.NumPlayers).First(i => i != MyIndex && i != TeamMateIndex);
+
+                            //neobetuj karty kterymi bych ze spoluhrace vytahl A,X ktery by souper vzal trumfem
+                            return cardsToPlay.Where(i => (_probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Eso)) < 1 - _epsilon &&
+                                                           _probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Desitka)) < 1 - _epsilon) ||
+                                                          _probabilities.SuitProbability(opponentIndex, i.Suit, RoundNumber) > 0 ||
+                                                          _probabilities.SuitProbability(opponentIndex, _trump, RoundNumber) == 0)
+                                              .ToList()
+                                              .RandomOneOrDefault();
+                        }
                         return cardsToPlay.RandomOneOrDefault();
                     }
                     return null;

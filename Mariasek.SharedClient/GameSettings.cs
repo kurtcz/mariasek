@@ -50,7 +50,7 @@ namespace Mariasek.SharedClient
             CurrentStartingPlayerIndex = 0;
             ThinkingTimeMs = 2000;
 			CardDesign = CardFace.Single;
-            Thresholds = new BidThresholdSettings[0];
+            ResetThresholds();
         }
 
         public void ResetThresholds()
@@ -76,7 +76,7 @@ namespace Mariasek.SharedClient
                     GameType = Hra.Kilo,
                     Use = true,
                     MaxBidCount = 1,
-                    Thresholds = "50|70|90|95"
+                    Thresholds = "55|70|90|95"
                 },
                 new BidThresholdSettings
                 {
