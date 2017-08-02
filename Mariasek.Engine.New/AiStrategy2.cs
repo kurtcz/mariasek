@@ -1083,10 +1083,10 @@ namespace Mariasek.Engine.New
                             }));
                         }
 
-
                         //zkus zahrat trumfovou sedmu nakonec pokud to jde
                         //toho docilime tak, ze v devatem kole nebudeme hrat trumfovou sedmu aby zustala do posledniho kola
-                        return cardsToPlay.FirstOrDefault(i => i.Suit != _trump || i.Value != Hodnota.Sedma) ??
+                        return cardsToPlay.OrderBy(i => i.Value)
+                                          .FirstOrDefault(i => i.Suit != _trump || i.Value != Hodnota.Sedma) ??
                                cardsToPlay.ToList().RandomOneOrDefault();
                     }
                 };
@@ -1486,7 +1486,8 @@ namespace Mariasek.Engine.New
 
                         //zkus zahrat trumfovou sedmu nakonec pokud to jde
                         //toho docilime tak, ze v devatem kole nebudeme hrat trumfovou sedmu aby zustala do posledniho kola
-                        return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault(i => i.Suit != _trump || i.Value != Hodnota.Sedma) ??
+                        return cardsToPlay.OrderBy(i => i.Value)
+                                          .FirstOrDefault(i => i.Suit != _trump || i.Value != Hodnota.Sedma) ??
                                cardsToPlay.ToList().RandomOneOrDefault();
                     }
                 };
