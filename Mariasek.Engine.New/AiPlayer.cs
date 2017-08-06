@@ -1209,9 +1209,7 @@ namespace Mariasek.Engine.New
 		public bool ShouldChooseBetl()
 		{
             var talon = ChooseBetlTalon(Hand, null);                //nasimuluj talon
-            var hh = PlayerIndex == _g.GameStartingPlayerIndex 
-                                    ? Hand 
-                                    : Hand.Where(i => !talon.Contains(i)).ToList();
+			var hh = Hand.Where(i => !talon.Contains(i)).ToList();
 			var holesPerSuit = new Dictionary<Barva, int>();
 			var hiCardsPerSuit = new Dictionary<Barva, int>();
 			foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
@@ -1234,10 +1232,10 @@ namespace Mariasek.Engine.New
 				hiCardsPerSuit.Add(b, hiCards);
 			}
 
-			//max 4 vysokych karet celkove a max 3 v jedne barve => 2 pujdou do talonu, treti kartou zacnu hrat, dalsi diry risknu
-            //pokud jsem puvodne nevolil, je sance, ze nekterou diru zalepi talon ...
+			//max 3 vysoke karty s dirama celkove a max 2 v jedne barve => jednou kartou zacnu hrat, dalsi diry risknu
+            //simulace ukazou. pokud jsem puvodne nevolil, je sance, ze nekterou diru zalepi talon ...
 			//nebo max jedna barva s hodne vysokymi kartami ale prave jednou dirou (musim mit sedmu v dane barve)
-			if ((hiCardsPerSuit.Sum(i => i.Value) <= 4 && hiCardsPerSuit.All(i => i.Value <= 3)) ||
+			if ((hiCardsPerSuit.Sum(i => i.Value) <= 3 && hiCardsPerSuit.All(i => i.Value <= 2)) ||
 			    (hiCardsPerSuit.Count(i => i.Value > 2 &&
                  holesPerSuit[i.Key] == 1 &&
                  hh.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key)) == 1))

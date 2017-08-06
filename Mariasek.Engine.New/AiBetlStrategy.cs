@@ -21,7 +21,24 @@ namespace Mariasek.Engine.New
                            ? (MyIndex + 2) % Game.NumPlayers : (MyIndex + 1) % Game.NumPlayers;
 
 			Barva? bannedSuit = null;
+            var preferredSuits = new List<Barva>();
 
+            if (TeamMateIndex != -1 && _rounds != null && _rounds[0] != null)
+            {
+                for (var i = 0; i < RoundNumber - 1; i++)
+                {
+                    if (_rounds[i].player2.PlayerIndex == TeamMateIndex &&
+                         _rounds[i].c1.Suit != _rounds[i].c2.Suit)
+                    {
+                        preferredSuits.Add(_rounds[i].c2.Suit);
+                    }
+                    if (_rounds[i].player3.PlayerIndex == TeamMateIndex &&
+                        _rounds[i].c1.Suit != _rounds[i].c3.Suit)
+                    {
+                        preferredSuits.Add(_rounds[i].c3.Suit);
+                    }
+                }
+            }
 			if (RoundNumber == 1 && TeamMateIndex == -1)
 			{
 				yield return new AiRule()
@@ -85,6 +102,13 @@ namespace Mariasek.Engine.New
 
                         if (certainCardsToPlay.Any())
                         {
+                            var preferredCards = certainCardsToPlay.Where(i => preferredSuits.Contains(i.Suit));
+
+                            if (preferredCards.Any())
+                            {
+								return preferredCards.OrderBy(i => i.BadValue).First();
+							}
+                                
                             return cardsToPlay.OrderBy(i => i.BadValue).First();
                         }
                     }
@@ -100,7 +124,14 @@ namespace Mariasek.Engine.New
 
                         if (certainCardsToPlay.Any())
                         {
-                            return cardsToPlay.OrderBy(i => i.BadValue).First();
+							var preferredCards = certainCardsToPlay.Where(i => preferredSuits.Contains(i.Suit));
+
+							if (preferredCards.Any())
+							{
+								return preferredCards.OrderBy(i => i.BadValue).First();
+							}
+
+							return cardsToPlay.OrderBy(i => i.BadValue).First();
                         }
                     }
 
@@ -114,7 +145,14 @@ namespace Mariasek.Engine.New
 							return winner;
 						}
 					}
-                    return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+					var prefCards = cardsToPlay.Where(i => preferredSuits.Contains(i.Suit));
+
+					if (prefCards.Any())
+					{
+						return prefCards.OrderBy(i => i.BadValue).First();
+					}
+
+					return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                 }
             };
 
