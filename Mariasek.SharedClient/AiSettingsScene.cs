@@ -19,6 +19,7 @@ namespace Mariasek.SharedClient
         private Label _threshold1;
         private Label _threshold2;
         private Label _threshold3;
+        private Label _riskFactor;
         private LeftRightSelector _gameTypeSelector;
         private LeftRightSelector _playSelector;
         private LeftRightSelector _maxBidCountSelector;
@@ -26,6 +27,7 @@ namespace Mariasek.SharedClient
         private LeftRightSelector _threshold1Selector;
         private LeftRightSelector _threshold2Selector;
         private LeftRightSelector _threshold3Selector;
+        private LeftRightSelector _riskFactorSelector;
         private LineChart _chart;
         private Label _0Percent;
         private Label _50Percent;
@@ -246,7 +248,28 @@ namespace Mariasek.SharedClient
             };
             _threshold3Selector.SelectionChanged += ThresholdChanged;
 
-            Background = Game.Content.Load<Texture2D>("wood2");
+			//_riskFactor = new Label(this)
+			//{
+			//	Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight - 60),
+			//	Width = 300,
+			//	Height = 50,
+			//	Text = "Risk faktor",
+			//	HorizontalAlign = HorizontalAlignment.Center,
+			//	VerticalAlign = VerticalAlignment.Middle
+			//};
+			//_riskFactorSelector = new LeftRightSelector(this)
+			//{
+			//	Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight - 60),
+			//	Width = (int)Game.VirtualScreenWidth / 2 - 200,
+            //    Items = new SelectorItems(
+            //        Enumerable.Range(0, 201)
+            //                  .Select(i => new KeyValuePair<string, object>(string.Format("{0:F1}%", i * 0.5f), i * 0.005f))
+            //                  .ToList()
+            //    )
+			//};
+			//_riskFactorSelector.SelectionChanged += RiskFactorChanged;
+
+			Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;
 
             _settingsChanged = false;
@@ -279,6 +302,7 @@ namespace Mariasek.SharedClient
                 _threshold1Selector.SelectedIndex = _threshold1Selector.Items.FindIndex(thresholds[1]);
                 _threshold2Selector.SelectedIndex = _threshold2Selector.Items.FindIndex(thresholds[2]);
                 _threshold3Selector.SelectedIndex = _threshold3Selector.Items.FindIndex(thresholds[3]);
+                //_riskFactorSelector.SelectedIndex = _riskFactorSelector.Items.FindIndex(_settings.RiskFactor);
                 _updating = false;
             }
             _chart.MaxValue = new Vector2(thresholds.Length - 1 + 0.1f, 105);
@@ -303,7 +327,8 @@ namespace Mariasek.SharedClient
                 _threshold2Selector.SelectedIndex == -1 ||
                 _threshold3Selector.SelectedIndex == -1 ||
                 _maxBidCountSelector.SelectedIndex == -1 ||
-                _playSelector.SelectedIndex == -1)
+                _playSelector.SelectedIndex == -1)// ||
+                //_riskFactorSelector.SelectedIndex == -1)
             {
                 return;
             }
@@ -315,6 +340,7 @@ namespace Mariasek.SharedClient
                                                                             _threshold3Selector.SelectedValue);
             thresholdSettings.MaxBidCount = (int)_maxBidCountSelector.SelectedValue;
             thresholdSettings.Use = (bool)_playSelector.SelectedValue;
+            //_settings.RiskFactor = (float)_riskFactorSelector.SelectedValue;
         }
 
         public void BackButtonClicked(object sender)
@@ -408,5 +434,12 @@ namespace Mariasek.SharedClient
             }
             _recursionLevel--;
         }
-    }
+		
+        public void RiskFactorChanged(object sender)
+        {
+			_settingsChanged = true;
+			UpdateAiSettings();
+			UpdateControls(true);
+		}
+	}
 }

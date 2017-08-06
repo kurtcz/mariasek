@@ -251,7 +251,12 @@ namespace Mariasek.SharedClient
                 Name = "GameFlavourSelectionStrategy",
                 Value = "Fast"
             });
-        }
+			_aiConfig.Add("RiskFactor", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+			{
+				Name = "RiskFactor",
+                Value = _settings.RiskFactor.ToString(CultureInfo.InvariantCulture)
+			});
+		}
 
         /// <summary>
         /// Allows the game component to perform any initialization it needs to before starting
@@ -2027,7 +2032,8 @@ namespace Mariasek.SharedClient
             //_aiConfig["SimulationsPerGameTypePerSecond"].Value = _settings.GameTypeSimulationsPerSecond.ToString();
             //_aiConfig["SimulationsPerRoundPerSecond"].Value = _settings.RoundSimulationsPerSecond.ToString();
             _settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
-            Game.SettingsScene.UpdateSettings(_settings);
+            //tohle zpusobi prekresleni nekterych ui prvku, je treba volat z UI threadu
+            _synchronizationContext.Send(_ => Game.SettingsScene.UpdateSettings(_settings), null);
 
             if(g.rounds[0] != null && (results.MoneyWon[0] >= 4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] >= 2)))
             {
@@ -2264,6 +2270,7 @@ namespace Mariasek.SharedClient
         public void SettingsChanged(object sender, SettingsChangedEventArgs e)
         {
             _settings = e.Settings;
+            PopulateAiConfig();
             if (_progress1 != null)
             {
                 if (_settings.HintEnabled)
@@ -2517,6 +2524,7 @@ namespace Mariasek.SharedClient
             _msgLabelRight.Hide();
             _gameResult.Hide();
             _totalBalance.Hide();
+            _hand.Hide();
 
             if (_winningHand != null)
             {

@@ -38,6 +38,7 @@ namespace Mariasek.SharedClient
         public int CurrentStartingPlayerIndex { get; set; }
         public CardFace CardDesign { get; set; }
         public BidThresholdSettings[] Thresholds { get; set; }
+        public float RiskFactor { get; set; }
 
         public GameSettings()
         {
@@ -50,19 +51,23 @@ namespace Mariasek.SharedClient
             CurrentStartingPlayerIndex = 0;
             ThinkingTimeMs = 2000;
 			CardDesign = CardFace.Single;
-            ResetThresholds();
+			ResetThresholds();
         }
 
         public void ResetThresholds()
         {
-            Thresholds = new []
+			//celkem jsou ve hre 2 nezname karty v dane barve
+			//souper ma 5 z 11 neznamych karet ve hre
+			//pravdepodobnost, ze souper nezna ani jednu z 2 neznamych karet v dane barve
+			RiskFactor = 0.275f; //0.2727f ~ (9 nad 5) / (11 nad 5)
+			Thresholds = new []
             {
                 new BidThresholdSettings
                 {
                     GameType = Hra.Hra,
                     Use = true,
                     MaxBidCount = 3,
-                    Thresholds = "0|25|55|70"
+                    Thresholds = "0|25|50|70"
                 },
                 new BidThresholdSettings
                 {
@@ -107,7 +112,7 @@ namespace Mariasek.SharedClient
                     Thresholds = "70|75|85|100"
                 }
             };
-        }
+		}
     }
 }
 

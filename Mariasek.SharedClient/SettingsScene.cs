@@ -402,6 +402,7 @@ namespace Mariasek.SharedClient
         {
             _settings = settings;
             SaveGameSettings();
+            OnSettingsChanged();
         }
     }
 }

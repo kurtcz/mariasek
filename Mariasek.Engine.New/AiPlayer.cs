@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using Mariasek.Engine.New.Schema;
 using System.IO;
+using System.Globalization;
 
 namespace Mariasek.Engine.New
 {
@@ -104,7 +105,8 @@ namespace Mariasek.Engine.New
                                                 { Hra.Durch,      true }
                                             },
                 SigmaMultiplier = 0,
-				GameFlavourSelectionStrategy = GameFlavourSelectionStrategy.Standard
+				GameFlavourSelectionStrategy = GameFlavourSelectionStrategy.Standard,
+                RiskFactor = 0.275f
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
@@ -154,6 +156,7 @@ namespace Mariasek.Engine.New
             gameThresholds2 = parameters["GameThreshold.Durch"].Value;
             Settings.GameThresholdsForGameType[Hra.Durch] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
             //Settings.MaxDoubleCount = int.Parse(parameters["MaxDoubleCount"].Value);
+            Settings.RiskFactor = float.Parse(parameters["RiskFactor"].Value, CultureInfo.InvariantCulture);
             Settings.MaxDoubleCountForGameType = new Dictionary<Hra, int>();
             Settings.MaxDoubleCountForGameType[Hra.Hra] = int.Parse(parameters["MaxDoubleCount.Hra"].Value);
             Settings.MaxDoubleCountForGameType[Hra.Sedma] = int.Parse(parameters["MaxDoubleCount.Sedma"].Value);
@@ -2208,7 +2211,7 @@ namespace Mariasek.Engine.New
             {
                 teamMatesSuits.Add(suit);
             }
-            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.rounds, teamMatesSuits, prob, playerName, playerIndex, teamMateIndex, initialRoundNumber);
+            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.rounds, teamMatesSuits, prob, playerName, playerIndex, teamMateIndex, initialRoundNumber, Settings.RiskFactor);
             
             _log.DebugFormat("Round {0}. Starting simulation for {1}", _g.RoundNumber, _g.players[PlayerIndex].Name);
             if (c1 != null) _log.DebugFormat("First card: {0}", c1);

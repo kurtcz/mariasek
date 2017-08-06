@@ -8,12 +8,13 @@ namespace Mariasek.Engine.New
 {
     public class AiBetlStrategy2 : AiStrategyBase
     {
-        private const float _riskFactor = 0.275f; //0.2727f ~ (9 nad 5) / (11 nad 5)
+        public float RiskFactor { get; set; }
 
         public AiBetlStrategy2(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities)
             : base(trump, gameType, hands, rounds, teamMatesSuits, probabilities)
         {
-        }
+            RiskFactor = 0.275f; //0.2727f ~ (9 nad 5) / (11 nad 5)
+		}
 
         protected override IEnumerable<AiRule> GetRules1(Hand[] hands)
         {
@@ -78,8 +79,8 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex == player2)//co-
                     {
                         cardsToPlay = hands[MyIndex].Where(i => (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
-                                                                _probabilities.SuitHigherThanCardProbability(player2, i, RoundNumber, false) <= _riskFactor &&
-                                                                _probabilities.SuitHigherThanCardProbability(player3, i, RoundNumber, false) >= 1 - _riskFactor);
+                                                                _probabilities.SuitHigherThanCardProbability(player2, i, RoundNumber, false) <= RiskFactor &&
+                                                                _probabilities.SuitHigherThanCardProbability(player3, i, RoundNumber, false) >= 1 - RiskFactor);
 
                         var certainCardsToPlay = cardsToPlay.Where(i => _probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0);
 
@@ -91,8 +92,8 @@ namespace Mariasek.Engine.New
                     else if (TeamMateIndex == player3)//c-o
                     {
                         cardsToPlay = hands[MyIndex].Where(i => (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
-                                                                _probabilities.SuitHigherThanCardProbability(player2, i, RoundNumber, false) >= 1 - _riskFactor &&
-                                                                _probabilities.SuitHigherThanCardProbability(player3, i, RoundNumber, false) <= _riskFactor);
+                                                                _probabilities.SuitHigherThanCardProbability(player2, i, RoundNumber, false) >= 1 - RiskFactor &&
+                                                                _probabilities.SuitHigherThanCardProbability(player3, i, RoundNumber, false) <= RiskFactor);
 
                         var certainCardsToPlay = cardsToPlay.Where(i => _probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0);
 

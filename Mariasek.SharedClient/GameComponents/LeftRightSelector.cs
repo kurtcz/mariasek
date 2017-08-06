@@ -6,10 +6,28 @@ namespace Mariasek.SharedClient.GameComponents
 {
 	public class SelectorItems : SelectorItems<object>
 	{
-	}
+		public SelectorItems()
+            : base()
+        {            
+        }
 
-	public class SelectorItems<T> : List<KeyValuePair<string, T>>
-	{
+        public SelectorItems(IEnumerable<KeyValuePair<string, object>> collection)
+            : base(collection)
+        {
+        }
+    }
+
+    public class SelectorItems<T> : List<KeyValuePair<string, T>>
+    {
+        public SelectorItems()
+        {
+        }
+
+        public SelectorItems(IEnumerable<KeyValuePair<string, T>> collection)
+        {
+            AddRange(collection);
+        }
+
 		public void Add(string text, T value)
 		{
 			Add(new KeyValuePair<string, T>(text, value)); 

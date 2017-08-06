@@ -43,6 +43,7 @@ namespace Mariasek.Engine.New
         public Dictionary<Hra, bool> CanPlayGameType { get; set; }
         public int SigmaMultiplier { get; set; }
 		public GameFlavourSelectionStrategy GameFlavourSelectionStrategy { get; set; }
+        public float RiskFactor { get; set; }
 
 #if !PORTABLE
         public override string ToString()
