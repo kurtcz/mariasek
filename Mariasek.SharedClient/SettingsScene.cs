@@ -20,9 +20,13 @@ namespace Mariasek.SharedClient
 {
     public class SettingsScene : Scene
     {
-        public string _settingsFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.settings");
-
-        private Label _hint;
+        //public string _settingsFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mariasek.settings");
+#if __ANDROID__
+        public string _settingsFilePath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek.settings");
+#else //#elif __IOS__
+        public string _settingsFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Mariasek.settings");
+#endif
+		private Label _hint;
         private Label _sounds;
         private Label _bgsounds;
         private Label _handSorting;
