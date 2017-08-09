@@ -315,9 +315,9 @@ namespace Mariasek.SharedClient.GameComponents
                 _initialHands[r.player3.PlayerIndex].Add(r.c3);
 
                 var rect = r.c1.ToTextureRect();
-                var debugNote1 = r.debugNote1;
-                var debugNote2 = r.debugNote2;
-                var debugNote3 = r.debugNote3;
+                var debugNote1 = GetMainDebugNote(r.debugNote1);
+                var debugNote2 = GetMainDebugNote(r.debugNote2);
+                var debugNote3 = GetMainDebugNote(r.debugNote3);
 
                 Rounds[i][0] = new Sprite(this, Game.CardTextures, rect)
                 {
@@ -449,6 +449,21 @@ namespace Mariasek.SharedClient.GameComponents
                     ZIndex = Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + j + 1
                 };
             }
+        }
+
+        private string GetMainDebugNote(string debugNote)
+        {
+            if (debugNote == null)
+            {
+                return null;
+            }
+            var pos = debugNote.IndexOf('(');
+
+            if (pos < 0)
+            {
+                return debugNote;
+            }
+            return debugNote.Substring(0, pos);
         }
     }
 }

@@ -224,14 +224,14 @@ namespace Mariasek.Engine.New
 
                             if (ii == _gameStarterIndex)
                             {
-                                currentExpectedTrumps = _initialExpectedTrumps[ii] - certainTrumps - playedTrumps;
+                                currentExpectedTrumps = _initialExpectedTrumps[ii] - certainTrumps + playedTrumps;
                                 _gameStarterCurrentExpectedTrumps = currentExpectedTrumps;
                             }
                             else if (ii != talonIndex)
                             {
                                 if (_myIndex == _gameStarterIndex)
                                 {
-                                    currentExpectedTrumps = _initialExpectedTrumps[ii] - certainTrumps - playedTrumps;
+                                    currentExpectedTrumps = _initialExpectedTrumps[ii] - certainTrumps + playedTrumps;
                                 }
                                 else
                                 {
