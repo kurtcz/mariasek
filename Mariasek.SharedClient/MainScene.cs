@@ -1252,7 +1252,7 @@ namespace Mariasek.SharedClient
                 Game.EmailSender.SendEmail(
                     new[] { "mariasek.app@gmail.com" },
                     "Mariasek crash report", msg2,
-                    new[] { _newGameFilePath, _errorFilePath, Game.SettingsScene._settingsFilePath });
+                    new[] { _newGameFilePath, _errorFilePath, SettingsScene._settingsFilePath });
             }
         }
 
@@ -1286,12 +1286,12 @@ namespace Mariasek.SharedClient
                         g.SaveGame(fs, saveDebugInfo: true);
                     }
                     Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek game feedback", "",
-                                               new[] { _newGameFilePath, _savedGameFilePath, Game.SettingsScene._settingsFilePath });
+                                               new[] { _newGameFilePath, _savedGameFilePath, SettingsScene._settingsFilePath });
                 }
                 else
                 {
                     Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek game feedback", "",
-                                               new[] { _newGameFilePath, _endGameFilePath, Game.SettingsScene._settingsFilePath });
+                                               new[] { _newGameFilePath, _endGameFilePath, SettingsScene._settingsFilePath });
                 }
             }
         }
@@ -2067,7 +2067,7 @@ namespace Mariasek.SharedClient
             return File.Exists(_testGameFilePath);
         }
 
-        public void LoadGame()
+        public void LoadGame(bool testGame = false)
         {
             //var gameToLoadString = ResourceLoader.GetEmbeddedResourceString(this.GetType().Assembly, "GameToLoad");
 
@@ -2098,7 +2098,7 @@ namespace Mariasek.SharedClient
 
                     try
                     {
-                        using (var fs = File.Open(_testGame ? _testGameFilePath : _savedGameFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (var fs = File.Open(testGame ? _testGameFilePath : _savedGameFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
                             g.LoadGame(fs);
                         }
@@ -2106,7 +2106,7 @@ namespace Mariasek.SharedClient
                     catch (Exception ex)
                     {
                         ShowMsgLabel(string.Format("Error loading game:\n{0}", ex.Message), false);
-                        if (!_testGame)
+                        if (!testGame)
                         {
                             File.Delete(_savedGameFilePath);
                         }
@@ -2234,7 +2234,7 @@ namespace Mariasek.SharedClient
             else if (CanLoadTestGame())
             {
                 _testGame = true;
-                LoadGame();
+                LoadGame(true);
             }
         }
 

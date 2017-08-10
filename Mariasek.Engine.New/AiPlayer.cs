@@ -198,7 +198,7 @@ namespace Mariasek.Engine.New
                 if (hand.Has7(b) && count >= 4)
                     score += count * 10;
                 else if (hand.Has7(b) && count == 3)
-                    score += 25;
+                    score += 15;
                 else if (hand.Has7(b) && count == 2)
                     score += 10;
                 else if (count >= 4)
