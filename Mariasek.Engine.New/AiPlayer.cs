@@ -815,15 +815,9 @@ namespace Mariasek.Engine.New
 					_debugString.AppendFormat("Simulating betl. Fast guess: {0}\n", ShouldChooseBetl());
 					Parallel.ForEach(source ?? Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType), options, (hh, loopState) =>
 					{
-						ThrowIfCancellationRequested();
 						if (source == null)
 						{
 							tempSource.Enqueue(hh);
-						}
-						if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
-						{
-							prematureEnd = true;
-							loopState.Stop();
 						}
 						Interlocked.Increment(ref actualSimulations);
 
@@ -845,7 +839,14 @@ namespace Mariasek.Engine.New
 						var betlComputationResult = ComputeGame(hands, null, null, null, Hra.Betl, 10, 1, true);
 						betlComputationResults.Enqueue(betlComputationResult);
 
-						var val = Interlocked.Increment(ref progress);
+						if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
+						{
+							prematureEnd = true;
+							loopState.Stop();
+						}
+						ThrowIfCancellationRequested();
+
+                        var val = Interlocked.Increment(ref progress);
 						OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju betl" });
 					});
 					var end = DateTime.Now;
@@ -870,16 +871,10 @@ namespace Mariasek.Engine.New
 					_debugString.AppendFormat("Simulating durch. fast guess: {0}\n", ShouldChooseDurch());
 					Parallel.ForEach(source ?? Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType), (hands, loopState) =>
 					{
-						ThrowIfCancellationRequested();
 						if (source == null)
 						{
 							tempSource.Enqueue(hands);
 						}
-                        if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
-                        {
-                            prematureEnd = true;
-                            loopState.Stop();
-                        }
                         //nasimuluj ze volici hrac vybral trumfy a/nebo talon
                         if (_g.GameType == Hra.Betl || PlayerIndex == _g.GameStartingPlayerIndex)
 						{   //pokud jsem volil ja tak v UpdateGeneratedHandsByChoosingTalon() pouziju skutecne zvoleny trumf
@@ -893,6 +888,13 @@ namespace Mariasek.Engine.New
 
 						var durchComputationResult = ComputeGame(hands, null, null, null, Hra.Durch, 10, 1, true);
 						durchComputationResults.Enqueue(durchComputationResult);
+
+						if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
+						{
+							prematureEnd = true;
+							loopState.Stop();
+						}
+						ThrowIfCancellationRequested();
 
 						var val = Interlocked.Increment(ref progress);
 						OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju durch" });
@@ -2334,7 +2336,10 @@ namespace Mariasek.Engine.New
         {
             if (hands[0].Count() != hands[1].Count() || hands[0].Count() != hands[2].Count())
             {
-                throw new InvalidOperationException("Wrong hands count");
+                throw new InvalidOperationException(string.Format("Wrong hands count {0} {1} {2]", 
+                                                                  hands[0].Count(),
+                                                                  hands[1].Count(),
+                                                                  hands[2].Count()));
             }
         }
 

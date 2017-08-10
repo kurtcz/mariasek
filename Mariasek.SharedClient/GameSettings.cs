@@ -109,7 +109,7 @@ namespace Mariasek.SharedClient
                     GameType = Hra.Durch,
                     Use = true,
                     MaxBidCount = 0,
-                    Thresholds = "70|75|85|100"
+                    Thresholds = "70|70|70|70"
                 }
             };
 		}

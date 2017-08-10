@@ -1953,10 +1953,10 @@ namespace Mariasek.SharedClient
             _state = GameState.GameFinished;
 
             results.SimulatedSuccessRate = SimulatedSuccessRate;
-            Game.Money.Add(results);
             if (!_testGame)
             {
-                SaveHistory();
+				Game.Money.Add(results);
+				SaveHistory();
             }
 
             EnsureBubblesHidden();
