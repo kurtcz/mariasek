@@ -2336,7 +2336,7 @@ namespace Mariasek.Engine.New
         {
             if (hands[0].Count() != hands[1].Count() || hands[0].Count() != hands[2].Count())
             {
-                throw new InvalidOperationException(string.Format("Wrong hands count {0} {1} {2]", 
+                throw new InvalidOperationException(string.Format("Wrong hands count: {0} {1} {2}", 
                                                                   hands[0].Count(),
                                                                   hands[1].Count(),
                                                                   hands[2].Count()));
