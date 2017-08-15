@@ -59,7 +59,7 @@ namespace Mariasek.SharedClient
 			//celkem jsou ve hre 2 nezname karty v dane barve
 			//souper ma 5 z 11 neznamych karet ve hre
 			//pravdepodobnost, ze souper nezna ani jednu z 2 neznamych karet v dane barve
-			RiskFactor = 0.275f; //0.2727f ~ (9 nad 5) / (11 nad 5)
+			RiskFactor = 0.28f; //0.2727f ~ (9 nad 5) / (11 nad 5)
 			Thresholds = new []
             {
                 new BidThresholdSettings
@@ -67,7 +67,7 @@ namespace Mariasek.SharedClient
                     GameType = Hra.Hra,
                     Use = true,
                     MaxBidCount = 3,
-                    Thresholds = "0|20|45|75"
+                    Thresholds = "0|25|45|70"
                 },
                 new BidThresholdSettings
                 {
@@ -101,8 +101,8 @@ namespace Mariasek.SharedClient
                 {
                     GameType = Hra.Betl,
                     Use = true,
-                    MaxBidCount = 0,
-                    Thresholds = "60|75|85|90"
+                    MaxBidCount = 2,
+                    Thresholds = "60|70|75|80"
                 },
                 new BidThresholdSettings
                 {

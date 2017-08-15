@@ -420,7 +420,7 @@ namespace Mariasek.Engine.New
                                              i.Suit == trumpCard.Suit) &&
                                            !(hand.HasX(i.Suit) &&                //pokud mam jen X+plivu, tak nech plivu byt
                                            hand.CardCount(i.Suit) <= 2))
-                .OrderBy(i => i.Value)                              //vybirej od nejmensich karet
+                .OrderByDescending(i => i.Value)                                 //vybirej od nejvetsich karet (spodek -> sedma)
                 .ToList());
 
             //nakonec cokoli co je podle pravidel
@@ -603,8 +603,8 @@ namespace Mariasek.Engine.New
             }
             else if (_gameType == Hra.Betl)
             {
-                //pouzivam vyssi prahy: pokud nam vysel durch (beru 95% prah), abych kompenzoval, ze simulace nejsou presne
-                var thresholdIndex = Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 3);    //95%
+                //pouzivam vyssi prahy: pokud nam vysel durch (beru 70% prah), abych kompenzoval, ze simulace nejsou presne
+                var thresholdIndex = Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 1);    //70%
                 if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][thresholdIndex] * _durchSimulations && _durchSimulations > 0)
                 {
 					_talon = ChooseDurchTalon(Hand, null);
@@ -618,9 +618,9 @@ namespace Mariasek.Engine.New
             }
             else
             {
-                //pouzivam vyssi prahy: pokud nam vysel betl nebo durch (beru 85% resp. 95% prah), abych kompenzoval, ze simulace nejsou presne
-                var betlThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Betl].Length - 1, 2);     //85%
-                var durchThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 2);    //85%
+                //pouzivam vyssi prahy: pokud nam vysel betl nebo durch (beru 70% prah), abych kompenzoval, ze simulace nejsou presne
+                var betlThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Betl].Length - 1, 1);     //85%
+                var durchThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 1);    //85%
                 if ((_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][durchThresholdIndex] * _durchSimulations && _durchSimulations > 0) ||
                     (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][betlThresholdIndex] * _betlSimulations && _betlSimulations > 0))
                 {
@@ -1510,21 +1510,21 @@ namespace Mariasek.Engine.New
                  (TeamMateIndex == -1 &&
                   _gamesBalance / (float)_gameSimulations >= gameThresholdNext) ||
                  //nebo jsem si opravdu hodne jisty at jsem kdokoli
-                 _gamesBalance / (float)_gameSimulations >= certaintyThreshold ||
+                 _gamesBalance / (float)_gameSimulations >= certaintyThreshold))// ||
                  //nebo kolega flekoval a ja mam nejakou hlasku a citil jsem se na flek jiz minule (tutti a vys),
-                 (_teamMateDoubledGame && _gamesBalance / (float)_gameSimulations >= gameThresholdPrevious && 
-                  Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit)))))
+                 //(_teamMateDoubledGame && _gamesBalance / (float)_gameSimulations >= gameThresholdPrevious && 
+                 // Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit)))))
             {
                 bid |= bidding.Bids & Hra.Hra;
                 minRuleCount = Math.Min(minRuleCount, _gamesBalance);
             }
-            //sedmu flekuju pokud mam aspon 3 trumfy
+            //sedmu flekuju pokud mam aspon 2 trumfy
             if ((bidding.Bids & Hra.Sedma) != 0 &&
                 Settings.CanPlayGameType[Hra.Sedma] &&
                 _sevenSimulations > 0 && 
                 (bidding._sevenFlek <= Settings.MaxDoubleCountForGameType[Hra.Sedma] ||
                  _sevensBalance / (float)_sevenSimulations >= certaintyThreshold) &&
-                Hand.CardCount(_g.trump.Value) >= 3 && _sevensBalance / (float)_sevenSimulations >= sevenThreshold)
+                Hand.CardCount(_g.trump.Value) >= 2 && _sevensBalance / (float)_sevenSimulations >= sevenThreshold)
             {
                 bid |= bidding.Bids & Hra.Sedma;
                 minRuleCount = Math.Min(minRuleCount, _sevensBalance);

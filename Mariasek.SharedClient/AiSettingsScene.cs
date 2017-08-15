@@ -32,6 +32,15 @@ namespace Mariasek.SharedClient
         private Label _0Percent;
         private Label _50Percent;
         private Label _100Percent;
+        private Label _note;
+
+        private static readonly Dictionary<Hra, string> _notes = new Dictionary<Hra, string>
+        {
+            { Hra.Hra, "AI flekuje jen když trhá\nnebo má aspoň 40 bodů v hlasech." },
+            { Hra.Sedma, "AI flekuje jen když má aspoň 2 trumfy." },
+            { Hra.Betl, "AI používá práh pro Flek když nevolil\na hlásí špatnou barvu. Pokud AI nevolil, neflekuje." },
+            { Hra.Durch, "AI používá práh pro Flek když nevolil\na hlásí špatnou barvu." }
+		};
 #endregion
 
         private bool _settingsChanged;
@@ -248,6 +257,16 @@ namespace Mariasek.SharedClient
             };
             _threshold3Selector.SelectionChanged += ThresholdChanged;
 
+			_note = new Label(this)
+			{
+				Position = new Vector2(200, Game.VirtualScreenHeight - 70),
+                Width = (int)Game.VirtualScreenWidth - 200,
+				Height = 60,
+				Text = "",
+				HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Top
+			};
+
 			_riskFactor = new Label(this)
 			{
 				Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight - 480),
@@ -262,8 +281,8 @@ namespace Mariasek.SharedClient
 				Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight - 480),
 				Width = (int)Game.VirtualScreenWidth / 2 - 200,
                 Items = new SelectorItems(
-                    Enumerable.Range(0, 201)
-                              .Select(i => new KeyValuePair<string, object>(string.Format("{0:F1}%", i * 0.5f), i * 0.005f))
+                    Enumerable.Range(0, 101)
+                              .Select(i => new KeyValuePair<string, object>(string.Format("{0}%", i), i / 100f))
                               .ToList()
                 )
 			};
@@ -318,6 +337,9 @@ namespace Mariasek.SharedClient
             series[1] = thresholds.Take(effectiveCount).Select((threshold, index) => new Vector2(index, threshold)).ToArray();
 
             _chart.Data = series;
+
+            var gt = (Hra)_gameTypeSelector.SelectedValue;
+            _note.Text = _notes.ContainsKey(gt) ? _notes[gt] : string.Empty;
         }
 
         private void UpdateAiSettings()
@@ -439,7 +461,6 @@ namespace Mariasek.SharedClient
         {
 			_settingsChanged = true;
 			UpdateAiSettings();
-			UpdateControls(true);
 		}
 	}
 }
