@@ -102,7 +102,7 @@ namespace Mariasek.SharedClient
                     GameType = Hra.Betl,
                     Use = true,
                     MaxBidCount = 2,
-                    Thresholds = "60|70|75|80"
+                    Thresholds = "60|65|75|80"
                 },
                 new BidThresholdSettings
                 {

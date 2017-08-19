@@ -115,6 +115,7 @@ namespace Mariasek.SharedClient
         private string _savedGameFilePath = Path.Combine(_path, "_temp.hra");
         private string _testGameFilePath = Path.Combine(_path, "test.hra");
 		private string _newGameFilePath = Path.Combine(_path, "_def.hra");
+        private string _screenPath = Path.Combine(_path, "screen.png");
         private string _errorFilePath = Path.Combine(_path, "_error.hra");
         private string _endGameFilePath = Path.Combine(_path, "_end.hra");
 
@@ -932,7 +933,7 @@ namespace Mariasek.SharedClient
             kiloBtn.Hide();
         }
 
-        private void RefreshReview()
+        private void RefreshReview(bool hidden = false)
         {
             if (_review != null)
             {
@@ -946,6 +947,10 @@ namespace Mariasek.SharedClient
                 BackgroundColor = g.IsRunning ? Color.Black : Color.Transparent,
                 ZIndex = 200
             };
+            if (hidden)
+            {
+                _review.Hide();
+            }
         }
 
         public void ReviewGameBtnClicked(object sender)
@@ -1016,10 +1021,10 @@ namespace Mariasek.SharedClient
 
         public void RepeatGameBtnClicked(object sender)
         {
-            File.Copy(_newGameFilePath, _savedGameFilePath);
             g = null;
             _testGame = true;
-            LoadGame();
+			File.Copy(_newGameFilePath, _savedGameFilePath, true);
+			LoadGame();
         }
 
         public void ShuffleDeck()
@@ -1279,19 +1284,25 @@ namespace Mariasek.SharedClient
         {
             if (Game.EmailSender != null)
             {
-                if (g != null && g.IsRunning)
+                RefreshReview(true);
+				using (var fs = GetFileStream(Path.GetFileName(_screenPath)))
+				{
+                    var target = _review.SaveTexture();
+					target.SaveAsPng(fs, target.Width, target.Height);
+				}
+				if (g != null && g.IsRunning)
                 {
                     using (var fs = GetFileStream(Path.GetFileName(_savedGameFilePath)))
                     {
                         g.SaveGame(fs, saveDebugInfo: true);
                     }
                     Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek game feedback", "",
-                                               new[] { _newGameFilePath, _savedGameFilePath, SettingsScene._settingsFilePath });
+                                               new[] { _screenPath, _newGameFilePath, _savedGameFilePath, SettingsScene._settingsFilePath });
                 }
                 else
                 {
                     Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek game feedback", "",
-                                               new[] { _newGameFilePath, _endGameFilePath, SettingsScene._settingsFilePath });
+                                               new[] { _screenPath, _newGameFilePath, _endGameFilePath, SettingsScene._settingsFilePath });
                 }
             }
         }
@@ -1838,6 +1849,10 @@ namespace Mariasek.SharedClient
                     {
                         ShowThinkingMessage((lastPlayer.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
                     }
+                    if (lastPlayer.PlayerIndex == 2)
+                    {
+                        this.Wait(200); //aby AI nehrali moc rychle po sobe
+                    }
                     this.Invoke(() =>
                     {
                         if (g.CurrentRound.c1 != null)
@@ -2234,6 +2249,7 @@ namespace Mariasek.SharedClient
             else if (CanLoadTestGame())
             {
                 _testGame = true;
+                File.Copy(_testGameFilePath, _newGameFilePath, true);
                 LoadGame(true);
             }
         }

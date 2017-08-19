@@ -251,11 +251,13 @@ namespace Mariasek.SharedClient.GameComponents
                 Game.SpriteBatch.End();
                 var origClippingRectangle = Game.SpriteBatch.GraphicsDevice.ScissorRectangle;
                 //we need to create a new sprite batch instance that is going to use a clipping rectangle
-                Game.SpriteBatch.GraphicsDevice.ScissorRectangle = new Rectangle((int)(ScaleMatrix.M41 + Position.X * ScaleMatrix.M11),
-                                                                     (int)(ScaleMatrix.M42 + Position.Y * ScaleMatrix.M22),
-                                                                     (int)(Width * ScaleMatrix.M11),
-                                                                     (int)(Height * ScaleMatrix.M22));
-
+                if (!_savingToTexture)
+                {
+                    Game.SpriteBatch.GraphicsDevice.ScissorRectangle = new Rectangle((int)(ScaleMatrix.M41 + Position.X * ScaleMatrix.M11),
+                                                                         (int)(ScaleMatrix.M42 + Position.Y * ScaleMatrix.M22),
+                                                                         (int)(Width * ScaleMatrix.M11),
+                                                                         (int)(Height * ScaleMatrix.M22));
+                }
                 Game.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, new RasterizerState { ScissorTestEnable = true }, null, ScaleMatrix);
 
                 for (var i = 0; i < Children.Count; i++)
@@ -280,5 +282,42 @@ namespace Mariasek.SharedClient.GameComponents
                 }
             }
         }
+
+        private bool _savingToTexture;
+
+		public RenderTarget2D SaveTexture()
+		{
+			var target = new RenderTarget2D(Game.SpriteBatch.GraphicsDevice,
+											(int)(ScaleMatrix.M41 + (Position.X + BoundsRect.Width) * ScaleMatrix.M11),
+                                            (int)(ScaleMatrix.M42 + (Position.Y + BoundsRect.Height) * ScaleMatrix.M22));
+			Game.SpriteBatch.GraphicsDevice.SetRenderTarget(target);
+            Game.SpriteBatch.GraphicsDevice.Clear(Color.DimGray);
+
+			var visible = IsVisible;
+			var origRasterizerState = Game.SpriteBatch.GraphicsDevice.RasterizerState;
+			var renderGroup = Game.CurrentRenderingGroup;
+            //we need to create a new sprite batch instance that is going to use a clipping rectangle
+            Game.SpriteBatch.GraphicsDevice.RasterizerState = new RasterizerState { ScissorTestEnable = false };
+
+			Show();
+			Game.CurrentRenderingGroup = Anchor;
+
+			Game.SpriteBatch.Begin();
+            _savingToTexture = true;
+			Draw(new GameTime());
+            _savingToTexture = false;
+			Game.SpriteBatch.End();
+
+			Game.SpriteBatch.GraphicsDevice.SetRenderTarget(null);
+			Game.SpriteBatch.GraphicsDevice.RasterizerState = origRasterizerState;
+
+			if (!visible)
+			{
+				Hide();
+			}
+			Game.CurrentRenderingGroup = renderGroup;
+
+			return target;
+		}
     }
 }

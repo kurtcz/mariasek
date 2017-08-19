@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Mariasek.Engine.New;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Mariasek.SharedClient.GameComponents
 {
@@ -465,5 +466,5 @@ namespace Mariasek.SharedClient.GameComponents
             }
             return debugNote.Substring(0, pos);
         }
-    }
+	}
 }

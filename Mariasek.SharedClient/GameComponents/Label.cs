@@ -112,6 +112,6 @@ namespace Mariasek.SharedClient.GameComponents
                 Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, ScaleMatrix);
             }
         }
-    }
+	}
 }
 

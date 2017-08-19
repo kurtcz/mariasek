@@ -71,7 +71,7 @@ namespace Mariasek.SharedClient
 		/// <summary>
 		/// Gets the current rendering group. Game components should render themselves only if they belong to the current group.
 		/// </summary>
-		public AnchorType CurrentRenderingGroup { get; private set; } 
+		public AnchorType CurrentRenderingGroup { get; set; } 
 
         public SoundEffect ClickSound { get; private set; }
 		public SoundEffect TickSound { get; private set; }

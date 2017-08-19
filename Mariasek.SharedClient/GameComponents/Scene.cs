@@ -99,6 +99,6 @@ namespace Mariasek.SharedClient.GameComponents
             }
 			base.Draw(gameTime);
         }
-    }
+	}
 }
 

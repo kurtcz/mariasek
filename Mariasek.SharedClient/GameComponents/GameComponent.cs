@@ -365,7 +365,7 @@ namespace Mariasek.SharedClient
             }
         }
 
-		public virtual void Draw(GameTime gameTime)
+        public virtual void Draw(GameTime gameTime)
         {
 			if (IsVisible)
             {

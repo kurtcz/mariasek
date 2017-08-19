@@ -137,7 +137,7 @@ namespace Mariasek.SharedClient
 
             _play = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight - 420),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 - 175),
                 Width = 300,
                 Height = 50,
                 Text = "Hrát",
@@ -146,7 +146,7 @@ namespace Mariasek.SharedClient
             };
             _playSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight - 420),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 175),
                 Width = (int)Game.VirtualScreenWidth / 2 - 200,
                 Items = new SelectorItems() { { "Ano", true }, { "Ne", false } }
             };
@@ -154,7 +154,7 @@ namespace Mariasek.SharedClient
 
             _maxBidCount = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight - 360),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 - 115),
                 Width = 300,
                 Height = 50,
                 Text = "Flekovat max.",
@@ -163,7 +163,7 @@ namespace Mariasek.SharedClient
             };
             _maxBidCountSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight - 360),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 115),
                 Width = (int)Game.VirtualScreenWidth / 2 - 200,
                 Items = new SelectorItems() { { "0x", 0 }, { "1x", 1 }, { "2x", 2 }, { "3x", 3 } }
             };
@@ -171,7 +171,7 @@ namespace Mariasek.SharedClient
 
             _threshold0 = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight - 300),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 - 55),
                 Width = 300,
                 Height = 50,
                 Text = "Volba",
@@ -180,7 +180,7 @@ namespace Mariasek.SharedClient
             };
             _threshold0Selector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight - 300),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 55),
                 Width = (int)Game.VirtualScreenWidth / 2 - 200,
                 Items = new SelectorItems() { { "0%", 0 }, { "5%", 5 }, { "10%", 10 }, { "15%", 15 },
                                               { "20%", 20 }, { "25%", 25 }, { "30%", 30 }, { "35%", 35 },
@@ -193,7 +193,7 @@ namespace Mariasek.SharedClient
 
             _threshold1 = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight - 240),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 + 5),
                 Width = 300,
                 Height = 50,
                 Text = "Flek",
@@ -202,7 +202,7 @@ namespace Mariasek.SharedClient
             };
             _threshold1Selector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight - 240),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 + 5),
                 Width = (int)Game.VirtualScreenWidth / 2 - 200,
                 Items = new SelectorItems() { { "0%", 0 }, { "5%", 5 }, { "10%", 10 }, { "15%", 15 },
                                               { "20%", 20 }, { "25%", 25 }, { "30%", 30 }, { "35%", 35 },
@@ -215,7 +215,7 @@ namespace Mariasek.SharedClient
 
             _threshold2 = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight - 180),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 + 65),
                 Width = 300,
                 Height = 50,
                 Text = "Re",
@@ -224,7 +224,7 @@ namespace Mariasek.SharedClient
             };
             _threshold2Selector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight - 180),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 + 65),
                 Width = (int)Game.VirtualScreenWidth / 2 - 200,
                 Items = new SelectorItems() { { "0%", 0 }, { "5%", 5 }, { "10%", 10 }, { "15%", 15 },
                                               { "20%", 20 }, { "25%", 25 }, { "30%", 30 }, { "35%", 35 },
@@ -237,7 +237,7 @@ namespace Mariasek.SharedClient
 
             _threshold3 = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight - 120),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 + 125),
                 Width = 300,
                 Height = 50,
                 Text = "Tutti",
@@ -246,7 +246,7 @@ namespace Mariasek.SharedClient
             };
             _threshold3Selector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight - 120),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 + 125),
                 Width = (int)Game.VirtualScreenWidth / 2 - 200,
                 Items = new SelectorItems() { { "0%", 0 }, { "5%", 5 }, { "10%", 10 }, { "15%", 15 },
                                               { "20%", 20 }, { "25%", 25 }, { "30%", 30 }, { "35%", 35 },
@@ -269,7 +269,7 @@ namespace Mariasek.SharedClient
 
 			_riskFactor = new Label(this)
 			{
-				Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight - 480),
+				Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 - 235),
 				Width = 300,
 				Height = 50,
 				Text = "Risk faktor",
@@ -278,7 +278,7 @@ namespace Mariasek.SharedClient
 			};
 			_riskFactorSelector = new LeftRightSelector(this)
 			{
-				Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight - 480),
+				Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 235),
 				Width = (int)Game.VirtualScreenWidth / 2 - 200,
                 Items = new SelectorItems(
                     Enumerable.Range(0, 101)
@@ -387,11 +387,11 @@ namespace Mariasek.SharedClient
         {
             UpdateControls();
             _playSelector.IsEnabled = ((Hra)_gameTypeSelector.SelectedValue & Hra.Hra) == 0;
-            if (_settingsChanged)
-            {
-                Game.SettingsScene.UpdateSettings(_settings);
-                _settingsChanged = false;
-            }
+            //if (_settingsChanged)
+            //{
+            //    Game.SettingsScene.UpdateSettings(_settings);
+            //    _settingsChanged = false;
+            //}
         }
 
         public void MaxBidCountChanged(object sender)
