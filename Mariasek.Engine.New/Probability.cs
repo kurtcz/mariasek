@@ -408,7 +408,9 @@ namespace Mariasek.Engine.New
 
         public float HasAOrXAndNothingElse(int playerIndex, Barva suit, int roundNumber)
         {
-            return AnyOfTheseCardsButNothingElseInSuitProbability(playerIndex, suit, roundNumber, Hodnota.Eso, Hodnota.Desitka);
+            var y = AnyOfTheseCardsButNothingElseInSuitProbability(playerIndex, suit, roundNumber, Hodnota.Eso, Hodnota.Desitka);
+
+            return y;
         }
 
         public float AnyOfTheseCardsButNothingElseInSuitProbability(int playerIndex, Barva suit, int roundNumber, params Hodnota[] values)
