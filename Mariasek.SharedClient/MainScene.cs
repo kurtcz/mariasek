@@ -914,8 +914,13 @@ namespace Mariasek.SharedClient
             var bids = _bidding.Bids;
 
             flekBtn.IsEnabled = (bids & (Hra.Hra | Hra.Kilo | Hra.Betl | Hra.Durch)) != 0;
-            sedmaBtn.IsEnabled = (bids & (Hra.Sedma | Hra.SedmaProti)) != 0;
-            kiloBtn.IsEnabled = (bids & Hra.KiloProti) != 0;
+            sedmaBtn.IsEnabled = ((bids & Hra.Sedma) != 0) ||
+								 (((bids & Hra.SedmaProti) != 0) &&
+                                  (bidding.SevenAgainstLastBidder == null ||
+                                   bidding.SevenAgainstLastBidder.PlayerIndex != g.players[0].TeamMateIndex));
+            kiloBtn.IsEnabled = (bids & Hra.KiloProti) != 0 &&
+                                (bidding.HundredAgainstLastBidder == null ||
+                                 bidding.HundredAgainstLastBidder.PlayerIndex != g.players[0].TeamMateIndex);
 
 			flekBtn.Text = Bidding.MultiplierToString((g.GameType & (Hra.Betl | Hra.Durch)) == 0 ? bidding.GameMultiplier * 2 : bidding.BetlDurchMultiplier * 2);
             sedmaBtn.Text = (bids & Hra.SedmaProti) != 0 && (_bidding.SevenAgainstMultiplier == 0)? "Sedma proti" : "Na sedmu";

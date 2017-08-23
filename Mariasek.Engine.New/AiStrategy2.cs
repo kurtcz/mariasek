@@ -709,7 +709,8 @@ namespace Mariasek.Engine.New
 				ChooseCard1 = () =>
 				{
 					var poorSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-									   .Where(b => hands[MyIndex].CardCount(b) > 0 && 
+                                       .Where(b => b != _trump &&
+                                                   hands[MyIndex].CardCount(b) > 0 &&                                                     
                                                    ValidCards(hands[MyIndex]).Where(i => i.Suit == b)
 																			 .All(i => i.Value != Hodnota.Desitka &&
 																					   i.Value != Hodnota.Eso))
@@ -969,22 +970,6 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 13,
-                Description = "hrát cokoli mimo A,X,trumf",
-                SkipSimulations = true,
-                ChooseCard1 = () =>
-                {
-                    var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
-                                                                            i.Value != Hodnota.Desitka &&
-                                                                            i.Suit != _trump &&
-                                                                            !_bannedSuits.Contains(i.Suit)).ToList();
-
-                    return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
-                }
-            };
-
-            yield return new AiRule()
-            {
-                Order = 14,
                 Description = "zbavit se plev",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -1016,7 +1001,30 @@ namespace Mariasek.Engine.New
                 }
             };
 
-            if ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 || 
+			yield return new AiRule()
+			{
+				Order = 14,
+				Description = "hrát cokoli mimo A,X,trumf",
+				SkipSimulations = true,
+				ChooseCard1 = () =>
+				{
+					var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
+																			i.Value != Hodnota.Desitka &&
+																			i.Suit != _trump &&
+																			!_bannedSuits.Contains(i.Suit)).ToList();
+
+                    if (TeamMateIndex == -1)
+                    {
+						return cardsToPlay.OrderBy(i => i.Value)
+										  .FirstOrDefault();
+					}
+                    return cardsToPlay.OrderByDescending(i =>  _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+									  .ThenBy(i => i.Value)
+									  .FirstOrDefault();
+				}
+			};
+
+			if ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 || 
                 ((_gameType & Hra.Kilo) != 0 && TeamMateIndex == -1) ||
                 ((_gameType & Hra.KiloProti) != 0 && TeamMateIndex != -1) ||
                 !hands[MyIndex].Has7(_trump))
@@ -1036,7 +1044,14 @@ namespace Mariasek.Engine.New
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
                                                                                 i.Value != Hodnota.Desitka).ToList();
                         }
-                        return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                        if (TeamMateIndex == -1)
+                        {
+                            return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                        }
+
+                        return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+                                          .ThenBy(i => i.Value)
+                                          .FirstOrDefault();
                     }
                 };
             }
@@ -1055,8 +1070,14 @@ namespace Mariasek.Engine.New
                         {
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump).ToList();
                         }
+                        if (TeamMateIndex == -1)
+                        {
+                            return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                        }
 
-                        return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                        return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+                                          .ThenBy(i => i.Value)
+                                          .FirstOrDefault();
                     }
                 };
             }
@@ -1075,8 +1096,14 @@ namespace Mariasek.Engine.New
                     {
                         cardsToPlay = ValidCards(hands[MyIndex]).ToList();
                     }
+                    if (TeamMateIndex == -1)
+                    {
+                        return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                    }
 
-                    return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                    return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+                                      .ThenBy(i => i.Value)
+                                      .FirstOrDefault();
                 }
             };
         }
@@ -1367,7 +1394,8 @@ namespace Mariasek.Engine.New
                 ChooseCard2 = (Card c1) =>
                 {
                     var poorSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                       .Where(b => hands[MyIndex].CardCount(b) > 0 &&
+                                       .Where(b => b != _trump &&
+                                                   hands[MyIndex].CardCount(b) > 0 &&
                                                    ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == b)
                                                                                  .All(i => i.Value != Hodnota.Desitka &&
                                                                                            i.Value != Hodnota.Eso))
@@ -1694,7 +1722,7 @@ namespace Mariasek.Engine.New
 			yield return new AiRule
 			{
 				Order = 3,
-				Description = "odmazat si krátkou barvu",
+				Description = "odmazat si barvu",
 				SkipSimulations = true,
 				ChooseCard3 = (Card c1, Card c2) =>
 				{

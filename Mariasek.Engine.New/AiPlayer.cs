@@ -400,9 +400,12 @@ namespace Mariasek.Engine.New
                                            i.Value != Hodnota.Eso &&               //ani A,X
                                            i.Value != Hodnota.Desitka &&
                                            !((i.Value == Hodnota.Kral ||           //ani hlasy
-                                               i.Value == Hodnota.Svrsek) && 
-                                               hand.HasK(i.Suit) && hand.HasQ(i.Suit)) &&
-                                           i.Value != Hodnota.Sedma &&             //ani sedmu
+                                              i.Value == Hodnota.Svrsek) && 
+                                             hand.HasK(i.Suit) && hand.HasQ(i.Suit)) &&
+                                           (i.Value != Hodnota.Sedma ||            //ani sedmu
+                                            (hand.CardCount(i.Suit) == 3 &&        //(vyjma situace kdy mam prave X,K,7)
+                                             hand.HasX(i.Suit) &&
+                                             hand.HasK(i.Suit))) &&
                                            !(hand.HasX(i.Suit) &&                  //pokud mam jen X+plivu, tak nech plivu byt
                                                hand.CardCount(i.Suit) <= 2))
                 .OrderBy(i => i.Value)                              //vybirej od nejmensich karet
@@ -1798,6 +1801,11 @@ namespace Mariasek.Engine.New
                 }
                 Parallel.ForEach(source, options, (hands, loopState) =>
                 {
+                    System.Diagnostics.Debug.WriteLine($"PlayCard (player{PlayerIndex+1} r {r.number} c1 {r.c1} c2 {r.c2})");
+                    System.Diagnostics.Debug.WriteLine(hands[0]);
+                    System.Diagnostics.Debug.WriteLine(hands[1]);
+                    System.Diagnostics.Debug.WriteLine(hands[2]);
+                    System.Diagnostics.Debug.WriteLine(hands[3]);
                     Check(hands);
                     ThrowIfCancellationRequested();
                     if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
