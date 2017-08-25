@@ -25,7 +25,8 @@ namespace Mariasek.Engine.New
 
             if (TeamMateIndex != -1 && _rounds != null && _rounds[0] != null)
             {
-                for (var i = 0; i < RoundNumber - 1; i++)
+				//prednostne zkousej hrat barvu kterou spoluhrac odmazaval
+				for (var i = 0; i < RoundNumber - 1; i++)
                 {
                     if (_rounds[i].player2.PlayerIndex == TeamMateIndex &&
                          _rounds[i].c1.Suit != _rounds[i].c2.Suit)

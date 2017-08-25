@@ -559,14 +559,18 @@ namespace Mariasek.Engine.New
                     //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
                     //Zapamatujeme si vysledek a pouzijeme ho i v ChooseGameFlavour() a ChooseGameType()
                     RunGameSimulations(bidding, PlayerIndex, true, true);
-                    if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0)
+                    if (Settings.CanPlayGameType[Hra.Durch] && 
+                        _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
+                        _durchSimulations > 0)
                     {
                         _talon = ChooseDurchTalon(Hand, null);
                         DebugInfo.Rule = "Durch";
                         DebugInfo.RuleCount = _durchBalance;
                         DebugInfo.TotalRuleCount = _durchSimulations;
                     }
-                    else if (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && _betlSimulations > 0)
+                    else if (Settings.CanPlayGameType[Hra.Betl] && 
+                             _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && 
+                             _betlSimulations > 0)
                     {
                         _talon = ChooseBetlTalon(Hand, null);
                         DebugInfo.Rule = "Betl";
@@ -624,8 +628,10 @@ namespace Mariasek.Engine.New
                 //pouzivam vyssi prahy: pokud nam vysel betl nebo durch (beru 70% prah), abych kompenzoval, ze simulace nejsou presne
                 var betlThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Betl].Length - 1, 1);     //85%
                 var durchThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 1);    //85%
-                if ((_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][durchThresholdIndex] * _durchSimulations && _durchSimulations > 0) ||
-                    (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][betlThresholdIndex] * _betlSimulations && _betlSimulations > 0))
+                if ((Settings.CanPlayGameType[Hra.Durch] && 
+                     _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][durchThresholdIndex] * _durchSimulations && _durchSimulations > 0) ||
+                    (Settings.CanPlayGameType[Hra.Betl] && 
+                     _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][betlThresholdIndex] * _betlSimulations && _betlSimulations > 0))
                 {
                     if (_betlSimulations > 0 && (_durchSimulations == 0 || (float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations))
                     {
@@ -639,7 +645,8 @@ namespace Mariasek.Engine.New
                     }
                     return GameFlavour.Bad;
                 }
-                if (_betlSimulations > 0 && (_durchSimulations == 0 || (float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations))
+                if (_betlSimulations > 0 && 
+                    (_durchSimulations == 0 || (float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations))
                 {
                     DebugInfo.RuleCount = _betlSimulations - _betlBalance;
                     DebugInfo.TotalRuleCount = _betlSimulations;
@@ -1361,23 +1368,25 @@ namespace Mariasek.Engine.New
                 return TestGameType.Value;
             }
             //TODO: urcit typ hry podle zisku ne podle pradepodobnosti
-            Hra gameType;
+            Hra gameType = 0;
 
             if ((validGameTypes & (Hra.Betl | Hra.Durch)) != 0)
             {
-                if ((validGameTypes & (Hra.Hra | Hra.Kilo | Hra.Sedma)) == 0)
-                {
-                    var bidding = new Bidding(_g);
-                    RunGameSimulations(bidding, PlayerIndex, false, true);
-                }
-                if ((_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0) ||
+                //if ((validGameTypes & (Hra.Hra | Hra.Kilo | Hra.Sedma)) == 0)
+                //{
+                //    var bidding = new Bidding(_g);
+                //    RunGameSimulations(bidding, PlayerIndex, false, true);
+                //}
+                if (Settings.CanPlayGameType[Hra.Durch] && 
+                    (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0) ||
 				    validGameTypes == Hra.Durch)
                 {
                     gameType = Hra.Durch;
                     DebugInfo.RuleCount = _durchBalance;
                     DebugInfo.TotalRuleCount = _durchSimulations;
                 }
-                else //if (_betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerGameType)
+                else if (Settings.CanPlayGameType[Hra.Betl] && 
+                         _betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerGameType)
                 {
                     gameType = Hra.Betl;
                     DebugInfo.RuleCount = _betlBalance;
@@ -1386,7 +1395,8 @@ namespace Mariasek.Engine.New
             }
             else
             {
-                if (_hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _gameSimulations && _gameSimulations > 0)
+                if (Settings.CanPlayGameType[Hra.Kilo] && 
+                    _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _gameSimulations && _gameSimulations > 0)
                 {
                     gameType = Hra.Kilo;
                     DebugInfo.RuleCount = _hundredsBalance;
@@ -1397,7 +1407,8 @@ namespace Mariasek.Engine.New
                     DebugInfo.RuleCount = _gamesBalance;
                 }
                 DebugInfo.TotalRuleCount = _gameSimulations;
-                if (_sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)
+                if (Settings.CanPlayGameType[Hra.Sedma] && 
+                    _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)
                 {
                     if (gameType == Hra.Hra)    //u sedmy budu zobrazovat sedmu a u 107 kilo
                     {
@@ -2344,10 +2355,15 @@ namespace Mariasek.Engine.New
         {
             if (hands[0].Count() != hands[1].Count() || hands[0].Count() != hands[2].Count())
             {
-                throw new InvalidOperationException(string.Format("Wrong hands count: {0} {1} {2}", 
+                throw new InvalidOperationException(string.Format("Wrong hands count for player{0}: {1} {2} {3}\nGame says: {4} {5} {6} {7}", 
+                                                                  PlayerIndex + 1,
                                                                   hands[0].Count(),
                                                                   hands[1].Count(),
-                                                                  hands[2].Count()));
+                                                                  hands[2].Count(),
+                                                                  _g.players[0].Hand.Count(),
+                                                                  _g.players[1].Hand.Count(),
+                                                                  _g.players[2].Hand.Count(),
+                                                                  _g.talon != null ? _g.talon.Count() : -1));
             }
         }
 

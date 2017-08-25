@@ -1684,7 +1684,10 @@ namespace Mariasek.SharedClient
                     _progressBars[g.GameStartingPlayerIndex].Progress = _progressBars[g.GameStartingPlayerIndex].Max;
                     if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Good)
                     {
-                        ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, "Barva?");
+                        if (g.GameType == 0)
+                        {
+                            ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, "Barva?");
+                        }
                         if (g.GameStartingPlayerIndex != 2)
                         {
                             ShowThinkingMessage((g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
@@ -1704,7 +1707,10 @@ namespace Mariasek.SharedClient
                 {
                     if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Good)
                     {
-                        ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, "Barva?");
+                        if (g.GameType == 0)
+                        {
+                            ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, "Barva?");
+                        }
                         ShowThinkingMessage((_gameFlavourChosenEventArgs.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
                     }
                     else

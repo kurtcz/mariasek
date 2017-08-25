@@ -250,12 +250,12 @@ namespace Mariasek.SharedClient.GameComponents
         /// Allows the game component to update itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public override void Update(GameTime gameTime)
-        {
-            // TODO: Add your update code here
-            _reverseSprite.Update(gameTime);
-            base.Update(gameTime);
-        }
+        //public override void Update(GameTime gameTime)
+        //{
+        //    // TODO: Add your update code here
+        //    _reverseSprite.Update(gameTime);
+        //    base.Update(gameTime);
+        //}
     }
 }
 

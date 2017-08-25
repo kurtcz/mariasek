@@ -982,7 +982,6 @@ namespace Mariasek.Engine.New
             var nextPlayer = GameStartingPlayer;
             var firstTime = true;
             var bidNumber = 0;
-            var canChooseFlavour = true;
 
             gameTypeForPlayer[GameStartingPlayerIndex] = Hra.Hra;
             TrumpCard = GameStartingPlayer.ChooseTrump();
@@ -992,6 +991,8 @@ namespace Mariasek.Engine.New
 			//ptame se na barvu
             while(true)
             {
+                var canChooseFlavour = true;
+
                 if(gameTypeForPlayer.All(i => i == 0) && bidForPlayer.All(i => i == 0))
                 {
                     break;
@@ -1052,7 +1053,8 @@ namespace Mariasek.Engine.New
                     if (!firstTime)
                     {
                         GameStartingPlayer.Hand.AddRange(talon);
-                        talon = GameStartingPlayer.ChooseTalon();
+						talon.Clear();
+						talon = GameStartingPlayer.ChooseTalon();
                         GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
                         if (GameStartingPlayer.Hand.Count() != 10)
                         {
