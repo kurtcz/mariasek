@@ -124,38 +124,6 @@ namespace Mariasek.Engine.New
             PlayerBids[player.PlayerIndex] = bid;
         }
 
-        private void ResetBidsOfPlayer(AbstractPlayer player)
-        {
-            PlayerBids[player.PlayerIndex] = 0;
-            return;
-
-            if (GameLastBidder.PlayerIndex == player.PlayerIndex)
-            {
-                GameLastBidder = null;
-                PlayerBids[player.PlayerIndex] &= ((Hra)~0 ^ (Hra.Hra | Hra.Kilo));
-            }
-            if (SevenLastBidder.PlayerIndex == player.PlayerIndex)
-            {
-                SevenLastBidder = null;
-                PlayerBids[player.PlayerIndex] &= ((Hra)~0 ^ Hra.Sedma);
-            }
-            if (SevenAgainstLastBidder.PlayerIndex == player.PlayerIndex)
-            {
-                SevenAgainstLastBidder = null;
-                PlayerBids[player.PlayerIndex] &= ((Hra)~0 ^ Hra.SedmaProti);
-            }
-            if (HundredAgainstLastBidder.PlayerIndex == player.PlayerIndex)
-            {
-                HundredAgainstLastBidder = null;
-                PlayerBids[player.PlayerIndex] &= ((Hra)~0 ^ Hra.KiloProti);
-            }
-            if (BetlDurchLastBidder.PlayerIndex == player.PlayerIndex)
-            {
-                BetlDurchLastBidder = null;
-                PlayerBids[player.PlayerIndex] &= ((Hra)~0 ^ (Hra.Betl | Hra.Durch));
-            }
-        }
-
         public void StartBidding(Hra gameType)
         {
             Round = 0;

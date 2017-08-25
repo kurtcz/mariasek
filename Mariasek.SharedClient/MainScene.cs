@@ -99,7 +99,6 @@ namespace Mariasek.SharedClient
         private CancellationTokenSource _cancellationTokenSource;
         private readonly AutoResetEvent _evt = new AutoResetEvent(false);
         private bool _canSort;
-        private bool _canShowTrumpHint;
         private int _aiMessageIndex;
         public int CurrentStartingPlayerIndex = -1;
         private Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
@@ -140,8 +139,6 @@ namespace Mariasek.SharedClient
         private Vector2 _gameResultHiddenPosition;
         private Vector2 _totalBalanceOrigPosition;
         private Vector2 _totalBalanceHiddenPosition;
-        private Vector2 _reviewOrigPosition;
-        private Vector2 _reviewHiddenPosition;
         private bool _testGame;
 
         public MainScene(MariasekMonoGame game)
@@ -899,7 +896,7 @@ namespace Mariasek.SharedClient
                     _evt.Set();
                     _gameTask.Wait();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     //exception caught during task cancellation
                 }
@@ -1168,7 +1165,6 @@ namespace Mariasek.SharedClient
                 else
                 {
                     _hand.Hide();
-                    _canShowTrumpHint = false;
                 }
                 for (var i = 0; i < _trumpLabels.Count(); i++)
                 {
@@ -2211,7 +2207,6 @@ namespace Mariasek.SharedClient
                     else
                     {
                         _hand.Hide();
-                        _canShowTrumpHint = false;
                     }
                     for (var i = 0; i < _trumpLabels.Count(); i++)
                     {

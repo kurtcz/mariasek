@@ -706,8 +706,6 @@ namespace Mariasek.Engine.New
             var totalGameSimulations = (simulateGoodGames ? 2 * Settings.SimulationsPerGameType : 0) +
                                        (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
             var progress = 0;
-            var goodGamesPerSecond = 0;
-            var badGamesPerSecond = 0;
 
             OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 1, Message = "Generuju karty"});
 
@@ -726,7 +724,6 @@ namespace Mariasek.Engine.New
                 var start = DateTime.Now;
                 var actualSimulations = 0;
                 var actualSimulations7 = 0;
-                var prematureEnd = false;
 
                 _debugString.Append("Simulating good games\n");
                 Parallel.ForEach(source ?? Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType), options, (hh, loopState) =>
@@ -738,7 +735,6 @@ namespace Mariasek.Engine.New
                     }
                     if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     {
-                        prematureEnd = true;
                         loopState.Stop();
                     }
                     else
@@ -777,7 +773,6 @@ namespace Mariasek.Engine.New
                         }
                         if ((DateTime.Now - start7).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                         {
-                            prematureEnd = true;
                             loopState.Stop();
                         }
                         else

@@ -22,7 +22,7 @@ namespace Mariasek.SharedClient.GameComponents
 		private Vector2 _origTouchLocation;
 		private const int MinimalDragDistance = 100;
 
-        private bool _touchHeld;
+        //private bool _touchHeld;
 		private bool _isSelected;
         public bool IsSelected
         { 
@@ -170,7 +170,7 @@ namespace Mariasek.SharedClient.GameComponents
             return this;
         }
 
-        public CardButton MoveTo(Vector2 targetPosition, float speed = 100f)
+        public override SpriteButton MoveTo(Vector2 targetPosition, float speed = 100f)
         {
             base.MoveTo(targetPosition, speed);
             _reverseSprite.MoveTo(targetPosition, speed);
@@ -178,7 +178,7 @@ namespace Mariasek.SharedClient.GameComponents
             return this;
         }
 
-        public CardButton RotateTo(float targetAngle, float rotationSpeed = 1f)
+        public override SpriteButton RotateTo(float targetAngle, float rotationSpeed = 1f)
         {
             base.RotateTo(targetAngle, rotationSpeed);
             _reverseSprite.RotateTo(targetAngle, rotationSpeed);
@@ -186,7 +186,7 @@ namespace Mariasek.SharedClient.GameComponents
             return this;
         }
 
-        public CardButton ScaleTo(float targetScale, float scalingSpeed = 1f)
+        public override SpriteButton ScaleTo(float targetScale, float scalingSpeed = 1f)
         {
             base.ScaleTo(targetScale, scalingSpeed);
             _reverseSprite.ScaleTo(targetScale, scalingSpeed);
@@ -194,7 +194,7 @@ namespace Mariasek.SharedClient.GameComponents
             return this;
         }
 
-        public CardButton Slerp(Vector2 targetPosition, float targetAngle, float targetScale, float speed = 100f, float rotationSpeed = 1f, float scalingSpeed = 1f)
+        public override SpriteButton Slerp(Vector2 targetPosition, float targetAngle, float targetScale, float speed = 100f, float rotationSpeed = 1f, float scalingSpeed = 1f)
         {
             base.Slerp(targetPosition, targetAngle, targetScale, speed, rotationSpeed, scalingSpeed);
             _reverseSprite.Slerp(targetPosition, targetAngle, targetScale, speed, rotationSpeed, scalingSpeed);
@@ -209,7 +209,7 @@ namespace Mariasek.SharedClient.GameComponents
 			_origPosition = Position;
 			_origTouchLocation = tl.Position;
             //PreDragPosition = _origPosition;
-            _touchHeld = true;
+            //_touchHeld = true;
             System.Diagnostics.Debug.WriteLine(string.Format("{0}: DOWN state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position));
         }
 
@@ -227,7 +227,7 @@ namespace Mariasek.SharedClient.GameComponents
 		protected override void OnTouchUp(TouchLocation tl)
 		{
 			System.Diagnostics.Debug.WriteLine(string.Format("{0}: UP state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position));
-            _touchHeld = false;
+            //_touchHeld = false;
 			if (CanDrag)
 			{
 				if (Vector2.Distance(tl.Position, _origTouchLocation) >= MinimalDragDistance)

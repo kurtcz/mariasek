@@ -25,7 +25,6 @@ namespace Mariasek.SharedClient
         private Button _settingsButton;
         public ToggleButton ShuffleBtn;
         private Button _historyBtn;
-		private Button _generateBtn;
         private Label _version;
         private Label _author;
         private Sprite[] _cards;

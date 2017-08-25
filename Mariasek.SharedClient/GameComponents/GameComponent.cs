@@ -100,7 +100,7 @@ namespace Mariasek.SharedClient
 			}
 		}
         public virtual bool IsBusy { get { return ScheduledOperations!= null && ScheduledOperations.Count > 0; } }
-        public virtual bool IsMoving { get; private set; }
+        public virtual bool IsMoving { get; protected set; }
         private int _zIndex;
         public int ZIndex
         { 
@@ -358,7 +358,7 @@ namespace Mariasek.SharedClient
                     {
                         child.Update(gameTime);
                     }
-                    catch(Exception e)
+                    catch(Exception)
                     {
                     }
                 }
@@ -379,7 +379,7 @@ namespace Mariasek.SharedClient
                         {
                             child.Draw(gameTime);
                         }
-                        catch(Exception e)
+                        catch(Exception)
                         {
                         }
                     }

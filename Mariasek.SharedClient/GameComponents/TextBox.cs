@@ -107,10 +107,17 @@ namespace Mariasek.SharedClient.GameComponents
             } 
         }
 
-        public float Opacity
+        public override float Opacity
         {
-            get { return _backgroundShape.Opacity; }
-            set { _backgroundShape.Opacity = value; }
+            get { return base.Opacity; }
+            set
+            { 
+                base.Opacity = value;
+                if (_backgroundShape != null)
+                {
+                    _backgroundShape.Opacity = value;
+                } 
+            }
         }
 
         public override VerticalAlignment VerticalAlign
@@ -158,7 +165,8 @@ namespace Mariasek.SharedClient.GameComponents
                 BackgroundColors = new List<Color> { Color.Navy },
                 BorderColors = new List<Color> { Color.White },
                 BorderRadius = 1,
-                BorderThickness = 3
+                BorderThickness = 3,
+                Opacity = 1
             };
             _clickableArea = new ClickableArea(this)
             {

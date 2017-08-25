@@ -53,7 +53,6 @@ namespace Mariasek.SharedClient.GameComponents
         public Vector2 MaxValue { get; set; }
         public float LineThickness { get; set; }
         public float AxisThickness { get; set; }
-        public float Opacity { get; set; }
         public float DataMarkerSize { get; set; }
         public DataMarkerShape DataMarkerShape { get; set; }
 

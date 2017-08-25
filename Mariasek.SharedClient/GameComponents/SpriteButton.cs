@@ -20,7 +20,7 @@ namespace Mariasek.SharedClient.GameComponents
         private Vector2 _position;
 
         public Sprite Sprite { get; set; }
-        public bool IsMoving { get { return Sprite.IsMoving; } }
+        public override bool IsMoving { get { return Sprite.IsMoving; } }
 
         public SpriteButton(GameComponent parent)
             : base(parent)
@@ -105,28 +105,28 @@ namespace Mariasek.SharedClient.GameComponents
             base.OnClick();
         }
 */
-        public SpriteButton MoveTo(Vector2 targetPosition, float speed = 100f)
+        public virtual SpriteButton MoveTo(Vector2 targetPosition, float speed = 100f)
         {
             Sprite.MoveTo(targetPosition, speed);
 
             return this;
         }
 
-        public SpriteButton RotateTo(float targetAngle, float rotationSpeed = 1f)
+        public virtual SpriteButton RotateTo(float targetAngle, float rotationSpeed = 1f)
         {
             Sprite.RotateTo(targetAngle, rotationSpeed);
 
             return this;
         }
 
-        public SpriteButton ScaleTo(float targetScale, float scalingSpeed = 1f)
+        public virtual SpriteButton ScaleTo(float targetScale, float scalingSpeed = 1f)
         {
             Sprite.ScaleTo(targetScale, scalingSpeed);
 
             return this;
         }
 
-        public SpriteButton Slerp(Vector2 targetPosition, float targetAngle, float targetScale, float speed = 100f, float rotationSpeed = 1f, float scalingSpeed = 1f)
+        public virtual SpriteButton Slerp(Vector2 targetPosition, float targetAngle, float targetScale, float speed = 100f, float rotationSpeed = 1f, float scalingSpeed = 1f)
         {
             Sprite.Slerp(targetPosition, targetAngle, targetScale, speed, rotationSpeed, scalingSpeed);
 

@@ -32,7 +32,6 @@ namespace Mariasek.SharedClient.GameComponents
         public Color[] Colors { get; set; }
         public float LineThickness { get; set; }
         public float AxisThickness { get; set; }
-        public float Opacity { get; set; }
         public float DataMarkerSize { get; set; }
         public DataMarkerShape DataMarkerShape { get; set; }
         public virtual FontRenderer TextRenderer { get; set; }

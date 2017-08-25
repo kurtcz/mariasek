@@ -33,7 +33,7 @@ namespace Mariasek.SharedClient
         private Label _handSorting;
         private Label _baseBet;
         private Label _kiloCounting;
-        private Label _thinkingTime;
+        //private Label _thinkingTime;
 		private Label _cardFace;
 		private ToggleButton _hintBtn;
         private ToggleButton _soundBtn;
@@ -41,7 +41,7 @@ namespace Mariasek.SharedClient
 		private LeftRightSelector _handSortingSelector;
 		private LeftRightSelector _baseBetSelector;
 		private LeftRightSelector _kiloCountingSelector;
-		private LeftRightSelector _thinkingTimeSelector;
+		//private LeftRightSelector _thinkingTimeSelector;
 		private LeftRightSelector _cardFaceSelector;
         private Label _performance;
         private Button _menuBtn;

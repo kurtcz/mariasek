@@ -98,8 +98,6 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
-        public float Opacity { get; set; }
-
         public float InitialShadowIntensity
         {
             get { return _initialShadowIntensity; }

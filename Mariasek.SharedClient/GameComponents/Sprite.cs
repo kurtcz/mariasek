@@ -61,10 +61,10 @@ namespace Mariasek.SharedClient.GameComponents
             } 
         }
         private bool _isMoving;
-        public bool IsMoving 
+        public override bool IsMoving 
         { 
             get { return _isMoving; } 
-            private set { _isMoving = value; } 
+            protected set { _isMoving = value; } 
         }
         private Texture2D _spriteTexture;
 		private Vector2 _scale;

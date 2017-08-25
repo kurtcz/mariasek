@@ -945,7 +945,6 @@ namespace Mariasek.Engine.New
 
                 return player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => Round.WinningCard(i, j, k, trump) == i)));
             }
-            IsRunning = false;
         }
         
         public Hra GetValidGameTypesForPlayer(AbstractPlayer player, GameFlavour gameFlavour, Hra minimalBid)
