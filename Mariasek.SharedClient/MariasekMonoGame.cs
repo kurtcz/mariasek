@@ -231,14 +231,14 @@ namespace Mariasek.SharedClient
             MainScene.ResumeGame();
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            if (MainScene != null)
-            {
-                MainScene.CancelRunningTask();
-            }
-            base.Dispose(disposing);
-        }
+        //protected override void Dispose(bool disposing)
+        //{
+        //    if (MainScene != null)
+        //    {
+        //        MainScene.CancelRunningTask();
+        //    }
+        //    base.Dispose(disposing);
+        //}
 
         public delegate void ResumedEventHandler();
         public event ResumedEventHandler Resumed;
