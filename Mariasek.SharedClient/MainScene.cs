@@ -2208,6 +2208,36 @@ namespace Mariasek.SharedClient
                     {
                         _hand.Hide();
                     }
+                    var hlasy1 = 0;
+                    var hlasy2 = 0;
+                    var hlasy3 = 0;
+                    foreach(var r in g.rounds.Where(i => i != null))
+                    {
+                        if (r.hlas1)
+                        {
+                            var rect = r.c1.ToTextureRect();
+
+                            _hlasy[r.player1.PlayerIndex][hlasy1].Sprite.SpriteRectangle = rect;
+							_hlasy[r.player1.PlayerIndex][hlasy1].Show();
+                            hlasy1++;
+                        }
+						if (r.hlas2)
+						{
+							var rect = r.c1.ToTextureRect();
+
+							_hlasy[r.player1.PlayerIndex][hlasy2].Sprite.SpriteRectangle = rect;
+							_hlasy[r.player1.PlayerIndex][hlasy2].Show();
+							hlasy2++;
+						}
+						if (r.hlas3)
+						{
+							var rect = r.c1.ToTextureRect();
+
+							_hlasy[r.player1.PlayerIndex][hlasy3].Sprite.SpriteRectangle = rect;
+							_hlasy[r.player1.PlayerIndex][hlasy3].Show();
+							hlasy3++;
+						}
+					}
                     for (var i = 0; i < _trumpLabels.Count(); i++)
                     {
                         _trumpLabels[i].Text = g.players[i].Name;

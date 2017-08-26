@@ -646,7 +646,7 @@ namespace Mariasek.Engine.New
                     var c1 = CurrentRound?.c1;
                     var c2 = CurrentRound?.c2;
                     var c3 = CurrentRound?.c3;
-                    var gt = GameStartingPlayerIndex + 1;
+                    var p = GameStartingPlayerIndex + 1;
                     sw.Write($"<!--\nException caught while saving game,\ntype {GameType} played by player{p} round {RoundNumber}, c1 {c1}, c2 {c2}, c3 {c3}.\n{e.Message}\n{e.StackTrace}\n-->");
                 }
             }
