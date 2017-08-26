@@ -479,115 +479,121 @@ namespace Mariasek.Engine.New
 
         public void SaveGame(Stream fileStream, bool saveDebugInfo = false)
         {
-            var startingPlayerIndex = GameStartingPlayerIndex;
-			var roundNumber = RoundNumber;
-
-            if(CurrentRound != null)
-            {
-                if (CurrentRound.roundWinner == null)
-                {
-                    //save after an exception (unfinished round)
-                    startingPlayerIndex = CurrentRound.player1.PlayerIndex;
-                    //Comment = string.Format("Exception has been thrown at round {0}", CurrentRound.number);
-                    if (CurrentRound.c1 != null)
-                    {
-                        CurrentRound.player1.Hand.Add(CurrentRound.c1);
-                    }
-                    if (CurrentRound.c2 != null)
-                    {
-                        CurrentRound.player2.Hand.Add(CurrentRound.c2);
-                    }
-                    roundNumber--;
-                }
-                else
-                {
-                    startingPlayerIndex = CurrentRound.roundWinner.PlayerIndex;
-                }
-            }
-            var fleky = Enum.GetValues(typeof(Hra))
-                            .Cast<Hra>()
-                            .Where(gt => Bidding != null && Bidding.PlayerBids.Any(bid => (gt & bid) != 0))
-                            .Select(gt =>
-            {
-                var flek = 0;
-                switch (gt)
-                {
-                    case Hra.Hra:
-                    case Hra.Kilo:
-                        flek = Bidding._gameFlek; break;
-                    case Hra.Sedma:
-                        flek = Bidding._sevenFlek; break;
-                    case Hra.SedmaProti:
-                        flek = Bidding._sevenAgainstFlek; break;
-                    case Hra.KiloProti:
-                        flek = Bidding._hundredAgainstFlek; break;
-                    case Hra.Betl:
-                    case Hra.Durch:
-                        flek = Bidding._betlDurchFlek; break;
-                }
-
-                return new Flek
-                {
-                    Hra = gt,
-                    Pocet = flek - 1
-                };
-            }).ToArray();
-            if (fleky.All(i => i.Pocet == 0))
-            {
-                fleky = new Flek[0];
-            }
-            var gameDto = new GameDto
-            {
-                Kolo = CurrentRound != null ? roundNumber + 1 : 0,
-                Voli = (Hrac) GameStartingPlayerIndex,
-                Trumf = roundNumber > 0 ? trump : null,
-                Typ = roundNumber > 0 ? (Hra?) GameType : null,
-                Zacina = (Hrac) startingPlayerIndex,
-                Autor = Author,
-                Verze = Version.ToString(),
-                BiddingNotes = BiddingDebugInfo.ToString(),
-                Komentar = Comment,
-                Hrac1 = players[0].Hand
-                    .Select(i => new Karta
-                    {
-                        Barva = i.Suit,
-                        Hodnota = i.Value
-                    }).ToArray(),
-                Hrac2 = players[1].Hand
-                    .Select(i => new Karta
-                    {
-                        Barva = i.Suit,
-                        Hodnota = i.Value
-                    }).ToArray(),
-                Hrac3 = players[2].Hand
-                    .Select(i => new Karta
-                    {
-                        Barva = i.Suit,
-                        Hodnota = i.Value
-                    }).ToArray(),
-                Fleky = fleky,
-                Stychy = rounds.Where(r => r != null)
-                    .Select(r => new Stych
-                    {
-                        Kolo = r.number,
-                        Zacina = (Hrac) r.player1.PlayerIndex
-                    }).ToArray(),
-                Talon = talon
-                    .Select(i => new Karta
-                    {
-                        Barva = i.Suit,
-                        Hodnota = i.Value
-                    }).ToArray()
-            };
             try
             {
+
+                var startingPlayerIndex = GameStartingPlayerIndex;
+                var roundNumber = RoundNumber;
+
+                if (CurrentRound != null)
+                {
+                    if (CurrentRound.roundWinner == null)
+                    {
+                        //save after an exception (unfinished round)
+                        startingPlayerIndex = CurrentRound.player1.PlayerIndex;
+                        //Comment = string.Format("Exception has been thrown at round {0}", CurrentRound.number);
+                        if (CurrentRound.c1 != null)
+                        {
+                            CurrentRound.player1.Hand.Add(CurrentRound.c1);
+                        }
+                        if (CurrentRound.c2 != null)
+                        {
+                            CurrentRound.player2.Hand.Add(CurrentRound.c2);
+                        }
+                    }
+                    else
+                    {
+                        startingPlayerIndex = CurrentRound.roundWinner.PlayerIndex;
+                        roundNumber++;
+                    }
+                }
+                var fleky = Enum.GetValues(typeof(Hra))
+                                .Cast<Hra>()
+                                .Where(gt => Bidding != null && Bidding.PlayerBids.Any(bid => (gt & bid) != 0))
+                                .Select(gt =>
+                {
+                    var flek = 0;
+                    switch (gt)
+                    {
+                        case Hra.Hra:
+                        case Hra.Kilo:
+                            flek = Bidding._gameFlek; break;
+                        case Hra.Sedma:
+                            flek = Bidding._sevenFlek; break;
+                        case Hra.SedmaProti:
+                            flek = Bidding._sevenAgainstFlek; break;
+                        case Hra.KiloProti:
+                            flek = Bidding._hundredAgainstFlek; break;
+                        case Hra.Betl:
+                        case Hra.Durch:
+                            flek = Bidding._betlDurchFlek; break;
+                    }
+
+                    return new Flek
+                    {
+                        Hra = gt,
+                        Pocet = flek - 1
+                    };
+                }).ToArray();
+                if (fleky.All(i => i.Pocet == 0))
+                {
+                    fleky = new Flek[0];
+                }
+                var gameDto = new GameDto
+                {
+                    Kolo = roundNumber,
+                    Voli = (Hrac)GameStartingPlayerIndex,
+                    Trumf = CurrentRound != null ? trump : null,
+                    Typ = CurrentRound != null ? (Hra?)GameType : null,
+                    Zacina = (Hrac)startingPlayerIndex,
+                    Autor = Author,
+                    Verze = Version.ToString(),
+                    BiddingNotes = BiddingDebugInfo.ToString(),
+                    Komentar = Comment,
+                    Hrac1 = players[0].Hand
+                        .Select(i => new Karta
+                        {
+                            Barva = i.Suit,
+                            Hodnota = i.Value
+                        }).ToArray(),
+                    Hrac2 = players[1].Hand
+                        .Select(i => new Karta
+                        {
+                            Barva = i.Suit,
+                            Hodnota = i.Value
+                        }).ToArray(),
+                    Hrac3 = players[2].Hand
+                        .Select(i => new Karta
+                        {
+                            Barva = i.Suit,
+                            Hodnota = i.Value
+                        }).ToArray(),
+                    Fleky = fleky,
+                    Stychy = rounds.Where(r => r != null)
+                        .Select(r => new Stych
+                        {
+                            Kolo = r.number,
+                            Zacina = (Hrac)r.player1.PlayerIndex
+                        }).ToArray(),
+                    Talon = talon
+                        .Select(i => new Karta
+                        {
+                            Barva = i.Suit,
+                            Hodnota = i.Value
+                        }).ToArray()
+                };
                 foreach (var stych in gameDto.Stychy)
                 {
                     var r = rounds[stych.Kolo - 1];
                     var cards = new[] { r.c1, r.c2, r.c3 };
                     var debugInfo = new[] { r.debugNote1, r.debugNote2, r.debugNote3 };
                     var playerIndices = new[] { r.player1.PlayerIndex, r.player2.PlayerIndex, r.player3.PlayerIndex };
-                    int index = Array.IndexOf(playerIndices, 0);
+
+                    if (r.c3 == null)
+                    {
+                        break;
+                    }
+                    var index = Array.IndexOf(playerIndices, 0);
                     stych.Hrac1 = new Karta
                     {
                         Barva = cards[index].Suit,
@@ -609,33 +615,41 @@ namespace Mariasek.Engine.New
                         Poznamka = debugInfo[index]
                     };
                 }
-            }
-            catch (Exception)
-            {
-            }
-            if (Results != null)
-            {
-                gameDto.Zuctovani = new Zuctovani
+                if (Results != null)
                 {
-                    Hrac1 = new Skore
+                    gameDto.Zuctovani = new Zuctovani
                     {
-                        Body = GameStartingPlayerIndex == 0 ? Results.PointsWon : Results.PointsLost,
-                        Zisk = Results.MoneyWon[0]
-                    },
-                    Hrac2 = new Skore
-                    {
-                        Body = GameStartingPlayerIndex == 1 ? Results.PointsWon : Results.PointsLost,
-                        Zisk = Results.MoneyWon[1]
-                    },
-                    Hrac3 = new Skore
-                    {
-                        Body = GameStartingPlayerIndex == 2 ? Results.PointsWon : Results.PointsLost,
-                        Zisk = Results.MoneyWon[2]
-                    }
-                };
-            }
+                        Hrac1 = new Skore
+                        {
+                            Body = GameStartingPlayerIndex == 0 ? Results.PointsWon : Results.PointsLost,
+                            Zisk = Results.MoneyWon[0]
+                        },
+                        Hrac2 = new Skore
+                        {
+                            Body = GameStartingPlayerIndex == 1 ? Results.PointsWon : Results.PointsLost,
+                            Zisk = Results.MoneyWon[1]
+                        },
+                        Hrac3 = new Skore
+                        {
+                            Body = GameStartingPlayerIndex == 2 ? Results.PointsWon : Results.PointsLost,
+                            Zisk = Results.MoneyWon[2]
+                        }
+                    };
+                }
 
-            gameDto.SaveGame(fileStream, saveDebugInfo);
+                gameDto.SaveGame(fileStream, saveDebugInfo);
+            }
+            catch (Exception e)
+            {
+                using(var sw = new StreamWriter(fileStream))
+                {
+                    var c1 = CurrentRound?.c1;
+                    var c2 = CurrentRound?.c2;
+                    var c3 = CurrentRound?.c3;
+                    var gt = GameStartingPlayerIndex + 1;
+                    sw.Write($"<!--\nException caught while saving game,\ntype {GameType} played by player{p} round {RoundNumber}, c1 {c1}, c2 {c2}, c3 {c3}.\n{e.Message}\n{e.StackTrace}\n-->");
+                }
+            }
         }
 
         public void PlayGame(CancellationToken cancellationToken = default(CancellationToken))
@@ -723,8 +737,6 @@ namespace Mariasek.Engine.New
                 else
                 {
                     _log.Error("Exception in PlayGame()", ex);
-                    try
-                    {
 #if !PORTABLE
                         SaveGame(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss")), saveDebugInfo: true);
 #else
@@ -734,10 +746,6 @@ namespace Mariasek.Engine.New
                             SaveGame(fs, saveDebugInfo: true);
                         }
 #endif
-                    }
-                    catch (Exception)
-                    {
-                    }
                     OnGameException(new GameExceptionEventArgs { e = ex });
                     throw;
                 }
@@ -1008,7 +1016,8 @@ namespace Mariasek.Engine.New
                 {
                     talon = GameStartingPlayer.ChooseTalon();
                     GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
-                    if (talon.Any(i => !IsValidTalonCard(i))) //pokud je v talonu eso nebo desitka, musime hrat betla nebo durch
+					BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
+					if (talon.Any(i => !IsValidTalonCard(i))) //pokud je v talonu eso nebo desitka, musime hrat betla nebo durch
                     {
                         canChooseFlavour = false;
                     }
@@ -1016,6 +1025,7 @@ namespace Mariasek.Engine.New
                 if (canChooseFlavour)
                 {
                     gameFlavour = nextPlayer.ChooseGameFlavour();
+                    BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1}", GameStartingPlayer.PlayerIndex + 1, gameFlavour.Description());
                     OnGameFlavourChosen(new GameFlavourChosenEventArgs
                     {
                         Player = nextPlayer,
@@ -1055,7 +1065,8 @@ namespace Mariasek.Engine.New
 						talon.Clear();
 						talon = GameStartingPlayer.ChooseTalon();
                         GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
-                        if (GameStartingPlayer.Hand.Count() != 10)
+						BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
+						if (GameStartingPlayer.Hand.Count() != 10)
                         {
                             throw new InvalidOperationException("Invalid card count during ChooseGame()");
                         }
