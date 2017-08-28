@@ -293,6 +293,7 @@ namespace Mariasek.SharedClient
                     new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, 130), IsEnabled = false, Name="Hlasy34", ZIndex = 4 },
                 }
             };
+            _hlasy[0][0].Click += TrumpCardClicked;
             _stareStychy = new []
             {
                 new Sprite(this, Game.ReverseTexture) { Position = new Vector2(Game.VirtualScreenWidth - 50, Game.VirtualScreenHeight / 2f + 50), Scale = Game.CardScaleFactor, Name = "StareStychy1" },
@@ -1360,7 +1361,8 @@ namespace Mariasek.SharedClient
                     HideMsgLabel();
                     button.IsSelected = false; //aby karta nebyla pri animaci tmava
                     var origPosition = _hlasy[0][0].Position;
-                    _hlasy[0][0].Position = button.Position;
+					_hlasy[0][0].Sprite.SpriteRectangle = _cardClicked.ToTextureRect();
+					_hlasy[0][0].Position = button.Position;
                     if (!button.Sprite.IsVisible)
                     {
                         button
@@ -1377,7 +1379,8 @@ namespace Mariasek.SharedClient
                                 .MoveTo(origPosition, 1000)
                                 .Invoke(() =>
                                 {
-                                    _evt.Set();
+									_hlasy[0][0].IsEnabled = true;
+									_evt.Set();
                                 });
                         });
                     _hand.IsEnabled = false;
@@ -1390,6 +1393,7 @@ namespace Mariasek.SharedClient
                     origPosition = button.Position;
                     if (_cardClicked.Value == Hodnota.Svrsek && g.players[0].Hand.HasK(_cardClicked.Suit))
                     {
+                        _hlasy[0][g.players[0].Hlasy].IsEnabled = false;
                         targetSprite = _hlasy[0][g.players[0].Hlasy].Sprite;
                         targetSprite.ZIndex = _hlasy[0][g.players[0].Hlasy].ZIndex;
                     }
@@ -1429,6 +1433,15 @@ namespace Mariasek.SharedClient
                     return;
             }
         }
+
+        public void TrumpCardClicked(object sender)
+        {
+			var button = sender as CardButton;
+
+            button.FlipToFront()
+                  .Wait(1000)
+                  .FlipToBack();
+		}
 
         public void OkBtnClicked(object sender)
         {
@@ -1731,7 +1744,8 @@ namespace Mariasek.SharedClient
                     SortHand(null); //preusporadame karty
                     if (e.Player.PlayerIndex != 0 && g.OriginalGameStartingPlayerIndex == 0)
                     {
-                        _hlasy[0][0].Hide();
+                        _hlasy[0][0].IsEnabled = false;
+						_hlasy[0][0].Hide();
                         UpdateHand(); //abych vratil trumfovou kartu zpet do ruky
                     }
                 }
@@ -2238,7 +2252,7 @@ namespace Mariasek.SharedClient
 							hlasy3++;
 						}
 					}
-                    for (var i = 0; i < _trumpLabels.Count(); i++)
+					for (var i = 0; i < _trumpLabels.Count(); i++)
                     {
                         _trumpLabels[i].Text = g.players[i].Name;
                         _trumpLabels[i].Show();

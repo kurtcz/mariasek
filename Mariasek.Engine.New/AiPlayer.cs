@@ -2152,8 +2152,6 @@ namespace Mariasek.Engine.New
                    hands[player3].Any(i => hands[gameStarterIndex].All(j => !j.IsHigherThan(i, null)));
         }
 
-        private StringBuilder x = new StringBuilder();
-
         private GameComputationResult ComputeGame(Hand[] hands, Card c1, Card c2, Barva? trump = null, Hra? gameType = null, int? roundsToCompute = null, int? initialRoundNumber = null, bool ImpersonateGameStartingPlayer = false)
         {
             var result = InitGameComputationResult(hands);
@@ -2223,7 +2221,6 @@ namespace Mariasek.Engine.New
                     throw new InvalidOperationException("AiPlayer: trump is null");
                 }
             }
-            x.Append(hands[0].ToString() + "\n" + hands[1].ToString() + "\n" + hands[2].ToString() + "\n" + "\n");
 
             var useGeneratedHandsForProbabilities = roundsToCompute > 1;        //initial game simulations
             var prob = Probabilities.Clone();
