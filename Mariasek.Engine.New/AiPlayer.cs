@@ -354,7 +354,7 @@ namespace Mariasek.Engine.New
             }).Where(i => i.Item2 > 0);
 
             talon.AddRange(holesByCard.OrderByDescending(i => i.Item2) //pak doplnime kartama v barvach s nejvice dirama
-                                      .ThenBy(i => i.Item1.Value)
+                                      .ThenByDescending(i => i.Item1.Value)
                                       .Select(i => i.Item1)
                                       .Take(2 - talon.Count()));
             var count = talon.Count();
@@ -395,6 +395,15 @@ namespace Mariasek.Engine.New
                                .ThenBy(i => hand.Count(j => j.Suit == i.Suit &&    //v pripade stejne delky barev
                                             j.Value == Hodnota.Eso))               //dej prednost barve s esem
                 .ToList());
+
+            //potom zkus vzit karty v barve kde krom esa mam 3 plivy (a nemam hlasku)
+			talon.AddRange(hand.Where(i => i.Suit != trumpCard.Suit &&             //nevybirej trumfy
+                                           !hand.HasA(i.Suit) &&                   //v barve kde neznam A, X ani nemam hlas
+                                           !hand.HasX(i.Suit) &&
+                                           !(hand.HasK(i.Suit) && hand.HasQ(i.Suit)))
+                               .OrderBy(i => hand.Count(j => j.Suit == i.Suit))    //vybirej od nejkratsich barev
+                 .ToList());
+
             //potom zkus cokoli mimo trumfu,A,X,7, hlasu a samotne plivy ktera doplnuje X
             talon.AddRange(hand.Where(i => i.Suit != trumpCard.Suit &&             //nevybirej trumfy
                                            i.Value != Hodnota.Eso &&               //ani A,X
@@ -812,7 +821,6 @@ namespace Mariasek.Engine.New
                 var initialProgress = progress;
                 var start = DateTime.Now;
                 var actualSimulations = 0;
-                var prematureEnd = false;
 				var fastSelection = Settings.GameFlavourSelectionStrategy == GameFlavourSelectionStrategy.Fast;
 
 				if (!fastSelection || ShouldChooseBetl())
@@ -846,7 +854,6 @@ namespace Mariasek.Engine.New
 
 						if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
 						{
-							prematureEnd = true;
 							loopState.Stop();
 						}
 						ThrowIfCancellationRequested();
@@ -896,7 +903,6 @@ namespace Mariasek.Engine.New
 
 						if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
 						{
-							prematureEnd = true;
 							loopState.Stop();
 						}
 						ThrowIfCancellationRequested();
@@ -1381,7 +1387,7 @@ namespace Mariasek.Engine.New
                     DebugInfo.TotalRuleCount = _durchSimulations;
                 }
                 else if (Settings.CanPlayGameType[Hra.Betl] && 
-                         _betlBalance >= Settings.GameThresholds[0] * Settings.SimulationsPerGameType)
+                         _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * Settings.SimulationsPerGameType)
                 {
                     gameType = Hra.Betl;
                     DebugInfo.RuleCount = _betlBalance;
@@ -1448,6 +1454,10 @@ namespace Mariasek.Engine.New
             DebugInfo.AllChoices = allChoices.OrderByDescending(i => i.RuleCount).ToArray();
             _log.DebugFormat("Selected game type: {0}", gameType);
 
+            if (gameType == 0)
+            {
+                throw new InvalidOperationException("No game type chosen");
+            }
             return gameType;
         }
 

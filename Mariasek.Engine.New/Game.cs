@@ -1025,7 +1025,9 @@ namespace Mariasek.Engine.New
                 if (canChooseFlavour)
                 {
                     gameFlavour = nextPlayer.ChooseGameFlavour();
-                    BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1}", GameStartingPlayer.PlayerIndex + 1, gameFlavour.Description());
+                    BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1} ({2}/{3})", nextPlayer.PlayerIndex + 1, gameFlavour.Description(), nextPlayer.DebugInfo.RuleCount, nextPlayer.DebugInfo.TotalRuleCount);
+                    BiddingDebugInfo.AppendFormat("\nBetl ({0}/{1})", nextPlayer.DebugInfo.AllChoices.FirstOrDefault(i => i.Rule == "Betl")?.RuleCount, nextPlayer.DebugInfo.TotalRuleCount);
+                    BiddingDebugInfo.AppendFormat("\nDurch ({0}/{1})", nextPlayer.DebugInfo.AllChoices.FirstOrDefault(i => i.Rule == "Durch")?.RuleCount, nextPlayer.DebugInfo.TotalRuleCount);
                     OnGameFlavourChosen(new GameFlavourChosenEventArgs
                     {
                         Player = nextPlayer,

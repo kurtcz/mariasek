@@ -203,13 +203,16 @@ namespace Mariasek.Engine.New
                                 var mid1 = hands[opponent].Count(i => i.Suit == barva && (Hodnota)i.BadValue > low1);
                                 var mid2 = hands[opponent].Count(i => i.Suit == barva && (Hodnota)i.BadValue > low2);
 
-                                //odmazavat ma smysl jen tehdy pokud:
+								//odmazavat ma smysl jen tehdy pokud:
 								//mame nejmensi kartu a
-								//nasich vysokych karet je mene nez souperovych strednich karet
-								//(aby souperovi nejake karty zbyly pote co si vysoke odmazeme)
-                                if ((lowCard1.IsLowerThan(oplowCard, null) && hi2 > 0 && hi2 < mid1) ||
-                                    (lowCard2.IsLowerThan(oplowCard, null) && hi1 > 0 && hi1 < mid2))
-                                {
+								//--nasich vysokych karet je mene nez souperovych strednich karet--
+								//--(aby souperovi nejake karty zbyly pote co si vysoke odmazeme)--
+								//if ((lowCard1.IsLowerThan(oplowCard, null) && hi2 > 0 && hi2 < Math.Min(mid1, mid2)) ||
+								//    (lowCard2.IsLowerThan(oplowCard, null) && hi1 > 0 && hi1 < Math.Min(mid1, mid2)))
+								//souper ma nejake stredni karty
+								if ((lowCard1.IsLowerThan(oplowCard, null) && hi2 > 0 && mid1 > 0) ||
+									(lowCard2.IsLowerThan(oplowCard, null) && hi1 > 0 && mid2 > 0))
+								{
                                     cardsToPlay.Add(hands[MyIndex].Where(i => i.Suit == barva)
                                                                   .OrderByDescending(i => i.BadValue)
                                                                   .First());
@@ -218,7 +221,9 @@ namespace Mariasek.Engine.New
                         }
                     }
 
-					return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+					return cardsToPlay.OrderByDescending(i => i.BadValue)
+                                      .ThenByDescending(i => hands[MyIndex].CardCount(i.Suit))
+                                      .FirstOrDefault();
                 }
             };
 
@@ -426,59 +431,13 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 2,
-                Description = "Odmazat si barvu",
-                ChooseCard2 = (Card c1) =>
-                {
-                    var cardsToPlay = new List<Card>();
-                    var lowCards = new List<Card>();
-
-                    if (TeamMateIndex == player1)
-                    {
-                        lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota))
-                                                                 .Cast<Hodnota>()
-                                                                 .All(h => (int)h > i.BadValue ||
-                                                                           _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0)).ToList();
-                    }
-                    else if (TeamMateIndex == player3)
-                    {
-                        lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota))
-                                                                 .Cast<Hodnota>()
-                                                                 .All(h => (int)h > i.BadValue ||
-                                                                           _probabilities.CardProbability(player1, new Card(i.Suit, h)) == 0)).ToList();
-                    }
-                    var cards = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit != c1.Suit &&
-                                                                          !lowCards.Contains(i))         //nejnizsi karty v barve nema smysl odmazavat
-                                                              .GroupBy(i => i.Suit)
-                                                              .OrderBy(g => g.Count())
-                                                              .Select(g => g.ToList()).FirstOrDefault();
-                    if (cards != null)
-                    {
-                        cardsToPlay = cards;
-                    }
-
-					return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
-                }
-            };
-
-            yield return new AiRule()
-            {
                 Order = 3,
-                Description = "Hrát krátkou barvu",
+                Description = "Hrát vysokou kartu",
                 ChooseCard2 = (Card c1) =>
                 {
-                    var lo = ValidCards(c1, hands[MyIndex]).GroupBy(g => g.Suit);   //seskup podle barev
-                    //vyber nejkratsi barvu
-                    var cardsToPlay = lo.OrderBy(g => g.Count()).Select(g => g.ToList()).FirstOrDefault();
-
-                    if (TeamMateIndex == player3)
-                    {
-                        return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
-                    }
-                    else
-                    {
-                        return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
-                    }
+                    return ValidCards(c1, hands[MyIndex]).OrderByDescending(i => i.BadValue)
+                                                         .ThenByDescending(i => hands[MyIndex].CardCount(i.Suit))
+                                                         .FirstOrDefault();
                 }
             };
         }
@@ -576,52 +535,13 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 2,
-                Description = "Odmazat si barvu",
+                Description = "Hrát vysokou kartu",
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
-                    var cardsToPlay = new List<Card>();
-                    var lowCards = new List<Card>();
-
-                    if (TeamMateIndex == player1)
-                    {
-                        lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota))
-                                                                 .Cast<Hodnota>()
-                                                                 .All(h => (int)h > i.BadValue ||
-                                                                           _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0)).ToList();
-                    }
-                    else
-                    {
-                        lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota))
-                                                                 .Cast<Hodnota>()
-                                                                 .All(h => (int)h > i.BadValue ||
-                                                                           _probabilities.CardProbability(player1, new Card(i.Suit, h)) == 0)).ToList();
-                    }
-                    var cards = ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit != c1.Suit &&
-                                                                              !lowCards.Contains(i))
-                                                                  .GroupBy(i => i.Suit)
-                                                                  .OrderBy(g => g.Count())
-                                                                  .Select(g => g.ToList()).FirstOrDefault();
-                    if(cards != null)
-                    {
-                        cardsToPlay = cards;
-                    }
-
-                    return cardsToPlay.RandomOneOrDefault();
-                }
-            };
-
-            yield return new AiRule()
-            {
-                Order = 3,
-                Description = "Hrát kratkou barvu",
-                ChooseCard3 = (Card c1, Card c2) =>
-                {
-                    var lo = ValidCards(c1, c2, hands[MyIndex]).GroupBy(g => g.Suit);   //seskup podle barev
-                    //vyber nejkratsi barvu
-                    var cardsToPlay = lo.OrderBy(g => g.Count()).Select(g => g.ToList()).FirstOrDefault();
-
-                    return cardsToPlay.RandomOneOrDefault();
-                }
+                    return ValidCards(c1, c2, hands[MyIndex]).OrderByDescending(i => i.BadValue)
+                                                             .ThenByDescending(i => hands[MyIndex].CardCount(i.Suit))
+                                                             .FirstOrDefault();
+				}
             };
         }
     }

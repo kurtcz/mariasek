@@ -2258,14 +2258,21 @@ namespace Mariasek.SharedClient
 
         public void SaveGame()
         {
-            if (g != null && g.GameType != 0 && g.IsRunning)
+            if (g != null && g.IsRunning)
             {
                 try
                 {
                     CreateDirectoryForFilePath(_savedGameFilePath);
-                    using (var fs = File.Open(_savedGameFilePath, FileMode.Create))
+                    if (g.GameType != 0)
                     {
-                        g.SaveGame(fs);
+                        using (var fs = File.Open(_savedGameFilePath, FileMode.Create))
+                        {
+                            g.SaveGame(fs);
+                        }
+                    }
+                    else
+                    {
+                        File.Copy(_newGameFilePath, _savedGameFilePath, true);
                     }
                 }
                 catch (Exception e)
