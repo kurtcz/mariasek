@@ -1298,12 +1298,12 @@ namespace Mariasek.SharedClient
                     {
                         g.SaveGame(fs, saveDebugInfo: true);
                     }
-                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek game feedback", "",
+                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariášek: zpětná vazba", "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře:\n",
                                                new[] { _screenPath, _newGameFilePath, _savedGameFilePath, SettingsScene._settingsFilePath });
                 }
                 else
                 {
-                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek game feedback", "",
+                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariášek: zpětná vazba", "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře:\n",
                                                new[] { _screenPath, _newGameFilePath, _endGameFilePath, SettingsScene._settingsFilePath });
                 }
             }
