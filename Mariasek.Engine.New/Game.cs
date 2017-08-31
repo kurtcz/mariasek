@@ -507,6 +507,11 @@ namespace Mariasek.Engine.New
                         roundNumber++;
                     }
                 }
+                else if (GameStartingPlayer.Hand.Any() && talon != null && talon.Any())
+                {
+                    GameStartingPlayer.Hand.AddRange(talon);
+                    talon.Clear();
+                }
                 var fleky = Enum.GetValues(typeof(Hra))
                                 .Cast<Hra>()
                                 .Where(gt => Bidding != null && Bidding.PlayerBids.Any(bid => (gt & bid) != 0))
@@ -726,11 +731,7 @@ namespace Mariasek.Engine.New
             }
             catch (Exception ex)
             {
-                while (ex.InnerException != null)
-                {
-                    ex = ex.InnerException;
-                }
-                if (ex is OperationCanceledException)
+                if (ex.ContainsCancellationException())
                 {
                     _log.Debug("OperationCanceledException caught");
                 }

@@ -1,19 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Globalization;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Input.Touch;
-using Microsoft.Xna.Framework.Storage;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Media;
-
 using Mariasek.SharedClient.GameComponents;
 
 namespace Mariasek.SharedClient
@@ -192,16 +179,11 @@ namespace Mariasek.SharedClient
             Game.HistoryScene.SetActive();
         }
 
-		private void GenerateClicked(object sender)
-		{
-			//Game.GenerateScene.SetActive();
-		}
-
 		public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
             _resumeButton.IsEnabled = Game.MainScene.g != null && Game.MainScene.g.IsRunning;
         }
-    }
+	}
 }
 

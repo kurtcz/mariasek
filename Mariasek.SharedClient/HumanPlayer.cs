@@ -83,11 +83,7 @@ namespace Mariasek.SharedClient
                 }
                 catch (Exception ex)
                 {
-                    while (ex.InnerException != null)
-                    {
-                        ex = ex.InnerException;
-                    }
-                    if (!(ex is OperationCanceledException)) //ignore OperationCanceledException
+                    if (!ex.ContainsCancellationException())
                     {
                         throw;
                     }
@@ -309,7 +305,7 @@ namespace Mariasek.SharedClient
 
 						_scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1), 
                                                string.Empty, _t1 - _t0);
-                        _scene.SuggestGameTypeNew(bid);
+                        _scene.SuggestBidsAndDoublesNew(bid);
                     }, _cancellationTokenSource.Token);
             }
             var bd = _scene.GetBidsAndDoubles(bidding);

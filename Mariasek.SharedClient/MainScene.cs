@@ -360,25 +360,25 @@ namespace Mariasek.SharedClient
             _reviewGameBtn.Click += ReviewGameBtnClicked;
             _reviewGameBtn.Hide();
             //tlacitka na prave strane
-            _sendBtn = new Button(this)
+            _reviewGameToggleBtn = new ToggleButton(this)
             {
-                Text = "@",
+                Text = "i",
                 Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 150),
                 ZIndex = 100,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main,
                 Width = 50
             };
-            _sendBtn.Click += SendBtnClicked;
-            _reviewGameToggleBtn = new ToggleButton(this)
-            {
-                Text = "i",
-                Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 90),
-                ZIndex = 100,
-                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main,
-                Width = 50
-            };
             _reviewGameToggleBtn.Click += ReviewGameBtnClicked;
-            _hintBtn = new Button(this)
+			_sendBtn = new Button(this)
+			{
+				Text = "@",
+				Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 90),
+				ZIndex = 100,
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main,
+				Width = 50
+			};
+			_sendBtn.Click += SendBtnClicked;
+			_hintBtn = new Button(this)
             {
                 Text = "?",
                 Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 30),
@@ -601,7 +601,7 @@ namespace Mariasek.SharedClient
 				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Main : AnchorType.Bottom
 			};
             _hand.Click += CardClicked;
-            _hand.ShowArc((float)Math.PI / 2);
+            //_hand.ShowArc((float)Math.PI / 2);
             _bubble1 = new TextBox(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2 - 125, Game.VirtualScreenHeight / 2 - 100),
@@ -1231,22 +1231,8 @@ namespace Mariasek.SharedClient
         public void GameException(object sender, GameExceptionEventArgs e)
         {
             var ex = e.e;
-            var ae = ex as AggregateException;
-
-            if (ae != null)
-            {
-                ae = ae.Flatten();
-                if (ae.InnerExceptions.Count > 0)
-                {
-                    ex = ae.InnerExceptions[0];
-                }
-            }
-            while (ex.InnerException != null)
-            {
-                ex = ex.InnerException;
-            }
-            if (ex is OperationCanceledException)
-            {
+            if (ex.ContainsCancellationException())
+			{
                 return;
             }
 
@@ -1298,12 +1284,12 @@ namespace Mariasek.SharedClient
                     {
                         g.SaveGame(fs, saveDebugInfo: true);
                     }
-                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariášek: zpětná vazba", "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře:\n",
+                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariášek: komentář", "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře\n:",
                                                new[] { _screenPath, _newGameFilePath, _savedGameFilePath, SettingsScene._settingsFilePath });
                 }
                 else
                 {
-                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariášek: zpětná vazba", "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře:\n",
+                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariášek: komentář", "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře\n:",
                                                new[] { _screenPath, _newGameFilePath, _endGameFilePath, SettingsScene._settingsFilePath });
                 }
             }
@@ -1917,7 +1903,8 @@ namespace Mariasek.SharedClient
                         }
 
                         _hand.DeselectAllCards();
-                        _hand.ShowArc((float)Math.PI / 2);
+                        //_hand.ShowArc((float)Math.PI / 2);
+                        _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
                     });
                 }, null);
         }
@@ -2146,6 +2133,7 @@ namespace Mariasek.SharedClient
                         {
                             File.Delete(_savedGameFilePath);
                         }
+                        MenuBtnClicked(this);
                         return;
                     }
                     g.GameFlavourChosen += GameFlavourChosen;
@@ -2270,8 +2258,8 @@ namespace Mariasek.SharedClient
             }
         }
 
-        public void SaveGame()
-        {
+       public void SaveGame()
+       {
             if (g != null && g.IsRunning)
             {
                 try
@@ -2323,16 +2311,25 @@ namespace Mariasek.SharedClient
                            _hand.UpdateHand(g.players[0].Hand.ToArray(), cardsNotRevealed, cardToHide);
                        });
             }
-            if (_state == GameState.ChooseTalon)
-            {
-                _hand.WaitUntil(() => !_hand.SpritesBusy)
-                     .Invoke(() =>
-                        {
-                            _canSort = true;
-                            SortHand(cardToHide);
-                        });
-            }
-        }
+			if (_state == GameState.ChooseTrump)
+			{
+			    _hand.WaitUntil(() => !_hand.SpritesBusy)
+			         .Invoke(() =>
+			            {
+			                _canSort = true;
+			                SortHand(null, 7);
+			            });
+			}
+			if (_state == GameState.ChooseTalon)
+			{
+			    _hand.WaitUntil(() => !_hand.SpritesBusy)
+			         .Invoke(() =>
+			            {
+			                _canSort = true;
+			                SortHand(cardToHide);
+			            });
+			}
+		}
 
         private void UpdateCardTextures(GameComponent parent, Texture2D oldTexture, Texture2D newTexture)
         {
@@ -2446,7 +2443,8 @@ namespace Mariasek.SharedClient
         {
             foreach (var gtButton in gtButtons)
             {
-                if ((gameType & (Hra)gtButton.Tag) == (Hra)gtButton.Tag)
+                //if ((gameType & (Hra)gtButton.Tag) == (Hra)gtButton.Tag)
+                if (gameType == (Hra)gtButton.Tag)
                 {
                     gtButton.BorderColor = Color.Green;
                 }
@@ -2477,7 +2475,22 @@ namespace Mariasek.SharedClient
             HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", bid), false);
         }
 
-        public void SuggestCardToPlay(Card cardToPlay, string hint, int? t = null)
+		public void SuggestBidsAndDoublesNew(Hra bid)
+		{
+			foreach (var btn in bidButtons)
+			{
+				if ((bid & (Hra)btn.Tag) != 0)
+				{
+					btn.BorderColor = Color.Green;
+				}
+				else
+				{
+					btn.BorderColor = Color.White;
+				}
+			}
+		}
+
+		public void SuggestCardToPlay(Card cardToPlay, string hint, int? t = null)
         {
             _progress1.Progress = _progress1.Max;
             _hintBtn.IsEnabled = true;
@@ -2492,7 +2505,7 @@ namespace Mariasek.SharedClient
             };
         }
 
-        public void SortHand(Card cardToHide = null)
+        public void SortHand(Card cardToHide = null, int numberOfCardsToSort = 12)
         {
             if (_canSort)
             {
@@ -2502,11 +2515,20 @@ namespace Mariasek.SharedClient
                 {
                     var badGameSorting = _gameFlavourChosen == GameFlavour.Bad || (g.GameType & (Hra.Betl | Hra.Durch)) != 0;
 
-                    g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, badGameSorting, g.trump);
+                    if (numberOfCardsToSort == 12)
+                    {
+                        g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, badGameSorting, g.trump);
+                    }
+                    else
+                    {
+                        var sortedList = g.players[0].Hand.Take(numberOfCardsToSort).ToList();
+
+                        sortedList.Sort(_settings.SortMode == SortMode.Ascending, badGameSorting, g.trump);
+                        g.players[0].Hand = sortedList.Concat(g.players[0].Hand.Skip(numberOfCardsToSort).Take(12)).ToList();
+                    }
                 }
-                _hand.UpdateHand(g.players[0].Hand.ToArray(), 0, cardToHide);
+                _hand.UpdateHand(g.players[0].Hand.ToArray(), 12 - numberOfCardsToSort, cardToHide);
                 _hand.SortHand(unsorted);
-                _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
             }
         }
 

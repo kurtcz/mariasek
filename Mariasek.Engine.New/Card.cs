@@ -22,10 +22,14 @@ namespace Mariasek.Engine.New
     {
         Sedma = 0,
         Osma = 1,
-        Devitka = 2,
+		[Description("Devítka")]
+		Devitka = 2,
         Spodek = 3,
+        [Description("Svršek")]
         Svrsek = 4,
+        [Description("Král")]
         Kral = 5,
+        [Description("Desítka")]
         Desitka = 6,
         Eso = 7
     };
@@ -121,7 +125,7 @@ namespace Mariasek.Engine.New
 
         public override string ToString()
         {
-            return string.Format("{0} {1}", Value, Suit);
+            return string.Format("{0} {1}", Value.Description(), Suit.Description());
         }
 
         public bool IsHigherThan(Card second, Barva? trump)

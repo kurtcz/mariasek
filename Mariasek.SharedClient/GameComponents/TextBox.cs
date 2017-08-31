@@ -166,7 +166,7 @@ namespace Mariasek.SharedClient.GameComponents
                 BorderColors = new List<Color> { Color.White },
                 BorderRadius = 1,
                 BorderThickness = 3,
-                Opacity = 1
+                Opacity = 0
             };
             _clickableArea = new ClickableArea(this)
             {

@@ -413,7 +413,7 @@ namespace Mariasek.Engine.New
             return y;
         }
 
-        public float AnyOfTheseCardsButNothingElseInSuitProbability(int playerIndex, Barva suit, int roundNumber, params Hodnota[] values)
+        private float AnyOfTheseCardsButNothingElseInSuitProbability(int playerIndex, Barva suit, int roundNumber, params Hodnota[] values)
         {
             //pokud ma hrac jiste kartu ktera neni na seznamu, tak vrat nulu
             if (_cardProbabilityForPlayer[playerIndex][suit].Any(i => !values.Contains(i.Key) && i.Value == 1f))
@@ -864,7 +864,9 @@ namespace Mariasek.Engine.New
             //    if (certainCards[_gameStarterIndex].Count != 12)
                 if (_cardProbabilityForPlayer[_myIndex].Sum(i => i.Value.Count(j => j.Value == 1f)) == 11)
                 {
-                    throw new InvalidOperationException("Bad certain card probabilities");
+                    var msg = string.Format("Bad certain card probabilities\nGenerovani:{0}\nHistorie:{1}\nExterni:{2}\n",
+                                            _verboseString.ToString(), _debugString.ToString(), ExternalDebugString.ToString());
+                    throw new InvalidOperationException(msg);
                 }
             //}
         }

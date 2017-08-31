@@ -46,22 +46,6 @@ namespace Mariasek.Engine.New
 			}
             return String.Join(", ", description);
         }
-            
-        public static string ToDescription(this Barva b)
-        {
-            switch (b)
-            {
-                case Barva.Cerveny:
-                    return "červený";
-                case Barva.Zeleny:
-                    return "zelený";
-                case Barva.Kule:
-                    return "kule";
-                case Barva.Zaludy:
-                    return "žaludy";
-            }
-            return string.Empty;
-        }
 
         public static string ToDescription(this Hra gt, Barva? trump = null)
         {
@@ -69,22 +53,22 @@ namespace Mariasek.Engine.New
             {
                 if ((gt & Hra.Sedma) != 0)
                 {
-                    return string.Format("Sedma {0}", trump != null ? trump.Value.ToDescription() : "");
+                    return string.Format("Sedma {0}", trump != null ? trump.Value.Description() : "");
                 }
                 else
                 {
-                    return string.Format("Hra {0}", trump != null ? trump.Value.ToDescription() : "");
+                    return string.Format("Hra {0}", trump != null ? trump.Value.Description() : "");
                 }
             }
             else if ((gt & Hra.Kilo) != 0)
             {
                 if ((gt & Hra.Sedma) != 0)
                 {
-                    return string.Format("Stosedm {0}", trump != null ? trump.Value.ToDescription() : "");
+                    return string.Format("Stosedm {0}", trump != null ? trump.Value.Description() : "");
                 }
                 else
                 {
-                    return string.Format("Kilo {0}", trump != null ? trump.Value.ToDescription() : "");
+                    return string.Format("Kilo {0}", trump != null ? trump.Value.Description() : "");
                 }
             }
             else if (gt == Hra.Betl)
@@ -98,5 +82,30 @@ namespace Mariasek.Engine.New
 
             return string.Empty;
         }
+
+        public static bool ContainsCancellationException(this Exception ex)
+        {
+            for (var current = ex; current != null; current = current.InnerException)
+            {
+                var ae = current as AggregateException;
+
+                if (ae != null)
+                {
+                    foreach(var inner in ae.Flatten().InnerExceptions)
+                    {
+                        if (inner is OperationCanceledException)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                if (current is OperationCanceledException)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+		}
     }
 }

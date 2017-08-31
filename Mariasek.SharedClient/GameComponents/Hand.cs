@@ -90,7 +90,8 @@ namespace Mariasek.SharedClient.GameComponents
 
             if (sprite != null)
             {
-                sprite.IsSelected = true;
+                //sprite.IsSelected = true;
+                sprite.MoveTo(new Vector2(sprite.Sprite.Position.X, sprite.Sprite.Position.Y - 25), 50f);
                 return true;
             }
             else
