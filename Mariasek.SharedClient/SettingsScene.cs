@@ -359,16 +359,15 @@ namespace Mariasek.SharedClient
                 using (var fs = File.Open(_settingsFilePath, FileMode.Open))
                 {
                     _settings = (GameSettings)xml.Deserialize(fs);
-                    if (_settings.Thresholds == null || !_settings.Thresholds.Any() || _settings.Thresholds.Count() != Enum.GetValues(typeof(Hra)).Cast<Hra>().Count())
+                    if (!_settings.Default.HasValue ||
+                        _settings.Default.Value ||
+                        _settings.Thresholds == null || 
+                        !_settings.Thresholds.Any() || 
+                        _settings.Thresholds.Count() != Enum.GetValues(typeof(Hra)).Cast<Hra>().Count())
                     {
                         _settings.ResetThresholds();
                     }
                     _settings.ThinkingTimeMs = 2000;
-                    //fs.Seek(0, SeekOrigin.Begin);
-                    //using (var sr = new StreamReader(fs))
-                    //{
-                    //    var str = sr.ReadToEnd();
-                    //}
                 }
             }
             catch(Exception e)

@@ -26,6 +26,7 @@ namespace Mariasek.SharedClient
 
     public class GameSettings
     {
+        public bool? Default { get; set; }
         public bool HintEnabled { get; set; }
         public bool SoundEnabled { get; set; }
         public bool BgSoundEnabled { get; set; }
@@ -56,6 +57,8 @@ namespace Mariasek.SharedClient
 
         public void ResetThresholds()
         {
+			Default = true;
+
 			//celkem jsou ve hre 2 nezname karty v dane barve
 			//souper ma 5 z 11 neznamych karet ve hre
 			//pravdepodobnost, ze souper nezna ani jednu z 2 neznamych karet v dane barve
@@ -67,14 +70,14 @@ namespace Mariasek.SharedClient
                     GameType = Hra.Hra,
                     Use = true,
                     MaxBidCount = 3,
-                    Thresholds = "0|25|45|70"
+                    Thresholds = "0|25|35|65"
                 },
                 new BidThresholdSettings
                 {
                     GameType = Hra.Sedma,
                     Use = true,
                     MaxBidCount = 2,
-                    Thresholds = "35|45|60|80"
+                    Thresholds = "35|45|70|85"
                 },
                 new BidThresholdSettings
                 {
@@ -88,7 +91,7 @@ namespace Mariasek.SharedClient
                     GameType = Hra.SedmaProti,
                     Use = true,
                     MaxBidCount = 1,
-                    Thresholds = "30|70|95|100"
+                    Thresholds = "35|75|95|100"
                 },
                 new BidThresholdSettings
                 {
@@ -102,7 +105,9 @@ namespace Mariasek.SharedClient
                     GameType = Hra.Betl,
                     Use = true,
                     MaxBidCount = 2,
-                    Thresholds = "60|65|75|80"
+                    Thresholds = "60" +
+                        "" +
+                        "55|70|80|85"
                 },
                 new BidThresholdSettings
                 {

@@ -369,6 +369,7 @@ namespace Mariasek.SharedClient
         {
             if (_settingsChanged)
             {
+                _settings.Default = false;
                 Game.SettingsScene.UpdateSettings(_settings);
                 _settingsChanged = false;
             }
@@ -376,7 +377,7 @@ namespace Mariasek.SharedClient
         }
 
         public void ResetButtonClicked(object sender)
-        {
+        {            
             _settings.ResetThresholds();
             Game.SettingsScene.UpdateSettings(_settings);
             _settingsChanged = false;
