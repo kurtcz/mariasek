@@ -65,6 +65,7 @@ namespace Mariasek.SharedClient.GameComponents
                 _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures, rect) { Name = string.Format("HandSprite{0}", i+1), Scale = Game.CardScaleFactor })
                 { Name = string.Format("HandButton{0}", i + 1), ZIndex = ZIndexBase + i };
                 _sprites[i].Click += CardClicked;
+                _sprites[i].DragEnd += (sender, tl) => CardClicked(sender);
                 _sprites[i].Name = string.Format("HandButton{0}", i + 1);
                 _sprites[i].Position = Centre;
             }
@@ -127,7 +128,8 @@ namespace Mariasek.SharedClient.GameComponents
                     _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures) { Name = string.Format("HandSprite{0}", i + 1), Scale = Game.CardScaleFactor})
                     { Name = string.Format("HandButton{0}", i + 1), ZIndex = 50 + i };
                     _sprites[i].Click += CardClicked;
-                    _sprites[i].Position = Centre;
+					_sprites[i].DragEnd += (sender, tl) => CardClicked(sender);
+					_sprites[i].Position = Centre;
                 }
                 ZIndex = ZIndexBase + i;
                 _sprites[i].Sprite.SpriteRectangle = rect;

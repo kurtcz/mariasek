@@ -126,6 +126,18 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
+        public delegate void DragEndHandler(object sender, DragEndEventArgs e);
+		public event DragEndHandler DragEnd;
+
+		protected virtual void OnDragEnd(DragEndEventArgs e)
+        {
+			System.Diagnostics.Debug.WriteLine(string.Format("{0} OnDragEnd", this));
+            if (DragEnd != null)
+			{
+				DragEnd(this, e);
+			}
+		}
+
         /// <summary>
         /// Allows the game component to update itself.
         /// </summary>

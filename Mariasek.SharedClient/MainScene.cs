@@ -130,6 +130,7 @@ namespace Mariasek.SharedClient
         private volatile Card _cardClicked;
         private volatile Card _trumpCardChosen;
         private volatile List<Card> _talon;
+        private bool _trumpCardTakenBack;
         public float SimulatedSuccessRate;
         private Vector2 _msgLabelLeftOrigPosition;
         private Vector2 _msgLabelLeftHiddenPosition;
@@ -294,7 +295,9 @@ namespace Mariasek.SharedClient
                 }
             };
             _hlasy[0][0].Click += TrumpCardClicked;
-            _stareStychy = new []
+            _hlasy[0][0].DragEnd += TrumpCardDragged;
+			_hlasy[0][0].CanDrag = true;
+			_stareStychy = new []
             {
                 new Sprite(this, Game.ReverseTexture) { Position = new Vector2(Game.VirtualScreenWidth - 50, Game.VirtualScreenHeight / 2f + 50), Scale = Game.CardScaleFactor, Name = "StareStychy1" },
                 new Sprite(this, Game.ReverseTexture) { Position = new Vector2(50, 80), Scale = Game.CardScaleFactor, Name = "StareStychy2" },
@@ -1113,7 +1116,7 @@ namespace Mariasek.SharedClient
                 g.players[2].GameComputationProgress += GameComputationProgress;
                 _firstTimeGameFlavourChosen = true;
                 _trumpCardChosen = null;
-
+                _trumpCardTakenBack = false;
                 _state = GameState.NotPlaying;
 
                 ClearTable(true);
@@ -1330,7 +1333,7 @@ namespace Mariasek.SharedClient
                         _talon.Remove(_cardClicked);
                     }
                     _okBtn.IsEnabled = _talon.Count == 2;
-                    if (_talon.Any(i => !g.IsValidTalonCard(i)))
+					if (_talon.Any(i => !g.IsValidTalonCard(i)))
                     {
                         ShowMsgLabel("Vyber si talon\nS tímto talonem musíš hrát betl nebo durch", false);
                     }
@@ -1429,6 +1432,25 @@ namespace Mariasek.SharedClient
                   .FlipToBack();
 		}
 
+        public void TrumpCardDragged(object sender, DragEndEventArgs e)
+        {
+            var button = sender as CardButton;
+			var origPosition = button.Position + e.DragStartLocation - e.DragEndLocation;
+
+			if (e.DragEndLocation.Y > _hand.Centre.Y)
+            {
+                _trumpCardTakenBack = true;
+                _talon.Clear();
+                button.Hide();
+				button.Position = origPosition;
+				UpdateHand();
+            }
+            else
+            {
+                button.MoveTo(origPosition, 200f);
+            }
+        }
+
         public void OkBtnClicked(object sender)
         {
             HideMsgLabel();
@@ -1509,7 +1531,7 @@ namespace Mariasek.SharedClient
                     _hand.Show();
                     UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
                     _hand.AllowDragging();
-                }, null);
+				}, null);
             WaitForUIThread();
             _hintBtn.IsEnabled = false;
             _hand.ForbidDragging();
@@ -1528,7 +1550,7 @@ namespace Mariasek.SharedClient
                     _okBtn.Show();
                     _okBtn.IsEnabled = false;
                     _state = GameState.ChooseTalon;
-                    UpdateHand(cardToHide: _trumpCardChosen); //abych si otocil zbyvajicich 5 karet
+					UpdateHand(cardToHide: _trumpCardChosen); //abych si otocil zbyvajicich 5 karet
                 }, null);
             WaitForUIThread();
             _hintBtn.IsEnabled = false;
@@ -1566,11 +1588,15 @@ namespace Mariasek.SharedClient
         private void ChooseGameTypeInternal(Hra validGameTypes)
         {
             g.ThrowIfCancellationRequested();
-            UpdateHand(cardToHide: _trumpCardChosen); //abych nevidel karty co jsem hodil do talonu
+			UpdateHand(cardToHide: _trumpCardChosen); //abych nevidel karty co jsem hodil do talonu
             this.Invoke(() =>
             {
-                foreach (var gtButton in gtButtons)
+                if (_trumpCardTakenBack)
                 {
+                    validGameTypes &= Hra.Betl | Hra.Durch;
+                }
+                foreach (var gtButton in gtButtons)
+                {                    
                     gtButton.IsEnabled = ((Hra)gtButton.Tag & validGameTypes) == (Hra)gtButton.Tag;
                     gtButton.Show();
                 }
@@ -2149,7 +2175,7 @@ namespace Mariasek.SharedClient
                     g.players[2].GameComputationProgress += GameComputationProgress;
                     _firstTimeGameFlavourChosen = true;
                     _trumpCardChosen = null;
-
+                    _trumpCardTakenBack = false;
                     _state = GameState.NotPlaying;
 
                     CurrentStartingPlayerIndex = g.GameStartingPlayerIndex;

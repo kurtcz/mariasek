@@ -1,16 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input.Touch;
-using Microsoft.Xna.Framework.Storage;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Media;
 
 namespace Mariasek.SharedClient.GameComponents
 {
@@ -22,7 +11,6 @@ namespace Mariasek.SharedClient.GameComponents
 		private Vector2 _origTouchLocation;
 		private const int MinimalDragDistance = 100;
 
-        //private bool _touchHeld;
 		private bool _isSelected;
         public bool IsSelected
         { 
@@ -35,7 +23,6 @@ namespace Mariasek.SharedClient.GameComponents
         }
 
         public bool IsFaceUp { get { return Sprite.IsVisible; } }
-        //public Vector2 PreDragPosition { get; private set; }
 
         public CardButton(GameComponent parent)
             : base(parent)
@@ -62,10 +49,6 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 base.Position = value;
                 _reverseSprite.Position = value;
-                //if (!Sprite.IsMoving && !_touchHeld)
-                //{
-                //    PreDragPosition = value;
-                //}
             }
         }
 
@@ -208,8 +191,6 @@ namespace Mariasek.SharedClient.GameComponents
         {
 			_origPosition = Position;
 			_origTouchLocation = tl.Position;
-            //PreDragPosition = _origPosition;
-            //_touchHeld = true;
             System.Diagnostics.Debug.WriteLine(string.Format("{0}: DOWN state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position));
         }
 
@@ -227,12 +208,15 @@ namespace Mariasek.SharedClient.GameComponents
 		protected override void OnTouchUp(TouchLocation tl)
 		{
 			System.Diagnostics.Debug.WriteLine(string.Format("{0}: UP state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position));
-            //_touchHeld = false;
 			if (CanDrag)
 			{
 				if (Vector2.Distance(tl.Position, _origTouchLocation) >= MinimalDragDistance)
-				{
-					OnClick();
+                {
+                    OnDragEnd(new DragEndEventArgs
+                    {
+                        DragStartLocation = _origTouchLocation,
+                        DragEndLocation = tl.Position
+                    });
 				}
 				else
 				{
@@ -240,11 +224,6 @@ namespace Mariasek.SharedClient.GameComponents
 				}
 			}
 		}
-
-        protected override void OnClick()
-        {
-            base.OnClick();
-        }
 
         /// <summary>
         /// Allows the game component to update itself.
