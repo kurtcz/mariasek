@@ -196,6 +196,7 @@ namespace Mariasek.Engine.New
             }
             for (var i = 0; i < Game.NumPlayers + 1; i++)
             {
+                const float epsilon = 0.01f;
                 var ii = (_gameStarterIndex + i) % (Game.NumPlayers + 1);
                 if (ii == _myIndex)
                 {
@@ -203,8 +204,8 @@ namespace Mariasek.Engine.New
                 }
                 foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
                 {
-                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _cardProbabilityForPlayer[ii][b][h] > 0f &&
-                                                                                                 _cardProbabilityForPlayer[ii][b][h] < 1f))
+                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _cardProbabilityForPlayer[ii][b][h] > epsilon &&
+                                                                                                 _cardProbabilityForPlayer[ii][b][h] < 1 - epsilon))
                     {
                         //totalUncertainCards is computed only over those players who can have such card (with probability 0.5)
                         var totalUncertainCards = _cardProbabilityForPlayer.Count(j => j[b][h] > 0f && j[b][h] < 1f);
@@ -220,7 +221,6 @@ namespace Mariasek.Engine.New
                                                                                                      .Select(k => k.Key))
                                                                                 .Distinct().Count();//celkovy pocet nejistych trumfu pro vsechny
                             var currentExpectedTrumps = 0f;
-                            const float epsilon = 0.01f;
 
                             if (ii == _gameStarterIndex)
                             {
