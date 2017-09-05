@@ -177,7 +177,7 @@ namespace Mariasek.SharedClient.GameComponents
 
         protected override void OnClick()
         {
-            ClickSound.Play();
+            ClickSound?.PlaySafely();
             base.OnClick();
         }
     }

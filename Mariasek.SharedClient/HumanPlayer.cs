@@ -233,7 +233,7 @@ namespace Mariasek.SharedClient
                     { 
 						_t1 = Environment.TickCount;
                         var flavour = _aiPlayer.ChooseGameFlavour();
-						var msg = string.Format("{0} ({1}%)\n", flavour.ToDescription(), _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1);
+						var msg = string.Format("{0} ({1}%)\n", flavour.Description(), _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1);
 
 						_scene.SuggestGameFlavour(msg, _t1 - _t0);
                         _scene.SuggestGameFlavourNew(flavour);

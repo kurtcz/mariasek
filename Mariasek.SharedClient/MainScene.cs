@@ -297,6 +297,7 @@ namespace Mariasek.SharedClient
             _hlasy[0][0].Click += TrumpCardClicked;
             _hlasy[0][0].DragEnd += TrumpCardDragged;
 			_hlasy[0][0].CanDrag = true;
+            _hlasy[0][0].ZIndex = 70;
 			_stareStychy = new []
             {
                 new Sprite(this, Game.ReverseTexture) { Position = new Vector2(Game.VirtualScreenWidth - 50, Game.VirtualScreenHeight / 2f + 50), Scale = Game.CardScaleFactor, Name = "StareStychy1" },
@@ -1324,7 +1325,10 @@ namespace Mariasek.SharedClient
                     {
                         //selected
                         button.FlipToBack();
-                        _talon.Add(_cardClicked);
+                        if (!_talon.Contains(_cardClicked))
+                        {
+                            _talon.Add(_cardClicked);
+                        }
                     }
                     else
                     {
@@ -1437,7 +1441,7 @@ namespace Mariasek.SharedClient
             var button = sender as CardButton;
 			var origPosition = button.Position + e.DragStartLocation - e.DragEndLocation;
 
-			if (e.DragEndLocation.Y > _hand.Centre.Y)
+            if (e.DragEndLocation.Y > _hand.BoundsRect.Top)
             {
                 _trumpCardTakenBack = true;
                 _talon.Clear();
@@ -1978,7 +1982,7 @@ namespace Mariasek.SharedClient
                                  (r.player3.PlayerIndex != roundWinnerIndex && r.player3.TeamMateIndex != roundWinnerIndex && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))))
                         {
                             _synchronizationContext.Send(_ =>
-                            { Game.LaughSound.Play(); }, null);
+                            { Game.LaughSound?.PlaySafely(); }, null);
                         }
                         ClearTableAfterRoundFinished();
                     });
@@ -2091,16 +2095,16 @@ namespace Mariasek.SharedClient
             _synchronizationContext.Send(_ => Game.SettingsScene.UpdateSettings(_settings), null);
 
             if (g.rounds[0] != null && (results.MoneyWon[0] >= 4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] >= 2)))
-            {
-                Game.ClapSound.Play();
+            {                
+                Game.ClapSound?.PlaySafely();
             }
             else if (results.MoneyWon[0] <= -10 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] <= -5))
             {
-                Game.BooSound.Play();
+                Game.BooSound?.PlaySafely();
             }
             else
             {
-                Game.CoughSound.Play();
+                Game.CoughSound?.PlaySafely();
             }
         }
 

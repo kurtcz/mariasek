@@ -507,7 +507,7 @@ namespace Mariasek.Engine.New
                         roundNumber++;
                     }
                 }
-                else if (GameStartingPlayer.Hand.Any() && talon != null && talon.Any())
+                else if (GameStartingPlayer.Hand.Count() == 10 && talon != null && talon.Any())
                 {
                     GameStartingPlayer.Hand.AddRange(talon);
                     talon.Clear();
@@ -737,6 +737,11 @@ namespace Mariasek.Engine.New
                 }
                 else
                 {
+                    var ae = ex as AggregateException;
+                    if (ae != null)
+                    {
+                        ex = ae.Flatten().InnerExceptions[0];
+                    }
                     _log.Error("Exception in PlayGame()", ex);
 #if !PORTABLE
                         SaveGame(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss")), saveDebugInfo: true);
@@ -1145,7 +1150,9 @@ namespace Mariasek.Engine.New
                     var player2 = (lastRoundWinner.PlayerIndex + 1) % Game.NumPlayers;
                     var player3 = (lastRoundWinner.PlayerIndex + 2) % Game.NumPlayers;
 
-                    var c1 = AbstractPlayer.ValidCards(players[player1].Hand, trump, GameType, players[player1].TeamMateIndex).RandomOne();
+                    var c1 = AbstractPlayer.ValidCards(players[player1].Hand, trump, GameType, players[player1].TeamMateIndex)
+                                           .Sort(false, (GameType & (Hra.Betl | Hra.Durch)) != 0, null, trump)
+                                           .First();
                     var c2 = AbstractPlayer.ValidCards(players[player2].Hand, trump, GameType, players[player2].TeamMateIndex, c1).RandomOne();
                     var c3 = AbstractPlayer.ValidCards(players[player3].Hand, trump, GameType, players[player3].TeamMateIndex, c1, c2).RandomOne();
 

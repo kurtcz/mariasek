@@ -132,17 +132,29 @@ namespace Mariasek.SharedClient
             return rect;
         }
 
-        public static string ToDescription(this Mariasek.Engine.New.GameFlavour f)
+        public static void PlaySafely(this SoundEffect sound)
         {
-            switch (f)
+            try
             {
-                case GameEngine.GameFlavour.Good:
-                    return "Dobrá";
-                case GameEngine.GameFlavour.Bad:
-                    return "Špatná";
+                sound.Play();
             }
-            return string.Empty;
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message+"\n"+ex.StackTrace);
+            }
         }
-    }
+
+		public static void PlaySafely(this SoundEffectInstance sound)
+		{
+			try
+			{
+				sound.Play();
+			}
+			catch (Exception ex)
+			{
+				System.Diagnostics.Debug.WriteLine(ex.Message + "\n" + ex.StackTrace);
+			}
+		}
+	}
 }
 

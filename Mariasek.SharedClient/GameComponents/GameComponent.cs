@@ -102,7 +102,7 @@ namespace Mariasek.SharedClient
         public virtual bool IsBusy { get { return ScheduledOperations!= null && ScheduledOperations.Count > 0; } }
         public virtual bool IsMoving { get; protected set; }
         private int _zIndex;
-        public int ZIndex
+        public virtual int ZIndex
         { 
             get { return _zIndex; }
             set

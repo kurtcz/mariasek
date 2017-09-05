@@ -42,6 +42,16 @@ namespace Mariasek.SharedClient.GameComponents
             _reverseSprite.Hide();
         }
 
+        public override int ZIndex
+        {
+            get { return base.ZIndex; }
+            set
+            {
+                base.ZIndex = value;
+                _reverseSprite.ZIndex = value;
+            }
+        }
+
         public override Vector2 Position
         {
             get { return base.Position; }

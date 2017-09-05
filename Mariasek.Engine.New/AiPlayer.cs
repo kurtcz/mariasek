@@ -322,7 +322,7 @@ namespace Mariasek.Engine.New
 
 			if (talon == null || talon.Distinct().Count() != 2)
 			{
-				var msg = talon == null ? "(null)" : "Count: " + talon.Distinct().Count();
+                var msg = talon == null ? "(null)" : string.Format("Count: {0}\nHand: {1}", talon.Distinct().Count(), new Hand(hand));
 				throw new InvalidOperationException("Bad talon: " + msg);
 			}
             return talon;
@@ -367,7 +367,7 @@ namespace Mariasek.Engine.New
 
 			if (talon == null || talon.Distinct().Count() != 2)
 			{
-				var msg = talon == null ? "(null)" : "Count: " + talon.Count;
+				var msg = talon == null ? "(null)" : string.Format("Count: {0}\nHand: {1}", talon.Distinct().Count(), new Hand(hand));
 				throw new InvalidOperationException("Bad talon: " + msg);
 			}
 
@@ -454,7 +454,7 @@ namespace Mariasek.Engine.New
 
 			if (talon == null || talon.Count != 2 || talon.Contains(trumpCard))
 			{
-				var msg = talon == null ? "(null)" : "Count: " + talon.Count;
+				var msg = talon == null ? "(null)" : string.Format("Count: {0}\nHand: {1}", talon.Distinct().Count(), new Hand(hand));
 				throw new InvalidOperationException("Bad talon: " + msg);
 			}
 
@@ -1373,11 +1373,18 @@ namespace Mariasek.Engine.New
 
             if ((validGameTypes & (Hra.Betl | Hra.Durch)) != 0)
             {
-                //if ((validGameTypes & (Hra.Hra | Hra.Kilo | Hra.Sedma)) == 0)
-                //{
-                //    var bidding = new Bidding(_g);
-                //    RunGameSimulations(bidding, PlayerIndex, false, true);
-                //}
+                //pokud AI nechtel simulovat betl nebo durch ale clovek zvolil talon na betl nebo durch
+                //musime tyto hry nasimulovat ted
+                var rerunSimulations = AdvisorMode &&
+                                       validGameTypes == (Hra.Betl | Hra.Durch) &&
+                                       _betlSimulations == 0 &&
+                                       _durchSimulations == 0;
+
+                if (rerunSimulations)
+                {
+                    var bidding = new Bidding(_g);
+                    RunGameSimulations(bidding, PlayerIndex, false, true);
+                }
                 if (Settings.CanPlayGameType[Hra.Durch] && 
                     (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0) ||
 				    validGameTypes == Hra.Durch)
@@ -1393,6 +1400,13 @@ namespace Mariasek.Engine.New
                     DebugInfo.RuleCount = _betlBalance;
                     DebugInfo.TotalRuleCount = _betlSimulations;
                 }
+                else if (validGameTypes == (Hra.Betl | Hra.Durch))
+                {
+                    //ani po posledni simulaci nevyslo, ze bychom meli hrat betl, ale musime ho zvolit jako unikovyho
+					gameType = Hra.Betl;
+					DebugInfo.RuleCount = _betlBalance;
+					DebugInfo.TotalRuleCount = _betlSimulations;
+				}
             }
             else
             {

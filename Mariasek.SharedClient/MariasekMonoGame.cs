@@ -200,7 +200,7 @@ namespace Mariasek.SharedClient
             AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
             AmbientSound.IsLooped = true;
             AmbientSound.Volume = 0;
-            AmbientSound.Play();
+            AmbientSound.PlaySafely();
 
             NaPankraciSong = Content.Load<Song>("na pankraci");
             Microsoft.Xna.Framework.Media.MediaPlayer.Volume = 0;
@@ -310,7 +310,7 @@ namespace Mariasek.SharedClient
         {
             if (AmbientSound != null && NaPankraciSong != null)
             {
-                AmbientSound.Play();
+                AmbientSound.PlaySafely();
                 Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
                 Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
             }

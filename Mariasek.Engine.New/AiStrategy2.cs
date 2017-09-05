@@ -478,6 +478,8 @@ namespace Mariasek.Engine.New
                     {
                         //c--
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
+                                                                            (_probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Kral)) > _epsilon ||
+                                                                             _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Kral)) > _epsilon) &&
                                                                             (i.Suit == _trump || 
                                                                              ((_probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor ||
                                                                                _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&
@@ -490,7 +492,8 @@ namespace Mariasek.Engine.New
                     {
                         //co-
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
-                                                                            (i.Suit == _trump ||
+																			_probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Kral)) > _epsilon &&
+																			(i.Suit == _trump ||
                                                                              (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor ||
                                                                               _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0)) &&
                                                                             _probabilities.HasSolitaryX(player3, i.Suit, RoundNumber) >= SolitaryXThreshold).ToList();
@@ -499,7 +502,8 @@ namespace Mariasek.Engine.New
                     {
                         //c-o
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
-                                                                            (i.Suit == _trump ||
+																			_probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Kral)) > _epsilon &&
+																			(i.Suit == _trump ||
                                                                              (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor||
                                                                               _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0)) &&
                                                                             _probabilities.HasSolitaryX(player2, i.Suit, RoundNumber) >= SolitaryXThreshold).ToList();
@@ -725,8 +729,9 @@ namespace Mariasek.Engine.New
 					//if (poorSuit != null && poorSuit.Item2 == 1)
 					{
 						//odmazat si barvu pokud mam trumfy abych souperum mohl brat a,x
-						if (TeamMateIndex == -1)
-                        {
+                        //pokud jsem volil sedmu tak si trumfy setrim
+                        if (TeamMateIndex == -1 && (_gameType & Hra.Sedma) == 0)
+                        {   
 							//c--
                             var cardToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                    hands[MyIndex].CardCount(i.Suit) == 1 &&//i.Suit == poorSuit.Item1 &&
@@ -1037,10 +1042,13 @@ namespace Mariasek.Engine.New
                                                           _probabilities.SuitProbability(opponentIndex, i.Suit, RoundNumber) > 0 ||
                                                           _probabilities.SuitProbability(opponentIndex, _trump, RoundNumber) == 0)
                                               .ToList()
-                                              .RandomOneOrDefault();
+                                              .OrderBy(i => i.Value)
+                                              .FirstOrDefault();
                         }
-                        return cardsToPlay.RandomOneOrDefault();
-                    }
+                        return cardsToPlay.OrderBy(i => i.Value)
+                                          .FirstOrDefault();
+
+					}
                     return null;
                 }
             };

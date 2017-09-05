@@ -26,7 +26,7 @@ namespace Mariasek.SharedClient.GameComponents
             set
             {
                 _centre = value;
-                foreach (var sprite in _sprites)
+                foreach (var sprite in _cardButtons)
                 {
                     if (sprite != null)
                     {
@@ -35,39 +35,84 @@ namespace Mariasek.SharedClient.GameComponents
                 }
             }
         }
-        /// <summary>
-        /// When this event is set then there are no animations going on.
-        /// </summary>
-        public ManualResetEventSlim AnimationEvent { get; private set; }
+        public Rectangle BoundsRect
+        {
+            get
+            {
+                var left = int.MaxValue;
+                var top = int.MaxValue;
+                var right = int.MinValue;
+                var bottom = int.MinValue;
+
+                foreach(var sprite in _cardButtons.Where(i => i != null && i.IsVisible))
+                {
+                    if (sprite.Sprite.Position.X - CardWidth * Game.CardScaleFactor.X / 2f < left)
+                    {
+                        left = (int)(sprite.Sprite.Position.X - CardWidth * Game.CardScaleFactor.X / 2f);
+                    }
+					if (sprite.Sprite.Position.Y - CardHeight * Game.CardScaleFactor.Y / 2f < top)
+					{
+                        top = (int)(sprite.Sprite.Position.Y - CardHeight * Game.CardScaleFactor.Y / 2f);
+					}
+                    if (sprite.Sprite.Position.X + CardWidth * Game.CardScaleFactor.X / 2f > right)
+					{
+                        right = (int)(sprite.Sprite.Position.X + CardWidth * Game.CardScaleFactor.X / 2f);
+					}
+					if (sprite.Sprite.Position.Y + CardHeight * Game.CardScaleFactor.Y / 2f > bottom)
+					{
+                        bottom = (int)(sprite.Sprite.Position.Y + CardHeight * Game.CardScaleFactor.Y / 2f);
+					}
+				}
+
+				//rs = rs ?? new RectangleShape(this)
+                //{
+                //  Position = new Vector2(left, top),
+                //  Width = right - left,
+				//	Height = bottom - top,
+				//	BackgroundColors = new List<Color> { Color.Transparent },
+				//	BorderColors = new List<Color> { Color.Red },
+				//	BorderThickness = 2,
+				//	BorderRadius = 1,
+				//	Opacity = 1,
+				//	ZIndex = 1000
+				//};
+
+				return new Rectangle(left, top, right - left, bottom - top);
+            }
+        }
+
+		/// <summary>
+		/// When this event is set then there are no animations going on.
+		/// </summary>
+		public ManualResetEventSlim AnimationEvent { get; private set; }
         public Card Card { get; set; }
         public bool IsStraight { get; private set; }
-        public override bool IsMoving { get { return _sprites.Any(i => i != null && i.IsVisible && i.IsMoving); }  }
-        public bool SpritesBusy { get { return _sprites.Any(i => i != null && i.IsBusy); } }
+        public override bool IsMoving { get { return _cardButtons.Any(i => i != null && i.IsVisible && i.IsMoving); }  }
+        public bool SpritesBusy { get { return _cardButtons.Any(i => i != null && i.IsBusy); } }
 
         private Vector2 _centre;
 
-        private CardButton[] _sprites = new CardButton[12];
-
+        private CardButton[] _cardButtons = new CardButton[12];
+        //private RectangleShape rs;
         private const int ZIndexBase = 50;
         public const int CardWidth = 65;
         public const int CardHeight = 112;
-
         public delegate void ClickEventHandler(object sender);
         public event ClickEventHandler Click;
 
         public Hand(GameComponent parent, ContentManager content)
             : base(parent)
         {
-            for(var i = 0; i < _sprites.Length; i++)
+            for(var i = 0; i < _cardButtons.Length; i++)
             {
                 var rect = new Rectangle(4 + (i % 8) * 74, 5 + (i / 8) * 120, CardWidth, CardHeight);
 
-                _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures, rect) { Name = string.Format("HandSprite{0}", i+1), Scale = Game.CardScaleFactor })
+                _cardButtons[i] = new CardButton(this, new Sprite(this, Game.CardTextures, rect) { Name = string.Format("HandSprite{0}", i+1), Scale = Game.CardScaleFactor })
                 { Name = string.Format("HandButton{0}", i + 1), ZIndex = ZIndexBase + i };
-                _sprites[i].Click += CardClicked;
-                _sprites[i].DragEnd += (sender, tl) => CardClicked(sender);
-                _sprites[i].Name = string.Format("HandButton{0}", i + 1);
-                _sprites[i].Position = Centre;
+                _cardButtons[i].Click += CardClicked;
+                _cardButtons[i].DragEnd += (sender, tl) => CardClicked(sender);
+                _cardButtons[i].Name = string.Format("HandButton{0}", i + 1);
+                _cardButtons[i].Position = Centre;
             }
             AnimationEvent = new ManualResetEventSlim(true);
         }
@@ -82,12 +127,12 @@ namespace Mariasek.SharedClient.GameComponents
 
         public bool HighlightCard(Card cardToPlay)
         {
-            if (_sprites == null || _sprites.All(i => i == null))
+            if (_cardButtons == null || _cardButtons.All(i => i == null))
             {
                 return false;
             }
 
-            var sprite = _sprites.FirstOrDefault(i => (Card)i.Tag == cardToPlay);
+            var sprite = _cardButtons.FirstOrDefault(i => (Card)i.Tag == cardToPlay);
 
             if (sprite != null)
             {
@@ -110,53 +155,53 @@ namespace Mariasek.SharedClient.GameComponents
                 cardStrings.AppendFormat("{0} ", c);
             }
             System.Diagnostics.Debug.WriteLine(string.Format("UpdateHand() {0}", cardStrings.ToString()));
-            for (var i = 0; i < _sprites.Length; i++)
+            for (var i = 0; i < _cardButtons.Length; i++)
             {
                 if (i >= hand.Count())
                 {
-                    if (_sprites[i] != null)
+                    if (_cardButtons[i] != null)
                     {
-                        _sprites[i].Hide();
+                        _cardButtons[i].Hide();
                     }
                     continue;
                 }
 
                 var rect = hand[i].ToTextureRect();
-                var refreshSprites = _sprites[i] == null;
+                var refreshSprites = _cardButtons[i] == null;
                 if (refreshSprites)
                 {
-                    _sprites[i] = new CardButton(this, new Sprite(this, Game.CardTextures) { Name = string.Format("HandSprite{0}", i + 1), Scale = Game.CardScaleFactor})
+                    _cardButtons[i] = new CardButton(this, new Sprite(this, Game.CardTextures) { Name = string.Format("HandSprite{0}", i + 1), Scale = Game.CardScaleFactor})
                     { Name = string.Format("HandButton{0}", i + 1), ZIndex = 50 + i };
-                    _sprites[i].Click += CardClicked;
-					_sprites[i].DragEnd += (sender, tl) => CardClicked(sender);
-					_sprites[i].Position = Centre;
+                    _cardButtons[i].Click += CardClicked;
+					_cardButtons[i].DragEnd += (sender, tl) => CardClicked(sender);
+					_cardButtons[i].Position = Centre;
                 }
                 ZIndex = ZIndexBase + i;
-                _sprites[i].Sprite.SpriteRectangle = rect;
-                _sprites[i].Tag = hand[i];
-                _sprites[i].Sprite.Tag = hand[i];
-                if((Card)_sprites[i].Tag == cardToHide)
+                _cardButtons[i].Sprite.SpriteRectangle = rect;
+                _cardButtons[i].Tag = hand[i];
+                _cardButtons[i].Sprite.Tag = hand[i];
+                if((Card)_cardButtons[i].Tag == cardToHide)
                 {
-                    _sprites[i].Hide();
+                    _cardButtons[i].Hide();
                 }
                 else
                 {
-                    if (!_sprites[i].IsVisible)
+                    if (!_cardButtons[i].IsVisible)
                     {
-                        _sprites[i].Show();
+                        _cardButtons[i].Show();
                     }
                     if (i < hand.Count() - cardsNotRevealed)
                     {
-                        if (!_sprites[i].IsFaceUp)
+                        if (!_cardButtons[i].IsFaceUp)
                         {
-                            _sprites[i].FlipToFront();
+                            _cardButtons[i].FlipToFront();
                         }
                     }
                     else
                     {
-                        _sprites[i].ShowBackSide();
+                        _cardButtons[i].ShowBackSide();
                     }
-                    _sprites[i].IsSelected = false;
+                    _cardButtons[i].IsSelected = false;
                 }
             }
         }
@@ -164,7 +209,7 @@ namespace Mariasek.SharedClient.GameComponents
         public override void Show()
         {
             base.Show();
-            foreach (var sprite in _sprites.Where(i => i != null))
+            foreach (var sprite in _cardButtons.Where(i => i != null))
             {
                 sprite.Show();
             }
@@ -173,7 +218,7 @@ namespace Mariasek.SharedClient.GameComponents
         public override void Hide()
         {
             base.Hide();
-            foreach (var sprite in _sprites.Where(i => i != null))
+            foreach (var sprite in _cardButtons.Where(i => i != null))
             {
                 sprite.Hide();
             }
@@ -185,7 +230,7 @@ namespace Mariasek.SharedClient.GameComponents
             set
             {
                 base.IsEnabled = value;
-                foreach (var sprite in _sprites.Where(i => i != null))
+                foreach (var sprite in _cardButtons.Where(i => i != null))
                 {
                     sprite.IsEnabled = value;
                 }
@@ -203,7 +248,7 @@ namespace Mariasek.SharedClient.GameComponents
 
 		public void SelectCard(Card card)
 		{
-			var s = _sprites.FirstOrDefault(i => ((Card)i.Tag == card));
+			var s = _cardButtons.FirstOrDefault(i => ((Card)i.Tag == card));
 
 			if (s != null)
 			{
@@ -214,7 +259,7 @@ namespace Mariasek.SharedClient.GameComponents
 
         public void DeselectAllCards()
         {
-            foreach(var sprite in _sprites.Where(i => i != null))
+            foreach(var sprite in _cardButtons.Where(i => i != null))
             {
                 sprite.IsSelected = false;
             }
@@ -222,7 +267,7 @@ namespace Mariasek.SharedClient.GameComponents
 
 		public void AllowDragging()
 		{
-			foreach (var sprite in _sprites.Where(i => i != null))
+			foreach (var sprite in _cardButtons.Where(i => i != null))
 			{
 				sprite.CanDrag = true;
 			}
@@ -230,7 +275,7 @@ namespace Mariasek.SharedClient.GameComponents
 
 		public void ForbidDragging()
 		{
-			foreach (var sprite in _sprites.Where(i => i != null))
+			foreach (var sprite in _cardButtons.Where(i => i != null))
 			{
 				sprite.CanDrag = false;
 			}
@@ -238,7 +283,7 @@ namespace Mariasek.SharedClient.GameComponents
 
 		public void ShowArc(float arcAngle)
         {
-            var hh = _sprites.Where(i => i != null && i.IsVisible).ToList();
+            var hh = _cardButtons.Where(i => i != null && i.IsVisible).ToList();
             float angle0 = (float)Math.PI / 2;
             var targetPosition = Centre;
             var r = 300f;
@@ -253,7 +298,7 @@ namespace Mariasek.SharedClient.GameComponents
 
                 hh[i].Slerp(targetPosition, rotationAngle, Game.CardScaleFactor.X, 400, 2f, 1f);
             }
-            var hiddenCards = _sprites.Where(i => i != null && !i.IsVisible).ToList();
+            var hiddenCards = _cardButtons.Where(i => i != null && !i.IsVisible).ToList();
             for (var i = 0; i < hiddenCards.Count; i++)
             {
                 hiddenCards[i].Position = targetPosition;
@@ -264,7 +309,7 @@ namespace Mariasek.SharedClient.GameComponents
 
         public void ShowStraight(int width)
         {
-            var hh = _sprites.Where(i => i != null && i.IsVisible).ToList();
+            var hh = _cardButtons.Where(i => i != null && i.IsVisible).ToList();
             var padding = 10;
             /* This code shows cards in one row */
             float rowWidth = CardWidth * hh.Count + padding * (hh.Count - 1);
@@ -285,7 +330,7 @@ namespace Mariasek.SharedClient.GameComponents
 
                 hh[i].Slerp(targetPosition, targetAngle, Game.CardScaleFactor.X, 400, 2f, 1f);
             }
-            var hiddenCards = _sprites.Where(i => i != null && !i.IsVisible).ToList();
+            var hiddenCards = _cardButtons.Where(i => i != null && !i.IsVisible).ToList();
             for (var i = 0; i < hiddenCards.Count; i++)
             {
                 hiddenCards[i].Position = targetPosition;
@@ -293,7 +338,7 @@ namespace Mariasek.SharedClient.GameComponents
             IsStraight = true;
 
             AnimationEvent.Reset();
-        }
+		}
 
 		public void ShowWinningHand(int playerIndex)
         {
@@ -317,17 +362,17 @@ namespace Mariasek.SharedClient.GameComponents
             }
 
             var targetPosition = initialPosition;
-            for (var i = 0; i < _sprites.Length && _sprites[i] != null; i++, targetPosition += delta)
+            for (var i = 0; i < _cardButtons.Length && _cardButtons[i] != null; i++, targetPosition += delta)
             {
-                _sprites[i].Position = initialPosition;
-                _sprites[i].MoveTo(targetPosition, 200f);
+                _cardButtons[i].Position = initialPosition;
+                _cardButtons[i].MoveTo(targetPosition, 200f);
             }
             AnimationEvent.Reset();
         }
 
         public void SortHand(List<Card> unsorted)
         {
-            foreach (var sprite in _sprites.Where(i => i != null))
+            foreach (var sprite in _cardButtons.Where(i => i != null))
             {
                 var n = unsorted.IndexOf(sprite.Tag as Card);
 
@@ -335,7 +380,7 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     continue;
                 }
-                sprite.Position = _sprites[n].Position;
+                sprite.Position = _cardButtons[n].Position;
             }
             ShowStraight((int)Game.VirtualScreenWidth - 20);
         }

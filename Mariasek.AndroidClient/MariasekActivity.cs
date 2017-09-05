@@ -98,21 +98,13 @@ namespace Mariasek.AndroidClient
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
         {            
             System.Diagnostics.Debug.WriteLine("OnUnhandledException()");
-            //StartActivity(typeof(MariasekActivity));    //start a new instance
-            //Process.KillProcess(Process.MyPid());       //kill the old instace
-            //System.Environment.Exit(0);
-
-            //var intent = new Intent(this, typeof(MariasekActivity));
-            //intent.AddFlags(ActivityFlags.ClearTop | ActivityFlags.ClearTask | ActivityFlags.NewTask);
-
-            //var pendingIntent = PendingIntent.GetActivity(Application.Context, 0, intent, PendingIntentFlags.UpdateCurrent);
-            //var mgr = (AlarmManager)Application.BaseContext.GetSystemService(Context.AlarmService);
-            //mgr.Set(AlarmType.Rtc, SystemClock.CurrentThreadTimeMillis() + 1000, pendingIntent);
-
-            //Finish();
-            //System.Environment.Exit(2);
             var ex = args.ExceptionObject as Exception;
-            var msg = ex != null ? string.Format("{0}\n{1}", ex.Message, ex.StackTrace) : "(null)";
+			var ae = ex as AggregateException;
+			if (ae != null)
+			{
+				ex = ae.Flatten().InnerExceptions[0];
+			}
+			var msg = string.Format("{0}\n{1}", ex.Message, ex.StackTrace);
 
 			SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek crash report", msg, new string[0]);
 		}
@@ -120,7 +112,13 @@ namespace Mariasek.AndroidClient
 		private void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
 		{
 			System.Diagnostics.Debug.WriteLine("OnUnhandledExceptionRaiser()");
-			var msg = string.Format("{0}\n{1}", e.Exception.Message, e.Exception.StackTrace);
+			var ex = e.Exception;
+			var ae = ex as AggregateException;
+			if (ae != null)
+			{
+				ex = ae.Flatten().InnerExceptions[0];
+			}
+			var msg = string.Format("{0}\n{1}", ex.Message, ex.StackTrace);
 
             SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek crash report", msg, new string[0]);
 		}
