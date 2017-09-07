@@ -1036,6 +1036,12 @@ namespace Mariasek.Engine.New
                     BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1} ({2}/{3})", nextPlayer.PlayerIndex + 1, gameFlavour.Description(), nextPlayer.DebugInfo.RuleCount, nextPlayer.DebugInfo.TotalRuleCount);
                     BiddingDebugInfo.AppendFormat("\nBetl ({0}/{1})", nextPlayer.DebugInfo.AllChoices.FirstOrDefault(i => i.Rule == "Betl")?.RuleCount, nextPlayer.DebugInfo.TotalRuleCount);
                     BiddingDebugInfo.AppendFormat("\nDurch ({0}/{1})", nextPlayer.DebugInfo.AllChoices.FirstOrDefault(i => i.Rule == "Durch")?.RuleCount, nextPlayer.DebugInfo.TotalRuleCount);
+                    if (gameFlavour == GameFlavour.Bad)
+                    {
+						GameStartingPlayerIndex = nextPlayer.PlayerIndex;
+						trump = null;
+						TrumpCard = null;
+					}
                     OnGameFlavourChosen(new GameFlavourChosenEventArgs
                     {
                         Player = nextPlayer,
@@ -1066,9 +1072,6 @@ namespace Mariasek.Engine.New
                 }
                 else if(gameFlavour == GameFlavour.Bad)
                 {
-                    GameStartingPlayerIndex = nextPlayer.PlayerIndex;
-                    trump = null;
-                    TrumpCard = null;
                     if (!firstTime)
                     {
                         GameStartingPlayer.Hand.AddRange(talon);

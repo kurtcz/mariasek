@@ -331,10 +331,10 @@ namespace Mariasek.SharedClient.GameComponents
                 hh[i].Slerp(targetPosition, targetAngle, Game.CardScaleFactor.X, 400, 2f, 1f);
             }
             var hiddenCards = _cardButtons.Where(i => i != null && !i.IsVisible).ToList();
-            for (var i = 0; i < hiddenCards.Count; i++)
-            {
-                hiddenCards[i].Position = targetPosition;
-            }
+            //for (var i = 0; i < hiddenCards.Count; i++)
+            //{
+            //    hiddenCards[i].Position = targetPosition;
+            //}
             IsStraight = true;
 
             AnimationEvent.Reset();

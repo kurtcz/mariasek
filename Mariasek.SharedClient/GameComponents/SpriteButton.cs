@@ -67,7 +67,7 @@ namespace Mariasek.SharedClient.GameComponents
             set
             {
                 _position = value;
-                if (!Sprite.IsMoving)
+                if (!Sprite.IsMoving && Sprite.Position != _position)
                 {
                     Sprite.Position = _position;
                 }
@@ -141,7 +141,7 @@ namespace Mariasek.SharedClient.GameComponents
         {
             // TODO: Add your update code here
             Sprite.Update(gameTime);
-            if (Sprite.IsMoving)
+            if (Position != Sprite.Position)
             {
                 Position = Sprite.Position;
             }

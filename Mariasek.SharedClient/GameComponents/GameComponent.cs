@@ -78,7 +78,11 @@ namespace Mariasek.SharedClient
                 _parent.Children.Sort((a, b) => a.ZIndex - b.ZIndex);
             }
         }
-        public virtual Vector2 Position { get; set; }
+        public virtual Vector2 Position
+        { 
+            get;
+            set;
+        }
 		public virtual AnchorType Anchor { get; set; }
 		protected Matrix ScaleMatrix
 		{
