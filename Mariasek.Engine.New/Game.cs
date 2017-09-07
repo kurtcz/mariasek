@@ -407,10 +407,12 @@ namespace Mariasek.Engine.New
                     OnGameTypeChosen(new GameTypeChosenEventArgs    //dovolime hracum aby zjistili jaky jsou trumfy
                     {
                         GameType = GameType,
-                        TrumpCard = players[GameStartingPlayerIndex].Hand
-                                                                    .Where(i => i.Suit == trump)
-                                                                    .OrderBy(i => i.Value)
-                                                                    .First(),
+                        TrumpCard = trump.HasValue
+                                         ? players[GameStartingPlayerIndex].Hand
+                                                                           .Where(i => i.Suit == trump)
+                                                                           .OrderBy(i => i.Value)
+                                                                           .First()
+                                         : null,
                         GameStartingPlayerIndex = GameStartingPlayerIndex
                     });
                 }
