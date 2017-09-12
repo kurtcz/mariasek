@@ -15,12 +15,15 @@ namespace Mariasek.SharedClient
         private Label _version;
         private Label _author;
         private Sprite[] _cards;
+        private SpriteButton _logo;
+        private GameSettings _settings;
 
         public MenuScene(MariasekMonoGame game)
             : base(game)
         {
+            Game.SettingsScene.SettingsChanged += SettingsChanged;
         }
-            
+
         /// <summary>
         /// Allows the game component to perform any initialization it needs to before starting
         /// to run.  This is where it can query for any required services and load content.
@@ -30,50 +33,51 @@ namespace Mariasek.SharedClient
             base.Initialize();
 
             _newGameButton = new Button(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 140),
-                    Width = 200,
-                    Height = 50,
-                    Text = "Nová hra"
-                };
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 140),
+                Width = 200,
+                Height = 50,
+                Text = "Nová hra"
+            };
             _newGameButton.Click += NewGameClicked;
             _resumeButton = new Button(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 80),
-                    Width = 200,
-                    Height = 50,
-                    Text = "Zpět do hry"
-                };
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 80),
+                Width = 200,
+                Height = 50,
+                Text = "Zpět do hry"
+            };
             _resumeButton.Click += ResumeClicked;
             _settingsButton = new Button(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 20),
-                    Width = 200,
-                    Height = 50,
-                    Text = "Nastavení"
-                };
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 20),
+                Width = 200,
+                Height = 50,
+                Text = "Nastavení"
+            };
             _settingsButton.Click += SettingsClicked;
             ShuffleBtn = new ToggleButton(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f + 40),
-                    Width = 200,
-                    Height = 50,
-                    Text = "Zamíchat karty"
-                };
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f + 40),
+                Width = 200,
+                Height = 50,
+                Text = "Zamíchat karty"
+            };
             ShuffleBtn.Click += ShuffleBtnClicked;
             _historyBtn = new Button(this)
-                {
-                    Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f + 100),
-                    Width = 200,
-                    Height = 50,
-                    Text = "Historie"
-                };
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f + 100),
+                Width = 200,
+                Height = 50,
+                Text = "Historie"
+            };
             _historyBtn.Click += HistoryClicked;
             _cards = new Sprite[3];
+            var backSideRect = _settings.CardBackSide.ToTextureRect();
             for (var i = 0; i < _cards.Length; i++)
             {
-                _cards[i] = new Sprite(this, Game.ReverseTexture)
-                { 
+                _cards[i] = new Sprite(this, Game.ReverseTexture, backSideRect)
+                {
                     Scale = Game.CardScaleFactor,
                     Name = string.Format("card{0}", i)
                 };
@@ -82,13 +86,21 @@ namespace Mariasek.SharedClient
             Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;
 
+            _logo = new SpriteButton(this, new Sprite(this, Game.LogoTexture) { Name = "LogoSprite", Scale = new Vector2(0.7f, 0.7f), Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top })
+            {
+                //Position = new Vector2(70, 75),
+                Position = new Vector2(50, 53),
+                Name = "LogoButton",
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top
+            };
+            _logo.Click += LogoClicked;
             _version = new Label(this)
             {
                 Position = new Vector2(5, Game.VirtualScreenHeight - 34),
                 Width = 200,
                 Height = 34,
                 Text = string.Format("v{0}", MariasekMonoGame.Version),
-				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Bottom
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Bottom
             };
             _author = new Label(this)
             {
@@ -99,6 +111,19 @@ namespace Mariasek.SharedClient
                 Text = "©2017 Tomáš Němec",
 				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Bottom
             };
+        }
+
+        public void SettingsChanged(object sender, SettingsChangedEventArgs e)
+        {
+            _settings = e.Settings;
+        }
+
+		void LogoClicked(object sender)
+        {
+            if (Game.Navigator != null)
+            {
+                Game.Navigator.Navigate("http://www.hracikarty.cz/");
+            }
         }
 
         void ShuffleBtnClicked(object sender)
@@ -120,6 +145,10 @@ namespace Mariasek.SharedClient
             _cards[0].Texture = Game.ReverseTexture;
             _cards[1].Texture = Game.ReverseTexture;
             _cards[2].Texture = Game.ReverseTexture;
+            var backSideRect = _settings.CardBackSide.ToTextureRect();
+            _cards[0].SpriteRectangle = backSideRect;
+            _cards[1].SpriteRectangle = backSideRect;
+            _cards[2].SpriteRectangle = backSideRect;
             _cards[0].Show();
             _cards[1].Hide();
             _cards[2].Hide();

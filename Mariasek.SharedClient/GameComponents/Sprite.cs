@@ -19,6 +19,7 @@ namespace Mariasek.SharedClient.GameComponents
 {
     public class Sprite : GameComponent
     {
+        public bool UseCommonScissorRect { get; set; }
         protected class SpriteOperationType : GameComponentOperationType
         {
             public const int Rotate = 16;
@@ -253,7 +254,7 @@ namespace Mariasek.SharedClient.GameComponents
             if(Anchor == Game.CurrentRenderingGroup &&
 			   IsVisible && 
 			   _spriteTexture != null)
-            {
+       {
                 if (_spriteTexture.IsDisposed)
                 {
                     System.Diagnostics.Debug.WriteLine(string.Format("{0} texture disposed", _spriteTexture.Name));

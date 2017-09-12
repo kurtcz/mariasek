@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Media;
 
 using GameEngine = Mariasek.Engine.New;
+using Mariasek.SharedClient.GameComponents;
 
 namespace Mariasek.SharedClient
 {
@@ -52,7 +53,7 @@ namespace Mariasek.SharedClient
             return IsPointInPolygon(point, rect.ToPolygon());
         }
 
-        public static Vector2 Rotate(this Vector2 point, Vector2 rotationOrigin, float angle)
+		public static Vector2 Rotate(this Vector2 point, Vector2 rotationOrigin, float angle)
         {
             var relativeVector = Vector2.Subtract(rotationOrigin, point);
             var m = Matrix.CreateRotationZ(angle);
@@ -69,7 +70,7 @@ namespace Mariasek.SharedClient
             return polygon.Rotate(rotationOrigin, angle);
         }
 
-        public static Vector2[] Rotate(this Vector2[] polygon, Vector2 rotationOrigin, float angle)
+		public static Vector2[] Rotate(this Vector2[] polygon, Vector2 rotationOrigin, float angle)
         {
             for (var i = 0; i < polygon.Length; i++)
             {
@@ -82,7 +83,31 @@ namespace Mariasek.SharedClient
             return polygon;
         }
 
-        private static int TransformSuit(GameEngine.Card c)
+        public static Vector2[] Scale(this Rectangle rect, Vector2 scale)
+        {
+            var polygon = rect.ToPolygon();
+
+            polygon = polygon.Scale(scale);
+
+            return polygon;
+        }
+
+		public static Vector2[] Scale(this Vector2[] polygon, Vector2 scale)
+		{
+            for (var i = 0; i < polygon.Length; i++)
+            {
+                polygon[i] = polygon[i].Scale(scale);
+            }
+
+            return polygon;
+		}
+
+		public static Vector2 Scale(this Vector2 point, Vector2 scale)
+		{            
+            return new Vector2(point.X * scale.X, point.Y * scale.Y);
+		}
+
+		private static int TransformSuit(GameEngine.Card c)
         {
             switch (c.Suit)
             {
@@ -124,15 +149,20 @@ namespace Mariasek.SharedClient
 
         public static Rectangle ToTextureRect(this GameEngine.Card c)
         {
-            const int CardWidth = 65;
-            const int CardHeight = 112;
             var num = TransformSuit(c) * 8 + TransformValue(c);
-            var rect = new Rectangle(4 + (num % 8) * 74, 5 + (num / 8) * 120, CardWidth, CardHeight);
+            var rect = new Rectangle(1 + (num % 8) * (Hand.CardWidth + 1), 1 + (num / 8) * (Hand.CardHeight + 1), Hand.CardWidth, Hand.CardHeight);
 
             return rect;
         }
 
-        public static void PlaySafely(this SoundEffect sound)
+		public static Rectangle ToTextureRect(this CardBackSide pattern)
+		{
+			var rect = new Rectangle(1 + (int)pattern * (Hand.CardWidth + 1), 1, Hand.CardWidth, Hand.CardHeight);
+
+			return rect;
+		}
+
+		public static void PlaySafely(this SoundEffect sound)
         {
             try
             {

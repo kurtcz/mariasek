@@ -86,7 +86,7 @@ namespace Mariasek.SharedClient.GameComponents
 		/// </summary>
 		public ManualResetEventSlim AnimationEvent { get; private set; }
         public Card Card { get; set; }
-        public bool IsStraight { get; private set; }
+		public bool IsStraight { get; private set; }
         public override bool IsMoving { get { return _cardButtons.Any(i => i != null && i.IsVisible && i.IsMoving); }  }
         public bool SpritesBusy { get { return _cardButtons.Any(i => i != null && i.IsBusy); } }
 
@@ -95,8 +95,8 @@ namespace Mariasek.SharedClient.GameComponents
         private CardButton[] _cardButtons = new CardButton[12];
         //private RectangleShape rs;
         private const int ZIndexBase = 50;
-        public const int CardWidth = 65;
-        public const int CardHeight = 112;
+        public const int CardWidth = 164;
+        public const int CardHeight = 272;
         public delegate void ClickEventHandler(object sender);
         public event ClickEventHandler Click;
 
@@ -105,12 +105,12 @@ namespace Mariasek.SharedClient.GameComponents
         {
             for(var i = 0; i < _cardButtons.Length; i++)
             {
-                var rect = new Rectangle(4 + (i % 8) * 74, 5 + (i / 8) * 120, CardWidth, CardHeight);
+                var rect = new Rectangle(1 + (i % 8) * (CardWidth + 1), 2 + (i / 8) * (CardHeight + 1), CardWidth, CardHeight);
 
                 _cardButtons[i] = new CardButton(this, new Sprite(this, Game.CardTextures, rect) { Name = string.Format("HandSprite{0}", i+1), Scale = Game.CardScaleFactor })
-                { Name = string.Format("HandButton{0}", i + 1), ZIndex = ZIndexBase + i };
+                { Name = string.Format("HandButton{0}", i + 1), ReverseSpriteRectangle = Game.BackSideRect, ZIndex = ZIndexBase + i };
                 _cardButtons[i].Click += CardClicked;
-                _cardButtons[i].DragEnd += (sender, tl) => CardClicked(sender);
+                _cardButtons[i].DragEnd += CardDragged;
                 _cardButtons[i].Name = string.Format("HandButton{0}", i + 1);
                 _cardButtons[i].Position = Centre;
             }
@@ -121,7 +121,7 @@ namespace Mariasek.SharedClient.GameComponents
             : base(parent)
         {
             AnimationEvent = new ManualResetEventSlim();
-            Centre = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight - 65);
+            Centre = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight - 85);
             UpdateHand(hand);
         }
 
@@ -170,15 +170,15 @@ namespace Mariasek.SharedClient.GameComponents
                 var refreshSprites = _cardButtons[i] == null;
                 if (refreshSprites)
                 {
-                    _cardButtons[i] = new CardButton(this, new Sprite(this, Game.CardTextures) { Name = string.Format("HandSprite{0}", i + 1), Scale = Game.CardScaleFactor})
-                    { Name = string.Format("HandButton{0}", i + 1), ZIndex = 50 + i };
+                    _cardButtons[i] = new CardButton(this, new Sprite(this, Game.CardTextures) { Name = string.Format("HandSprite{0}", i + 1), Scale = Game.CardScaleFactor })
+                    { Name = string.Format("HandButton{0}", i + 1), ReverseSpriteRectangle = Game.BackSideRect, ZIndex = 50 + i };
                     _cardButtons[i].Click += CardClicked;
-					_cardButtons[i].DragEnd += (sender, tl) => CardClicked(sender);
+					_cardButtons[i].DragEnd += CardDragged;
 					_cardButtons[i].Position = Centre;
                 }
                 ZIndex = ZIndexBase + i;
-                _cardButtons[i].Sprite.SpriteRectangle = rect;
-                _cardButtons[i].Tag = hand[i];
+                _cardButtons[i].Sprite.SpriteRectangle = rect;  //ReverseSpriteRect is updated for all CardButtons from MainScene.UpdateCardBackSides()
+				_cardButtons[i].Tag = hand[i];
                 _cardButtons[i].Sprite.Tag = hand[i];
                 if((Card)_cardButtons[i].Tag == cardToHide)
                 {
@@ -246,6 +246,18 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
+        private void CardDragged(object sender, DragEndEventArgs e)
+        {
+            CardClicked(sender);
+
+            var cardButton = sender as CardButton;
+
+            if(cardButton != null)
+            {
+                cardButton.Invoke(() => cardButton.Position = e.DragStartLocation);
+            }
+        }
+
 		public void SelectCard(Card card)
 		{
 			var s = _cardButtons.FirstOrDefault(i => ((Card)i.Tag == card));
@@ -310,20 +322,22 @@ namespace Mariasek.SharedClient.GameComponents
         public void ShowStraight(int width)
         {
             var hh = _cardButtons.Where(i => i != null && i.IsVisible).ToList();
-            var padding = 10;
+            var padding = 0;//10;
             /* This code shows cards in one row */
-            float rowWidth = CardWidth * hh.Count + padding * (hh.Count - 1);
+            float rowWidth = CardWidth * Game.CardScaleFactor.X * hh.Count + padding * (hh.Count - 1);
             var targetPosition = Centre;
 
-            if (rowWidth > width - CardWidth)
+            if (rowWidth > width)
             {
-                rowWidth = width - CardWidth;
+                rowWidth = width;
             }
-            for (var i = 0; i < hh.Count; i++)
+			var innerWidth = rowWidth - CardWidth * Game.CardScaleFactor.X;
+
+			for (var i = 0; i < hh.Count; i++)
             {
-                var x_offset = hh.Count > 1 
-                                ? -rowWidth / 2f + i * rowWidth / (hh.Count - 1)
-                                : -rowWidth / 2f;
+                var x_offset = hh.Count > 1
+                                 ? -innerWidth / 2f + i * innerWidth / (hh.Count - 1)
+                                 : 0;
                 var y_offset = 0;
                 var targetAngle = 0f;
                 targetPosition = new Vector2(Centre.X + x_offset, Centre.Y + y_offset);
@@ -348,16 +362,16 @@ namespace Mariasek.SharedClient.GameComponents
             switch (playerIndex)
             {
                 case 0:
-                    initialPosition = new Vector2(100, Game.VirtualScreenHeight - CardHeight);
-                    delta = new Vector2(CardWidth, -CardWidth / 4);
+                    initialPosition = new Vector2(100, Game.VirtualScreenHeight - CardHeight * Game.CardScaleFactor.Y / 2f - 10);
+                    delta = new Vector2(65, -65 / 4);
                     break;
                 case 1:
-                    initialPosition = new Vector2(100, 80);
-                    delta = new Vector2(CardWidth, CardWidth / 4);
+                    initialPosition = new Vector2(100, 90);
+                    delta = new Vector2(65, 65 / 4);
                     break;
                 case 2:
-                    initialPosition = new Vector2(Game.VirtualScreenWidth - 100, 80);
-                    delta = new Vector2(-CardWidth, CardWidth / 4);
+                    initialPosition = new Vector2(Game.VirtualScreenWidth - 100, 90);
+                    delta = new Vector2(-65, 65 / 4);
                     break;
             }
 

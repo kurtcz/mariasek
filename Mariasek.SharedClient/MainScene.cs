@@ -266,6 +266,7 @@ namespace Mariasek.SharedClient
         {
             base.Initialize();
 
+            var backSideRect = _settings.CardBackSide.ToTextureRect();
 			Game.CardTextures = _settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
             PopulateAiConfig();
             
@@ -274,24 +275,24 @@ namespace Mariasek.SharedClient
             {
                 new []
                 {
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f + 20), IsEnabled = false, Name="Hlasy11", ZIndex = 1 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, Game.VirtualScreenHeight / 2f + 20), IsEnabled = false, Name="Hlasy12", ZIndex = 2 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, Game.VirtualScreenHeight / 2f + 20), IsEnabled = false, Name="Hlasy13", ZIndex = 3 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, Game.VirtualScreenHeight / 2f + 20), IsEnabled = false, Name="Hlasy14", ZIndex = 4 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy11", ZIndex = 1 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy12", ZIndex = 2 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy13", ZIndex = 3 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy14", ZIndex = 4 },
                 },
                 new []
                 {
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(100, 130), IsEnabled = false, Name="Hlasy21", ZIndex = 1 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(150, 130), IsEnabled = false, Name="Hlasy22", ZIndex = 2 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(200, 130), IsEnabled = false, Name="Hlasy23", ZIndex = 3 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(250, 130), IsEnabled = false, Name="Hlasy24", ZIndex = 4 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(100, 130), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy21", ZIndex = 1 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(150, 130), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy22", ZIndex = 2 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(200, 130), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy23", ZIndex = 3 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(250, 130), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy24", ZIndex = 4 },
                 },
                 new []
                 {
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, 130), IsEnabled = false, Name="Hlasy31", ZIndex = 1 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, 130), IsEnabled = false, Name="Hlasy32", ZIndex = 2 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, 130), IsEnabled = false, Name="Hlasy33", ZIndex = 3 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, 130), IsEnabled = false, Name="Hlasy34", ZIndex = 4 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, 130), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy31", ZIndex = 1 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, 130), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy32", ZIndex = 2 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, 130), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy33", ZIndex = 3 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, 130), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy34", ZIndex = 4 },
                 }
             };
             _hlasy[0][0].Click += TrumpCardClicked;
@@ -300,15 +301,15 @@ namespace Mariasek.SharedClient
             _hlasy[0][0].ZIndex = 70;
 			_stareStychy = new []
             {
-                new Sprite(this, Game.ReverseTexture) { Position = new Vector2(Game.VirtualScreenWidth - 50, Game.VirtualScreenHeight / 2f + 50), Scale = Game.CardScaleFactor, Name = "StareStychy1" },
-                new Sprite(this, Game.ReverseTexture) { Position = new Vector2(50, 80), Scale = Game.CardScaleFactor, Name = "StareStychy2" },
-                new Sprite(this, Game.ReverseTexture) { Position = new Vector2(Game.VirtualScreenWidth - 50, 80), Scale = Game.CardScaleFactor, Name = "StareStychy3" }
+                new Sprite(this, Game.ReverseTexture, backSideRect) { Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f + 40), Scale = Game.CardScaleFactor, Name = "StareStychy1" },
+                new Sprite(this, Game.ReverseTexture, backSideRect) { Position = new Vector2(60, 90), Scale = Game.CardScaleFactor, Name = "StareStychy2" },
+                new Sprite(this, Game.ReverseTexture, backSideRect) { Position = new Vector2(Game.VirtualScreenWidth - 60, 90), Scale = Game.CardScaleFactor, Name = "StareStychy3" }
             };
             _stychy = new []
             {
-                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy1" }) { Position = new Vector2(Game.VirtualScreenWidth - 50, Game.VirtualScreenHeight / 2f + 50), IsEnabled = false, ZIndex = 10 },
-                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy2" }) { Position = new Vector2(50, 80), IsEnabled = false, ZIndex = 10 },
-                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy3" }) { Position = new Vector2(Game.VirtualScreenWidth - 50, 80), IsEnabled = false, ZIndex = 10 }
+                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy1" }) { Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f + 40), ReverseSpriteRectangle = backSideRect, IsEnabled = false, ZIndex = 10 },
+                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy2" }) { Position = new Vector2(60, 90), ReverseSpriteRectangle = backSideRect, IsEnabled = false, ZIndex = 10 },
+                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy3" }) { Position = new Vector2(Game.VirtualScreenWidth - 60, 90), ReverseSpriteRectangle = backSideRect, IsEnabled = false, ZIndex = 10 }
             };
             _cardsPlayed = new []
             {
@@ -373,6 +374,10 @@ namespace Mariasek.SharedClient
                 Width = 50
             };
             _reviewGameToggleBtn.Click += ReviewGameBtnClicked;
+            if (!_settings.TestMode.HasValue || !_settings.TestMode.Value)
+            {
+                _reviewGameToggleBtn.Hide();
+            }
 			_sendBtn = new Button(this)
 			{
 				Text = "@",
@@ -1123,8 +1128,11 @@ namespace Mariasek.SharedClient
                 ClearTable(true);
                 HideMsgLabel();
                 _reviewGameBtn.Hide();
-                _reviewGameToggleBtn.Show();
-                _reviewGameToggleBtn.IsSelected = false;
+                if (_settings.TestMode.HasValue && _settings.TestMode.Value)
+                {
+                    _reviewGameToggleBtn.Show();
+                    _reviewGameToggleBtn.IsSelected = false;
+                }
                 if (_review != null)
                 {
                     _review.Hide();
@@ -1384,7 +1392,9 @@ namespace Mariasek.SharedClient
                     _state = GameState.NotPlaying;
                     HideMsgLabel();
                     origPosition = button.Position;
-                    if (_cardClicked.Value == Hodnota.Svrsek && g.players[0].Hand.HasK(_cardClicked.Suit))
+                    if ((g.GameType & (Hra.Betl | Hra.Durch)) == 0 && 
+                        _cardClicked.Value == Hodnota.Svrsek && 
+                        g.players[0].Hand.HasK(_cardClicked.Suit))
                     {
                         _hlasy[0][g.players[0].Hlasy].IsEnabled = false;
                         targetSprite = _hlasy[0][g.players[0].Hlasy].Sprite;
@@ -1651,12 +1661,12 @@ namespace Mariasek.SharedClient
         public Card PlayCard(Renonc validationState)
         {
             g.ThrowIfCancellationRequested();
-            _hand.IsEnabled = true;
             _hintBtn.IsEnabled = false;
-            this.WaitUntil(() => _bubbles.All(i => !i.IsVisible))
+            this.WaitUntil(() => _bubbles.All(i => !i.IsVisible) && !_hand.IsBusy)
                 .Invoke(() =>
                 {
-                    foreach (var bubble in _bubbles)
+					_hand.IsEnabled = true;
+					foreach (var bubble in _bubbles)
                     {
                         bubble.Hide();
                     }
@@ -2190,8 +2200,12 @@ namespace Mariasek.SharedClient
                     ClearTable(true);
                     HideMsgLabel();
                     _reviewGameBtn.Hide();
-                    _reviewGameToggleBtn.Show();
-                    _reviewGameToggleBtn.IsSelected = false;
+					if (_settings.TestMode.HasValue && _settings.TestMode.Value)
+					{
+						_reviewGameToggleBtn.Show();
+						_reviewGameToggleBtn.IsSelected = false;
+					}
+                        
                     if (_review != null)
                     {
                         _review.Hide();
@@ -2364,7 +2378,6 @@ namespace Mariasek.SharedClient
         private void UpdateCardTextures(GameComponent parent, Texture2D oldTexture, Texture2D newTexture)
         {
             var sprite = parent as Sprite;
-
             if (sprite != null && sprite.Texture == oldTexture)
             {
                 sprite.Texture = newTexture;
@@ -2374,6 +2387,20 @@ namespace Mariasek.SharedClient
                 UpdateCardTextures(child, oldTexture, newTexture);
             }
         }
+
+        public void UpdateCardBackSides(GameComponent parent)
+        {
+			var cardButton = parent as CardButton;
+
+			if (cardButton != null)
+			{
+				cardButton.ReverseSpriteRectangle = Game.BackSideRect;
+			}
+			foreach (var child in parent.ChildElements)
+			{
+				UpdateCardBackSides(child);
+			}
+		}
 
         public void SettingsChanged(object sender, SettingsChangedEventArgs e)
         {
@@ -2401,10 +2428,36 @@ namespace Mariasek.SharedClient
                     _hintBtn.Hide();
                 }
             }
-            SortHand(null);
+			var newBackSideRect = _settings.CardBackSide.ToTextureRect();
+
+			if (Game.BackSideRect != newBackSideRect)
+			{
+				Game.BackSideRect = newBackSideRect;
+				UpdateCardBackSides(this);
+                if (_stareStychy != null)
+                {
+                    foreach (var sprite in _stareStychy)
+                    {
+                        sprite.SpriteRectangle = newBackSideRect;
+                    }
+                }
+			}
+            //call UpdateHand() instead
+            if (_state == GameState.ChooseTrump)
+            {
+                SortHand(null, 7);
+            }
+            else if (_state == GameState.ChooseTalon)
+            {
+                SortHand(_trumpCardChosen);
+            }
+            else
+            {
+                SortHand(null);
+            }
             SoundEffect.MasterVolume = _settings.SoundEnabled ? 1f : 0f;
             Game.AmbientSound.Volume = _settings.BgSoundEnabled ? 0.2f : 0f;
-            Microsoft.Xna.Framework.Media.MediaPlayer.Volume = _settings.BgSoundEnabled ? 0.1f : 0f;
+            MediaPlayer.Volume = _settings.BgSoundEnabled ? 0.1f : 0f;
 
             var oldTextures = Game.CardTextures;
             var newTextures = _settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;

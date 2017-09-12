@@ -27,7 +27,7 @@ namespace Mariasek.AndroidClient
 		ConfigurationChanges = ConfigChanges.Orientation |
 		ConfigChanges.KeyboardHidden |
 		ConfigChanges.Keyboard)]
-	public class MariasekActivity : AndroidGameActivity, IEmailSender
+	public class MariasekActivity : AndroidGameActivity, IEmailSender, IWebNavigate
 	{
         MariasekMonoGame g;
 
@@ -42,7 +42,7 @@ namespace Mariasek.AndroidClient
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
             // Create our OpenGL view, and display it
-			g = new MariasekMonoGame (this);
+			g = new MariasekMonoGame (this, this);
             SetContentView (g.Services.GetService<View>());
             g.Run();
 		}
@@ -155,6 +155,14 @@ namespace Mariasek.AndroidClient
             email.PutParcelableArrayListExtra(Intent.ExtraStream, uris.ToArray());
             StartActivity(email);
             //TODO: delete attached files once they were sent
+        }
+
+        public void Navigate(string url)
+        {
+            var browser = new Intent(Intent.ActionView);
+
+            browser.SetData(Android.Net.Uri.Parse(url));
+			StartActivity(browser);
         }
 	}
 }

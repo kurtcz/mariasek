@@ -142,7 +142,7 @@ namespace Mariasek.SharedClient.GameComponents
         /// Allows the game component to update itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public override void Update(GameTime gameTime)
+        public void TouchUpdate(GameTime gameTime)
         {
             // TODO: Add your update code here
             if (!IsVisible || 
@@ -153,7 +153,6 @@ namespace Mariasek.SharedClient.GameComponents
                  Parent.IsChildOf(Game.CurrentScene.ExclusiveControl)))
             {
                 //Ignore input if there is an exclusive control (a modal dialog or an overlay) being shown and we are not that control or one of its children
-                base.Update(gameTime);
                 return;
             }
 
@@ -225,7 +224,6 @@ namespace Mariasek.SharedClient.GameComponents
                     //System.Diagnostics.Debug.WriteLine(string.Format("{0}: OUT state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position));
                 }
             }
-            base.Update(gameTime);
         } 
     }
 }

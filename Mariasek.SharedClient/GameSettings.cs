@@ -16,7 +16,14 @@ namespace Mariasek.SharedClient
 		Double
 	}
 
-    public class BidThresholdSettings
+	public enum CardBackSide
+	{
+		Tartan,
+		Horse,
+        Lace
+	}
+
+	public class BidThresholdSettings
     {
         public Hra GameType { get; set; }
         public bool Use { get; set; }
@@ -27,6 +34,7 @@ namespace Mariasek.SharedClient
     public class GameSettings
     {
         public bool? Default { get; set; }
+        public bool? TestMode { get; set; }
         public bool HintEnabled { get; set; }
         public bool SoundEnabled { get; set; }
         public bool BgSoundEnabled { get; set; }
@@ -38,6 +46,7 @@ namespace Mariasek.SharedClient
         public int RoundSimulationsPerSecond { get; set; }
         public int CurrentStartingPlayerIndex { get; set; }
         public CardFace CardDesign { get; set; }
+        public CardBackSide CardBackSide { get; set; }
         public BidThresholdSettings[] Thresholds { get; set; }
         public float RiskFactor { get; set; }
 
@@ -52,6 +61,7 @@ namespace Mariasek.SharedClient
             CurrentStartingPlayerIndex = 0;
             ThinkingTimeMs = 2000;
 			CardDesign = CardFace.Single;
+            CardBackSide = CardBackSide.Tartan;
 			ResetThresholds();
         }
 

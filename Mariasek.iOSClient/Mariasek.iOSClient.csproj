@@ -87,6 +87,7 @@
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EmailSender.cs" />
+    <Compile Include="WebNavigate.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Entitlements.plist" />

@@ -35,6 +35,7 @@ namespace Mariasek.SharedClient
         private Label _kiloCounting;
         //private Label _thinkingTime;
 		private Label _cardFace;
+        private Label _cardBack;
 		private ToggleButton _hintBtn;
         private ToggleButton _soundBtn;
         private ToggleButton _bgsoundBtn;
@@ -43,6 +44,7 @@ namespace Mariasek.SharedClient
 		private LeftRightSelector _kiloCountingSelector;
 		//private LeftRightSelector _thinkingTimeSelector;
 		private LeftRightSelector _cardFaceSelector;
+        private LeftRightSelector _cardBackSelector;
         private Label _performance;
         private Button _menuBtn;
         private Button _aiBtn;
@@ -162,9 +164,30 @@ namespace Mariasek.SharedClient
 			{
 				_cardFaceSelector.SelectedIndex = 0;
 			}
-            _handSorting = new Label(this)
+			_cardBack = new Label(this)
+			{
+				Position = new Vector2(200, 250),
+				Width = (int)Game.VirtualScreenWidth / 2 - 150,
+				Height = 50,
+				Text = "Rub karet",
+				HorizontalAlign = HorizontalAlignment.Center,
+				VerticalAlign = VerticalAlignment.Middle
+			};
+			_cardBackSelector = new LeftRightSelector(this)
+			{
+				Position = new Vector2(Game.VirtualScreenWidth - 300, 250),
+				Width = 270,
+                Items = new SelectorItems() { { "Káro", CardBackSide.Tartan }, { "Koník", CardBackSide.Horse }, { "Krajka", CardBackSide.Lace } }
+			};
+			_cardBackSelector.SelectedIndex = _cardBackSelector.Items.FindIndex(_settings.CardBackSide);
+			_cardBackSelector.SelectionChanged += CardBackChanged;
+			if (_cardBackSelector.SelectedIndex < 0)
+			{
+				_cardBackSelector.SelectedIndex = 0;
+			}
+			_handSorting = new Label(this)
             {
-                Position = new Vector2(200, 250),
+                Position = new Vector2(200, 310),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Řadit karty",
@@ -173,7 +196,7 @@ namespace Mariasek.SharedClient
             };
 			_handSortingSelector = new LeftRightSelector(this)
 			{
-				Position = new Vector2(Game.VirtualScreenWidth - 300, 250),
+				Position = new Vector2(Game.VirtualScreenWidth - 300, 310),
 				Width = 270,
 				Items = new SelectorItems() { { "Vzestupně", SortMode.Ascending }, { "Sestupně", SortMode.Descending }, { "Vůbec", SortMode.None } }
 			};
@@ -181,7 +204,7 @@ namespace Mariasek.SharedClient
 			_handSortingSelector.SelectionChanged += SortModeChanged;
             _baseBet = new Label(this)
             {
-                Position = new Vector2(200, 310),
+                Position = new Vector2(200, 370),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Hodnota hry",
@@ -190,7 +213,7 @@ namespace Mariasek.SharedClient
             };
 			_baseBetSelector = new LeftRightSelector(this)
 			{
-				Position = new Vector2(Game.VirtualScreenWidth - 300, 310),
+				Position = new Vector2(Game.VirtualScreenWidth - 300, 370),
 				Width = 270,
 				Items = new SelectorItems() { { "0,10 Kč", 0.1f}, { "0,20 Kč", 0.2f}, { "0,50 Kč", 0.5f },
 											  { "1 Kč", 1f }, { "2 Kč", 2f}, { "5 Kč", 5f}, { "10 Kč", 10f} }
@@ -199,7 +222,7 @@ namespace Mariasek.SharedClient
 			_baseBetSelector.SelectionChanged += BaseBetChanged;
 			_kiloCounting = new Label(this)
 			{
-				Position = new Vector2(200, 370),
+				Position = new Vector2(200, 430),
 				Width = (int)Game.VirtualScreenWidth / 2 - 150,
 				Height = 50,
 				Text = "Počítání peněz u kila",
@@ -208,7 +231,7 @@ namespace Mariasek.SharedClient
 			};
 			_kiloCountingSelector = new LeftRightSelector(this)
 			{
-				Position = new Vector2(Game.VirtualScreenWidth - 300, 370),
+				Position = new Vector2(Game.VirtualScreenWidth - 300, 430),
 				Width = 270,
 				Items = new SelectorItems() { { "Sčítat", CalculationStyle.Adding}, { "Násobit", CalculationStyle.Multiplying} }
 			};
@@ -227,7 +250,7 @@ namespace Mariasek.SharedClient
             //{
             //	Position = new Vector2(Game.VirtualScreenWidth - 390, 370),
             //	Width = 360,
-            //	Items = new SelectorItems() { { "Krátce", 2000 }, { "Středně", 4000 }, { "Dlouho", 6000 } }
+            //	Items = new SelectorItems() { { "Krátce", 1000 }, { "Středně", 2000 }, { "Dlouho", 3000 } }
             //};
             //_thinkingTimeSelector.SelectedIndex = _thinkingTimeSelector.Items.FindIndex(_settings.ThinkingTimeMs);
             //_thinkingTimeSelector.SelectionChanged += ThinkingTimeChanged;
@@ -331,6 +354,16 @@ namespace Mariasek.SharedClient
 			var origValue = _settings.CardDesign;
 
 			_settings.CardDesign = (CardFace)selector.SelectedValue;
+			SaveGameSettings();
+			OnSettingsChanged();
+		}
+
+		void CardBackChanged(object sender)
+		{
+			var selector = sender as LeftRightSelector;
+			var origValue = _settings.CardBackSide;
+
+			_settings.CardBackSide = (CardBackSide)selector.SelectedValue;
 			SaveGameSettings();
 			OnSettingsChanged();
 		}

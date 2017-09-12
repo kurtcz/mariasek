@@ -550,8 +550,8 @@ namespace Mariasek.Engine.New
                 {
                     Kolo = roundNumber,
                     Voli = (Hrac)GameStartingPlayerIndex,
-                    Trumf = CurrentRound != null ? trump : null,
-                    Typ = CurrentRound != null ? (Hra?)GameType : null,
+                    Trumf = trump.HasValue ? trump : null,
+                    Typ = GameType != 0 ? (Hra?)GameType : null,
                     Zacina = (Hrac)startingPlayerIndex,
                     Autor = Author,
                     Verze = Version.ToString(),

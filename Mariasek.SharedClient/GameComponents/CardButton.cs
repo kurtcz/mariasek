@@ -11,8 +11,19 @@ namespace Mariasek.SharedClient.GameComponents
 		private Vector2 _origTouchLocation;
 		private const int MinimalDragDistance = 100;
 
+        private Rectangle _reverseSpriteRectangle;
+        public Rectangle ReverseSpriteRectangle
+        {
+            get { return _reverseSpriteRectangle; }
+            set
+            {
+                _reverseSpriteRectangle = value;
+                _reverseSprite.SpriteRectangle = _reverseSpriteRectangle;
+            }
+        }
+
 		private bool _isSelected;
-        public bool IsSelected
+		public bool IsSelected
         { 
             get { return _isSelected; } 
             set
@@ -38,7 +49,7 @@ namespace Mariasek.SharedClient.GameComponents
 
         private void Init()
         {
-            _reverseSprite = new Sprite(this, Game.ReverseTexture) { Name = "Backsprite", Position = Position, Scale = Game.CardScaleFactor };
+            _reverseSprite = new Sprite(this, Game.ReverseTexture, _reverseSpriteRectangle) { Name = "Backsprite", Position = Position, Scale = Game.CardScaleFactor };
             _reverseSprite.Hide();
         }
 
@@ -62,7 +73,17 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
-        public override void Show()
+		public override AnchorType Anchor
+		{
+			get { return base.Anchor; }
+			set
+			{
+				base.Anchor = value;
+				_reverseSprite.Anchor = value;
+			}
+		}
+
+		public override void Show()
         {
             ShowFrontSide();
         }
@@ -195,7 +216,21 @@ namespace Mariasek.SharedClient.GameComponents
             return this;
         }
 
-        public override bool IsBusy { get { return Sprite.IsBusy; } }
+		public override bool CollidesWithPosition(Vector2 position)
+		{
+            var polygon = Sprite.SpriteRectangle.Rotate(Sprite.RotationOrigin, Sprite.RotationAngle);
+
+			for (var i = 0; i < polygon.Length; i++)
+			{
+				polygon[i] = Vector2.Subtract(polygon[i], Sprite.RotationOrigin);
+                polygon[i] = polygon[i].Scale(new Vector2(0.5f, 1f));   //aby neslo klikat na okraje karty, kde jsou prekryvy
+				polygon[i] = Vector2.Add(polygon[i], Position);
+			}
+
+			return position.IsPointInPolygon(polygon);
+		}
+
+		public override bool IsBusy { get { return Sprite.IsBusy; } }
 
         protected override void OnTouchDown(TouchLocation tl)
         {

@@ -138,7 +138,7 @@ namespace Mariasek.SharedClient.GameComponents
                 _texture.Dispose();
             }
             _texture = CreateRoundedRectangleTexture(
-                Game.Graphics.GraphicsDevice,
+                Game.GraphicsDevice,
                 _width,
                 _height,
                 _borderThickness,

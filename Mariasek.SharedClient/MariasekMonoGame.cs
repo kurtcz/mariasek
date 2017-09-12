@@ -13,27 +13,27 @@ using Mariasek.SharedClient.GameComponents;
 
 namespace Mariasek.SharedClient
 {
-	public enum AnchorType
-	{
-		Main,
-		Left,
-		Top,
-		Right,
-		Bottom
-	}
+    public enum AnchorType
+    {
+        Main,
+        Left,
+        Top,
+        Right,
+        Bottom
+    }
 
-	public enum ScreenGeometry
-	{
-		Narrow,
-		Wide
-	}
+    public enum ScreenGeometry
+    {
+        Narrow,
+        Wide
+    }
 
-	/// <summary>
-	/// This is the main type for your game
-	/// </summary>
-	public class MariasekMonoGame : Game
-	{
-		//Texture2D logoTexture;
+    /// <summary>
+    /// This is the main type for your game
+    /// </summary>
+    public class MariasekMonoGame : Game
+    {
+        //Texture2D logoTexture;
         public GraphicsDeviceManager Graphics { get; private set; }
         public TouchCollection TouchCollection { get; private set; }
         public SpriteBatch SpriteBatch { get; private set; }
@@ -45,36 +45,38 @@ namespace Mariasek.SharedClient
         public AiSettingsScene AiSettingsScene { get; private set; }
         public HistoryScene HistoryScene { get; private set; }
         public StatScene StatScene { get; private set; }
-		//public GeneratorScene GenerateScene { get; private set; }
+        //public GeneratorScene GenerateScene { get; private set; }
 
-		public Texture2D CardTextures { get; set; }
+        public Rectangle BackSideRect { get; set; }
+        public Texture2D CardTextures { get; set; }
         public Texture2D CardTextures1 { get; private set; }
-		public Texture2D CardTextures2 { get; private set; }
+        public Texture2D CardTextures2 { get; private set; }
         public Texture2D ReverseTexture { get; private set; }
+        public Texture2D LogoTexture { get; private set; }
         public Dictionary<string, FontRenderer> FontRenderers { get; private set; }
 
-		//Let's create a virtual screen with acpect ratio that is neither widescreen nor narrowscreen
-		// iPhone5+, Samsung A3:	1.78 : 1
-		// iPad:					1.33 : 1
-		// old iPhone:				1.50 : 1
-		// old Androids 800x480:	1.67 : 1
-		// Virtual 800x512:			1.56 : 1
-		public readonly float VirtualScreenWidth = 800;
+        //Let's create a virtual screen with acpect ratio that is neither widescreen nor narrowscreen
+        // iPhone5+, Samsung A3:	1.78 : 1
+        // iPad:					1.33 : 1
+        // old iPhone:				1.50 : 1
+        // old Androids 800x480:	1.67 : 1
+        // Virtual 800x512:			1.56 : 1
+        public readonly float VirtualScreenWidth = 800;
         public readonly float VirtualScreenHeight = 512;
-		public Matrix MainScaleMatrix;
-		public Matrix LeftScaleMatrix;
-		public Matrix RightScaleMatrix;
-		public Matrix TopScaleMatrix;
-		public Matrix BottomScaleMatrix;
-		public ScreenGeometry RealScreenGeometry;
+        public Matrix MainScaleMatrix;
+        public Matrix LeftScaleMatrix;
+        public Matrix RightScaleMatrix;
+        public Matrix TopScaleMatrix;
+        public Matrix BottomScaleMatrix;
+        public ScreenGeometry RealScreenGeometry;
 
-		/// <summary>
-		/// Gets the current rendering group. Game components should render themselves only if they belong to the current group.
-		/// </summary>
-		public AnchorType CurrentRenderingGroup { get; set; } 
+        /// <summary>
+        /// Gets the current rendering group. Game components should render themselves only if they belong to the current group.
+        /// </summary>
+        public AnchorType CurrentRenderingGroup { get; set; }
 
         public SoundEffect ClickSound { get; private set; }
-		public SoundEffect TickSound { get; private set; }
+        public SoundEffect TickSound { get; private set; }
         public SoundEffect OnSound { get; private set; }
         public SoundEffect OffSound { get; private set; }
         public SoundEffect ClapSound { get; private set; }
@@ -84,31 +86,33 @@ namespace Mariasek.SharedClient
         public SoundEffectInstance AmbientSound { get; private set; }
         public Song NaPankraciSong { get; private set; }
         public IEmailSender EmailSender { get; private set; }
+        public IWebNavigate Navigator { get; private set; }
         public readonly Vector2 CardScaleFactor;
 
         public List<Mariasek.Engine.New.MoneyCalculatorBase> Money = new List<Mariasek.Engine.New.MoneyCalculatorBase>();
 
         public MariasekMonoGame()
-            : this(null)
+            : this(null, null)
         {
         }
 
-        public MariasekMonoGame(IEmailSender emailSender)
-		{
+        public MariasekMonoGame(IEmailSender emailSender, IWebNavigate navigator)
+        {
             System.Diagnostics.Debug.WriteLine("MariasekMonoGame()");
-			Graphics = new GraphicsDeviceManager (this);
-			Content.RootDirectory = "Content";
+            Graphics = new GraphicsDeviceManager(this);
+            Content.RootDirectory = "Content";
             IsFixedTimeStep = false;
-			Graphics.IsFullScreen = true;
-			//make sure SupportedOrientations is set accordingly to ActivityAttribute.ScreenOrientation
-			Graphics.SupportedOrientations = DisplayOrientation.LandscapeRight |
-											 DisplayOrientation.LandscapeLeft;	
+            Graphics.IsFullScreen = true;
+            //make sure SupportedOrientations is set accordingly to ActivityAttribute.ScreenOrientation
+            Graphics.SupportedOrientations = DisplayOrientation.LandscapeRight |
+                                             DisplayOrientation.LandscapeLeft;
             Graphics.ApplyChanges();
-            CardScaleFactor = new Vector2(1.4f, 1.4f);
+            CardScaleFactor = new Vector2(0.6f, 0.6f);
             EmailSender = emailSender;
+            Navigator = navigator;
             Resumed += GameResumed;
             Paused += GamePaused;
-		}
+        }
 
         public static Version Version
         {
@@ -116,8 +120,20 @@ namespace Mariasek.SharedClient
             {
                 var assembly = typeof(MariasekMonoGame).Assembly;
 
+#if DEBUG
                 return assembly.GetName().Version;
-            }
+#else //RELEASE
+#if __ANDROID__
+                var v = assembly.GetName().Version;
+                var context = Android.App.Application.Context;
+                var versionCode = context.PackageManager.GetPackageInfo(context.PackageName, 0).VersionCode;
+
+                return new Version(v.Major, v.Minor, versionCode);
+#else
+                return assembly.GetName().Version;
+#endif
+#endif
+			}
         }
 
 		/// <summary>
@@ -180,6 +196,7 @@ namespace Mariasek.SharedClient
             CardTextures1 = Content.Load<Texture2D>("marias");
 			CardTextures2 = Content.Load<Texture2D>("marias2");
             ReverseTexture = Content.Load<Texture2D>("revers");
+            LogoTexture = Content.Load<Texture2D>("logo_hracikarty");
             FontRenderers = new Dictionary<string, FontRenderer>
             {
                 { "BMFont", FontRenderer.GetFontRenderer(this, 5, 8, "BMFont.fnt", "BMFont_0", "BMFont_1") },
@@ -203,29 +220,27 @@ namespace Mariasek.SharedClient
             AmbientSound.PlaySafely();
 
             NaPankraciSong = Content.Load<Song>("na pankraci");
-            Microsoft.Xna.Framework.Media.MediaPlayer.Volume = 0;
-            Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
-            Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
+            MediaPlayer.Volume = 0;
+            MediaPlayer.Play(NaPankraciSong);
+            MediaPlayer.IsRepeating = true;
 
             //TestScene = new TestScene(this);
             //TestScene.Initialize();
             //TestScene.SetActive();
 
-            MenuScene = new MenuScene(this);           
             SettingsScene = new SettingsScene(this);
-            AiSettingsScene = new AiSettingsScene(this);
-            HistoryScene = new HistoryScene(this);
+			AiSettingsScene = new AiSettingsScene(this);
+			MenuScene = new MenuScene(this);
+			HistoryScene = new HistoryScene(this);
             StatScene = new StatScene(this);
             MainScene = new MainScene(this);
-			//GenerateScene = new GeneratorScene(this);
 
-            MenuScene.Initialize();
             HistoryScene.Initialize();
             StatScene.Initialize();
             SettingsScene.Initialize();
-            AiSettingsScene.Initialize();
-            MainScene.Initialize();
-			//GenerateScene.Initialize();
+			AiSettingsScene.Initialize();
+			MenuScene.Initialize();
+			MainScene.Initialize();
 
             MenuScene.SetActive();
             MainScene.ResumeGame();
@@ -311,8 +326,8 @@ namespace Mariasek.SharedClient
             if (AmbientSound != null && NaPankraciSong != null)
             {
                 AmbientSound.PlaySafely();
-                Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
-                Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
+                MediaPlayer.Play(NaPankraciSong);
+                MediaPlayer.IsRepeating = true;
             }
         }
 
@@ -322,7 +337,7 @@ namespace Mariasek.SharedClient
             {
                 AmbientSound.Stop();
             }
-            Microsoft.Xna.Framework.Media.MediaPlayer.Stop();
+            MediaPlayer.Stop();
         }
 
 		/// <summary>
@@ -332,7 +347,7 @@ namespace Mariasek.SharedClient
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Update (GameTime gameTime)
 		{
-#if !__IOS__ &&  !__TVOS__
+#if !__IOS__ && !__TVOS__
 			// For Mobile devices, this logic will close the Game when the Back button is pressed
 			if (GamePad.GetState (PlayerIndex.One).Buttons.Back == ButtonState.Pressed) {
 				Exit ();

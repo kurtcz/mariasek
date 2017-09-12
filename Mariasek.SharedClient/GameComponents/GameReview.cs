@@ -255,8 +255,9 @@ namespace Mariasek.SharedClient.GameComponents
         {
             const int headLength = Mariasek.Engine.New.Game.NumPlayers + 1;
             var roundsLength = Game.MainScene.g.CurrentRound != null ? Game.MainScene.g.CurrentRound.number : 0;
+			var reviewCardScaleFactor = Game.CardScaleFactor * 0.7f;
 
-            _background = new RectangleShape(this)
+			_background = new RectangleShape(this)
             {
                 BackgroundColors = new List<Color> { BackgroundColor },
                 BorderColors = new List<Color> { BackgroundColor },
@@ -280,7 +281,7 @@ namespace Mariasek.SharedClient.GameComponents
                 }
                 Names[i] = new Label(this)
                 {
-                    Position = new Vector2(200 - 0.5f * Hand.CardWidth, 100 + (i - 0.5f) * (Hand.CardHeight + 50) + 20),
+                    Position = new Vector2(200 - 0.5f * Hand.CardWidth * reviewCardScaleFactor.X, 100 + (i - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 20),
                     Width = 200,
                     Height = 40,
                     TextColor = Color.Yellow,
@@ -294,13 +295,13 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     continue;
                 }
-                if (i > roundsLength)
+                if (i >= roundsLength)
                 {
                     roundsLength = i + 1;
                 }
                 RoundNum[i] = new Label(this)
                 {
-                    Position = new Vector2(200 - 0.5f * Hand.CardWidth, 100 + (i + 4 - 0.5f) * (Hand.CardHeight + 50) + 20),
+                    Position = new Vector2(200 - 0.5f * Hand.CardWidth * reviewCardScaleFactor.X, 100 + (i + 4 - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 20),
                     Width = 200,
                     Height = 40,
                     Text = string.Format("{0}. kolo:", i + 1),
@@ -322,10 +323,11 @@ namespace Mariasek.SharedClient.GameComponents
 
                 Rounds[i][0] = new Sprite(this, Game.CardTextures, rect)
                 {
-                    Position = new Vector2(200, 100 + (i + headLength) * (Hand.CardHeight + 50) + 30),
-                    ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 1
+                    Position = new Vector2(200, 100 + (i + headLength) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 30),
+					ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 1,
+					Scale = reviewCardScaleFactor
                 };
-                if (Game.MainScene.g.trump.HasValue && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka))
+                if ((Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka))
                 {
                     if (r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].PlayerIndex || r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].TeamMateIndex)
                     {
@@ -338,7 +340,7 @@ namespace Mariasek.SharedClient.GameComponents
                 }
                 Labels[i][0] = new Label(this)
                 {
-                    Position = new Vector2(200 + 3 * Hand.CardWidth - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight + 50) + 20),
+                    Position = new Vector2(200 + 3 * Hand.CardWidth * reviewCardScaleFactor.X - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 20),
                     Width = 600,
                     Height = 40,
                     Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player1.Name, Game.MainScene.g.rounds[i].player1.PlayerIndex == 0 ? "-" : debugNote1 != null ? debugNote1.Split('\n')[0] : "-"),
@@ -349,10 +351,11 @@ namespace Mariasek.SharedClient.GameComponents
                 rect = Game.MainScene.g.rounds[i].c2.ToTextureRect();
                 Rounds[i][1] = new Sprite(this, Game.CardTextures, rect)
                 {
-                    Position = new Vector2(200 + Hand.CardWidth - 10, 100 + (i + Mariasek.Engine.New.Game.NumPlayers + 1) * (Hand.CardHeight + 50) + 40),
-                    ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 2
+                    Position = new Vector2(200 + Hand.CardWidth * reviewCardScaleFactor.X - 10, 100 + (i + Mariasek.Engine.New.Game.NumPlayers + 1) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 40),
+					ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 2,
+					Scale = reviewCardScaleFactor
                 };
-                if (Game.MainScene.g.trump.HasValue && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka))
+                if ((Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka))
                 {
                     if (r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].PlayerIndex || r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].TeamMateIndex)
                     {
@@ -365,7 +368,7 @@ namespace Mariasek.SharedClient.GameComponents
                 }
                 Labels[i][1] = new Label(this)
                 {
-                    Position = new Vector2(200 + 3 * Hand.CardWidth - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight + 50) + 50),
+                    Position = new Vector2(200 + 3 * Hand.CardWidth * reviewCardScaleFactor.X - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 50),
                     Width = 600,
                     Height = 40,
                     Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player2.Name, Game.MainScene.g.rounds[i].player2.PlayerIndex == 0 ? "-" : debugNote2 != null ? debugNote2.Split('\n')[0] : "-"),
@@ -376,10 +379,11 @@ namespace Mariasek.SharedClient.GameComponents
                 rect = Game.MainScene.g.rounds[i].c3.ToTextureRect();
                 Rounds[i][2] = new Sprite(this, Game.CardTextures, rect)
                 {
-                    Position = new Vector2(200 + 2 * (Hand.CardWidth - 10), 100 + (i + headLength) * (Hand.CardHeight + 50) + 50),
-                    ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 3
+                    Position = new Vector2(200 + 2 * (Hand.CardWidth * reviewCardScaleFactor.X - 10), 100 + (i + headLength) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 50),
+					ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 3,
+					Scale = reviewCardScaleFactor
                 };
-                if (Game.MainScene.g.trump.HasValue && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))
+                if ((Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))
                 {
                     if (r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].PlayerIndex || r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].TeamMateIndex)
                     {
@@ -392,7 +396,7 @@ namespace Mariasek.SharedClient.GameComponents
                 }
                 Labels[i][2] = new Label(this)
                 {
-                    Position = new Vector2(200 + 3 * Hand.CardWidth - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight + 50) + 80),
+                    Position = new Vector2(200 + 3 * Hand.CardWidth * reviewCardScaleFactor.X - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 80),
                     Width = 600,
                     Height = 40,
                     Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player3.Name, Game.MainScene.g.rounds[i].player3.PlayerIndex == 0 ? "-" : debugNote3 != null ? debugNote3.Split('\n')[0] : "-"),
@@ -402,7 +406,7 @@ namespace Mariasek.SharedClient.GameComponents
                 };
             }
             _initialHands[3] = Game.MainScene.g.talon;
-            BoundsRect = new Rectangle(0, 0, (int)Game.VirtualScreenWidth - (int)Position.X, (roundsLength + headLength) * (Hand.CardHeight + 50) - (int)Position.Y);
+            BoundsRect = new Rectangle(0, 0, (int)Game.VirtualScreenWidth - (int)Position.X, (roundsLength + headLength) * (int)(Hand.CardHeight * reviewCardScaleFactor.Y + 50) - (int)Position.Y);
             ScrollBarColor = Color.Transparent;
 
             for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
@@ -418,13 +422,14 @@ namespace Mariasek.SharedClient.GameComponents
                 for (var j = 0; j < hand.Count; j++)
                 {
                     var rect = hand[j].ToTextureRect();
-                    var hlas = Game.MainScene.g.trump.HasValue &&
+                    var hlas = (Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
                                hand[j].Value == Hodnota.Kral && hand.Any(k => k.Value == Hodnota.Svrsek && k.Suit == hand[j].Suit) ||
                                hand[j].Value == Hodnota.Svrsek && hand.Any(k => k.Value == Hodnota.Kral && k.Suit == hand[j].Suit);
                     Hands[i][j] = new Sprite(this, Game.CardTextures, rect)
                     {
-                        Position = new Vector2(200 + j * (Hand.CardWidth - 10), 100 + i * (Hand.CardHeight + 50) + 30),
-                        ZIndex = i * Mariasek.Engine.New.Game.NumRounds + j + 1
+                        Position = new Vector2(200 + j * (Hand.CardWidth * reviewCardScaleFactor.X - 10), 100 + i * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 30),
+						ZIndex = i * Mariasek.Engine.New.Game.NumRounds + j + 1,
+						Scale = reviewCardScaleFactor
                     };
                     if (hlas)
                     {
@@ -446,8 +451,9 @@ namespace Mariasek.SharedClient.GameComponents
                 var rect = _initialHands[3][j].ToTextureRect();
                 Hands[3][j] = new Sprite(this, Game.CardTextures, rect)
                 {
-                    Position = new Vector2(200 + j * (Hand.CardWidth - 10), 100 + 3 * (Hand.CardHeight + 50) + 30),
-                    ZIndex = Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + j + 1
+                    Position = new Vector2(200 + j * (Hand.CardWidth * reviewCardScaleFactor.X - 10), 100 + 3 * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 30),
+                    ZIndex = Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + j + 1,
+					Scale = reviewCardScaleFactor
                 };
             }
         }

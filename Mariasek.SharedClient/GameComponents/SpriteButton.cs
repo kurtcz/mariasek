@@ -36,17 +36,6 @@ namespace Mariasek.SharedClient.GameComponents
             Sprite.Parent = this;
         }
 
-        /// <summary>
-        /// Allows the game component to perform any initialization it needs to before starting
-        /// to run.  This is where it can query for any required services and load content.
-        /// </summary>
-        public override void Initialize()
-        {
-            // TODO: Add your initialization code here
-
-            base.Initialize();
-        }
-
         public override bool CollidesWithPosition(Vector2 position)
         {
             //Calculate the sprite's bounding polygon based on the rotation origin and angle
@@ -61,7 +50,17 @@ namespace Mariasek.SharedClient.GameComponents
             return position.IsPointInPolygon(polygon);
         }
 
-        public override Vector2 Position
+		public override AnchorType Anchor
+		{
+            get { return base.Anchor; }
+			set
+			{
+				base.Anchor = value;
+                Sprite.Anchor = value;
+			}
+		}
+
+		public override Vector2 Position
         {
             get { return _position; }
             set

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Concurrent;
+using Mariasek.SharedClient.GameComponents;
 
 namespace Mariasek.SharedClient
 {
@@ -103,6 +104,10 @@ namespace Mariasek.SharedClient
 				}
 			}
 		}
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="T:Mariasek.SharedClient.GameComponent"/> has scheduled operations pending.
+        /// </summary>
+        /// <value><c>true</c> if is busy; otherwise, <c>false</c>.</value>
         public virtual bool IsBusy { get { return ScheduledOperations!= null && ScheduledOperations.Count > 0; } }
         public virtual bool IsMoving { get; protected set; }
         private int _zIndex;
@@ -352,6 +357,23 @@ namespace Mariasek.SharedClient
                 IsMoving = (operation.OperationType & GameComponentOperationType.Move) != 0 && positionDiff != Vector2.Zero;
             }
 
+			for (var i = Children.Count - 1; i >= 0; i--)
+            //for (var i = 0; i < Children.Count; i++)
+			{
+				var child = Children[i] as TouchControlBase;
+
+				if (child != null)
+				{
+					try
+					{
+						child.TouchUpdate(gameTime);
+					}
+					catch (Exception)
+					{
+					}
+				}
+			}
+
             for (var i = 0; i < Children.Count; i++)
             {
                 var child = Children[i];
@@ -367,7 +389,7 @@ namespace Mariasek.SharedClient
                     }
                 }
             }
-        }
+		}
 
         public virtual void Draw(GameTime gameTime)
         {
