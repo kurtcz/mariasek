@@ -1053,7 +1053,9 @@ namespace Mariasek.Engine.New
                     if (talon.Any(i => !IsValidTalonCard(i))) //pokud je v talonu eso nebo desitka, musime hrat betla nebo durch
                     {
                         gameFlavour = GameFlavour.Bad;
-                    }
+						trump = null;
+						TrumpCard = null;
+					}
                     else
                     {
                         gameFlavour = GameFlavour.Good;
