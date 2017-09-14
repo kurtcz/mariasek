@@ -1141,6 +1141,7 @@ namespace Mariasek.Engine.New
                 c1.Suit == c2.Suit &&
                 c2.Value > c1.Value &&
                 c2.Value != Hodnota.Desitka &&
+                c2.Value != Hodnota.Eso &&
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] > 0 &&
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] < 1 &&
                 roundStarterIndex == _gameStarterIndex)
@@ -1205,7 +1206,8 @@ namespace Mariasek.Engine.New
                 c1.Suit != _trump &&
                 c1.Suit == c3.Suit &&
                 c3.Value > c1.Value &&
-                c2.Value != Hodnota.Desitka &&
+                c3.Value != Hodnota.Desitka &&
+                c3.Value != Hodnota.Eso &&
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] > 0 &&
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] < 1)
             {

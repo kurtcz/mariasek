@@ -1236,7 +1236,7 @@ namespace Mariasek.Engine.New
 				foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
 				{
 					var c = new Card(b, h);
-					var n = hh.Count(i => i.Suit == b && i.BadValue > c.BadValue && !hh.Contains(c));
+                    var n = hh.Count(i => i.Suit == b && i.BadValue > c.BadValue && !hh.Contains(c) && !talon.Contains(c));
 
 					if (n > 0)
 					{
