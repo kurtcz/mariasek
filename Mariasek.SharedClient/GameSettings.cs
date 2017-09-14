@@ -59,7 +59,7 @@ namespace Mariasek.SharedClient
             BaseBet = 1f;
             CalculationStyle = CalculationStyle.Adding;
             CurrentStartingPlayerIndex = 0;
-            ThinkingTimeMs = 2000;
+            ThinkingTimeMs = 1000;
 			CardDesign = CardFace.Single;
             CardBackSide = CardBackSide.Tartan;
 			ResetThresholds();

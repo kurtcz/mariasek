@@ -454,7 +454,8 @@ namespace Mariasek.Engine.New
             }
             players[(GameStartingPlayerIndex + 1) % NumPlayers].Hand.Sort();
             players[(GameStartingPlayerIndex + 2) % NumPlayers].Hand.Sort();
-            if(RoundNumber == 0)
+			RoundSanityCheck();
+			if(RoundNumber == 0)
             {
                 Rewind();
             }
@@ -508,7 +509,7 @@ namespace Mariasek.Engine.New
                         startingPlayerIndex = CurrentRound.roundWinner.PlayerIndex;
                         roundNumber++;
                     }
-                }
+                } //TODO: always save the game as if it were new if we have not started playing yet
                 else if (GameStartingPlayer.Hand.Count() == 10 && talon != null && talon.Any())
                 {
                     GameStartingPlayer.Hand.AddRange(talon);
@@ -546,6 +547,7 @@ namespace Mariasek.Engine.New
                 {
                     fleky = new Flek[0];
                 }
+                RoundSanityCheck();
                 var gameDto = new GameDto
                 {
                     Kolo = roundNumber,
@@ -770,12 +772,24 @@ namespace Mariasek.Engine.New
 
             for (var i = 0; i < NumPlayers; i++)
             {
+                players[i].Hand = players[i].Hand.Distinct().ToList();
                 foreach (var c in cardsPlayed)
                 {
                     players[i].Hand.Remove(c);
                 }
-            }
-        }
+			}
+			if (talon != null)
+			{
+                talon = talon.Distinct().ToList();
+                for (var i = 0; i < NumPlayers; i++)
+                {
+                    foreach (var c in talon)
+                    {
+                        players[i].Hand.Remove(c);
+                    }
+                }
+			}
+		}
 
         public void Rewind()
         {

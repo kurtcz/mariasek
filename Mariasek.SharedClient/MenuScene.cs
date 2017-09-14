@@ -89,7 +89,7 @@ namespace Mariasek.SharedClient
             _logo = new SpriteButton(this, new Sprite(this, Game.LogoTexture) { Name = "LogoSprite", Scale = new Vector2(0.7f, 0.7f), Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top })
             {
                 //Position = new Vector2(70, 75),
-                Position = new Vector2(50, 53),
+                Position = new Vector2(55, 58),
                 Name = "LogoButton",
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top
             };
