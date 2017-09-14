@@ -110,7 +110,7 @@ namespace Mariasek.Engine.New
 								return preferredCards.OrderBy(i => i.BadValue).First();
 							}
                                 
-                            return cardsToPlay.OrderBy(i => i.BadValue).First();
+                            return certainCardsToPlay.OrderBy(i => i.BadValue).First();
                         }
                     }
                     else if (TeamMateIndex == player3)//c-o
@@ -132,7 +132,7 @@ namespace Mariasek.Engine.New
 								return preferredCards.OrderBy(i => i.BadValue).First();
 							}
 
-							return cardsToPlay.OrderBy(i => i.BadValue).First();
+							return certainCardsToPlay.OrderBy(i => i.BadValue).First();
                         }
                     }
 
