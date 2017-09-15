@@ -390,7 +390,7 @@ namespace Mariasek.Engine.New
                                                                                          (_probabilities.CardProbability(player2, i) > _epsilon ||
                                                                                           _probabilities.CardProbability(player3, i) > _epsilon))));
                                            
-                        if (holes.Count > 0 && topTrumps.Count >= holes.Count && lowcards.Sum(i => i.Item2) < hands[MyIndex].CardCount(_trump))
+                        if (holes.Count > 0 && topTrumps.Count >= holes.Count && lowcards.Sum(i => i.Item2) <= hands[MyIndex].CardCount(_trump))
                         {
                             cardsToPlay = topTrumps;
                         }
