@@ -373,13 +373,13 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex == -1)
                     {
                         //c--
-                        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > 0 ||
-                                                                                               _probabilities.CardProbability(player3, new Card(_trump, h)) > 0).ToList();
+                        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > _epsilon ||
+                                                                                               _probabilities.CardProbability(player3, new Card(_trump, h)) > _epsilon).ToList();
                         var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
                         var lowCards0 = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                      .Any(h => h > i.Value &&
-                                                                               (_probabilities.CardProbability(player2, new Card(i.Suit, h)) > 0 ||
-                                                                                _probabilities.CardProbability(player3, new Card(i.Suit, h)) > 0))).ToList();
+                                                                               (_probabilities.CardProbability(player2, new Card(i.Suit, h)) > _epsilon ||
+                                                                                _probabilities.CardProbability(player3, new Card(i.Suit, h)) > _epsilon))).ToList();
                         var lowcards = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                            .Select(b =>
                                                        new Tuple<Barva, int>(b,
@@ -387,8 +387,8 @@ namespace Mariasek.Engine.New
                                                                 .Select(h => new Card(b, h))
                                                                              .Count(i => hands[MyIndex].Any(j => i.Suit == j.Suit &&
                                                                                                                  i.Value > j.Value) &&
-                                                                                         (_probabilities.CardProbability(player2, i) > 0 ||
-                                                                                          _probabilities.CardProbability(player3, i) > 0))));
+                                                                                         (_probabilities.CardProbability(player2, i) > _epsilon ||
+                                                                                          _probabilities.CardProbability(player3, i) > _epsilon))));
                                            
                         if (holes.Count > 0 && topTrumps.Count >= holes.Count && lowcards.Sum(i => i.Item2) < hands[MyIndex].CardCount(_trump))
                         {
@@ -399,11 +399,11 @@ namespace Mariasek.Engine.New
                     {
                         //co-
                         //pouzivam 0 misto epsilon protoze jinak bych mohl hrat trumfovou x a myslet si ze souper nema eso a on by ho zrovna mel!
-                        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player3, new Card(_trump, h)) > 0).ToList();
+                        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player3, new Card(_trump, h)) > _epsilon).ToList();
                         var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
                         var lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                      .Any(h => h > i.Value &&
-                                                                               _probabilities.CardProbability(player3, new Card(i.Suit, h)) > 0)).ToList();
+                                                                               _probabilities.CardProbability(player3, new Card(i.Suit, h)) > _epsilon)).ToList();
 
                         if (holes.Count > 0 && topTrumps.Count >= holes.Count && lowCards.Count < hands[MyIndex].CardCount(_trump))
                         {
@@ -414,11 +414,11 @@ namespace Mariasek.Engine.New
                     {
 						//c-o
 						//pouzivam 0 misto epsilon protoze jinak bych mohl hrat trumfovou x a myslet si ze souper nema eso a on by ho zrovna mel!
-						var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > 0).ToList();
+						var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > _epsilon).ToList();
                         var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
                         var lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                      .Any(h => h > i.Value &&
-                                                                               _probabilities.CardProbability(player2, new Card(i.Suit, h)) > 0)).ToList();
+                                                                               _probabilities.CardProbability(player2, new Card(i.Suit, h)) > _epsilon)).ToList();
 
                         if (holes.Count > 0 && topTrumps.Count >= holes.Count && lowCards.Count < hands[MyIndex].CardCount(_trump))
                         {

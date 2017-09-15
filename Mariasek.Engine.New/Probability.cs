@@ -197,6 +197,7 @@ namespace Mariasek.Engine.New
             for (var i = 0; i < Game.NumPlayers + 1; i++)
             {
                 const float epsilon = 0.01f;
+                const float small = 0.1f;
                 var ii = (_gameStarterIndex + i) % (Game.NumPlayers + 1);
                 if (ii == _myIndex)
                 {
@@ -243,13 +244,16 @@ namespace Mariasek.Engine.New
                                 currentExpectedTrumps = 0;
                             }
                             ratio = (float)currentExpectedTrumps / totalUncertainTrumps;
-                            if (ratio > 1 - epsilon)
+                            //nemuzeme pouzit epsilon, protoze sance, ze volici hrac uz nema dalsi trumfy
+                            //v zavislosti na typu hry a tom kolik trumfu uz odehral musi byt vetsi
+                            //pravidla pocitajici s epsilonem by jinak mohla vest ke spatnym rozhodnutim
+                            if (ratio > 1 - small)
                             {
-                                ratio = 1 - epsilon;
+                                ratio = 1 - small;
                             }
-                            else if (ratio < epsilon)
+                            else if (ratio < small)
                             {
-                                ratio = epsilon;
+                                ratio = small;
                             }
                         }
                         _cardProbabilityForPlayer[ii][b][h] = ratio;
@@ -1136,7 +1140,9 @@ namespace Mariasek.Engine.New
             {
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c2.Suit][Hodnota.Kral] = 0;
             }
-            if (_trump.HasValue &&
+			const float epsilon = 0.01f;
+
+			if (_trump.HasValue &&
                 c1.Suit != _trump &&
                 c1.Suit == c2.Suit &&
                 c2.Value > c1.Value &&
@@ -1146,12 +1152,25 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] < 1 &&
                 roundStarterIndex == _gameStarterIndex)
             {
-                const float epsilon = 0.01f;
-
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] = epsilon;
                 _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] = 1 - epsilon;
             }
-            _cardsPlayedByPlayer[(roundStarterIndex + 1) % Game.NumPlayers].Add(c2);
+			if (_trump.HasValue &&
+				c1.Suit != _trump &&
+				c1.Suit == c2.Suit &&
+				c2.Value > c1.Value &&
+				c2.Value != Hodnota.Eso &&
+                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] == 0 &&
+                _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] == 0 &&
+                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] == 0 &&
+				_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Eso] > 0 &&
+				_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Eso] < 1 &&
+				roundStarterIndex == _gameStarterIndex)
+			{
+				_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Eso] = epsilon;
+				_cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Eso] = 1 - epsilon;
+			}
+			_cardsPlayedByPlayer[(roundStarterIndex + 1) % Game.NumPlayers].Add(c2);
             ReduceUcertainCardSet();
             if (c2.Suit != c1.Suit || c2.IsLowerThan(c1, _trump))
             {
@@ -1202,7 +1221,9 @@ namespace Mariasek.Engine.New
             {
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Kral] = 0;
             }
-            if (_trump.HasValue &&
+			const float epsilon = 0.01f;
+
+			if (_trump.HasValue &&
                 c1.Suit != _trump &&
                 c1.Suit == c3.Suit &&
                 c3.Value > c1.Value &&
@@ -1211,12 +1232,24 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] > 0 &&
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] < 1)
             {
-                const float epsilon = 0.01f;
-
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] = epsilon;
                 _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] = 1 - epsilon;
             }
-            _cardsPlayedByPlayer[(roundStarterIndex + 2) % Game.NumPlayers].Add(c3);
+			if (_trump.HasValue &&
+				c1.Suit != _trump &&
+				c1.Suit == c3.Suit &&
+				c3.Value > c1.Value &&
+				c3.Value != Hodnota.Eso &&
+                _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] == 0 &&
+                _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] == 0 &&
+                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] == 0 &&
+				_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Eso] > 0 &&
+				_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Eso] < 1)
+			{
+				_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Eso] = epsilon;
+				_cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Eso] = 1 - epsilon;
+			}
+			_cardsPlayedByPlayer[(roundStarterIndex + 2) % Game.NumPlayers].Add(c3);
             ReduceUcertainCardSet();
             if (c2.Suit != c1.Suit || c2.IsLowerThan(c1, _trump))
             {
