@@ -41,6 +41,7 @@ namespace Mariasek.SharedClient
         public SortMode SortMode { get; set; }
         public float BaseBet { get; set; }
         public int ThinkingTimeMs { get; set; }
+        public int BubbleTimeMs { get; set; }
         public CalculationStyle CalculationStyle { get; set; }
         public int GameTypeSimulationsPerSecond { get; set; }
         public int RoundSimulationsPerSecond { get; set; }
@@ -60,6 +61,7 @@ namespace Mariasek.SharedClient
             CalculationStyle = CalculationStyle.Adding;
             CurrentStartingPlayerIndex = 0;
             ThinkingTimeMs = 1000;
+            BubbleTimeMs = 1000;
 			CardDesign = CardFace.Single;
             CardBackSide = CardBackSide.Tartan;
 			ResetThresholds();
@@ -87,7 +89,7 @@ namespace Mariasek.SharedClient
                     GameType = Hra.Sedma,
                     Use = true,
                     MaxBidCount = 2,
-                    Thresholds = "35|45|70|85"
+                    Thresholds = "35|55|75|85"
                 },
                 new BidThresholdSettings
                 {

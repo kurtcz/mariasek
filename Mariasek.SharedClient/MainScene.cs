@@ -93,7 +93,6 @@ namespace Mariasek.SharedClient
         #endregion
 
         public Mariasek.Engine.New.Game g;
-        private const int _bubbleTime = 750;
         private Task _gameTask;
         private SynchronizationContext _synchronizationContext;
         private CancellationTokenSource _cancellationTokenSource;
@@ -2639,7 +2638,7 @@ namespace Mariasek.SharedClient
                 });
             if (autoHide)
             {
-                this.Wait(_bubbleTime)
+                this.Wait(_settings.BubbleTimeMs)
                     .Invoke(() =>
                     {
                         _bubbles[bubbleNo].Hide();
