@@ -143,7 +143,7 @@ namespace Mariasek.Engine.New
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]);
 
-                    return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                    return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                 }
             };
         }
@@ -161,7 +161,7 @@ namespace Mariasek.Engine.New
                 {
                     var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => !c1.IsHigherThan(i, null));
 
-                    return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
+                    return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                 }
             };
 
@@ -173,7 +173,7 @@ namespace Mariasek.Engine.New
                 {
                     var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit == c1.Suit);
 
-                    return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                    return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                 }
             };
 
@@ -216,7 +216,7 @@ namespace Mariasek.Engine.New
                 {
                     var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]);
 
-                    return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                    return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                 }
             };
         }
