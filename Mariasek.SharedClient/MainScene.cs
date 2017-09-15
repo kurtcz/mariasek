@@ -2175,7 +2175,7 @@ namespace Mariasek.SharedClient
                         MenuBtnClicked(this);
                         return;
                     }
-                    g.GameFlavourChosen += GameFlavourChosen;
+					g.GameFlavourChosen += GameFlavourChosen;
                     g.GameTypeChosen += GameTypeChosen;
                     g.BidMade += BidMade;
                     g.CardPlayed += CardPlayed;

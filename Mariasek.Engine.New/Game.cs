@@ -459,6 +459,7 @@ namespace Mariasek.Engine.New
             {
                 Rewind();
             }
+            RoundSanityCheck();
 #if !PORTABLE
             var programFolder = System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
             SaveGame(System.IO.Path.Combine(programFolder, "_temp.hra"));
@@ -808,6 +809,7 @@ namespace Mariasek.Engine.New
             GameStartingPlayer.Hand.AddRange(talon);
             talon.Clear();
             RoundNumber = 0;
+            GameType = 0;
             InitPlayers();
         }
 

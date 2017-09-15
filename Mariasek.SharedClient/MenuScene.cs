@@ -17,8 +17,9 @@ namespace Mariasek.SharedClient
         private Sprite[] _cards;
         private SpriteButton _logo;
         private GameSettings _settings;
+		private Vector2 _originalLogoScale;
 
-        public MenuScene(MariasekMonoGame game)
+		public MenuScene(MariasekMonoGame game)
             : base(game)
         {
             Game.SettingsScene.SettingsChanged += SettingsChanged;
@@ -94,6 +95,8 @@ namespace Mariasek.SharedClient
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top
             };
             _logo.Click += LogoClicked;
+            _originalLogoScale = _logo.Sprite.Scale;
+            AnimateLogo();
             _version = new Label(this)
             {
                 Position = new Vector2(5, Game.VirtualScreenHeight - 34),
@@ -124,6 +127,39 @@ namespace Mariasek.SharedClient
             {
                 Game.Navigator.Navigate("http://www.hracikarty.cz/");
             }
+        }
+
+        void AnimateLogo()
+        {
+			var normal = _originalLogoScale;
+            var slim = new Vector2(0, _originalLogoScale.Y);
+            const float flipSpeed = 1f;
+
+			this.Wait(3000)
+				.Invoke(() =>
+                 {
+					 _logo.Sprite.ScaleTo(slim, flipSpeed);
+                 })
+                .WaitUntil(() => !_logo.Sprite.IsBusy)
+                .Invoke(() =>
+                 {
+					 _logo.Sprite.Flip = SpriteEffects.FlipHorizontally;
+                     _logo.Sprite.ScaleTo(normal, flipSpeed);
+                 })
+				.WaitUntil(() => !_logo.Sprite.IsBusy)
+				.Invoke(() =>
+                 {
+                     _logo.Sprite.ScaleTo(slim, flipSpeed);
+                 })
+				.WaitUntil(() => !_logo.Sprite.IsBusy)
+				.Invoke(() =>
+                 {
+					 _logo.Sprite.Flip = SpriteEffects.None;
+                     _logo.Sprite.ScaleTo(normal, flipSpeed);
+                 })
+				.WaitUntil(() => !_logo.Sprite.IsBusy)
+				.Wait(7000)
+                .Invoke(() => AnimateLogo());
         }
 
         void ShuffleBtnClicked(object sender)

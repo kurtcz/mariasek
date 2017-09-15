@@ -49,6 +49,7 @@ namespace Mariasek.SharedClient.GameComponents
             set { _spriteTexture = value; }
         }
         public Color Tint { get; set; }
+        public SpriteEffects Flip { get; set; }
         public Vector2 RotationOrigin { get; set; }
         public Rectangle SpriteRectangle
         { 
@@ -267,7 +268,7 @@ namespace Mariasek.SharedClient.GameComponents
                     RotationAngle,
                     Vector2.Subtract(RotationOrigin, new Vector2(SpriteRectangle.Left, SpriteRectangle.Top)),
                     Scale,
-                    (SpriteEffects)0,
+                    Flip,
                     ZIndex/100f   //depth
                 );
 #if DEBUG_SPRITES
