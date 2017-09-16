@@ -948,6 +948,7 @@ namespace Mariasek.SharedClient
         {
             if (_review != null)
             {
+                Children.Remove(_review);
                 _review.Dispose();
             }
             _review = new GameReview(this)

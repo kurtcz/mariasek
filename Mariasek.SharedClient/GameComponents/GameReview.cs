@@ -409,7 +409,9 @@ namespace Mariasek.SharedClient.GameComponents
             BoundsRect = new Rectangle(0, 0, (int)Game.VirtualScreenWidth - (int)Position.X, (roundsLength + headLength) * (int)(Hand.CardHeight * reviewCardScaleFactor.Y + 50) - (int)Position.Y);
             ScrollBarColor = Color.Transparent;
 
-            for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
+			var maxHlasMarked = false;
+			var maxHlasAgainstMarked = false;
+			for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
             {
                 var ii = (Game.MainScene.g.GameStartingPlayerIndex + i) % Mariasek.Engine.New.Game.NumPlayers;
                 var hand = new List<Card>(_initialHands[ii].Sort(false, Game.MainScene.g.trump.HasValue ? false : true, Game.MainScene.g.trump));
@@ -425,7 +427,44 @@ namespace Mariasek.SharedClient.GameComponents
                     var hlas = (Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
                         ((hand[j].Value == Hodnota.Kral && hand.Any(k => k.Value == Hodnota.Svrsek && k.Suit == hand[j].Suit)) ||
                          (hand[j].Value == Hodnota.Svrsek && hand.Any(k => k.Value == Hodnota.Kral && k.Suit == hand[j].Suit)));
-                    Hands[i][j] = new Sprite(this, Game.CardTextures, rect)
+
+                    if (hlas && 
+                        Game.MainScene.g.Results != null &&
+                        i == 0 && 
+                        (Game.MainScene.g.GameType & Hra.Kilo) != 0 &&
+                        !Game.MainScene.g.Results.HundredWon)
+                    {
+                        if (maxHlasMarked)
+                        {
+							hlas = false;
+						}
+                        else if ((Game.MainScene.g.Results.MaxHlasWon == 40 &&
+                                  hand[j].Suit == Game.MainScene.g.trump) ||
+								 (Game.MainScene.g.Results.MaxHlasWon == 20 &&
+                                  hand[j].Suit != Game.MainScene.g.trump))
+                        {
+                            maxHlasMarked = true;
+                        }
+                    }
+					else if (hlas &&
+						     Game.MainScene.g.Results != null &&
+						     i != 0 &&
+						     (Game.MainScene.g.GameType & Hra.KiloProti) != 0 &&
+						     !Game.MainScene.g.Results.HundredAgainstWon)
+					{
+						if (maxHlasAgainstMarked)
+						{
+							hlas = false;
+						}
+						else if ((Game.MainScene.g.Results.MaxHlasLost == 40 &&
+								  hand[j].Suit == Game.MainScene.g.trump) ||
+								 (Game.MainScene.g.Results.MaxHlasLost == 20 &&
+								  hand[j].Suit != Game.MainScene.g.trump))
+						{
+							maxHlasAgainstMarked = true;
+						}
+					}
+					Hands[i][j] = new Sprite(this, Game.CardTextures, rect)
                     {
                         Position = new Vector2(200 + j * (Hand.CardWidth * reviewCardScaleFactor.X - 10), 100 + i * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 30),
 						ZIndex = i * Mariasek.Engine.New.Game.NumRounds + j + 1,

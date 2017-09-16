@@ -195,7 +195,16 @@ namespace Mariasek.Engine.New
 
                 HundredWon = BasicPointsWon + MaxHlasWon >= 100;
                 HundredAgainstWon = BasicPointsLost + MaxHlasLost >= 100;
-            }
+
+                if ((g.GameType & Hra.Kilo) != 0 && !HundredWon)
+                {
+                    PointsWon = BasicPointsWon + MaxHlasWon;
+                }
+                if ((g.GameType & Hra.KiloProti) != 0 && !HundredAgainstWon)
+				{
+					PointsLost = BasicPointsLost + MaxHlasLost;
+				}
+			}
             else //bad game
             {
                 foreach (var r in g.rounds)
