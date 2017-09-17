@@ -49,22 +49,25 @@ namespace Mariasek.SharedClient
         private Button _menuBtn;
         private Button _aiBtn;
 
-        private GameSettings _settings;
-
-        public delegate void SettingsChangedEventHandler(object sender, SettingsChangedEventArgs e);
-        public event SettingsChangedEventHandler SettingsChanged;
-        protected virtual void OnSettingsChanged()
-        {
-            if (SettingsChanged != null)
-            {
-                SettingsChanged(this, new SettingsChangedEventArgs{ Settings = this._settings });
-            }
-        }
-
         public SettingsScene(MariasekMonoGame game)
             : base(game)
         {
+            Game.SettingsChanged += SettingsChanged;
+            SceneActivated += Activated;
         }
+
+        private void SettingsChanged(object sender, SettingsChangedEventArgs e)
+        {
+			SoundEffect.MasterVolume = Game.Settings.SoundEnabled ? 1f : 0f;
+			Game.AmbientSound.Volume = Game.Settings.BgSoundEnabled ? 0.2f : 0f;
+			MediaPlayer.Volume = Game.Settings.BgSoundEnabled ? 0.1f : 0f;
+		}
+
+        private void Activated(object sender)
+        {
+			_performance.Text = string.Format("Výkon simulace: {0} her/s",
+	            Game.Settings.GameTypeSimulationsPerSecond > 0 ? Game.Settings.GameTypeSimulationsPerSecond.ToString() : "?");
+		}
 
         /// <summary>
         /// Allows the game component to perform any initialization it needs to before starting
@@ -82,7 +85,7 @@ namespace Mariasek.SharedClient
                 HorizontalAlign = HorizontalAlignment.Right,
 				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Bottom
             };
-            LoadGameSettings();
+            Game.LoadGameSettings();
             _sounds = new Label(this)
             {
                 Position = new Vector2(200, 10),
@@ -106,8 +109,8 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 10),
                 Width = 270,
                 Height = 50,
-                Text = _settings.SoundEnabled ? "Zapnutý" : "Vypnutý",
-                IsSelected = _settings.SoundEnabled,
+                Text = Game.Settings.SoundEnabled ? "Zapnutý" : "Vypnutý",
+                IsSelected = Game.Settings.SoundEnabled,
 				BorderColor = Color.Transparent,
 				BackgroundColor = Color.Transparent
             };
@@ -117,8 +120,8 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 70),
                 Width = 270,
                 Height = 50,
-                Text = _settings.BgSoundEnabled ? "Zapnutý" : "Vypnutý",
-                IsSelected = _settings.BgSoundEnabled,
+                Text = Game.Settings.BgSoundEnabled ? "Zapnutý" : "Vypnutý",
+                IsSelected = Game.Settings.BgSoundEnabled,
                 BorderColor = Color.Transparent,
                 BackgroundColor = Color.Transparent
             };
@@ -137,8 +140,8 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 130),
                 Width = 270,
                 Height = 50,
-                Text = _settings.HintEnabled ? "Zapnutá" : "Vypnutá",
-                IsSelected = _settings.HintEnabled,
+                Text = Game.Settings.HintEnabled ? "Zapnutá" : "Vypnutá",
+                IsSelected = Game.Settings.HintEnabled,
 				BorderColor = Color.Transparent,
 				BackgroundColor = Color.Transparent
             };
@@ -158,7 +161,7 @@ namespace Mariasek.SharedClient
 				Width = 270,
 				Items = new SelectorItems() { { "Jednohlavé", CardFace.Single }, { "Dvouhlavé", CardFace.Double } }
 			};
-			_cardFaceSelector.SelectedIndex = _cardFaceSelector.Items.FindIndex(_settings.CardDesign);
+			_cardFaceSelector.SelectedIndex = _cardFaceSelector.Items.FindIndex(Game.Settings.CardDesign);
 			_cardFaceSelector.SelectionChanged += CardFaceChanged;
 			if (_cardFaceSelector.SelectedIndex < 0)
 			{
@@ -179,7 +182,7 @@ namespace Mariasek.SharedClient
 				Width = 270,
                 Items = new SelectorItems() { { "Káro", CardBackSide.Tartan }, { "Koník", CardBackSide.Horse }, { "Krajka", CardBackSide.Lace } }
 			};
-			_cardBackSelector.SelectedIndex = _cardBackSelector.Items.FindIndex(_settings.CardBackSide);
+			_cardBackSelector.SelectedIndex = _cardBackSelector.Items.FindIndex(Game.Settings.CardBackSide);
 			_cardBackSelector.SelectionChanged += CardBackChanged;
 			if (_cardBackSelector.SelectedIndex < 0)
 			{
@@ -200,7 +203,7 @@ namespace Mariasek.SharedClient
 				Width = 270,
 				Items = new SelectorItems() { { "Vzestupně", SortMode.Ascending }, { "Sestupně", SortMode.Descending }, { "Vůbec", SortMode.None } }
 			};
-			_handSortingSelector.SelectedIndex = _handSortingSelector.Items.FindIndex(_settings.SortMode);
+			_handSortingSelector.SelectedIndex = _handSortingSelector.Items.FindIndex(Game.Settings.SortMode);
 			_handSortingSelector.SelectionChanged += SortModeChanged;
             _baseBet = new Label(this)
             {
@@ -218,7 +221,7 @@ namespace Mariasek.SharedClient
 				Items = new SelectorItems() { { "0,10 Kč", 0.1f}, { "0,20 Kč", 0.2f}, { "0,50 Kč", 0.5f },
 											  { "1 Kč", 1f }, { "2 Kč", 2f}, { "5 Kč", 5f}, { "10 Kč", 10f} }
 			};
-			_baseBetSelector.SelectedIndex = _baseBetSelector.Items.FindIndex(_settings.BaseBet);
+			_baseBetSelector.SelectedIndex = _baseBetSelector.Items.FindIndex(Game.Settings.BaseBet);
 			_baseBetSelector.SelectionChanged += BaseBetChanged;
 			_kiloCounting = new Label(this)
 			{
@@ -235,7 +238,7 @@ namespace Mariasek.SharedClient
 				Width = 270,
 				Items = new SelectorItems() { { "Sčítat", CalculationStyle.Adding}, { "Násobit", CalculationStyle.Multiplying} }
 			};
-			_kiloCountingSelector.SelectedIndex = _kiloCountingSelector.Items.FindIndex(_settings.CalculationStyle);
+			_kiloCountingSelector.SelectedIndex = _kiloCountingSelector.Items.FindIndex(Game.Settings.CalculationStyle);
 			_kiloCountingSelector.SelectionChanged += KiloCountingChanged;
             //_thinkingTime = new Label(this)
             //{
@@ -252,7 +255,7 @@ namespace Mariasek.SharedClient
             //	Width = 360,
             //	Items = new SelectorItems() { { "Krátce", 1000 }, { "Středně", 2000 }, { "Dlouho", 3000 } }
             //};
-            //_thinkingTimeSelector.SelectedIndex = _thinkingTimeSelector.Items.FindIndex(_settings.ThinkingTimeMs);
+            //_thinkingTimeSelector.SelectedIndex = _thinkingTimeSelector.Items.FindIndex(Game.Settings.ThinkingTimeMs);
             //_thinkingTimeSelector.SelectionChanged += ThinkingTimeChanged;
             //if (_thinkingTimeSelector.SelectedIndex < 0)
             //{
@@ -276,96 +279,98 @@ namespace Mariasek.SharedClient
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Bottom
             };
             _aiBtn.Click += AiBtnClick;
+			_performance.Text = string.Format("Výkon simulace: {0} her/s",
+				Game.Settings.GameTypeSimulationsPerSecond > 0 ? Game.Settings.GameTypeSimulationsPerSecond.ToString() : "?");
 
-            Background = Game.Content.Load<Texture2D>("wood2");
+			Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;
-            OnSettingsChanged();
+            Game.OnSettingsChanged();
         }
 
         void HintBtnClick (object sender)
         {
             var btn = sender as ToggleButton;
 
-            _settings.HintEnabled = btn.IsSelected;
-            _hintBtn.Text = _settings.HintEnabled ? "Zapnutá" : "Vypnutá";
-            SaveGameSettings();
-            OnSettingsChanged();
+            Game.Settings.HintEnabled = btn.IsSelected;
+            _hintBtn.Text = Game.Settings.HintEnabled ? "Zapnutá" : "Vypnutá";
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
         }
 
         void SoundBtnClick (object sender)
         {
             var btn = sender as ToggleButton;
 
-            _settings.SoundEnabled = btn.IsSelected;
-            _soundBtn.Text = _settings.SoundEnabled ? "Zapnutý" : "Vypnutý";
-            SaveGameSettings();
-            OnSettingsChanged();
+            Game.Settings.SoundEnabled = btn.IsSelected;
+            _soundBtn.Text = Game.Settings.SoundEnabled ? "Zapnutý" : "Vypnutý";
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
         }
 
         void BgSoundBtnClick(object sender)
         {
             var btn = sender as ToggleButton;
 
-            _settings.BgSoundEnabled = btn.IsSelected;
-            _bgsoundBtn.Text = _settings.BgSoundEnabled ? "Zapnutý" : "Vypnutý";
-            SaveGameSettings();
-            OnSettingsChanged();
+            Game.Settings.BgSoundEnabled = btn.IsSelected;
+            _bgsoundBtn.Text = Game.Settings.BgSoundEnabled ? "Zapnutý" : "Vypnutý";
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
         }
 
         void SortModeChanged (object sender)
         {
 			var selector = sender as LeftRightSelector;
 
-			_settings.SortMode = (SortMode)selector.SelectedValue;
-            SaveGameSettings();
-            OnSettingsChanged();
+			Game.Settings.SortMode = (SortMode)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
         }
 
         void BaseBetChanged (object sender)
         {
 			var selector = sender as LeftRightSelector;
 
-			_settings.BaseBet = (float)selector.SelectedValue;
-            SaveGameSettings();
-            OnSettingsChanged();
+			Game.Settings.BaseBet = (float)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
         }
 
 		void ThinkingTimeChanged(object sender)
 		{
 			var selector = sender as LeftRightSelector;
 
-			_settings.ThinkingTimeMs = (int)selector.SelectedValue;
-			SaveGameSettings();
-			OnSettingsChanged();
+			Game.Settings.ThinkingTimeMs = (int)selector.SelectedValue;
+			Game.SaveGameSettings();
+			Game.OnSettingsChanged();
 		}
 
 		void KiloCountingChanged (object sender)
         {
 			var selector = sender as LeftRightSelector;
 
-			_settings.CalculationStyle = (CalculationStyle)selector.SelectedValue;
-            SaveGameSettings();
-            OnSettingsChanged();
+			Game.Settings.CalculationStyle = (CalculationStyle)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
         }
 
 		void CardFaceChanged(object sender)
 		{
 			var selector = sender as LeftRightSelector;
-			var origValue = _settings.CardDesign;
+			var origValue = Game.Settings.CardDesign;
 
-			_settings.CardDesign = (CardFace)selector.SelectedValue;
-			SaveGameSettings();
-			OnSettingsChanged();
+			Game.Settings.CardDesign = (CardFace)selector.SelectedValue;
+			Game.SaveGameSettings();
+			Game.OnSettingsChanged();
 		}
 
 		void CardBackChanged(object sender)
 		{
 			var selector = sender as LeftRightSelector;
-			var origValue = _settings.CardBackSide;
+			var origValue = Game.Settings.CardBackSide;
 
-			_settings.CardBackSide = (CardBackSide)selector.SelectedValue;
-			SaveGameSettings();
-			OnSettingsChanged();
+			Game.Settings.CardBackSide = (CardBackSide)selector.SelectedValue;
+			Game.SaveGameSettings();
+			Game.OnSettingsChanged();
 		}
 
         void MenuBtnClick (object sender)
@@ -377,69 +382,6 @@ namespace Mariasek.SharedClient
         {
             Game.AiSettingsScene.UpdateControls();
             Game.AiSettingsScene.SetActive();
-        }
-
-        public void LoadGameSettings(bool forceLoad = true)
-        {
-            if (!forceLoad && _settings != null)
-            {
-                return;
-            }
-
-            var xml = new XmlSerializer(typeof(GameSettings));
-            try
-            {
-                using (var fs = File.Open(_settingsFilePath, FileMode.Open))
-                {
-                    _settings = (GameSettings)xml.Deserialize(fs);
-                    if (!_settings.Default.HasValue ||
-                        _settings.Default.Value ||
-                        _settings.Thresholds == null || 
-                        !_settings.Thresholds.Any() || 
-                        _settings.Thresholds.Count() != Enum.GetValues(typeof(Hra)).Cast<Hra>().Count())
-                    {
-                        _settings.ResetThresholds();
-                    }
-                    _settings.ThinkingTimeMs = 2000;
-                }
-            }
-            catch(Exception e)
-            {
-                System.Diagnostics.Debug.WriteLine(string.Format("Cannot load settings\n{0}", e.Message));
-                _settings = new GameSettings();
-            }
-            _performance.Text = string.Format("Výkon simulace: {0} her/s", 
-                _settings.GameTypeSimulationsPerSecond > 0 ? _settings.GameTypeSimulationsPerSecond.ToString() : "?");
-        }
-
-        public void SaveGameSettings()
-        {            
-            var xml = new XmlSerializer(typeof(GameSettings));
-            try
-            {
-                MainScene.CreateDirectoryForFilePath(_settingsFilePath);
-                using (var fs = File.Open(_settingsFilePath, FileMode.Create))
-                {
-                    xml.Serialize(fs, _settings);
-                }
-                //using (var tw = new StringWriter())
-                //{
-                //    xml.Serialize(tw, _settings);
-                //    var str = tw.ToString();
-                //}
-            }
-            catch(Exception e)
-            {
-                System.Diagnostics.Debug.WriteLine(string.Format("Cannot save settings\n{0}", e.Message));
-            }
-            LoadGameSettings();
-        }
-
-        public void UpdateSettings(GameSettings settings)
-        {
-            _settings = settings;
-            SaveGameSettings();
-            OnSettingsChanged();
         }
     }
 }

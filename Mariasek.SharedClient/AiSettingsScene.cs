@@ -44,14 +44,13 @@ namespace Mariasek.SharedClient
 #endregion
 
         private bool _settingsChanged;
-        private GameSettings _settings;
         private int  _recursionLevel;
         private bool _updating;
 
         public AiSettingsScene(MariasekMonoGame game)
             : base(game)
         {           
-            Game.SettingsScene.SettingsChanged += SettingsChanged;
+            Game.SettingsChanged += SettingsChanged;
         }
 
         /// <summary>
@@ -297,7 +296,6 @@ namespace Mariasek.SharedClient
 
         private void SettingsChanged(object sender, SettingsChangedEventArgs e)
         {
-            _settings = e.Settings;
             if (_gameTypeSelector != null)
             {
                 UpdateControls();
@@ -307,7 +305,7 @@ namespace Mariasek.SharedClient
 
         public void UpdateControls(bool chartOnly = false)
         {
-            var thresholdsDictionary = _settings.Thresholds.ToDictionary(k => k.GameType, v => v);
+            var thresholdsDictionary = Game.Settings.Thresholds.ToDictionary(k => k.GameType, v => v);
             var thresholds = thresholdsDictionary[(Hra)_gameTypeSelector.SelectedValue].Thresholds.Split('|')
                                                                                                   .Select(i => int.Parse(i))
                                                                                                   .ToArray();
@@ -321,7 +319,7 @@ namespace Mariasek.SharedClient
                 _threshold1Selector.SelectedIndex = _threshold1Selector.Items.FindIndex(thresholds[1]);
                 _threshold2Selector.SelectedIndex = _threshold2Selector.Items.FindIndex(thresholds[2]);
                 _threshold3Selector.SelectedIndex = _threshold3Selector.Items.FindIndex(thresholds[3]);
-                _riskFactorSelector.SelectedIndex = _riskFactorSelector.Items.FindIndex(_settings.RiskFactor);
+                _riskFactorSelector.SelectedIndex = _riskFactorSelector.Items.FindIndex(Game.Settings.RiskFactor);
                 _updating = false;
             }
             _chart.MaxValue = new Vector2(thresholds.Length - 1 + 0.1f, 105);
@@ -354,7 +352,7 @@ namespace Mariasek.SharedClient
             {
                 return;
             }
-            var thresholdSettings = _settings.Thresholds.First(i => i.GameType == (Hra)_gameTypeSelector.SelectedValue);
+            var thresholdSettings = Game.Settings.Thresholds.First(i => i.GameType == (Hra)_gameTypeSelector.SelectedValue);
 
             thresholdSettings.Thresholds = string.Format("{0}|{1}|{2}|{3}", _threshold0Selector.SelectedValue,
                                                                             _threshold1Selector.SelectedValue,
@@ -362,15 +360,15 @@ namespace Mariasek.SharedClient
                                                                             _threshold3Selector.SelectedValue);
             thresholdSettings.MaxBidCount = (int)_maxBidCountSelector.SelectedValue;
             thresholdSettings.Use = (bool)_playSelector.SelectedValue;
-            _settings.RiskFactor = (float)_riskFactorSelector.SelectedValue;
+            Game.Settings.RiskFactor = (float)_riskFactorSelector.SelectedValue;
         }
 
         public void BackButtonClicked(object sender)
         {
             if (_settingsChanged)
             {
-                _settings.Default = false;
-                Game.SettingsScene.UpdateSettings(_settings);
+                Game.Settings.Default = false;
+                Game.UpdateSettings();
                 _settingsChanged = false;
             }
             Game.SettingsScene.SetActive();
@@ -378,8 +376,8 @@ namespace Mariasek.SharedClient
 
         public void ResetButtonClicked(object sender)
         {            
-            _settings.ResetThresholds();
-            Game.SettingsScene.UpdateSettings(_settings);
+            Game.Settings.ResetThresholds();
+            Game.UpdateSettings();
             _settingsChanged = false;
             UpdateControls();
         }

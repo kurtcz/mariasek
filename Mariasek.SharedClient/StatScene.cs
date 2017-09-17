@@ -43,7 +43,6 @@ namespace Mariasek.SharedClient
 
     public class StatScene : Scene
     {
-        private GameSettings _settings;
         private Button _backButton;
         private LeftRightSelector _effectivityMoneySelector;
         private LeftRightSelector _leaderDefenceSelector;
@@ -247,7 +246,6 @@ namespace Mariasek.SharedClient
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
                 ZIndex = 100
             };
-            Game.SettingsScene.SettingsChanged += SettingsChanged;
             PopulateControls();
         }
 
@@ -434,39 +432,39 @@ namespace Mariasek.SharedClient
             var defencesRatio1 = defencesPlayed1 > 0 ? defencesWon1 / (float)defencesPlayed1 : 0f;
             var defencesRatio2 = defencesPlayed2 > 0 ? defencesWon2 / (float)defencesPlayed2 : 0f;
             var defencesRatio3 = defencesPlayed3 > 0 ? defencesWon3 / (float)defencesPlayed3 : 0f;
-            var moneyBalance1 = games1.Sum(i => i.MoneyWon[0] * _settings.BaseBet);
-            var moneyBalance2 = games2.Sum(i => i.MoneyWon[1] * _settings.BaseBet);
-            var moneyBalance3 = games3.Sum(i => i.MoneyWon[2] * _settings.BaseBet);
-            var defenceMoneyBalance1 = (games2.Sum(i => -i.MoneyWon[1] * _settings.BaseBet) + games3.Sum(i => -i.MoneyWon[2] * _settings.BaseBet))/2;
-            var defenceMoneyBalance2 = (games1.Sum(i => -i.MoneyWon[0] * _settings.BaseBet) + games3.Sum(i => -i.MoneyWon[2] * _settings.BaseBet))/2;
-            var defenceMoneyBalance3 = (games1.Sum(i => -i.MoneyWon[0] * _settings.BaseBet) + games2.Sum(i => -i.MoneyWon[1] * _settings.BaseBet))/2;
-            var moneyMin1 = gamesPlayed1 > 0 ? games1.Min(i => i.MoneyWon[0] * _settings.BaseBet) : 0f;
-            var moneyMin2 = gamesPlayed2 > 0 ? games2.Min(i => i.MoneyWon[1] * _settings.BaseBet) : 0f;
-            var moneyMin3 = gamesPlayed3 > 0 ? games3.Min(i => i.MoneyWon[2] * _settings.BaseBet) : 0f;
-            var defenceMoneyMin1 = gamesPlayed2 > 0 ? games2.Min(i => -i.MoneyWon[1] * _settings.BaseBet) : 0f + 
-                                   gamesPlayed3 > 0 ? games3.Min(i => -i.MoneyWon[2] * _settings.BaseBet) : 0f;
-            var defenceMoneyMin2 = gamesPlayed1 > 0 ? games1.Min(i => -i.MoneyWon[0] * _settings.BaseBet) : 0f +
-                                   gamesPlayed3 > 0 ? games3.Min(i => -i.MoneyWon[2] * _settings.BaseBet) : 0f;
-            var defenceMoneyMin3 = gamesPlayed1 > 0 ? games1.Min(i => -i.MoneyWon[0] * _settings.BaseBet) : 0f +
-                                   gamesPlayed2 > 0 ? games2.Min(i => -i.MoneyWon[1] * _settings.BaseBet) : 0f;
-            var moneyAvg1 = gamesPlayed1 > 0 ? games1.Average(i => i.MoneyWon[0] * _settings.BaseBet) : 0f;
-            var moneyAvg2 = gamesPlayed2 > 0 ? games2.Average(i => i.MoneyWon[1] * _settings.BaseBet) : 0f;
-            var moneyAvg3 = gamesPlayed3 > 0 ? games3.Average(i => i.MoneyWon[2] * _settings.BaseBet) : 0f;
-            var defenceMoneyAvg1 = gamesPlayed2 > 0 ? games2.Average(i => -i.MoneyWon[1] * _settings.BaseBet) : 0f + 
-                                   gamesPlayed3 > 0 ? games3.Average(i => -i.MoneyWon[2] * _settings.BaseBet) : 0f;
-            var defenceMoneyAvg2 = gamesPlayed1 > 0 ? games1.Average(i => -i.MoneyWon[0] * _settings.BaseBet) : 0f + 
-                                   gamesPlayed3 > 0 ? games3.Average(i => -i.MoneyWon[2] * _settings.BaseBet) : 0f;
-            var defenceMoneyAvg3 = gamesPlayed1 > 0 ? games1.Average(i => -i.MoneyWon[0] * _settings.BaseBet) : 0f +
-                                   gamesPlayed2 > 0 ? games2.Average(i => -i.MoneyWon[1] * _settings.BaseBet) : 0f;
-            var moneyMax1 = gamesPlayed1 > 0 ? games1.Max(i => i.MoneyWon[0] * _settings.BaseBet) : 0f;
-            var moneyMax2 = gamesPlayed2 > 0 ? games2.Max(i => i.MoneyWon[1] * _settings.BaseBet) : 0f;
-            var moneyMax3 = gamesPlayed3 > 0 ? games3.Max(i => i.MoneyWon[2] * _settings.BaseBet) : 0f;
-            var defenceMoneyMax1 = gamesPlayed2 > 0 ? games2.Max(i => -i.MoneyWon[1] * _settings.BaseBet) : 0f + 
-                                   gamesPlayed3 > 0 ? games3.Max(i => -i.MoneyWon[2] * _settings.BaseBet) : 0f;
-            var defenceMoneyMax2 = gamesPlayed1 > 0 ? games1.Max(i => -i.MoneyWon[0] * _settings.BaseBet) : 0f +
-                                   gamesPlayed3 > 0 ? games3.Max(i => -i.MoneyWon[2] * _settings.BaseBet) : 0f;
-            var defenceMoneyMax3 = gamesPlayed1 > 0 ? games1.Max(i => -i.MoneyWon[0] * _settings.BaseBet) : 0f +
-                                   gamesPlayed2 > 0 ? games2.Max(i => -i.MoneyWon[1] * _settings.BaseBet) : 0f;
+            var moneyBalance1 = games1.Sum(i => i.MoneyWon[0] * Game.Settings.BaseBet);
+            var moneyBalance2 = games2.Sum(i => i.MoneyWon[1] * Game.Settings.BaseBet);
+            var moneyBalance3 = games3.Sum(i => i.MoneyWon[2] * Game.Settings.BaseBet);
+            var defenceMoneyBalance1 = (games2.Sum(i => -i.MoneyWon[1] * Game.Settings.BaseBet) + games3.Sum(i => -i.MoneyWon[2] * Game.Settings.BaseBet))/2;
+            var defenceMoneyBalance2 = (games1.Sum(i => -i.MoneyWon[0] * Game.Settings.BaseBet) + games3.Sum(i => -i.MoneyWon[2] * Game.Settings.BaseBet))/2;
+            var defenceMoneyBalance3 = (games1.Sum(i => -i.MoneyWon[0] * Game.Settings.BaseBet) + games2.Sum(i => -i.MoneyWon[1] * Game.Settings.BaseBet))/2;
+            var moneyMin1 = gamesPlayed1 > 0 ? games1.Min(i => i.MoneyWon[0] * Game.Settings.BaseBet) : 0f;
+            var moneyMin2 = gamesPlayed2 > 0 ? games2.Min(i => i.MoneyWon[1] * Game.Settings.BaseBet) : 0f;
+            var moneyMin3 = gamesPlayed3 > 0 ? games3.Min(i => i.MoneyWon[2] * Game.Settings.BaseBet) : 0f;
+            var defenceMoneyMin1 = gamesPlayed2 > 0 ? games2.Min(i => -i.MoneyWon[1] * Game.Settings.BaseBet) : 0f + 
+                                   gamesPlayed3 > 0 ? games3.Min(i => -i.MoneyWon[2] * Game.Settings.BaseBet) : 0f;
+            var defenceMoneyMin2 = gamesPlayed1 > 0 ? games1.Min(i => -i.MoneyWon[0] * Game.Settings.BaseBet) : 0f +
+                                   gamesPlayed3 > 0 ? games3.Min(i => -i.MoneyWon[2] * Game.Settings.BaseBet) : 0f;
+            var defenceMoneyMin3 = gamesPlayed1 > 0 ? games1.Min(i => -i.MoneyWon[0] * Game.Settings.BaseBet) : 0f +
+                                   gamesPlayed2 > 0 ? games2.Min(i => -i.MoneyWon[1] * Game.Settings.BaseBet) : 0f;
+            var moneyAvg1 = gamesPlayed1 > 0 ? games1.Average(i => i.MoneyWon[0] * Game.Settings.BaseBet) : 0f;
+            var moneyAvg2 = gamesPlayed2 > 0 ? games2.Average(i => i.MoneyWon[1] * Game.Settings.BaseBet) : 0f;
+            var moneyAvg3 = gamesPlayed3 > 0 ? games3.Average(i => i.MoneyWon[2] * Game.Settings.BaseBet) : 0f;
+            var defenceMoneyAvg1 = gamesPlayed2 > 0 ? games2.Average(i => -i.MoneyWon[1] * Game.Settings.BaseBet) : 0f + 
+                                   gamesPlayed3 > 0 ? games3.Average(i => -i.MoneyWon[2] * Game.Settings.BaseBet) : 0f;
+            var defenceMoneyAvg2 = gamesPlayed1 > 0 ? games1.Average(i => -i.MoneyWon[0] * Game.Settings.BaseBet) : 0f + 
+                                   gamesPlayed3 > 0 ? games3.Average(i => -i.MoneyWon[2] * Game.Settings.BaseBet) : 0f;
+            var defenceMoneyAvg3 = gamesPlayed1 > 0 ? games1.Average(i => -i.MoneyWon[0] * Game.Settings.BaseBet) : 0f +
+                                   gamesPlayed2 > 0 ? games2.Average(i => -i.MoneyWon[1] * Game.Settings.BaseBet) : 0f;
+            var moneyMax1 = gamesPlayed1 > 0 ? games1.Max(i => i.MoneyWon[0] * Game.Settings.BaseBet) : 0f;
+            var moneyMax2 = gamesPlayed2 > 0 ? games2.Max(i => i.MoneyWon[1] * Game.Settings.BaseBet) : 0f;
+            var moneyMax3 = gamesPlayed3 > 0 ? games3.Max(i => i.MoneyWon[2] * Game.Settings.BaseBet) : 0f;
+            var defenceMoneyMax1 = gamesPlayed2 > 0 ? games2.Max(i => -i.MoneyWon[1] * Game.Settings.BaseBet) : 0f + 
+                                   gamesPlayed3 > 0 ? games3.Max(i => -i.MoneyWon[2] * Game.Settings.BaseBet) : 0f;
+            var defenceMoneyMax2 = gamesPlayed1 > 0 ? games1.Max(i => -i.MoneyWon[0] * Game.Settings.BaseBet) : 0f +
+                                   gamesPlayed3 > 0 ? games3.Max(i => -i.MoneyWon[2] * Game.Settings.BaseBet) : 0f;
+            var defenceMoneyMax3 = gamesPlayed1 > 0 ? games1.Max(i => -i.MoneyWon[0] * Game.Settings.BaseBet) : 0f +
+                                   gamesPlayed2 > 0 ? games2.Max(i => -i.MoneyWon[1] * Game.Settings.BaseBet) : 0f;
             var culture = CultureInfo.CreateSpecificCulture("cs-CZ");
 
             sbGames.AppendFormat("{0,-7}\tHer\tVýher\tProher\tPoměr\n", gameTypeString);
@@ -493,11 +491,6 @@ namespace Mariasek.SharedClient
             sbDefenceMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.MainScene.PlayerNames[2], defenceMoneyBalance3.ToString("F2", culture), defenceMoneyMin3.ToString("F2", culture), defenceMoneyAvg3.ToString("F2", culture), defenceMoneyMax3.ToString("F2", culture));
             sbDefenceMoney.Append("__________________________________________________________\n");
             //sbMoney.Append("«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»\n");
-        }
-
-        public void SettingsChanged(object sender, SettingsChangedEventArgs e)
-        {
-            _settings = e.Settings;
         }
 
         private void StatModeSelectorClicked(object sender)

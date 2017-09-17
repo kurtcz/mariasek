@@ -1,7 +1,10 @@
 ﻿using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Media;
 using Mariasek.SharedClient.GameComponents;
+using System;
 
 namespace Mariasek.SharedClient
 {
@@ -16,13 +19,11 @@ namespace Mariasek.SharedClient
         private Label _author;
         private Sprite[] _cards;
         private SpriteButton _logo;
-        private GameSettings _settings;
 		private Vector2 _originalLogoScale;
 
 		public MenuScene(MariasekMonoGame game)
             : base(game)
         {
-            Game.SettingsScene.SettingsChanged += SettingsChanged;
         }
 
         /// <summary>
@@ -74,7 +75,7 @@ namespace Mariasek.SharedClient
             };
             _historyBtn.Click += HistoryClicked;
             _cards = new Sprite[3];
-            var backSideRect = _settings.CardBackSide.ToTextureRect();
+            var backSideRect = Game.Settings.CardBackSide.ToTextureRect();
             for (var i = 0; i < _cards.Length; i++)
             {
                 _cards[i] = new Sprite(this, Game.ReverseTexture, backSideRect)
@@ -114,12 +115,10 @@ namespace Mariasek.SharedClient
                 Text = "©2017 Tomáš Němec",
 				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Bottom
             };
-        }
-
-        public void SettingsChanged(object sender, SettingsChangedEventArgs e)
-        {
-            _settings = e.Settings;
-        }
+			SoundEffect.MasterVolume = Game.Settings.SoundEnabled ? 1f : 0f;
+			Game.AmbientSound.Volume = Game.Settings.BgSoundEnabled ? 0.2f : 0f;
+			MediaPlayer.Volume = Game.Settings.BgSoundEnabled ? 0.1f : 0f;
+		}
 
 		void LogoClicked(object sender)
         {
@@ -181,7 +180,7 @@ namespace Mariasek.SharedClient
             _cards[0].Texture = Game.ReverseTexture;
             _cards[1].Texture = Game.ReverseTexture;
             _cards[2].Texture = Game.ReverseTexture;
-            var backSideRect = _settings.CardBackSide.ToTextureRect();
+            var backSideRect = Game.Settings.CardBackSide.ToTextureRect();
             _cards[0].SpriteRectangle = backSideRect;
             _cards[1].SpriteRectangle = backSideRect;
             _cards[2].SpriteRectangle = backSideRect;

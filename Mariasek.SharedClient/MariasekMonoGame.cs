@@ -10,6 +10,8 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 using Microsoft.Xna.Framework.Media;
 using Mariasek.SharedClient.GameComponents;
+using System.Xml.Serialization;
+using Mariasek.Engine.New;
 
 namespace Mariasek.SharedClient
 {
@@ -31,20 +33,106 @@ namespace Mariasek.SharedClient
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class MariasekMonoGame : Game
+    public class MariasekMonoGame : Microsoft.Xna.Framework.Game
     {
-		//Texture2D logoTexture;
+#if __ANDROID__
+		private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+#else   //#elif __IOS__
+        private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+#endif
+		public static string _settingsFilePath = Path.Combine(_path, "Mariasek.settings");
+		
+        //Texture2D logoTexture;
 		public GraphicsDeviceManager Graphics { get; private set; }
         public TouchCollection TouchCollection { get; private set; }
         public SpriteBatch SpriteBatch { get; private set; }
         public Scene CurrentScene { get; set; }
         //public TestScene TestScene { get; private set; }
-        public MainScene MainScene { get; private set; }
-        public MenuScene MenuScene { get; private set; }
-        public SettingsScene SettingsScene { get; private set; }
-        public AiSettingsScene AiSettingsScene { get; private set; }
-        public HistoryScene HistoryScene { get; private set; }
-        public StatScene StatScene { get; private set; }
+
+        private MainScene _mainScene;
+        public MainScene MainScene
+        {
+            get
+            {
+                if (_mainScene == null)
+                {
+                    _mainScene = new MainScene(this);
+                    _mainScene.Initialize();
+                }
+                return _mainScene;
+            }
+            private set { _mainScene = value; }
+        }
+		private MenuScene _menuScene;
+		public MenuScene MenuScene
+		{
+			get
+			{
+				if (_menuScene == null)
+				{
+					_menuScene = new MenuScene(this);
+					_menuScene.Initialize();
+				}
+				return _menuScene;
+			}
+			private set { _menuScene = value; }
+		}
+		private SettingsScene _settingsScene;
+		public SettingsScene SettingsScene
+		{
+			get
+			{
+				if (_settingsScene == null)
+				{
+					_settingsScene = new SettingsScene(this);
+					_settingsScene.Initialize();
+				}
+				return _settingsScene;
+			}
+			private set { _settingsScene = value; }
+		}
+        private AiSettingsScene _aiSettingsScene;
+        public AiSettingsScene AiSettingsScene
+        {
+            get
+            {
+                if (_aiSettingsScene == null)
+                {
+                    _aiSettingsScene = new AiSettingsScene(this);
+                    _aiSettingsScene.Initialize();
+                }
+                return _aiSettingsScene;
+            }
+            private set { _aiSettingsScene = value; }
+        }
+        private HistoryScene _historyScene;
+        public HistoryScene HistoryScene
+		{
+			get
+			{
+				if (_historyScene == null)
+				{
+					_historyScene = new HistoryScene(this);
+					_historyScene.Initialize();
+				}
+				return _historyScene;
+			}
+			private set { _historyScene = value; }
+		}
+		private StatScene _statScene;
+		public StatScene StatScene
+		{
+			get
+			{
+				if (_statScene == null)
+				{
+					_statScene = new StatScene(this);
+					_statScene.Initialize();
+				}
+				return _statScene;
+			}
+			private set { _statScene = value; }
+		}
 		//public GeneratorScene GenerateScene { get; private set; }
 
 		public GameSettings Settings { get; private set; }
@@ -207,7 +295,7 @@ namespace Mariasek.SharedClient
                 { "LuckiestGuy32Outl", FontRenderer.GetFontRenderer(this, "LuckiestGuy32Outl.fnt", "LuckiestGuy32Outl_0", "LuckiestGuy32Outl_1", "LuckiestGuy32Outl_2") }
             };
 
-            ClickSound = Content.Load<SoundEffect>("watch-tick");
+			ClickSound = Content.Load<SoundEffect>("watch-tick");
 			//TickSound = Content.Load<SoundEffect>("watch-tick");
             OnSound = Content.Load<SoundEffect>("on");
             OffSound = Content.Load<SoundEffect>("off");
@@ -222,29 +310,12 @@ namespace Mariasek.SharedClient
             AmbientSound.PlaySafely();
 
             NaPankraciSong = Content.Load<Song>("na pankraci");
-            MediaPlayer.Volume = 0;
-            MediaPlayer.Play(NaPankraciSong);
-            MediaPlayer.IsRepeating = true;
+			MediaPlayer.Play(NaPankraciSong);
+			MediaPlayer.IsRepeating = true;
 
-            //TestScene = new TestScene(this);
-            //TestScene.Initialize();
-            //TestScene.SetActive();
+			LoadGameSettings();
 
-            SettingsScene = new SettingsScene(this);
-			AiSettingsScene = new AiSettingsScene(this);
-			MenuScene = new MenuScene(this);
-			HistoryScene = new HistoryScene(this);
-            StatScene = new StatScene(this);
-            MainScene = new MainScene(this);
-
-            HistoryScene.Initialize();
-            StatScene.Initialize();
-            SettingsScene.Initialize();
-			AiSettingsScene.Initialize();
-			MenuScene.Initialize();
-			MainScene.Initialize();
-
-            MenuScene.SetActive();
+			MenuScene.SetActive();
             MainScene.ResumeGame();
         }
 
@@ -341,6 +412,78 @@ namespace Mariasek.SharedClient
             }
             MediaPlayer.Stop();
         }
+
+		public void LoadGameSettings(bool forceLoad = true)
+		{
+			if (!forceLoad && Settings != null)
+			{
+				return;
+			}
+
+			var xml = new XmlSerializer(typeof(GameSettings));
+			try
+			{
+				using (var fs = File.Open(_settingsFilePath, FileMode.Open))
+				{
+					Settings = (GameSettings)xml.Deserialize(fs);
+					if (!Settings.Default.HasValue ||
+						Settings.Default.Value ||
+						Settings.Thresholds == null ||
+						!Settings.Thresholds.Any() ||
+						Settings.Thresholds.Count() != Enum.GetValues(typeof(Hra)).Cast<Hra>().Count())
+					{
+						Settings.ResetThresholds();
+					}
+					Settings.ThinkingTimeMs = 2000;
+				}
+			}
+			catch (Exception e)
+			{
+				System.Diagnostics.Debug.WriteLine(string.Format("Cannot load settings\n{0}", e.Message));
+				Settings = new GameSettings();
+			}
+//			_performance.Text = string.Format("Výkon simulace: {0} her/s",
+//				Settings.GameTypeSimulationsPerSecond > 0 ? Settings.GameTypeSimulationsPerSecond.ToString() : "?");
+		}
+
+		public delegate void SettingsChangedEventHandler(object sender, SettingsChangedEventArgs e);
+		public event SettingsChangedEventHandler SettingsChanged;
+		public virtual void OnSettingsChanged()
+		{
+			if (SettingsChanged != null)
+			{
+				SettingsChanged(this, new SettingsChangedEventArgs { Settings = Settings });
+			}
+		}
+
+		public void UpdateSettings()
+		{
+			SaveGameSettings();
+			OnSettingsChanged();
+		}
+
+		public void SaveGameSettings()
+		{
+			var xml = new XmlSerializer(typeof(GameSettings));
+			try
+			{
+				MainScene.CreateDirectoryForFilePath(_settingsFilePath);
+				using (var fs = File.Open(_settingsFilePath, FileMode.Create))
+				{
+					xml.Serialize(fs, Settings);
+				}
+				//using (var tw = new StringWriter())
+				//{
+				//    xml.Serialize(tw, _settings);
+				//    var str = tw.ToString();
+				//}
+			}
+			catch (Exception e)
+			{
+				System.Diagnostics.Debug.WriteLine(string.Format("Cannot save settings\n{0}", e.Message));
+			}
+			LoadGameSettings();
+		}
 
 		/// <summary>
 		/// Allows the game to run logic such as updating the world,

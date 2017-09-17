@@ -34,7 +34,6 @@ namespace Mariasek.SharedClient
         private TextBox _historyBox;
         private LineChart _historyChart;
         private bool _useMockData;// = true;
-        private GameSettings _settings;
         private Vector2 _origPosition;
         private Vector2 _hiddenPosition;
 
@@ -204,8 +203,6 @@ namespace Mariasek.SharedClient
             Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;
 
-            Game.SettingsScene.SettingsChanged += SettingsChanged;
-
             PopulateControls();
         }
 
@@ -237,7 +234,7 @@ namespace Mariasek.SharedClient
 
                 for (var j = 0; j < Game.Money.Count; j++)
                 {
-                    sums[i] += Game.Money[j].MoneyWon[i] * _settings.BaseBet;
+                    sums[i] += Game.Money[j].MoneyWon[i] * Game.Settings.BaseBet;
                     series[i][j + 1] = new Vector2(j + 1, sums[i]);
                     if (maxWon < sums[i])
                     {
@@ -251,9 +248,9 @@ namespace Mariasek.SharedClient
             }
             _historyChart.MaxValue = new Vector2(Game.Money.Count, maxWon);
             _historyChart.MinValue = new Vector2(0, maxLost);
-            if (_settings != null)
+            if (Game.Settings != null)
             {
-                _historyChart.GridInterval = new Vector2(1f, 10 * _settings.BaseBet);
+                _historyChart.GridInterval = new Vector2(1f, 10 * Game.Settings.BaseBet);
             }
             _historyChart.Data = series;
 
@@ -261,9 +258,9 @@ namespace Mariasek.SharedClient
             {
                 sb.AppendFormat(" {0,-7}\t{1}\t{2}\t{3}\n",
                                 string.IsNullOrWhiteSpace(historyItem.GameTypeString) ? "?": historyItem.GameTypeString,
-                                (historyItem.MoneyWon[0] * _settings.BaseBet).ToString("C", culture), 
-                                (historyItem.MoneyWon[1] * _settings.BaseBet).ToString("C", culture), 
-                                (historyItem.MoneyWon[2] * _settings.BaseBet).ToString("C", culture));
+                                (historyItem.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", culture), 
+                                (historyItem.MoneyWon[1] * Game.Settings.BaseBet).ToString("C", culture), 
+                                (historyItem.MoneyWon[2] * Game.Settings.BaseBet).ToString("C", culture));
                 if (historyItem.MoneyWon[0] > 0)
                 {
                     wins++;
@@ -279,9 +276,9 @@ namespace Mariasek.SharedClient
                 total, wins, ratio, 
                 Game.MainScene.PlayerNames[(Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers]);
 
-            var sum1 = Game.Money.Sum(i => i.MoneyWon[0] * _settings.BaseBet).ToString("C", culture);
-            var sum2 = Game.Money.Sum(i => i.MoneyWon[1] * _settings.BaseBet).ToString("C", culture);
-            var sum3 = Game.Money.Sum(i => i.MoneyWon[2] * _settings.BaseBet).ToString("C", culture);
+            var sum1 = Game.Money.Sum(i => i.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", culture);
+            var sum2 = Game.Money.Sum(i => i.MoneyWon[1] * Game.Settings.BaseBet).ToString("C", culture);
+            var sum3 = Game.Money.Sum(i => i.MoneyWon[2] * Game.Settings.BaseBet).ToString("C", culture);
 
             _footer.Text = string.Format("Součet:\t{0}\t{1}\t{2}", sum1, sum2, sum3);
         }
@@ -332,11 +329,6 @@ namespace Mariasek.SharedClient
         private void MenuClicked(object sender)
         {
             Game.MenuScene.SetActive();
-        }
-
-        public void SettingsChanged(object sender, SettingsChangedEventArgs e)
-        {
-            _settings = e.Settings;
         }
 
         public override void Update(GameTime gameTime)

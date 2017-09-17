@@ -119,7 +119,6 @@ namespace Mariasek.SharedClient
 
         private Action HintBtnFunc;
         private GameState _state;
-        private GameSettings _settings;
         private volatile Bidding _bidding;
         private volatile Hra _gameTypeChosen;
         private volatile GameFlavour _gameFlavourChosen;
@@ -144,7 +143,7 @@ namespace Mariasek.SharedClient
         public MainScene(MariasekMonoGame game)
             : base(game)
         {
-            Game.SettingsScene.SettingsChanged += SettingsChanged;
+            Game.SettingsChanged += SettingsChanged;
             Game.Stopped += SaveGame;
             Game.Started += ResumeGame;
         }
@@ -177,12 +176,12 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("SimulationsPerGameTypePerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "SimulationsPerGameTypePerSecond",
-                Value = _settings.GameTypeSimulationsPerSecond.ToString()
+                Value = Game.Settings.GameTypeSimulationsPerSecond.ToString()
             });
             _aiConfig.Add("MaxSimulationTimeMs", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "MaxSimulationTimeMs",
-                Value = _settings.ThinkingTimeMs.ToString()
+                Value = Game.Settings.ThinkingTimeMs.ToString()
             });
             _aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -192,7 +191,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("SimulationsPerRoundPerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "SimulationsPerRoundPerSecond",
-                Value = _settings.RoundSimulationsPerSecond.ToString()
+                Value = Game.Settings.RoundSimulationsPerSecond.ToString()
             });
             _aiConfig.Add("RuleThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -214,7 +213,7 @@ namespace Mariasek.SharedClient
                 Name = "MaxDoubleCount",
                 Value = "3"
             });
-            foreach (var thresholdSettings in _settings.Thresholds)
+            foreach (var thresholdSettings in Game.Settings.Thresholds)
             {
                 _aiConfig.Add(string.Format("GameThreshold.{0}", thresholdSettings.GameType.ToString()),
                               new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
@@ -253,7 +252,7 @@ namespace Mariasek.SharedClient
 			_aiConfig.Add("RiskFactor", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
 			{
 				Name = "RiskFactor",
-                Value = _settings.RiskFactor.ToString(CultureInfo.InvariantCulture)
+                Value = Game.Settings.RiskFactor.ToString(CultureInfo.InvariantCulture)
 			});
 		}
 
@@ -264,12 +263,12 @@ namespace Mariasek.SharedClient
         public override void Initialize()
         {
             base.Initialize();
+            Game.OnSettingsChanged();
+            var backSideRect = Game.Settings.CardBackSide.ToTextureRect();
+			Game.CardTextures = Game.Settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
+			//PopulateAiConfig(); //volano uz v Game.OnSettingsChanged()
 
-            var backSideRect = _settings.CardBackSide.ToTextureRect();
-			Game.CardTextures = _settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
-            PopulateAiConfig();
-            
-            _synchronizationContext = SynchronizationContext.Current;
+			_synchronizationContext = SynchronizationContext.Current;
             _hlasy = new []
             {
                 new []
@@ -373,7 +372,7 @@ namespace Mariasek.SharedClient
                 Width = 50
             };
             _reviewGameToggleBtn.Click += ReviewGameBtnClicked;
-            if (!_settings.TestMode.HasValue || !_settings.TestMode.Value)
+            if (!Game.Settings.TestMode.HasValue || !Game.Settings.TestMode.Value)
             {
                 _reviewGameToggleBtn.Hide();
             }
@@ -695,7 +694,7 @@ namespace Mariasek.SharedClient
                 ZIndex = 100,
 				Anchor = AnchorType.Top
             };
-            if (!_settings.HintEnabled)
+            if (!Game.Settings.HintEnabled)
             {
                 _progress1.Hide();
             }
@@ -721,7 +720,7 @@ namespace Mariasek.SharedClient
             Children.Sort((a, b) => a.ZIndex - b.ZIndex);
 
             LoadHistory();
-            Game.SettingsScene.LoadGameSettings(false);
+            Game.LoadGameSettings(false);
             Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;
             ClearTable(true);
@@ -1077,16 +1076,16 @@ namespace Mariasek.SharedClient
                 g = new Mariasek.Engine.New.Game()
                 {
                     SkipBidding = false,
-                    BaseBet = _settings.BaseBet,
+                    BaseBet = Game.Settings.BaseBet,
                     GetFileStream = GetFileStream,
 					GetVersion = () => MariasekMonoGame.Version
                 };
                 g.RegisterPlayers(
-                    new HumanPlayer(g, _aiConfig, this, _settings.HintEnabled) { Name = PlayerNames[0] },
+                    new HumanPlayer(g, _aiConfig, this, Game.Settings.HintEnabled) { Name = PlayerNames[0] },
                     new AiPlayer(g, _aiConfig) { Name = PlayerNames[1] },
                     new AiPlayer(g, _aiConfig) { Name = PlayerNames[2] }
                 );
-                CurrentStartingPlayerIndex = _settings.CurrentStartingPlayerIndex; //TODO: zrusit CurrentStartingPlayerIndex a pouzivat jen _settings.CurrentStartingPlayerIndex
+                CurrentStartingPlayerIndex = Game.Settings.CurrentStartingPlayerIndex; //TODO: zrusit CurrentStartingPlayerIndex a pouzivat jen Game.Settings.CurrentStartingPlayerIndex
                 CurrentStartingPlayerIndex = (CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers;
 #if STARTING_PLAYER_1
                 CurrentStartingPlayerIndex = 0;
@@ -1095,8 +1094,8 @@ namespace Mariasek.SharedClient
 #elif STARTING_PLAYER_3
                 CurrentStartingPlayerIndex = 2;
 #endif
-                _settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
-                Game.SettingsScene.SaveGameSettings();
+                Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
+                Game.SaveGameSettings();
                 if (_deck == null)
                 {
                     LoadDeck();
@@ -1131,7 +1130,7 @@ namespace Mariasek.SharedClient
                 ClearTable(true);
                 HideMsgLabel();
                 _reviewGameBtn.Hide();
-                if (_settings.TestMode.HasValue && _settings.TestMode.Value)
+                if (Game.Settings.TestMode.HasValue && Game.Settings.TestMode.Value)
                 {
                     _reviewGameToggleBtn.Show();
                     _reviewGameToggleBtn.IsSelected = false;
@@ -1162,7 +1161,7 @@ namespace Mariasek.SharedClient
                 _hand.ClearOperations();
                 this.ClearOperations();
                 _hintBtn.IsEnabled = false;
-                if (_settings.HintEnabled)
+                if (Game.Settings.HintEnabled)
                 {
                     _hintBtn.Show();
                 }
@@ -1172,7 +1171,7 @@ namespace Mariasek.SharedClient
                 }
                 if (g.GameStartingPlayerIndex != 0)
                 {
-                    g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, false);
+                    g.players[0].Hand.Sort(Game.Settings.SortMode == SortMode.Ascending, false);
                     ShowThinkingMessage(g.GameStartingPlayerIndex);
                     _hand.Show();
                     UpdateHand();
@@ -1594,7 +1593,7 @@ namespace Mariasek.SharedClient
                     {
                         gfButton.Show();
                     }
-                    if (!_settings.HintEnabled || !_msgLabel.IsVisible) //abych neprepsal napovedu
+                    if (!Game.Settings.HintEnabled || !_msgLabel.IsVisible) //abych neprepsal napovedu
                     {
                         ShowMsgLabel("Co řekneš?", false);
                     }
@@ -1623,7 +1622,7 @@ namespace Mariasek.SharedClient
                     gtButton.IsEnabled = ((Hra)gtButton.Tag & validGameTypes) == (Hra)gtButton.Tag;
                     gtButton.Show();
                 }
-                if (!_settings.HintEnabled || !_msgLabel.IsVisible) //abych neprepsal napovedu
+                if (!Game.Settings.HintEnabled || !_msgLabel.IsVisible) //abych neprepsal napovedu
                 {
                     ShowMsgLabel("Co budeš hrát?", false);
                 }
@@ -2070,7 +2069,7 @@ namespace Mariasek.SharedClient
             _reviewGameBtn.Show();
             HideInvisibleClickableOverlay();
             HideThinkingMessage();
-            var totalWon = Game.Money.Sum(i => i.MoneyWon[0]) * _settings.BaseBet;
+            var totalWon = Game.Money.Sum(i => i.MoneyWon[0]) * Game.Settings.BaseBet;
             _totalBalance.Text = string.Format("Celkem jsem {0}: {1}", totalWon >= 0 ? "vyhrál" : "prohrál", totalWon.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
             _newGameBtn.Show();
             _repeatGameBtn.Show();
@@ -2100,18 +2099,18 @@ namespace Mariasek.SharedClient
             var value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
             if (value > 0)
             {
-                _settings.GameTypeSimulationsPerSecond = value;
+                Game.Settings.GameTypeSimulationsPerSecond = value;
             }
             value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
             if (value > 0)
             {
-                _settings.RoundSimulationsPerSecond = value;
+                Game.Settings.RoundSimulationsPerSecond = value;
             }
-            //_aiConfig["SimulationsPerGameTypePerSecond"].Value = _settings.GameTypeSimulationsPerSecond.ToString();
-            //_aiConfig["SimulationsPerRoundPerSecond"].Value = _settings.RoundSimulationsPerSecond.ToString();
-            _settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
+            //_aiConfig["SimulationsPerGameTypePerSecond"].Value = Game.Settings.GameTypeSimulationsPerSecond.ToString();
+            //_aiConfig["SimulationsPerRoundPerSecond"].Value = Game.Settings.RoundSimulationsPerSecond.ToString();
+            Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
             //tohle zpusobi prekresleni nekterych ui prvku, je treba volat z UI threadu
-            _synchronizationContext.Send(_ => Game.SettingsScene.UpdateSettings(_settings), null);
+            _synchronizationContext.Send(_ => Game.UpdateSettings(), null);
 
             if (g.rounds[0] != null && (results.MoneyWon[0] >= 4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] >= 2)))
             {                
@@ -2158,11 +2157,11 @@ namespace Mariasek.SharedClient
                     {
                         SkipBidding = false,
                         GetFileStream = GetFileStream,
-                        BaseBet = _settings.BaseBet,
+                        BaseBet = Game.Settings.BaseBet,
                         GetVersion = () => MariasekMonoGame.Version
                     };
                     g.RegisterPlayers(
-                        new HumanPlayer(g, _aiConfig, this, _settings.HintEnabled) { Name = PlayerNames[0] },
+                        new HumanPlayer(g, _aiConfig, this, Game.Settings.HintEnabled) { Name = PlayerNames[0] },
                         new AiPlayer(g, _aiConfig) { Name = PlayerNames[1] },
                         new AiPlayer(g, _aiConfig) { Name = PlayerNames[2] }
                     );
@@ -2201,14 +2200,14 @@ namespace Mariasek.SharedClient
                     _state = GameState.NotPlaying;
 
                     CurrentStartingPlayerIndex = g.GameStartingPlayerIndex;
-                    _settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
-                    Game.SettingsScene.SaveGameSettings();
+                    Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
+                    Game.SaveGameSettings();
                     _canSort = CurrentStartingPlayerIndex != 0;
 
                     ClearTable(true);
                     HideMsgLabel();
                     _reviewGameBtn.Hide();
-					if (_settings.TestMode.HasValue && _settings.TestMode.Value)
+					if (Game.Settings.TestMode.HasValue && Game.Settings.TestMode.Value)
 					{
 						_reviewGameToggleBtn.Show();
 						_reviewGameToggleBtn.IsSelected = false;
@@ -2240,7 +2239,7 @@ namespace Mariasek.SharedClient
                     _hand.ClearOperations();
                     this.ClearOperations();
                     _hintBtn.IsEnabled = false;
-                    if (_settings.HintEnabled)
+                    if (Game.Settings.HintEnabled)
                     {
                         _hintBtn.Show();
                     }
@@ -2250,7 +2249,7 @@ namespace Mariasek.SharedClient
                     }
                     if (g.GameStartingPlayerIndex != 0 || g.GameType != 0)
                     {
-                        g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, false);
+                        g.players[0].Hand.Sort(Game.Settings.SortMode == SortMode.Ascending, false);
                         if (g.GameType == 0)
                         {
                             ShowThinkingMessage(g.GameStartingPlayerIndex);
@@ -2414,11 +2413,10 @@ namespace Mariasek.SharedClient
         {
             Task.Run(() =>
             {
-                _settings = e.Settings;
                 PopulateAiConfig();
                 if (_progress1 != null)
                 {
-                    if (_settings.HintEnabled)
+                    if (Game.Settings.HintEnabled)
                     {
                         _progress1.Show();
                     }
@@ -2429,7 +2427,7 @@ namespace Mariasek.SharedClient
                 }
                 if (_hintBtn != null)
                 {
-                    if (_settings.HintEnabled)
+                    if (Game.Settings.HintEnabled)
                     {
                         _hintBtn.Show();
                     }
@@ -2438,7 +2436,7 @@ namespace Mariasek.SharedClient
                         _hintBtn.Hide();
                     }
                 }
-                var newBackSideRect = _settings.CardBackSide.ToTextureRect();
+                var newBackSideRect = Game.Settings.CardBackSide.ToTextureRect();
 
                 if (Game.BackSideRect != newBackSideRect)
                 {
@@ -2465,12 +2463,9 @@ namespace Mariasek.SharedClient
                 {
                     SortHand(null);
                 }
-                SoundEffect.MasterVolume = _settings.SoundEnabled ? 1f : 0f;
-                Game.AmbientSound.Volume = _settings.BgSoundEnabled ? 0.2f : 0f;
-                MediaPlayer.Volume = _settings.BgSoundEnabled ? 0.1f : 0f;
 
                 var oldTextures = Game.CardTextures;
-                var newTextures = _settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
+                var newTextures = Game.Settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
 
                 if (oldTextures != newTextures)
                 {
@@ -2483,7 +2478,7 @@ namespace Mariasek.SharedClient
         public void SuggestTrump(Card trumpCard, int? t = null)
         {
             _progress1.Progress = _progress1.Max;
-            if (_settings.HintEnabled)
+            if (Game.Settings.HintEnabled)
             {
                 _hintBtn.IsEnabled = true;
                 HintBtnFunc = () =>
@@ -2499,7 +2494,7 @@ namespace Mariasek.SharedClient
         public void SuggestTalon(List<Card> talon, int? t = null)
         {
             _progress1.Progress = _progress1.Max;
-            if (_settings.HintEnabled)
+            if (Game.Settings.HintEnabled)
             {
                 _hintBtn.IsEnabled = true;
                 HintBtnFunc = () =>
@@ -2514,7 +2509,7 @@ namespace Mariasek.SharedClient
         public void SuggestGameFlavour(string flavour, int? t = null)
         {
             _progress1.Progress = _progress1.Max;
-            if (_settings.HintEnabled)
+            if (Game.Settings.HintEnabled)
             {
                 _hintBtn.IsEnabled = true;
                 HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", flavour), false);
@@ -2605,19 +2600,19 @@ namespace Mariasek.SharedClient
             {
                 var unsorted = new List<Card>(g.players[0].Hand);
 
-                if (_settings.SortMode != SortMode.None)
+                if (Game.Settings.SortMode != SortMode.None)
                 {
                     var badGameSorting = _gameFlavourChosen == GameFlavour.Bad || (g.GameType & (Hra.Betl | Hra.Durch)) != 0;
 
                     if (numberOfCardsToSort == 12)
                     {
-                        g.players[0].Hand.Sort(_settings.SortMode == SortMode.Ascending, badGameSorting, g.trump);
+                        g.players[0].Hand.Sort(Game.Settings.SortMode == SortMode.Ascending, badGameSorting, g.trump);
                     }
                     else
                     {
                         var sortedList = g.players[0].Hand.Take(numberOfCardsToSort).ToList();
 
-                        sortedList.Sort(_settings.SortMode == SortMode.Ascending, badGameSorting, g.trump);
+                        sortedList.Sort(Game.Settings.SortMode == SortMode.Ascending, badGameSorting, g.trump);
                         g.players[0].Hand = sortedList.Concat(g.players[0].Hand.Skip(numberOfCardsToSort).Take(12)).ToList();
                     }
                 }
@@ -2650,7 +2645,7 @@ namespace Mariasek.SharedClient
                 });
             if (autoHide)
             {
-                this.Wait(_settings.BubbleTimeMs)
+                this.Wait(Game.Settings.BubbleTimeMs)
                     .Invoke(() =>
                     {
                         _bubbles[bubbleNo].Hide();
