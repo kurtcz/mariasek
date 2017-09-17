@@ -25,8 +25,9 @@ namespace Mariasek.AndroidClient
 		LaunchMode = LaunchMode.SingleInstance,
 		ScreenOrientation = ScreenOrientation.Landscape,
 		ConfigurationChanges = ConfigChanges.Orientation |
-		ConfigChanges.KeyboardHidden |
-		ConfigChanges.Keyboard)]
+                               ConfigChanges.ScreenSize |
+		                       ConfigChanges.KeyboardHidden |
+		                       ConfigChanges.Keyboard)]
 	public class MariasekActivity : AndroidGameActivity, IEmailSender, IWebNavigate
 	{
         MariasekMonoGame g;
@@ -46,6 +47,15 @@ namespace Mariasek.AndroidClient
             SetContentView (g.Services.GetService<View>());
             g.Run();
 		}
+
+        public override void OnConfigurationChanged(Android.Content.Res.Configuration newConfig)
+        {
+            System.Diagnostics.Debug.WriteLine("OnConfigurationChanged()");
+            base.OnConfigurationChanged(newConfig);
+
+            //prevent the current game to be restarted due to changes defined in ActivityAttribute.ConfigurationChanges
+            SetContentView(g.Services.GetService<View>());
+        }
 
         protected override void OnStart()
         {

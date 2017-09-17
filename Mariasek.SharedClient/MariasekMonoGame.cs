@@ -33,8 +33,8 @@ namespace Mariasek.SharedClient
     /// </summary>
     public class MariasekMonoGame : Game
     {
-        //Texture2D logoTexture;
-        public GraphicsDeviceManager Graphics { get; private set; }
+		//Texture2D logoTexture;
+		public GraphicsDeviceManager Graphics { get; private set; }
         public TouchCollection TouchCollection { get; private set; }
         public SpriteBatch SpriteBatch { get; private set; }
         public Scene CurrentScene { get; set; }
@@ -45,9 +45,11 @@ namespace Mariasek.SharedClient
         public AiSettingsScene AiSettingsScene { get; private set; }
         public HistoryScene HistoryScene { get; private set; }
         public StatScene StatScene { get; private set; }
-        //public GeneratorScene GenerateScene { get; private set; }
+		//public GeneratorScene GenerateScene { get; private set; }
 
-        public Rectangle BackSideRect { get; set; }
+		public GameSettings Settings { get; private set; }
+
+		public Rectangle BackSideRect { get; set; }
         public Texture2D CardTextures { get; set; }
         public Texture2D CardTextures1 { get; private set; }
         public Texture2D CardTextures2 { get; private set; }
