@@ -30,10 +30,13 @@ namespace Mariasek.SharedClient.GameComponents
         public Texture2D Background { get; set; }
         public BackgroundAlignment BackgroundAlign { get; set; }
         public Color BackgroundTint { get; set; }
+
+		protected bool _initialized;
+
 #if DEBUG_SPRITES
         public int Counter;
 #endif
-        public Scene(MariasekMonoGame game)
+		public Scene(MariasekMonoGame game)
             : base(game)
         {
             // TODO: Construct any child components here
@@ -42,13 +45,35 @@ namespace Mariasek.SharedClient.GameComponents
             Hide();
         }
 
-        public void SetActive()
+		public delegate void SceneActivatedEventHandler(object sender);
+		public event SceneActivatedEventHandler SceneActivated;
+		public virtual void OnSceneActivated()
+		{
+			if (SceneActivated != null)
+			{
+				SceneActivated(this);
+			}
+		}
+
+		public delegate void SceneDeactivatedEventHandler(object sender);
+		public event SceneDeactivatedEventHandler SceneDeactivated;
+		public virtual void OnSceneDeactivated()
+		{
+			if (SceneDeactivated != null)
+			{
+				SceneDeactivated(this);
+			}
+		}
+
+		public void SetActive()
         {
             if (Game.CurrentScene != null)
             {
                 Game.CurrentScene.Hide();
+                Game.CurrentScene.OnSceneDeactivated();
             }
             Game.CurrentScene = this;
+            Game.CurrentScene.OnSceneActivated();
             Show();
             //TODO: Add your scene activation related code here
         }
@@ -62,6 +87,7 @@ namespace Mariasek.SharedClient.GameComponents
             // TODO: Add your initialization code here
 
             base.Initialize();
+            _initialized = true;
         }
 
         /// <summary>

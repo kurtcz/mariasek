@@ -292,8 +292,8 @@ namespace Mariasek.SharedClient
             BackgroundTint = Color.DimGray;
 
             _settingsChanged = false;
-            GameTypeChanged(this);
-        }
+			GameTypeChanged(this);
+		}
 
         private void SettingsChanged(object sender, SettingsChangedEventArgs e)
         {

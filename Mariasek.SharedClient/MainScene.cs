@@ -974,10 +974,13 @@ namespace Mariasek.SharedClient
             {
                 if (g.IsRunning)
                 {
-                    RefreshReview();
-                    _review.Opacity = 0f;
-                    _review.Show();
-                    _review.FadeIn(4f);
+                    Task.Run(() =>
+                    {
+                        RefreshReview();
+                        _review.Opacity = 0f;
+                        _review.Show();
+                        _review.FadeIn(4f);
+                    });
                 }
                 else
                 {
@@ -1321,121 +1324,124 @@ namespace Mariasek.SharedClient
 
             _cardClicked = (Card)button.Tag;
             System.Diagnostics.Debug.WriteLine(string.Format("{0} clicked", _cardClicked));
-            switch (_state)
+            Task.Run(() =>
             {
-                case GameState.ChooseTalon:
-                    if (button.IsFaceUp && _talon.Count == 2)
-                    {
-                        //do talonu nemuzu pridat kdyz je plnej
-                        return;
-                    }
-                    if (button.IsFaceUp)
-                    {
-                        //selected
-                        button.FlipToBack();
-                        if (!_talon.Contains(_cardClicked))
+                switch (_state)
+                {
+                    case GameState.ChooseTalon:
+                        if (button.IsFaceUp && _talon.Count == 2)
                         {
-                            _talon.Add(_cardClicked);
+                            //do talonu nemuzu pridat kdyz je plnej
+                            return;
                         }
-                    }
-                    else
-                    {
-                        //unselected
-                        button.FlipToFront();
-                        _talon.Remove(_cardClicked);
-                    }
-                    _okBtn.IsEnabled = _talon.Count == 2;
-					if (_talon.Any(i => !g.IsValidTalonCard(i)))
-                    {
-                        ShowMsgLabel("Vyber si talon\nS tímto talonem musíš hrát betl nebo durch", false);
-                    }
-                    else
-                    {
-                        ShowMsgLabel("Vyber si talon", false);
-                    }
-                    break;
-                case GameState.ChooseTrump:
-                    if (_cardClicked == null)
-                        return;
-                    _trumpCardChosen = _cardClicked;
-                    _state = GameState.NotPlaying;
-                    HideMsgLabel();
-                    button.IsSelected = false; //aby karta nebyla pri animaci tmava
-                    var origPosition = _hlasy[0][0].Position;
-					_hlasy[0][0].Sprite.SpriteRectangle = _cardClicked.ToTextureRect();
-					_hlasy[0][0].Position = button.Position;
-                    if (!button.Sprite.IsVisible)
-                    {
+                        if (button.IsFaceUp)
+                        {
+                            //selected
+                            button.FlipToBack();
+                            if (!_talon.Contains(_cardClicked))
+                            {
+                                _talon.Add(_cardClicked);
+                            }
+                        }
+                        else
+                        {
+                            //unselected
+                            button.FlipToFront();
+                            _talon.Remove(_cardClicked);
+                        }
+                        _okBtn.IsEnabled = _talon.Count == 2;
+                        if (_talon.Any(i => !g.IsValidTalonCard(i)))
+                        {
+                            ShowMsgLabel("Vyber si talon\nS tímto talonem musíš hrát betl nebo durch", false);
+                        }
+                        else
+                        {
+                            ShowMsgLabel("Vyber si talon", false);
+                        }
+                        break;
+                    case GameState.ChooseTrump:
+                        if (_cardClicked == null)
+                            return;
+                        _trumpCardChosen = _cardClicked;
+                        _state = GameState.NotPlaying;
+                        HideMsgLabel();
+                        button.IsSelected = false; //aby karta nebyla pri animaci tmava
+                        var origPosition = _hlasy[0][0].Position;
+                        _hlasy[0][0].Sprite.SpriteRectangle = _cardClicked.ToTextureRect();
+                        _hlasy[0][0].Position = button.Position;
+                        if (!button.Sprite.IsVisible)
+                        {
+                            button
+                                .FlipToFront()
+                                .Wait(1000);
+                        }
                         button
-                            .FlipToFront()
-                            .Wait(1000);
-                    }
-                    button
-                        .FlipToBack()
-                        .Invoke(() =>
+                            .FlipToBack()
+                            .Invoke(() =>
+                            {
+                                _hlasy[0][0].ShowBackSide();
+                                button.Hide();
+                                _hlasy[0][0]
+                                    .MoveTo(origPosition, 1000)
+                                    .Invoke(() =>
+                                    {
+                                        _hlasy[0][0].IsEnabled = true;
+                                        _evt.Set();
+                                    });
+                            });
+                        _hand.IsEnabled = false;
+                        break;
+                    case GameState.Play:
+                        if (_cardClicked == null)
+                            return;
+                        _state = GameState.NotPlaying;
+                        HideMsgLabel();
+                        origPosition = button.Position;
+                        if ((g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+                            _cardClicked.Value == Hodnota.Svrsek &&
+                            g.players[0].Hand.HasK(_cardClicked.Suit))
                         {
-                            _hlasy[0][0].ShowBackSide();
-                            button.Hide();
-                            _hlasy[0][0]
-                                .MoveTo(origPosition, 1000)
-                                .Invoke(() =>
-                                {
-									_hlasy[0][0].IsEnabled = true;
-									_evt.Set();
-                                });
-                        });
-                    _hand.IsEnabled = false;
-                    break;
-                case GameState.Play:
-                    if (_cardClicked == null)
-                        return;
-                    _state = GameState.NotPlaying;
-                    HideMsgLabel();
-                    origPosition = button.Position;
-                    if ((g.GameType & (Hra.Betl | Hra.Durch)) == 0 && 
-                        _cardClicked.Value == Hodnota.Svrsek && 
-                        g.players[0].Hand.HasK(_cardClicked.Suit))
-                    {
-                        _hlasy[0][g.players[0].Hlasy].IsEnabled = false;
-                        targetSprite = _hlasy[0][g.players[0].Hlasy].Sprite;
-                        targetSprite.ZIndex = _hlasy[0][g.players[0].Hlasy].ZIndex;
-                    }
-                    else
-                    {
-                        targetSprite = _cardsPlayed[0];
-                        targetSprite.ZIndex = _cardsPlayed[0].ZIndex;
-                    }
-                    button
-                        .MoveTo(origPosition, 1000)
-                        .Invoke(() =>
+                            _hlasy[0][g.players[0].Hlasy].IsEnabled = false;
+                            targetSprite = _hlasy[0][g.players[0].Hlasy].Sprite;
+                            targetSprite.ZIndex = _hlasy[0][g.players[0].Hlasy].ZIndex;
+                        }
+                        else
                         {
-                            targetSprite.SpriteRectangle = _cardClicked.ToTextureRect();
-                            targetSprite.Show();
-                            button.Hide();
+                            targetSprite = _cardsPlayed[0];
+                            targetSprite.ZIndex = _cardsPlayed[0].ZIndex;
+                        }
+                        button
+                            .MoveTo(origPosition, 1000)
+                            .Invoke(() =>
+                            {
+                                targetSprite.SpriteRectangle = _cardClicked.ToTextureRect();
+                                targetSprite.Show();
+                                button.Hide();
                             //button.Position = button.PreDragPosition;
                             //_updateCardsPosition = true;
                             _evt.Set();
-                        });
-                    _hand.IsEnabled = false;
-                    break;
-                case GameState.RoundFinished:
-                    _state = GameState.NotPlaying;
-                    ClearTable();
-                    HideMsgLabel();
-                    _hand.IsEnabled = false;
-                    _evt.Set();
-                    break;
-                case GameState.GameFinished:
-                    _state = GameState.NotPlaying;
-                    ClearTable(true);
-                    HideMsgLabel();
-                    _hand.IsEnabled = false;
-                    NewGameBtnClicked(this);
-                    return;
-                default:
-                    return;
-            }
-        }
+                            });
+                        _hand.IsEnabled = false;
+                        break;
+                    case GameState.RoundFinished:
+                        _state = GameState.NotPlaying;
+                        ClearTable();
+                        HideMsgLabel();
+                        _hand.IsEnabled = false;
+                        _evt.Set();
+                        break;
+                    case GameState.GameFinished:
+                        _state = GameState.NotPlaying;
+                        ClearTable(true);
+                        HideMsgLabel();
+                        _hand.IsEnabled = false;
+                        NewGameBtnClicked(this);
+                        return;
+                    default:
+                        return;
+                }
+            });
+		}
 
         public void TrumpCardClicked(object sender)
         {
@@ -1503,8 +1509,11 @@ namespace Mariasek.SharedClient
             _gameFlavourChosen = (GameFlavour)(sender as Button).Tag;
             if (_gameFlavourChosen == GameFlavour.Bad)
             {
-                SortHand(null); //presusporadame karty
-                UpdateHand();
+                Task.Run(() =>
+                {
+					SortHand(null); //preusporadame karty
+					UpdateHand();
+				});
             }
             _evt.Set();
         }
@@ -2133,16 +2142,15 @@ namespace Mariasek.SharedClient
         public void LoadGame(bool testGame = false)
         {
             //var gameToLoadString = ResourceLoader.GetEmbeddedResourceString(this.GetType().Assembly, "GameToLoad");
-
-            CancelRunningTask();
-            _trumpLabel1.Hide();
-            _trumpLabel2.Hide();
-            _trumpLabel3.Hide();
-            _newGameBtn.Hide();
-            _repeatGameBtn.Hide();
             if (g == null)
             {
-                SetActive();
+				CancelRunningTask();
+				_trumpLabel1.Hide();
+				_trumpLabel2.Hide();
+				_trumpLabel3.Hide();
+				_newGameBtn.Hide();
+				_repeatGameBtn.Hide();
+				SetActive();
                 _cancellationTokenSource = new CancellationTokenSource();
                 _gameTask = Task.Run(() =>
                 {
@@ -2404,70 +2412,73 @@ namespace Mariasek.SharedClient
 
         public void SettingsChanged(object sender, SettingsChangedEventArgs e)
         {
-            _settings = e.Settings;
-            PopulateAiConfig();
-            if (_progress1 != null)
+            Task.Run(() =>
             {
-                if (_settings.HintEnabled)
+                _settings = e.Settings;
+                PopulateAiConfig();
+                if (_progress1 != null)
                 {
-                    _progress1.Show();
-                }
-                else
-                {
-                    _progress1.Hide();
-                }
-            }
-            if (_hintBtn != null)
-            {
-                if (_settings.HintEnabled)
-                {
-                    _hintBtn.Show();
-                }
-                else
-                {
-                    _hintBtn.Hide();
-                }
-            }
-			var newBackSideRect = _settings.CardBackSide.ToTextureRect();
-
-			if (Game.BackSideRect != newBackSideRect)
-			{
-				Game.BackSideRect = newBackSideRect;
-				UpdateCardBackSides(this);
-                if (_stareStychy != null)
-                {
-                    foreach (var sprite in _stareStychy)
+                    if (_settings.HintEnabled)
                     {
-                        sprite.SpriteRectangle = newBackSideRect;
+                        _progress1.Show();
+                    }
+                    else
+                    {
+                        _progress1.Hide();
                     }
                 }
-			}
-            //call UpdateHand() instead
-            if (_state == GameState.ChooseTrump)
-            {
-                SortHand(null, 7);
-            }
-            else if (_state == GameState.ChooseTalon)
-            {
-                SortHand(_trumpCardChosen);
-            }
-            else
-            {
-                SortHand(null);
-            }
-            SoundEffect.MasterVolume = _settings.SoundEnabled ? 1f : 0f;
-            Game.AmbientSound.Volume = _settings.BgSoundEnabled ? 0.2f : 0f;
-            MediaPlayer.Volume = _settings.BgSoundEnabled ? 0.1f : 0f;
+                if (_hintBtn != null)
+                {
+                    if (_settings.HintEnabled)
+                    {
+                        _hintBtn.Show();
+                    }
+                    else
+                    {
+                        _hintBtn.Hide();
+                    }
+                }
+                var newBackSideRect = _settings.CardBackSide.ToTextureRect();
 
-            var oldTextures = Game.CardTextures;
-            var newTextures = _settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
+                if (Game.BackSideRect != newBackSideRect)
+                {
+                    Game.BackSideRect = newBackSideRect;
+                    UpdateCardBackSides(this);
+                    if (_stareStychy != null)
+                    {
+                        foreach (var sprite in _stareStychy)
+                        {
+                            sprite.SpriteRectangle = newBackSideRect;
+                        }
+                    }
+                }
+                //call UpdateHand() instead
+                if (_state == GameState.ChooseTrump)
+                {
+                    SortHand(null, 7);
+                }
+                else if (_state == GameState.ChooseTalon)
+                {
+                    SortHand(_trumpCardChosen);
+                }
+                else
+                {
+                    SortHand(null);
+                }
+                SoundEffect.MasterVolume = _settings.SoundEnabled ? 1f : 0f;
+                Game.AmbientSound.Volume = _settings.BgSoundEnabled ? 0.2f : 0f;
+                MediaPlayer.Volume = _settings.BgSoundEnabled ? 0.1f : 0f;
 
-            if (oldTextures != newTextures)
-            {
-                UpdateCardTextures(this, oldTextures, newTextures);
-                Game.CardTextures = newTextures;
-            }
-        }
+                var oldTextures = Game.CardTextures;
+                var newTextures = _settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
+
+                if (oldTextures != newTextures)
+                {
+                    UpdateCardTextures(this, oldTextures, newTextures);
+                    Game.CardTextures = newTextures;
+                }
+            });
+		}
 
         public void SuggestTrump(Card trumpCard, int? t = null)
         {
