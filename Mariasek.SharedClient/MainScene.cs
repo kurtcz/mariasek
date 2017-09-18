@@ -1563,15 +1563,15 @@ namespace Mariasek.SharedClient
         public List<Card> ChooseTalon()
         {
             g.ThrowIfCancellationRequested();
-            _hand.IsEnabled = true;
-            _hintBtn.IsEnabled = false;
-            _synchronizationContext.Send(_ =>
+			_hintBtn.IsEnabled = false;
+			_synchronizationContext.Send(_ =>
                 {
                     _talon = new List<Card>();
                     ShowMsgLabel("Vyber si talon", false);
                     _okBtn.Show();
                     _okBtn.IsEnabled = false;
-                    _state = GameState.ChooseTalon;
+					_hand.IsEnabled = true;
+					_state = GameState.ChooseTalon;
 					UpdateHand(cardToHide: _trumpCardChosen); //abych si otocil zbyvajicich 5 karet
                 }, null);
             WaitForUIThread();
@@ -1873,7 +1873,11 @@ namespace Mariasek.SharedClient
             EnsureBubblesHidden();
             _synchronizationContext.Send(_ =>
                 {
-                    Card lastCard;
+					if (g.CurrentRound == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
+					{
+						return;
+					}
+					Card lastCard;
                     AbstractPlayer lastPlayer;
                     bool lastHlas;
                     Rectangle rect1 = g.CurrentRound.c1 != null ? g.CurrentRound.c1.ToTextureRect() : default(Rectangle);
@@ -2776,8 +2780,13 @@ namespace Mariasek.SharedClient
 
         private void ClearTableAfterRoundFinished()
         {
-            if (g.CurrentRound == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
+			//pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
+			if (g.CurrentRound == null || !g.IsRunning || g.CurrentRound.roundWinner == null)
             {
+                foreach(var s in _stychy)
+                {
+                    s.Hide();
+                }
                 _evt.Set();
                 return;
             }

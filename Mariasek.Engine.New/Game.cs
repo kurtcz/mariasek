@@ -510,11 +510,6 @@ namespace Mariasek.Engine.New
                         startingPlayerIndex = CurrentRound.roundWinner.PlayerIndex;
                         roundNumber++;
                     }
-                } //TODO: always save the game as if it were new if we have not started playing yet
-                else if (GameStartingPlayer.Hand.Count() == 10 && talon != null && talon.Any())
-                {
-                    GameStartingPlayer.Hand.AddRange(talon);
-                    talon.Clear();
                 }
                 var fleky = Enum.GetValues(typeof(Hra))
                                 .Cast<Hra>()
@@ -1013,6 +1008,7 @@ namespace Mariasek.Engine.New
             var nextPlayer = GameStartingPlayer;
             var firstTime = true;
             var bidNumber = 0;
+            var noMoreGameFlavourChoices = false;
 
             gameTypeForPlayer[GameStartingPlayerIndex] = Hra.Hra;
             TrumpCard = GameStartingPlayer.ChooseTrump();
@@ -1034,8 +1030,12 @@ namespace Mariasek.Engine.New
                 }
                 if(!firstTime && nextPlayer == GameStartingPlayer)
                 {
-                    canChooseFlavour = false;
+                    noMoreGameFlavourChoices = true;
                 }
+                if (noMoreGameFlavourChoices)
+                {
+					canChooseFlavour = false;
+				}
                 if (firstTime)
                 {
                     talon = GameStartingPlayer.ChooseTalon();

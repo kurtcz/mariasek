@@ -1087,38 +1087,38 @@ namespace Mariasek.Engine.New
 				}
 			};
 
-			if ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 || 
-                ((_gameType & Hra.Kilo) != 0 && TeamMateIndex == -1) ||
-                ((_gameType & Hra.KiloProti) != 0 && TeamMateIndex != -1) ||
-                !hands[MyIndex].Has7(_trump))
+			//if ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 || 
+                //((_gameType & Hra.Kilo) != 0 && TeamMateIndex == -1) ||
+                //((_gameType & Hra.KiloProti) != 0 && TeamMateIndex != -1) ||
+                //!hands[MyIndex].Has7(_trump))
             {
-                yield return new AiRule()
-                {
-                    Order = 15,
-                    Description = "hrát cokoli mimo A,X",
-                    SkipSimulations = true,
-                    ChooseCard1 = () =>
-                    {
-                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
-                                                                                i.Value != Hodnota.Desitka &&
-                                                                                !_bannedSuits.Contains(i.Suit)).ToList();
-                        if (!cardsToPlay.Any())
-                        {
-                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
-                                                                                i.Value != Hodnota.Desitka).ToList();
-                        }
-                        if (TeamMateIndex == -1)
-                        {
-                            return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
-                        }
+                //yield return new AiRule()
+                //{
+                //    Order = 15,
+                //    Description = "hrát cokoli mimo A,X",
+                //    SkipSimulations = true,
+                //    ChooseCard1 = () =>
+                //    {
+                //        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
+                //                                                                i.Value != Hodnota.Desitka &&
+                //                                                                !_bannedSuits.Contains(i.Suit)).ToList();
+                //        if (!cardsToPlay.Any())
+                //        {
+                //            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
+                //                                                                i.Value != Hodnota.Desitka).ToList();
+                //        }
+                //        if (TeamMateIndex == -1)
+                //        {
+                //            return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                //        }
 
-                        return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
-                                          .ThenBy(i => i.Value)
-                                          .FirstOrDefault();
-                    }
-                };
+                //        return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+                //                          .ThenBy(i => i.Value)
+                //                          .FirstOrDefault();
+                //    }
+                //};
             }
-            else
+            //else
             {
                 yield return new AiRule()
                 {

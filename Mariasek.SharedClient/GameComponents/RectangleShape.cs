@@ -136,8 +136,11 @@ namespace Mariasek.SharedClient.GameComponents
             if (_texture != null && !_texture.IsDisposed)
             {
                 _texture.Dispose();
-            }
-            _texture = CreateRoundedRectangleTexture(
+				_texture = null;
+			}
+            if (_width > 0 && _height > 0)
+            {
+                _texture = CreateRoundedRectangleTexture(
                 Game.GraphicsDevice,
                 _width,
                 _height,
@@ -148,7 +151,8 @@ namespace Mariasek.SharedClient.GameComponents
                 _borderColors,
                 _initialShadowIntensity,
                 _finalShadowIntensity
-            );
+                );
+            }
             _textureUpdateNeeded = false;
         }
 

@@ -409,8 +409,10 @@ namespace Mariasek.SharedClient.GameComponents
             BoundsRect = new Rectangle(0, 0, (int)Game.VirtualScreenWidth - (int)Position.X, (roundsLength + headLength) * (int)(Hand.CardHeight * reviewCardScaleFactor.Y + 50) - (int)Position.Y);
             ScrollBarColor = Color.Transparent;
 
-			var maxHlasMarked = false;
-			var maxHlasAgainstMarked = false;
+			var maxHlasKMarked = false;
+            var maxHlasQMarked = false;
+			var maxHlasKAgainstMarked = false;
+            var maxHlasQAgainstMarked = false;
 			for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
             {
                 var ii = (Game.MainScene.g.GameStartingPlayerIndex + i) % Mariasek.Engine.New.Game.NumPlayers;
@@ -425,6 +427,7 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     var rect = hand[j].ToTextureRect();
                     var hlas = (Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+                               Game.MainScene.g.Results.BasicPointsWon + Game.MainScene.g.Results.BasicPointsLost == 90 &&
                         ((hand[j].Value == Hodnota.Kral && hand.Any(k => k.Value == Hodnota.Svrsek && k.Suit == hand[j].Suit)) ||
                          (hand[j].Value == Hodnota.Svrsek && hand.Any(k => k.Value == Hodnota.Kral && k.Suit == hand[j].Suit)));
 
@@ -434,7 +437,7 @@ namespace Mariasek.SharedClient.GameComponents
                         (Game.MainScene.g.GameType & Hra.Kilo) != 0 &&
                         !Game.MainScene.g.Results.HundredWon)
                     {
-                        if (maxHlasMarked)
+                        if (maxHlasKMarked && maxHlasQMarked)
                         {
 							hlas = false;
 						}
@@ -443,7 +446,14 @@ namespace Mariasek.SharedClient.GameComponents
 								 (Game.MainScene.g.Results.MaxHlasWon == 20 &&
                                   hand[j].Suit != Game.MainScene.g.trump))
                         {
-                            maxHlasMarked = true;
+                            if (hand[j].Value == Hodnota.Kral)
+                            {
+                                maxHlasKMarked = true;
+                            }
+                            else
+                            {
+                                maxHlasQMarked = true;
+                            }
                         }
                     }
 					else if (hlas &&
@@ -452,7 +462,7 @@ namespace Mariasek.SharedClient.GameComponents
 						     (Game.MainScene.g.GameType & Hra.KiloProti) != 0 &&
 						     !Game.MainScene.g.Results.HundredAgainstWon)
 					{
-						if (maxHlasAgainstMarked)
+						if (maxHlasKAgainstMarked && maxHlasQAgainstMarked)
 						{
 							hlas = false;
 						}
@@ -461,7 +471,14 @@ namespace Mariasek.SharedClient.GameComponents
 								 (Game.MainScene.g.Results.MaxHlasLost == 20 &&
 								  hand[j].Suit != Game.MainScene.g.trump))
 						{
-							maxHlasAgainstMarked = true;
+                            if (hand[j].Value == Hodnota.Kral)
+                            {
+                                maxHlasKAgainstMarked = true;
+                            }
+                            else
+                            {
+                                maxHlasQAgainstMarked = true;
+                            }
 						}
 					}
 					Hands[i][j] = new Sprite(this, Game.CardTextures, rect)

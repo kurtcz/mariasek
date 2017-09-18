@@ -295,23 +295,28 @@ namespace Mariasek.SharedClient
                 { "LuckiestGuy32Outl", FontRenderer.GetFontRenderer(this, "LuckiestGuy32Outl.fnt", "LuckiestGuy32Outl_0", "LuckiestGuy32Outl_1", "LuckiestGuy32Outl_2") }
             };
 
-			ClickSound = Content.Load<SoundEffect>("watch-tick");
-			//TickSound = Content.Load<SoundEffect>("watch-tick");
-            OnSound = Content.Load<SoundEffect>("on");
-            OffSound = Content.Load<SoundEffect>("off");
-            ClapSound = Content.Load<SoundEffect>("clap");
-            CoughSound = Content.Load<SoundEffect>("cough");
-            BooSound = Content.Load<SoundEffect>("boo");
-            LaughSound = Content.Load<SoundEffect>("laugh");
+            try
+            {
+                ClickSound = Content.Load<SoundEffect>("watch-tick");
+                //TickSound = Content.Load<SoundEffect>("watch-tick");
+                OnSound = Content.Load<SoundEffect>("on");
+                OffSound = Content.Load<SoundEffect>("off");
+                ClapSound = Content.Load<SoundEffect>("clap");
+                CoughSound = Content.Load<SoundEffect>("cough");
+                BooSound = Content.Load<SoundEffect>("boo");
+                LaughSound = Content.Load<SoundEffect>("laugh");
 
-            AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
-            AmbientSound.IsLooped = true;
-            AmbientSound.Volume = 0;
-            AmbientSound.PlaySafely();
+                AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
+                AmbientSound.IsLooped = true;
+                AmbientSound.Volume = 0;
+                AmbientSound?.PlaySafely();
 
-            NaPankraciSong = Content.Load<Song>("na pankraci");
-			MediaPlayer.Play(NaPankraciSong);
-			MediaPlayer.IsRepeating = true;
+                NaPankraciSong = Content.Load<Song>("na pankraci");
+            }
+            catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message + "\n" + ex.StackTrace);
+            }
 
 			LoadGameSettings();
 
