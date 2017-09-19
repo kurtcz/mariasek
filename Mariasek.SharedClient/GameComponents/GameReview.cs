@@ -427,7 +427,8 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     var rect = hand[j].ToTextureRect();
                     var hlas = (Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
-                               Game.MainScene.g.Results.BasicPointsWon + Game.MainScene.g.Results.BasicPointsLost == 90 &&
+                               (Game.MainScene.g.Results == null ||
+                                Game.MainScene.g.Results.BasicPointsWon + Game.MainScene.g.Results.BasicPointsLost == 90) &&
                         ((hand[j].Value == Hodnota.Kral && hand.Any(k => k.Value == Hodnota.Svrsek && k.Suit == hand[j].Suit)) ||
                          (hand[j].Value == Hodnota.Svrsek && hand.Any(k => k.Value == Hodnota.Kral && k.Suit == hand[j].Suit)));
 
