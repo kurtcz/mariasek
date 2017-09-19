@@ -136,31 +136,31 @@ namespace Mariasek.SharedClient
             var slim = new Vector2(0, _originalLogoScale.Y);
             const float flipSpeed = 1f;
 
-			this.Wait(3000)
-				.Invoke(() =>
-                 {
-					 _logo.Sprite.ScaleTo(slim, flipSpeed);
-                 })
-                .WaitUntil(() => !_logo.Sprite.IsBusy)
-                .Invoke(() =>
-                 {
-					 _logo.Sprite.Flip = SpriteEffects.FlipHorizontally;
-                     _logo.Sprite.ScaleTo(normal, flipSpeed);
-                 })
-				.WaitUntil(() => !_logo.Sprite.IsBusy)
-				.Invoke(() =>
+            _logo.Wait(3000)
+                 .Invoke(() =>
                  {
                      _logo.Sprite.ScaleTo(slim, flipSpeed);
                  })
-				.WaitUntil(() => !_logo.Sprite.IsBusy)
-				.Invoke(() =>
+                 .WaitUntil(() => !_logo.Sprite.IsBusy)
+                 .Invoke(() =>
                  {
-					 _logo.Sprite.Flip = SpriteEffects.None;
+                     _logo.Sprite.Flip = SpriteEffects.FlipHorizontally;
                      _logo.Sprite.ScaleTo(normal, flipSpeed);
                  })
-				.WaitUntil(() => !_logo.Sprite.IsBusy)
-				.Wait(7000)
-                .Invoke(() => AnimateLogo());
+                 .WaitUntil(() => !_logo.Sprite.IsBusy)
+                 .Invoke(() =>
+                 {
+                     _logo.Sprite.ScaleTo(slim, flipSpeed);
+                 })
+                 .WaitUntil(() => !_logo.Sprite.IsBusy)
+                 .Invoke(() =>
+                 {
+                     _logo.Sprite.Flip = SpriteEffects.None;
+                     _logo.Sprite.ScaleTo(normal, flipSpeed);
+                 })
+                 .WaitUntil(() => !_logo.Sprite.IsBusy)
+                 .Wait(7000)
+                 .Invoke(() => AnimateLogo());
         }
 
         void ShuffleBtnClicked(object sender)

@@ -1546,12 +1546,14 @@ namespace Mariasek.SharedClient
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = true;
             _hintBtn.IsEnabled = false;
-            _synchronizationContext.Send(_ =>
+			_cardClicked = null;
+			_synchronizationContext.Send(_ =>
                 {
                     ShowMsgLabel("Vyber trumfovou kartu", false);
                     _state = GameState.ChooseTrump;
                     _hand.Show();
                     UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
+                    _hand.IsEnabled = true;
                     _hand.AllowDragging();
 				}, null);
             WaitForUIThread();
@@ -1564,16 +1566,17 @@ namespace Mariasek.SharedClient
         {
             g.ThrowIfCancellationRequested();
 			_hintBtn.IsEnabled = false;
+			_cardClicked = null;
 			_synchronizationContext.Send(_ =>
                 {
                     _talon = new List<Card>();
                     ShowMsgLabel("Vyber si talon", false);
                     _okBtn.Show();
                     _okBtn.IsEnabled = false;
-					_hand.IsEnabled = true;
 					_state = GameState.ChooseTalon;
 					UpdateHand(cardToHide: _trumpCardChosen); //abych si otocil zbyvajicich 5 karet
-                }, null);
+					_hand.IsEnabled = true;
+				}, null);
             WaitForUIThread();
             _hintBtn.IsEnabled = false;
             return _talon;
@@ -1669,11 +1672,12 @@ namespace Mariasek.SharedClient
         public Card PlayCard(Renonc validationState)
         {
             g.ThrowIfCancellationRequested();
+            _hand.IsEnabled = false;
             _hintBtn.IsEnabled = false;
+            _cardClicked = null;
             this.WaitUntil(() => _bubbles.All(i => !i.IsVisible) && !_hand.IsBusy)
                 .Invoke(() =>
                 {
-					_hand.IsEnabled = true;
 					foreach (var bubble in _bubbles)
                     {
                         bubble.Hide();
@@ -1702,10 +1706,12 @@ namespace Mariasek.SharedClient
                     }
                     _cardsPlayed[0].Hide();
                     UpdateHand();
-                    _hand.AllowDragging();
+					_hand.IsEnabled = true;
+					_hand.AllowDragging();
                 });
             WaitForUIThread();
             _hintBtn.IsEnabled = false;
+            _hand.IsEnabled = false;
             _hand.ForbidDragging();
             return _cardClicked;
         }
@@ -2783,10 +2789,6 @@ namespace Mariasek.SharedClient
 			//pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
 			if (g.CurrentRound == null || !g.IsRunning || g.CurrentRound.roundWinner == null)
             {
-                foreach(var s in _stychy)
-                {
-                    s.Hide();
-                }
                 _evt.Set();
                 return;
             }
@@ -2844,10 +2846,17 @@ namespace Mariasek.SharedClient
             System.Diagnostics.Debug.WriteLine("HideInvisibleClickableOverlay");
         }
 
-        private void WaitForUIThread()
+        private void WaitForUIThread(TimeSpan? ts = null)
         {
             _evt.Reset();
-            _evt.WaitOne();
+            if (ts.HasValue)
+            {
+                _evt.WaitOne(ts.Value);
+			}
+            else
+            {
+                _evt.WaitOne();
+            }
             g.ThrowIfCancellationRequested();
         }
     }
