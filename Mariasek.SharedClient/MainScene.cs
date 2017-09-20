@@ -1205,7 +1205,8 @@ namespace Mariasek.SharedClient
         private void GameWonPrematurely(object sender, GameWonPrematurelyEventArgs e)
         {
             g.ThrowIfCancellationRequested();
-            this.WaitUntil(() => _bubbles.All(i => !i.IsVisible))
+			_evt.Reset();
+			this.WaitUntil(() => _bubbles.All(i => !i.IsVisible))
                 .Invoke(() =>
                 {
                     if ((g.GameType & Hra.Betl) != 0)
@@ -1547,6 +1548,7 @@ namespace Mariasek.SharedClient
             _hand.IsEnabled = true;
             _hintBtn.IsEnabled = false;
 			_cardClicked = null;
+            _evt.Reset();
 			_synchronizationContext.Send(_ =>
                 {
                     ShowMsgLabel("Vyber trumfovou kartu", false);
@@ -1567,6 +1569,7 @@ namespace Mariasek.SharedClient
             g.ThrowIfCancellationRequested();
 			_hintBtn.IsEnabled = false;
 			_cardClicked = null;
+            _evt.Reset();
 			_synchronizationContext.Send(_ =>
                 {
                     _talon = new List<Card>();
@@ -1587,7 +1590,8 @@ namespace Mariasek.SharedClient
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = false;
             _hintBtn.IsEnabled = false;
-            _synchronizationContext.Send(_ =>
+			_evt.Reset();
+			_synchronizationContext.Send(_ =>
             {
                 UpdateHand(); //abych nevidel karty co jsem hodil do talonu
                 this.Invoke(() =>
@@ -1638,6 +1642,7 @@ namespace Mariasek.SharedClient
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = false;
             _hintBtn.IsEnabled = false;
+            _evt.Reset();
             _synchronizationContext.Send(_ =>
                 {
                     ChooseGameTypeInternal(validGameTypes);
@@ -1654,6 +1659,7 @@ namespace Mariasek.SharedClient
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = false;
             _hand.AnimationEvent.Wait();
+            _evt.Reset();
             _synchronizationContext.Send(_ =>
                 {
                     _state = GameState.Bid;
@@ -1675,6 +1681,7 @@ namespace Mariasek.SharedClient
             _hand.IsEnabled = false;
             _hintBtn.IsEnabled = false;
             _cardClicked = null;
+            _evt.Reset();
             this.WaitUntil(() => _bubbles.All(i => !i.IsVisible) && !_hand.IsBusy)
                 .Invoke(() =>
                 {
@@ -1991,6 +1998,7 @@ namespace Mariasek.SharedClient
         {
             if (r.number <= 10)
             {
+                _evt.Reset();
                 //    g.ThrowIfCancellationRequested();
                 //    _synchronizationContext.Send(_ =>
                 //        {
@@ -2106,7 +2114,18 @@ namespace Mariasek.SharedClient
             {
                 ArchiveGame();
             }
-            var value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
+			if (File.Exists(_savedGameFilePath))
+			{
+				try
+				{
+					File.Delete(_savedGameFilePath);
+				}
+				catch (Exception e)
+				{
+					System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
+				}
+			}
+			var value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
             if (value > 0)
             {
                 Game.Settings.GameTypeSimulationsPerSecond = value;
@@ -2848,7 +2867,6 @@ namespace Mariasek.SharedClient
 
         private void WaitForUIThread(TimeSpan? ts = null)
         {
-            _evt.Reset();
             if (ts.HasValue)
             {
                 _evt.WaitOne(ts.Value);
