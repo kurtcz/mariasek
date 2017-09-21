@@ -64,6 +64,10 @@ namespace Mariasek.SharedClient.GameComponents
             get { return base.IsEnabled; }
             set
             {
+                if (base.IsEnabled == value)
+                {
+                    return;
+                }
                 base.IsEnabled = value;
                 if(IsEnabled)
                 {

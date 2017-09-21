@@ -970,7 +970,22 @@ namespace Mariasek.Engine.New
                 var player2 = (player.PlayerIndex + 1) % Game.NumPlayers;
                 var player3 = (player.PlayerIndex + 2) % Game.NumPlayers;
 
-                return player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => Round.WinningCard(i, j, k, trump) == i)));
+				//return player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => Round.WinningCard(i, j, k, trump) == i)));
+				var holesPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                       .ToDictionary(b => b,
+                                                     b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                              .Count(h => players[player2].Hand.Any(i => i.Suit == b && i.Value == h) ||
+                                                                          players[player3].Hand.Any(i => i.Suit == b && i.Value == h)));
+
+				var topCards = player.Hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+				                                          .Where(h => ((GameType & (Hra.Betl | Hra.Durch)) == 0 && h > i.Value) ||
+				                                                      ((GameType & (Hra.Betl | Hra.Durch)) != 0 && new Card(Barva.Cerveny, h).BadValue > i.BadValue))
+                                                          .All(h => players[player2].Hand.All(j => j.Suit != i.Suit || j.Value != h) &&
+                                                                    players[player3].Hand.All(j => j.Suit != i.Suit || j.Value != h)))
+				                          .GroupBy(g => g.Suit);
+				                                                                    //v kazde barve musim mit aspon tolik 
+				return topCards.All(g => g.Count() >= holesPerSuit[g.Key]) &&       //nejvyssich karet jako mam der
+					   holesPerSuit.All(i => topCards.Any(g => i.Key == g.Key));    //a souperi nesmi mit karty v barve kterou nemam
             }
         }
         

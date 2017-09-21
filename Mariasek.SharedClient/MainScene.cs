@@ -1560,6 +1560,7 @@ namespace Mariasek.SharedClient
 				}, null);
             WaitForUIThread();
             _hintBtn.IsEnabled = false;
+            _hand.IsEnabled = false;
             _hand.ForbidDragging();
             return _cardClicked;
         }
@@ -1568,6 +1569,7 @@ namespace Mariasek.SharedClient
         {
             g.ThrowIfCancellationRequested();
 			_hintBtn.IsEnabled = false;
+            _hand.IsEnabled = false;
 			_cardClicked = null;
             _evt.Reset();
 			_synchronizationContext.Send(_ =>
@@ -1582,6 +1584,7 @@ namespace Mariasek.SharedClient
 				}, null);
             WaitForUIThread();
             _hintBtn.IsEnabled = false;
+            _hand.IsEnabled = false;
             return _talon;
         }
 
@@ -1648,7 +1651,6 @@ namespace Mariasek.SharedClient
                     ChooseGameTypeInternal(validGameTypes);
                 }, null);
             WaitForUIThread();
-            _hintBtn.IsEnabled = false;
             HideMsgLabel();
             g.ThrowIfCancellationRequested();
             return _gameTypeChosen;

@@ -248,7 +248,7 @@ namespace Mariasek.SharedClient
 		public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-            _resumeButton.IsEnabled = Game.MainScene.g != null && Game.MainScene.g.IsRunning;
+            _resumeButton.IsEnabled = Game.MainScene.g != null;// && Game.MainScene.g.IsRunning;
         }
 	}
 }
