@@ -1322,11 +1322,12 @@ namespace Mariasek.SharedClient
             var origZIndex = button.ZIndex;
             Sprite targetSprite;
 
-            _cardClicked = (Card)button.Tag;
-            System.Diagnostics.Debug.WriteLine(string.Format("{0} clicked", _cardClicked));
+			_cardClicked = (Card)button.Tag;
+			var cardClicked = (Card)button.Tag; //_cardClicked nelze pouzit kvuli race condition
+			System.Diagnostics.Debug.WriteLine(string.Format("{0} clicked", cardClicked));
             Task.Run(() =>
             {
-                switch (_state)
+				switch (_state)
                 {
                     case GameState.ChooseTalon:
                         if (button.IsFaceUp && _talon.Count == 2)
@@ -1338,16 +1339,16 @@ namespace Mariasek.SharedClient
                         {
                             //selected
                             button.FlipToBack();
-                            if (!_talon.Contains(_cardClicked))
+                            if (!_talon.Contains(cardClicked))
                             {
-                                _talon.Add(_cardClicked);
+                                _talon.Add(cardClicked);
                             }
                         }
                         else
                         {
                             //unselected
                             button.FlipToFront();
-                            _talon.Remove(_cardClicked);
+                            _talon.Remove(cardClicked);
                         }
                         _okBtn.IsEnabled = _talon.Count == 2;
                         if (_talon.Any(i => !g.IsValidTalonCard(i)))
@@ -1360,14 +1361,14 @@ namespace Mariasek.SharedClient
                         }
                         break;
                     case GameState.ChooseTrump:
-                        if (_cardClicked == null)
+                        if (cardClicked == null)
                             return;
-                        _trumpCardChosen = _cardClicked;
+                        _trumpCardChosen = cardClicked;
                         _state = GameState.NotPlaying;
                         HideMsgLabel();
                         button.IsSelected = false; //aby karta nebyla pri animaci tmava
                         var origPosition = _hlasy[0][0].Position;
-                        _hlasy[0][0].Sprite.SpriteRectangle = _cardClicked.ToTextureRect();
+                        _hlasy[0][0].Sprite.SpriteRectangle = cardClicked.ToTextureRect();
                         _hlasy[0][0].Position = button.Position;
                         if (!button.Sprite.IsVisible)
                         {
@@ -1392,7 +1393,7 @@ namespace Mariasek.SharedClient
                         _hand.IsEnabled = false;
                         break;
                     case GameState.Play:
-                        if (_cardClicked == null)
+                        if (cardClicked == null)
                             return;
                         _state = GameState.NotPlaying;
                         HideMsgLabel();
@@ -1414,7 +1415,7 @@ namespace Mariasek.SharedClient
                             .MoveTo(origPosition, 1000)
                             .Invoke(() =>
                             {
-                                targetSprite.SpriteRectangle = _cardClicked.ToTextureRect();
+                                targetSprite.SpriteRectangle = cardClicked.ToTextureRect();
                                 targetSprite.Show();
                                 button.Hide();
                             //button.Position = button.PreDragPosition;
