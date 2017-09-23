@@ -72,30 +72,21 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\AboutAssets.txt" />
-    <AndroidAsset Include="Assets\Content\revers.png" />
-    <AndroidAsset Include="Assets\Content\BMFont.fnt" />
-    <AndroidAsset Include="Assets\Content\BMFont_1.png" />
-    <AndroidAsset Include="Assets\Content\BMFont_0.png" />
-    <AndroidAsset Include="Assets\Content\BM2Font.fnt" />
-    <AndroidAsset Include="Assets\Content\BM2Font_1.png" />
-    <AndroidAsset Include="Assets\Content\BM2Font_0.png" />
-    <AndroidAsset Include="Assets\Content\marias.png" />
-    <AndroidAsset Include="Assets\Content\wood2.jpg" />
-    <AndroidAsset Include="Assets\Content\SegoeUI40Outl.fnt" />
-    <AndroidAsset Include="Assets\Content\SegoeUI40Outl_2.png" />
-    <AndroidAsset Include="Assets\Content\SegoeUI40Outl_1.png" />
-    <AndroidAsset Include="Assets\Content\SegoeUI40Outl_0.png" />
-    <AndroidAsset Include="Assets\Content\LuckiestGuy32Outl_0.png" />
-    <AndroidAsset Include="Assets\Content\LuckiestGuy32Outl_1.png" />
-    <AndroidAsset Include="Assets\Content\LuckiestGuy32Outl_2.png" />
-    <AndroidAsset Include="Assets\Content\LuckiestGuy32Outl.fnt" />
-    <AndroidAsset Include="Assets\Content\click.wav" />
-    <AndroidAsset Include="Assets\Content\off.wav" />
-    <AndroidAsset Include="Assets\Content\on.wav" />
-    <AndroidAsset Include="Assets\Content\watch-tick.wav" />
-    <AndroidAsset Include="Assets\Content\marias2.png" />
-    <AndroidAsset Include="Assets\Content\laugh.wav" />
-    <AndroidAsset Include="Assets\Content\na pankraci.mp3" />
+    <AndroidAsset Include="..\Mariasek.Content\Content.mgcb">
+      <Link>Assets\Content\Content.mgcb</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\Mariasek.Content\BM2Font.fnt">
+      <Link>Assets\Content\BM2Font.fnt</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\Mariasek.Content\BMFont.fnt">
+      <Link>Assets\Content\BMFont.fnt</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\Mariasek.Content\LuckiestGuy32Outl.fnt">
+      <Link>Assets\Content\LuckiestGuy32Outl.fnt</Link>
+    </AndroidAsset>
+    <AndroidAsset Include="..\Mariasek.Content\SegoeUI40Outl.fnt">
+      <Link>Assets\Content\SegoeUI40Outl.fnt</Link>
+    </AndroidAsset>
   </ItemGroup>
   <Import Project="..\Mariasek.SharedClient\Mariasek.SharedClient.projitems" Label="Shared" Condition="Exists('..\Mariasek.SharedClient\Mariasek.SharedClient.projitems')" />
   <Import Project="..\packages\MonoGame.Binaries.3.2.3-alpha\build\MonoAndroid\MonoGame.Binaries.targets" Condition="Exists('..\packages\MonoGame.Binaries.3.2.3-alpha\build\MonoAndroid\MonoGame.Binaries.targets')" />
@@ -106,17 +97,5 @@
       <Project>{0CD59EAE-641A-4AC8-B45F-183B9A54D86F}</Project>
       <Name>Mariasek.Engine.Portable</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <MonoGameContentReference Include="Assets\Content\Content.mgcb" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidAsset Include="Assets\Content\boo.wav" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidAsset Include="Assets\Content\clap.wav" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidAsset Include="Assets\Content\cough.wav" />
   </ItemGroup>
 </Project>

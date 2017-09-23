@@ -24,9 +24,9 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <MtouchArch>i386</MtouchArch>
-    <MtouchLink>None</MtouchLink>
+    <MtouchLink>SdkOnly</MtouchLink>
     <MtouchDebug>true</MtouchDebug>
-    <CodesignKey>iPhone Developer</CodesignKey>
+    <CodesignKey>iPhone Developer: tomas_nemec@yahoo.com (NM6BPUVRDM)</CodesignKey>
     <MtouchFastDev>true</MtouchFastDev>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
@@ -71,7 +71,7 @@
     <IpaPackageName>
     </IpaPackageName>
     <MtouchLink>Full</MtouchLink>
-    <CodesignProvision>922af109-dcc2-4ef5-8291-ff787aab5605</CodesignProvision>
+    <CodesignProvision>iOS Team Provisioning Profile: project.MonoGame.Mariasek.iOSClient</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -93,24 +93,25 @@
     <None Include="Entitlements.plist" />
     <None Include="Info.plist" />
     <None Include="packages.config" />
-    <None Include="Content\boo.wav" />
-    <None Include="Content\clap.wav" />
-    <None Include="Content\cough.wav" />
-    <None Include="Content\watch-tick.wav" />
-    <None Include="Content\laugh.wav" />
-    <None Include="Content\na pankraci.mp3" />
-    <None Include="Content\tavern-ambience-looping.wav" />
+    <None Include="..\Mariasek.Content\Content.mgcb">
+      <Link>Content\Content.mgcb</Link>
+    </None>
+    <None Include="..\Mariasek.Content\BM2Font.fnt">
+      <Link>Content\BM2Font.fnt</Link>
+    </None>
+    <None Include="..\Mariasek.Content\BMFont.fnt">
+      <Link>Content\BMFont.fnt</Link>
+    </None>
+    <None Include="..\Mariasek.Content\LuckiestGuy32Outl.fnt">
+      <Link>Content\LuckiestGuy32Outl.fnt</Link>
+    </None>
+    <None Include="..\Mariasek.Content\SegoeUI40Outl.fnt">
+      <Link>Content\SegoeUI40Outl.fnt</Link>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="GameThumbnail.png" />
-    <BundleResource Include="Content\woodsplash.png" />
-    <BundleResource Include="Content\woodsplash-ipad.png" />
-    <BundleResource Include="Content\woodsplash-ipad2.png" />
     <BundleResource Include="Resources\Icon.png" />
-    <BundleResource Include="Content\marias2.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <MonoGameContentReference Include="Content\Content.mgcb" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
@@ -121,31 +122,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\BMFont.fnt" />
-    <Content Include="Content\BM2Font.fnt" />
-    <Content Include="Content\BM2Font_0.png" />
-    <Content Include="Content\BM2Font_1.png" />
-    <Content Include="Content\BMFont_0.png" />
-    <Content Include="Content\BMFont_1.png" />
-    <Content Include="Content\marias.png" />
-    <Content Include="Content\revers.png" />
-    <Content Include="Content\SegoeUI40Outl.fnt" />
-    <Content Include="Content\SegoeUI40Outl_0.png" />
-    <Content Include="Content\SegoeUI40Outl_1.png" />
-    <Content Include="Content\SegoeUI40Outl_2.png" />
-    <Content Include="Content\LuckiestGuy32Outl.fnt" />
-    <Content Include="Content\LuckiestGuy32Outl_0.png" />
-    <Content Include="Content\LuckiestGuy32Outl_1.png" />
-    <Content Include="Content\LuckiestGuy32Outl_2.png" />
-    <Content Include="Content\wood2.jpg" />
-    <Content Include="Content\click.wav" />
-    <Content Include="Content\off.wav" />
-    <Content Include="Content\on.wav" />
-  </ItemGroup>
-  <ItemGroup>
     <InterfaceDefinition Include="Launch.storyboard" />
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Resources\Images.xcassets\LaunchImage.launchimage\Contents.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Content\" />
   </ItemGroup>
 </Project>

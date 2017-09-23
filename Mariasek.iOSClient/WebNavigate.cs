@@ -1,5 +1,7 @@
 ﻿using System;
+using Foundation;
 using Mariasek.SharedClient;
+using UIKit;
 
 namespace Mariasek.iOSClient
 {
@@ -7,7 +9,7 @@ namespace Mariasek.iOSClient
     {
         public void Navigate(string url)
         {
-            throw new NotImplementedException();
+            UIApplication.SharedApplication.OpenUrl(new NSUrl(url));
         }
     }
 }

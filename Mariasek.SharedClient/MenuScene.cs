@@ -117,9 +117,9 @@ namespace Mariasek.SharedClient
             };
 			SoundEffect.MasterVolume = Game.Settings.SoundEnabled ? 1f : 0f;
 			Game.AmbientSound.Volume = Game.Settings.BgSoundEnabled ? 0.2f : 0f;
-			MediaPlayer.Volume = Game.Settings.BgSoundEnabled ? 0.1f : 0f;
-			MediaPlayer.Play(Game.NaPankraciSong);
-			MediaPlayer.IsRepeating = true;
+            Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Game.Settings.BgSoundEnabled ? 0.1f : 0f;
+			Microsoft.Xna.Framework.Media.MediaPlayer.Play(Game.NaPankraciSong);
+			Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
 		}
 
 		void LogoClicked(object sender)

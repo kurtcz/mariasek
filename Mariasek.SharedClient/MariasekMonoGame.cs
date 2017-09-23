@@ -404,8 +404,8 @@ namespace Mariasek.SharedClient
             if (AmbientSound != null && NaPankraciSong != null)
             {
                 AmbientSound.PlaySafely();
-                MediaPlayer.Play(NaPankraciSong);
-                MediaPlayer.IsRepeating = true;
+                Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
+                Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
             }
         }
 
@@ -415,7 +415,7 @@ namespace Mariasek.SharedClient
             {
                 AmbientSound.Stop();
             }
-            MediaPlayer.Stop();
+            Microsoft.Xna.Framework.Media.MediaPlayer.Stop();
         }
 
 		public void LoadGameSettings(bool forceLoad = true)
