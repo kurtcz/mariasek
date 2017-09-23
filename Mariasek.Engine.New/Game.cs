@@ -970,6 +970,14 @@ namespace Mariasek.Engine.New
                 var player2 = (player.PlayerIndex + 1) % Game.NumPlayers;
                 var player3 = (player.PlayerIndex + 2) % Game.NumPlayers;
 
+                //pokud nema hrac trumfy ale nekdo jiny je ma, tak nelze koncit
+                if (trump.HasValue && 
+                    player.Hand.All(i => i.Suit != trump.Value) &&
+                    (players[player2].Hand.Any(i => i.Suit == trump.Value) ||
+                     players[player3].Hand.Any(i => i.Suit == trump.Value)))
+                {
+                    return false;
+                }
 				//return player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => Round.WinningCard(i, j, k, trump) == i)));
 				var holesPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                        .Where(b => player.Hand.Any(i => i.Suit == b))
