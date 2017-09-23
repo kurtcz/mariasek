@@ -972,6 +972,7 @@ namespace Mariasek.Engine.New
 
 				//return player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => Round.WinningCard(i, j, k, trump) == i)));
 				var holesPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                       .Where(b => player.Hand.Any(i => i.Suit == b))
                                        .ToDictionary(b => b,
                                                      b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                               .Count(h => players[player2].Hand.Any(i => i.Suit == b && i.Value == h) ||
