@@ -349,12 +349,12 @@ namespace Mariasek.SharedClient
                         }
                     }
                 }
-                var moveFinished = operation.OperationType == GameComponentOperationType.Move && positionDiff == Vector2.Zero;
+                var moveFinished = operation != null && operation.OperationType == GameComponentOperationType.Move && positionDiff == Vector2.Zero;
                 if (moveFinished)
                 {
                     ScheduledOperations.TryDequeue(out operation);
                 }
-                IsMoving = (operation.OperationType & GameComponentOperationType.Move) != 0 && positionDiff != Vector2.Zero;
+                IsMoving = operation != null && (operation.OperationType & GameComponentOperationType.Move) != 0 && positionDiff != Vector2.Zero;
             }
 
 			for (var i = Children.Count - 1; i >= 0; i--)
