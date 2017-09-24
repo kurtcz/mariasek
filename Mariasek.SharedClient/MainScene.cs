@@ -2352,7 +2352,7 @@ namespace Mariasek.SharedClient
                     {
                         using (var fs = File.Open(_savedGameFilePath, FileMode.Create))
                         {
-                            g.SaveGame(fs);
+                            g.SaveGame(fs, saveDebugInfo: true);
                         }
                     }
                     else
