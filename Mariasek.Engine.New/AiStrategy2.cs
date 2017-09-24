@@ -1295,10 +1295,11 @@ namespace Mariasek.Engine.New
 						return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Desitka &&
                                                                                   c1.IsLowerThan(i, _trump) &&
                                                                                   (i.Suit != _trump ||                          //pokud to neni trumfova X
-                                                                                   //(hands[MyIndex].CardCount(i.Suit) <= 2 &&    //nebo pokud mam 2 a mene trumfu
-                                                                                    //!hands[MyIndex].HasA(i.Suit) &&
-                                                                                    (_probabilities.CardProbability(player1, new Card(_trump, Hodnota.Eso)) > _epsilon &&
-                                                                                     hands[MyIndex].CardCount(_trump) <= opHiTrumps + 1 &&
+                                                                                   (_probabilities.CardProbability(player1, new Card(_trump, Hodnota.Eso)) > _epsilon &&
+                                                                                    (hands[MyIndex].CardCount(_trump) <= opHiTrumps + 1 ||
+                                                                                     ((_gameType & Hra.SedmaProti) != 0 &&
+                                                                                      hands[MyIndex].Has7(_trump) &&
+                                                                                      hands[MyIndex].CardCount(_trump) <= opHiTrumps + 2)) &&
                                                                                     (c1.Suit != i.Suit ||
                                                                                      c1.Value != Hodnota.Eso))));            //a navic nemam trumfove A
                     }
@@ -1372,11 +1373,11 @@ namespace Mariasek.Engine.New
                                                                                   c1.IsLowerThan(i, _trump) &&
                                                                                   (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 ||
                                                                                    _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
-                                                                                   _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) == 0 &&
-                                                                                   (_probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) == 0 ||
-                                                                                    Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                                        .Where(h => h != Hodnota.Desitka)
-                                                                                        .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0)));
+                                                                                  _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon &&
+                                                                                  (_probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon ||
+                                                                                   Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                       .Where(h => h != Hodnota.Desitka)
+                                                                                       .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) <= _epsilon)));
                     }
                     else if (TeamMateIndex == player3)
                     {
@@ -1384,7 +1385,7 @@ namespace Mariasek.Engine.New
                         return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                   i.Suit != _trump &&
                                                                                   c1.IsLowerThan(i, _trump) &&
-                                                                                  _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) == 0);
+                                                                                  _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon);
                     }
                     else
                     {
@@ -1399,11 +1400,12 @@ namespace Mariasek.Engine.New
                                                                                   (c1.IsLowerThan(i, _trump) ||       //vitezna X
                                                                                    !hiCards.Any()) &&                   //nebo spoluhrac hral nejvyssi kartu co ve hre zbyva
                                                                                   (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 ||
+                                                                                   _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) >= 1 -_epsilon  ||
                                                                                    _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
-                                                                                   (_probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) == 0 ||
-                                                                                    Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                                        .Where(h => h != Hodnota.Desitka)
-                                                                                        .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0)));
+                                                                                  (_probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon ||
+                                                                                   Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                       .Where(h => h != Hodnota.Desitka)
+                                                                                       .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) <= _epsilon)));
                     }
                 }
             };
@@ -1764,7 +1766,10 @@ namespace Mariasek.Engine.New
                                                                                          //c2.Value != Hodnota.Eso))) &&
                                                                                        ((_probabilities.CardProbability(player1, new Card(_trump, Hodnota.Eso)) > _epsilon ||
                                                                                          _probabilities.CardProbability(player2, new Card(_trump, Hodnota.Eso)) > _epsilon) &&
-                                                                                        hands[MyIndex].CardCount(_trump) <= opHiTrumps + 1)) &&
+                                                                                        (hands[MyIndex].CardCount(_trump) <= opHiTrumps + 1 ||
+                                                                                         ((_gameType & Hra.Sedma) != 0 &&
+                                                                                          hands[MyIndex].Has7(_trump) &&
+                                                                                          hands[MyIndex].CardCount(_trump) <= opHiTrumps + 2)))) &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) == i);
                     }
                     else if (TeamMateIndex == player1)
@@ -1781,7 +1786,10 @@ namespace Mariasek.Engine.New
                                                                                       //  (c2.Suit != i.Suit ||
                                                                                       //   c2.Value != Hodnota.Eso))) &&
                                                                                        (_probabilities.CardProbability(player2, new Card(_trump, Hodnota.Eso)) > _epsilon &&
-                                                                                        hands[MyIndex].CardCount(_trump) <= opHiTrumps + 1)) &&
+                                                                                        (hands[MyIndex].CardCount(_trump) <= opHiTrumps + 1 ||
+                                                                                         ((_gameType & Hra.SedmaProti) != 0 &&
+                                                                                          hands[MyIndex].Has7(_trump) &&
+                                                                                          hands[MyIndex].CardCount(_trump) <= opHiTrumps + 2)))) &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) != c2);
                     }
                     else
@@ -1799,7 +1807,10 @@ namespace Mariasek.Engine.New
                                                                                         //(c2.Suit != i.Suit ||
                                                                                          //c2.Value != Hodnota.Eso))) &&
                                                                                        (_probabilities.CardProbability(player1, new Card(_trump, Hodnota.Eso)) > _epsilon &&
-                                                                                        hands[MyIndex].CardCount(_trump) <= opHiTrumps + 1)) &&
+																						(hands[MyIndex].CardCount(_trump) <= opHiTrumps + 1 ||
+																						 ((_gameType & Hra.SedmaProti) != 0 &&
+                                                                                          hands[MyIndex].Has7(_trump) &&
+																						  hands[MyIndex].CardCount(_trump) <= opHiTrumps + 2)))) &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) != c1);
                     }
                 }

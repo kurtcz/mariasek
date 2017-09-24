@@ -1196,9 +1196,23 @@ namespace Mariasek.Engine.New
                     var player1 = lastRoundWinner.PlayerIndex;
                     var player2 = (lastRoundWinner.PlayerIndex + 1) % Game.NumPlayers;
                     var player3 = (lastRoundWinner.PlayerIndex + 2) % Game.NumPlayers;
+                    Barva? firstSuit;
+                    Barva? lastSuit;
 
+                    if (trump.HasValue &&
+                        (players[player2].Hand.HasSuit(trump.Value) ||
+                         players[player3].Hand.HasSuit(trump.Value)))
+                    {
+                        firstSuit = trump;
+                        lastSuit = null;
+                    }
+                    else
+                    {
+                        firstSuit = null;
+                        lastSuit = trump;
+                    }
                     var c1 = AbstractPlayer.ValidCards(players[player1].Hand, trump, GameType, players[player1].TeamMateIndex)
-                                           .Sort(false, (GameType & (Hra.Betl | Hra.Durch)) != 0, null, trump)
+                                           .Sort(false, (GameType & (Hra.Betl | Hra.Durch)) != 0, firstSuit, lastSuit)
                                            .First();
                     var c2 = AbstractPlayer.ValidCards(players[player2].Hand, trump, GameType, players[player2].TeamMateIndex, c1).RandomOne();
                     var c3 = AbstractPlayer.ValidCards(players[player3].Hand, trump, GameType, players[player3].TeamMateIndex, c1, c2).RandomOne();

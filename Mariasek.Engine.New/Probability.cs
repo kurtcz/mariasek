@@ -1153,7 +1153,14 @@ namespace Mariasek.Engine.New
                 roundStarterIndex == _gameStarterIndex)
             {
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] = epsilon;
-                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] = 1 - epsilon;
+                if (_myIndex == roundStarterIndex)
+                {
+					_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] = 1 - epsilon;
+				}
+                else
+                {
+					_cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] = 1 - epsilon;
+				}
             }
 			if (_trump.HasValue &&
 				c1.Suit != _trump &&
@@ -1168,7 +1175,14 @@ namespace Mariasek.Engine.New
 				roundStarterIndex == _gameStarterIndex)
 			{
 				_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Eso] = epsilon;
-				_cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Eso] = 1 - epsilon;
+                if (_myIndex == roundStarterIndex)
+                {
+					_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Eso] = 1 - epsilon;
+				}
+                else
+                {
+					_cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Eso] = 1 - epsilon;
+				}
 			}
 			_cardsPlayedByPlayer[(roundStarterIndex + 1) % Game.NumPlayers].Add(c2);
             ReduceUcertainCardSet();
@@ -1233,7 +1247,14 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] < 1)
             {
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] = epsilon;
-                _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] = 1 - epsilon;
+                if (_myIndex == roundStarterIndex)
+                {
+                    _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] = 1 - epsilon;
+				}
+                else
+                {
+					_cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] = 1 - epsilon;
+				}
             }
 			if (_trump.HasValue &&
 				c1.Suit != _trump &&
@@ -1247,7 +1268,14 @@ namespace Mariasek.Engine.New
 				_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Eso] < 1)
 			{
 				_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Eso] = epsilon;
-				_cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Eso] = 1 - epsilon;
+                if (_myIndex == roundStarterIndex)
+                {
+					_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Eso] = 1 - epsilon;
+				}
+                else
+                {
+					_cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Eso] = 1 - epsilon;
+				}
 			}
 			_cardsPlayedByPlayer[(roundStarterIndex + 2) % Game.NumPlayers].Add(c3);
             ReduceUcertainCardSet();
