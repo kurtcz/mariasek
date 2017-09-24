@@ -1250,7 +1250,11 @@ namespace Mariasek.SharedClient
 			{
                 return;
             }
-
+            var ae = ex as AggregateException;
+            if (ae != null)
+            {
+                ex = ae.Flatten().InnerExceptions[0];
+            }
             var msg1 = string.Format("Chyba:\n{0}\nOdesílám zprávu...", ex.Message.Split('\n').First());
             var msg2 = string.Format("{0}\n{1}", ex.Message, ex.StackTrace);
 
