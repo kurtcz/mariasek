@@ -1563,7 +1563,10 @@ namespace Mariasek.SharedClient
                     _hand.IsEnabled = true;
                     _hand.AllowDragging();
 				}, null);
-            WaitForUIThread();
+            do
+            {
+                WaitForUIThread();
+            } while (_cardClicked == null);
             _hintBtn.IsEnabled = false;
             _hand.IsEnabled = false;
             _hand.ForbidDragging();
@@ -1587,7 +1590,10 @@ namespace Mariasek.SharedClient
 					UpdateHand(cardToHide: _trumpCardChosen); //abych si otocil zbyvajicich 5 karet
 					_hand.IsEnabled = true;
 				}, null);
-            WaitForUIThread();
+            do
+            {
+                WaitForUIThread();
+            } while (_talon == null || _talon.Count() != 2);
             _hintBtn.IsEnabled = false;
             _hand.IsEnabled = false;
             return _talon;
@@ -1615,8 +1621,12 @@ namespace Mariasek.SharedClient
                 });
                 _state = GameState.ChooseGameFlavour;
             }, null);
-            WaitForUIThread();
-            _hintBtn.IsEnabled = false;
+
+            do
+            {
+                WaitForUIThread();
+            } while (_gameFlavourChosen != 0);
+			_hintBtn.IsEnabled = false;
             HideMsgLabel();
 
             return _gameFlavourChosen;
@@ -1655,7 +1665,10 @@ namespace Mariasek.SharedClient
                 {
                     ChooseGameTypeInternal(validGameTypes);
                 }, null);
-            WaitForUIThread();
+            do
+            {
+                WaitForUIThread();
+            } while (_gameTypeChosen != 0);
             HideMsgLabel();
             g.ThrowIfCancellationRequested();
             return _gameTypeChosen;
@@ -1723,7 +1736,10 @@ namespace Mariasek.SharedClient
 					_hand.IsEnabled = true;
 					_hand.AllowDragging();
                 });
-            WaitForUIThread();
+            do
+            {
+                WaitForUIThread();
+            } while (_cardClicked == null);
             _hintBtn.IsEnabled = false;
             _hand.IsEnabled = false;
             _hand.ForbidDragging();
