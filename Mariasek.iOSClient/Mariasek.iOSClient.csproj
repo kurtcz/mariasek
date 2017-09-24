@@ -93,9 +93,6 @@
     <None Include="Entitlements.plist" />
     <None Include="Info.plist" />
     <None Include="packages.config" />
-    <None Include="..\Mariasek.Content\Content.mgcb">
-      <Link>Content\Content.mgcb</Link>
-    </None>
     <None Include="..\Mariasek.Content\BM2Font.fnt">
       <Link>Content\BM2Font.fnt</Link>
     </None>
@@ -129,5 +126,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\" />
+  </ItemGroup>
+  <ItemGroup>
+    <MonoGameContentReference Include="..\Mariasek.Content\Content.mgcb">
+      <Link>Content\Content.mgcb</Link>
+    </MonoGameContentReference>
   </ItemGroup>
 </Project>

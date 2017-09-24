@@ -676,43 +676,34 @@ namespace Mariasek.Engine.New
                     //vlastni hra
                     var roundWinner = _roundStartingPlayer;
 
-                    if (PlayerWinsGame(GameStartingPlayer))
+                    for (; RoundNumber <= NumRounds; RoundNumber++)
                     {
-                        IsRunning = false;
-                        OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = roundWinner.Hand });
-                        CompleteUnfinishedRounds();
-                    }
-                    else
-                    {
-                        for (; RoundNumber <= NumRounds; RoundNumber++)
+						//predcasne vitezstvi ukazuju jen do sedmeho kola, pro posledni 2 karty to nema smysl
+						if (RoundNumber < 8 && PlayerWinsGame(roundWinner))
+						{
+							IsRunning = false;
+							if (GameType == Hra.Betl)
+							{
+								roundWinner = GameStartingPlayer;
+							}
+							CompleteUnfinishedRounds();
+							OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = roundWinner.Hand, roundNumber = RoundNumber });
+							break;
+						}
+						var r = new Round(this, roundWinner);
+
+                        RoundSanityCheck();
+						DebugString.AppendFormat("Starting round {0}\n", RoundNumber);
+						OnRoundStarted(r);
+
+                        rounds[RoundNumber - 1] = r;
+                        roundWinner = r.PlayRound();
+
+						DebugString.AppendFormat("Finished round {0}\n", RoundNumber);
+                        OnRoundFinished(r);
+                        if(IsGameOver(r))
                         {
-                            var r = new Round(this, roundWinner);
-
-                            RoundSanityCheck();
-							DebugString.AppendFormat("Starting round {0}\n", RoundNumber);
-							OnRoundStarted(r);
-
-                            rounds[RoundNumber - 1] = r;
-                            roundWinner = r.PlayRound();
-
-							DebugString.AppendFormat("Finished round {0}\n", RoundNumber);
-                            OnRoundFinished(r);
-                            if(IsGameOver(r))
-                            {
-                                break;
-                            }
-                            //predcasne vitezstvi ukazuju jen do sedmeho kola, pro posledni 2 karty to nema smysl
-                            if(RoundNumber < 8 && PlayerWinsGame(roundWinner))
-                            {
-                                IsRunning = false;
-                                if(GameType == Hra.Betl)
-                                {
-                                    roundWinner = GameStartingPlayer;
-                                }
-                                OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = roundWinner.Hand, roundNumber = RoundNumber });
-                                CompleteUnfinishedRounds();
-                                break;
-                            }
+                            break;
                         }
                     }
                 }
@@ -983,18 +974,31 @@ namespace Mariasek.Engine.New
                                        .Where(b => player.Hand.Any(i => i.Suit == b))
                                        .ToDictionary(b => b,
                                                      b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                              .Count(h => players[player2].Hand.Any(i => i.Suit == b && i.Value == h) ||
-                                                                          players[player3].Hand.Any(i => i.Suit == b && i.Value == h)));
-
+                                                              .Count(h => (players[player2].Hand.Any(i => i.Suit == b && i.Value == h) ||
+                                                                           players[player3].Hand.Any(i => i.Suit == b && i.Value == h)) &&
+                                                                          (((GameType & (Hra.Betl | Hra.Durch)) != 0 &&
+                                                                            player.Hand.Any(i => i.Suit == b && i.BadValue < new Card(Barva.Cerveny, h).BadValue)) ||
+																		   ((GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+																		    player.Hand.Any(i => i.Suit == b && i.Value < h)))));
 				var topCards = player.Hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
 				                                          .Where(h => ((GameType & (Hra.Betl | Hra.Durch)) == 0 && h > i.Value) ||
 				                                                      ((GameType & (Hra.Betl | Hra.Durch)) != 0 && new Card(Barva.Cerveny, h).BadValue > i.BadValue))
                                                           .All(h => players[player2].Hand.All(j => j.Suit != i.Suit || j.Value != h) &&
                                                                     players[player3].Hand.All(j => j.Suit != i.Suit || j.Value != h)))
 				                          .GroupBy(g => g.Suit);
-				                                                                    //v kazde barve musim mit aspon tolik 
-				return topCards.All(g => g.Count() >= holesPerSuit[g.Key]) &&       //nejvyssich karet jako mam der
-					   holesPerSuit.All(i => topCards.Any(g => i.Key == g.Key));    //a souperi nesmi mit karty v barve kterou nemam
+                var topTrumps = trump.HasValue 
+                                     ? topCards.Where(i => i.Key == trump.Value)
+                                               .SelectMany(i => i)
+                                               .ToList() 
+                                     : new List<Card>();
+
+                return topCards.All(g => holesPerSuit[g.Key] == 0 ||                            //pokud mam v barve diru, musim mit vic
+                                         g.Count() >= players[player2].Hand.CardCount(g.Key) +  //nejvyssich karet nez maji ostatni hraci
+                                                      players[player3].Hand.CardCount(g.Key)) &&//dohromady karet v dane barve    
+                       player.Hand.All(i => topCards.Any(g => i.Suit == g.Key)) &&              //a nesmi existovat barva kde nemam nejvyssi karty
+                       (!trump.HasValue ||
+                        topTrumps.Count() >= players[player2].Hand.CardCount(trump.Value) +
+                                             players[player3].Hand.CardCount(trump.Value));
             }
         }
         

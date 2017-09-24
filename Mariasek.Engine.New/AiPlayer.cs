@@ -2371,7 +2371,7 @@ namespace Mariasek.Engine.New
         {
             if (hands[0].Count() != hands[1].Count() || hands[0].Count() != hands[2].Count())
             {
-                throw new InvalidOperationException(string.Format("Wrong hands count for player{0}: {1} {2} {3}\nGame says: {4} {5} {6} {7}", 
+                throw new InvalidOperationException(string.Format("Wrong hands count for player{0}: {1} {2} {3}\nGame says: {4} {5} {6} {7}\nDebug string:\n{8}\nVerbose:\n{9}\nExternal:\n{10}\n---\n", 
                                                                   PlayerIndex + 1,
                                                                   hands[0].Count(),
                                                                   hands[1].Count(),
@@ -2379,7 +2379,10 @@ namespace Mariasek.Engine.New
                                                                   _g.players[0].Hand.Count(),
                                                                   _g.players[1].Hand.Count(),
                                                                   _g.players[2].Hand.Count(),
-                                                                  _g.talon != null ? _g.talon.Count() : -1));
+                                                                  _g.talon != null ? _g.talon.Count() : -1,
+                                                                  Probabilities._debugString,
+                                                                  Probabilities._verboseString,
+                                                                  Probabilities.ExternalDebugString));
             }
         }
 

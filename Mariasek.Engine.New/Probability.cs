@@ -34,8 +34,8 @@ namespace Mariasek.Engine.New
         private Hand _myHand;
         private List<Card> _talon;
         private List<Card> _myTalon;
-        private StringBuilder _debugString;
-        private StringBuilder _verboseString;
+        public StringBuilder _debugString;
+        public StringBuilder _verboseString;
         public StringBuilder ExternalDebugString;
         private List<int> _gameBidders;
         private int _gameIndex;

@@ -114,15 +114,15 @@ namespace Mariasek.Engine.New.Schema
                     var hrac2 = stych.Element("Hrac2");
                     var hrac3 = stych.Element("Hrac3");
 
-                    if (!string.IsNullOrEmpty(Stychy[i].Hrac1.Poznamka))
+                    if (!string.IsNullOrEmpty(Stychy[i]?.Hrac1?.Poznamka))
                     {
                         hrac1.AddAfterSelf(new XComment(Stychy[i].Hrac1.Poznamka));
                     }
-                    if (!string.IsNullOrEmpty(Stychy[i].Hrac2.Poznamka))
+                    if (!string.IsNullOrEmpty(Stychy[i]?.Hrac2?.Poznamka))
                     {
                         hrac2.AddAfterSelf(new XComment(Stychy[i].Hrac2.Poznamka));
                     }
-                    if (!string.IsNullOrEmpty(Stychy[i].Hrac3.Poznamka))
+                    if (!string.IsNullOrEmpty(Stychy[i]?.Hrac3?.Poznamka))
                     {
                         hrac3.AddAfterSelf(new XComment(Stychy[i].Hrac3.Poznamka));
                     }
