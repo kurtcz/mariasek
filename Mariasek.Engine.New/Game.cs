@@ -666,7 +666,7 @@ namespace Mariasek.Engine.New
                 if (RoundNumber == 0)
                 {
                     GameType = Hra.Hra; //docasne nastavena nejaka minimalni hra
-                    Bidding = new Bidding(this); //TEST!!!
+                    Bidding = new Bidding(this);
                     ChooseGame();
                     RoundNumber++;
                 }
@@ -678,8 +678,9 @@ namespace Mariasek.Engine.New
 
                     for (; RoundNumber <= NumRounds; RoundNumber++)
                     {
-						//predcasne vitezstvi ukazuju jen do sedmeho kola, pro posledni 2 karty to nema smysl
-						if (RoundNumber < 8 && PlayerWinsGame(roundWinner))
+                        //predcasne vitezstvi ukazuju jen do sedmeho kola, pro posledni 2 karty to nema smysl
+                        //(kontrola je po sedmem kole)
+						if (RoundNumber <= 8 && PlayerWinsGame(roundWinner))
 						{
 							IsRunning = false;
 							if (GameType == Hra.Betl)

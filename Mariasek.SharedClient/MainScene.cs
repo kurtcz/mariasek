@@ -1914,14 +1914,14 @@ namespace Mariasek.SharedClient
 
         public void CardPlayed(object sender, Round r)
         {
-            if (g.CurrentRound == null || g.CurrentRound.c1 == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
+            if (g == null || g.CurrentRound == null || g.CurrentRound.c1 == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
             {
                 return;
             }
             EnsureBubblesHidden();
             _synchronizationContext.Send(_ =>
                 {
-                    if (g.CurrentRound == null || g.CurrentRound.c1 == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
+                    if (g == null || g.CurrentRound == null || g.CurrentRound.c1 == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
 					{
 						return;
 					}
@@ -2048,9 +2048,9 @@ namespace Mariasek.SharedClient
 
                         //pokud hrajeme hru v barve a sebereme nekomu desitku nebo eso, tak se zasmej
                         if ((g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
-                                ((r.player1.PlayerIndex != roundWinnerIndex && r.player1.TeamMateIndex != roundWinnerIndex && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka)) ||
-                                 (r.player2.PlayerIndex != roundWinnerIndex && r.player2.TeamMateIndex != roundWinnerIndex && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka)) ||
-                                 (r.player3.PlayerIndex != roundWinnerIndex && r.player3.TeamMateIndex != roundWinnerIndex && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))))
+                            ((r.player1.PlayerIndex != roundWinnerIndex && r.player1.TeamMateIndex != roundWinnerIndex && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka)) ||
+                             (r.player2.PlayerIndex != roundWinnerIndex && r.player2.TeamMateIndex != roundWinnerIndex && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka)) ||
+                             (r.player3.PlayerIndex != roundWinnerIndex && r.player3.TeamMateIndex != roundWinnerIndex && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))))
                         {
                             _synchronizationContext.Send(_ =>
                             { Game.LaughSound?.PlaySafely(); }, null);
