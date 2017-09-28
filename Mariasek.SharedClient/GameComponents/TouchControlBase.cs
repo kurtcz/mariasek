@@ -147,10 +147,11 @@ namespace Mariasek.SharedClient.GameComponents
             // TODO: Add your update code here
             if (!IsVisible || 
                 !IsEnabled ||
+                !IsChildOf(Game.CurrentScene) ||
                 (Game.CurrentScene.ExclusiveControl != null && 
                  Game.CurrentScene.ExclusiveControl.IsVisible && 
                  Game.CurrentScene.ExclusiveControl != this &&
-                 Parent.IsChildOf(Game.CurrentScene.ExclusiveControl)))
+                 !Parent.IsChildOf(Game.CurrentScene.ExclusiveControl)))
             {
                 //Ignore input if there is an exclusive control (a modal dialog or an overlay) being shown and we are not that control or one of its children
                 return;

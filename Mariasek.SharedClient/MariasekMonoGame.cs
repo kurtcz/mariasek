@@ -438,7 +438,6 @@ namespace Mariasek.SharedClient
 						Settings.Thresholds.Count() != Enum.GetValues(typeof(Hra)).Cast<Hra>().Count())
 					{
 						Settings.ResetThresholds();
-                        Settings.ThinkingTimeMs = 1000;
 					}
 				}
 			}

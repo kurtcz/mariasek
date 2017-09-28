@@ -60,7 +60,6 @@ namespace Mariasek.SharedClient
             BaseBet = 1f;
             CalculationStyle = CalculationStyle.Adding;
             CurrentStartingPlayerIndex = 0;
-            ThinkingTimeMs = 1000;
             BubbleTimeMs = 1000;
 			CardDesign = CardFace.Single;
             CardBackSide = CardBackSide.Tartan;
@@ -75,6 +74,7 @@ namespace Mariasek.SharedClient
 			//souper ma 5 z 11 neznamych karet ve hre
 			//pravdepodobnost, ze souper nezna ani jednu z 2 neznamych karet v dane barve
 			RiskFactor = 0.28f; //0.2727f ~ (9 nad 5) / (11 nad 5)
+            ThinkingTimeMs = 1500;
 			Thresholds = new []
             {
                 new BidThresholdSettings

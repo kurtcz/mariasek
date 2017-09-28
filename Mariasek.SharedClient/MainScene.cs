@@ -1914,45 +1914,45 @@ namespace Mariasek.SharedClient
 
         public void CardPlayed(object sender, Round r)
         {
-            if (g == null || g.CurrentRound == null || g.CurrentRound.c1 == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
+            if (r == null || g == null || r.c1 == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
             {
                 return;
             }
             EnsureBubblesHidden();
             _synchronizationContext.Send(_ =>
                 {
-                    if (g == null || g.CurrentRound == null || g.CurrentRound.c1 == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
+                    if (g == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
 					{
 						return;
 					}
 					Card lastCard;
                     AbstractPlayer lastPlayer;
                     bool lastHlas;
-                    Rectangle rect1 = g.CurrentRound.c1 != null ? g.CurrentRound.c1.ToTextureRect() : default(Rectangle);
-                    Rectangle rect2 = g.CurrentRound.c2 != null ? g.CurrentRound.c2.ToTextureRect() : default(Rectangle);
-                    Rectangle rect3 = g.CurrentRound.c3 != null ? g.CurrentRound.c3.ToTextureRect() : default(Rectangle);
+                    Rectangle rect1 = r.c1 != null ? r.c1.ToTextureRect() : default(Rectangle);
+                    Rectangle rect2 = r.c2 != null ? r.c2.ToTextureRect() : default(Rectangle);
+                    Rectangle rect3 = r.c3 != null ? r.c3.ToTextureRect() : default(Rectangle);
 
-                    if (g.CurrentRound.c3 != null)
+                    if (r.c3 != null)
                     {
-                        lastCard = g.CurrentRound.c3;
-                        lastPlayer = g.CurrentRound.player3;
-                        lastHlas = g.CurrentRound.hlas3;
+                        lastCard = r.c3;
+                        lastPlayer = r.player3;
+                        lastHlas = r.hlas3;
                     }
-                    else if (g.CurrentRound.c2 != null)
+                    else if (r.c2 != null)
                     {
-                        lastCard = g.CurrentRound.c2;
-                        lastPlayer = g.CurrentRound.player2;
-                        lastHlas = g.CurrentRound.hlas2;
+                        lastCard = r.c2;
+                        lastPlayer = r.player2;
+                        lastHlas = r.hlas2;
                     }
                     else
                     {
-                        lastCard = g.CurrentRound.c1;
-                        lastPlayer = g.CurrentRound.player1;
-                        lastHlas = g.CurrentRound.hlas1;
+                        lastCard = r.c1;
+                        lastPlayer = r.player1;
+                        lastHlas = r.hlas1;
                     }
                     _progressBars[lastPlayer.PlayerIndex].Progress = _progressBars[lastPlayer.PlayerIndex].Max;
                     HideThinkingMessage();
-                    if (lastPlayer.PlayerIndex != 2 && g.CurrentRound.c3 == null)
+                    if (lastPlayer.PlayerIndex != 2 && r.c3 == null)
                     {
                         ShowThinkingMessage((lastPlayer.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
                     }
@@ -1962,43 +1962,43 @@ namespace Mariasek.SharedClient
                     }
                     this.Invoke(() =>
                     {
-                        if (g.CurrentRound.c1 != null)
+                        if (r.c1 != null)
                         {
-                            if (g.CurrentRound.hlas1)
+                            if (r.hlas1)
                             {
-                                _hlasy[g.CurrentRound.player1.PlayerIndex][g.CurrentRound.player1.Hlasy - 1].Sprite.SpriteRectangle = rect1;
-                                _hlasy[g.CurrentRound.player1.PlayerIndex][g.CurrentRound.player1.Hlasy - 1].Show();
+                                _hlasy[r.player1.PlayerIndex][r.player1.Hlasy - 1].Sprite.SpriteRectangle = rect1;
+                                _hlasy[r.player1.PlayerIndex][r.player1.Hlasy - 1].Show();
                             }
                             else
                             {
-                                _cardsPlayed[g.CurrentRound.player1.PlayerIndex].SpriteRectangle = rect1;
-                                _cardsPlayed[g.CurrentRound.player1.PlayerIndex].Show();
+                                _cardsPlayed[r.player1.PlayerIndex].SpriteRectangle = rect1;
+                                _cardsPlayed[r.player1.PlayerIndex].Show();
                             }
                         }
-                        if (g.CurrentRound.c2 != null)
+                        if (r.c2 != null)
                         {
-                            if (g.CurrentRound.hlas2)
+                            if (r.hlas2)
                             {
-                                _hlasy[g.CurrentRound.player2.PlayerIndex][g.CurrentRound.player2.Hlasy - 1].Sprite.SpriteRectangle = rect2;
-                                _hlasy[g.CurrentRound.player2.PlayerIndex][g.CurrentRound.player2.Hlasy - 1].Show();
+                                _hlasy[r.player2.PlayerIndex][r.player2.Hlasy - 1].Sprite.SpriteRectangle = rect2;
+                                _hlasy[r.player2.PlayerIndex][r.player2.Hlasy - 1].Show();
                             }
                             else
                             {
-                                _cardsPlayed[g.CurrentRound.player2.PlayerIndex].SpriteRectangle = rect2;
-                                _cardsPlayed[g.CurrentRound.player2.PlayerIndex].Show();
+                                _cardsPlayed[r.player2.PlayerIndex].SpriteRectangle = rect2;
+                                _cardsPlayed[r.player2.PlayerIndex].Show();
                             }
                         }
-                        if (g.CurrentRound.c3 != null)
+                        if (r.c3 != null)
                         {
-                            if (g.CurrentRound.hlas3)
+                            if (r.hlas3)
                             {
-                                _hlasy[g.CurrentRound.player3.PlayerIndex][g.CurrentRound.player3.Hlasy - 1].Sprite.SpriteRectangle = rect3;
-                                _hlasy[g.CurrentRound.player3.PlayerIndex][g.CurrentRound.player3.Hlasy - 1].Show();
+                                _hlasy[r.player3.PlayerIndex][r.player3.Hlasy - 1].Sprite.SpriteRectangle = rect3;
+                                _hlasy[r.player3.PlayerIndex][r.player3.Hlasy - 1].Show();
                             }
                             else
                             {
-                                _cardsPlayed[g.CurrentRound.player3.PlayerIndex].SpriteRectangle = rect3;
-                                _cardsPlayed[g.CurrentRound.player3.PlayerIndex].Show();
+                                _cardsPlayed[r.player3.PlayerIndex].SpriteRectangle = rect3;
+                                _cardsPlayed[r.player3.PlayerIndex].Show();
                             }
                         }
 
