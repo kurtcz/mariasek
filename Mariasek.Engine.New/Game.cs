@@ -687,8 +687,9 @@ namespace Mariasek.Engine.New
 							{
 								roundWinner = GameStartingPlayer;
 							}
+                            var winningHand = roundWinner.Hand.ToList();
 							CompleteUnfinishedRounds();
-							OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = roundWinner.Hand, roundNumber = RoundNumber });
+                            OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = winningHand, roundNumber = RoundNumber });
 							break;
 						}
 						var r = new Round(this, roundWinner);

@@ -1613,6 +1613,7 @@ namespace Mariasek.SharedClient
             } while (_talon == null || _talon.Count() != 2);
             _hintBtn.IsEnabled = false;
             _hand.IsEnabled = false;
+            _okBtn.Hide();
             return _talon;
         }
 
@@ -1645,8 +1646,12 @@ namespace Mariasek.SharedClient
             } while ((int)_gameFlavourChosen == -1);
 			_hintBtn.IsEnabled = false;
             HideMsgLabel();
+			foreach (var gfButton in gfButtons)
+			{
+				gfButton.Hide();
+			}
 
-            return _gameFlavourChosen;
+			return _gameFlavourChosen;
         }
 
         private void ChooseGameTypeInternal(Hra validGameTypes)
@@ -1687,7 +1692,11 @@ namespace Mariasek.SharedClient
                 WaitForUIThread();
             } while (_gameTypeChosen == 0);
             HideMsgLabel();
-            g.ThrowIfCancellationRequested();
+			foreach (var btn in gtButtons)
+			{
+				btn.Hide();
+			}
+			g.ThrowIfCancellationRequested();
             return _gameTypeChosen;
         }
 
@@ -1711,6 +1720,7 @@ namespace Mariasek.SharedClient
                     });
                 }, null);
             } while (!WaitForUIThread(TimeSpan.FromMilliseconds(500)));
+            HideBidButtons();
             return _bid;
         }
 
