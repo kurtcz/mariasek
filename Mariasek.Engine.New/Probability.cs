@@ -802,26 +802,18 @@ namespace Mariasek.Engine.New
             var check = true;
             for (int i = 0; i < Game.NumPlayers; i++)
             {
-                if (hands[i].Count != 10 - roundNumber + 1 && roundNumber <= 1 && hands[i].Count != 12 && hands[i].Count != 10)
+                if (roundNumber <= 1 &&                     
+                    hands[i].Count != 12 &&
+                    hands[i].Count != 10)   //pri uvodnim generovani musi mit nekdo vic karet, talon vybirame az posleze
                 {
                     check = false;
                     break;
                 }
-                //if (i == _gameStarterIndex && roundNumber == 0 && hands[i].Count != 12)
-                //{
-                //    check = false;
-                //    break;
-                //}
-                //else if (roundNumber == 0 && i != _gameStarterIndex && hands[i].Count != 10)
-                //{
-                //    check = false;
-                //    break;
-                //}
-                //else if ((roundNumber > 1 || i != _gameStarterIndex) && hands[i].Count != 10 - roundNumber + 1)
-                //{
-                //    check = false;
-                //    break;
-                //}
+                else if (roundNumber > 1 && hands[i].Count != 10 - roundNumber + 1)
+                {
+                    check = false;
+                    break;
+                }
             }
             if(hands[talonIndex].Count != 0 && hands[talonIndex].Count != 2)
             {
