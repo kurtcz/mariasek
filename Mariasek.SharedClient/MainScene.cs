@@ -1236,12 +1236,19 @@ namespace Mariasek.SharedClient
                     _hand.Hide();
                     var winningCards = new List<Card>();
 
-					for (var i = e.roundNumber - 1; i < Mariasek.Engine.New.Game.NumRounds; i++)
-					{
-						winningCards.Add(g.rounds[i].c1);
-					}
-                    if ((g.GameType & (Hra.Betl | Hra.Durch)) != 0)
+                    if (g.GameType == Hra.Betl)
                     {
+                        winningCards = g.GameStartingPlayer.Hand;
+                    }
+                    else
+                    {
+                        for (var i = e.roundNumber - 1; i < Mariasek.Engine.New.Game.NumRounds; i++)
+                        {
+                            winningCards.Add(g.rounds[i].c1);
+                        }
+                    }
+                    if ((g.GameType & (Hra.Betl | Hra.Durch)) != 0)
+                    {                    
 						winningCards = winningCards.Sort(false, true).ToList();
 					}
                     _winningHand = new GameComponents.Hand(this, winningCards.ToArray());

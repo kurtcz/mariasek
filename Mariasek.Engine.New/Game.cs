@@ -1100,7 +1100,12 @@ namespace Mariasek.Engine.New
                         gameFlavour = GameFlavour.Bad;
 						trump = null;
 						TrumpCard = null;
-					}
+                        OnGameFlavourChosen(new GameFlavourChosenEventArgs
+                        {
+                            Player = nextPlayer,
+                            Flavour = gameFlavour
+                        });                    
+                    }
                     else
                     {
                         gameFlavour = GameFlavour.Good;

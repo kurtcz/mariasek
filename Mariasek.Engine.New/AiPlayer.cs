@@ -1820,7 +1820,7 @@ namespace Mariasek.Engine.New
                 var progress = 0;
                 var start = DateTime.Now;
 
-                if (goodGame && _g.CurrentRound != null)
+                //if (goodGame && _g.CurrentRound != null)
                 {
                     //pokud je hra v behu tak u klasicke hry nepotrebujeme paralelni vypocty
                     //protoze ted pouzivame pravdepodobnostni pravidla
