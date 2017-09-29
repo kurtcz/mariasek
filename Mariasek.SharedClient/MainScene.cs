@@ -1238,7 +1238,7 @@ namespace Mariasek.SharedClient
 
                     if (g.GameType == Hra.Betl)
                     {
-                        winningCards = g.GameStartingPlayer.Hand;
+                        winningCards = e.winningHand;
                     }
                     else
                     {

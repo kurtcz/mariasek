@@ -389,7 +389,10 @@ namespace Mariasek.Engine.New
                                    .GroupBy(g => g.Suit);   //seskup podle barev
                         //vyber z nizkych karet jen karty kde je max 1 karta vyssi nez souperovy
                         //cardsToPlay = hi.Where(g => g.Count() == 1).SelectMany(g => g).ToList();
-                        cardsToPlay = hi.SelectMany(g => g).ToList(); //podminka s jednou kartou nefunguje
+                        cardsToPlay = hi.SelectMany(g => g)
+                                        .OrderByDescending(i => i.BadValue)
+                                        .Take(1)
+                                        .ToList(); //podminka s jednou kartou nefunguje
                         //je treba odmazavat pokud to jde, v nejhorsim hru neuhraju, simulace by mely ukazat
                     }
                     else //oc-
@@ -492,7 +495,10 @@ namespace Mariasek.Engine.New
                                             hands[player2].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)))
                                     .GroupBy(g => g.Suit);   //seskup podle barev
                         //vyber z nizkych karet jen karty kde je max 1 karta vyssi nez souperovy
-                        cardsToPlay = hi.SelectMany(g => g).ToList(); //podminka s jednou kartou nefunguje
+                        cardsToPlay = hi.SelectMany(g => g)
+                                        .OrderByDescending(i => i.BadValue)
+                                        .Take(1)
+                                        .ToList(); //podminka s jednou kartou nefunguje
                         //je treba odmazavat pokud to jde, v nejhorsim hru neuhraju, simulace by mely ukazat
                     }
                     else

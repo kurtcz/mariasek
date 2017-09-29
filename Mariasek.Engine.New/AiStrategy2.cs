@@ -1442,17 +1442,17 @@ namespace Mariasek.Engine.New
                 ChooseCard2 = (Card c1) =>
                 {
                     if (TeamMateIndex == player3)
-                    {
+                    {                        
                         //-co
                         return ValidCards(c1, hands[MyIndex]).Where(i => i.Suit != _trump &&
-                                                                         c1.Suit != _trump &&   //nemaz pokud protivnik vyjel trumfem
                                                                          (i.Value == Hodnota.Desitka ||
                                                                           (i.Value == Hodnota.Eso &&        //eso namaz jen kdyz nemuzu chytit desitku nebo pri kilu (proti)
                                                                            (_probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) == 0 ||
                                                                             (((_gameType & Hra.Kilo) != 0) &&
                                                                               _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) < 1)))) &&
-                                                                         ((_probabilities.SuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1 - RiskFactor) ||
-                                                                          (_probabilities.SuitProbability(player3, c1.Suit, RoundNumber) <= RiskFactor &&
+                                                                         (_probabilities.SuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1 - RiskFactor ||
+                                                                          (c1.Suit != _trump &&
+                                                                           _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) <= RiskFactor &&
                                                                            (_probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 - RiskFactor ||
                                                                             ((_gameType & Hra.Kilo) != 0) &&  //u kila zkousim mazat vice
                                                                              _probabilities.SuitProbability(player3, _trump, RoundNumber) >= RiskFactor))))

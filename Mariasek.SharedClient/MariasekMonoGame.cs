@@ -307,9 +307,12 @@ namespace Mariasek.SharedClient
                 LaughSound = Content.Load<SoundEffect>("laugh");
 
                 AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
-                AmbientSound.IsLooped = true;
-                AmbientSound.Volume = 0;
-                AmbientSound?.PlaySafely();
+                if (AmbientSound != null)
+                {
+                    AmbientSound.IsLooped = true;
+                    AmbientSound.Volume = 0;
+                    AmbientSound?.PlaySafely();
+                }
 
                 NaPankraciSong = Content.Load<Song>("na pankraci");
             }
