@@ -717,7 +717,7 @@ namespace Mariasek.SharedClient
 				Anchor = AnchorType.Top
             };
             _progressBars = new [] { _progress1, _progress2, _progress3 };
-            Children.Sort((a, b) => a.ZIndex - b.ZIndex);
+            //Children.Sort((a, b) => a.ZIndex - b.ZIndex);
 
             LoadHistory();
             Game.LoadGameSettings(false);

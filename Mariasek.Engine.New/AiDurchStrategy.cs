@@ -104,32 +104,64 @@ namespace Mariasek.Engine.New
                 }
             };
 
-            yield return new AiRule()
+			yield return new AiRule()
+			{
+				Order = 2,
+				Description = "hrát barvu kde asi nechytám",
+				ChooseCard2 = (Card c1) =>
+				{
+                    var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0)
+																.OrderByDescending(i => i.BadValue);
+
+                    if (!cardsToPlay.Any())
+                    {
+                        //barvy kde nejsou diry vyjma nizkych karet
+                        var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                        .Where(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                        .Where(h => h != Hodnota.Eso &&
+                                                                    _probabilities.CardProbability(player1, new Card(b, h)) > 0)
+                                                        .All(h => h < Hodnota.Spodek || h == Hodnota.Desitka));
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => suits.Contains(i.Suit))
+                                                                .OrderByDescending(i => i.BadValue);
+                    }
+
+					return cardsToPlay.FirstOrDefault();
+				}
+			};
+
+			yield return new AiRule()
+			{
+				Order = 3,
+				Description = "ukázat barvu kterou chytám",
+				ChooseCard2 = (Card c1) =>
+				{
+					var aces = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+								   .Where(b => hands[MyIndex].HasA(b));
+                    var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => aces.Contains(i.Suit) &&
+																			i.Value != Hodnota.Eso)
+																.OrderByDescending(i => i.BadValue);
+					return cardsToPlay.FirstOrDefault();
+				}
+			};
+
+			yield return new AiRule()
             {
-                Order = 2,
-                Description = "hrát nejmenší kartu v barvě, ve které nechytám",
+                Order = 4,
+                Description = "hrát spoluhráčovu barvu",
                 ChooseCard2 = (Card c1) =>
                 {
-                    var cardsToPlay = new List<Card>();
-                    var maxCard = Hodnota.Eso;
-
-                    foreach (var barva in Enum.GetValues(typeof(Barva)).Cast<Barva>())
-                    {
-                        var cards = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == barva && 
-                                                                                hands[player1].Where(j => j.Suit == barva)
-                                                                                              .All(k => k.Value > i.Value))
-                                                  .OrderByDescending(i => i.Value)
-                                                  .ToList();
-                        var hi = cards.FirstOrDefault();
-                        var lo = cards.LastOrDefault();
-
-                        if(hi != null && hi.Value >= maxCard)
-                        {
-                            maxCard = lo.Value;
-                            cardsToPlay.Clear();
-                            cardsToPlay.Add(lo);
-                        }
-                    }
+                    var opponentsCardsPlayed = _rounds.Where(r => r != null && r.c3 != null)
+                                                      .Select(r => r.player2.PlayerIndex == TeamMateIndex
+                                                                    ? r.c2
+                                                                    : r.c3).ToList();
+                    var topOpponentCardPlayedPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                           .ToDictionary(b => b,
+                                                                         b => opponentsCardsPlayed.Where(i => i.Suit == b)
+                                                                                                  .OrderByDescending(i => i.BadValue)
+                                                                                                  .FirstOrDefault());
+                    var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => topOpponentCardPlayedPerSuit[i.Suit] != null &&
+                                                                            i.BadValue < topOpponentCardPlayedPerSuit[i.Suit].BadValue)
+                                                                .OrderBy(i => i.BadValue);
 
                     return cardsToPlay.FirstOrDefault();
                 }
@@ -137,7 +169,41 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 3,
+                Order = 5,
+                Description = "hrát nejmenší kartu v barvě, ve které chytám",
+                ChooseCard2 = (Card c1) =>
+                {
+                    var topCardsPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                              .ToDictionary(b => b,
+                                                            b => hands[MyIndex].Where(i => i.Suit == b)
+                                                                               .OrderByDescending(i => i.BadValue)
+                                                                               .FirstOrDefault());
+                    var holesPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                           .ToDictionary(b => b,
+                                                         b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                  .Where(h => topCardsPerSuit[b] != null &&
+                                                                              new Card(Barva.Cerveny, h).BadValue < topCardsPerSuit[b].BadValue)
+                                                                  .Count(h => _probabilities.CardProbability(player1, new Card(b, h)) > 0));
+					var opponentTopCards = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+											   .ToDictionary(b => b,
+															 b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+															 		  .Where(h => topCardsPerSuit[b] != null &&
+																	 			  new Card(Barva.Cerveny, h).BadValue > topCardsPerSuit[b].BadValue)
+																	  .Count(h => _probabilities.CardProbability(player1, new Card(b, h)) > 0));
+                    var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => topCardsPerSuit[i.Suit] != null &&
+																			holesPerSuit[i.Suit] > 0 &&
+																			opponentTopCards[i.Suit] > 0 &&
+                                                                            opponentTopCards[i.Suit] < hands[MyIndex].CardCount(i.Suit) - 1)
+                                                                .OrderByDescending(i => hands[MyIndex].CardCount(i.Suit) - opponentTopCards[i.Suit])
+                                                                .ThenBy(i => i.BadValue);
+
+                    return cardsToPlay.FirstOrDefault();
+                }
+            };
+
+            yield return new AiRule()
+            {
+                Order = 6,
                 Description = "hrát nejmenší kartu",
                 ChooseCard2 = (Card c1) =>
                 {
@@ -177,40 +243,107 @@ namespace Mariasek.Engine.New
                 }
             };
 
-            yield return new AiRule()
-            {
-                Order = 2,
-                Description = "hrát nejmenší kartu v barvě, ve které nechytám",
-                ChooseCard3 = (Card c1, Card c2) =>
-                {
-                    var cardsToPlay = new List<Card>();
-                    var maxCard = Hodnota.Eso;
+			yield return new AiRule()
+			{
+				Order = 2,
+				Description = "hrát barvu kde asi nechytám",
+				ChooseCard3 = (Card c1, Card c2) =>
+				{
+					var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0)
+																.OrderByDescending(i => i.BadValue);
 
-                    foreach (var barva in Enum.GetValues(typeof(Barva)).Cast<Barva>())
-                    {
-                        var cards = ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit == barva &&
-                                                                                hands[player1].Where(j => j.Suit == barva)
-                                                                                              .All(k => k.Value > i.Value))
-                                                  .OrderByDescending(i => i.Value)
-                                                  .ToList();
-                        var hi = cards.FirstOrDefault();
-                        var lo = cards.LastOrDefault();
+					if (!cardsToPlay.Any())
+					{
+						//barvy kde nejsou diry vyjma nizkych karet
+						var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+										.Where(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+														.Where(h => h != Hodnota.Eso &&
+																	_probabilities.CardProbability(player1, new Card(b, h)) > 0)
+														.All(h => h < Hodnota.Spodek || h == Hodnota.Desitka));
+						cardsToPlay = ValidCards(hands[MyIndex]).Where(i => suits.Contains(i.Suit))
+																.OrderByDescending(i => i.BadValue);
+					}
 
-                        if (hi != null && hi.Value >= maxCard)
-                        {
-                            maxCard = lo.Value;
-                            cardsToPlay.Clear();
-                            cardsToPlay.Add(lo);
-                        }
-                    }
-
-                    return cardsToPlay.FirstOrDefault();
+					return cardsToPlay.FirstOrDefault();
                 }
-            };
+			};
+
+			yield return new AiRule()
+			{
+				Order = 3,
+				Description = "ukázat barvu kterou chytám",
+				ChooseCard3 = (Card c1, Card c2) =>
+				{
+					var aces = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                   .Where(b => hands[MyIndex].HasA(b));
+                    var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => aces.Contains(i.Suit) &&
+                                                                            i.Value != Hodnota.Eso)
+																.OrderByDescending(i => i.BadValue);
+
+					return cardsToPlay.FirstOrDefault();
+				}
+			};
+
+			yield return new AiRule()
+			{
+				Order = 4,
+				Description = "hrát nízkou kartu ve spoluhráčově barvě",
+				ChooseCard3 = (Card c1, Card c2) =>
+				{
+					var opponentsCardsPlayed = _rounds.Where(r => r != null && r.c3 != null)
+													  .Select(r => r.player2.PlayerIndex == TeamMateIndex
+																	? r.c2
+																	: r.c3).ToList();
+					var topOpponentCardPlayedPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+														   .ToDictionary(b => b,
+																		 b => opponentsCardsPlayed.Where(i => i.Suit == b)
+																								  .OrderByDescending(i => i.BadValue)
+																								  .FirstOrDefault());
+					var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => topOpponentCardPlayedPerSuit[i.Suit] != null &&
+																			i.BadValue < topOpponentCardPlayedPerSuit[i.Suit].BadValue)
+																.OrderBy(i => i.BadValue);
+
+					return cardsToPlay.FirstOrDefault();
+				}
+			};
+
+			yield return new AiRule()
+			{
+				Order = 5,
+				Description = "hrát nejmenší kartu v barvě, ve které chytám",
+				ChooseCard3 = (Card c1, Card c2) =>
+				{
+					var topCardsPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+											  .ToDictionary(b => b,
+															b => hands[MyIndex].Where(i => i.Suit == b)
+																			   .OrderByDescending(i => i.BadValue)
+																			   .FirstOrDefault());
+					var holesPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+											  .ToDictionary(b => b,
+															b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+																	 .Where(h => topCardsPerSuit[b] != null &&
+																				 new Card(Barva.Cerveny, h).BadValue < topCardsPerSuit[b].BadValue)
+																	 .Count(h => _probabilities.CardProbability(player1, new Card(b, h)) > 0));
+					var opponentTopCards = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+											  .ToDictionary(b => b,
+															b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+																	 .Where(h => topCardsPerSuit[b] != null &&
+																				 new Card(Barva.Cerveny, h).BadValue > topCardsPerSuit[b].BadValue)
+																	 .Count(h => _probabilities.CardProbability(player1, new Card(b, h)) > 0));
+                    var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => topCardsPerSuit[i.Suit] != null &&
+                                                                            holesPerSuit[i.Suit] > 0 &&
+                                                                            opponentTopCards[i.Suit] > 0 &&
+                                                                            opponentTopCards[i.Suit] < hands[MyIndex].CardCount(i.Suit) - 1)
+                                                                .OrderByDescending(i => hands[MyIndex].CardCount(i.Suit) - opponentTopCards[i.Suit])
+                                                                .ThenBy(i => i.BadValue);
+
+					return cardsToPlay.FirstOrDefault();
+				}
+			};
 
             yield return new AiRule()
             {
-                Order = 3,
+                Order = 6,
                 Description = "hrát nejmenší kartu",
                 ChooseCard3 = (Card c1, Card c2) =>
                 {

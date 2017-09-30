@@ -14,7 +14,7 @@ namespace Mariasek.SharedClient
     {
         private GameComponent _parent;
         protected new MariasekMonoGame Game;
-        protected List<GameComponent> Children = new List<GameComponent>();
+        protected List<GameComponent> Children = new List<GameComponent>(); //not thread safe!
 		public IReadOnlyCollection<GameComponent> ChildElements { get { return Children; } }
         protected ConcurrentQueue<GameComponentOperation> ScheduledOperations = new ConcurrentQueue<GameComponentOperation>();
         protected class GameComponentOperation
@@ -75,8 +75,8 @@ namespace Mariasek.SharedClient
                 if (_parent != null)
                 {
                     _parent.Children.Add(this);
-                }
-                _parent.Children.Sort((a, b) => a.ZIndex - b.ZIndex);
+					_parent.Children.Sort((a, b) => a.ZIndex - b.ZIndex);
+				}
             }
         }
         public virtual Vector2 Position
