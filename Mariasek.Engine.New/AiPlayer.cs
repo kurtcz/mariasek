@@ -796,7 +796,7 @@ namespace Mariasek.Engine.New
                             UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
 
                             // to ?? vypada chybne
-                            var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : (Hra.Sedma | Hra.SedmaProti), 10, 1);
+                            var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : (Hra.Hra | Hra.Sedma | Hra.SedmaProti), 10, 1);
                             gameComputationResults.Enqueue(gameComputationResult);
                         }
                         var val = Interlocked.Increment(ref progress);
@@ -1479,6 +1479,7 @@ namespace Mariasek.Engine.New
         public override Hra GetBidsAndDoubles(Bidding bidding)
         {
             Hra bid = 0;
+            const int MaxFlek = 3;
             var gameThreshold = bidding._gameFlek < Settings.GameThresholdsForGameType[Hra.Hra].Length ? Settings.GameThresholdsForGameType[Hra.Hra][bidding._gameFlek] : 1f;
             var gameThresholdPrevious = bidding._gameFlek > 1 && bidding._gameFlek - 1 < Settings.GameThresholdsForGameType[Hra.Hra].Length ? Settings.GameThresholdsForGameType[Hra.Hra][bidding._gameFlek - 1] : 1f;
             var gameThresholdNext = bidding._gameFlek < Settings.GameThresholdsForGameType[Hra.Hra].Length - 1 ? Settings.GameThresholdsForGameType[Hra.Hra][bidding._gameFlek + 1] : 1f;
@@ -1543,7 +1544,8 @@ namespace Mariasek.Engine.New
                  (TeamMateIndex == -1 &&
                   _gamesBalance / (float)_gameSimulations >= gameThresholdNext) ||
                  //nebo jsem si opravdu hodne jisty at jsem kdokoli
-                 _gamesBalance / (float)_gameSimulations >= certaintyThreshold))// ||
+                 (bidding._gameFlek <= MaxFlek &&
+                  _gamesBalance / (float)_gameSimulations >= certaintyThreshold)))// ||
                  //nebo kolega flekoval a ja mam nejakou hlasku a citil jsem se na flek jiz minule (tutti a vys),
                  //(_teamMateDoubledGame && _gamesBalance / (float)_gameSimulations >= gameThresholdPrevious && 
                  // Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit)))))
@@ -1556,7 +1558,8 @@ namespace Mariasek.Engine.New
                 Settings.CanPlayGameType[Hra.Sedma] &&
                 _sevenSimulations > 0 && 
                 (bidding._sevenFlek <= Settings.MaxDoubleCountForGameType[Hra.Sedma] ||
-                 _sevensBalance / (float)_sevenSimulations >= certaintyThreshold) &&
+				 ((bidding._sevenFlek <= MaxFlek &&
+				  _sevensBalance / (float)_sevenSimulations >= certaintyThreshold)) &&
                 Hand.CardCount(_g.trump.Value) >= 2 && _sevensBalance / (float)_sevenSimulations >= sevenThreshold)
             {
                 bid |= bidding.Bids & Hra.Sedma;
@@ -1569,7 +1572,8 @@ namespace Mariasek.Engine.New
                 Settings.CanPlayGameType[Hra.Kilo] &&
                 _gameSimulations > 0 &&
                 (bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Kilo] ||
-                 _hundredsBalance / (float)_gameSimulations >= certaintyThreshold) &&
+				 (bidding._gameFlek <= MaxFlek &&
+				  _hundredsBalance / (float)_gameSimulations >= certaintyThreshold)) &&
                 ((PlayerIndex == _g.GameStartingPlayerIndex && _hundredsBalance / (float)_gameSimulations >= hundredThreshold) ||
 			     (PlayerIndex != _g.GameStartingPlayerIndex && Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0)))
             {
@@ -1582,7 +1586,8 @@ namespace Mariasek.Engine.New
             if ((bidding.Bids & Hra.SedmaProti) != 0 &&
                 Settings.CanPlayGameType[Hra.SedmaProti] &&
                 (bidding._sevenAgainstFlek <= Settings.MaxDoubleCountForGameType[Hra.SedmaProti] ||
-                 _sevensAgainstBalance / (float)_gameSimulations >= certaintyThreshold) &&
+				 (bidding._sevenAgainstFlek <= MaxFlek &&
+                  _sevensAgainstBalance / (float)_gameSimulations >= certaintyThreshold)) &&
                 _gameSimulations > 0 && _sevensAgainstBalance / (float)_gameSimulations >= sevenAgainstThreshold)
             {
                 bid |= bidding.Bids & Hra.SedmaProti;
@@ -1608,7 +1613,8 @@ namespace Mariasek.Engine.New
                 Settings.CanPlayGameType[Hra.Durch] &&
                 _durchSimulations > 0 && 
                 (bidding._betlDurchFlek <= Settings.MaxDoubleCountForGameType[Hra.Durch] ||
-                 _durchBalance / (float)_durchSimulations >= certaintyThreshold) &&
+                 (bidding._betlDurchFlek <= MaxFlek &&
+                  _durchBalance / (float)_durchSimulations >= certaintyThreshold)) &&
                 ((PlayerIndex == _g.GameStartingPlayerIndex && _durchBalance / (float)_durchSimulations >= durchThreshold) ||
 			     (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) == 4)))
             {
@@ -1620,7 +1626,8 @@ namespace Mariasek.Engine.New
                 Settings.CanPlayGameType[Hra.Betl] &&
                 _betlSimulations > 0 && 
                 (bidding._betlDurchFlek <= Settings.MaxDoubleCountForGameType[Hra.Betl] ||
-                 _betlBalance / (float)_betlSimulations >= certaintyThreshold) &&
+				 (bidding._betlDurchFlek <= MaxFlek &&
+                  _betlBalance / (float)_betlSimulations >= certaintyThreshold)) &&
                 PlayerIndex == _g.GameStartingPlayerIndex && _betlBalance / (float)_betlSimulations >= betlThreshold)
             {
                 bid |= bidding.Bids & Hra.Betl;
