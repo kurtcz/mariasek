@@ -1558,7 +1558,7 @@ namespace Mariasek.Engine.New
                 Settings.CanPlayGameType[Hra.Sedma] &&
                 _sevenSimulations > 0 && 
                 (bidding._sevenFlek <= Settings.MaxDoubleCountForGameType[Hra.Sedma] ||
-				 ((bidding._sevenFlek <= MaxFlek &&
+				 (bidding._sevenFlek <= MaxFlek &&
 				  _sevensBalance / (float)_sevenSimulations >= certaintyThreshold)) &&
                 Hand.CardCount(_g.trump.Value) >= 2 && _sevensBalance / (float)_sevenSimulations >= sevenThreshold)
             {

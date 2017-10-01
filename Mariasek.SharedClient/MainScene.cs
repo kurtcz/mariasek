@@ -1645,6 +1645,7 @@ namespace Mariasek.SharedClient
                 WaitForUIThread();
             } while ((int)_gameFlavourChosen == -1);
 			_hintBtn.IsEnabled = false;
+            this.ClearOperations();
             HideMsgLabel();
 			foreach (var gfButton in gfButtons)
 			{
@@ -1692,6 +1693,7 @@ namespace Mariasek.SharedClient
                 WaitForUIThread();
             } while (_gameTypeChosen == 0);
             HideMsgLabel();
+            this.ClearOperations();
 			foreach (var btn in gtButtons)
 			{
 				btn.Hide();
@@ -1720,6 +1722,7 @@ namespace Mariasek.SharedClient
                     });
                 }, null);
             } while (!WaitForUIThread(TimeSpan.FromMilliseconds(500)));
+            this.ClearOperations();
             HideBidButtons();
             return _bid;
         }
