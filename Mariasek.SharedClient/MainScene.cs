@@ -1418,7 +1418,6 @@ namespace Mariasek.SharedClient
                             return;
                         _state = GameState.NotPlaying;
                         HideMsgLabel();
-                        origPosition = button.Position;
                         if ((g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
                             _cardClicked.Value == Hodnota.Svrsek &&
                             g.players[0].Hand.HasK(_cardClicked.Suit))
@@ -1432,17 +1431,18 @@ namespace Mariasek.SharedClient
                             targetSprite = _cardsPlayed[0];
                             targetSprite.ZIndex = _cardsPlayed[0].ZIndex;
                         }
-                        button
-                            .MoveTo(origPosition, 1000)
-                            .Invoke(() =>
-                            {
-                                targetSprite.SpriteRectangle = cardClicked.ToTextureRect();
-                                targetSprite.Show();
-                                button.Hide();
-                            //button.Position = button.PreDragPosition;
-                            //_updateCardsPosition = true;
-                            _evt.Set();
-                            });
+						origPosition = targetSprite.Position;
+                        button.Position = button.PostDragPosition;
+                        button.Sprite
+                              .MoveTo(origPosition, 1000)
+                              .Invoke(() =>
+                              {
+                                  targetSprite.SpriteRectangle = cardClicked.ToTextureRect();
+                                  targetSprite.Show();
+                                  button.Hide();
+                                  button.Position = button.PreDragPosition;
+                                  _evt.Set();
+                              });
                         _hand.IsEnabled = false;
                         break;
                     case GameState.RoundFinished:
@@ -1489,7 +1489,7 @@ namespace Mariasek.SharedClient
             }
             else
             {
-                button.MoveTo(origPosition, 200f);
+                button.Sprite.MoveTo(origPosition, 200f);
             }
         }
 
@@ -1761,7 +1761,10 @@ namespace Mariasek.SharedClient
                             break;
                     }
                     _cardsPlayed[0].Hide();
-                    UpdateHand();
+                    if (validationState != Renonc.Ok)
+                    {
+                        UpdateHand();
+                    }
 					_hand.IsEnabled = true;
 					_hand.AllowDragging();
                 });

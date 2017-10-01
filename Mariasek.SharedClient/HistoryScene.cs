@@ -288,12 +288,12 @@ namespace Mariasek.SharedClient
             if (_historyChart.IsVisible)
             {
                 _historyChart.MoveTo(_hiddenPosition, 5000)
-                    .Invoke(() => { _historyChart.Hide(); });
+                             .Invoke(() => { _historyChart.Hide(); });
             }
             else
             {
                 _historyChart.Invoke(() => { _historyChart.Show(); })
-                    .MoveTo(_origPosition, 5000);
+                             .MoveTo(_origPosition, 5000);
             }
         }
 

@@ -250,12 +250,12 @@ namespace Mariasek.SharedClient.GameComponents
         {
             CardClicked(sender);
 
-            var cardButton = sender as CardButton;
+            //var cardButton = sender as CardButton;
 
-            if(cardButton != null)
-            {
-                cardButton.Invoke(() => cardButton.Position = e.DragStartLocation);
-            }
+            //if(cardButton != null)
+            //{
+            //    cardButton.Invoke(() => cardButton.Position = e.DragStartLocation);
+            //}
         }
 
 		public void SelectCard(Card card)

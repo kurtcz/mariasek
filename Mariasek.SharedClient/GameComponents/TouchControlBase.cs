@@ -172,7 +172,7 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     if ((tl.State == TouchLocationState.Pressed || tl.State == TouchLocationState.Moved))
                     {
-						if (tl.State == TouchLocationState.Pressed && _draggedObject != null && TouchId == -1)
+                        if (tl.State == TouchLocationState.Pressed)// && _draggedObject != null && TouchId == -1)
 						{
 							//prevents orphan dragged objects to cause a deadlock (nothing receives a touch down event)
 							_draggedObject = null;

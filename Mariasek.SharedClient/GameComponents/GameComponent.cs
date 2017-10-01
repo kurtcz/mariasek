@@ -69,13 +69,19 @@ namespace Mariasek.SharedClient
             {
                 if (_parent != null)
                 {
-                    _parent.Children.Remove(this);
+                    lock (_parent)
+                    {
+                        _parent.Children.Remove(this);
+                    }
                 }
                 _parent = value;
                 if (_parent != null)
                 {
-                    _parent.Children.Add(this);
-					_parent.Children.Sort((a, b) => a.ZIndex - b.ZIndex);
+                    lock (_parent)
+                    {
+                        _parent.Children.Add(this);
+                        _parent.Children.Sort((a, b) => a.ZIndex - b.ZIndex);
+                    }
 				}
             }
         }
@@ -117,7 +123,13 @@ namespace Mariasek.SharedClient
             set
             {
                 _zIndex = Math.Max(0, value);
-                _parent.Children.Sort((a, b) => a.ZIndex - b.ZIndex);
+                if (_parent != null)
+                {
+                    lock (_parent)
+                    {
+                        _parent.Children.Sort((a, b) => a.ZIndex - b.ZIndex);
+                    }
+                }
             }
         }
         public object Tag { get; set; }

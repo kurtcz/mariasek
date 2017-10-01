@@ -77,7 +77,7 @@ namespace Mariasek.Engine.New
                 var cardToPlay = rule.ChooseCard1();
                 if (cardToPlay != null)
                 {
-                    if (cardToPlay.Value == Hodnota.Kral)
+                    if (cardToPlay.Value == Hodnota.Kral && _trump.HasValue)
                     {
                         var svrsek = _hands[MyIndex].FirstOrDefault(i => i.Value == Hodnota.Svrsek && i.Suit == cardToPlay.Suit);
                         cardToPlay = svrsek ?? cardToPlay;
@@ -121,7 +121,7 @@ namespace Mariasek.Engine.New
                 var cardToPlay = rule.ChooseCard2(c1);
                 if (cardToPlay != null)
                 {
-                    if (cardToPlay.Value == Hodnota.Kral)
+                    if (cardToPlay.Value == Hodnota.Kral && _trump.HasValue)
                     {
                         var svrsek = _hands[MyIndex].FirstOrDefault(i => i.Value == Hodnota.Svrsek && i.Suit == cardToPlay.Suit);
                         cardToPlay = svrsek ?? cardToPlay;
@@ -165,7 +165,7 @@ namespace Mariasek.Engine.New
                 var cardToPlay = rule.ChooseCard3(c1, c2);
                 if (cardToPlay != null)
                 {
-                    if (cardToPlay.Value == Hodnota.Kral)
+                    if (cardToPlay.Value == Hodnota.Kral && _trump.HasValue)
                     {
                         var svrsek = _hands[MyIndex].FirstOrDefault(i => i.Value == Hodnota.Svrsek && i.Suit == cardToPlay.Suit);
                         cardToPlay = svrsek ?? cardToPlay;

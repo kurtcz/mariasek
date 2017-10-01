@@ -35,6 +35,9 @@ namespace Mariasek.SharedClient.GameComponents
 
         public bool IsFaceUp { get { return Sprite.IsVisible; } }
 
+        public Vector2 PreDragPosition { get { return _origPosition; } }
+        public Vector2 PostDragPosition { get; private set; }
+
         public CardButton(GameComponent parent)
             : base(parent)
         {
@@ -234,8 +237,9 @@ namespace Mariasek.SharedClient.GameComponents
 
         protected override void OnTouchDown(TouchLocation tl)
         {
-			_origPosition = Position;
+            _origPosition = Position;
 			_origTouchLocation = tl.Position;
+            PostDragPosition = Position;
             System.Diagnostics.Debug.WriteLine(string.Format("{0}: DOWN state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position));
         }
 
@@ -257,6 +261,7 @@ namespace Mariasek.SharedClient.GameComponents
 			{
 				if (Vector2.Distance(tl.Position, _origTouchLocation) >= MinimalDragDistance)
                 {
+                    PostDragPosition = tl.Position;
                     OnDragEnd(new DragEndEventArgs
                     {
                         DragStartLocation = _origTouchLocation,
@@ -266,6 +271,7 @@ namespace Mariasek.SharedClient.GameComponents
 				else
 				{
 					Position = _origPosition;
+                    PostDragPosition = _origPosition;
 				}
 			}
 		}
