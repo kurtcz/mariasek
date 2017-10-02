@@ -887,7 +887,8 @@ namespace Mariasek.Engine.New
 
         public bool IsValidTalonCard(Card c)
         {
-            return IsValidTalonCard(c.Value, c.Suit, trump);
+			//to druhe by nemelo teoreticky nastat, ale uz se to par hracum nejak povedlo
+			return IsValidTalonCard(c.Value, c.Suit, trump) && c != TrumpCard;
         }
 
         public static bool IsValidTalonCard(Hodnota h, Barva b, Barva? trump)
@@ -897,9 +898,8 @@ namespace Mariasek.Engine.New
                 return true;
             }
 
-            return !(//(trump.HasValue && b == trump.Value) ||
-                     h == Hodnota.Eso ||
-                     h == Hodnota.Desitka);
+            return h != Hodnota.Eso && 
+                   h != Hodnota.Desitka;
         }
 
 #endregion

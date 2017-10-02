@@ -114,7 +114,7 @@ namespace Mariasek.SharedClient
         /// Gets a value indicating whether this <see cref="T:Mariasek.SharedClient.GameComponent"/> has scheduled operations pending.
         /// </summary>
         /// <value><c>true</c> if is busy; otherwise, <c>false</c>.</value>
-        public virtual bool IsBusy { get { return ScheduledOperations!= null && ScheduledOperations.Count > 0; } }
+        public virtual bool IsBusy { get { return ScheduledOperations!= null && !ScheduledOperations.IsEmpty; } }
         public virtual bool IsMoving { get; protected set; }
         private int _zIndex;
         public virtual int ZIndex
@@ -275,7 +275,7 @@ namespace Mariasek.SharedClient
         {
             GameComponentOperation dummy;
 
-            while(ScheduledOperations.Count > 0)
+            while(!ScheduledOperations.IsEmpty)
             {
                 ScheduledOperations.TryDequeue(out dummy);
             }

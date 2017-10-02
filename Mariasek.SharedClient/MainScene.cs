@@ -1469,9 +1469,12 @@ namespace Mariasek.SharedClient
         {
 			var button = sender as CardButton;
 
-            button.FlipToFront()
-                  .Wait(1000)
-                  .FlipToBack();
+            if (!button.IsBusy)
+            {
+                button.FlipToFront()
+                      .Wait(1000)
+                      .FlipToBack();
+            }
 		}
 
         public void TrumpCardDragged(object sender, DragEndEventArgs e)
@@ -1570,6 +1573,7 @@ namespace Mariasek.SharedClient
             _hand.IsEnabled = true;
             _hintBtn.IsEnabled = false;
 			_cardClicked = null;
+            this.ClearOperations();
             _evt.Reset();
 			do
 			{
@@ -1596,6 +1600,7 @@ namespace Mariasek.SharedClient
 			_hintBtn.IsEnabled = false;
             _hand.IsEnabled = false;
 			_cardClicked = null;
+            this.ClearOperations();
             _evt.Reset();
 			do
 			{
@@ -1623,6 +1628,7 @@ namespace Mariasek.SharedClient
             _hand.IsEnabled = false;
             _hintBtn.IsEnabled = false;
             _gameFlavourChosen = (GameFlavour)(-1);
+            this.ClearOperations();
 			_evt.Reset();
             do
             {
@@ -1683,6 +1689,7 @@ namespace Mariasek.SharedClient
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = false;
             _hintBtn.IsEnabled = false;
+            this.ClearOperations();
             _evt.Reset();
 			do
 			{
@@ -1707,6 +1714,7 @@ namespace Mariasek.SharedClient
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = false;
             _hand.AnimationEvent.Wait();
+            this.ClearOperations();
             _evt.Reset();
 			_bid = 0;
 			do
@@ -1733,7 +1741,8 @@ namespace Mariasek.SharedClient
             _hand.IsEnabled = false;
             _hintBtn.IsEnabled = false;
             _cardClicked = null;
-            _evt.Reset();
+			this.ClearOperations();
+			_evt.Reset();
             this.WaitUntil(() => _bubbles.All(i => !i.IsVisible) && !_hand.IsBusy)
                 .Invoke(() =>
                 {
@@ -1775,7 +1784,8 @@ namespace Mariasek.SharedClient
             {
                 WaitForUIThread();
             } while (_cardClicked == null);
-            _hintBtn.IsEnabled = false;
+			this.ClearOperations();
+			_hintBtn.IsEnabled = false;
             _hand.IsEnabled = false;
             _hand.ForbidDragging();
             return _cardClicked;
@@ -2087,7 +2097,7 @@ namespace Mariasek.SharedClient
         private void EnsureBubblesHidden()
         {
             //aby se bubliny predcasne neschovaly
-            if (this.ScheduledOperations.Count() > 0)
+            if (!this.ScheduledOperations.IsEmpty)
             {
                 _evt.Reset();
                 this.Invoke(() => _evt.Set());

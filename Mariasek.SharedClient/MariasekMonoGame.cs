@@ -404,17 +404,30 @@ namespace Mariasek.SharedClient
 
         private void GameResumed()
         {
-            if (AmbientSound != null && NaPankraciSong != null)
+            if (AmbientSound == null || AmbientSound.IsDisposed)
             {
-                AmbientSound.PlaySafely();
-                Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
-                Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
+                AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
+                AmbientSound.IsLooped = true;
             }
-        }
+            if (NaPankraciSong == null || NaPankraciSong.IsDisposed)
+            {
+                NaPankraciSong = Content.Load<Song>("na pankraci");
+            }
+            if (Settings == null)
+            {
+                LoadGameSettings(true);
+            }
+			SoundEffect.MasterVolume = Settings.SoundEnabled ? 1f : 0f;
+			AmbientSound.Volume = Settings.BgSoundEnabled ? 0.2f : 0f;
+            Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Settings.BgSoundEnabled ? 0.1f : 0f;
+			AmbientSound?.PlaySafely();
+			Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
+            Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
+		}
 
         private void GamePaused()
         {
-            if (AmbientSound != null)
+            if (AmbientSound != null && !AmbientSound.IsDisposed)
             {
                 AmbientSound.Stop();
             }

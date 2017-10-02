@@ -35,6 +35,7 @@ namespace Mariasek.SharedClient
     {
         public bool? Default { get; set; }
         public bool? TestMode { get; set; }
+        public bool ShouldSerializeTestMode() { return TestMode.HasValue && TestMode.Value; }
         public bool HintEnabled { get; set; }
         public bool SoundEnabled { get; set; }
         public bool BgSoundEnabled { get; set; }
@@ -89,7 +90,7 @@ namespace Mariasek.SharedClient
                     GameType = Hra.Sedma,
                     Use = true,
                     MaxBidCount = 2,
-                    Thresholds = "35|55|75|85"
+                    Thresholds = "40|65|75|85"
                 },
                 new BidThresholdSettings
                 {
@@ -103,7 +104,7 @@ namespace Mariasek.SharedClient
                     GameType = Hra.SedmaProti,
                     Use = true,
                     MaxBidCount = 1,
-                    Thresholds = "35|75|95|100"
+                    Thresholds = "45|75|95|100"
                 },
                 new BidThresholdSettings
                 {
@@ -124,7 +125,7 @@ namespace Mariasek.SharedClient
                     GameType = Hra.Durch,
                     Use = true,
                     MaxBidCount = 0,
-                    Thresholds = "70|70|70|70"
+                    Thresholds = "70|85|90|90"
                 }
             };
 		}

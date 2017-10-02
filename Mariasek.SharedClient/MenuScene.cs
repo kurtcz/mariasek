@@ -169,7 +169,7 @@ namespace Mariasek.SharedClient
             var position2 = new Vector2(Game.VirtualScreenWidth * 3 / 4f + 150, Game.VirtualScreenHeight / 2f);
             var positionX = new Vector2(Game.VirtualScreenWidth * 3 / 4f, Game.VirtualScreenHeight / 2f - 100);
 
-            if (this.ScheduledOperations.Count() > 0)
+            if (!this.ScheduledOperations.IsEmpty)
             {                
                 return;
             }
