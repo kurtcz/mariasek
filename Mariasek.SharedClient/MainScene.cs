@@ -118,7 +118,7 @@ namespace Mariasek.SharedClient
         private string _endGameFilePath = Path.Combine(_path, "_end.hra");
 
         private Action HintBtnFunc;
-        private GameState _state;
+        private volatile GameState _state;
         private volatile Bidding _bidding;
         private volatile Hra _gameTypeChosen;
         private volatile GameFlavour _gameFlavourChosen;
@@ -1346,8 +1346,8 @@ namespace Mariasek.SharedClient
 			_cardClicked = (Card)button.Tag;
 			var cardClicked = (Card)button.Tag; //_cardClicked nelze pouzit kvuli race condition
 			System.Diagnostics.Debug.WriteLine(string.Format("{0} clicked", cardClicked));
-            Task.Run(() =>
-            {
+            //Task.Run(() =>
+            //{
 				switch (_state)
                 {
                     case GameState.ChooseTalon:
@@ -1462,7 +1462,7 @@ namespace Mariasek.SharedClient
                     default:
                         return;
                 }
-            });
+            //});
 		}
 
         public void TrumpCardClicked(object sender)
@@ -1534,11 +1534,11 @@ namespace Mariasek.SharedClient
             _gameFlavourChosen = (GameFlavour)(sender as Button).Tag;
             if (_gameFlavourChosen == GameFlavour.Bad)
             {
-                Task.Run(() =>
-                {
+                //Task.Run(() =>
+                //{
 					SortHand(null); //preusporadame karty
 					UpdateHand();
-				});
+				//});
             }
             _evt.Set();
         }
@@ -1714,6 +1714,7 @@ namespace Mariasek.SharedClient
             g.ThrowIfCancellationRequested();
             _hand.IsEnabled = false;
             _hand.AnimationEvent.Wait();
+            EnsureBubblesHidden();
             this.ClearOperations();
             _evt.Reset();
 			_bid = 0;
@@ -2096,12 +2097,13 @@ namespace Mariasek.SharedClient
 
         private void EnsureBubblesHidden()
         {
+            var evt = new AutoResetEvent(false);
+
             //aby se bubliny predcasne neschovaly
-            if (!this.ScheduledOperations.IsEmpty)
-            {
-                _evt.Reset();
-                this.Invoke(() => _evt.Set());
-                _evt.WaitOne();
+            while (!this.ScheduledOperations.IsEmpty)
+            {                
+                this.Invoke(() => evt.Set());
+                evt.WaitOne();
             }
         }
 
@@ -2508,8 +2510,8 @@ namespace Mariasek.SharedClient
 
         public void SettingsChanged(object sender, SettingsChangedEventArgs e)
         {
-            Task.Run(() =>
-            {
+            //Task.Run(() =>
+            //{
                 PopulateAiConfig();
                 if (_progress1 != null)
                 {
@@ -2569,7 +2571,7 @@ namespace Mariasek.SharedClient
                     UpdateCardTextures(this, oldTextures, newTextures);
                     Game.CardTextures = newTextures;
                 }
-            });
+            //});
 		}
 
         public void SuggestTrump(Card trumpCard, int? t = null)
