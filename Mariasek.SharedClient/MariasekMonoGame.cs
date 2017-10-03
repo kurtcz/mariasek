@@ -518,7 +518,12 @@ namespace Mariasek.SharedClient
 				Exit ();
 			}
 #endif
-			TouchCollection = TouchPanel.GetState();
+			if (AmbientSound == null || AmbientSound.IsDisposed)
+			{
+				AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
+				AmbientSound.IsLooped = true;
+			}
+            TouchCollection = TouchPanel.GetState();
 			// TODO: Add your update logic here
             CurrentScene.Update(gameTime);
 			base.Update (gameTime);

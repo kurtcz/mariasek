@@ -896,7 +896,12 @@ namespace Mariasek.SharedClient
         {
             if (_gameTask != null && _gameTask.Status == TaskStatus.Running)
             {
-                _synchronizationContext.Send(_ => ClearTable(true), null);
+				ClearTable(true);
+                _synchronizationContext.Send(_ =>
+                {
+                    this.ClearOperations();
+                    _evt.Set();
+				}, null);
                 (g.players[0] as HumanPlayer).CancelAiTask();
                 try
                 {
@@ -1569,94 +1574,90 @@ namespace Mariasek.SharedClient
 
         public Card ChooseTrump()
         {
-            g.ThrowIfCancellationRequested();
-            _hand.IsEnabled = true;
-            _hintBtn.IsEnabled = false;
+			EnsureBubblesHidden();
+			g.ThrowIfCancellationRequested();
+			_state = GameState.ChooseTrump;
+			_hand.IsEnabled = true;
+			_hintBtn.IsEnabled = false;
 			_cardClicked = null;
-            this.ClearOperations();
-            _evt.Reset();
-			do
-			{
-				_synchronizationContext.Send(_ =>
-                {
-                    ShowMsgLabel("Vyber trumfovou kartu", false);
-                    _state = GameState.ChooseTrump;
-                    _hand.Show();
-                    UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
-                    _hand.IsEnabled = true;
-                    _hand.AllowDragging();
-				}, null);
-                WaitForUIThread();
-            } while (_cardClicked == null);
-            _hintBtn.IsEnabled = false;
+			_evt.Reset();
+			ShowMsgLabel("Vyber trumfovou kartu", false);
+            _hand.Show();
+            UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
+            _hand.IsEnabled = true;
+            _hand.AllowDragging();
+            WaitForUIThread();
+
+            _state = GameState.NotPlaying;
+			_hintBtn.IsEnabled = false;
             _hand.IsEnabled = false;
             _hand.ForbidDragging();
+
             return _cardClicked;
         }
 
         public List<Card> ChooseTalon()
         {
-            g.ThrowIfCancellationRequested();
+			EnsureBubblesHidden();
+			g.ThrowIfCancellationRequested();
 			_hintBtn.IsEnabled = false;
-            _hand.IsEnabled = false;
+			_hand.IsEnabled = false;
 			_cardClicked = null;
-            this.ClearOperations();
-            _evt.Reset();
-			do
-			{
-				_synchronizationContext.Send(_ =>
-                {
-                    _talon = new List<Card>();
-                    ShowMsgLabel("Vyber si talon", false);
-                    _okBtn.Show();
-                    _okBtn.IsEnabled = false;
-					_state = GameState.ChooseTalon;
-					UpdateHand(cardToHide: _trumpCardChosen); //abych si otocil zbyvajicich 5 karet
-					_hand.IsEnabled = true;
-				}, null);
-                WaitForUIThread();
-            } while (_talon == null || _talon.Count() != 2);
-            _hintBtn.IsEnabled = false;
-            _hand.IsEnabled = false;
-            _okBtn.Hide();
+			_evt.Reset();
+			_talon = new List<Card>();
+            ShowMsgLabel("Vyber si talon", false);
+            _okBtn.Show();
+            _okBtn.IsEnabled = false;
+			_state = GameState.ChooseTalon;
+			UpdateHand(cardToHide: _trumpCardChosen); //abych si otocil zbyvajicich 5 karet
+			_hand.IsEnabled = true;
+            WaitForUIThread();
+
+            _state = GameState.NotPlaying;
+			_hintBtn.IsEnabled = false;
+			_hand.IsEnabled = false;
+			_okBtn.Hide();
+
             return _talon;
         }
 
         public GameFlavour ChooseGameFlavour()
         {
-            g.ThrowIfCancellationRequested();
-            _hand.IsEnabled = false;
-            _hintBtn.IsEnabled = false;
-            _gameFlavourChosen = (GameFlavour)(-1);
-            this.ClearOperations();
-			_evt.Reset();
-            do
-            {
-                _synchronizationContext.Send(_ =>
-                {
-                    UpdateHand(); //abych nevidel karty co jsem hodil do talonu
-                    this.Invoke(() =>
-                    {
-                        foreach (var gfButton in gfButtons)
-                        {
-                            gfButton.Show();
-                        }
-                        if (!Game.Settings.HintEnabled || !_msgLabel.IsVisible) //abych neprepsal napovedu
-                        {
-                            ShowMsgLabel("Co řekneš?", false);
-                        }
-                    });
-                    _state = GameState.ChooseGameFlavour;
-                }, null);
-                WaitForUIThread();
-            } while ((int)_gameFlavourChosen == -1);
+			EnsureBubblesHidden();
+			g.ThrowIfCancellationRequested();
+			_hand.IsEnabled = false;
 			_hintBtn.IsEnabled = false;
-            this.ClearOperations();
-            HideMsgLabel();
-			foreach (var gfButton in gfButtons)
-			{
-				gfButton.Hide();
-			}
+			_gameFlavourChosen = (GameFlavour)(-1);
+			_evt.Reset();
+			_synchronizationContext.Send(_ =>
+    		{
+	    		UpdateHand(); //abych nevidel karty co jsem hodil do talonu
+                this.Invoke(() =>
+                {
+					_state = GameState.ChooseGameFlavour;
+					foreach (var gfButton in gfButtons)
+                    {
+                        gfButton.Show();
+                    }
+                    if (!Game.Settings.HintEnabled || !_msgLabel.IsVisible) //abych neprepsal napovedu
+                    {
+                        ShowMsgLabel("Co řekneš?", false);
+                    }
+                });
+            }, null);
+            WaitForUIThread();
+
+            _state = GameState.NotPlaying;
+			_hintBtn.IsEnabled = false;
+			_synchronizationContext.Send(_ =>
+            {
+                this.ClearOperations();
+				HideMsgLabel();
+				foreach (var gfButton in gfButtons)
+				{
+					gfButton.Hide();
+				}
+			}, null);
 
 			return _gameFlavourChosen;
         }
@@ -1664,6 +1665,7 @@ namespace Mariasek.SharedClient
         private void ChooseGameTypeInternal(Hra validGameTypes)
         {
             g.ThrowIfCancellationRequested();
+			_state = GameState.ChooseGameType;
 			UpdateHand(cardToHide: _trumpCardChosen); //abych nevidel karty co jsem hodil do talonu
             this.Invoke(() =>
             {
@@ -1681,115 +1683,126 @@ namespace Mariasek.SharedClient
                     ShowMsgLabel("Co budeš hrát?", false);
                 }
             });
-            _state = GameState.ChooseGameType;
         }
 
         public Hra ChooseGameType(Hra validGameTypes)
         {
-            g.ThrowIfCancellationRequested();
-            _hand.IsEnabled = false;
-            _hintBtn.IsEnabled = false;
-            this.ClearOperations();
-            _evt.Reset();
-			do
-			{
-				_synchronizationContext.Send(_ =>
-                {
-                    ChooseGameTypeInternal(validGameTypes);
-                }, null);
-                WaitForUIThread();
-            } while (_gameTypeChosen == 0);
-            HideMsgLabel();
-            this.ClearOperations();
-			foreach (var btn in gtButtons)
-			{
-				btn.Hide();
-			}
+			EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
+			_hand.IsEnabled = false;
+			_hintBtn.IsEnabled = false;
+			_evt.Reset();
+			_synchronizationContext.Send(_ =>
+            {
+				ChooseGameTypeInternal(validGameTypes);
+            }, null);
+            WaitForUIThread();
+
+            _state = GameState.NotPlaying;
+            _synchronizationContext.Send(_ =>
+            {
+                HideMsgLabel();
+                this.ClearOperations();
+                foreach (var btn in gtButtons)
+                {
+                    btn.Hide();
+                }
+            }, null);
+			g.ThrowIfCancellationRequested();
+
             return _gameTypeChosen;
         }
 
         public Hra GetBidsAndDoubles(Bidding bidding)
         {
-            g.ThrowIfCancellationRequested();
-            _hand.IsEnabled = false;
-            _hand.AnimationEvent.Wait();
-            EnsureBubblesHidden();
-            this.ClearOperations();
-            _evt.Reset();
+			EnsureBubblesHidden();
+			g.ThrowIfCancellationRequested();
+			_evt.Reset();
+			_state = GameState.Bid;
+			_hand.IsEnabled = false;
+			_hand.AnimationEvent.Wait();
 			_bid = 0;
-			do
+			_synchronizationContext.Send(_ =>
             {
-                _synchronizationContext.Send(_ =>
+				this.Invoke(() =>
                 {
-                    _state = GameState.Bid;
-					this.Invoke(() =>
-                    {
-                        ShowBidButtons(bidding);
-                        _okBtn.IsEnabled = true;
-                        _okBtn.Show();
-                    });
-                }, null);
-            } while (!WaitForUIThread(TimeSpan.FromMilliseconds(500)));
-            this.ClearOperations();
-            HideBidButtons();
+                    ShowBidButtons(bidding);
+                    _okBtn.IsEnabled = true;
+                    _okBtn.Show();
+                });
+            }, null);
+            WaitForUIThread();
+
+            _state = GameState.NotPlaying;
+			_synchronizationContext.Send(_ =>
+            {
+                this.ClearOperations();
+                HideBidButtons();
+            }, null);
+
             return _bid;
         }
 
         public Card PlayCard(Renonc validationState)
         {
-            g.ThrowIfCancellationRequested();
-            _hand.IsEnabled = false;
-            _hintBtn.IsEnabled = false;
-            _cardClicked = null;
-			this.ClearOperations();
+            EnsureBubblesHidden();
+			g.ThrowIfCancellationRequested();
+			_hand.IsEnabled = false;
+			_cardClicked = null;
 			_evt.Reset();
-            this.WaitUntil(() => _bubbles.All(i => !i.IsVisible) && !_hand.IsBusy)
-                .Invoke(() =>
-                {
-					foreach (var bubble in _bubbles)
-                    {
-                        bubble.Hide();
-                    }
-                    _state = GameState.Play;
-                    switch (validationState)
-                    {
-                        case Renonc.Ok:
-                            ShowMsgLabel("Hraj", false);
-                            break;
-                        case Renonc.PriznejBarvu:
-                            ShowMsgLabel("Musíš přiznat barvu", false);
-                            break;
-                        case Renonc.JdiVejs:
-                            ShowMsgLabel("Musíš jít vejš", false);
-                            break;
-                        case Renonc.HrajTrumf:
-                            ShowMsgLabel("Musíš hrát trumf", false);
-                            break;
-                        case Renonc.HrajSvrska:
-                            ShowMsgLabel("Hraj svrška místo krále", false);
-                            break;
-                        case Renonc.NehrajSedmu:
-                            ShowMsgLabel("Trumfovou sedmu musíš hrát nakonec", false);
-                            break;
-                    }
-                    _cardsPlayed[0].Hide();
-                    if (validationState != Renonc.Ok)
-                    {
-                        UpdateHand();
-                    }
-					_hand.IsEnabled = true;
-					_hand.AllowDragging();
-                });
-            do
+			_synchronizationContext.Send(_ =>
             {
-                WaitForUIThread();
-            } while (_cardClicked == null);
-			this.ClearOperations();
-			_hintBtn.IsEnabled = false;
-            _hand.IsEnabled = false;
-            _hand.ForbidDragging();
-            return _cardClicked;
+                this.ClearOperations();
+                this.WaitUntil(() => _bubbles.All(i => !i.IsVisible) && !_hand.IsBusy)
+                    .Invoke(() =>
+                    {
+                        foreach (var bubble in _bubbles)
+                        {
+                            bubble.Hide();
+                        }
+                        _state = GameState.Play;
+                        switch (validationState)
+                        {
+                            case Renonc.Ok:
+                                ShowMsgLabel("Hraj", false);
+                                break;
+                            case Renonc.PriznejBarvu:
+                                ShowMsgLabel("Musíš přiznat barvu", false);
+                                break;
+                            case Renonc.JdiVejs:
+                                ShowMsgLabel("Musíš jít vejš", false);
+                                break;
+                            case Renonc.HrajTrumf:
+                                ShowMsgLabel("Musíš hrát trumf", false);
+                                break;
+                            case Renonc.HrajSvrska:
+                                ShowMsgLabel("Hraj svrška místo krále", false);
+                                break;
+                            case Renonc.NehrajSedmu:
+                                ShowMsgLabel("Trumfovou sedmu musíš hrát nakonec", false);
+                                break;
+                        }
+                        _cardsPlayed[0].Hide();
+                        if (validationState != Renonc.Ok)
+                        {
+                            UpdateHand();
+                        }
+                        _hand.IsEnabled = true;
+                        _hand.AllowDragging();
+                    });
+            }, null);
+            WaitForUIThread();
+
+            _state = GameState.NotPlaying;
+            _synchronizationContext.Send(_ =>
+            {
+                this.ClearOperations();
+                _hintBtn.IsEnabled = false;
+                _hand.IsEnabled = false;
+                _hand.ForbidDragging();
+            }, null);
+
+			return _cardClicked;
         }
 
         #endregion
@@ -1873,60 +1886,63 @@ namespace Mariasek.SharedClient
         {
             g.ThrowIfCancellationRequested();
             //trumfovou kartu otocime az zmizi vsechny bubliny
-            var imgs = new[]
+            _synchronizationContext.Send(_ =>
             {
+                var imgs = new[]
+                {
                 _hlasy[0][0], _hlasy[1][0], _hlasy[2][0]
             };
-            this.Invoke(() =>
-            {
-                for (var i = 0; i < _trumpLabels.Count(); i++)
+                this.Invoke(() =>
                 {
-                    _trumpLabels[i].Text = g.players[i].Name;
-                }
-                _trumpLabels[e.GameStartingPlayerIndex].Text = string.Format("{0}: {1}", g.players[e.GameStartingPlayerIndex].Name, g.GameType.ToDescription(g.trump));
-            });
+                    for (var i = 0; i < _trumpLabels.Count(); i++)
+                    {
+                        _trumpLabels[i].Text = g.players[i].Name;
+                    }
+                    _trumpLabels[e.GameStartingPlayerIndex].Text = string.Format("{0}: {1}", g.players[e.GameStartingPlayerIndex].Name, g.GameType.ToDescription(g.trump));
+                });
 
-            if (e.TrumpCard != null)
-            {
+                if (e.TrumpCard != null)
+                {
+                    this.Invoke(() =>
+                    {
+                        imgs[e.GameStartingPlayerIndex].Sprite.SpriteRectangle = e.TrumpCard.ToTextureRect();
+                        imgs[e.GameStartingPlayerIndex].ShowBackSide();
+                        imgs[e.GameStartingPlayerIndex].FlipToFront();
+                    })
+                    .Wait(500)
+                    .Invoke(() =>
+                    {
+                        _bubbleAutoHide[e.GameStartingPlayerIndex] = true;
+                        _bubbles[e.GameStartingPlayerIndex].Text = g.GameType.ToDescription(g.trump);
+                        _bubbles[e.GameStartingPlayerIndex].Show();
+                    })
+                    .Wait(2000)
+                    .Invoke(() =>
+                    {
+                        _bubbles[e.GameStartingPlayerIndex].Hide();
+                    })
+                    .Wait(1000)
+                    .Invoke(() =>
+                    {
+                        imgs[e.GameStartingPlayerIndex].Hide();
+                        UpdateHand();
+                    });
+                    _skipBidBubble = true;  //abychom nezobrazovali bublinu znovu v BidMade()
+                    SortHand(null); //preusporadame karty
+                    UpdateHand(cardToHide: e.TrumpCard);
+                }
+                else if (e.GameStartingPlayerIndex == 0)
+                {
+                    this.Invoke(() =>
+                    {
+                        imgs[e.GameStartingPlayerIndex].Hide();
+                    });
+                }
                 this.Invoke(() =>
                 {
-                    imgs[e.GameStartingPlayerIndex].Sprite.SpriteRectangle = e.TrumpCard.ToTextureRect();
-                    imgs[e.GameStartingPlayerIndex].ShowBackSide();
-                    imgs[e.GameStartingPlayerIndex].FlipToFront();
-                })
-                .Wait(500)
-                .Invoke(() =>
-                {
-                    _bubbleAutoHide[e.GameStartingPlayerIndex] = true;
-                    _bubbles[e.GameStartingPlayerIndex].Text = g.GameType.ToDescription(g.trump);
-                    _bubbles[e.GameStartingPlayerIndex].Show();
-                })
-                .Wait(2000)
-                .Invoke(() =>
-                {
-                    _bubbles[e.GameStartingPlayerIndex].Hide();
-                })
-                .Wait(1000)
-                .Invoke(() =>
-                {
-                    imgs[e.GameStartingPlayerIndex].Hide();
-                    UpdateHand();
+                    _progressBars[e.GameStartingPlayerIndex].Progress = _progressBars[e.GameStartingPlayerIndex].Max;
                 });
-                _skipBidBubble = true;  //abychom nezobrazovali bublinu znovu v BidMade()
-                SortHand(null); //preusporadame karty
-                UpdateHand(cardToHide: e.TrumpCard);
-            }
-            else if (e.GameStartingPlayerIndex == 0)
-            {
-                this.Invoke(() =>
-                {
-                    imgs[e.GameStartingPlayerIndex].Hide();
-                });
-            }
-            this.Invoke(() =>
-            {
-                _progressBars[e.GameStartingPlayerIndex].Progress = _progressBars[e.GameStartingPlayerIndex].Max;
-            });
+            }, null);
         }
 
         public void BidMade(object sender, BidEventArgs e)
@@ -1952,99 +1968,101 @@ namespace Mariasek.SharedClient
             {
                 return;
             }
-            EnsureBubblesHidden();
-            _synchronizationContext.Send(_ =>
-                {
-                    if (g == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
-					{
-						return;
-					}
-					Card lastCard;
-                    AbstractPlayer lastPlayer;
-                    bool lastHlas;
-                    Rectangle rect1 = r.c1 != null ? r.c1.ToTextureRect() : default(Rectangle);
-                    Rectangle rect2 = r.c2 != null ? r.c2.ToTextureRect() : default(Rectangle);
-                    Rectangle rect3 = r.c3 != null ? r.c3.ToTextureRect() : default(Rectangle);
+			EnsureBubblesHidden();
+            g.ThrowIfCancellationRequested();
+			_synchronizationContext.Send(_ =>
+            {
+                if (g == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
+				{
+					return;
+				}
+				Card lastCard;
+                AbstractPlayer lastPlayer;
+                bool lastHlas;
+                Rectangle rect1 = r.c1 != null ? r.c1.ToTextureRect() : default(Rectangle);
+                Rectangle rect2 = r.c2 != null ? r.c2.ToTextureRect() : default(Rectangle);
+                Rectangle rect3 = r.c3 != null ? r.c3.ToTextureRect() : default(Rectangle);
 
+                if (r.c3 != null)
+                {
+                    lastCard = r.c3;
+                    lastPlayer = r.player3;
+                    lastHlas = r.hlas3;
+                }
+                else if (r.c2 != null)
+                {
+                    lastCard = r.c2;
+                    lastPlayer = r.player2;
+                    lastHlas = r.hlas2;
+                }
+                else
+                {
+                    lastCard = r.c1;
+                    lastPlayer = r.player1;
+                    lastHlas = r.hlas1;
+                }
+                _progressBars[lastPlayer.PlayerIndex].Progress = _progressBars[lastPlayer.PlayerIndex].Max;
+                HideThinkingMessage();
+                if (lastPlayer.PlayerIndex != 2 && r.c3 == null)
+                {
+                    ShowThinkingMessage((lastPlayer.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
+                }
+                if (lastPlayer.PlayerIndex == 2)
+                {
+                    this.Wait(200); //aby AI nehrali moc rychle po sobe
+                }
+                this.Invoke(() =>
+                {
+                    if (r.c1 != null)
+                    {
+                        if (r.hlas1)
+                        {
+                            _hlasy[r.player1.PlayerIndex][r.player1.Hlasy - 1].Sprite.SpriteRectangle = rect1;
+                            _hlasy[r.player1.PlayerIndex][r.player1.Hlasy - 1].Show();
+                        }
+                        else
+                        {
+                            _cardsPlayed[r.player1.PlayerIndex].SpriteRectangle = rect1;
+                            _cardsPlayed[r.player1.PlayerIndex].Show();
+                        }
+                    }
+                    if (r.c2 != null)
+                    {
+                        if (r.hlas2)
+                        {
+                            _hlasy[r.player2.PlayerIndex][r.player2.Hlasy - 1].Sprite.SpriteRectangle = rect2;
+                            _hlasy[r.player2.PlayerIndex][r.player2.Hlasy - 1].Show();
+                        }
+                        else
+                        {
+                            _cardsPlayed[r.player2.PlayerIndex].SpriteRectangle = rect2;
+                            _cardsPlayed[r.player2.PlayerIndex].Show();
+                        }
+                    }
                     if (r.c3 != null)
                     {
-                        lastCard = r.c3;
-                        lastPlayer = r.player3;
-                        lastHlas = r.hlas3;
-                    }
-                    else if (r.c2 != null)
-                    {
-                        lastCard = r.c2;
-                        lastPlayer = r.player2;
-                        lastHlas = r.hlas2;
-                    }
-                    else
-                    {
-                        lastCard = r.c1;
-                        lastPlayer = r.player1;
-                        lastHlas = r.hlas1;
-                    }
-                    _progressBars[lastPlayer.PlayerIndex].Progress = _progressBars[lastPlayer.PlayerIndex].Max;
-                    HideThinkingMessage();
-                    if (lastPlayer.PlayerIndex != 2 && r.c3 == null)
-                    {
-                        ShowThinkingMessage((lastPlayer.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
-                    }
-                    if (lastPlayer.PlayerIndex == 2)
-                    {
-                        this.Wait(200); //aby AI nehrali moc rychle po sobe
-                    }
-                    this.Invoke(() =>
-                    {
-                        if (r.c1 != null)
+                        if (r.hlas3)
                         {
-                            if (r.hlas1)
-                            {
-                                _hlasy[r.player1.PlayerIndex][r.player1.Hlasy - 1].Sprite.SpriteRectangle = rect1;
-                                _hlasy[r.player1.PlayerIndex][r.player1.Hlasy - 1].Show();
-                            }
-                            else
-                            {
-                                _cardsPlayed[r.player1.PlayerIndex].SpriteRectangle = rect1;
-                                _cardsPlayed[r.player1.PlayerIndex].Show();
-                            }
+                            _hlasy[r.player3.PlayerIndex][r.player3.Hlasy - 1].Sprite.SpriteRectangle = rect3;
+                            _hlasy[r.player3.PlayerIndex][r.player3.Hlasy - 1].Show();
                         }
-                        if (r.c2 != null)
+                        else
                         {
-                            if (r.hlas2)
-                            {
-                                _hlasy[r.player2.PlayerIndex][r.player2.Hlasy - 1].Sprite.SpriteRectangle = rect2;
-                                _hlasy[r.player2.PlayerIndex][r.player2.Hlasy - 1].Show();
-                            }
-                            else
-                            {
-                                _cardsPlayed[r.player2.PlayerIndex].SpriteRectangle = rect2;
-                                _cardsPlayed[r.player2.PlayerIndex].Show();
-                            }
+                            _cardsPlayed[r.player3.PlayerIndex].SpriteRectangle = rect3;
+                            _cardsPlayed[r.player3.PlayerIndex].Show();
                         }
-                        if (r.c3 != null)
-                        {
-                            if (r.hlas3)
-                            {
-                                _hlasy[r.player3.PlayerIndex][r.player3.Hlasy - 1].Sprite.SpriteRectangle = rect3;
-                                _hlasy[r.player3.PlayerIndex][r.player3.Hlasy - 1].Show();
-                            }
-                            else
-                            {
-                                _cardsPlayed[r.player3.PlayerIndex].SpriteRectangle = rect3;
-                                _cardsPlayed[r.player3.PlayerIndex].Show();
-                            }
-                        }
+                    }
 
-                        _hand.DeselectAllCards();
+                    _hand.DeselectAllCards();
                         //_hand.ShowArc((float)Math.PI / 2);
                         _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
-                    });
-                }, null);
+                });
+            }, null);
         }
 
         public void RoundStarted(object sender, Round r)
         {
+            g.ThrowIfCancellationRequested();
             if (r.player1.PlayerIndex != 0)
             {
                 ShowThinkingMessage(r.player1.PlayerIndex);
@@ -2067,30 +2085,28 @@ namespace Mariasek.SharedClient
         {
             if (r.number <= 10)
             {
+                g.ThrowIfCancellationRequested();
                 _evt.Reset();
-                //    g.ThrowIfCancellationRequested();
-                //    _synchronizationContext.Send(_ =>
-                //        {
-                //            ShowMsgLabel("Klikni kamkoli", false);
-                //            ShowInvisibleClickableOverlay();
-                //            _state = GameState.RoundFinished;
-                //        }, null);
-                this.Wait(1000)
-                    .Invoke(() =>
-                    {
-                        var roundWinnerIndex = r.roundWinner.PlayerIndex;
-
-                        //pokud hrajeme hru v barve a sebereme nekomu desitku nebo eso, tak se zasmej
-                        if ((g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
-                            ((r.player1.PlayerIndex != roundWinnerIndex && r.player1.TeamMateIndex != roundWinnerIndex && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka)) ||
-                             (r.player2.PlayerIndex != roundWinnerIndex && r.player2.TeamMateIndex != roundWinnerIndex && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka)) ||
-                             (r.player3.PlayerIndex != roundWinnerIndex && r.player3.TeamMateIndex != roundWinnerIndex && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))))
+                _synchronizationContext.Send(_ =>
+                {
+                    this.Wait(1000)
+                        .Invoke(() =>
                         {
-                            _synchronizationContext.Send(_ =>
-                            { Game.LaughSound?.PlaySafely(); }, null);
-                        }
-                        ClearTableAfterRoundFinished();
-                    });
+                            var roundWinnerIndex = r.roundWinner.PlayerIndex;
+
+                            //pokud hrajeme hru v barve a sebereme nekomu desitku nebo eso, tak se zasmej
+                            if ((g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+                                ((r.player1.PlayerIndex != roundWinnerIndex && r.player1.TeamMateIndex != roundWinnerIndex && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka)) ||
+                                 (r.player2.PlayerIndex != roundWinnerIndex && r.player2.TeamMateIndex != roundWinnerIndex && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka)) ||
+                                 (r.player3.PlayerIndex != roundWinnerIndex && r.player3.TeamMateIndex != roundWinnerIndex && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))))
+                            {
+                                Game.LaughSound?.PlaySafely();
+                                //_synchronizationContext.Send(_ =>
+                                //{ Game.LaughSound?.PlaySafely(); }, null);
+                            }
+                            ClearTableAfterRoundFinished();
+                        });
+                }, null);
                 WaitForUIThread();
             }
         }
@@ -2100,10 +2116,11 @@ namespace Mariasek.SharedClient
             var evt = new AutoResetEvent(false);
 
             //aby se bubliny predcasne neschovaly
-            while (!this.ScheduledOperations.IsEmpty)
+            //while (!this.ScheduledOperations.IsEmpty)
             {                
                 this.Invoke(() => evt.Set());
-                evt.WaitOne();
+                //evt.WaitOne();
+                WaitHandle.WaitAny(new [] { evt, _evt });   //_evt bude nastaven pokud chci preusit hru (a zacit novou)
             }
         }
 
@@ -2119,65 +2136,68 @@ namespace Mariasek.SharedClient
             }
 
             EnsureBubblesHidden();
-            ClearTable(true);
-            _hand.UpdateHand(new Card[0]);
-            _hintBtn.IsEnabled = false;
-            //multi-line string needs to be split into two strings separated by a tab on each line
-            var leftMessage = new StringBuilder();
-            var rightMessage = new StringBuilder();
-            var firstWord = string.Empty;
-
-            foreach (var line in g.Results.ToString().Split('\n'))
+			g.ThrowIfCancellationRequested();
+            _synchronizationContext.Send(_ =>
             {
-                var tokens = line.Split('\t');
-                if (tokens.Length > 0)
+                ClearTable(true);
+                _hand.UpdateHand(new Card[0]);
+                _hintBtn.IsEnabled = false;
+                //multi-line string needs to be split into two strings separated by a tab on each line
+                var leftMessage = new StringBuilder();
+                var rightMessage = new StringBuilder();
+                var firstWord = string.Empty;
+
+                foreach (var line in g.Results.ToString().Split('\n'))
                 {
-                    if (firstWord == string.Empty)
+                    var tokens = line.Split('\t');
+                    if (tokens.Length > 0)
                     {
-                        firstWord = tokens[0];
-                        continue;
+                        if (firstWord == string.Empty)
+                        {
+                            firstWord = tokens[0];
+                            continue;
+                        }
+                        leftMessage.Append(tokens[0]);
                     }
-                    leftMessage.Append(tokens[0]);
+                    if (tokens.Length > 1)
+                    {
+                        rightMessage.Append(tokens[1]);
+                    }
+
+                    leftMessage.Append("\n");
+                    rightMessage.Append("\n");
                 }
-                if (tokens.Length > 1)
+                if (_review != null)
                 {
-                    rightMessage.Append(tokens[1]);
+                    _review.Dispose();
+                    _review = null;
                 }
-
-                leftMessage.Append("\n");
-                rightMessage.Append("\n");
-            }
-            if (_review != null)
-            {
-                _review.Dispose();
-                _review = null;
-            }
-            _reviewGameToggleBtn.Hide();
-            _reviewGameBtn.Text = "Průběh hry";
-            _reviewGameBtn.Show();
-            HideInvisibleClickableOverlay();
-            HideThinkingMessage();
-            var totalWon = Game.Money.Sum(i => i.MoneyWon[0]) * Game.Settings.BaseBet;
-            _totalBalance.Text = string.Format("Celkem jsem {0}: {1}", totalWon >= 0 ? "vyhrál" : "prohrál", totalWon.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
-            _newGameBtn.Show();
-            _repeatGameBtn.Show();
-            if (!results.GamePlayed || results.MoneyWon[0] == 0)
-            {
-                _gameResult.BorderColor = Color.Blue;
-            }
-            else if (results.MoneyWon[0] > 0)
-            {
-                _gameResult.BorderColor = Color.Green;
-            }
-            else //(results.MoneyWon[0] < 0)
-            {
-                _gameResult.BorderColor = Color.Red;
-            }
-            _gameResult.Text = firstWord;
-            _msgLabelLeft.Text = leftMessage.ToString();
-            _msgLabelRight.Text = rightMessage.ToString();
-            ShowGameScore();
-
+                _reviewGameToggleBtn.Hide();
+                _reviewGameBtn.Text = "Průběh hry";
+                _reviewGameBtn.Show();
+                HideInvisibleClickableOverlay();
+                HideThinkingMessage();
+                var totalWon = Game.Money.Sum(i => i.MoneyWon[0]) * Game.Settings.BaseBet;
+                _totalBalance.Text = string.Format("Celkem jsem {0}: {1}", totalWon >= 0 ? "vyhrál" : "prohrál", totalWon.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+                _newGameBtn.Show();
+                _repeatGameBtn.Show();
+                if (!results.GamePlayed || results.MoneyWon[0] == 0)
+                {
+                    _gameResult.BorderColor = Color.Blue;
+                }
+                else if (results.MoneyWon[0] > 0)
+                {
+                    _gameResult.BorderColor = Color.Green;
+                }
+                else //(results.MoneyWon[0] < 0)
+                {
+                    _gameResult.BorderColor = Color.Red;
+                }
+                _gameResult.Text = firstWord;
+                _msgLabelLeft.Text = leftMessage.ToString();
+                _msgLabelRight.Text = rightMessage.ToString();
+                ShowGameScore();
+            }, null);
             _deck = g.GetDeckFromLastGame();
             SaveDeck();
             if (g.rounds[0] != null)
@@ -2451,7 +2471,10 @@ namespace Mariasek.SharedClient
 
         public void UpdateHand(bool flipCardsUp = false, int cardsNotRevealed = 0, Card cardToHide = null)
         {
-            _hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide);
+            _synchronizationContext.Send(_ =>
+            {
+                _hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide);
+            }, null);
             _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
             if (flipCardsUp)
             {
