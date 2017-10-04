@@ -157,14 +157,14 @@ namespace Mariasek.Engine.New
 
         public Hand(IEnumerable<Card> hand)
         {
-            _hand = new List<Card>(hand);
+            _hand = hand != null ? new List<Card>(hand.Where(i => i != null)) : new List<Card>();
             Sort();
             Update();
         }
 
         public void AddRange(List<Card> list)
         {
-            _hand.AddRange(list);
+            _hand.AddRange(list.Where(i => i != null));
             Update();
         }
 

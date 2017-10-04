@@ -100,22 +100,22 @@ namespace Mariasek.SharedClient.GameComponents
         public delegate void ClickEventHandler(object sender);
         public event ClickEventHandler Click;
 
-        public Hand(GameComponent parent, ContentManager content)
-            : base(parent)
-        {
-            for(var i = 0; i < _cardButtons.Length; i++)
-            {
-                var rect = new Rectangle(1 + (i % 8) * (CardWidth + 1), 2 + (i / 8) * (CardHeight + 1), CardWidth, CardHeight);
+        //public Hand(GameComponent parent, ContentManager content)
+        //    : base(parent)
+        //{
+        //    for(var i = 0; i < _cardButtons.Length; i++)
+        //    {
+        //        var rect = new Rectangle(1 + (i % 8) * (CardWidth + 1), 2 + (i / 8) * (CardHeight + 1), CardWidth, CardHeight);
 
-                _cardButtons[i] = new CardButton(this, new Sprite(this, Game.CardTextures, rect) { Name = string.Format("HandSprite{0}", i+1), Scale = Game.CardScaleFactor })
-                { Name = string.Format("HandButton{0}", i + 1), ReverseSpriteRectangle = Game.BackSideRect, ZIndex = ZIndexBase + i };
-                _cardButtons[i].Click += CardClicked;
-                _cardButtons[i].DragEnd += CardDragged;
-                _cardButtons[i].Name = string.Format("HandButton{0}", i + 1);
-                _cardButtons[i].Position = Centre;
-            }
-            AnimationEvent = new ManualResetEventSlim(true);
-        }
+        //        _cardButtons[i] = new CardButton(this, new Sprite(this, Game.CardTextures, rect) { Name = string.Format("HandSprite{0}", i+1), Scale = Game.CardScaleFactor })
+        //        { Name = string.Format("HandButton{0}", i + 1), ReverseSpriteRectangle = Game.BackSideRect, ZIndex = ZIndexBase + i };
+        //        _cardButtons[i].Click += CardClicked;
+        //        _cardButtons[i].DragEnd += CardDragged;
+        //        _cardButtons[i].Name = string.Format("HandButton{0}", i + 1);
+        //        _cardButtons[i].Position = Centre;
+        //    }
+        //    AnimationEvent = new ManualResetEventSlim(true);
+        //}
 
         public Hand(GameComponent parent, Card[] hand)
             : base(parent)

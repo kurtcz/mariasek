@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Globalization;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Linq;
@@ -35,6 +36,44 @@ namespace Mariasek.SharedClient
         Play,
         RoundFinished,
         GameFinished
+    }
+
+    public class GameSynchronizationContext : SynchronizationContext
+    {
+        private static int _uiThreadId;
+		private static readonly ConcurrentQueue<Action> _queue = new ConcurrentQueue<Action>();
+
+        public static void Initialize()
+        {
+            _uiThreadId = Thread.CurrentThread.ManagedThreadId;
+        }
+
+        public static void InvokePendingActions()
+        {
+			Action action;
+
+			while (_queue.TryDequeue(out action))
+			{
+				action.Invoke();
+			}
+		}
+
+        public override void Send(SendOrPostCallback d, object state)
+        {
+            if (Thread.CurrentThread.ManagedThreadId == _uiThreadId)
+            {
+				d.Invoke(state);
+            }
+            else
+            {
+				using (var evt = new ManualResetEvent(false))
+				{
+					//base.Post(_ => { d.Invoke(_); evt.Set(); }, state);
+					_queue.Enqueue(() => { d.Invoke(state); evt.Set(); });
+					evt.WaitOne();
+				}
+			}
+        }
     }
 
     public class MainScene : Scene
@@ -266,9 +305,12 @@ namespace Mariasek.SharedClient
             Game.OnSettingsChanged();
             var backSideRect = Game.Settings.CardBackSide.ToTextureRect();
 			Game.CardTextures = Game.Settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
-			//PopulateAiConfig(); //volano uz v Game.OnSettingsChanged()
+            //PopulateAiConfig(); //volano uz v Game.OnSettingsChanged()
+            //_synchronizationContext = SynchronizationContext.Current;
 
-			_synchronizationContext = SynchronizationContext.Current;
+            GameSynchronizationContext.Initialize();
+            _synchronizationContext = new GameSynchronizationContext();
+			SynchronizationContext.SetSynchronizationContext(_synchronizationContext);
             _hlasy = new []
             {
                 new []
@@ -1351,12 +1393,16 @@ namespace Mariasek.SharedClient
 			_cardClicked = (Card)button.Tag;
 			var cardClicked = (Card)button.Tag; //_cardClicked nelze pouzit kvuli race condition
 			System.Diagnostics.Debug.WriteLine(string.Format("{0} clicked", cardClicked));
+            if (cardClicked == null)
+            {
+                throw new InvalidDataException($"CardClicked is null, state: {_state}");
+            }
             //Task.Run(() =>
             //{
 				switch (_state)
                 {
                     case GameState.ChooseTalon:
-                        if (button.IsFaceUp && _talon.Count == 2)
+                        if (button.IsBusy || (button.IsFaceUp && _talon.Count == 2))
                         {
                             //do talonu nemuzu pridat kdyz je plnej
                             return;
@@ -1626,7 +1672,7 @@ namespace Mariasek.SharedClient
 			EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
 			_hand.IsEnabled = false;
-			_hintBtn.IsEnabled = false;
+			_hintBtn.IsEnabled = true;
 			_gameFlavourChosen = (GameFlavour)(-1);
 			_evt.Reset();
 			_synchronizationContext.Send(_ =>
@@ -1787,6 +1833,7 @@ namespace Mariasek.SharedClient
                         {
                             UpdateHand();
                         }
+                        _hintBtn.IsEnabled = true;
                         _hand.IsEnabled = true;
                         _hand.AllowDragging();
                     });
@@ -2936,11 +2983,14 @@ namespace Mariasek.SharedClient
 
         private void OverlayTouchUp(object sender, TouchLocation tl)
         {
-            //_state = GameState.NotPlaying;
-            ClearTableAfterRoundFinished();
-            HideMsgLabel();
-            HideInvisibleClickableOverlay();
-        }
+            _state = GameState.NotPlaying;
+            _synchronizationContext.Send(_ =>
+            {
+                ClearTableAfterRoundFinished();
+                HideMsgLabel();
+                HideInvisibleClickableOverlay();
+            }, null);
+		}
 
         private void ShowInvisibleClickableOverlay()
         {

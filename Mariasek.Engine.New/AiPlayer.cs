@@ -1534,8 +1534,8 @@ namespace Mariasek.Engine.New
                      // - (flek) trham trumfovou hlasku nebo mam aspon dva hlasy nebo
                      // - (tutti a vys) mam hlas a citim se na flek
                      (TeamMateIndex != -1 &&
-                      ((bidding.GameMultiplier > 2 && 
-                            Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit))) ||
+                      ((bidding.GameMultiplier > 2) || //&& 
+                            //Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit))) ||
                        (bidding.GameMultiplier < 2 &&
                             (Hand.HasK(_g.trump.Value) || 
                              Hand.HasQ(_g.trump.Value) || 

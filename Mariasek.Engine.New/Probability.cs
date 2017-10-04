@@ -88,7 +88,7 @@ namespace Mariasek.Engine.New
                     {
                         if (i == myIndex)
                         {
-                            _cardProbabilityForPlayer[i][b].Add(h, myHand.Any(k => k.Suit == b && k.Value == h) ? 1f : 0f);
+                            _cardProbabilityForPlayer[i][b].Add(h, _myHand.Any(k => k.Suit == b && k.Value == h) ? 1f : 0f);
                         }
                         else if (i == talonIndex)
                         {                            
@@ -100,18 +100,18 @@ namespace Mariasek.Engine.New
                             else if(talon != null)
                             {
                                 //ten kdo voli vi co je v talonu (pokud tam uz neco je)
-                                _cardProbabilityForPlayer[i][b].Add(h, talon.Any(k => k.Suit == b && k.Value == h) ? 1f : 0f);
+                                _cardProbabilityForPlayer[i][b].Add(h, _talon.Any(k => k.Suit == b && k.Value == h) ? 1f : 0f);
                             }
                             else
                             {
-                                _cardProbabilityForPlayer[i][b].Add(h, myHand.Any(k => k.Suit == b && k.Value == h) ? 0f : 0.5f);
+                                _cardProbabilityForPlayer[i][b].Add(h, _myHand.Any(k => k.Suit == b && k.Value == h) ? 0f : 0.5f);
                             }
                         }
                         else
                         {
-                            _cardProbabilityForPlayer[i][b].Add(h, myHand.Any(k => k.Suit == b && k.Value == h) ||
-                                                                   (talon != null &&
-                                                                    talon.Any(k => k.Suit == b && k.Value == h)) ? 0f : 0.5f);
+                            _cardProbabilityForPlayer[i][b].Add(h, _myHand.Any(k => k.Suit == b && k.Value == h) ||
+                                                                   (_talon != null &&
+                                                                    _talon.Any(k => k.Suit == b && k.Value == h)) ? 0f : 0.5f);
                         }
                     }
                 }
@@ -858,12 +858,19 @@ namespace Mariasek.Engine.New
             //if (certainCards[0].Count() != certainCards[1].Count || certainCards[0].Count() != certainCards[2].Count())
             //{
             //    if (certainCards[_gameStarterIndex].Count != 12)
-                if (_cardProbabilityForPlayer[_myIndex].Sum(i => i.Value.Count(j => j.Value == 1f)) == 11)
+            if (_cardProbabilityForPlayer[_myIndex].Sum(i => i.Value.Count(j => j.Value == 1f)) == 11)
+            {
+                var probs = new StringBuilder();
+                for (var i = 0; i < Game.NumPlayers; i++)
                 {
-                    var msg = string.Format("Bad certain card probabilities\nGenerovani:{0}\nHistorie:{1}\nExterni:{2}\n",
-                                            _verboseString.ToString(), _debugString.ToString(), ExternalDebugString.ToString());
-                    throw new InvalidOperationException(msg);
+                    probs.AppendFormat("probabilities for player{0}:\n", i + 1, FriendlyString(i, 1));
                 }
+
+                var msg = string.Format("Bad certain card probabilities\n{3}Generovani:{0}\nHistorie:{1}\nExterni:{2}\n",
+                                            _verboseString.ToString(), _debugString.ToString(), ExternalDebugString.ToString(),
+                                       probs);
+                throw new InvalidOperationException(msg);
+            }
             //}
         }
 

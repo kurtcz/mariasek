@@ -97,7 +97,7 @@ namespace Mariasek.SharedClient.GameComponents
         public override void Update(GameTime gameTime)
         {
             // TODO: Add your update code here
-
+            GameSynchronizationContext.InvokePendingActions();
             base.Update(gameTime);
         }
 
