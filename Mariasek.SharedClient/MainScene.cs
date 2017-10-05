@@ -38,44 +38,6 @@ namespace Mariasek.SharedClient
         GameFinished
     }
 
-    public class GameSynchronizationContext : SynchronizationContext
-    {
-        private static int _uiThreadId;
-		private static readonly ConcurrentQueue<Action> _queue = new ConcurrentQueue<Action>();
-
-        public static void Initialize()
-        {
-            _uiThreadId = Thread.CurrentThread.ManagedThreadId;
-        }
-
-        public static void InvokePendingActions()
-        {
-			Action action;
-
-			while (_queue.TryDequeue(out action))
-			{
-				action.Invoke();
-			}
-		}
-
-        public override void Send(SendOrPostCallback d, object state)
-        {
-            if (Thread.CurrentThread.ManagedThreadId == _uiThreadId)
-            {
-				d.Invoke(state);
-            }
-            else
-            {
-				using (var evt = new ManualResetEvent(false))
-				{
-					//base.Post(_ => { d.Invoke(_); evt.Set(); }, state);
-					_queue.Enqueue(() => { d.Invoke(state); evt.Set(); });
-					evt.WaitOne();
-				}
-			}
-        }
-    }
-
     public class MainScene : Scene
     {
         #region Child components
@@ -133,7 +95,6 @@ namespace Mariasek.SharedClient
 
         public Mariasek.Engine.New.Game g;
         private Task _gameTask;
-        private SynchronizationContext _synchronizationContext;
         private CancellationTokenSource _cancellationTokenSource;
         private readonly AutoResetEvent _evt = new AutoResetEvent(false);
         private bool _canSort;
@@ -306,11 +267,6 @@ namespace Mariasek.SharedClient
             var backSideRect = Game.Settings.CardBackSide.ToTextureRect();
 			Game.CardTextures = Game.Settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
             //PopulateAiConfig(); //volano uz v Game.OnSettingsChanged()
-            //_synchronizationContext = SynchronizationContext.Current;
-
-            GameSynchronizationContext.Initialize();
-            _synchronizationContext = new GameSynchronizationContext();
-			SynchronizationContext.SetSynchronizationContext(_synchronizationContext);
             _hlasy = new []
             {
                 new []
@@ -939,11 +895,11 @@ namespace Mariasek.SharedClient
             if (_gameTask != null && _gameTask.Status == TaskStatus.Running)
             {
 				ClearTable(true);
-                _synchronizationContext.Send(_ =>
+                RunOnUiThread(() =>
                 {
                     this.ClearOperations();
                     _evt.Set();
-				}, null);
+				});
                 (g.players[0] as HumanPlayer).CancelAiTask();
                 try
                 {
@@ -1675,7 +1631,7 @@ namespace Mariasek.SharedClient
 			_hintBtn.IsEnabled = true;
 			_gameFlavourChosen = (GameFlavour)(-1);
 			_evt.Reset();
-			_synchronizationContext.Send(_ =>
+			RunOnUiThread(() =>
     		{
 	    		UpdateHand(); //abych nevidel karty co jsem hodil do talonu
                 this.Invoke(() =>
@@ -1690,12 +1646,12 @@ namespace Mariasek.SharedClient
                         ShowMsgLabel("Co řekneš?", false);
                     }
                 });
-            }, null);
+            });
             WaitForUIThread();
 
             _state = GameState.NotPlaying;
 			_hintBtn.IsEnabled = false;
-			_synchronizationContext.Send(_ =>
+			RunOnUiThread(() =>
             {
                 this.ClearOperations();
 				HideMsgLabel();
@@ -1703,7 +1659,7 @@ namespace Mariasek.SharedClient
 				{
 					gfButton.Hide();
 				}
-			}, null);
+			});
 
 			return _gameFlavourChosen;
         }
@@ -1738,14 +1694,14 @@ namespace Mariasek.SharedClient
 			_hand.IsEnabled = false;
 			_hintBtn.IsEnabled = false;
 			_evt.Reset();
-			_synchronizationContext.Send(_ =>
+			RunOnUiThread(() =>
             {
 				ChooseGameTypeInternal(validGameTypes);
-            }, null);
+            });
             WaitForUIThread();
 
             _state = GameState.NotPlaying;
-            _synchronizationContext.Send(_ =>
+            RunOnUiThread(() =>
             {
                 HideMsgLabel();
                 this.ClearOperations();
@@ -1753,7 +1709,7 @@ namespace Mariasek.SharedClient
                 {
                     btn.Hide();
                 }
-            }, null);
+            });
 			g.ThrowIfCancellationRequested();
 
             return _gameTypeChosen;
@@ -1768,7 +1724,7 @@ namespace Mariasek.SharedClient
 			_hand.IsEnabled = false;
 			_hand.AnimationEvent.Wait();
 			_bid = 0;
-			_synchronizationContext.Send(_ =>
+			RunOnUiThread(() =>
             {
 				this.Invoke(() =>
                 {
@@ -1776,15 +1732,15 @@ namespace Mariasek.SharedClient
                     _okBtn.IsEnabled = true;
                     _okBtn.Show();
                 });
-            }, null);
+            });
             WaitForUIThread();
 
             _state = GameState.NotPlaying;
-			_synchronizationContext.Send(_ =>
+			RunOnUiThread(() =>
             {
                 this.ClearOperations();
                 HideBidButtons();
-            }, null);
+            });
 
             return _bid;
         }
@@ -1796,7 +1752,7 @@ namespace Mariasek.SharedClient
 			_hand.IsEnabled = false;
 			_cardClicked = null;
 			_evt.Reset();
-			_synchronizationContext.Send(_ =>
+			RunOnUiThread(() =>
             {
                 this.ClearOperations();
                 this.WaitUntil(() => _bubbles.All(i => !i.IsVisible) && !_hand.IsBusy)
@@ -1837,17 +1793,17 @@ namespace Mariasek.SharedClient
                         _hand.IsEnabled = true;
                         _hand.AllowDragging();
                     });
-            }, null);
+            });
             WaitForUIThread();
 
             _state = GameState.NotPlaying;
-            _synchronizationContext.Send(_ =>
+            RunOnUiThread(() =>
             {
                 this.ClearOperations();
                 _hintBtn.IsEnabled = false;
                 _hand.IsEnabled = false;
                 _hand.ForbidDragging();
-            }, null);
+            });
 
 			return _cardClicked;
         }
@@ -1933,7 +1889,7 @@ namespace Mariasek.SharedClient
         {
             g.ThrowIfCancellationRequested();
             //trumfovou kartu otocime az zmizi vsechny bubliny
-            _synchronizationContext.Send(_ =>
+            RunOnUiThread(() =>
             {
                 var imgs = new[]
                 {
@@ -1989,7 +1945,7 @@ namespace Mariasek.SharedClient
                 {
                     _progressBars[e.GameStartingPlayerIndex].Progress = _progressBars[e.GameStartingPlayerIndex].Max;
                 });
-            }, null);
+            });
         }
 
         public void BidMade(object sender, BidEventArgs e)
@@ -2017,7 +1973,7 @@ namespace Mariasek.SharedClient
             }
 			EnsureBubblesHidden();
             g.ThrowIfCancellationRequested();
-			_synchronizationContext.Send(_ =>
+			RunOnUiThread(() =>
             {
                 if (g == null || !g.IsRunning) //pokud se vubec nehralo (lozena hra) nebo je lozeny zbytek hry
 				{
@@ -2104,7 +2060,7 @@ namespace Mariasek.SharedClient
                         //_hand.ShowArc((float)Math.PI / 2);
                         _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
                 });
-            }, null);
+            });
         }
 
         public void RoundStarted(object sender, Round r)
@@ -2134,7 +2090,7 @@ namespace Mariasek.SharedClient
             {
                 g.ThrowIfCancellationRequested();
                 _evt.Reset();
-                _synchronizationContext.Send(_ =>
+                RunOnUiThread(() =>
                 {
                     this.Wait(1000)
                         .Invoke(() =>
@@ -2148,12 +2104,10 @@ namespace Mariasek.SharedClient
                                  (r.player3.PlayerIndex != roundWinnerIndex && r.player3.TeamMateIndex != roundWinnerIndex && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))))
                             {
                                 Game.LaughSound?.PlaySafely();
-                                //_synchronizationContext.Send(_ =>
-                                //{ Game.LaughSound?.PlaySafely(); }, null);
                             }
                             ClearTableAfterRoundFinished();
                         });
-                }, null);
+                });
                 WaitForUIThread();
             }
         }
@@ -2184,7 +2138,7 @@ namespace Mariasek.SharedClient
 
             EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
-            _synchronizationContext.Send(_ =>
+            RunOnUiThread(() =>
             {
                 ClearTable(true);
                 _hand.UpdateHand(new Card[0]);
@@ -2244,7 +2198,7 @@ namespace Mariasek.SharedClient
                 _msgLabelLeft.Text = leftMessage.ToString();
                 _msgLabelRight.Text = rightMessage.ToString();
                 ShowGameScore();
-            }, null);
+            });
             _deck = g.GetDeckFromLastGame();
             SaveDeck();
             if (g.rounds[0] != null)
@@ -2276,13 +2230,13 @@ namespace Mariasek.SharedClient
             //_aiConfig["SimulationsPerRoundPerSecond"].Value = Game.Settings.RoundSimulationsPerSecond.ToString();
             Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
             //tohle zpusobi prekresleni nekterych ui prvku, je treba volat z UI threadu
-            _synchronizationContext.Send(_ => Game.UpdateSettings(), null);
+            RunOnUiThread(() => Game.UpdateSettings());
 
             if (g.rounds[0] != null && (results.MoneyWon[0] >= 4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] >= 2)))
             {                
                 Game.ClapSound?.PlaySafely();
             }
-            else if (results.MoneyWon[0] <= -10 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] <= -5))
+            else if (g.rounds[0] != null && (results.MoneyWon[0] <= -4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] <= -2)))
             {
                 Game.BooSound?.PlaySafely();
             }
@@ -2518,10 +2472,10 @@ namespace Mariasek.SharedClient
 
         public void UpdateHand(bool flipCardsUp = false, int cardsNotRevealed = 0, Card cardToHide = null)
         {
-            _synchronizationContext.Send(_ =>
+            RunOnUiThread(() =>
             {
                 _hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide);
-            }, null);
+            });
             _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
             if (flipCardsUp)
             {
@@ -2984,12 +2938,12 @@ namespace Mariasek.SharedClient
         private void OverlayTouchUp(object sender, TouchLocation tl)
         {
             _state = GameState.NotPlaying;
-            _synchronizationContext.Send(_ =>
+            RunOnUiThread(() =>
             {
                 ClearTableAfterRoundFinished();
                 HideMsgLabel();
                 HideInvisibleClickableOverlay();
-            }, null);
+            });
 		}
 
         private void ShowInvisibleClickableOverlay()

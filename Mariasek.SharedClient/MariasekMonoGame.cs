@@ -311,7 +311,7 @@ namespace Mariasek.SharedClient
                 {
                     AmbientSound.IsLooped = true;
                     AmbientSound.Volume = 0;
-                    AmbientSound?.PlaySafely();
+                    AmbientSound.PlaySafely();
                 }
 
                 NaPankraciSong = Content.Load<Song>("na pankraci");
@@ -418,9 +418,12 @@ namespace Mariasek.SharedClient
                 LoadGameSettings(true);
             }
 			SoundEffect.MasterVolume = Settings.SoundEnabled ? 1f : 0f;
-			AmbientSound.Volume = Settings.BgSoundEnabled ? 0.2f : 0f;
+            if (AmbientSound != null)
+            {
+				AmbientSound.Volume = Settings.BgSoundEnabled ? 0.2f : 0f;
+				AmbientSound.PlaySafely();
+			}
             Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Settings.BgSoundEnabled ? 0.1f : 0f;
-			AmbientSound?.PlaySafely();
 			Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
             Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
 		}
@@ -535,8 +538,12 @@ namespace Mariasek.SharedClient
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw (GameTime gameTime)
 		{
-            Graphics.GraphicsDevice.Clear (Color.ForestGreen);
-		
+            GraphicsDevice.Clear (Color.ForestGreen);
+
+			if (SpriteBatch == null || SpriteBatch.IsDisposed)
+			{
+				SpriteBatch = new SpriteBatch(GraphicsDevice);
+			}
 			//TODO: Add your drawing code here
 			CurrentRenderingGroup = AnchorType.Main;
 			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, MainScaleMatrix);

@@ -166,7 +166,10 @@ namespace Mariasek.SharedClient
         {
             try
             {
-                sound.Play();
+                if (!sound.IsDisposed)
+                {
+                    sound.Play();
+                }
             }
             catch (Exception ex)
             {
@@ -178,7 +181,10 @@ namespace Mariasek.SharedClient
 		{
 			try
 			{
-				sound.Play();
+                if (!sound.IsDisposed)
+                {
+                    sound.Play();
+                }
 			}
 			catch (Exception ex)
 			{

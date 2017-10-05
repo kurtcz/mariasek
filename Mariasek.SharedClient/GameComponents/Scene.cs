@@ -1,8 +1,9 @@
 ﻿//#define DEBUG_SPRITES
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -25,13 +26,16 @@ namespace Mariasek.SharedClient.GameComponents
     /// </summary>
     public class Scene : GameComponent
     {
-        public new MariasekMonoGame Game { get; private set; }
+		private int _uiThreadId;
+		private ConcurrentQueue<Action> _actionQueue = new ConcurrentQueue<Action>();
+
+		protected bool _initialized;
+
+		public new MariasekMonoGame Game { get; private set; }
         public GameComponent ExclusiveControl { get; set; }
         public Texture2D Background { get; set; }
         public BackgroundAlignment BackgroundAlign { get; set; }
         public Color BackgroundTint { get; set; }
-
-		protected bool _initialized;
 
 #if DEBUG_SPRITES
         public int Counter;
@@ -87,21 +91,43 @@ namespace Mariasek.SharedClient.GameComponents
             // TODO: Add your initialization code here
 
             base.Initialize();
+            _uiThreadId = Thread.CurrentThread.ManagedThreadId;
             _initialized = true;
         }
 
-        /// <summary>
-        /// Allows the game component to update itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+
+		protected void RunOnUiThread(Action action)
+		{
+			if (Thread.CurrentThread.ManagedThreadId == _uiThreadId)
+			{
+				action();
+			}
+			else
+			{
+				using (var evt = new ManualResetEvent(false))
+				{
+					_actionQueue.Enqueue(() =>
+					{
+						action();
+						evt.Set();
+					});
+					evt.WaitOne();
+				}
+			}
+		}
+
         public override void Update(GameTime gameTime)
         {
-            // TODO: Add your update code here
-            GameSynchronizationContext.InvokePendingActions();
+            Action action;
+
+            while(_actionQueue.TryDequeue(out action))
+            {
+                action();
+            }
             base.Update(gameTime);
         }
 
-        public override void Draw (GameTime gameTime)
+		public override void Draw (GameTime gameTime)
         {
 #if DEBUG_SPRITES
             Counter = 0;
