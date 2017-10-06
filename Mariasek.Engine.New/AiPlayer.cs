@@ -810,9 +810,13 @@ namespace Mariasek.Engine.New
                     _sevenSimulations = actualSimulations;
                 }
                 _gameSimulations = actualSimulations;
-                Settings.SimulationsPerGameType = _gameSimulations;
-                Settings.SimulationsPerGameTypePerSecond = (int)((float)_gameSimulations / Settings.MaxSimulationTimeMs * 1000);
-                //Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / (end - start).TotalMilliseconds * 1000);
+                //Settings.SimulationsPerGameType = _gameSimulations;
+                //Settings.SimulationsPerGameTypePerSecond = (int)((float)_gameSimulations / Settings.MaxSimulationTimeMs * 1000);
+                if (end != start)
+                {
+                    Settings.SimulationsPerGameType = actualSimulations;
+                    Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / (end - start).TotalMilliseconds * 1000);
+                }
                 totalGameSimulations = (simulateGoodGames? _gameSimulations + _sevenSimulations : 0) +
                     (simulateBadGames? 2 * Settings.SimulationsPerGameType : 0);
             }
@@ -862,9 +866,12 @@ namespace Mariasek.Engine.New
 						OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju betl" });
 					});
 					var end = DateTime.Now;
-					Settings.SimulationsPerGameType = actualSimulations;
-					Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / Settings.MaxSimulationTimeMs * 1000);
-					//Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / (end - start).TotalMilliseconds * 1000);
+                    if (end != start)
+                    {
+                        Settings.SimulationsPerGameType = actualSimulations;
+                        //Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / Settings.MaxSimulationTimeMs * 1000);
+                        Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / (end - start).TotalMilliseconds * 1000);
+                    }
 				}
 				else
 				{
