@@ -95,7 +95,6 @@ namespace Mariasek.SharedClient.GameComponents
             _initialized = true;
         }
 
-
 		protected void RunOnUiThread(Action action)
 		{
 			if (Thread.CurrentThread.ManagedThreadId == _uiThreadId)
@@ -106,7 +105,7 @@ namespace Mariasek.SharedClient.GameComponents
 			{
 				using (var evt = new ManualResetEvent(false))
 				{
-					_actionQueue.Enqueue(() =>
+                    Game.CurrentScene._actionQueue.Enqueue(() =>
 					{
 						action();
 						evt.Set();

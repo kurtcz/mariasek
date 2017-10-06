@@ -900,10 +900,11 @@ namespace Mariasek.SharedClient
                     this.ClearOperations();
                     _evt.Set();
 				});
-                (g.players[0] as HumanPlayer).CancelAiTask();
+                //(g.players[0] as HumanPlayer).CancelAiTask();
                 try
                 {
                     _cancellationTokenSource.Cancel();
+                    (g.players[0] as HumanPlayer).CancelAiTask();
                     _evt.Set();
                     _gameTask.Wait();
                 }
@@ -1591,9 +1592,13 @@ namespace Mariasek.SharedClient
             WaitForUIThread();
 
             _state = GameState.NotPlaying;
-			_hintBtn.IsEnabled = false;
-            _hand.IsEnabled = false;
-            _hand.ForbidDragging();
+			g.ThrowIfCancellationRequested();
+			RunOnUiThread(() =>
+            {
+                _hintBtn.IsEnabled = false;
+                _hand.IsEnabled = false;
+                _hand.ForbidDragging();
+            });
 
             return _cardClicked;
         }
@@ -1615,10 +1620,14 @@ namespace Mariasek.SharedClient
 			_hand.IsEnabled = true;
             WaitForUIThread();
 
-            _state = GameState.NotPlaying;
-			_hintBtn.IsEnabled = false;
-			_hand.IsEnabled = false;
-			_okBtn.Hide();
+			_state = GameState.NotPlaying;
+			g.ThrowIfCancellationRequested();
+			RunOnUiThread(() =>
+            {
+                _hintBtn.IsEnabled = false;
+                _hand.IsEnabled = false;
+                _okBtn.Hide();
+            });
 
             return _talon;
         }
@@ -1650,10 +1659,11 @@ namespace Mariasek.SharedClient
             WaitForUIThread();
 
             _state = GameState.NotPlaying;
-			_hintBtn.IsEnabled = false;
+			g.ThrowIfCancellationRequested();
 			RunOnUiThread(() =>
             {
-                this.ClearOperations();
+				_hintBtn.IsEnabled = false;
+				this.ClearOperations();
 				HideMsgLabel();
 				foreach (var gfButton in gfButtons)
 				{
@@ -1701,7 +1711,8 @@ namespace Mariasek.SharedClient
             WaitForUIThread();
 
             _state = GameState.NotPlaying;
-            RunOnUiThread(() =>
+			g.ThrowIfCancellationRequested();
+			RunOnUiThread(() =>
             {
                 HideMsgLabel();
                 this.ClearOperations();
@@ -1710,7 +1721,6 @@ namespace Mariasek.SharedClient
                     btn.Hide();
                 }
             });
-			g.ThrowIfCancellationRequested();
 
             return _gameTypeChosen;
         }
@@ -1741,6 +1751,7 @@ namespace Mariasek.SharedClient
                 this.ClearOperations();
                 HideBidButtons();
             });
+            g.ThrowIfCancellationRequested();
 
             return _bid;
         }
@@ -1797,7 +1808,8 @@ namespace Mariasek.SharedClient
             WaitForUIThread();
 
             _state = GameState.NotPlaying;
-            RunOnUiThread(() =>
+			g.ThrowIfCancellationRequested();
+			RunOnUiThread(() =>
             {
                 this.ClearOperations();
                 _hintBtn.IsEnabled = false;
@@ -2057,8 +2069,8 @@ namespace Mariasek.SharedClient
                     }
 
                     _hand.DeselectAllCards();
-                        //_hand.ShowArc((float)Math.PI / 2);
-                        _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
+                    //_hand.ShowArc((float)Math.PI / 2);
+                    _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
                 });
             });
         }
