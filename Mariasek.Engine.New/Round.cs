@@ -103,6 +103,10 @@ namespace Mariasek.Engine.New
             //musim nejak overit, ze karty jsou validni a pokud ne tak to hraci oznamit a akci opakovat
             c1 = player1.PlayCard(this);
             player1.Hand.Remove(c1);
+            if (_g.rounds.Where(i => i != null && i.number < number).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).Contains(c1))
+            {
+                throw new InvalidOperationException($"Card {c1} has already been played");
+            }
             foreach(var choice in player1.DebugInfo.AllChoices)
             {
                 allRules.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, player1.DebugInfo.TotalRuleCount);
@@ -119,7 +123,11 @@ namespace Mariasek.Engine.New
             
             c2 = player2.PlayCard(this);
             player2.Hand.Remove(c2);
-            allRules.Clear();
+			if (_g.rounds.Where(i => i != null && i.number < number).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).Contains(c2))
+			{
+				throw new InvalidOperationException($"Card {c2} has already been played");
+			}
+			allRules.Clear();
             foreach (var choice in player2.DebugInfo.AllChoices)
             {
                 allRules.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, player2.DebugInfo.TotalRuleCount);
@@ -135,7 +143,11 @@ namespace Mariasek.Engine.New
             
             c3 = player3.PlayCard(this);
             player3.Hand.Remove(c3);
-            allRules.Clear();
+			if (_g.rounds.Where(i => i != null && i.number < number).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).Contains(c3))
+			{
+				throw new InvalidOperationException($"Card {c3} has already been played");
+			}
+			allRules.Clear();
             foreach (var choice in player3.DebugInfo.AllChoices)
             {
                 allRules.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, player3.DebugInfo.TotalRuleCount);

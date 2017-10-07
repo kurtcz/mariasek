@@ -488,6 +488,23 @@ namespace Mariasek.SharedClient.GameComponents
 						ZIndex = i * Mariasek.Engine.New.Game.NumRounds + j + 1,
 						Scale = reviewCardScaleFactor
                     };
+                    if ((Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+                        (hand[j].Value == Hodnota.Eso ||
+                         hand[j].Value == Hodnota.Desitka))
+                    {
+                        var roundWinner = Game.MainScene.g.rounds.First(k => k != null &&
+                                                                             (k.c1 == hand[j] ||
+                                                                              k.c2 == hand[j] ||
+                                                                              k.c3 == hand[j])).roundWinner;
+						if (roundWinner.PlayerIndex == 0 || roundWinner.TeamMateIndex == 0)
+						{
+							Hands[i][j].Tint = Color.LightGreen;
+						}
+						else
+						{
+							Hands[i][j].Tint = Color.LightPink;
+						}
+					}
                     if (hlas)
                     {
                         if (Game.MainScene.g.players[ii].PlayerIndex == 0 || Game.MainScene.g.players[ii].TeamMateIndex == 0)

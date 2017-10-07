@@ -307,7 +307,7 @@ namespace Mariasek.SharedClient
                 LaughSound = Content.Load<SoundEffect>("laugh");
 
                 AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
-                if (AmbientSound != null)
+                if (AmbientSound != null && !AmbientSound.IsDisposed)
                 {
                     AmbientSound.IsLooped = true;
                     AmbientSound.Volume = 0;
@@ -418,7 +418,7 @@ namespace Mariasek.SharedClient
                 LoadGameSettings(true);
             }
 			SoundEffect.MasterVolume = Settings.SoundEnabled ? 1f : 0f;
-            if (AmbientSound != null)
+            if (AmbientSound != null && !AmbientSound.IsDisposed)
             {
 				AmbientSound.Volume = Settings.BgSoundEnabled ? 0.2f : 0f;
 				AmbientSound.PlaySafely();

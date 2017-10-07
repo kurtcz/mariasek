@@ -1539,14 +1539,14 @@ namespace Mariasek.Engine.New
                          Hand.HasQ(_trump.Value)) && true)) ||
                      //nebo jsem nevolil a:
                      // - (flek) trham trumfovou hlasku nebo mam aspon dva hlasy nebo
-                     // - (tutti a vys) mam hlas a citim se na flek
+                     // - (tutti a vys) mam trumf (navic jsem musel splnit podminky pro flek) a citim se na flek
                      (TeamMateIndex != -1 &&
-                      ((bidding.GameMultiplier > 2) || //&& 
-                            //Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit))) ||
+                      ((bidding.GameMultiplier > 2 && 
+                        Hand.HasSuit(_g.trump.Value)) ||
                        (bidding.GameMultiplier < 2 &&
-                            (Hand.HasK(_g.trump.Value) || 
-                             Hand.HasQ(_g.trump.Value) || 
-                             Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2))))))) ||
+                        (Hand.HasK(_g.trump.Value) || 
+                         Hand.HasQ(_g.trump.Value) || 
+                         Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2))))))) ||
                  //nebo davam re a jsem si dost jisty nehlede na hlasy
                  (TeamMateIndex == -1 &&
                   _gamesBalance / (float)_gameSimulations >= gameThresholdNext) ||
