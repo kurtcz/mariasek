@@ -253,7 +253,16 @@ namespace Mariasek.SharedClient
                 _historyChart.GridInterval = new Vector2(1f, 10 * Game.Settings.BaseBet);
             }
             _historyChart.Data = series;
-
+            _historyChart.Click += sender =>
+            {
+                if (!_historyChart.SizeChartToFit && series[0].Length > LineChart.MaxDataSizeWhenZoomedIn)
+                {
+                    _historyChart.Data = series.Select(i => i.Skip(series[0].Length - LineChart.MaxDataSizeWhenZoomedIn)
+                                                             .Take(LineChart.MaxDataSizeWhenZoomedIn)
+                                                             .ToArray())
+                                               .ToArray();
+                }
+            };
             foreach (var historyItem in Game.Money)
             {
                 sb.AppendFormat(" {0,-7}\t{1}\t{2}\t{3}\n",

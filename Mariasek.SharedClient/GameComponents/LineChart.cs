@@ -270,6 +270,7 @@ namespace Mariasek.SharedClient.GameComponents
         private double _scrollingVelocity;
         private int _scrollingDirection;
         private const float decceleration = 0.02f;
+        public const int MaxDataSizeWhenZoomedIn = 200;
 
         protected override void OnTouchDown(TouchLocation tl)
         {
