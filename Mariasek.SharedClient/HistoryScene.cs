@@ -207,20 +207,21 @@ namespace Mariasek.SharedClient
         }
 
         public void PopulateControls()
-        {            
-            var culture = CultureInfo.CreateSpecificCulture("cs-CZ");
+        {
             var sb = new StringBuilder();
             int wins = 0, total = 0;
             var series = new Vector2[Mariasek.Engine.New.Game.NumPlayers][];
+            var numFormat = (NumberFormatInfo)CultureInfo.GetCultureInfo("cs-CZ").NumberFormat.Clone();
 
+            numFormat.CurrencyGroupSeparator = "";
             if (_useMockData)
             {
                 for (var i = 0; i < 20; i++)
                 {
                     sb.AppendFormat("\t\t{0}\t{1}\t{2}\n", 
-                        ((i + 1) * 1f).ToString("C", culture), 
-                        ((i + 1) * -0.5f).ToString("C", culture), 
-                        ((i + 1) * -0.5f).ToString("C", culture));
+                        ((i + 1) * 1f).ToString("C", numFormat), 
+                        ((i + 1) * -0.5f).ToString("C", numFormat), 
+                        ((i + 1) * -0.5f).ToString("C", numFormat));
                 }
             }
             var maxWon = 0f;
@@ -253,23 +254,17 @@ namespace Mariasek.SharedClient
                 _historyChart.GridInterval = new Vector2(1f, 10 * Game.Settings.BaseBet);
             }
             _historyChart.Data = series;
-            _historyChart.Click += sender =>
+            _historyChart.Click += (sender) => 
             {
-                if (!_historyChart.SizeChartToFit && series[0].Length > LineChart.MaxDataSizeWhenZoomedIn)
-                {
-                    _historyChart.Data = series.Select(i => i.Skip(series[0].Length - LineChart.MaxDataSizeWhenZoomedIn)
-                                                             .Take(LineChart.MaxDataSizeWhenZoomedIn)
-                                                             .ToArray())
-                                               .ToArray();
-                }
+                //_historyChart.MaxValue = new Vector2(_historyChart.Data[0].Length, maxWon);
             };
             foreach (var historyItem in Game.Money)
             {
                 sb.AppendFormat(" {0,-7}\t{1}\t{2}\t{3}\n",
                                 string.IsNullOrWhiteSpace(historyItem.GameTypeString) ? "?": historyItem.GameTypeString,
-                                (historyItem.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", culture), 
-                                (historyItem.MoneyWon[1] * Game.Settings.BaseBet).ToString("C", culture), 
-                                (historyItem.MoneyWon[2] * Game.Settings.BaseBet).ToString("C", culture));
+                                (historyItem.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", numFormat), 
+                                (historyItem.MoneyWon[1] * Game.Settings.BaseBet).ToString("C", numFormat), 
+                                (historyItem.MoneyWon[2] * Game.Settings.BaseBet).ToString("C", numFormat));
                 if (historyItem.MoneyWon[0] > 0)
                 {
                     wins++;
@@ -285,9 +280,9 @@ namespace Mariasek.SharedClient
                 total, wins, ratio, 
                 Game.MainScene.PlayerNames[(Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers]);
 
-            var sum1 = Game.Money.Sum(i => i.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", culture);
-            var sum2 = Game.Money.Sum(i => i.MoneyWon[1] * Game.Settings.BaseBet).ToString("C", culture);
-            var sum3 = Game.Money.Sum(i => i.MoneyWon[2] * Game.Settings.BaseBet).ToString("C", culture);
+            var sum1 = Game.Money.Sum(i => i.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", numFormat);
+            var sum2 = Game.Money.Sum(i => i.MoneyWon[1] * Game.Settings.BaseBet).ToString("C", numFormat);
+            var sum3 = Game.Money.Sum(i => i.MoneyWon[2] * Game.Settings.BaseBet).ToString("C", numFormat);
 
             _footer.Text = string.Format("Součet:\t{0}\t{1}\t{2}", sum1, sum2, sum3);
         }

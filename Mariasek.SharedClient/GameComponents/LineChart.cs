@@ -17,20 +17,32 @@ namespace Mariasek.SharedClient.GameComponents
         Octagon = 8,
         Circle = 16
     }
-
+        
     public class LineChart : TouchControlBase
     {
         private RenderTarget2D _verticalAxisTarget;
         private RenderTarget2D _target;
         public int Width { get; set; }
         public int Height { get; set; }
-        private Vector2[][] _data;
+        private const int MaxDataSizeWhenZoomedIn = 200;
+        //private Vector2[][] _data;
+        private Vector2[][] _datafull;
+        private Vector2[][] _datasubset;
         public Vector2[][] Data
         { 
-            get { return _data; }
+            get { return SizeChartToFit ? _datafull : _datasubset; }
             set
             {
-                _data = value;
+                _datafull = value;
+                _datasubset = value.Length > 0
+                                   ? value[0].Length <= MaxDataSizeWhenZoomedIn
+                                    ? value
+                                    : value.Select(i => i.Skip(value[0].Length - MaxDataSizeWhenZoomedIn)
+                                                         .Take(MaxDataSizeWhenZoomedIn)
+                                                         .ToArray())
+                                           .ToArray()
+                                   : value;
+                UpdateMinMaxValues();
                 UpdateSprite();
             }
         }
@@ -61,12 +73,13 @@ namespace Mariasek.SharedClient.GameComponents
         {
             MinValue = Vector2.Zero;
             MaxValue = Vector2.One;
-            _data = new []
+            _datafull = new []
             {
                 new [] { new Vector2(0, 0.25f), new Vector2(0.5f, 0.5f), new Vector2(1, 0.25f) },
                 new [] { new Vector2(0, 0.1f), new Vector2(0.5f, 0.2f), new Vector2(1, 0.75f) },
                 new [] { new Vector2(0, 0.5f), new Vector2(0.5f, 0.75f), new Vector2(1, 0.5f) }
             };
+            _datasubset = _datafull;
             Series = new [] { "Set1", "Set2", "Set3" };
             Colors = new [] { Color.Red, Color.Green, Color.Blue };
             AxisColor = Color.White;
@@ -129,7 +142,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             else
             {
-                return (int)Math.Max(Width, _data.Length > 0 ? _data[0].Length * 25f : 0);
+                return (int)Math.Max(Width, Data.Length > 0 ? Data[0].Length * 25f : 0);
             }
         }
 
@@ -149,7 +162,7 @@ namespace Mariasek.SharedClient.GameComponents
 
                 Primitives2D.DrawLine(Game.SpriteBatch, LogicalToPhysical(new Vector2(YAxisPoint, MinValue.Y)), LogicalToPhysical(new Vector2(YAxisPoint, MaxValue.Y)), AxisColor, AxisThickness, Opacity);
 
-                if (ShowYAxisTickMarks && LogicalToPhysical(new Vector2(0, GridInterval.Y)).Y >= 8)
+                if (ShowYAxisTickMarks && LogicalToPhysical(Vector2.Zero).Y - LogicalToPhysical(new Vector2(0, GridInterval.Y)).Y >= 2)
                 {
                     var offset = MinValue.Y % GridInterval.Y;
 
@@ -195,7 +208,7 @@ namespace Mariasek.SharedClient.GameComponents
             if (ShowXAxis)
             {
                 Primitives2D.DrawLine(Game.SpriteBatch, LogicalToPhysical(new Vector2(MinValue.X, XAxisPoint)), LogicalToPhysical(new Vector2(MaxValue.X, XAxisPoint)), AxisColor, AxisThickness, Opacity);
-                if (ShowXAxisTickMarks && LogicalToPhysical(new Vector2(GridInterval.X, 0)).X >= 8)
+                if (ShowXAxisTickMarks && LogicalToPhysical(new Vector2(GridInterval.X, 0)).X - LogicalToPhysical(Vector2.Zero).X >= 8)
                 {                    
                     var offset = MinValue.X % GridInterval.X;
 
@@ -226,18 +239,18 @@ namespace Mariasek.SharedClient.GameComponents
             //        }
             //    }
             //}
-            for (var i = 0; i < _data.Length; i++)
+            for (var i = 0; i < Data.Length; i++)
             {
-                if (_data[i].Length == 0)
+                if (Data[i].Length == 0)
                 {
                     continue;
                 }
 
-                var points = new Vector2[_data[i].Length + 1];
+                var points = new Vector2[Data[i].Length + 1];
 
-                for (var j = 0; j < _data[i].Length; j++)
+                for (var j = 0; j < Data[i].Length; j++)
                 {
-                    points[j + 1] = LogicalToPhysical(_data[i][j]);
+                    points[j + 1] = LogicalToPhysical(Data[i][j]);
                 }
                 points[0] = new Vector2(points[1].X - 1, points[1].Y);
                 Primitives2D.DrawSpline(Game.SpriteBatch, points, Colors[i], LineThickness, Opacity);
@@ -270,7 +283,6 @@ namespace Mariasek.SharedClient.GameComponents
         private double _scrollingVelocity;
         private int _scrollingDirection;
         private const float decceleration = 0.02f;
-        public const int MaxDataSizeWhenZoomedIn = 200;
 
         protected override void OnTouchDown(TouchLocation tl)
         {
@@ -300,12 +312,44 @@ namespace Mariasek.SharedClient.GameComponents
                     _oldHorizontalScrollOffset = HorizontalScrollOffset;
                 }
                 SizeChartToFit = !SizeChartToFit;
+                UpdateMinMaxValues();
                 UpdateSprite();
                 if (!SizeChartToFit)
                 {
                     HorizontalScrollOffset = _oldHorizontalScrollOffset;
                 }
             }
+        }
+
+        private void UpdateMinMaxValues()
+        {
+			var maxValue = new Vector2(float.MinValue, float.MinValue);
+			var minValue = new Vector2(float.MaxValue, float.MaxValue);
+
+			for (var i = 0; i < Data.Length; i++)
+			{
+				for (var j = 0; j < Data[i].Length; j++)
+				{
+					if (maxValue.X < Data[i][j].X)
+					{
+						maxValue.X = Data[i][j].X;
+					}
+					if (maxValue.Y < Data[i][j].Y)
+					{
+						maxValue.Y = Data[i][j].Y;
+					}
+					if (minValue.X > Data[i][j].X)
+					{
+						minValue.X = Data[i][j].X;
+					}
+					if (minValue.Y > Data[i][j].Y)
+					{
+						minValue.Y = Data[i][j].Y;
+					}
+				}
+			}
+			MaxValue = maxValue;
+			MinValue = minValue;
         }
 
         public void ScrollToEnd()
