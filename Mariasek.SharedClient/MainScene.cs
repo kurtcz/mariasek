@@ -895,17 +895,11 @@ namespace Mariasek.SharedClient
             if (_gameTask != null && _gameTask.Status == TaskStatus.Running)
             {
 				ClearTable(true);
-                RunOnUiThread(() =>
-                {
-                    this.ClearOperations();
-                    _evt.Set();
-				});
-                //(g.players[0] as HumanPlayer).CancelAiTask();
                 try
                 {
-                    _cancellationTokenSource.Cancel();
                     (g.players[0] as HumanPlayer).CancelAiTask();
-                    _evt.Set();
+					_cancellationTokenSource.Cancel();
+					_evt.Set();
                     _gameTask.Wait();
                 }
                 catch (Exception)
@@ -1162,8 +1156,11 @@ namespace Mariasek.SharedClient
                 {
                     bubble.Hide();
                 }
-                _hand.ClearOperations();
-                this.ClearOperations();
+                RunOnUiThread(() =>
+                {
+					_hand.ClearOperations();
+					this.ClearOperations();
+				});
                 _hintBtn.IsEnabled = false;
                 if (Game.Settings.HintEnabled)
                 {
@@ -1592,7 +1589,6 @@ namespace Mariasek.SharedClient
             WaitForUIThread();
 
             _state = GameState.NotPlaying;
-			g.ThrowIfCancellationRequested();
 			RunOnUiThread(() =>
             {
                 _hintBtn.IsEnabled = false;
@@ -1621,7 +1617,6 @@ namespace Mariasek.SharedClient
             WaitForUIThread();
 
 			_state = GameState.NotPlaying;
-			g.ThrowIfCancellationRequested();
 			RunOnUiThread(() =>
             {
                 _hintBtn.IsEnabled = false;
@@ -1659,7 +1654,6 @@ namespace Mariasek.SharedClient
             WaitForUIThread();
 
             _state = GameState.NotPlaying;
-			g.ThrowIfCancellationRequested();
 			RunOnUiThread(() =>
             {
 				_hintBtn.IsEnabled = false;
@@ -1711,7 +1705,6 @@ namespace Mariasek.SharedClient
             WaitForUIThread();
 
             _state = GameState.NotPlaying;
-			g.ThrowIfCancellationRequested();
 			RunOnUiThread(() =>
             {
                 HideMsgLabel();
@@ -1808,7 +1801,6 @@ namespace Mariasek.SharedClient
             WaitForUIThread();
 
             _state = GameState.NotPlaying;
-			g.ThrowIfCancellationRequested();
 			RunOnUiThread(() =>
             {
                 this.ClearOperations();
@@ -2368,9 +2360,12 @@ namespace Mariasek.SharedClient
                     {
                         bubble.Hide();
                     }
-                    _hand.ClearOperations();
-                    this.ClearOperations();
-                    _hintBtn.IsEnabled = false;
+					RunOnUiThread(() =>
+					{
+						_hand.ClearOperations();
+						this.ClearOperations();
+					});
+					_hintBtn.IsEnabled = false;
                     if (Game.Settings.HintEnabled)
                     {
                         _hintBtn.Show();

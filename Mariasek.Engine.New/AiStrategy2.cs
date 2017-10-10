@@ -689,17 +689,23 @@ namespace Mariasek.Engine.New
                         myInitialHand.AddRange((List<Card>)hands[MyIndex]);
                         myInitialHand.AddRange(myPlayedCards);
 
+                        //TODO: hrat treba jen jednu ostrou kartu pokud jsem na zacatku mel 3 nebo 4 karty v barve?
                         var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
-                                                                           (i.Value == Hodnota.Eso ||
-                                                                            (i.Value == Hodnota.Desitka &&
-                                                                             _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0 &&
-                                                                             _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0)) &&
-                                                                           _probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor &&
-                                                                           _probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor &&
-                                                                           myInitialHand.Count(j => j.Suit == i.Suit) <= 2 //&&
-                                                                           //myInitialHand.Count(j => j.Suit == _trump) <= 5
-                                                                          ).ToList();
-                        return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
+                                                                                (i.Value == Hodnota.Eso ||
+                                                                                 (i.Value == Hodnota.Desitka &&
+                                                                                  _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0 &&
+                                                                                  _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0)) &&
+                                                                                  _probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor &&
+                                                                                  _probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor &&
+                                                                                  (myInitialHand.CardCount(i.Suit) <= 2 ||
+                                                                                   (myInitialHand.CardCount(i.Suit) <= 3 &&
+                                                                                    myInitialHand.CardCount(_trump) <= 3) ||
+																				   (myInitialHand.CardCount(i.Suit) <= 4 &&
+																					myInitialHand.CardCount(_trump) <= 2)))
+                                                                    .ToList();
+                        return cardsToPlay.OrderByDescending(i => myInitialHand.CardCount(i.Suit))
+                                          .ThenBy(i => i.Value)
+                                          .FirstOrDefault();
                     }
                     return null;
                 }

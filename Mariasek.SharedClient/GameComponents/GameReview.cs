@@ -427,6 +427,7 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     var rect = hand[j].ToTextureRect();
                     var hlas = (Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+                               Game.MainScene.g.rounds[0] != null &&
                                (Game.MainScene.g.Results == null ||
                                 Game.MainScene.g.Results.BasicPointsWon + Game.MainScene.g.Results.BasicPointsLost == 90) &&
                         ((hand[j].Value == Hodnota.Kral && hand.Any(k => k.Value == Hodnota.Svrsek && k.Suit == hand[j].Suit)) ||
@@ -489,21 +490,22 @@ namespace Mariasek.SharedClient.GameComponents
 						Scale = reviewCardScaleFactor
                     };
                     if ((Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+                        Game.MainScene.g.rounds[0] != null &&
                         (hand[j].Value == Hodnota.Eso ||
                          hand[j].Value == Hodnota.Desitka))
                     {
-                        var roundWinner = Game.MainScene.g.rounds.First(k => k != null &&
+						var roundWinner = Game.MainScene.g.rounds.First(k => k != null &&
                                                                              (k.c1 == hand[j] ||
                                                                               k.c2 == hand[j] ||
                                                                               k.c3 == hand[j])).roundWinner;
-						if (roundWinner.PlayerIndex == 0 || roundWinner.TeamMateIndex == 0)
-						{
-							Hands[i][j].Tint = Color.LightGreen;
-						}
-						else
-						{
-							Hands[i][j].Tint = Color.LightPink;
-						}
+                        if (roundWinner.PlayerIndex == 0 || roundWinner.TeamMateIndex == 0)
+                        {
+                            Hands[i][j].Tint = Color.LightGreen;
+                        }
+                        else
+                        {
+                            Hands[i][j].Tint = Color.LightPink;
+                        }
 					}
                     if (hlas)
                     {

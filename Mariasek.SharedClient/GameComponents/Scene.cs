@@ -120,7 +120,7 @@ namespace Mariasek.SharedClient.GameComponents
             Action action;
 
             _uiThreadId = Thread.CurrentThread.ManagedThreadId;
-            while(_actionQueue.TryDequeue(out action))
+            if (_actionQueue.TryDequeue(out action))
             {
                 action();
             }
