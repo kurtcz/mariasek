@@ -115,6 +115,7 @@ namespace Mariasek.SharedClient
 		private string _newGameFilePath = Path.Combine(_path, "_def.hra");
         private string _screenPath = Path.Combine(_path, "screen.png");
         private string _errorFilePath = Path.Combine(_path, "_error.hra");
+        private string _errorMsgFilePath = Path.Combine(_path, "_error.txt");
         private string _endGameFilePath = Path.Combine(_path, "_end.hra");
 
         private Action HintBtnFunc;
@@ -1277,6 +1278,7 @@ namespace Mariasek.SharedClient
             var msg2 = string.Format("{0}\n{1}", ex.Message, ex.StackTrace);
 
             ShowMsgLabel(msg1, false);
+
             if (Game.EmailSender != null)
             {
                 Game.EmailSender.SendEmail(

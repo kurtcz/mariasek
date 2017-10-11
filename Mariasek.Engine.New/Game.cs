@@ -737,15 +737,22 @@ namespace Mariasek.Engine.New
                     }
                     _log.Error("Exception in PlayGame()", ex);
 #if !PORTABLE
-                        SaveGame(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss")), saveDebugInfo: true);
+                    SaveGame(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss")), saveDebugInfo: true);
 #else
-                        //SaveGame(GetFileStream(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss"))));
-                        using (var fs = GetFileStream("_error.hra"))
+                    //SaveGame(GetFileStream(string.Format("_error_{0}.hra", DateTime.Now.ToString("yyyyMMddHHmmss"))));
+                    using (var fs = GetFileStream("_error.hra"))
+                    {
+                        SaveGame(fs, saveDebugInfo: true);
+                    }
+					using (var fs = GetFileStream("_error.txt"))
+					{
+                        using(var tw = new StreamWriter(fs))
                         {
-                            SaveGame(fs, saveDebugInfo: true);
+                            tw.Write($"{ex.Message}\n{ex.StackTrace}");
                         }
+					}
 #endif
-                    OnGameException(new GameExceptionEventArgs { e = ex });
+					OnGameException(new GameExceptionEventArgs { e = ex });
                     throw;
                 }
             }

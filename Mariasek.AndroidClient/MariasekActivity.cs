@@ -163,8 +163,14 @@ namespace Mariasek.AndroidClient
                 uris.Add(uri);
             }
             email.PutParcelableArrayListExtra(Intent.ExtraStream, uris.ToArray());
-            StartActivity(email);
-            //TODO: delete attached files once they were sent
+            try
+            {
+                StartActivity(email);
+            }
+            catch
+            {
+                StartActivity(Intent.CreateChooser(email, "Jakou aplikací odeslat email?"));
+            }
         }
 
         public void Navigate(string url)
