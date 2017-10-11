@@ -42,8 +42,7 @@ namespace Mariasek.SharedClient.GameComponents
                                                          .ToArray())
                                            .ToArray()
                                    : value;
-                UpdateMinMaxValues();
-                UpdateSprite();
+				UpdateSprite();
             }
         }
         public string[] Series { get; set; }
@@ -288,40 +287,38 @@ namespace Mariasek.SharedClient.GameComponents
         {
             _touchDownLocation = tl;
             _touchHeldLocation = tl;
+            base.OnTouchDown(tl);
         }
 
         protected override void OnTouchUp(TouchLocation tl)
         {
             _previoustouchHeldLocation = _touchHeldLocation;
-        }
+            base.OnTouchUp(tl);
+		}
 
         protected override bool OnTouchHeld(float touchHeldTimeMs, TouchLocation tl)
         {
             _previoustouchHeldLocation = _touchHeldLocation;
             _touchHeldLocation = tl;
-
-            return false;
+            return base.OnTouchHeld(touchHeldTimeMs, tl);
         }
 
-        protected override void OnClick()
+        public void ToggleSizeChartToFit()
         {
-            if (Vector2.Distance(_touchHeldLocation.Position, _touchDownLocation.Position) < 10)
-            {
-                if (!SizeChartToFit)
-                {
-                    _oldHorizontalScrollOffset = HorizontalScrollOffset;
-                }
-                SizeChartToFit = !SizeChartToFit;
-                UpdateMinMaxValues();
-                UpdateSprite();
-                if (!SizeChartToFit)
-                {
-                    HorizontalScrollOffset = _oldHorizontalScrollOffset;
-                }
-            }
-        }
+		    if (!SizeChartToFit)
+		    {
+		        _oldHorizontalScrollOffset = HorizontalScrollOffset;
+		    }
+		    SizeChartToFit = !SizeChartToFit;
+		    UpdateMinMaxValues();
+		    UpdateSprite();
+		    if (!SizeChartToFit)
+		    {
+		        HorizontalScrollOffset = _oldHorizontalScrollOffset;
+		    }
+		}
 
-        private void UpdateMinMaxValues()
+        public void UpdateMinMaxValues()
         {
 			var maxValue = new Vector2(float.MinValue, float.MinValue);
 			var minValue = new Vector2(float.MaxValue, float.MaxValue);

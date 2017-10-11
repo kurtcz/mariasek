@@ -322,9 +322,6 @@ namespace Mariasek.SharedClient
                 _riskFactorSelector.SelectedIndex = _riskFactorSelector.Items.FindIndex(Game.Settings.RiskFactor);
                 _updating = false;
             }
-            _chart.MaxValue = new Vector2(thresholds.Length - 1 + 0.1f, 105);
-            _chart.MinValue = Vector2.Zero;
-            _chart.GridInterval = new Vector2(1, 10);
 
             var series = new Vector2[2][];
             var effectiveCount = _playSelector.SelectedIndex >= 0 &&
@@ -334,7 +331,10 @@ namespace Mariasek.SharedClient
             series[0] = thresholds.Select((threshold, index) => new Vector2(index, threshold)).ToArray();
             series[1] = thresholds.Take(effectiveCount).Select((threshold, index) => new Vector2(index, threshold)).ToArray();
 
-            _chart.Data = series;
+			_chart.MaxValue = new Vector2(thresholds.Length - 1 + 0.1f, 105);
+			_chart.MinValue = Vector2.Zero;
+			_chart.GridInterval = new Vector2(1, 10);
+			_chart.Data = series;
 
             var gt = (Hra)_gameTypeSelector.SelectedValue;
             _note.Text = _notes.ContainsKey(gt) ? _notes[gt] : string.Empty;

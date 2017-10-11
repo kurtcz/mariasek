@@ -36,6 +36,8 @@ namespace Mariasek.SharedClient
         private bool _useMockData;// = true;
         private Vector2 _origPosition;
         private Vector2 _hiddenPosition;
+		private TouchLocation _touchDownLocation;
+		private TouchLocation _touchHeldLocation;
 
         public HistoryScene(MariasekMonoGame game)
             : base(game)
@@ -62,8 +64,23 @@ namespace Mariasek.SharedClient
                 TickMarkLength = 5f,
                 GridInterval = new Vector2(1f, 10f),
                 ShowHorizontalGridLines = false,
-                ShowVerticalGridLines = false
+                ShowVerticalGridLines = false,
+                SizeChartToFit = true
             };
+            _historyChart.TouchDown += (sender, tl) => {
+                _touchDownLocation = tl;
+                _touchHeldLocation = tl;
+            };
+            _historyChart.TouchHeld += (sender, touchHeldTimeMs, tl) => {
+                _touchHeldLocation = tl;
+                return false;
+            };
+			_historyChart.Click += (sender) => {
+				if (Vector2.Distance(_touchHeldLocation.Position, _touchDownLocation.Position) < 10)
+				{
+                    _historyChart.ToggleSizeChartToFit();
+				}
+			};
             _menuButton = new Button(this)
             {
                 Position = new Vector2(10, (int)Game.VirtualScreenHeight - 60),
@@ -254,10 +271,10 @@ namespace Mariasek.SharedClient
                 _historyChart.GridInterval = new Vector2(1f, 10 * Game.Settings.BaseBet);
             }
             _historyChart.Data = series;
-            _historyChart.Click += (sender) => 
-            {
-                //_historyChart.MaxValue = new Vector2(_historyChart.Data[0].Length, maxWon);
-            };
+            //_historyChart.Click += (sender) => 
+            //{
+            //    _historyChart.MaxValue = new Vector2(_historyChart.Data[0].Length, maxWon);
+            //};
             foreach (var historyItem in Game.Money)
             {
                 sb.AppendFormat(" {0,-7}\t{1}\t{2}\t{3}\n",

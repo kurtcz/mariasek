@@ -331,7 +331,7 @@ namespace Mariasek.Engine.New
                     //vyber nejkratsi barvu
                     cardsToPlay = lo.OrderBy(g => g.Count()).Select(g => g.ToList()).FirstOrDefault();
 
-					return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault(); //nejmensi karta
+					return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault(); //nejvetsi karta
                 }
             };
         }
