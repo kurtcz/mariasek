@@ -758,15 +758,22 @@ namespace Mariasek.Engine.New
                             hands[i].Add(c);
 							if (i == Game.NumPlayers)
 							{
-								_verboseString.AppendFormat("Talon += {0} (random)\n", c);
+                                _verboseString.AppendFormat("Talon += {0} (random) {1:0.000}:{2:0.000}:{3:0.000}\n",
+                                                            c, i > 0 ? thresholds[i - 1] : 0, n, thresholds[i]);
 							}
 							else
 							{
-								_verboseString.AppendFormat("Hand{0} += {1} (random)\n", (_myIndex + i) % Game.NumPlayers + 1, c);
+                                _verboseString.AppendFormat("Hand{0} += {1} (random) {2:0.000}:{3:0.000}:{4:0.000}\n", 
+                                                            (_myIndex + i) % Game.NumPlayers + 1, c,
+                                                            i > 0 ? thresholds[i - 1]: 0, n, thresholds[i]);
 							}
                             for (int j = 0; j < Game.NumPlayers + 1; j ++)
                             {
                                 uncertainCards[j].Remove(c);
+								if (i == j)
+								{
+									continue;
+								}
 								if (j == Game.NumPlayers)
 								{
 									_verboseString.AppendFormat("Uncertain:Talon[{0}][{1}] = 0\n", c.Suit, c.Value);
