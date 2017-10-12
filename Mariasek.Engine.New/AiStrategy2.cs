@@ -784,7 +784,7 @@ namespace Mariasek.Engine.New
 								return cardToPlay;
 							}
                         }
-                        else if (TeamMateIndex == player3)
+                        else if (TeamMateIndex == player3 && (_gameType & Hra.SedmaProti) == 0)
                         {
                             //c-o
                             var cardToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump && 
@@ -800,7 +800,7 @@ namespace Mariasek.Engine.New
 							}
 						}
 					}
-					if (TeamMateIndex != -1)
+					if (TeamMateIndex != -1 && (_gameType & Hra.SedmaProti) == 0)
 					{
 						//odmazat si barvu pokud nemam trumfy abych mohl mazat
 						return ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&

@@ -2256,12 +2256,16 @@ namespace Mariasek.SharedClient
 
         public bool CanLoadGame()
         {
-            return File.Exists(_savedGameFilePath);
+            var fi = new FileInfo(_savedGameFilePath);
+
+            return File.Exists(_savedGameFilePath) && fi.Length > 0;
         }
 
         public bool CanLoadTestGame()
-        {
-            return File.Exists(_testGameFilePath);
+		{
+			var fi = new FileInfo(_testGameFilePath);
+
+			return File.Exists(_testGameFilePath) && fi.Length > 0;
         }
 
         public void LoadGame(bool testGame = false)

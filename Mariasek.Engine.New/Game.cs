@@ -485,7 +485,6 @@ namespace Mariasek.Engine.New
         {
             try
             {
-
                 var startingPlayerIndex = GameStartingPlayerIndex;
                 var roundNumber = RoundNumber;
 
@@ -553,7 +552,7 @@ namespace Mariasek.Engine.New
                     Zacina = (Hrac)startingPlayerIndex,
                     Autor = Author,
                     Verze = Version.ToString(),
-                    BiddingNotes = BiddingDebugInfo.ToString(),
+                    BiddingNotes = BiddingDebugInfo?.ToString(),
                     Komentar = Comment,
                     Hrac1 = players[0].Hand
                         .Select(i => new Karta
@@ -581,11 +580,11 @@ namespace Mariasek.Engine.New
                             Zacina = (Hrac)r.player1.PlayerIndex
                         }).ToArray(),
                     Talon = talon
-                        .Select(i => new Karta
+                        ?.Select(i => new Karta
                         {
                             Barva = i.Suit,
                             Hodnota = i.Value
-                        }).ToArray()
+                        })?.ToArray()
                 };
                 foreach (var stych in gameDto.Stychy)
                 {
@@ -783,6 +782,10 @@ namespace Mariasek.Engine.New
                     {
                         players[i].Hand.Remove(c);
                     }
+                }
+                if (RoundNumber > 0 && talon.Count() != 2)
+                {
+                    throw new InvalidOperationException($"Bad talon count: {talon.Count()}");
                 }
 			}
 		}
