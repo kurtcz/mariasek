@@ -311,6 +311,7 @@ namespace Mariasek.SharedClient
             var bd = _scene.GetBidsAndDoubles(bidding);
 
             CancelAiTask();
+            BidConfidence = _aiPlayer.DebugInfo.TotalRuleCount > 0 ? (float)_aiPlayer.DebugInfo.RuleCount / (float)_aiPlayer.DebugInfo.TotalRuleCount : -1;
             return bd;
         }
 

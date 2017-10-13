@@ -419,10 +419,18 @@ namespace Mariasek.SharedClient.GameComponents
                 var hand = new List<Card>(_initialHands[ii].Sort(false, Game.MainScene.g.trump.HasValue ? false : true, Game.MainScene.g.trump));
 
                 Hands[i] = new Sprite[hand.Count];
-                Names[i].Text = i == 0 ? string.Format("{0}: {1} ({2:0}%)", Game.MainScene.g.players[ii].Name, 
-                                                                            Game.MainScene.g.GameType.ToDescription(), 
+                Names[i].Text = i == 0 ? string.Format("{0}: {1}({2:0}%)", Game.MainScene.g.players[ii].Name, 
+                                                                           Game.MainScene.g.GameType.ToDescription().Trim() +
+                                                                            (string.IsNullOrEmpty(Game.MainScene.g.players[ii].BidMade)
+                                                                             ? ""
+                                                                             : string.Format(" {0}", 
+                                                                                Game.MainScene.g.players[ii].BidMade)),
                                                                             Game.MainScene.g.GameTypeConfidence * 100) 
-                                       : Game.MainScene.g.players[ii].Name;
+                                       : string.IsNullOrEmpty(Game.MainScene.g.players[ii].BidMade)
+                                            ? Game.MainScene.g.players[ii].Name
+                                            : string.Format("{0}: {1}({2:0}%)", Game.MainScene.g.players[ii].Name,
+                                                                                Game.MainScene.g.players[ii].BidMade,
+                                                                                Game.MainScene.g.players[ii].BidConfidence * 100);
                 for (var j = 0; j < hand.Count; j++)
                 {
                     var rect = hand[j].ToTextureRect();

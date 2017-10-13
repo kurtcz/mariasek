@@ -160,6 +160,7 @@ namespace Mariasek.Engine.New
                 e = GetEventArgs(_g.players[i], bid, Bids);
                 _log.DebugFormat("Bidding: {0}: {1} ({2})", e.Player.Name, e.Description, bid);
                 _g.BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1}\n", e.Player.PlayerIndex + 1, e.Description);
+                e.Player.BidMade += bid == 0 ? "" : e.Description + " ";
                 _g.AddBiddingDebugInfo(e.Player.PlayerIndex);
                 _g.OnBidMade(e);
                 _g.ThrowIfCancellationRequested();
@@ -187,6 +188,7 @@ namespace Mariasek.Engine.New
             gameType |= bid;
             _log.DebugFormat("Bidding: {0}: {1} ({2})", e.Player.Name, e.Description, bid);
             _g.BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1}\n", player.PlayerIndex + 1, e.Description);
+            e.Player.BidMade += bid == 0 ? "" : e.Description + " ";
             _g.AddBiddingDebugInfo(player.PlayerIndex);
             _g.OnBidMade(GetEventArgs(player, bid, Bids));
 

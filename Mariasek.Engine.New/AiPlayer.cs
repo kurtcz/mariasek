@@ -1651,6 +1651,7 @@ namespace Mariasek.Engine.New
                                         : _gameType == Hra.Durch 
                                             ? _durchSimulations 
                                             : _gameSimulations;
+            BidConfidence = DebugInfo.TotalRuleCount > 0 ? (float)DebugInfo.RuleCount / (float)DebugInfo.TotalRuleCount : -1;
             var allChoices = new List<RuleDebugInfo>();
             allChoices.Add(new RuleDebugInfo
             {
