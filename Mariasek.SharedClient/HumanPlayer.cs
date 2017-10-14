@@ -303,6 +303,7 @@ namespace Mariasek.SharedClient
                         temp.SetLastBidder(_aiPlayer, bid);                         //nasimulovat reakci (tato operace manipuluje s vnitrnim stavem - proto pracujeme s kopii)
                         var e = temp.GetEventArgs(_aiPlayer, bid, _previousBid);    //a zformatovat ji do stringu
 
+                        BidConfidence = _aiPlayer.DebugInfo.TotalRuleCount > 0 ? (float)_aiPlayer.DebugInfo.RuleCount / (float)_aiPlayer.DebugInfo.TotalRuleCount : -1;
 						_scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1), 
                                                string.Empty, _t1 - _t0);
                         _scene.SuggestBidsAndDoublesNew(bid);
@@ -311,7 +312,6 @@ namespace Mariasek.SharedClient
             var bd = _scene.GetBidsAndDoubles(bidding);
 
             CancelAiTask();
-            BidConfidence = _aiPlayer.DebugInfo.TotalRuleCount > 0 ? (float)_aiPlayer.DebugInfo.RuleCount / (float)_aiPlayer.DebugInfo.TotalRuleCount : -1;
             return bd;
         }
 
@@ -374,7 +374,7 @@ namespace Mariasek.SharedClient
             _previousBid = e.GameType;
         }
 
-        private void BidMade(object sender, BidEventArgs e)
+        private new void BidMade(object sender, BidEventArgs e)
         {
             _previousBid = e.BidMade;
         }

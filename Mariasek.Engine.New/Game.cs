@@ -1097,6 +1097,10 @@ namespace Mariasek.Engine.New
 						GameStartingPlayerIndex = nextPlayer.PlayerIndex;
 						trump = null;
 						TrumpCard = null;
+                        foreach (var player in players)
+                        {
+                            player.BidMade = string.Empty;
+                        }
 					}
                     OnGameFlavourChosen(new GameFlavourChosenEventArgs
                     {

@@ -563,11 +563,11 @@ namespace Mariasek.Engine.New
 					ExternalDebugString = _debugString
 				};
 
-				if (PlayerIndex == _g.OriginalGameStartingPlayerIndex && bidding.BetlDurchMultiplier == 0)
+                if (PlayerIndex == _g.OriginalGameStartingPlayerIndex && bidding.BetlDurchMultiplier == 0)
                 {
                     //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
                     //Zapamatujeme si vysledek a pouzijeme ho i v ChooseGameFlavour() a ChooseGameType()
-                    RunGameSimulations(bidding, PlayerIndex, true, true);
+                    RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, true);
                     if (Settings.CanPlayGameType[Hra.Durch] && 
                         _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
                         _durchSimulations > 0)
@@ -628,8 +628,8 @@ namespace Mariasek.Engine.New
                     DebugInfo.TotalRuleCount = _durchSimulations;
                     return GameFlavour.Bad;
                 }
-				DebugInfo.RuleCount = _betlBalance;
-                DebugInfo.TotalRuleCount = _betlSimulations;
+                DebugInfo.RuleCount = _durchSimulations - _durchBalance;
+                DebugInfo.TotalRuleCount = _durchSimulations;
                 return GameFlavour.Good;
             }
             else
@@ -707,7 +707,7 @@ namespace Mariasek.Engine.New
         }
 
         //vola se jak pro voliciho hrace tak pro oponenty 
-        private void RunGameSimulations(Bidding bidding, int GameStartingPlayerIndex, bool simulateGoodGames, bool simulateBadGames)
+        private void RunGameSimulations(Bidding bidding, int gameStartingPlayerIndex, bool simulateGoodGames, bool simulateBadGames)
         {
             var gameComputationResults = new ConcurrentQueue<GameComputationResult>();
             var durchComputationResults = new ConcurrentQueue<GameComputationResult>();
@@ -735,7 +735,7 @@ namespace Mariasek.Engine.New
                 var actualSimulations7 = 0;
 
                 _debugString.Append("Simulating good games\n");
-                Parallel.ForEach(source ?? Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType), options, (hh, loopState) =>
+                Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, Settings.SimulationsPerGameType), options, (hh, loopState) =>
                 {
                     ThrowIfCancellationRequested();
                     if (source == null)
@@ -754,7 +754,7 @@ namespace Mariasek.Engine.New
                         {
                             hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
                         }
-                        UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
+                        UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
 
                         // to ?? vypada chybne
                         var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : (Hra.Hra | Hra.SedmaProti), 10, 1);
@@ -793,7 +793,7 @@ namespace Mariasek.Engine.New
                                 hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
                             }
 
-                            UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, GameStartingPlayerIndex);
+                            UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
 
                             // to ?? vypada chybne
                             var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : (Hra.Hra | Hra.Sedma | Hra.SedmaProti), 10, 1);
@@ -830,7 +830,7 @@ namespace Mariasek.Engine.New
 				if (!fastSelection || ShouldChooseBetl())
 				{
 					_debugString.AppendFormat("Simulating betl. Fast guess: {0}\n", ShouldChooseBetl());
-					Parallel.ForEach(source ?? Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType), options, (hh, loopState) =>
+                    Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, Settings.SimulationsPerGameType), options, (hh, loopState) =>
 					{
 						if (source == null)
 						{
@@ -851,7 +851,7 @@ namespace Mariasek.Engine.New
 						{
 							UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
 						}
-						UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, GameStartingPlayerIndex);
+						UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, gameStartingPlayerIndex);
 
 						var betlComputationResult = ComputeGame(hands, null, null, null, Hra.Betl, 10, 1, true);
 						betlComputationResults.Enqueue(betlComputationResult);
@@ -888,7 +888,7 @@ namespace Mariasek.Engine.New
 				if (!fastSelection || ShouldChooseDurch())
 				{
 					_debugString.AppendFormat("Simulating durch. fast guess: {0}\n", ShouldChooseDurch());
-					Parallel.ForEach(source ?? Probabilities.GenerateHands(1, PlayerIndex, Settings.SimulationsPerGameType), (hands, loopState) =>
+                    Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, Settings.SimulationsPerGameType), (hands, loopState) =>
 					{
 						if (source == null)
 						{
@@ -903,7 +903,7 @@ namespace Mariasek.Engine.New
 						{
 							UpdateGeneratedHandsByChoosingTrumpAndTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
 						}
-						UpdateGeneratedHandsByChoosingTalon(hands, ChooseDurchTalon, GameStartingPlayerIndex);
+						UpdateGeneratedHandsByChoosingTalon(hands, ChooseDurchTalon, gameStartingPlayerIndex);
 
 						var durchComputationResult = ComputeGame(hands, null, null, null, Hra.Durch, 10, 1, true);
 						durchComputationResults.Enqueue(durchComputationResult);
@@ -941,7 +941,7 @@ namespace Mariasek.Engine.New
 
             _moneyCalculations = gameComputationResults.Where(i => (i.GameType & Hra.Sedma) == 0).Select((i, idx) =>
             {
-                var calc = new AddingMoneyCalculator(Hra.Hra, _trump ?? _g.trump, GameStartingPlayerIndex, bidding, i);
+                var calc = new AddingMoneyCalculator(Hra.Hra, _trump ?? _g.trump, gameStartingPlayerIndex, bidding, i);
 
                 calc.CalculateMoney();
 
@@ -950,7 +950,7 @@ namespace Mariasek.Engine.New
                 return calc;
             }).Union(gameComputationResults.Where(i => (i.GameType & Hra.Sedma) != 0).Select((i, idx) =>
 			{
-	            var calc = new AddingMoneyCalculator(Hra.Sedma, _trump ?? _g.trump, GameStartingPlayerIndex, bidding, i);
+	            var calc = new AddingMoneyCalculator(Hra.Sedma, _trump ?? _g.trump, gameStartingPlayerIndex, bidding, i);
 
                 calc.CalculateMoney();
                 _sevenStrings.Add(GetComputationResultString(i, calc));
@@ -958,7 +958,7 @@ namespace Mariasek.Engine.New
                 return calc;
             }).Union(durchComputationResults.Select((i, idx) =>
             {
-                var calc = new AddingMoneyCalculator(Hra.Durch, null, GameStartingPlayerIndex, bidding, i);
+                var calc = new AddingMoneyCalculator(Hra.Durch, null, gameStartingPlayerIndex, bidding, i);
                 _durchStrings.Add(GetComputationResultString(i, calc));
 
                 calc.CalculateMoney();
@@ -966,7 +966,7 @@ namespace Mariasek.Engine.New
                 return calc;
             })).Union(betlComputationResults.Select((i, idx) =>
             {
-                var calc = new AddingMoneyCalculator(Hra.Betl, null, GameStartingPlayerIndex, bidding, i);
+                var calc = new AddingMoneyCalculator(Hra.Betl, null, gameStartingPlayerIndex, bidding, i);
 
                 calc.CalculateMoney();
                 _betlStrings.Add(GetComputationResultString(i, calc));
@@ -978,34 +978,34 @@ namespace Mariasek.Engine.New
 
             Hra? goodGameType = _gameType.HasValue && (_gameType & Hra.Sedma) != 0 ? Hra.Sedma : (Hra?)null;
 
-            _gamesBalance = PlayerIndex == GameStartingPlayerIndex
+            _gamesBalance = PlayerIndex == gameStartingPlayerIndex
                             ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => i.GameWon)
                             : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => !i.GameWon);
-            _hundredsBalance = PlayerIndex == GameStartingPlayerIndex
+            _hundredsBalance = PlayerIndex == gameStartingPlayerIndex
                                 ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => i.HundredWon)
                                 : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => !i.HundredWon);
-            _hundredsAgainstBalance = PlayerIndex == GameStartingPlayerIndex
+            _hundredsAgainstBalance = PlayerIndex == gameStartingPlayerIndex
                                         ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => !i.QuietHundredAgainstWon)
                                         : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => i.QuietHundredAgainstWon);
-            _sevensBalance = PlayerIndex == GameStartingPlayerIndex
+            _sevensBalance = PlayerIndex == gameStartingPlayerIndex
                                 ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Sedma)) != 0).Count(i => i.SevenWon)
                                 : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Sedma)) != 0).Count(i => !i.SevenWon);
-            _sevensAgainstBalance = PlayerIndex == GameStartingPlayerIndex
+            _sevensAgainstBalance = PlayerIndex == gameStartingPlayerIndex
                                         ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => !i.SevenAgainstWon)
                                         : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => i.SevenAgainstWon);
-            _durchBalance = PlayerIndex == GameStartingPlayerIndex
+            _durchBalance = PlayerIndex == gameStartingPlayerIndex
                                 ? _moneyCalculations.Where(i => (i.GameType & Hra.Durch) != 0).Count(i => i.DurchWon)
                                 : _moneyCalculations.Where(i => (i.GameType & Hra.Durch) != 0).Count(i => !i.DurchWon);
-            _betlBalance = PlayerIndex == GameStartingPlayerIndex
+            _betlBalance = PlayerIndex == gameStartingPlayerIndex
                                 ? _moneyCalculations.Where(i => (i.GameType & Hra.Betl) != 0).Count(i => i.BetlWon)
                                 : _moneyCalculations.Where(i => (i.GameType & Hra.Betl) != 0).Count(i => !i.BetlWon);
-            _log.DebugFormat("** Game {0} by {1} {2} times ({3}%)", PlayerIndex == GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
+            _log.DebugFormat("** Game {0} by {1} {2} times ({3}%)", PlayerIndex == gameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
                              _gamesBalance, 100 * _gamesBalance / (_gameSimulations > 0 ? _gameSimulations : 1));
-            _log.DebugFormat("** Hundred {0} by {1} {2} times ({3}%)", PlayerIndex == GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
+            _log.DebugFormat("** Hundred {0} by {1} {2} times ({3}%)", PlayerIndex == gameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
                 _hundredsBalance, 100 * _hundredsBalance / (_gameSimulations > 0 ? _gameSimulations : 1));            //sgrupuj simulace podle vysledku skore
             _log.DebugFormat("** Hundred against won {0} times ({1}%)",
                 _hundredsAgainstBalance, 100f * _hundredsAgainstBalance / (_gameSimulations > 0 ? _gameSimulations : 1));            //sgrupuj simulace podle vysledku skore
-            _log.DebugFormat("** Seven {0} by {1} {2} times ({3}%)", PlayerIndex == GameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
+            _log.DebugFormat("** Seven {0} by {1} {2} times ({3}%)", PlayerIndex == gameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
                 _sevensBalance, 100 * _sevensBalance / (_sevenSimulations > 0 ? _sevenSimulations : 1));            //sgrupuj simulace podle vysledku skore
             _log.DebugFormat("** Seven against won {0} times ({1}%)",
                 _sevensAgainstBalance, 100 * _sevensAgainstBalance / (_gameSimulations > 0 ? _gameSimulations : 1));            //sgrupuj simulace podle vysledku skore
@@ -1762,8 +1762,7 @@ namespace Mariasek.Engine.New
             Probabilities.UpdateProbabilitiesAfterGameTypeChosen(e);
         }
 
-
-        private void BidMade (object sender, BidEventArgs e)
+        private new void BidMade (object sender, BidEventArgs e)
         {
             //spoluhrac flekoval hru nebo kilo
             if (e.Player.PlayerIndex == TeamMateIndex && (e.BidMade & (Hra.Hra | Hra.Kilo)) != 0)

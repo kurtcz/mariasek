@@ -1580,7 +1580,6 @@ namespace Mariasek.SharedClient
 			g.ThrowIfCancellationRequested();
 			_state = GameState.ChooseTrump;
 			_hand.IsEnabled = true;
-			_hintBtn.IsEnabled = false;
 			_cardClicked = null;
 			_evt.Reset();
 			ShowMsgLabel("Vyber trumfovou kartu", false);
@@ -1634,7 +1633,6 @@ namespace Mariasek.SharedClient
 			EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
 			_hand.IsEnabled = false;
-			_hintBtn.IsEnabled = true;
 			_gameFlavourChosen = (GameFlavour)(-1);
 			_evt.Reset();
 			RunOnUiThread(() =>
@@ -1698,7 +1696,6 @@ namespace Mariasek.SharedClient
 			EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
 			_hand.IsEnabled = false;
-			_hintBtn.IsEnabled = false;
 			_evt.Reset();
 			RunOnUiThread(() =>
             {
@@ -1871,14 +1868,14 @@ namespace Mariasek.SharedClient
             }
             else if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Bad || g.GameType == 0)
             {
-                var str = _gameFlavourChosenEventArgs.Flavour == GameFlavour.Good ? "Dobrá" : "Špatná";
-                ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, str);
+                ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, _gameFlavourChosenEventArgs.Flavour.Description());
                 if (e.Player.PlayerIndex != 2 && _gameFlavourChosenEventArgs.Flavour == GameFlavour.Good)
                 {
                     ShowThinkingMessage((e.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
                 }
                 if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Bad)
                 {
+                    _trumpCardChosen = null;
                     SortHand(null); //preusporadame karty
                     if (e.Player.PlayerIndex != 0 && g.OriginalGameStartingPlayerIndex == 0)
                     {
