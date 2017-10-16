@@ -1360,7 +1360,6 @@ namespace Mariasek.Engine.New
 			return gameType;
 		}
 
-        //vola se z enginu
         public override Hra ChooseGameType(Hra validGameTypes)
         {
             if (TestGameType.HasValue)
@@ -1380,12 +1379,8 @@ namespace Mariasek.Engine.New
 
             if ((validGameTypes & (Hra.Betl | Hra.Durch)) != 0)
             {
-                //pokud AI nechtel simulovat betl nebo durch ale clovek zvolil talon na betl nebo durch
-                //musime tyto hry nasimulovat ted
-                var rerunSimulations = AdvisorMode &&
-                                       validGameTypes == (Hra.Betl | Hra.Durch) &&
-                                       _betlSimulations == 0 &&
-                                       _durchSimulations == 0;
+                //pokud se AI chce rozhodovat po hlaseni spatne barvy, musi sjet simulace znovu se skutecnym talonem
+                var rerunSimulations = validGameTypes == (Hra.Betl | Hra.Durch);
 
                 if (rerunSimulations)
                 {
@@ -1401,7 +1396,7 @@ namespace Mariasek.Engine.New
                     DebugInfo.TotalRuleCount = _durchSimulations;
                 }
                 else if (Settings.CanPlayGameType[Hra.Betl] && 
-                         _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * Settings.SimulationsPerGameType)
+                         _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && _betlSimulations > 0)
                 {
                     gameType = Hra.Betl;
                     DebugInfo.RuleCount = _betlBalance;
