@@ -181,16 +181,16 @@ namespace Mariasek.Engine.New
             AdjustValidBidsForPlayer(player.PlayerIndex, bidNumber);
 
             var bid = player.GetBidsAndDoubles(this);
-            var e = GetEventArgs(player, bid, Bids);
-            
+
             //nastav priznak co hrac hlasil a flekoval
             SetLastBidder(player, bid);
             gameType |= bid;
+            var e = GetEventArgs(player, bid, Bids);
             _log.DebugFormat("Bidding: {0}: {1} ({2})", e.Player.Name, e.Description, bid);
             _g.BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1}\n", player.PlayerIndex + 1, e.Description);
             e.Player.BidMade += bid == 0 ? "" : e.Description + " ";
             _g.AddBiddingDebugInfo(player.PlayerIndex);
-            _g.OnBidMade(GetEventArgs(player, bid, Bids));
+            _g.OnBidMade(e);
 
             //return gameType;
             return bid;
