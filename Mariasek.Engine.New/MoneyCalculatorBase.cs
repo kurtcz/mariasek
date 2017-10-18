@@ -207,20 +207,13 @@ namespace Mariasek.Engine.New
 			}
             else //bad game
             {
-                foreach (var r in g.rounds)
+                if (g.GameType == Hra.Betl)
                 {
-                    if (r == null)
-                    {
-                        break;
-                    }
-                    if (g.GameType == Hra.Betl)
-                    {
-                        BetlWon = r.roundWinner != g.GameStartingPlayer;
-                    }
-                    else
-                    {
-                        DurchWon = r.roundWinner == g.GameStartingPlayer;
-                    }
+                    BetlWon = g.rounds.All(r => r.roundWinner != g.GameStartingPlayer);
+                }
+                else
+                {
+                    DurchWon = g.rounds.All(r => r.roundWinner == g.GameStartingPlayer);
                 }
             }
             MoneyWon = new int[Game.NumPlayers];

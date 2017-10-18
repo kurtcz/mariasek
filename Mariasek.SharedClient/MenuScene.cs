@@ -115,11 +115,14 @@ namespace Mariasek.SharedClient
                 Text = "©2017 Tomáš Němec",
 				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Bottom
             };
-			SoundEffect.MasterVolume = Game.Settings.SoundEnabled ? 1f : 0f;
-			Game.AmbientSound.Volume = Game.Settings.BgSoundEnabled ? 0.2f : 0f;
-            Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Game.Settings.BgSoundEnabled ? 0.1f : 0f;
-			Microsoft.Xna.Framework.Media.MediaPlayer.Play(Game.NaPankraciSong);
-			Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
+            SoundEffect.MasterVolume = Game.Settings.SoundEnabled ? 1f : 0f;
+            if (Game.AmbientSound != null && !Game.AmbientSound.IsDisposed)
+            {
+                Game.AmbientSound.Volume = Game.Settings.BgSoundEnabled ? 0.2f : 0f;
+                Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Game.Settings.BgSoundEnabled ? 0.1f : 0f;
+                Microsoft.Xna.Framework.Media.MediaPlayer.Play(Game.NaPankraciSong);
+                Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
+            }
 		}
 
 		void LogoClicked(object sender)

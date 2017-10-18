@@ -423,9 +423,12 @@ namespace Mariasek.SharedClient
 				AmbientSound.Volume = Settings.BgSoundEnabled ? 0.2f : 0f;
 				AmbientSound.PlaySafely();
 			}
-            Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Settings.BgSoundEnabled ? 0.1f : 0f;
-			Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
-            Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
+            if (NaPankraciSong != null && !NaPankraciSong.IsDisposed)
+            {
+                Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Settings.BgSoundEnabled ? 0.1f : 0f;
+                Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
+                Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
+            }
 		}
 
         private void GamePaused()

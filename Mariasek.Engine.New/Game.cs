@@ -785,7 +785,7 @@ namespace Mariasek.Engine.New
                 }
                 if (RoundNumber > 0 && talon.Count() != 2)
                 {
-                    throw new InvalidOperationException($"Bad talon count: {talon.Count()}");
+                    throw new InvalidOperationException($"Bad talon count: {talon.Count()} hands: {players[0].Hand.Count()} {players[1].Hand.Count()} {players[2].Hand.Count()}");
                 }
 			}
 		}
@@ -1080,6 +1080,10 @@ namespace Mariasek.Engine.New
                 {
                     talon = GameStartingPlayer.ChooseTalon();
                     GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
+                    if (talon == null || talon.Count() != 2)
+                    {
+                        throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex + 1} during ChooseGame(): {talon.Count()}");
+                    }
 					BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
 					if (talon.Any(i => !IsValidTalonCard(i))) //pokud je v talonu eso nebo desitka, musime hrat betla nebo durch
                     {
@@ -1146,7 +1150,11 @@ namespace Mariasek.Engine.New
 						talon = GameStartingPlayer.ChooseTalon();
                         GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
 						BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
-						if (GameStartingPlayer.Hand.Count() != 10)
+                        if (talon == null || talon.Count() != 2)
+                        {
+                            throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex+1} during ChooseGame(): {talon.Count()}");
+                        }
+                        if (GameStartingPlayer.Hand.Count() != 10)
                         {
                             throw new InvalidOperationException("Invalid card count during ChooseGame()");
                         }
@@ -1231,10 +1239,25 @@ namespace Mariasek.Engine.New
                         firstSuit = trump;
                         lastSuit = null;
                     }
-                    else
+                    else if (trump.HasValue)
                     {
                         firstSuit = null;
                         lastSuit = trump;
+                    }
+                    else if (GameType == Hra.Betl)
+                    {
+                        firstSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                        .FirstOrDefault(b => players[player1].Hand.HasSuit(b) &&
+                                                        (players[player2].Hand.HasSuit(b) ||
+                                                         players[player3].Hand.HasSuit(b)));
+                        lastSuit = null;
+                    }
+                    else
+                    {
+                        firstSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                        .OrderByDescending(b => players[player1].Hand.CardCount(b))
+                                        .FirstOrDefault();
+                        lastSuit = null;
                     }
                     var c1 = AbstractPlayer.ValidCards(players[player1].Hand, trump, GameType, players[player1].TeamMateIndex)
                                            .Sort(false, (GameType & (Hra.Betl | Hra.Durch)) != 0, firstSuit, lastSuit)
