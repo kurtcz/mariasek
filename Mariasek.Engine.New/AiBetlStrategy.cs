@@ -435,11 +435,27 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 3,
+                Description = "Hrát nízkou kartu",
+                ChooseCard2 = (Card c1) =>
+                {
+                    if (TeamMateIndex == player1)
+                    {
+                        return ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == c1.Suit)
+                                                             .OrderBy(i => i.BadValue)
+                                                             .FirstOrDefault();
+                    }
+                    return null;
+                }
+            };
+
+            yield return new AiRule()
+            {
+                Order = 4,
                 Description = "Hrát vysokou kartu",
                 ChooseCard2 = (Card c1) =>
                 {
                     return ValidCards(c1, hands[MyIndex]).OrderByDescending(i => i.BadValue)
-                                                         .ThenByDescending(i => hands[MyIndex].CardCount(i.Suit))
+                                                         .ThenBy(i => hands[MyIndex].CardCount(i.Suit))
                                                          .FirstOrDefault();
                 }
             };
@@ -545,7 +561,7 @@ namespace Mariasek.Engine.New
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     return ValidCards(c1, c2, hands[MyIndex]).OrderByDescending(i => i.BadValue)
-                                                             .ThenByDescending(i => hands[MyIndex].CardCount(i.Suit))
+                                                             .ThenBy(i => hands[MyIndex].CardCount(i.Suit))
                                                              .FirstOrDefault();
 				}
             };

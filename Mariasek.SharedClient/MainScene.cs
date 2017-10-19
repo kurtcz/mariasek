@@ -400,7 +400,7 @@ namespace Mariasek.SharedClient
             _okBtn = new Button(this)
             {
                 Text = "OK",
-                Position = new Vector2(Game.VirtualScreenWidth / 2f - 50, Game.VirtualScreenHeight / 2f - 100),
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 50, Game.VirtualScreenHeight / 2f - 90),
                 //Position = new Vector2(10, 60),
                 IsEnabled = false,
                 ZIndex = 100
@@ -1364,13 +1364,18 @@ namespace Mariasek.SharedClient
                             _talon.Remove(cardClicked);
                         }
                         _okBtn.IsEnabled = _talon.Count == 2;
-                        if (_talon.Any(i => !g.IsValidTalonCard(i)))
+                        if (!_trumpCardTakenBack)
                         {
-                            ShowMsgLabel("Vyber si talon\nS tímto talonem musíš hrát betl nebo durch", false);
-                        }
-                        else
-                        {
-                            ShowMsgLabel("Vyber si talon", false);
+                            if (_talon.Any(i => !g.IsValidTalonCard(i) &&
+                                                i != g.TrumpCard))
+                            {
+                                _msgLabelSmall.Text = "\n\nS tímto talonem musíš hrát betl nebo durch";
+                                _msgLabelSmall.Show();
+                            }
+                            else
+                            {
+                                _msgLabelSmall.Hide();
+                            }
                         }
                         break;
                     case GameState.ChooseTrump:
@@ -1481,6 +1486,8 @@ namespace Mariasek.SharedClient
                 button.Hide();
 				button.Position = origPosition;
 				UpdateHand();
+                _msgLabelSmall.Text = "\n\nBez trumfů musíš hrát betl nebo durch";
+                _msgLabelSmall.Show();
             }
             else
             {
@@ -1595,6 +1602,12 @@ namespace Mariasek.SharedClient
 			_evt.Reset();
 			_talon = new List<Card>();
             ShowMsgLabel("Vyber si talon", false);
+            if (_trumpCardChosen != null &&
+                (Game.Money == null || Game.Money.Count() % 5 == 0))
+            {
+                _msgLabelSmall.Text = "\n\nTrumfovou kartu můžeš přetáhnout zpět do ruky";
+                _msgLabelSmall.Show();
+            }
             _okBtn.Show();
             _okBtn.IsEnabled = false;
 			_state = GameState.ChooseTalon;
@@ -2699,13 +2712,15 @@ namespace Mariasek.SharedClient
 			}
 		}
 
-		public void SuggestCardToPlay(Card cardToPlay, string hint, int? t = null)
+		public void SuggestCardToPlay(Card cardToPlay, string hint, string rule, int? t = null)
         {
             _progress1.Progress = _progress1.Max;
             _hintBtn.IsEnabled = true;
             HintBtnFunc = () =>
             {
                 ShowMsgLabel(hint, false);
+                _msgLabelSmall.Text = $"\n\n{rule}";
+                _msgLabelSmall.Show();
                 if (!_hand.HighlightCard(cardToPlay))
                 {
                     var msg = string.Format("Chyba simulace: hráč nemá {0}", cardToPlay);

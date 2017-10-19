@@ -175,6 +175,7 @@ namespace Mariasek.Engine.New
         public Game()
         {
             BaseBet = 1f;
+            GameTypeConfidence = -1f;
             BiddingDebugInfo = new StringBuilder();
 			DebugString = new StringBuilder();
 #if PORTABLE

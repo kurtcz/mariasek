@@ -350,11 +350,9 @@ namespace Mariasek.SharedClient
                     { 
 						_t1 = Environment.TickCount;
                         var cardToplay = _aiPlayer.PlayCard(r);
-                        //var hint = string.Format("{2}\n{0} ({1}%)\n", _aiPlayer.DebugInfo.Rule, _aiPlayer.DebugInfo.TotalRuleCount > 0 ?100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1, _aiPlayer.DebugInfo.Card);
-                        var hint = string.Format("{0}\n{1}", _aiPlayer.DebugInfo.Card, _aiPlayer.DebugInfo.Rule);
-
+                        
                         _scene.SimulatedSuccessRate = _aiPlayer.DebugInfo.TotalRuleCount > 0 ? _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1;
-                        _scene.SuggestCardToPlay(_aiPlayer.DebugInfo.Card, hint, _t1 - _t0);
+                        _scene.SuggestCardToPlay(_aiPlayer.DebugInfo.Card, _aiPlayer.DebugInfo.Card.ToString(), _aiPlayer.DebugInfo.Rule, _t1 - _t0);
                     }, _cancellationTokenSource.Token);
             }
             while (true)
