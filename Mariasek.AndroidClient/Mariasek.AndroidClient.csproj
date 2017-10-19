@@ -79,9 +79,6 @@
     <AndroidAsset Include="..\Mariasek.Content\BMFont.fnt">
       <Link>Assets\Content\BMFont.fnt</Link>
     </AndroidAsset>
-    <AndroidAsset Include="..\Mariasek.Content\LuckiestGuy32Outl.fnt">
-      <Link>Assets\Content\LuckiestGuy32Outl.fnt</Link>
-    </AndroidAsset>
     <AndroidAsset Include="..\Mariasek.Content\SegoeUI40Outl.fnt">
       <Link>Assets\Content\SegoeUI40Outl.fnt</Link>
     </AndroidAsset>

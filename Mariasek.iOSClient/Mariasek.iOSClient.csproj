@@ -99,9 +99,6 @@
     <None Include="..\Mariasek.Content\BMFont.fnt">
       <Link>Content\BMFont.fnt</Link>
     </None>
-    <None Include="..\Mariasek.Content\LuckiestGuy32Outl.fnt">
-      <Link>Content\LuckiestGuy32Outl.fnt</Link>
-    </None>
     <None Include="..\Mariasek.Content\SegoeUI40Outl.fnt">
       <Link>Content\SegoeUI40Outl.fnt</Link>
     </None>

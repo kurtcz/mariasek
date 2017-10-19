@@ -968,68 +968,53 @@ namespace Mariasek.SharedClient
             var origPosition = new Vector2(160, 45);
             var hiddenPosition = new Vector2(160, 45 + Game.VirtualScreenHeight);
 
-            if (_review == null || !_review.IsVisible)
+            RunOnUiThread(() =>
             {
-                if (g.IsRunning)
+                if (_review == null || !_review.IsVisible)
                 {
-                    Task.Run(() =>
+                    if (g.IsRunning)
                     {
                         RefreshReview();
                         _review.Opacity = 0f;
                         _review.Show();
                         _review.FadeIn(4f);
-                    });
-                }
-                else
-                {
-                    _reviewGameBtn.Text = "Vyúčtování";
-                    HideGameScore();
-                    _totalBalance//.WaitUntil(() => !_totalBalance.IsVisible)
-                                 .Invoke(() =>
-                                 {
-                                     if (_review == null)
-                                     {
-                                         RefreshReview();
-                                     }
-                                     //_review.Opacity = 0f;
-                                     //_review.Show();
-                                     //_review.FadeIn(4f);
-                                     _review.Position = hiddenPosition;
-                                     _review.Show();
-                                     _review.MoveTo(origPosition, 2000);
-                                 });
-                }
-                _hand.IsEnabled = false;
-            }
-            else
-            {
-                _hand.IsEnabled = true;
-                if (g.IsRunning)
-                {
-                    _review.Opacity = 1f;
-                    _review.Show();
-                    _review.FadeOut(4f)
-                           .Invoke(() => _review.Hide());
-                }
-                else
-                {
-                    _reviewGameBtn.Text = "Průběh hry";
-                    //_review.Opacity = 1f;
-                    //_review.Show();
-                    //_review.FadeOut(4f)
-                    //       .Invoke(() =>
-                    //{
-                    //    _review.Hide();
-                    //    ShowGameScore();
-                    //});
-                    _review.MoveTo(hiddenPosition, 2000)
-                           .Invoke(() =>
+                    }
+                    else
                     {
-                        _review.Hide();
-                    });
-                    ShowGameScore();
+                        _reviewGameBtn.Text = "Vyúčtování";
+                        HideGameScore();
+                        if (_review == null)
+                        {
+                            RefreshReview();
+                        }
+                        _review.Position = hiddenPosition;
+                        _review.Show();
+                        _review.MoveTo(origPosition, 2000);
+                    }
+                    _hand.IsEnabled = false;
                 }
-            }
+                else
+                {
+                    _hand.IsEnabled = true;
+                    if (g.IsRunning)
+                    {
+                        _review.Opacity = 1f;
+                        _review.Show();
+                        _review.FadeOut(4f)
+                               .Invoke(() => _review.Hide());
+                    }
+                    else
+                    {
+                        _reviewGameBtn.Text = "Průběh hry";
+                        _review.MoveTo(hiddenPosition, 2000)
+                               .Invoke(() =>
+                        {
+                            _review.Hide();
+                        });
+                        ShowGameScore();
+                    }
+                }
+            });
         }
 
         public void RepeatGameBtnClicked(object sender)

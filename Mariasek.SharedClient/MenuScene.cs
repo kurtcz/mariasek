@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using Mariasek.SharedClient.GameComponents;
 using System;
+using System.Collections.Generic;
 
 namespace Mariasek.SharedClient
 {
