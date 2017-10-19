@@ -208,11 +208,11 @@ namespace Mariasek.Engine.New
                 //zajistime aby 2. souper nemohl znovu flekovat co uz fleknul 1. souper
                 if (_g.players[(playerIndex + 2) % Game.NumPlayers].TeamMateIndex != -1)
                 {
-                    Bids = PlayerBids[_g.GameStartingPlayerIndex] & ((Hra)~0 ^ PlayerBids[(playerIndex + 2) % Game.NumPlayers]);
-//                    if ((PlayerBids[(playerIndex + 2) % Game.NumPlayers] & Hra.KiloProti) != 0)
-//                    {
-//                        Bids &= (Hra)~Hra.Hra; //u kila proti uz nejde dat flek na hru
-//                    }
+                    Bids = PlayerBids[_g.GameStartingPlayerIndex] & ~PlayerBids[(playerIndex + 2) % Game.NumPlayers];
+                    if ((PlayerBids[(playerIndex + 2) % Game.NumPlayers] & Hra.KiloProti) != 0)
+                    {
+                        Bids &= (Hra)~Hra.Hra; //u kila proti uz nejde dat flek na hru
+                    }
                 }
                 else
                 {
@@ -226,13 +226,19 @@ namespace Mariasek.Engine.New
                 Bids = PlayerBids[(playerIndex + 1) % Game.NumPlayers] | PlayerBids[(playerIndex + 2) % Game.NumPlayers];
             }
             //v prvnim kole muzou souperi hlasit 100/7 proti
-            if (_g.trump.HasValue && bidNumber < Game.NumPlayers && _g.players[playerIndex].TeamMateIndex != -1)
+            if (_g.trump.HasValue &&
+                bidNumber < Game.NumPlayers && 
+                _g.players[playerIndex].TeamMateIndex != -1)
             {
                 if (_g.players[playerIndex].Hand.Contains(new Card(_g.trump.Value, Hodnota.Sedma)))
                 {
                     Bids |= Hra.SedmaProti;
                 }
-                Bids |= Hra.KiloProti;
+                if (_g.players[playerIndex].TeamMateIndex == (playerIndex + 1) % Game.NumPlayers ||
+                    (PlayerBids[_g.players[playerIndex].TeamMateIndex] & Hra.KiloProti) == 0)
+                {
+                    Bids |= Hra.KiloProti;
+                }
             }
         }
 

@@ -502,9 +502,12 @@ namespace Mariasek.SharedClient.GameComponents
 						Scale = reviewCardScaleFactor
                     };
                     if ((Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
-                        Game.MainScene.g.rounds[0] != null &&
                         (hand[j].Value == Hodnota.Eso ||
-                         hand[j].Value == Hodnota.Desitka))
+                         hand[j].Value == Hodnota.Desitka) &&
+                        Game.MainScene.g.rounds.Any(k => k != null &&
+                                                         (k.c1 == hand[j] ||
+                                                          k.c2 == hand[j] ||
+                                                          k.c3 == hand[j])))
                     {
 						var roundWinner = Game.MainScene.g.rounds.First(k => k != null &&
                                                                              (k.c1 == hand[j] ||

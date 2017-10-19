@@ -1726,23 +1726,25 @@ namespace Mariasek.SharedClient
 			_hand.IsEnabled = false;
 			_hand.AnimationEvent.Wait();
 			_bid = 0;
-			RunOnUiThread(() =>
+            if (bidding.Bids != 0)
             {
-				this.Invoke(() =>
+                RunOnUiThread(() =>
                 {
-                    ShowBidButtons(bidding);
-                    _okBtn.IsEnabled = true;
-                    _okBtn.Show();
+                    this.Invoke(() =>
+                    {
+                        ShowBidButtons(bidding);
+                        _okBtn.IsEnabled = true;
+                        _okBtn.Show();
+                    });
                 });
-            });
-            WaitForUIThread();
-
+                WaitForUIThread();
+                RunOnUiThread(() =>
+                {
+                    this.ClearOperations();
+                    HideBidButtons();
+                });
+            }
             _state = GameState.NotPlaying;
-			RunOnUiThread(() =>
-            {
-                this.ClearOperations();
-                HideBidButtons();
-            });
             g.ThrowIfCancellationRequested();
 
             return _bid;
