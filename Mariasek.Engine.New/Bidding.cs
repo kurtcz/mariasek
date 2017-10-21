@@ -309,6 +309,19 @@ namespace Mariasek.Engine.New
                     }
                 }
             }
+            else if ((e.BidMade & Hra.Sedma) != 0 &&
+                     (e.BidMade & Hra.KiloProti) != 0)
+            {
+                switch (HundredAgainstMultiplier)
+                {
+                    case 1:
+                        e.Description = "Na sedmu a kilo proti";
+                        break;
+                    default:
+                        e.Description = "Na oboje vejš";
+                        break;
+                }
+            }
             else if ((e.BidMade & Hra.Sedma) != 0)
             {
                 switch (SevenMultiplier)

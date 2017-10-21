@@ -1486,6 +1486,7 @@ namespace Mariasek.SharedClient
                 button.Hide();
 				button.Position = origPosition;
 				UpdateHand();
+                SuggestGameTypeNew(Hra.Betl);
                 _msgLabelSmall.Text = "\n\nBez trumfů musíš hrát betl nebo durch";
                 _msgLabelSmall.Show();
             }
