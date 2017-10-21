@@ -179,7 +179,7 @@ namespace Mariasek.SharedClient
 								//dej 2 karty z ruky do talonu aby byl _aiPlayer v aktualnim stavu
                                 _aiPlayer._talon = _talon;
                                 _aiPlayer.Hand = Hand;
-                                var flavour = _aiPlayer.ChooseGameFlavour(); //uvnitr se zvoli talon, ale clovek muze ve skutecnosti volit jinak nez ai!!!
+                                var flavour = _scene.TrumpCardTakenBack ? GameFlavour.Bad : _aiPlayer.ChooseGameFlavour(); //uvnitr se zvoli talon, ale clovek muze ve skutecnosti volit jinak nez ai!!!
                                 if (flavour == GameFlavour.Good)
                                 {
                                     validGameTypes &= ((Hra)~0 ^ (Hra.Betl | Hra.Durch));
@@ -189,7 +189,7 @@ namespace Mariasek.SharedClient
                                     validGameTypes &= (Hra.Betl | Hra.Durch);
                                 }
                                 var gameType = _aiPlayer.ChooseGameType(validGameTypes);
-                                var e = _g.Bidding.GetEventArgs(_aiPlayer, gameType, 0);
+                                //var e = _g.Bidding.GetEventArgs(_aiPlayer, gameType, 0);
                                 var msg = new StringBuilder();
                                 var k = 0;
                                 foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(j => j.RuleCount > 0))
@@ -203,7 +203,7 @@ namespace Mariasek.SharedClient
                                         msg.AppendFormat(string.Format("{0}{1}", debugInfo.Rule, (k++) % 2 == 1 ? "\n" : "\t"));
                                     }
     							}
-                                _scene.SuggestGameType(e.Description, msg.ToString().TrimEnd(), _t1-_t0);
+                                _scene.SuggestGameType(gameType.ToDescription(_trump), msg.ToString().TrimEnd(), _t1-_t0);
                                 _scene.SuggestGameTypeNew(gameType);
                                 _scene.SuggestGameFlavourNew(gameType);
                                 //nasimulovany talon musime nahradit skutecnym pokud ho uz znam, jinak to udelam v ChooseTalon
@@ -244,7 +244,7 @@ namespace Mariasek.SharedClient
                                            ? string.Format("{0} ({1}%)\n", flavour.Description(),  100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount)
                                            : string.Format("{0}\n", flavour.Description());
 
-						_scene.SuggestGameFlavour(msg, _t1 - _t0);
+                        _scene.SuggestGameFlavour(msg.TrimEnd(), _t1 - _t0);
                         _scene.SuggestGameFlavourNew(flavour);
                         //nasimulovany talon musime nahradit skutecnym pokud ho uz znam, jinak to udelam v ChooseTalon
                         if(_talon != null)
@@ -271,34 +271,34 @@ namespace Mariasek.SharedClient
             }
             if (_aiPlayer != null)
             {
-				//var gt2 = _aiPlayer.ChooseGameTypeNew(validGameTypes);
-				//_scene.SuggestGameTypeNew(gt2);
+                //var gt2 = _aiPlayer.ChooseGameTypeNew(validGameTypes);
+                //_scene.SuggestGameTypeNew(gt2);
 
-				_t0 = Environment.TickCount;
+                _t0 = Environment.TickCount;
                 _aiTask = Task.Run(() =>
-                    { 
-						_t1 = Environment.TickCount;
-                        var gameType = _aiPlayer.ChooseGameType(validGameTypes);
-                        var temp = new Bidding(_g.Bidding);
-                        temp.SetLastBidder(_aiPlayer, gameType);
-                        var e = temp.GetEventArgs(_aiPlayer, gameType, 0);
-                        //var msg = new StringBuilder(string.Format("{0} ({1}%)\n", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1));
-                        var msg = new StringBuilder();
-                        var k = 0;
-                        foreach(var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(i => i.RuleCount > 0))
+                {
+                    _t1 = Environment.TickCount;
+                    var gameType = _aiPlayer.ChooseGameType(validGameTypes);
+                    //var temp = new Bidding(_g.Bidding);
+                    //temp.SetLastBidder(_aiPlayer, gameType);
+                    //var e = temp.GetEventArgs(_aiPlayer, gameType, 0);
+                    //var msg = new StringBuilder(string.Format("{0} ({1}%)\n", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1));
+                    var msg = new StringBuilder();
+                    var k = 0;
+                    foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(i => i.RuleCount > 0))
+                    {
+                        if (debugInfo.TotalRuleCount > 0)
                         {
-                            if (debugInfo.TotalRuleCount > 0)
-                            {
-                                msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (k++) % 2 == 1 ? "\n" : "\t"));
-                            }
-                            else
-                            {
-                                msg.AppendFormat(string.Format("{0}{1}", debugInfo.Rule, (k++) % 2 == 1 ? "\n" : "\t"));   
-                            }
+                            msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (k++) % 2 == 1 ? "\n" : "\t"));
                         }
-                        _scene.SuggestGameType(e.Description, msg.ToString().TrimEnd(), _t1 - _t0);
-                        _scene.SuggestGameTypeNew(gameType);
-                    }, _cancellationTokenSource.Token);
+                        else
+                        {
+                            msg.AppendFormat(string.Format("{0}{1}", debugInfo.Rule, (k++) % 2 == 1 ? "\n" : "\t"));
+                        }
+                    }
+                    _scene.SuggestGameType(gameType.ToDescription(_trump), msg.ToString().TrimEnd(), _t1 - _t0);
+                    _scene.SuggestGameTypeNew(gameType);
+                }, _cancellationTokenSource.Token);
             }
             var gt = _scene.ChooseGameType(validGameTypes);
 

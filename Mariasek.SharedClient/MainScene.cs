@@ -129,7 +129,7 @@ namespace Mariasek.SharedClient
         private volatile Card _cardClicked;
         private volatile Card _trumpCardChosen;
         private volatile List<Card> _talon;
-        private bool _trumpCardTakenBack;
+        public bool TrumpCardTakenBack { get; private set; }
         public float SimulatedSuccessRate;
         private Vector2 _msgLabelLeftOrigPosition;
         private Vector2 _msgLabelLeftHiddenPosition;
@@ -1108,7 +1108,7 @@ namespace Mariasek.SharedClient
                 g.players[2].GameComputationProgress += GameComputationProgress;
                 _firstTimeGameFlavourChosen = true;
                 _trumpCardChosen = null;
-                _trumpCardTakenBack = false;
+                TrumpCardTakenBack = false;
                 _state = GameState.NotPlaying;
 
                 ClearTable(true);
@@ -1364,7 +1364,7 @@ namespace Mariasek.SharedClient
                             _talon.Remove(cardClicked);
                         }
                         _okBtn.IsEnabled = _talon.Count == 2;
-                        if (!_trumpCardTakenBack)
+                        if (!TrumpCardTakenBack)
                         {
                             if (_talon.Any(i => !g.IsValidTalonCard(i) &&
                                                 i != g.TrumpCard))
@@ -1481,12 +1481,12 @@ namespace Mariasek.SharedClient
 
             if (e.DragEndLocation.Y > _hand.BoundsRect.Top)
             {
-                _trumpCardTakenBack = true;
+                TrumpCardTakenBack = true;
                 _talon.Clear();
                 button.Hide();
 				button.Position = origPosition;
 				UpdateHand();
-                SuggestGameTypeNew(Hra.Betl);
+
                 _msgLabelSmall.Text = "\n\nBez trumfů musíš hrát betl nebo durch";
                 _msgLabelSmall.Show();
             }
@@ -1606,7 +1606,7 @@ namespace Mariasek.SharedClient
             if (_trumpCardChosen != null &&
                 (Game.Money == null || Game.Money.Count() % 5 == 0))
             {
-                _msgLabelSmall.Text = "\n\nTrumfovou kartu můžeš přetáhnout zpět do ruky";
+                _msgLabelSmall.Text = "\n\n\nTrumfovou kartu můžeš přetáhnout zpět do ruky";
                 _msgLabelSmall.Show();
             }
             _okBtn.Show();
@@ -1674,12 +1674,16 @@ namespace Mariasek.SharedClient
 			UpdateHand(cardToHide: _trumpCardChosen); //abych nevidel karty co jsem hodil do talonu
             this.Invoke(() =>
             {
-                if (_trumpCardTakenBack)
+                if (TrumpCardTakenBack)
                 {
                     validGameTypes &= Hra.Betl | Hra.Durch;
                 }
                 foreach (var gtButton in gtButtons)
-                {                    
+                {
+                    if ((validGameTypes & (Hra)gtButton.Tag) == 0)
+                    {
+                        gtButton.BorderColor = Color.White;
+                    }
                     gtButton.IsEnabled = ((Hra)gtButton.Tag & validGameTypes) == (Hra)gtButton.Tag;
                     gtButton.Show();
                 }
@@ -2324,7 +2328,7 @@ namespace Mariasek.SharedClient
                     g.players[2].GameComputationProgress += GameComputationProgress;
                     _firstTimeGameFlavourChosen = true;
                     _trumpCardChosen = null;
-                    _trumpCardTakenBack = false;
+                    TrumpCardTakenBack = false;
                     _state = GameState.NotPlaying;
 
                     CurrentStartingPlayerIndex = g.GameStartingPlayerIndex;
@@ -2646,27 +2650,29 @@ namespace Mariasek.SharedClient
             if (Game.Settings.HintEnabled)
             {
                 _hintBtn.IsEnabled = true;
-                HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", flavour), false);
+                HintBtnFunc = () => ShowMsgLabel(string.Format("Nápověda: {0}", flavour), false);
             }
         }
 
         public void SuggestGameType(string gameType, string allChoices, int? t = null)
         {
             _progress1.Progress = _progress1.Max;
-            _hintBtn.IsEnabled = true;
-            HintBtnFunc = () =>
+            if (Game.Settings.HintEnabled)
             {
-                ShowMsgLabel(string.Format("Nápověda:\n{0}", gameType), false);
-                _msgLabelSmall.Text = string.Format("\n\n\n\n{0}", allChoices);
-                _msgLabelSmall.Show();
-            };
+                _hintBtn.IsEnabled = true;
+                HintBtnFunc = () =>
+                {
+                    ShowMsgLabel(string.Format("Nápověda: {0}", gameType), false);
+                    _msgLabelSmall.Text = string.Format("\n\n\n{0}", allChoices);
+                    _msgLabelSmall.Show();
+                };
+            }
         }
 
         public void SuggestGameTypeNew(Hra gameType)
         {
             foreach (var gtButton in gtButtons)
             {
-                //if ((gameType & (Hra)gtButton.Tag) == (Hra)gtButton.Tag)
                 if (gameType == (Hra)gtButton.Tag)
                 {
                     gtButton.BorderColor = Color.Green;
@@ -2695,7 +2701,7 @@ namespace Mariasek.SharedClient
         {
             _progress1.Progress = _progress1.Max;
             _hintBtn.IsEnabled = true;
-            HintBtnFunc = () => ShowMsgLabel(string.Format("\n\nNápověda:\n{0}", bid), false);
+            HintBtnFunc = () => ShowMsgLabel(string.Format("Nápověda: {0}", bid), false);
         }
 
 		public void SuggestBidsAndDoublesNew(Hra bid)
