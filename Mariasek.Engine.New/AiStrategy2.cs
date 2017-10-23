@@ -545,7 +545,7 @@ namespace Mariasek.Engine.New
 						}
                     }
 
-                    return cardsToPlay.ToList().RandomOneOrDefault();
+                    return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
                 }
             };
 
