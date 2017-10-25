@@ -1269,7 +1269,7 @@ namespace Mariasek.SharedClient
                 Game.EmailSender.SendEmail(
                     new[] { "mariasek.app@gmail.com" },
                     "Mariasek crash report", msg2,
-                    new[] { _newGameFilePath, _errorFilePath, SettingsScene._settingsFilePath });
+                    new[] { _newGameFilePath, _errorFilePath, _errorMsgFilePath, SettingsScene._settingsFilePath });
             }
         }
 
@@ -2143,7 +2143,6 @@ namespace Mariasek.SharedClient
 				Game.Money.Add(results);
 				SaveHistory();
             }
-
             EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
             RunOnUiThread(() =>

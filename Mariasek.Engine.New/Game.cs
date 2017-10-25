@@ -275,6 +275,7 @@ namespace Mariasek.Engine.New
 
             _log.Init();
             _log.Info("********");
+            DebugString.AppendLine("*NewGame*");
             BiddingDebugInfo.Clear();
 
             RoundNumber = 0;
@@ -331,6 +332,7 @@ namespace Mariasek.Engine.New
         {
             _log.Init();
             _log.Info("********");
+            DebugString.AppendLine("*LoadGame*");
 #if !PORTABLE
             var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 #if DEBUG
@@ -438,6 +440,7 @@ namespace Mariasek.Engine.New
                 OnRoundFinished(r);
             }
             RoundNumber = gameData.Kolo;
+            DebugString.AppendLine($"Loaded round {RoundNumber}");
             if (RoundNumber > 0 && 
                 ((talon == null || !talon.Any()) ||
                  GameType == 0 ||
@@ -539,11 +542,10 @@ namespace Mariasek.Engine.New
                         Pocet = flek - 1
                     };
                 }).ToArray();
-                if (fleky.All(i => i.Pocet == 0))
+                if (fleky.All(i => i.Pocet <= 0))
                 {
                     fleky = new Flek[0];
                 }
-                RoundSanityCheck();
                 var gameDto = new GameDto
                 {
                     Kolo = roundNumber,
@@ -556,19 +558,19 @@ namespace Mariasek.Engine.New
                     BiddingNotes = BiddingDebugInfo?.ToString(),
                     Komentar = Comment,
                     Hrac1 = players[0].Hand
-                        .Select(i => new Karta
+                        ?.Select(i => new Karta
                         {
                             Barva = i.Suit,
                             Hodnota = i.Value
                         }).ToArray(),
                     Hrac2 = players[1].Hand
-                        .Select(i => new Karta
+                        ?.Select(i => new Karta
                         {
                             Barva = i.Suit,
                             Hodnota = i.Value
                         }).ToArray(),
                     Hrac3 = players[2].Hand
-                        .Select(i => new Karta
+                        ?.Select(i => new Karta
                         {
                             Barva = i.Suit,
                             Hodnota = i.Value
@@ -587,38 +589,47 @@ namespace Mariasek.Engine.New
                             Hodnota = i.Value
                         })?.ToArray()
                 };
-                foreach (var stych in gameDto.Stychy)
+                foreach (var stych in gameDto.Stychy.Where(i => i != null))
                 {
                     var r = rounds[stych.Kolo - 1];
+                    if (r == null)
+                    {
+                        continue;
+                    }
                     var cards = new[] { r.c1, r.c2, r.c3 };
                     var debugInfo = new[] { r.debugNote1, r.debugNote2, r.debugNote3 };
                     var playerIndices = new[] { r.player1.PlayerIndex, r.player2.PlayerIndex, r.player3.PlayerIndex };
 
-                    if (r.c3 == null)
-                    {
-                        break;
-                    }
                     var index = Array.IndexOf(playerIndices, 0);
-                    stych.Hrac1 = new Karta
+                    if (cards[index] != null)
                     {
-                        Barva = cards[index].Suit,
-                        Hodnota = cards[index].Value,
-                        Poznamka = debugInfo[index]
-                    };
+                        stych.Hrac1 = new Karta
+                        {
+                            Barva = cards[index].Suit,
+                            Hodnota = cards[index].Value,
+                            Poznamka = debugInfo[index]
+                        };
+                    }
                     index = Array.IndexOf(playerIndices, 1);
-                    stych.Hrac2 = new Karta
+                    if (cards[index] != null)
                     {
-                        Barva = cards[index].Suit,
-                        Hodnota = cards[index].Value,
-                        Poznamka = debugInfo[index]
-                    };
+                        stych.Hrac2 = new Karta
+                        {
+                            Barva = cards[index].Suit,
+                            Hodnota = cards[index].Value,
+                            Poznamka = debugInfo[index]
+                        };
+                    }
                     index = Array.IndexOf(playerIndices, 2);
-                    stych.Hrac3 = new Karta
+                    if (cards[index] != null)
                     {
-                        Barva = cards[index].Suit,
-                        Hodnota = cards[index].Value,
-                        Poznamka = debugInfo[index]
-                    };
+                        stych.Hrac3 = new Karta
+                        {
+                            Barva = cards[index].Suit,
+                            Hodnota = cards[index].Value,
+                            Poznamka = debugInfo[index]
+                        };
+                    }
                 }
                 if (Results != null)
                 {
@@ -657,11 +668,23 @@ namespace Mariasek.Engine.New
             }
         }
 
+        private void LogHands()
+        {
+            for (var i = 0; i < NumPlayers; i++)
+            {
+                var handstr = players[i].Hand != null ? new Hand(players[i].Hand).ToString() : "(null)";
+                DebugString.AppendLine($"Player{i + 1}: {handstr}");
+            }
+            var talonstr = talon != null ? new Hand(talon).ToString() : "(null)";
+            DebugString.AppendLine($"Talon: {talonstr}");
+        }
+
         public void PlayGame(CancellationToken cancellationToken = default(CancellationToken))
         {
             try
             {
                 CancellationToken = cancellationToken;
+                LogHands();
                 //zahajeni hry
                 if (RoundNumber == 0)
                 {
@@ -694,8 +717,8 @@ namespace Mariasek.Engine.New
 						}
 						var r = new Round(this, roundWinner);
 
-                        RoundSanityCheck();
 						DebugString.AppendFormat("Starting round {0}\n", RoundNumber);
+                        RoundSanityCheck();
 						OnRoundStarted(r);
 
                         rounds[RoundNumber - 1] = r;
@@ -748,7 +771,7 @@ namespace Mariasek.Engine.New
 					{
                         using(var tw = new StreamWriter(fs))
                         {
-                            tw.Write($"{ex.Message}\n{ex.StackTrace}");
+                            tw.Write($"{ex.Message}\n{ex.StackTrace}\n{DebugString.ToString()}\n{BiddingDebugInfo.ToString()}");
                         }
 					}
 #endif
@@ -764,6 +787,7 @@ namespace Mariasek.Engine.New
 
         private void RoundSanityCheck()
         {
+            LogHands();
             var cardsPlayed = rounds.Where(i => i != null && i.c3 != null).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).ToList();
 
             for (var i = 0; i < NumPlayers; i++)
@@ -793,6 +817,7 @@ namespace Mariasek.Engine.New
 
         public void Rewind()
         {
+            DebugString.AppendLine("Rewind");
             for (var i = 0; i < Game.NumRounds; i++)
             {
                 var r = rounds[i];
@@ -1056,6 +1081,7 @@ namespace Mariasek.Engine.New
             trump = TrumpCard.Suit;
             GameType = 0;
             talon = new List<Card>();
+            DebugString.AppendLine("ChooseGame");
 			//ptame se na barvu
             while(true)
             {

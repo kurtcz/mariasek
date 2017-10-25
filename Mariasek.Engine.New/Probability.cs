@@ -875,7 +875,7 @@ namespace Mariasek.Engine.New
 
                 var msg = string.Format("Bad certain card probabilities\n{3}Generovani:{0}\nHistorie:{1}\nExterni:{2}\n",
                                             _verboseString.ToString(), _debugString.ToString(), ExternalDebugString.ToString(),
-                                       probs);
+                                        probs);
                 throw new InvalidOperationException(msg);
             }
             //}
