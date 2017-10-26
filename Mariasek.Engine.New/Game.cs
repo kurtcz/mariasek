@@ -667,7 +667,7 @@ namespace Mariasek.Engine.New
                 }
             }
         }
-
+         
         private void LogHands()
         {
             for (var i = 0; i < NumPlayers; i++)

@@ -403,40 +403,40 @@ namespace Mariasek.SharedClient
 
         private void GameResumed()
         {
-            if (AmbientSound == null || AmbientSound.IsDisposed)
-            {
-                AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
-                AmbientSound.IsLooped = true;
-            }
-            if (NaPankraciSong == null || NaPankraciSong.IsDisposed)
-            {
-                NaPankraciSong = Content.Load<Song>("na pankraci");
-            }
-            if (Settings == null)
-            {
-                LoadGameSettings(true);
-            }
-			SoundEffect.MasterVolume = Settings.SoundEnabled ? 1f : 0f;
-            if (AmbientSound != null && !AmbientSound.IsDisposed)
-            {
-				AmbientSound.Volume = Settings.BgSoundEnabled ? 0.2f : 0f;
-				AmbientSound.PlaySafely();
-			}
-            if (NaPankraciSong != null && !NaPankraciSong.IsDisposed)
-            {
-                Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Settings.BgSoundEnabled ? 0.1f : 0f;
-                Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
-                Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
-            }
+   //         if (AmbientSound == null || AmbientSound.IsDisposed)
+   //         {
+   //             AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
+   //             AmbientSound.IsLooped = true;
+   //         }
+   //         if (NaPankraciSong == null || NaPankraciSong.IsDisposed)
+   //         {
+   //             NaPankraciSong = Content.Load<Song>("na pankraci");
+   //         }
+   //         if (Settings == null)
+   //         {
+   //             LoadGameSettings(true);
+   //         }
+			//SoundEffect.MasterVolume = Settings.SoundEnabled ? 1f : 0f;
+   //         if (AmbientSound != null && !AmbientSound.IsDisposed)
+   //         {
+			//	AmbientSound.Volume = Settings.BgSoundEnabled ? 0.2f : 0f;
+			//	AmbientSound.PlaySafely();
+			//}
+            //if (NaPankraciSong != null && !NaPankraciSong.IsDisposed)
+            //{
+            //    Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Settings.BgSoundEnabled ? 0.1f : 0f;
+            //    Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
+            //    Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
+            //}
 		}
 
         private void GamePaused()
         {
-            if (AmbientSound != null && !AmbientSound.IsDisposed)
-            {
-                AmbientSound.Stop();
-            }
-            Microsoft.Xna.Framework.Media.MediaPlayer.Stop();
+            //if (AmbientSound != null && !AmbientSound.IsDisposed)
+            //{
+            //    AmbientSound.Stop();
+            //}
+            //Microsoft.Xna.Framework.Media.MediaPlayer.Stop();
         }
 
 		public void LoadGameSettings(bool forceLoad = true)

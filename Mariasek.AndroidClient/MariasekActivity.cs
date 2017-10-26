@@ -66,29 +66,29 @@ namespace Mariasek.AndroidClient
         protected override void OnPause()
         {
             System.Diagnostics.Debug.WriteLine("OnPause()");
-            g.OnPaused();
             base.OnPause();
+            g.OnPaused();
         }
 
 		protected override void OnResume()
 		{
 			System.Diagnostics.Debug.WriteLine("OnResume()");
+            base.OnResume();
             g.OnResume();
-			base.OnResume();
 		}
 
         protected override void OnStop()
         {
             System.Diagnostics.Debug.WriteLine("OnStop()");
-            g.OnStop();
             base.OnStop();
+            g.OnStop();
         }
 
         protected override void OnDestroy()
         {
             System.Diagnostics.Debug.WriteLine("OnDestroy()");
-            g.Dispose();
             base.OnDestroy();
+            g.Dispose();
         }
 
         protected override void OnRestart()
@@ -101,8 +101,8 @@ namespace Mariasek.AndroidClient
 		protected override void OnSaveInstanceState (Bundle outState)
         {
             System.Diagnostics.Debug.WriteLine("OnSaveInstanceState()");
-            g.OnSaveInstanceState();
             base.OnSaveInstanceState (outState);    
+            g.OnSaveInstanceState();
         }
 
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
