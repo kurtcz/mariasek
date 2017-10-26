@@ -133,13 +133,19 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
+        public FontRenderer TextRenderer
+        {
+            get { return _buttonText.TextRenderer; }
+            set { _buttonText.TextRenderer = value; }
+        }
+
         public Button(GameComponent parent)
             : base(parent)
         {
             _buttonShape = new RectangleShape(this)
             {
-                BackgroundColors = new List<Color> { _origButtonColor },//Color.SaddleBrown },
-                BorderColors = new List<Color> { Color.White },
+                BackgroundColors = { _origButtonColor },//Color.SaddleBrown },
+                BorderColors = { Color.White },
                 BorderRadius = 3,
                 BorderThickness = 3,
                 Opacity = 0.7f

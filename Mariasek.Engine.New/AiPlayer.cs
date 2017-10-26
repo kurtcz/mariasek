@@ -110,7 +110,7 @@ namespace Mariasek.Engine.New
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
-			_debugString = g.DebugString;
+            _debugString = new StringBuilder();//g.DebugString;
             _teamMatesSuits = new List<Barva>();
             DebugInfo = new PlayerDebugInfo();
             g.GameLoaded += GameLoaded;
@@ -1413,7 +1413,10 @@ namespace Mariasek.Engine.New
             else
             {
                 if (Settings.CanPlayGameType[Hra.Kilo] && 
-                    _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _gameSimulations && _gameSimulations > 0)
+                    _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _gameSimulations && _gameSimulations > 0 &&
+                    ((Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value)) || //abych nehral kilo pokud aspon netrham a nemam aspon 2 hlasky
+                     Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                         .Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2))
                 {
                     gameType = Hra.Kilo;
                     DebugInfo.RuleCount = _hundredsBalance;

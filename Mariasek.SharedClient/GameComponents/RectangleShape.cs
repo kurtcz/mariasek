@@ -21,7 +21,7 @@ namespace Mariasek.SharedClient.GameComponents
         private int _width = 100;
         private int _height = 50;
         private int _borderThickness = 1;
-        private int _borderRadius = 0;
+        private int _borderRadius = 3;
         private int _borderShadow = 0;
         private List<Color> _backgroundColors = new List<Color>();
         private List<Color> _borderColors = new List<Color>();

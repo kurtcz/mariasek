@@ -20,6 +20,8 @@ namespace Mariasek.SharedClient
         private Label _threshold2;
         private Label _threshold3;
         private Label _riskFactor;
+        private RectangleShape _hline;
+        private RectangleShape _shadow;
         private LeftRightSelector _gameTypeSelector;
         private LeftRightSelector _playSelector;
         private LeftRightSelector _maxBidCountSelector;
@@ -38,6 +40,7 @@ namespace Mariasek.SharedClient
         {
             { Hra.Hra, "AI flekuje jen když trhá\nnebo má aspoň 40 bodů v hlasech." },
             { Hra.Sedma, "AI flekuje jen když má aspoň 2 trumfy." },
+            { Hra.Kilo, "AI nevolí kilo pokud netrhá\na nemá aspoň 40 bodů v hlasech." },
             { Hra.Betl, "AI používá práh pro Flek když nevolil\na hlásí špatnou barvu. Pokud AI nevolil, neflekuje." },
             { Hra.Durch, "AI používá práh pro Flek když nevolil\na hlásí špatnou barvu." }
 		};
@@ -123,13 +126,41 @@ namespace Mariasek.SharedClient
                 VerticalAlign = VerticalAlignment.Bottom
             };
 
+            _hline = new RectangleShape(this)
+            {
+                Position = new Vector2(0, Game.VirtualScreenHeight / 2 - 180),
+                Width = (int)Game.VirtualScreenWidth,
+                Height = 3,
+                BackgroundColors = { Color.White },
+                BorderColors = { Color.Transparent },
+                BorderRadius = 0,
+                BorderThickness = 1,
+                Opacity = 0.7f
+            };
+            //_shadow = new RectangleShape(this)
+            //{
+            //    Position = new Vector2(Game.VirtualScreenWidth / 2, Game.VirtualScreenHeight / 2 - 175),
+            //    Width = (int)Game.VirtualScreenWidth / 2,
+            //    Height = 50,
+            //    BackgroundColors = { Color.Black },
+            //    BorderColors = { Color.Transparent },
+            //    BorderRadius = 0,
+            //    BorderThickness = 1,
+            //    Opacity = 0.7f,
+            //    ZIndex = 1
+            //};
             _gameTypeSelector = new LeftRightSelector(this)
             {
                 Position = new Vector2(60, Game.VirtualScreenHeight / 2 - 175),
+                //Position = new Vector2(Game.VirtualScreenWidth / 2 - 150, Game.VirtualScreenHeight / 2 - 175),
                 Width = 300,
+                //Position = new Vector2(Game.VirtualScreenWidth / 2, Game.VirtualScreenHeight / 2 - 175),
+                //Width = (int)Game.VirtualScreenWidth / 2,
                 Items = new SelectorItems() { { "Hra", Hra.Hra }, { "Sedma", Hra.Sedma }, { "Kilo", Hra.Kilo },
                                               { "Sedma proti", Hra.SedmaProti }, { "Kilo proti", Hra.KiloProti },
-                                              { "Betl", Hra.Betl }, { "Durch", Hra.Durch } }
+                                              { "Betl", Hra.Betl }, { "Durch", Hra.Durch } },
+                TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
+                //ZIndex = 3
             };
             _gameTypeSelector.SelectedIndex = 0;
             _gameTypeSelector.SelectionChanged += GameTypeChanged;
@@ -150,6 +181,8 @@ namespace Mariasek.SharedClient
                 Items = new SelectorItems() { { "Ano", true }, { "Ne", false } }
             };
             _playSelector.SelectionChanged += MaxBidCountChanged;
+            _play.Hide();
+            _playSelector.Hide();
 
             _maxBidCount = new Label(this)
             {

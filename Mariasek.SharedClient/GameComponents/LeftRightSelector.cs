@@ -154,6 +154,17 @@ namespace Mariasek.SharedClient.GameComponents
                 _valueLabel.Anchor = value;
             }
         }
+        public FontRenderer TextRenderer
+        {
+            get { return _valueLabel.TextRenderer; }
+            set
+            {
+                _leftButton.TextRenderer = value;
+                _rightButton.TextRenderer = value;
+                _valueLabel.TextRenderer = value; 
+            }
+        }
+
 		public delegate void SelectionChangedEventHandler(object sender);
 		public event SelectionChangedEventHandler SelectionChanged;
 
