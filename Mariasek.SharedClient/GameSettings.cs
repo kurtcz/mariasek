@@ -63,7 +63,7 @@ namespace Mariasek.SharedClient
             CurrentStartingPlayerIndex = 0;
             BubbleTimeMs = 1000;
 			CardDesign = CardFace.Single;
-            CardBackSide = CardBackSide.Tartan;
+            CardBackSide = CardBackSide.Horse;
 			ResetThresholds();
         }
 

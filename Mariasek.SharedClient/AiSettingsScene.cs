@@ -21,7 +21,7 @@ namespace Mariasek.SharedClient
         private Label _threshold3;
         private Label _riskFactor;
         private RectangleShape _hline;
-        private RectangleShape _shadow;
+        //private RectangleShape _shadow;
         private LeftRightSelector _gameTypeSelector;
         private LeftRightSelector _playSelector;
         private LeftRightSelector _maxBidCountSelector;
