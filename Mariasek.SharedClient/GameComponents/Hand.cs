@@ -1,18 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-//using Microsoft.Xna.Framework.GamerServices;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Input.Touch;
-using Microsoft.Xna.Framework.Storage;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Media;
 
 using Mariasek.Engine.New;
 
@@ -173,12 +164,12 @@ namespace Mariasek.SharedClient.GameComponents
                     _cardButtons[i] = new CardButton(this, new Sprite(this, Game.CardTextures) { Name = string.Format("HandSprite{0}", i + 1), Scale = Game.CardScaleFactor })
                     { Name = string.Format("HandButton{0}", i + 1), ReverseSpriteRectangle = Game.BackSideRect, ZIndex = 50 + i };
                     _cardButtons[i].Click += CardClicked;
-					_cardButtons[i].DragEnd += CardDragged;
-					_cardButtons[i].Position = Centre;
+                    _cardButtons[i].DragEnd += CardDragged;
+                    _cardButtons[i].Position = Centre;
                 }
                 ZIndex = ZIndexBase + i;
                 _cardButtons[i].Sprite.SpriteRectangle = rect;  //ReverseSpriteRect is updated for all CardButtons from MainScene.UpdateCardBackSides()
-				_cardButtons[i].Tag = hand[i];
+                _cardButtons[i].Tag = hand[i];
                 _cardButtons[i].Sprite.Tag = hand[i];
                 if((Card)_cardButtons[i].Tag == cardToHide)
                 {

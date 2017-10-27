@@ -52,6 +52,7 @@
     <Reference Include="OpenTK" />
     <Reference Include="MonoGame.Framework">
       <HintPath>..\packages\MonoGame.Framework.Android.3.5.1.1679\lib\MonoAndroid\MonoGame.Framework.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
