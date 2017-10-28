@@ -137,7 +137,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(350, 20),
                 Width = 120,
                 Height = 50,
-                Text = Game.MainScene.PlayerNames[0],
+                Text = Game.Settings.PlayerNames[0],
                 TextColor = _historyChart.Colors[0]
             };
             _player2 = new Label(this)
@@ -145,7 +145,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(510, 20),
                 Width = 120,
                 Height = 50,
-                Text = Game.MainScene.PlayerNames[1],
+                Text = Game.Settings.PlayerNames[1],
                 TextColor = _historyChart.Colors[1]
             };
             _player3 = new Label(this)
@@ -153,7 +153,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(670, 20),
                 Width = 120,
                 Height = 50,
-                Text = Game.MainScene.PlayerNames[2],
+                Text = Game.Settings.PlayerNames[2],
                 TextColor = _historyChart.Colors[2]
             };
             _historyBox = new TextBox(this)
@@ -286,7 +286,7 @@ namespace Mariasek.SharedClient
 			_historyBox.ScrollToBottom();
             _stat.Text = string.Format("Odehráno her:\n{0}\nZ toho výher:\n{1}\nPoměr: {2:N0}%\nPříště začíná:\n{3}", 
                 total, wins, ratio, 
-                Game.MainScene.PlayerNames[(Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers]);
+                Game.Settings.PlayerNames[(Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers]);
 
             var sum1 = Game.Money.Sum(i => i.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", numFormat);
             var sum2 = Game.Money.Sum(i => i.MoneyWon[1] * Game.Settings.BaseBet).ToString("C", numFormat);

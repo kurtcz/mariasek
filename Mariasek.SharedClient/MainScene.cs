@@ -95,7 +95,7 @@ namespace Mariasek.SharedClient
         private int _aiMessageIndex;
         public int CurrentStartingPlayerIndex = -1;
         private Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
-        public string[] PlayerNames = { "Já", "Karel", "Pepa" };
+        //public string[] PlayerNames = { "Já", "Karel", "Pepa" };
 #if __ANDROID__
         private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
 #else   //#elif __IOS__
@@ -1059,9 +1059,9 @@ namespace Mariasek.SharedClient
 					GetVersion = () => MariasekMonoGame.Version
                 };
                 g.RegisterPlayers(
-                    new HumanPlayer(g, _aiConfig, this, Game.Settings.HintEnabled) { Name = PlayerNames[0] },
-                    new AiPlayer(g, _aiConfig) { Name = PlayerNames[1] },
-                    new AiPlayer(g, _aiConfig) { Name = PlayerNames[2] }
+                    new HumanPlayer(g, _aiConfig, this, Game.Settings.HintEnabled) { Name = Game.Settings.PlayerNames[0] },
+                    new AiPlayer(g, _aiConfig) { Name = Game.Settings.PlayerNames[1] },
+                    new AiPlayer(g, _aiConfig) { Name = Game.Settings.PlayerNames[2] }
                 );
                 CurrentStartingPlayerIndex = Game.Settings.CurrentStartingPlayerIndex; //TODO: zrusit CurrentStartingPlayerIndex a pouzivat jen Game.Settings.CurrentStartingPlayerIndex
                 CurrentStartingPlayerIndex = (CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers;
@@ -2286,9 +2286,9 @@ namespace Mariasek.SharedClient
                         GetVersion = () => MariasekMonoGame.Version
                     };
                     g.RegisterPlayers(
-                        new HumanPlayer(g, _aiConfig, this, Game.Settings.HintEnabled) { Name = PlayerNames[0] },
-                        new AiPlayer(g, _aiConfig) { Name = PlayerNames[1] },
-                        new AiPlayer(g, _aiConfig) { Name = PlayerNames[2] }
+                        new HumanPlayer(g, _aiConfig, this, Game.Settings.HintEnabled) { Name = Game.Settings.PlayerNames[0] },
+                        new AiPlayer(g, _aiConfig) { Name = Game.Settings.PlayerNames[1] },
+                        new AiPlayer(g, _aiConfig) { Name = Game.Settings.PlayerNames[2] }
                     );
 
                     try

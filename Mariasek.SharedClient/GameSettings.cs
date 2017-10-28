@@ -39,6 +39,7 @@ namespace Mariasek.SharedClient
         public bool HintEnabled { get; set; }
         public bool SoundEnabled { get; set; }
         public bool BgSoundEnabled { get; set; }
+        public string[] PlayerNames { get; set; }
         public SortMode SortMode { get; set; }
         public float BaseBet { get; set; }
         public int ThinkingTimeMs { get; set; }
@@ -64,6 +65,7 @@ namespace Mariasek.SharedClient
             BubbleTimeMs = 1000;
 			CardDesign = CardFace.Single;
             CardBackSide = CardBackSide.Horse;
+            PlayerNames = new [] { "Já", "Karel", "Pepa" };
 			ResetThresholds();
         }
 

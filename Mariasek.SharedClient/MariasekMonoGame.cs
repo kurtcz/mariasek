@@ -402,31 +402,53 @@ namespace Mariasek.SharedClient
 
         private void GameResumed()
         {
-   //         if (AmbientSound == null || AmbientSound.IsDisposed)
-   //         {
-   //             AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
-   //             AmbientSound.IsLooped = true;
-   //         }
-   //         if (NaPankraciSong == null || NaPankraciSong.IsDisposed)
-   //         {
-   //             NaPankraciSong = Content.Load<Song>("na pankraci");
-   //         }
-   //         if (Settings == null)
-   //         {
-   //             LoadGameSettings(true);
-   //         }
-			//SoundEffect.MasterVolume = Settings.SoundEnabled ? 1f : 0f;
-   //         if (AmbientSound != null && !AmbientSound.IsDisposed)
-   //         {
-			//	AmbientSound.Volume = Settings.BgSoundEnabled ? 0.2f : 0f;
-			//	AmbientSound.PlaySafely();
-			//}
-            //if (NaPankraciSong != null && !NaPankraciSong.IsDisposed)
-            //{
-            //    Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Settings.BgSoundEnabled ? 0.1f : 0f;
-            //    Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
-            //    Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
-            //}
+            if (Settings == null)
+            {
+                LoadGameSettings(true);
+            }
+            SoundEffect.MasterVolume = Settings.SoundEnabled ? 1f : 0f;
+            if (AmbientSound == null || AmbientSound.IsDisposed)
+            {
+                AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
+                AmbientSound.IsLooped = true;
+                AmbientSound.Volume = Settings.BgSoundEnabled ? 0.2f : 0f;
+                AmbientSound.PlaySafely();
+            }
+            if (ClickSound == null || ClickSound.IsDisposed)
+            {
+                ClickSound = Content.Load<SoundEffect>("watch-tick");
+            }
+            if (OnSound == null || OnSound.IsDisposed)
+            {
+                OnSound = Content.Load<SoundEffect>("on");
+            }
+            if (OffSound == null || OffSound.IsDisposed)
+            {
+                OffSound = Content.Load<SoundEffect>("off");
+            }
+            if (ClapSound == null || ClapSound.IsDisposed)
+            {
+                ClapSound = Content.Load<SoundEffect>("clap");
+            }
+            if (CoughSound == null || CoughSound.IsDisposed)
+            {
+                CoughSound = Content.Load<SoundEffect>("cough");
+            }
+            if (BooSound == null || BooSound.IsDisposed)
+            {
+                BooSound = Content.Load<SoundEffect>("boo");
+            }
+            if (LaughSound == null || LaughSound.IsDisposed)
+            {
+                LaughSound = Content.Load<SoundEffect>("laugh");
+            }
+            if (NaPankraciSong == null || NaPankraciSong.IsDisposed)
+            {
+                NaPankraciSong = Content.Load<Song>("na pankraci");
+                Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
+                Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Settings.BgSoundEnabled ? 0.1f : 0f;
+                Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
+            }
 		}
 
         private void GamePaused()
@@ -496,11 +518,6 @@ namespace Mariasek.SharedClient
 				{
 					xml.Serialize(fs, Settings);
 				}
-				//using (var tw = new StringWriter())
-				//{
-				//    xml.Serialize(tw, _settings);
-				//    var str = tw.ToString();
-				//}
 			}
 			catch (Exception e)
 			{
