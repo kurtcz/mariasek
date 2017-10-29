@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace Mariasek.Engine.New
 {
@@ -81,6 +82,7 @@ namespace Mariasek.Engine.New
         protected CultureInfo _ci;
 
         //Default constructor for XmlSerialize purposes
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
         public MoneyCalculatorBase()
         {
             PlayerNames = new[] { "Hráč1", "Hráč2", "Hráč3" };

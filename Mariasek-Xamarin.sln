@@ -72,7 +72,7 @@ Global
 		{F8E3C4CE-F1CA-4796-B0ED-5D49939F744C}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		version = 0.5
+		version = 1.0
 		StartupItem = Mariasek.AndroidClient\Mariasek.AndroidClient.csproj
 	EndGlobalSection
 EndGlobal

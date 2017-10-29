@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <ProjectGuid>{CF067FA9-C4F1-483C-852E-CF6272BFDB91}</ProjectGuid>
-    <ReleaseVersion>0.5</ReleaseVersion>
+    <ReleaseVersion>1.0</ReleaseVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="$(MSBuildThisFileDirectory)Engine\Mariasek.Engine.New.dll" />

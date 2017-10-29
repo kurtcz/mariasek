@@ -12,7 +12,7 @@
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
     <AssemblyName>Mariasek.iOSClient</AssemblyName>
     <MonoGamePlatform>iOS</MonoGamePlatform>
-    <ReleaseVersion>0.5</ReleaseVersion>
+    <ReleaseVersion>1.0</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,6 +40,8 @@
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchFloat32>true</MtouchFloat32>
     <CodesignKey>iPhone Developer: tomas_nemec@yahoo.com (NM6BPUVRDM)</CodesignKey>
+    <MtouchUseLlvm>true</MtouchUseLlvm>
+    <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>full</DebugType>
@@ -70,7 +72,7 @@
     <MtouchExtraArgs>-v -v -v</MtouchExtraArgs>
     <IpaPackageName>
     </IpaPackageName>
-    <MtouchLink>Full</MtouchLink>
+    <MtouchLink>SdkOnly</MtouchLink>
     <CodesignProvision>iOS Team Provisioning Profile: project.MonoGame.Mariasek.iOSClient</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
@@ -79,7 +81,7 @@
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.iOS" />
     <Reference Include="MonoGame.Framework">
-      <HintPath>..\packages\MonoGame.Framework.iOS.3.5.1.1679\lib\XamariniOS\MonoGame.Framework.dll</HintPath>
+      <HintPath>..\packages\MonoGame.Framework.iOS.3.6.0.1625\lib\XamariniOS\MonoGame.Framework.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -93,15 +95,6 @@
     <None Include="Entitlements.plist" />
     <None Include="Info.plist" />
     <None Include="packages.config" />
-    <None Include="..\Mariasek.Content\BM2Font.fnt">
-      <Link>Content\BM2Font.fnt</Link>
-    </None>
-    <None Include="..\Mariasek.Content\BMFont.fnt">
-      <Link>Content\BMFont.fnt</Link>
-    </None>
-    <None Include="..\Mariasek.Content\SegoeUI40Outl.fnt">
-      <Link>Content\SegoeUI40Outl.fnt</Link>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="GameThumbnail.png" />
@@ -128,5 +121,19 @@
     <MonoGameContentReference Include="..\Mariasek.Content\Content.mgcb">
       <Link>Content\Content.mgcb</Link>
     </MonoGameContentReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\Mariasek.Content\BM2Font.fnt">
+      <Link>Content\BM2Font.fnt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Mariasek.Content\BMFont.fnt">
+      <Link>Content\BMFont.fnt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Mariasek.Content\SegoeUI40Outl.fnt">
+      <Link>Content\SegoeUI40Outl.fnt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

@@ -158,7 +158,7 @@ namespace Mariasek.SharedClient.GameComponents
                                                                      (int)(Height * ScaleMatrix.M22));
                 //Game.SpriteBatch.GraphicsDevice.RasterizerState.ScissorTestEnable = true;
                 Game.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, new RasterizerState { ScissorTestEnable = true }, null, ScaleMatrix);
-                Game.SpriteBatch.Draw(_target, Position);
+                Game.SpriteBatch.Draw(_target, Position, Color.White);
             }
             base.Draw(gameTime);
         }

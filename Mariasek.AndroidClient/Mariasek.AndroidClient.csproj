@@ -16,10 +16,11 @@
     <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
     <AssemblyName>Mariasek</AssemblyName>
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
-    <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
-    <ReleaseVersion>0.5</ReleaseVersion>
+    <TargetFrameworkVersion>v4.4</TargetFrameworkVersion>
+    <ReleaseVersion>1.0</ReleaseVersion>
     <MonoGamePlatform>Android</MonoGamePlatform>
     <AndroidTlsProvider></AndroidTlsProvider>
+    <AndroidSupportedAbis>armeabi-v7a;x86;x86_64;arm64-v8a</AndroidSupportedAbis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,7 +33,6 @@
     <AndroidLinkMode>None</AndroidLinkMode>
     <ConsolePause>false</ConsolePause>
     <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
-    <AndroidSupportedAbis>armeabi-v7a;x86;x86_64</AndroidSupportedAbis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -43,7 +43,6 @@
     <ConsolePause>false</ConsolePause>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <EnableProguard>true</EnableProguard>
-<AndroidSupportedAbis>armeabi-v7a;x86;x86_64;arm64-v8a</AndroidSupportedAbis>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -52,7 +51,7 @@
     <Reference Include="Mono.Android" />
     <Reference Include="OpenTK" />
     <Reference Include="MonoGame.Framework">
-      <HintPath>..\packages\MonoGame.Framework.Android.3.5.1.1679\lib\MonoAndroid\MonoGame.Framework.dll</HintPath>
+      <HintPath>..\packages\MonoGame.Framework.Android.3.6.0.1625\lib\MonoAndroid\MonoGame.Framework.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

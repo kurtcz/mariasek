@@ -150,7 +150,8 @@ namespace Mariasek.SharedClient.GameComponents
             //_chartWidth = (int)Math.Max(Width, _data.Length > 0 ? _data[0].Length * 25f : 0);
             //Draw onto the target rather than the back buffer
             _target = new RenderTarget2D(Game.SpriteBatch.GraphicsDevice, _chartWidth(), Height);
-            _verticalAxisTarget = new RenderTarget2D(Game.SpriteBatch.GraphicsDevice, (int)LogicalToPhysical(new Vector2(TickMarkLength, 0)).X, Height);
+            var physicalWidth = (int)Math.Max(1, LogicalToPhysical(new Vector2(TickMarkLength, 0)).X);
+            _verticalAxisTarget = new RenderTarget2D(Game.SpriteBatch.GraphicsDevice, physicalWidth, Height);
             HorizontalScrollOffset = Vector2.Zero;
 
             if (ShowYAxis)
@@ -413,11 +414,11 @@ namespace Mariasek.SharedClient.GameComponents
                                                                      (int)(Height * ScaleMatrix.M22));
                 //Game.SpriteBatch.GraphicsDevice.RasterizerState.ScissorTestEnable = true;
                 Game.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, new RasterizerState { ScissorTestEnable = true }, null, ScaleMatrix);
-                Game.SpriteBatch.Draw(_target, Position + HorizontalScrollOffset);
+                Game.SpriteBatch.Draw(_target, Position + HorizontalScrollOffset, Color.White);
                 Game.SpriteBatch.End();
                 //Game.SpriteBatch.GraphicsDevice.RasterizerState.ScissorTestEnable = false;
                 Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, ScaleMatrix);
-                Game.SpriteBatch.Draw(_verticalAxisTarget, Position);
+                Game.SpriteBatch.Draw(_verticalAxisTarget, Position, Color.White);
             }
             base.Draw(gameTime);
         }
