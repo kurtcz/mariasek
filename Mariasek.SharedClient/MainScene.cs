@@ -1477,6 +1477,7 @@ namespace Mariasek.SharedClient
             {
                 TrumpCardTakenBack = true;
                 _talon.Clear();
+                _okBtn.IsEnabled = false;
                 button.Hide();
 				button.Position = origPosition;
 				UpdateHand();

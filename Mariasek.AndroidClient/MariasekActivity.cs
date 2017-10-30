@@ -17,17 +17,18 @@ using Mariasek.SharedClient;
 
 namespace Mariasek.AndroidClient
 {
-	[Activity (Label = "Mariášek", 
-		MainLauncher = true,
-		Icon = "@drawable/icon",
-		Theme = "@style/Theme.Splash",
-		AlwaysRetainTaskState = true,
-		LaunchMode = LaunchMode.SingleInstance,
-		ScreenOrientation = ScreenOrientation.Landscape,
-		ConfigurationChanges = ConfigChanges.Orientation |
-                               ConfigChanges.ScreenSize |
-		                       ConfigChanges.KeyboardHidden |
-		                       ConfigChanges.Keyboard)]
+	[Activity (Name = "com.tnemec.mariasek.android.MariasekActivity",
+               Label = "Mariášek", 
+               MainLauncher = true,
+               Icon = "@drawable/icon",
+               Theme = "@style/Theme.Splash",
+               AlwaysRetainTaskState = true,
+               LaunchMode = LaunchMode.SingleInstance,
+               ScreenOrientation = ScreenOrientation.ReverseLandscape,
+               ConfigurationChanges = ConfigChanges.Orientation |
+                                      ConfigChanges.ScreenSize |
+        		                      ConfigChanges.KeyboardHidden |
+        		                      ConfigChanges.Keyboard)]
 	public class MariasekActivity : AndroidGameActivity, IEmailSender, IWebNavigate
 	{
         MariasekMonoGame g;
@@ -114,7 +115,7 @@ namespace Mariasek.AndroidClient
 			{
 				ex = ae.Flatten().InnerExceptions[0];
 			}
-            var msg = string.Format("{0}\n{1}\n{2}\n{3}", ex.Message, ex.StackTrace, 
+            var msg = string.Format("{0}\n{1}\n{2}\n-\n{3}", ex.Message, ex.StackTrace, 
                                     g?.MainScene?.g?.DebugString?.ToString() ?? string.Empty,
                                     g?.MainScene?.g?.BiddingDebugInfo?.ToString() ?? string.Empty);
 
@@ -130,7 +131,7 @@ namespace Mariasek.AndroidClient
 			{
 				ex = ae.Flatten().InnerExceptions[0];
 			}
-            var msg = string.Format("{0}\n{1}\n{2}\n{3}", ex.Message, ex.StackTrace, 
+            var msg = string.Format("{0}\n{1}\n{2}\n-\n{3}", ex.Message, ex.StackTrace, 
                                     g?.MainScene?.g?.DebugString?.ToString() ?? string.Empty,
                                     g?.MainScene?.g?.BiddingDebugInfo?.ToString() ?? string.Empty);
 

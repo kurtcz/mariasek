@@ -276,7 +276,6 @@ namespace Mariasek.Engine.New
             _log.Init();
             _log.Info("********");
             DebugString.AppendLine("*NewGame*");
-            BiddingDebugInfo.Clear();
 
             RoundNumber = 0;
             rounds = new Round[NumRounds];
@@ -771,7 +770,7 @@ namespace Mariasek.Engine.New
 					{
                         using(var tw = new StreamWriter(fs))
                         {
-                            tw.Write($"{ex.Message}\n{ex.StackTrace}\n{DebugString.ToString()}\n{BiddingDebugInfo.ToString()}");
+                            tw.Write($"{ex.Message}\n{ex.StackTrace}\n{DebugString.ToString()}\n-\n{BiddingDebugInfo.ToString()}");
                         }
 					}
 #endif
@@ -1081,7 +1080,7 @@ namespace Mariasek.Engine.New
             trump = TrumpCard.Suit;
             GameType = 0;
             talon = new List<Card>();
-            DebugString.AppendLine("ChooseGame");
+            DebugString.AppendLine("ChooseGame()");
 			//ptame se na barvu
             while(true)
             {
@@ -1112,6 +1111,10 @@ namespace Mariasek.Engine.New
                         throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex + 1} during ChooseGame(): {talon.Count()}");
                     }
 					BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
+                    if (GameStartingPlayer.Hand.Count() != 10)
+                    {
+                        throw new InvalidOperationException("Invalid card count during ChooseGame()");
+                    }
 					if (talon.Any(i => !IsValidTalonCard(i))) //pokud je v talonu eso nebo desitka, musime hrat betla nebo durch
                     {
                         canChooseFlavour = false;
@@ -1121,8 +1124,8 @@ namespace Mariasek.Engine.New
                 {
                     gameFlavour = nextPlayer.ChooseGameFlavour();
                     BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1} ({2}/{3})", nextPlayer.PlayerIndex + 1, gameFlavour.Description(), nextPlayer.DebugInfo.RuleCount, nextPlayer.DebugInfo.TotalRuleCount);
-                    BiddingDebugInfo.AppendFormat("\nBetl ({0}/{1})", nextPlayer.DebugInfo.AllChoices.FirstOrDefault(i => i.Rule == "Betl")?.RuleCount, nextPlayer.DebugInfo.TotalRuleCount);
-                    BiddingDebugInfo.AppendFormat("\nDurch ({0}/{1})", nextPlayer.DebugInfo.AllChoices.FirstOrDefault(i => i.Rule == "Durch")?.RuleCount, nextPlayer.DebugInfo.TotalRuleCount);
+                    BiddingDebugInfo.AppendFormat("\nBetl ({0}/{1})", nextPlayer.DebugInfo.AllChoices.FirstOrDefault(i => i.Rule == "Betl")?.RuleCount ?? -1, nextPlayer.DebugInfo.TotalRuleCount);
+                    BiddingDebugInfo.AppendFormat("\nDurch ({0}/{1})", nextPlayer.DebugInfo.AllChoices.FirstOrDefault(i => i.Rule == "Durch")?.RuleCount ?? -1, nextPlayer.DebugInfo.TotalRuleCount);
                     if (gameFlavour == GameFlavour.Bad)
                     {
 						GameStartingPlayerIndex = nextPlayer.PlayerIndex;
@@ -1176,11 +1179,11 @@ namespace Mariasek.Engine.New
 						talon.Clear();
 						talon = GameStartingPlayer.ChooseTalon();
                         GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
-						BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
-                        if (talon == null || talon.Count() != 2)
+						if (talon == null || talon.Count() != 2)
                         {
                             throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex+1} during ChooseGame(): {talon.Count()}");
                         }
+                        BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
                         if (GameStartingPlayer.Hand.Count() != 10)
                         {
                             throw new InvalidOperationException("Invalid card count during ChooseGame()");
@@ -1193,6 +1196,7 @@ namespace Mariasek.Engine.New
                     validGameTypes = GetValidGameTypesForPlayer(nextPlayer, gameFlavour, minimalBid);
                     GameType = GameStartingPlayer.ChooseGameType(validGameTypes); //TODO: zkontrolovat ze hrac nezvolil nelegalni variantu
                     GameTypeConfidence = GameStartingPlayer.DebugInfo.TotalRuleCount > 0 ? (float)GameStartingPlayer.DebugInfo.RuleCount / (float)GameStartingPlayer.DebugInfo.TotalRuleCount : -1f;
+                    DebugString.AppendFormat("ChooseGameType: {0}\n", GameType);
                     minimalBid = Hra.Durch;
                     gameTypeForPlayer[GameStartingPlayerIndex] = GameType;
                     OnGameTypeChosen(new GameTypeChosenEventArgs
@@ -1226,6 +1230,7 @@ namespace Mariasek.Engine.New
                 validGameTypes = GetValidGameTypesForPlayer(GameStartingPlayer, GameFlavour.Good, minimalBid);
                 GameType = GameStartingPlayer.ChooseGameType(validGameTypes);
                 GameTypeConfidence = GameStartingPlayer.DebugInfo.TotalRuleCount > 0 ? (float)GameStartingPlayer.DebugInfo.RuleCount / (float)GameStartingPlayer.DebugInfo.TotalRuleCount : -1f;
+                DebugString.AppendFormat("ChooseGameType: {0}\n", GameType);
                 OnGameTypeChosen(new GameTypeChosenEventArgs
                 {
                     GameStartingPlayerIndex = GameStartingPlayerIndex,
@@ -1249,7 +1254,7 @@ namespace Mariasek.Engine.New
         {
             var lastRoundWinner = rounds[0] == null ? GameStartingPlayer : rounds[0].roundWinner;
 
-            DebugString.AppendLine("CompleteUnfinishedRounds");
+            DebugString.AppendLine("CompleteUnfinishedRounds()");
             for (var i = 0; i < Game.NumRounds; i++)
             {                
                 if (rounds[i] == null)
