@@ -1179,6 +1179,8 @@ namespace Mariasek.Engine.New
 		{
 			var holesPerSuit = new Dictionary<Barva, int>();
 			var hiHolePerSuit = new Dictionary<Barva, Card>();
+            var dummyTalon = ChooseDurchTalon(Hand, _trumpCard);
+
 			foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
 			{
 				var holes = 0;
@@ -1188,7 +1190,10 @@ namespace Mariasek.Engine.New
 				{
 					var c = new Card(b, h);
 
-					if (Hand.Any(i => i.Suit == b && i.BadValue < c.BadValue && !Hand.Contains(c)))
+                    if (Hand.Any(i => i.Suit == b && 
+                                      i.BadValue < c.BadValue && 
+                                      !dummyTalon.Contains(i) &&
+                                      !Hand.Contains(c)))
 					{
 						holes++;
 						if (c.BadValue > hiHole.BadValue)
@@ -1204,7 +1209,13 @@ namespace Mariasek.Engine.New
             if (PlayerIndex == _g.GameStartingPlayerIndex)
             {
                 var minHole = new Card(Barva.Cerveny, Hodnota.Desitka);
-                if (holesPerSuit.All(i => i.Value == 0 || hiHolePerSuit[i.Key].BadValue <= minHole.BadValue))
+                var topCards = Hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                   .Where(h => new Card(Barva.Cerveny, h).BadValue > i.BadValue)
+                                                   .All(h => Probabilities.CardProbability((PlayerIndex + 1) % Game.NumPlayers, new Card(i.Suit, h)) == 0 &&
+                                                             Probabilities.CardProbability((PlayerIndex + 2) % Game.NumPlayers, new Card(i.Suit, h)) == 0))
+                                   .ToList();
+                if (holesPerSuit.All(i => topCards.Count(j => j.Suit == i.Key) >= i.Value || 
+                                          hiHolePerSuit[i.Key].BadValue <= minHole.BadValue))
                 {
                     return true;
                 }
@@ -1214,8 +1225,8 @@ namespace Mariasek.Engine.New
                 var minHole = new Card(Barva.Cerveny, Hodnota.Spodek);
                 var topCards = Hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                    .Where(h => new Card(Barva.Cerveny, h).BadValue > i.BadValue)
-                                                   .All(h => Probabilities.CardProbability(_g.GameStartingPlayerIndex, new Card(i.Suit, h)) == 0 &&
-                                                             Probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, h)) == 0))
+                                                   .All(h => Probabilities.CardProbability((PlayerIndex + 1) % Game.NumPlayers, new Card(i.Suit, h)) == 0 &&
+                                                             Probabilities.CardProbability((PlayerIndex + 2) % Game.NumPlayers, new Card(i.Suit, h)) == 0))
                                    .ToList();
                 if (holesPerSuit.All(i => i.Value == 0 || 
                                           hiHolePerSuit[i.Key].BadValue <= minHole.BadValue ||

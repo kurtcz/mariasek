@@ -1604,11 +1604,16 @@ namespace Mariasek.SharedClient
             RunOnUiThread(() =>
             {
                 ShowMsgLabel("Vyber si talon", false);
-                if (_trumpCardChosen != null &&
-                    (Game.Money == null || Game.Money.Count() % 5 == 0))
+                if (_trumpCardChosen != null)// &&
+                    //(Game.Money == null || Game.Money.Count() % 5 == 0))
                 {
                     _msgLabelSmall.Text = "\n\n\nTrumfovou kartu můžeš přetáhnout zpět do ruky";
                     _msgLabelSmall.Show();
+                    this.Wait(3000)
+                        .Invoke(() =>
+                    {
+                        _msgLabelSmall.Hide();
+                    });
                 }
                 _okBtn.Show();
                 _okBtn.IsEnabled = false;
