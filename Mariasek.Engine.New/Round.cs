@@ -102,6 +102,10 @@ namespace Mariasek.Engine.New
 
             //musim nejak overit, ze karty jsou validni a pokud ne tak to hraci oznamit a akci opakovat
             c1 = player1.PlayCard(this);
+            if (c1 == null)
+            {
+                throw new InvalidOperationException("Card c1 cannot be null");
+            }
             player1.Hand.Remove(c1);
             if (_g.rounds.Where(i => i != null && i.number < number).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).Contains(c1))
             {
@@ -122,6 +126,10 @@ namespace Mariasek.Engine.New
             _g.OnCardPlayed(this);
             
             c2 = player2.PlayCard(this);
+            if (c2 == null)
+            {
+                throw new InvalidOperationException("Card c2 cannot be null");
+            }
             player2.Hand.Remove(c2);
 			if (_g.rounds.Where(i => i != null && i.number < number).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).Contains(c2))
 			{
@@ -142,6 +150,10 @@ namespace Mariasek.Engine.New
             _g.OnCardPlayed(this);
             
             c3 = player3.PlayCard(this);
+            if (c3 == null)
+            {
+                throw new InvalidOperationException("Card c3 cannot be null");
+            }
             player3.Hand.Remove(c3);
 			if (_g.rounds.Where(i => i != null && i.number < number).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).Contains(c3))
 			{

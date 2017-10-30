@@ -1566,14 +1566,18 @@ namespace Mariasek.SharedClient
 			EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
 			_state = GameState.ChooseTrump;
-			_hand.IsEnabled = true;
+            _hand.IsEnabled = false;
+            _hintBtn.IsEnabled = false;
 			_cardClicked = null;
 			_evt.Reset();
-			ShowMsgLabel("Vyber trumfovou kartu", false);
-            _hand.Show();
-            UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
-            _hand.IsEnabled = true;
-            _hand.AllowDragging();
+            RunOnUiThread(() =>
+            {
+                ShowMsgLabel("Vyber trumfovou kartu", false);
+                _hand.Show();
+                UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
+                _hand.IsEnabled = true;
+                _hand.AllowDragging();
+            });
             WaitForUIThread();
 
             _state = GameState.NotPlaying;
@@ -1594,20 +1598,23 @@ namespace Mariasek.SharedClient
 			_hintBtn.IsEnabled = false;
 			_hand.IsEnabled = false;
 			_cardClicked = null;
+            _talon = new List<Card>();
 			_evt.Reset();
-			_talon = new List<Card>();
-            ShowMsgLabel("Vyber si talon", false);
-            if (_trumpCardChosen != null &&
-                (Game.Money == null || Game.Money.Count() % 5 == 0))
+            RunOnUiThread(() =>
             {
-                _msgLabelSmall.Text = "\n\n\nTrumfovou kartu můžeš přetáhnout zpět do ruky";
-                _msgLabelSmall.Show();
-            }
-            _okBtn.Show();
-            _okBtn.IsEnabled = false;
-			_state = GameState.ChooseTalon;
-			UpdateHand(cardToHide: _trumpCardChosen); //abych si otocil zbyvajicich 5 karet
-			_hand.IsEnabled = true;
+                ShowMsgLabel("Vyber si talon", false);
+                if (_trumpCardChosen != null &&
+                    (Game.Money == null || Game.Money.Count() % 5 == 0))
+                {
+                    _msgLabelSmall.Text = "\n\n\nTrumfovou kartu můžeš přetáhnout zpět do ruky";
+                    _msgLabelSmall.Show();
+                }
+                _okBtn.Show();
+                _okBtn.IsEnabled = false;
+                _state = GameState.ChooseTalon;
+                UpdateHand(cardToHide: _trumpCardChosen); //abych si otocil zbyvajicich 5 karet
+                _hand.IsEnabled = true;
+            });
             WaitForUIThread();
 
 			_state = GameState.NotPlaying;

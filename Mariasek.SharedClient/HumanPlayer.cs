@@ -358,6 +358,10 @@ namespace Mariasek.SharedClient
             while (true)
             {
                 card = _scene.PlayCard(validationState);
+                if (card == null)
+                {
+                    continue;
+                }
                 if (r.c2 != null)
                 {
                     validationState = IsCardValid(card, r.c1, r.c2);
