@@ -576,7 +576,7 @@ namespace Mariasek.Engine.New
 								if (l < Game.NumPlayers)
 								{
 									_verboseString.AppendFormat("Uncertain: Player{0}[{1}][{2}] = 0\n",
-										(_myIndex + l) % Game.NumPlayers, c.Suit, c.Value);
+										(_myIndex + l) % Game.NumPlayers + 1, c.Suit, c.Value);
 								}
 								else
 								{
@@ -780,7 +780,7 @@ namespace Mariasek.Engine.New
 								}
 								else
 								{
-									_verboseString.AppendFormat("Uncertain:Player[{0}][{1}][{2}] = 0\n", (_myIndex + j) % Game.NumPlayers, c.Suit, c.Value);
+									_verboseString.AppendFormat("Uncertain:Player{0}[{1}][{2}] = 0\n", (_myIndex + j) % Game.NumPlayers + 1, c.Suit, c.Value);
 								}
                             }
                             ReduceUncertainCardSet(hands, totalCards, uncertainCards);
@@ -1044,9 +1044,10 @@ namespace Mariasek.Engine.New
             {
                 _sevenAgainstIndex = e.Player.PlayerIndex;
                 _initialExpectedTrumps[_sevenAgainstIndex] = GetNonStarterInitialExpectedTrumps(Hra.SedmaProti);
-                for (var i = 0; i < Game.NumPlayers; i++)
+                for (var i = 0; i < Game.NumPlayers + 1; i++)
                 {
-                    if (i != _myIndex && i != _sevenAgainstIndex && i != _gameStarterIndex)
+                    _cardProbabilityForPlayer[i][_trump.Value][Hodnota.Sedma] = i == _sevenAgainstIndex ? 1 : 0;
+                    if (i != _myIndex && i != _sevenAgainstIndex && i != _gameStarterIndex && i != talonIndex)
                     {
                         _initialExpectedTrumps[i] = 8 - _initialExpectedTrumps[_gameStarterIndex] - _initialExpectedTrumps[_sevenAgainstIndex];
                     }

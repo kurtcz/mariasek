@@ -382,7 +382,7 @@ namespace Mariasek.Engine.New
                                                                      .Any(h => i.Value < h &&
                                                                                (_probabilities.CardProbability(player2, new Card(i.Suit, h)) > _epsilon ||
                                                                                 _probabilities.CardProbability(player3, new Card(i.Suit, h)) > _epsilon)));
-                                           
+
                         if (holes.Count > 0 && 
                             topTrumps.Count >= holes.Count &&
                             lowcards.Count() <= hands[MyIndex].CardCount(_trump))
@@ -480,7 +480,7 @@ namespace Mariasek.Engine.New
                         }
 
                         //zkus vytlacit trumf trumfem pokud jich mam dost a je velka sance, 
-                        //ze na mou plyvu (kterou bych zahral v nasl. pravidlech) jeden souper namaze a druhej ji prebije
+                        //ze na mou plivu (kterou bych zahral v nasl. pravidlech) jeden souper namaze a druhej ji prebije
                         if(!cardsToPlay.Any() && opponentTrumps > 0 && ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 ||
                                                                         (_gameType & (Hra.Kilo | Hra.KiloProti)) != 0))
                         {
@@ -825,7 +825,8 @@ namespace Mariasek.Engine.New
                                                                     .ToList();
                         return cardsToPlay.OrderByDescending(i => myInitialHand.CardCount(i.Suit))
                                           .ThenBy(i => i.Value)
-                                          .FirstOrDefault();                    }
+                                          .FirstOrDefault();
+                    }
                     return null;
                 }
             };
