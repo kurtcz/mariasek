@@ -706,7 +706,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 6,
-                Description = "zkusit uhrát bodovanou kartu",   //v nekterych situacich by se vyplatilo tohle pravidlo hrat jako prvni ... kdy presne? ... nebo vzdy?
+                Description = "zkusit uhrát bodovanou kartu",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
                 {
@@ -737,8 +737,8 @@ namespace Mariasek.Engine.New
                         var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                 (i.Value == Hodnota.Eso ||
                                                                                  (i.Value == Hodnota.Desitka &&
-                                                                                  _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0 &&
-                                                                                  _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0)) &&
+                                                                                  _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) <= _epsilon &&
+                                                                                  _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) <= _epsilon)) &&
                                                                                   _probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor &&
                                                                                   _probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor &&
                                                                                   (myInitialHand.CardCount(i.Suit) <= 2 ||
@@ -751,6 +751,81 @@ namespace Mariasek.Engine.New
                                           .ThenBy(i => i.Value)
                                           .FirstOrDefault();
                     }
+                    else if (TeamMateIndex == player2)
+                    {
+                        //co-
+                        var myPlayedCards = _rounds.Where(r => r != null && r.c3 != null)
+                                                   .Select(r =>
+                                                   {
+                                                       if (r.player1.PlayerIndex == MyIndex)
+                                                       {
+                                                           return r.c1;
+                                                       }
+                                                       else if (r.player2.PlayerIndex == MyIndex)
+                                                       {
+                                                           return r.c2;
+                                                       }
+                                                       else
+                                                       {
+                                                           return r.c3;
+                                                       }
+                                                   }).ToList();
+                        var myInitialHand = new List<Card>();
+                        myInitialHand.AddRange((List<Card>)hands[MyIndex]);
+                        myInitialHand.AddRange(myPlayedCards);
+
+                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                (i.Value == Hodnota.Eso ||
+                                                                                 (i.Value == Hodnota.Desitka &&
+                                                                                  _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) <= _epsilon)) &&
+                                                                                  _probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor &&
+                                                                                  (myInitialHand.CardCount(i.Suit) <= 2 ||
+                                                                                   (myInitialHand.CardCount(i.Suit) <= 3 &&
+                                                                                    myInitialHand.CardCount(_trump) <= 3) ||
+                                                                                   (myInitialHand.CardCount(i.Suit) <= 4 &&
+                                                                                    myInitialHand.CardCount(_trump) <= 2)))
+                                                                    .ToList();
+                        return cardsToPlay.OrderByDescending(i => myInitialHand.CardCount(i.Suit))
+                                          .ThenBy(i => i.Value)
+                                          .FirstOrDefault();
+                    }
+                    else if (TeamMateIndex == player3)
+                    {
+                        //c-o
+                        var myPlayedCards = _rounds.Where(r => r != null && r.c3 != null)
+                                                   .Select(r =>
+                                                   {
+                                                       if (r.player1.PlayerIndex == MyIndex)
+                                                       {
+                                                           return r.c1;
+                                                       }
+                                                       else if (r.player2.PlayerIndex == MyIndex)
+                                                       {
+                                                           return r.c2;
+                                                       }
+                                                       else
+                                                       {
+                                                           return r.c3;
+                                                       }
+                                                   }).ToList();
+                        var myInitialHand = new List<Card>();
+                        myInitialHand.AddRange((List<Card>)hands[MyIndex]);
+                        myInitialHand.AddRange(myPlayedCards);
+
+                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                (i.Value == Hodnota.Eso ||
+                                                                                 (i.Value == Hodnota.Desitka &&
+                                                                                  _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) <= _epsilon)) &&
+                                                                                  _probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor &&
+                                                                                  (myInitialHand.CardCount(i.Suit) <= 2 ||
+                                                                                   (myInitialHand.CardCount(i.Suit) <= 3 &&
+                                                                                    myInitialHand.CardCount(_trump) <= 3) ||
+                                                                                   (myInitialHand.CardCount(i.Suit) <= 4 &&
+                                                                                    myInitialHand.CardCount(_trump) <= 2)))
+                                                                    .ToList();
+                        return cardsToPlay.OrderByDescending(i => myInitialHand.CardCount(i.Suit))
+                                          .ThenBy(i => i.Value)
+                                          .FirstOrDefault();                    }
                     return null;
                 }
             };
