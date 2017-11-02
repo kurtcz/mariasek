@@ -936,10 +936,39 @@ namespace Mariasek.Engine.New
                     return null;
 				}
 			};
-			
+
             yield return new AiRule()
             {
                 Order = 9,
+                Description = "bodovat nebo vytlačit trumf",
+                SkipSimulations = true,
+                ChooseCard1 = () =>
+                {
+                    if (TeamMateIndex == -1 && (_gameType & Hra.SedmaProti) != 0)
+                    {
+                        //c--
+
+                        //u sedmy proti hraju od nejvyssi karty (A nebo X) v nejdelsi netrumfove barve
+                        //bud projde nebo ze soupere vytlacim trumf
+                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                (i.Value == Hodnota.Eso ||
+                                                                                (i.Value == Hodnota.Desitka &&
+                                                                                 _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0 &&
+                                                                                 _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0)))
+                                                                    .OrderByDescending(i => hands[MyIndex].CardCount(i.Suit))
+                                                                    .ThenByDescending(i => i.Value)
+                                                                    .Take(1)
+                                                                    .ToList();
+                        return cardsToPlay.FirstOrDefault();
+                    }
+
+                    return null;
+                }
+            };
+
+            yield return new AiRule()
+            {
+                Order = 10,
                 Description = "hrát dlouhou barvu mimo A,X,trumf",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -1052,7 +1081,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 10,
+                Order = 11,
                 Description = "obětuj plonkovou X",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -1085,7 +1114,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 11,
+                Order = 12,
                 Description = "hrát vítěznou kartu",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -1095,7 +1124,7 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex == -1)
                     {
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => (i.Suit != _trump &&            //trumfu se zbytecne nezbavovat
-                                                                             i.Value != Hodnota.Eso) &&                                                                            
+                                                                             i.Value != Hodnota.Eso) &&
                                                                             Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                                 .Where(h => h > i.Value)
                                                                                 .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0) &&
@@ -1106,6 +1135,7 @@ namespace Mariasek.Engine.New
                                                                                 .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0) &&
                                                                             (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 ||
                                                                              _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0)).ToList();
+
                     }
                     else if (TeamMateIndex == player2)
                     {
@@ -1133,7 +1163,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 12,
+                Order = 13,
                 Description = "hrát vítězné A",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -1173,7 +1203,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 13,
+                Order = 14,
                 Description = "zbavit se plev",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -1212,7 +1242,7 @@ namespace Mariasek.Engine.New
 
 			yield return new AiRule()
 			{
-				Order = 14,
+				Order = 15,
 				Description = "hrát cokoli mimo A,X,trumf",
 				SkipSimulations = true,
 				ChooseCard1 = () =>
@@ -1268,7 +1298,7 @@ namespace Mariasek.Engine.New
             {
                 yield return new AiRule()
                 {
-                    Order = 16,
+                    Order = 17,
                     Description = "hrát cokoli mimo trumf",
                     SkipSimulations = true,
                     ChooseCard1 = () =>
@@ -1293,7 +1323,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 17,
+                Order = 18,
                 Description = "hrát cokoli",
                 SkipSimulations = true,
                 ChooseCard1 = () =>

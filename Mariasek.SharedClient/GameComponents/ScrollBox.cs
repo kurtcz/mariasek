@@ -205,7 +205,7 @@ namespace Mariasek.SharedClient.GameComponents
 
         private double _scrollingVelocity;
         private int _scrollingDirection;
-        private const float decceleration = 0.02f;
+        private const float decceleration = 0.01f;
 
         public override void Update(GameTime gameTime)
         {

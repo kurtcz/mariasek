@@ -282,7 +282,7 @@ namespace Mariasek.SharedClient.GameComponents
         private Vector2 _oldHorizontalScrollOffset;
         private double _scrollingVelocity;
         private int _scrollingDirection;
-        private const float decceleration = 0.02f;
+        private const float decceleration = 0.01f;
 
         protected override void OnTouchDown(TouchLocation tl)
         {

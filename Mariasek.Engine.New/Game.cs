@@ -515,7 +515,7 @@ namespace Mariasek.Engine.New
                 }
                 var fleky = Enum.GetValues(typeof(Hra))
                                 .Cast<Hra>()
-                                .Where(gt => Bidding != null && Bidding.PlayerBids.Any(bid => (gt & bid) != 0))
+                                .Where(gt => (gt & GameType) != 0)
                                 .Select(gt =>
                 {
                     var flek = 0;
