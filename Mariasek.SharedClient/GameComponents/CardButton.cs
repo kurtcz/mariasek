@@ -276,6 +276,11 @@ namespace Mariasek.SharedClient.GameComponents
 			}
 		}
 
+        public new void TouchUp(TouchLocation tl)
+        {
+            OnTouchUp(tl);
+        }
+
         /// <summary>
         /// Allows the game component to update itself.
         /// </summary>

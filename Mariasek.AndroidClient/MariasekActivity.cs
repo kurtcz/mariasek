@@ -24,7 +24,7 @@ namespace Mariasek.AndroidClient
                Theme = "@style/Theme.Splash",
                AlwaysRetainTaskState = true,
                LaunchMode = LaunchMode.SingleInstance,
-               ScreenOrientation = ScreenOrientation.ReverseLandscape,
+               ScreenOrientation = ScreenOrientation.SensorLandscape,
                ConfigurationChanges = ConfigChanges.Orientation |
                                       ConfigChanges.ScreenSize |
         		                      ConfigChanges.KeyboardHidden |

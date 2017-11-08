@@ -158,7 +158,7 @@ namespace Mariasek.SharedClient
         {
             try
             {
-                if (!sound.IsDisposed)
+                if (sound != null && !sound.IsDisposed)
                 {
                     sound.Play();
                 }
@@ -173,7 +173,7 @@ namespace Mariasek.SharedClient
 		{
 			try
 			{
-                if (!sound.IsDisposed)
+                if (sound != null && !sound.IsDisposed)
                 {
                     sound.Play();
                 }

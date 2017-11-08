@@ -33,6 +33,7 @@ namespace Mariasek.Engine.New
         }
 
         public bool GamePlayed { get; private set; }
+        public bool GivenUp { get; private set; }
         public float BaseBet { get; set; }
         public Hra GameType { get { return _gameType; } }
         public string GameTypeString { get; set; }
@@ -94,12 +95,21 @@ namespace Mariasek.Engine.New
         //vola se na konci hry
         protected MoneyCalculatorBase(Game g, CultureInfo ci = null)
         {
-            _gameType = g.GameType;
+            _gameStartingPlayerIndex = g.GameStartingPlayerIndex;
             _trump = g.trump;
+            _bidding = g.Bidding;
+            GivenUp = g.GameType == 0;
+            if (GivenUp)
+            {
+                _gameType = Hra.Hra;
+                _bidding._gameFlek = 2;
+            }
+            else
+            {
+                _gameType = g.GameType;
+            }
             GameTypeString = _gameType.ToDescription(null);
             GameTypeConfidence = g.GameTypeConfidence;
-            _bidding = g.Bidding;
-            _gameStartingPlayerIndex = g.GameStartingPlayerIndex;
             PlayerNames = g.players.Select(i => i.Name).ToArray();
             BaseBet = g.BaseBet;
             GamePlayed = g.rounds[0] != null;
@@ -183,7 +193,7 @@ namespace Mariasek.Engine.New
                 }
                 else //hra se nehrala
                 {
-                    GameWon = (g.GameType & Hra.Sedma) == 0; //neflekovana hra se bere jako vyhrana, flekovana hra pri sedme se bere jako prohrana
+                    GameWon = !GivenUp && (g.GameType & Hra.Sedma) == 0; //neflekovana hra se bere jako vyhrana, flekovana hra pri sedme se bere jako prohrana
                     SevenWon = (g.GameType & Hra.Sedma) != 0;
                     QuietSevenWon = false;
                     SevenAgainstWon = false;

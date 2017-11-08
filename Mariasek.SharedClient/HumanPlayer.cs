@@ -23,6 +23,7 @@ namespace Mariasek.SharedClient
         private Task _aiTask;
         private CancellationTokenSource _cancellationTokenSource;
         public Probability Probabilities { get; set; }
+        private bool _givenUp;
 		private int _t0;
 		private int _t1;
 
@@ -167,6 +168,7 @@ namespace Mariasek.SharedClient
                         validGameTypes |= Hra.Sedma;
                     }
                     if (_aiPlayer != null)
+                        
                     {
 						//var gt2 = _aiPlayer.ChooseGameTypeNew(validGameTypes);
 						//_scene.SuggestGameTypeNew(gt2);
@@ -217,8 +219,11 @@ namespace Mariasek.SharedClient
                                 }
                             }, _cancellationTokenSource.Token);
                     }
+                    //Musime jeste poladit kry presne tlacitko ukazat
+                    //Bud pri volbe typu hry nebo v 1. kole nebo kdykoli v prubehu hry
+                    //_gameType = _scene.ChooseGameType(validGameTypes, true);
                     _gameType = _scene.ChooseGameType(validGameTypes);
-
+                    _givenUp = _gameType == 0;
                     CancelAiTask();
                     if ((_gameType & (Hra.Betl | Hra.Durch)) != 0)
                     {
@@ -265,7 +270,7 @@ namespace Mariasek.SharedClient
 
         public override Hra ChooseGameType(Hra validGameTypes)
         {
-            if(_gameType != 0)
+            if(_gameType != 0 || _givenUp)
             {
                 return _gameType;
             }

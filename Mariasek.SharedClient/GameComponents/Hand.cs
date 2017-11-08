@@ -84,6 +84,10 @@ namespace Mariasek.SharedClient.GameComponents
         private Vector2 _centre;
 
         private CardButton[] _cardButtons = new CardButton[12];
+        public CardButton CardButtonForCard(Card card)
+        {
+            return _cardButtons.FirstOrDefault(i => (Card)i.Tag == card);
+        }
         //private RectangleShape rs;
         private const int ZIndexBase = 50;
         public const int CardWidth = 164;

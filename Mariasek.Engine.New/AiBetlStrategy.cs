@@ -56,31 +56,31 @@ namespace Mariasek.Engine.New
 				};
 			}
 
-			if (RoundNumber == 2 && _rounds != null && _rounds[0] != null) //pri simulaci hry jsou skutecny kola jeste neodehrany
-			{
-				if (_rounds[0].c1.Suit == _rounds[0].c2.Suit && _rounds[0].c1.Suit == _rounds[0].c3.Suit)
-				{
-					bannedSuit = _rounds[0].c1.Suit;
-				}
+			//if (RoundNumber == 2 && _rounds != null && _rounds[0] != null) //pri simulaci hry jsou skutecny kola jeste neodehrany
+			//{
+			//	if (_rounds[0].c1.Suit == _rounds[0].c2.Suit && _rounds[0].c1.Suit == _rounds[0].c3.Suit)
+			//	{
+			//		bannedSuit = _rounds[0].c1.Suit;
+			//	}
 
-				if (bannedSuit.HasValue)
-				{
-					yield return new AiRule()
-					{
-						Order = 0,
-						Description = "Hraj A v jiné barvě",
-						SkipSimulations = true,
-						ChooseCard1 = () =>
-						{
-							IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
+			//	if (bannedSuit.HasValue)
+			//	{
+			//		yield return new AiRule()
+			//		{
+			//			Order = 0,
+			//			Description = "Hraj A v jiné barvě",
+			//			SkipSimulations = true,
+			//			ChooseCard1 = () =>
+			//			{
+			//				IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
 
-							cardsToPlay = hands[MyIndex].Where(i => i.Suit != bannedSuit.Value && i.Value == Hodnota.Eso);
+			//				cardsToPlay = hands[MyIndex].Where(i => i.Suit != bannedSuit.Value && i.Value == Hodnota.Eso);
 
-							return cardsToPlay.ToList().RandomOneOrDefault();
-						}
-					};
-				}
-			}
+			//				return cardsToPlay.ToList().RandomOneOrDefault();
+			//			}
+			//		};
+			//	}
+			//}
 
             yield return new AiRule()
             {
@@ -378,21 +378,22 @@ namespace Mariasek.Engine.New
 
                     if (TeamMateIndex == -1)//-c-
                     {
-                        var lo = ValidCards(c1, hands[MyIndex]).Where(i =>
-                            //vezmi karty nizsi nez souperi
-                                            hands[player1].Any(j => j.Suit == i.Suit && j.IsHigherThan(i, null)) ||
-                                                hands[player3].Any(j => j.Suit == i.Suit && j.IsHigherThan(i, null)));
-                        var hi = lo.Where(i =>
-                            //vezmi karty Vyssi nez souperi
-                                        hands[player1].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)) ||
-                                            hands[player3].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)))
-                                   .GroupBy(g => g.Suit);   //seskup podle barev
-                        //vyber z nizkych karet jen karty kde je max 1 karta vyssi nez souperovy
-                        //cardsToPlay = hi.Where(g => g.Count() == 1).SelectMany(g => g).ToList();
-                        cardsToPlay = hi.SelectMany(g => g)
+                        //var lo = ValidCards(c1, hands[MyIndex]).Where(i =>
+                            ////vezmi karty nizsi nez souperi
+                                            //hands[player1].Any(j => j.Suit == i.Suit && j.IsHigherThan(i, null)) ||
+                                                //hands[player3].Any(j => j.Suit == i.Suit && j.IsHigherThan(i, null)));
+                        //var hi = lo.Where(i =>
+                                   //     //vezmi karty Vyssi nez souperi
+                                   //     hands[player1].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)) ||
+                                   //         hands[player3].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)))
+                                   //.GroupBy(g => g.Suit);   //seskup podle barev
+                        var hi = ValidCards(c1, hands[MyIndex]).Where(i =>  //vezmi karty Vyssi nez souperi                                        
+                                                hands[player1].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)) ||
+                                                hands[player3].Any(j => j.Suit == i.Suit && i.IsHigherThan(j, null)));
+                        cardsToPlay = hi//.SelectMany(g => g)
                                         .OrderByDescending(i => i.BadValue)
                                         .Take(1)
-                                        .ToList(); //podminka s jednou kartou nefunguje
+                                        .ToList(); 
                         //je treba odmazavat pokud to jde, v nejhorsim hru neuhraju, simulace by mely ukazat
                     }
                     else //oc-

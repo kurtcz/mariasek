@@ -809,7 +809,19 @@ namespace Mariasek.Engine.New
                 }
                 if (RoundNumber > 0 && talon.Count() != 2)
                 {
-                    throw new InvalidOperationException($"Bad talon count: {talon.Count()} hands: {players[0].Hand.Count()} {players[1].Hand.Count()} {players[2].Hand.Count()}");
+                    if (players.Sum(i => i.Hand.Count()) + cardsPlayed.Count() == 30)
+                    {
+                        talon = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                    .SelectMany(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                         .Select(h => new Card(b, h)))
+                                    .Where(i => !cardsPlayed.Contains(i) &&
+                                                players.All(j => !j.Hand.Contains(i)))
+                                    .ToList();
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Bad talon count: {talon.Count()} hands: {players[0].Hand.Count()} {players[1].Hand.Count()} {players[2].Hand.Count()}");
+                    }
                 }
 			}
 		}
@@ -956,6 +968,10 @@ namespace Mariasek.Engine.New
 
         private bool ShouldPlayGame()
         {
+            if (GameType == 0)
+            {
+                return false;
+            }
             if (SkipBidding)
             {
                 return true; //pokud je vyple flekovani, tak hrajeme vzdycky
@@ -1240,7 +1256,10 @@ namespace Mariasek.Engine.New
                 if(!SkipBidding)
                 {
                     Bidding = new Bidding(this);
-                    GameType = Bidding.CompleteBidding();
+                    if (GameType != 0)
+                    {
+                        GameType = Bidding.CompleteBidding();
+                    }
                 }
             }
             _roundStartingPlayer = GameStartingPlayer;
