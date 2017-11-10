@@ -1036,7 +1036,7 @@ namespace Mariasek.SharedClient
         {
             g = null;
             _testGame = true;
-			File.Copy(_newGameFilePath, _savedGameFilePath, true);
+            Task.Run(() => File.Copy(_newGameFilePath, _savedGameFilePath, true));
 			LoadGame();
         }
 

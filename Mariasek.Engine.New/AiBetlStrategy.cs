@@ -59,7 +59,7 @@ namespace Mariasek.Engine.New
             if (RoundNumber == 2 && 
                 _rounds != null && 
                 _rounds[0] != null && 
-                _rounds[0].c3.Suit != null) //pri simulaci hry jsou skutecny kola jeste neodehrany
+                _rounds[0].c3 != null) //pri simulaci hry jsou skutecny kola jeste neodehrany
             {
                 if (_rounds[0].c1.Suit == _rounds[0].c2.Suit && _rounds[0].c1.Suit == _rounds[0].c3.Suit)
                 {
@@ -76,9 +76,9 @@ namespace Mariasek.Engine.New
 			//			ChooseCard1 = () =>
 			//			{
 			//				IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
-
+            //
 			//				cardsToPlay = hands[MyIndex].Where(i => i.Suit != bannedSuit.Value && i.Value == Hodnota.Eso);
-
+            //
 			//				return cardsToPlay.ToList().RandomOneOrDefault();
 			//			}
 			//		};
