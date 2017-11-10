@@ -288,8 +288,20 @@ namespace Mariasek.Engine.New
             var n = _cardProbabilityForPlayer[playerIndex].Where(i => i.Key != b).Sum(i =>i.Value.Count(h => h.Value > 0f && h.Value < 0.9f));
             var uncertainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 0.9f));
             var certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value >= 0.9f));
+
             var totalCards = 10 - roundNumber + 1;
 
+            if (n == 0)
+            {
+                //no uncertain cardsin other suits, however
+                //the result is based on assumed cards, not on actual game play
+                //let's use actual card probabilities in this situation
+                //so that we can distinguish between actual and assumed suit probabilities
+
+                n = _cardProbabilityForPlayer[playerIndex].Where(i => i.Key != b).Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 0.99f));
+                uncertainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 0.99f));
+                certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value >= 0.99f));
+            }
             return (float)CNK(n, totalCards - certainCards) / (float)CNK(uncertainCards, totalCards - certainCards);
         }
 
@@ -363,6 +375,16 @@ namespace Mariasek.Engine.New
             var certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value >= 0.9f));
             var totalCards = 10 - roundNumber + 1;
 
+            if (n == 0)
+            {
+                n = goodGame
+                    ? _cardProbabilityForPlayer[playerIndex].Where(i => i.Key != c.Suit).Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 0.99f)) +
+                      _cardProbabilityForPlayer[playerIndex][c.Suit].Where(i => i.Key < c.Value).Count(h => h.Value > 0f && h.Value < 0.99f)
+                    : _cardProbabilityForPlayer[playerIndex].Where(i => i.Key != c.Suit).Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 0.99f)) +
+                      _cardProbabilityForPlayer[playerIndex][c.Suit].Where(i => (int)i.Key < c.BadValue).Count(h => h.Value > 0f && h.Value < 0.99f);
+                uncertainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 0.99f));
+                certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value >= 0.99f));
+            }
             return (float)CNK(n, totalCards - certainCards) / (float)CNK(uncertainCards, totalCards - certainCards);
         }
 
