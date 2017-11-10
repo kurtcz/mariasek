@@ -2230,14 +2230,10 @@ namespace Mariasek.SharedClient
                 //}
                 giveUpButton.Hide();
                 _reviewGameToggleBtn.Hide();
-                _reviewGameBtn.Text = "Průběh hry";
-                _reviewGameBtn.Show();
                 HideInvisibleClickableOverlay();
                 HideThinkingMessage();
                 var totalWon = Game.Money.Sum(i => i.MoneyWon[0]) * Game.Settings.BaseBet;
                 _totalBalance.Text = string.Format("Celkem jsem {0}: {1}", totalWon >= 0 ? "vyhrál" : "prohrál", totalWon.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
-                _newGameBtn.Show();
-                _repeatGameBtn.Show();
                 if (!results.GamePlayed || results.MoneyWon[0] == 0)
                 {
                     _gameResult.BorderColor = Color.Blue;
@@ -2254,52 +2250,58 @@ namespace Mariasek.SharedClient
                 _msgLabelLeft.Text = leftMessage.ToString();
                 _msgLabelRight.Text = rightMessage.ToString();
                 ShowGameScore();
-            });
-            _deck = g.GetDeckFromLastGame();
-            SaveDeck();
-            if (g.rounds[0] != null)
-            {
-                ArchiveGame();
-            }
-			if (File.Exists(_savedGameFilePath))
-			{
-				try
-				{
-					File.Delete(_savedGameFilePath);
-				}
-				catch (Exception e)
-				{
-					System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
-				}
-			}
-			var value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
-            if (value > 0)
-            {
-                Game.Settings.GameTypeSimulationsPerSecond = value;
-            }
-            value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
-            if (value > 0)
-            {
-                Game.Settings.RoundSimulationsPerSecond = value;
-            }
-            //_aiConfig["SimulationsPerGameTypePerSecond"].Value = Game.Settings.GameTypeSimulationsPerSecond.ToString();
-            //_aiConfig["SimulationsPerRoundPerSecond"].Value = Game.Settings.RoundSimulationsPerSecond.ToString();
-            Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
-            //tohle zpusobi prekresleni nekterych ui prvku, je treba volat z UI threadu
-            RunOnUiThread(() => Game.UpdateSettings());
+                //});
+                _deck = g.GetDeckFromLastGame();
+                SaveDeck();
+                if (g.rounds[0] != null)
+                {
+                    ArchiveGame();
+                }
+                if (File.Exists(_savedGameFilePath))
+                {
+                    try
+                    {
+                        File.Delete(_savedGameFilePath);
+                    }
+                    catch (Exception e)
+                    {
+                        System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
+                    }
+                }
+                var value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
+                if (value > 0)
+                {
+                    Game.Settings.GameTypeSimulationsPerSecond = value;
+                }
+                value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
+                if (value > 0)
+                {
+                    Game.Settings.RoundSimulationsPerSecond = value;
+                }
+                //_aiConfig["SimulationsPerGameTypePerSecond"].Value = Game.Settings.GameTypeSimulationsPerSecond.ToString();
+                //_aiConfig["SimulationsPerRoundPerSecond"].Value = Game.Settings.RoundSimulationsPerSecond.ToString();
+                Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
+                //tohle zpusobi prekresleni nekterych ui prvku, je treba volat z UI threadu
+                //RunOnUiThread(() => Game.UpdateSettings());
+                Game.UpdateSettings();
 
-            if (g.rounds[0] != null && (results.MoneyWon[0] >= 4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] >= 2)))
-            {                
-                Game.ClapSound?.PlaySafely();
-            }
-            else if (g.rounds[0] != null && (results.MoneyWon[0] <= -4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] <= -2)))
-            {
-                Game.BooSound?.PlaySafely();
-            }
-            else
-            {
-                Game.CoughSound?.PlaySafely();
-            }
+                if (g.rounds[0] != null && (results.MoneyWon[0] >= 4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] >= 2)))
+                {
+                    Game.ClapSound?.PlaySafely();
+                }
+                else if (g.rounds[0] != null && (results.MoneyWon[0] <= -4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] <= -2)))
+                {
+                    Game.BooSound?.PlaySafely();
+                }
+                else
+                {
+                    Game.CoughSound?.PlaySafely();
+                }
+                _newGameBtn.Show();
+                _repeatGameBtn.Show();
+                _reviewGameBtn.Text = "Průběh hry";
+                _reviewGameBtn.Show();
+            });
         }
 
         #endregion
