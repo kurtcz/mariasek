@@ -2252,55 +2252,60 @@ namespace Mariasek.SharedClient
                 ShowGameScore();
                 //});
                 _deck = g.GetDeckFromLastGame();
-                SaveDeck();
-                if (g.rounds[0] != null)
+                Task.Run(() =>
                 {
-                    ArchiveGame();
-                }
-                if (File.Exists(_savedGameFilePath))
-                {
-                    try
+                    SaveDeck();
+                    if (g.rounds[0] != null)
                     {
-                        File.Delete(_savedGameFilePath);
+                        ArchiveGame();
                     }
-                    catch (Exception e)
+                    if (File.Exists(_savedGameFilePath))
                     {
-                        System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
+                        try
+                        {
+                            File.Delete(_savedGameFilePath);
+                        }
+                        catch (Exception e)
+                        {
+                            System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
+                        }
                     }
-                }
-                var value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
-                if (value > 0)
-                {
-                    Game.Settings.GameTypeSimulationsPerSecond = value;
-                }
-                value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
-                if (value > 0)
-                {
-                    Game.Settings.RoundSimulationsPerSecond = value;
-                }
+                    var value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
+                    if (value > 0)
+                    {
+                        Game.Settings.GameTypeSimulationsPerSecond = value;
+                    }
+                    value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
+                    if (value > 0)
+                    {
+                        Game.Settings.RoundSimulationsPerSecond = value;
+                    }
+                });
                 //_aiConfig["SimulationsPerGameTypePerSecond"].Value = Game.Settings.GameTypeSimulationsPerSecond.ToString();
                 //_aiConfig["SimulationsPerRoundPerSecond"].Value = Game.Settings.RoundSimulationsPerSecond.ToString();
                 Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
                 //tohle zpusobi prekresleni nekterych ui prvku, je treba volat z UI threadu
-                //RunOnUiThread(() => Game.UpdateSettings());
-                Game.UpdateSettings();
+                RunOnUiThread(() =>
+                {
+                    Game.UpdateSettings();
 
-                if (g.rounds[0] != null && (results.MoneyWon[0] >= 4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] >= 2)))
-                {
-                    Game.ClapSound?.PlaySafely();
-                }
-                else if (g.rounds[0] != null && (results.MoneyWon[0] <= -4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] <= -2)))
-                {
-                    Game.BooSound?.PlaySafely();
-                }
-                else
-                {
-                    Game.CoughSound?.PlaySafely();
-                }
-                _newGameBtn.Show();
-                _repeatGameBtn.Show();
-                _reviewGameBtn.Text = "Průběh hry";
-                _reviewGameBtn.Show();
+                    if (g.rounds[0] != null && (results.MoneyWon[0] >= 4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] >= 2)))
+                    {
+                        Game.ClapSound?.PlaySafely();
+                    }
+                    else if (g.rounds[0] != null && (results.MoneyWon[0] <= -4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] <= -2)))
+                    {
+                        Game.BooSound?.PlaySafely();
+                    }
+                    else
+                    {
+                        Game.CoughSound?.PlaySafely();
+                    }
+                    _newGameBtn.Show();
+                    _repeatGameBtn.Show();
+                    _reviewGameBtn.Text = "Průběh hry";
+                    _reviewGameBtn.Show();
+                });
             });
         }
 
