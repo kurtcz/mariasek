@@ -606,6 +606,10 @@ namespace Mariasek.SharedClient.GameComponents
                         Rounds[i][0].Tint = Color.LightPink;
                     }
                 }
+                else
+                {
+                    Rounds[i][0].Tint = Color.White;
+                }
                 Labels[i][0].Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player1.Name, Game.MainScene.g.rounds[i].player1.PlayerIndex == 0 ? "-" : debugNote1 != null ? debugNote1.Split('\n')[0] : "-");
                 Labels[i][0].TextColor = Game.MainScene.g.rounds[i].roundWinner.PlayerIndex == Game.MainScene.g.rounds[i].player1.PlayerIndex ? Color.Yellow : Color.White;
 
@@ -621,6 +625,10 @@ namespace Mariasek.SharedClient.GameComponents
                         Rounds[i][1].Tint = Color.LightPink;
                     }
                 }
+                else
+                {
+                    Rounds[i][1].Tint = Color.White;
+                }
                 Labels[i][1].Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player2.Name, Game.MainScene.g.rounds[i].player2.PlayerIndex == 0 ? "-" : debugNote2 != null ? debugNote2.Split('\n')[0] : "-");
                 Labels[i][1].TextColor = Game.MainScene.g.rounds[i].roundWinner.PlayerIndex == Game.MainScene.g.rounds[i].player2.PlayerIndex ? Color.Yellow : Color.White;
 
@@ -635,6 +643,10 @@ namespace Mariasek.SharedClient.GameComponents
                     {
                         Rounds[i][2].Tint = Color.LightPink;
                     }
+                }
+                else
+                {
+                    Rounds[i][2].Tint = Color.White;
                 }
                 Labels[i][2].Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player3.Name, Game.MainScene.g.rounds[i].player3.PlayerIndex == 0 ? "-" : debugNote3 != null ? debugNote3.Split('\n')[0] : "-");
                 Labels[i][2].TextColor = Game.MainScene.g.rounds[i].roundWinner.PlayerIndex == Game.MainScene.g.rounds[i].player3.PlayerIndex ? Color.Yellow : Color.White;
@@ -758,6 +770,10 @@ namespace Mariasek.SharedClient.GameComponents
                         {
                             Hands[i][j].Tint = Color.LightPink;
                         }
+                    }
+                    else
+                    {
+                        Hands[i][j].Tint = Color.White;
                     }
                     if (hlas)
                     {
