@@ -1559,6 +1559,9 @@ namespace Mariasek.Engine.New
             if ((bidding.Bids & Hra.Hra) != 0 &&
                 Settings.CanPlayGameType[Hra.Hra] &&
                 bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Hra] &&
+                (bidding._gameFlek <= 3 ||                      //ai nedava tutti pokud neflekoval i clovek
+                 PlayerIndex == 0 || 
+                 (bidding.PlayerBids[0] & Hra.Hra) != 0) &&
                 _gameSimulations > 0 &&
                 ((_gamesBalance / (float)_gameSimulations >= gameThreshold &&
                     //pokud jsem volil (re a vys) a:
