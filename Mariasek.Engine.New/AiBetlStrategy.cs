@@ -56,13 +56,16 @@ namespace Mariasek.Engine.New
 				};
 			}
 
-			//if (RoundNumber == 2 && _rounds != null && _rounds[0] != null) //pri simulaci hry jsou skutecny kola jeste neodehrany
-			//{
-			//	if (_rounds[0].c1.Suit == _rounds[0].c2.Suit && _rounds[0].c1.Suit == _rounds[0].c3.Suit)
-			//	{
-			//		bannedSuit = _rounds[0].c1.Suit;
-			//	}
-
+            if (RoundNumber == 2 && 
+                _rounds != null && 
+                _rounds[0] != null && 
+                _rounds[0].c3.Suit != null) //pri simulaci hry jsou skutecny kola jeste neodehrany
+            {
+                if (_rounds[0].c1.Suit == _rounds[0].c2.Suit && _rounds[0].c1.Suit == _rounds[0].c3.Suit)
+                {
+                    bannedSuit = _rounds[0].c1.Suit;
+                }
+            }
 			//	if (bannedSuit.HasValue)
 			//	{
 			//		yield return new AiRule()
