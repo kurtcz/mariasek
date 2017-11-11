@@ -44,6 +44,7 @@ namespace Mariasek.SharedClient
         public float BaseBet { get; set; }
         public int ThinkingTimeMs { get; set; }
         public int BubbleTimeMs { get; set; }
+        public int MaxHistoryLength { get; set; }
         public CalculationStyle CalculationStyle { get; set; }
         public int GameTypeSimulationsPerSecond { get; set; }
         public int RoundSimulationsPerSecond { get; set; }
@@ -63,6 +64,7 @@ namespace Mariasek.SharedClient
             CalculationStyle = CalculationStyle.Adding;
             CurrentStartingPlayerIndex = 0;
             BubbleTimeMs = 1000;
+            MaxHistoryLength = 500;
 			CardDesign = CardFace.Single;
             CardBackSide = CardBackSide.Horse;
             PlayerNames = new [] { "Já", "Karel", "Pepa" };

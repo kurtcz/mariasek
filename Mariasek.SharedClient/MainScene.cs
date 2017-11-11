@@ -1589,7 +1589,6 @@ namespace Mariasek.SharedClient
 			g.ThrowIfCancellationRequested();
 			_state = GameState.ChooseTrump;
             _hand.IsEnabled = false;
-            _hintBtn.IsEnabled = false;
 			_cardClicked = null;
 			_evt.Reset();
             RunOnUiThread(() =>
@@ -1617,7 +1616,6 @@ namespace Mariasek.SharedClient
         {
 			EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
-			_hintBtn.IsEnabled = false;
 			_hand.IsEnabled = false;
 			_cardClicked = null;
             _talon = new List<Card>();
@@ -2188,8 +2186,14 @@ namespace Mariasek.SharedClient
             results.SimulatedSuccessRate = SimulatedSuccessRate;
             if (!_testGame)
             {
+                if (Game.Settings.MaxHistoryLength > 0 &&
+                    Game.Money.Count() >= Game.Settings.MaxHistoryLength)
+                {
+                    Game.Money.Clear();
+                    DeleteArchiveFolder();                        
+                }
 				Game.Money.Add(results);
-				SaveHistory();
+                Task.Run(() => SaveHistory());
             }
             EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
