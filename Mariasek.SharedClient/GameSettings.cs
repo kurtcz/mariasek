@@ -64,7 +64,7 @@ namespace Mariasek.SharedClient
             CalculationStyle = CalculationStyle.Adding;
             CurrentStartingPlayerIndex = 0;
             BubbleTimeMs = 1000;
-            MaxHistoryLength = 500;
+            MaxHistoryLength = 0;
 			CardDesign = CardFace.Single;
             CardBackSide = CardBackSide.Horse;
             PlayerNames = new [] { "Já", "Karel", "Pepa" };

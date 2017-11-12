@@ -1293,8 +1293,9 @@ namespace Mariasek.Engine.New
 			//nebo max jedna barva s hodne vysokymi kartami ale prave jednou dirou (musim mit sedmu v dane barve)
 			if ((hiCardsPerSuit.Sum(i => i.Value) <= 3 && hiCardsPerSuit.All(i => i.Value <= 2)) ||
 			    (hiCardsPerSuit.Count(i => i.Value > 2 &&
-                 holesPerSuit[i.Key] == 1 &&
-                 hh.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key)) == 1))
+                 holesPerSuit[i.Key] <= 2 &&
+                 (hh.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key) ||
+                  talon.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key))) == 1))
 			{
 				return true;
 			}

@@ -990,8 +990,8 @@ namespace Mariasek.SharedClient
                 {
                     if (g.IsRunning)
                     {
-                        _review.UpdateReview();
                         _review.Position = origPosition;
+                        _review.UpdateReview();
                         _review.Opacity = 0f;
                         _review.Show();
                         _review.FadeIn(4f);
@@ -1000,6 +1000,7 @@ namespace Mariasek.SharedClient
                     {
                         _reviewGameBtn.Text = "Vyúčtování";
                         HideGameScore();
+                        _review.Position = origPosition;
                         _review.UpdateReview();
                         _review.Position = hiddenPosition;
                         _review.Opacity = 1f;
