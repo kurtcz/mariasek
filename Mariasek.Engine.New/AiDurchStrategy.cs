@@ -104,30 +104,30 @@ namespace Mariasek.Engine.New
                 }
             };
 
-			yield return new AiRule()
-			{
-				Order = 2,
-				Description = "hrát barvu kde asi nechytám",
-				ChooseCard2 = (Card c1) =>
-				{
-                    var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0)
-																.OrderByDescending(i => i.BadValue);
+			//yield return new AiRule()
+			//{
+			//	Order = 2,
+			//	Description = "hrát barvu kde asi nechytám",
+			//	ChooseCard2 = (Card c1) =>
+			//	{
+   //                 var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0)
+			//													.OrderByDescending(i => i.BadValue);
 
-                    if (!cardsToPlay.Any())
-                    {
-                        //barvy kde nejsou diry vyjma nizkych karet
-                        var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                        .Where(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                        .Where(h => h != Hodnota.Eso &&
-                                                                    _probabilities.CardProbability(player1, new Card(b, h)) > 0)
-                                                        .All(h => h < Hodnota.Spodek || h == Hodnota.Desitka));
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => suits.Contains(i.Suit))
-                                                                .OrderByDescending(i => i.BadValue);
-                    }
+   //                 if (!cardsToPlay.Any())
+   //                 {
+   //                     //barvy kde nejsou diry vyjma nizkych karet
+   //                     var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+   //                                     .Where(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+   //                                                     .Where(h => h != Hodnota.Eso &&
+   //                                                                 _probabilities.CardProbability(player1, new Card(b, h)) > 0)
+   //                                                     .All(h => h < Hodnota.Spodek || h == Hodnota.Desitka));
+   //                     cardsToPlay = ValidCards(hands[MyIndex]).Where(i => suits.Contains(i.Suit))
+   //                                                             .OrderByDescending(i => i.BadValue);
+   //                 }
 
-					return cardsToPlay.FirstOrDefault();
-				}
-			};
+			//		return cardsToPlay.FirstOrDefault();
+			//	}
+			//};
 
 			yield return new AiRule()
 			{
@@ -243,30 +243,30 @@ namespace Mariasek.Engine.New
                 }
             };
 
-			yield return new AiRule()
-			{
-				Order = 2,
-				Description = "hrát barvu kde asi nechytám",
-				ChooseCard3 = (Card c1, Card c2) =>
-				{
-					var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0)
-																.OrderByDescending(i => i.BadValue);
+			//yield return new AiRule()
+			//{
+			//	Order = 2,
+			//	Description = "hrát barvu kde asi nechytám",
+			//	ChooseCard3 = (Card c1, Card c2) =>
+			//	{
+			//		var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0)
+			//													.OrderByDescending(i => i.BadValue);
 
-					if (!cardsToPlay.Any())
-					{
-						//barvy kde nejsou diry vyjma nizkych karet
-						var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-										.Where(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-														.Where(h => h != Hodnota.Eso &&
-																	_probabilities.CardProbability(player1, new Card(b, h)) > 0)
-														.All(h => h < Hodnota.Spodek || h == Hodnota.Desitka));
-						cardsToPlay = ValidCards(hands[MyIndex]).Where(i => suits.Contains(i.Suit))
-																.OrderByDescending(i => i.BadValue);
-					}
+			//		if (!cardsToPlay.Any())
+			//		{
+			//			//barvy kde nejsou diry vyjma nizkych karet
+			//			var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+			//							.Where(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+			//											.Where(h => h != Hodnota.Eso &&
+			//														_probabilities.CardProbability(player1, new Card(b, h)) > 0)
+			//											.All(h => h < Hodnota.Spodek || h == Hodnota.Desitka));
+			//			cardsToPlay = ValidCards(hands[MyIndex]).Where(i => suits.Contains(i.Suit))
+			//													.OrderByDescending(i => i.BadValue);
+			//		}
 
-					return cardsToPlay.FirstOrDefault();
-                }
-			};
+			//		return cardsToPlay.FirstOrDefault();
+   //             }
+			//};
 
 			yield return new AiRule()
 			{

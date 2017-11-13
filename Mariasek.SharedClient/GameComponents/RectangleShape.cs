@@ -130,22 +130,30 @@ namespace Mariasek.SharedClient.GameComponents
                 _texture.Dispose();
 				_texture = null;
 			}
-            if (_width > 0 && _height > 0)
+            try
             {
-                _texture = CreateRoundedRectangleTexture(
-                Game.GraphicsDevice,
-                _width,
-                _height,
-                _borderThickness,
-                _borderRadius,
-                _borderShadow,
-                _backgroundColors,
-                _borderColors,
-                _initialShadowIntensity,
-                _finalShadowIntensity
-                );
+                if (_width > 0 && _height > 0)
+                {
+                    _texture = CreateRoundedRectangleTexture(
+                    Game.GraphicsDevice,
+                    _width,
+                    _height,
+                    _borderThickness,
+                    _borderRadius,
+                    _borderShadow,
+                    _backgroundColors,
+                    _borderColors,
+                    _initialShadowIntensity,
+                    _finalShadowIntensity
+                    );
+                }
+                _textureUpdateNeeded = false;
             }
-            _textureUpdateNeeded = false;
+            catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Failed to create rounded rectangle texture");
+                _texture = null;
+            }
         }
 
         private Texture2D CreateRoundedRectangleTexture(GraphicsDevice graphics, int width, int height, int borderThickness, int borderRadius, int borderShadow, List<Color> backgroundColors, List<Color> borderColors, float initialShadowIntensity, float finalShadowIntensity)
