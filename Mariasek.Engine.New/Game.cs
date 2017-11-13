@@ -856,11 +856,11 @@ namespace Mariasek.Engine.New
             if (rounds != null)
             {
                 //slozime stychy v nahodnem poradi
-                var randomPlayers = players.Randomize<AbstractPlayer>();
+                var randomPlayers = players.Shuffle<AbstractPlayer>();
 
                 foreach (var player in randomPlayers)
                 {
-					sb.AppendFormat("Adding winning of player {0}\n", player.PlayerIndex + 1);
+					sb.AppendFormat("Adding hand of player {0}\n", player.PlayerIndex + 1);
                     //dodame karty ve stychu vyjma hlasu
                     foreach (var r in rounds)
                     {
@@ -870,17 +870,17 @@ namespace Mariasek.Engine.New
                         }
 						if (r.roundWinner == player && !r.hlas1)
                         {
-                            deck.Insert(0, r.c1);
+                            deck.Add(r.c1);
 							sb.AppendFormat("Round {0} card 1: Adding {1}\n", r.number, r.c1);
                         }
 						if (r.roundWinner == player && !r.hlas2)
                         {
-                            deck.Insert(0, r.c2);
+                            deck.Add(r.c2);
 							sb.AppendFormat("Round {0} card 2: Adding {1}\n", r.number, r.c2);
                         }
 						if (r.roundWinner == player && !r.hlas3)
                         {
-                            deck.Insert(0, r.c3);
+                            deck.Add(r.c3);
 							sb.AppendFormat("Round {0} card 3: Adding {1}\n", r.number, r.c3);
                         }
                     }
@@ -894,17 +894,17 @@ namespace Mariasek.Engine.New
                         //dodame hlasy
                         if (r.hlas1 && r.player1 == player)
                         {
-                            deck.Insert(0, r.c1);
+                            deck.Add(r.c1);
 							sb.AppendFormat("Round {0} card 1: Hlas {1}\n", r.number, r.c1);
                         }
                         if (r.hlas2 && r.player2 == player)
                         {
-                            deck.Insert(0, r.c2);
+                            deck.Add(r.c2);
 							sb.AppendFormat("Round {0} card 2: Hlas {1}\n", r.number, r.c2);
                         }
                         if (r.hlas3 && r.player3 == player)
                         {
-                            deck.Insert(0, r.c3);
+                            deck.Add(r.c3);
 							sb.AppendFormat("Round {0} card 3: Hlas {1}\n", r.number, r.c3);
                         }
                     }
@@ -913,14 +913,14 @@ namespace Mariasek.Engine.New
 					{
 						sb.AppendFormat("{0}\n", c);
 					}
-                    deck.InsertRange(0, player.Hand);
+                    deck.AddRange(player.Hand);
                 }
 				sb.Append("Adding talon\n");
 				foreach (var c in talon)
 				{
 					sb.AppendFormat("{0}\n", c);
 				}
-				deck.InsertRange(0, talon);
+				deck.AddRange(talon);
             }
 			try
 			{

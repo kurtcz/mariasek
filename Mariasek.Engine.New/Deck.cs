@@ -41,21 +41,13 @@ namespace Mariasek.Engine.New
 
         public void Shuffle()
         {
-            var temp = new List<Card>();
-
-            for (int i = 0; i < MaxSize; i++ )
-            {
-                int r = _rand.Next() % _cards.Count;
-                temp.Add(_cards[r]);
-                _cards.RemoveAt(r);
-            }
-            _cards = temp;
+            _cards = _cards.Shuffle().ToList();
 			CheckDeck();
         }
 
         public void Cut()
         {
-            const int minimalCut = 2;
+            const int minimalCut = 5;
             var temp = new List<Card>();
             int r = _rand.Next() % (_cards.Count - 2 * minimalCut) + minimalCut;
 
@@ -69,8 +61,8 @@ namespace Mariasek.Engine.New
             if (_cards.Count == 0)
                 return null;
 
-            Card c = _cards[0];
-            _cards.RemoveAt(0);
+            Card c = _cards.Last();
+            _cards.RemoveAt(_cards.Count - 1);
 
             return c;
         }
@@ -80,9 +72,9 @@ namespace Mariasek.Engine.New
             if (_cards.Count == 0)
                 return null;
 
-            var result = _cards.GetRange(0, n);
+            var result = _cards.GetRange(_cards.Count - n, n);
             
-            _cards.RemoveRange(0, n);
+            _cards.RemoveRange(_cards.Count - n, n);
 
             return result;
         }

@@ -24,7 +24,8 @@ namespace Mariasek.Engine.New
             return default(TSource);
         }
 
-        public static IEnumerable<TSource> Randomize<TSource>(this IEnumerable<TSource> source)
+        //Shuffles collection members using https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+        public static IEnumerable<TSource> Shuffle<TSource>(this IEnumerable<TSource> source)
         {
             var list = source.ToList();
     		var n = list.Count;
