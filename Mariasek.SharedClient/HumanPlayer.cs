@@ -147,6 +147,7 @@ namespace Mariasek.SharedClient
                 {
                     ExternalDebugString = _aiPlayer._debugString
                 };
+                _aiPlayer._talon = _talon;
                 _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
             }
             CancelAiTask();

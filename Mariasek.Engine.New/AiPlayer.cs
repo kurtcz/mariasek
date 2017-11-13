@@ -594,7 +594,10 @@ namespace Mariasek.Engine.New
                         _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
                         _durchSimulations > 0)
                     {
-                        _talon = ChooseDurchTalon(Hand, null);
+                        if (_talon == null || !_talon.Any())
+                        {
+                            _talon = ChooseDurchTalon(Hand, null);
+                        }
                         DebugInfo.Rule = "Durch";
                         DebugInfo.RuleCount = _durchBalance;
                         DebugInfo.TotalRuleCount = _durchSimulations;
@@ -603,14 +606,20 @@ namespace Mariasek.Engine.New
                              _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && 
                              _betlSimulations > 0)
                     {
-                        _talon = ChooseBetlTalon(Hand, null);
+                        if (_talon == null || !_talon.Any())
+                        {
+                            _talon = ChooseBetlTalon(Hand, null);
+                        }
                         DebugInfo.Rule = "Betl";
                         DebugInfo.RuleCount = _betlBalance;
                         DebugInfo.TotalRuleCount = _betlSimulations;
                     }
                     else
                     {
-                        _talon = ChooseNormalTalon(Hand, TrumpCard);
+                        if (_talon == null || !_talon.Any())
+                        {
+                            _talon = ChooseNormalTalon(Hand, TrumpCard);
+                        }
                         DebugInfo.Rule = "Klasika";
                         if ((float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations)
                         {
