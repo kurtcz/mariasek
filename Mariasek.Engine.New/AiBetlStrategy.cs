@@ -49,9 +49,16 @@ namespace Mariasek.Engine.New
 					SkipSimulations = true,
 					ChooseCard1 = () =>
 					{
-                        var cardsToPlay = hands[MyIndex].Where(i => i.Value == Hodnota.Sedma && hands[MyIndex].CardCount(i.Suit) == 7 && hands[MyIndex].HasA(i.Suit));
+                        var cardsToPlay = hands[MyIndex].Where(i => hands[MyIndex].CardCount(i.Suit) == 7 && 
+                                                                    hands[MyIndex].HasA(i.Suit) &&
+                                                                    hands[MyIndex].Has7(i.Suit) &&
+                                                                    Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                        .Select(h => new Card(i.Suit, h))
+                                                                        .Any(j => i.BadValue < j.BadValue &&
+                                                                                  (_probabilities.CardProbability(player2, j) > 0 ||
+                                                                                   _probabilities.CardProbability(player3, j) > 0)));
 
-						return cardsToPlay.ToList().RandomOneOrDefault();
+                        return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
 					}
 				};
 			}
