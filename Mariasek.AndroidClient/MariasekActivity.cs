@@ -36,107 +36,166 @@ namespace Mariasek.AndroidClient
 		protected override void OnCreate (Bundle bundle)
 		{
             System.Diagnostics.Debug.WriteLine("OnCreate()");
-			base.OnCreate (bundle);
 
             //handle unhandled exceptions from the UI thread
             AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
             //handle unhandled exceptions from background threads
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
-            // Create our OpenGL view, and display it
-			g = new MariasekMonoGame (this, this);
-            SetContentView (g.Services.GetService<View>());
-            g.Run();
+            try
+            {
+                base.OnCreate(bundle);
+
+                // Create our OpenGL view, and display it
+                g = new MariasekMonoGame(this, this);
+                SetContentView(g.Services.GetService<View>());
+                g.Run();
+            }
+            catch(Exception ex)
+            {
+                HandleException(ex);
+            }
 		}
 
         public override void OnConfigurationChanged(Android.Content.Res.Configuration newConfig)
         {
-            System.Diagnostics.Debug.WriteLine("OnConfigurationChanged()");
-            base.OnConfigurationChanged(newConfig);
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("OnConfigurationChanged()");
+                base.OnConfigurationChanged(newConfig);
 
-            //prevent the current game to be restarted due to changes defined in ActivityAttribute.ConfigurationChanges
-            SetContentView(g.Services.GetService<View>());
+                //prevent the current game to be restarted due to changes defined in ActivityAttribute.ConfigurationChanges
+                SetContentView(g.Services.GetService<View>());
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
         }
 
         protected override void OnStart()
         {
-            System.Diagnostics.Debug.WriteLine("OnStart()");
-            base.OnStart();
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("OnStart()");
+                base.OnStart();
+                g.OnStart();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
         }
 
         protected override void OnPause()
         {
-            System.Diagnostics.Debug.WriteLine("OnPause()");
-            base.OnPause();
-            g.OnPaused();
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("OnPause()");
+                base.OnPause();
+                g.OnPaused();
+            }
+            catch(Exception ex)
+            {
+                HandleException(ex);
+            }
         }
 
 		protected override void OnResume()
 		{
-			System.Diagnostics.Debug.WriteLine("OnResume()");
-            base.OnResume();
-            g.OnResume();
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("OnResume()");
+                base.OnResume();
+                g.OnResume();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
 		}
 
         protected override void OnStop()
         {
-            System.Diagnostics.Debug.WriteLine("OnStop()");
-            base.OnStop();
-            g.OnStop();
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("OnStop()");
+                base.OnStop();
+                g.OnStop();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
         }
 
         protected override void OnDestroy()
         {
-            System.Diagnostics.Debug.WriteLine("OnDestroy()");
-            base.OnDestroy();
-            g.Dispose();
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("OnDestroy()");
+                base.OnDestroy();
+                g.Dispose();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
         }
 
         protected override void OnRestart()
         {
-            System.Diagnostics.Debug.WriteLine("OnRestart()");
-            base.OnRestart();
-            g.OnRestart();
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("OnRestart()");
+                base.OnRestart();
+                g.OnRestart();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
         }
 
 		protected override void OnSaveInstanceState (Bundle outState)
         {
-            System.Diagnostics.Debug.WriteLine("OnSaveInstanceState()");
-            base.OnSaveInstanceState (outState);    
-            g.OnSaveInstanceState();
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("OnSaveInstanceState()");
+                base.OnSaveInstanceState(outState);
+                g.OnSaveInstanceState();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
         }
 
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
         {            
             System.Diagnostics.Debug.WriteLine("OnUnhandledException()");
-            var ex = args.ExceptionObject as Exception;
-			var ae = ex as AggregateException;
-			if (ae != null)
-			{
-				ex = ae.Flatten().InnerExceptions[0];
-			}
-            var msg = string.Format("{0}\n{1}\n{2}\n-\n{3}", ex.Message, ex.StackTrace, 
-                                    g?.MainScene?.g?.DebugString?.ToString() ?? string.Empty,
-                                    g?.MainScene?.g?.BiddingDebugInfo?.ToString() ?? string.Empty);
-
-			SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek crash report", msg, new string[0]);
+            HandleException(args.ExceptionObject as Exception);
 		}
 
 		private void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
 		{
 			System.Diagnostics.Debug.WriteLine("OnUnhandledExceptionRaiser()");
-			var ex = e.Exception;
-			var ae = ex as AggregateException;
-			if (ae != null)
-			{
-				ex = ae.Flatten().InnerExceptions[0];
-			}
-            var msg = string.Format("{0}\n{1}\n{2}\n-\n{3}", ex.Message, ex.StackTrace, 
+            HandleException(e.Exception);
+		}
+
+        private void HandleException(Exception ex)
+        {
+            var ae = ex as AggregateException;
+            if (ae != null)
+            {
+                ex = ae.Flatten().InnerExceptions[0];
+            }
+            var msg = string.Format("{0}\n{1}\n{2}\n-\n{3}", ex?.Message, ex?.StackTrace,
                                     g?.MainScene?.g?.DebugString?.ToString() ?? string.Empty,
                                     g?.MainScene?.g?.BiddingDebugInfo?.ToString() ?? string.Empty);
 
             SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek crash report", msg, new string[0]);
-		}
+        }
 
 		public void SendEmail(string[] recipients, string subject, string body, string[] attachments)
         {

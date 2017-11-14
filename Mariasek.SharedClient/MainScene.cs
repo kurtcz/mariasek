@@ -1246,7 +1246,7 @@ namespace Mariasek.SharedClient
                     }
                     else
                     {
-                        for (var i = e.roundNumber - 1; i < Mariasek.Engine.New.Game.NumRounds; i++)
+                        for (var i = e.roundNumber - 1; i < Mariasek.Engine.New.Game.NumRounds && g.rounds[i] != null; i++)
                         {
                             winningCards.Add(g.rounds[i].c1);
                         }
