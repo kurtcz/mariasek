@@ -678,14 +678,14 @@ namespace Mariasek.SharedClient.GameComponents
                                                        (string.IsNullOrEmpty(Game.MainScene.g.players[ii].BidMade)
                                                             ? string.Empty
                                                             : string.Format(" {0}", Game.MainScene.g.players[ii].BidMade.TrimEnd()))) +
-                                         (Game.Settings.HintEnabled && Game.MainScene.g.GameTypeConfidence >= 0
+                                         (Game.MainScene.g.GameTypeConfidence >= 0
                                             ? string.Format(" ({0:0}%)", Game.MainScene.g.GameTypeConfidence * 100)
                                             : string.Empty)
                                        : string.IsNullOrEmpty(Game.MainScene.g.players[ii].BidMade)
                                             ? Game.MainScene.g.players[ii].Name
                                             : string.Format("{0}: {1}", Game.MainScene.g.players[ii].Name,
                                                                         Game.MainScene.g.players[ii].BidMade.Trim()) +
-                                              (Game.Settings.HintEnabled && Game.MainScene.g.players[ii].BidConfidence >= 0
+                                              (Game.MainScene.g.players[ii].BidConfidence >= 0
                                                 ? string.Format(" ({0:0}%)", Game.MainScene.g.players[ii].BidConfidence * 100)
                                                 : string.Empty);
                 for (var j = 0; j < hand.Count; j++)

@@ -29,7 +29,7 @@ namespace Mariasek.AndroidClient
                                       ConfigChanges.ScreenSize |
         		                      ConfigChanges.KeyboardHidden |
         		                      ConfigChanges.Keyboard)]
-	public class MariasekActivity : AndroidGameActivity, IEmailSender, IWebNavigate
+    public class MariasekActivity : AndroidGameActivity, IEmailSender, IWebNavigate, IScreenManager
 	{
         MariasekMonoGame g;
 
@@ -46,9 +46,12 @@ namespace Mariasek.AndroidClient
             {
                 base.OnCreate(bundle);
 
+
                 // Create our OpenGL view, and display it
-                g = new MariasekMonoGame(this, this);
+                g = new MariasekMonoGame(this, this, this);
+
                 SetContentView(g.Services.GetService<View>());
+
                 g.Run();
             }
             catch(Exception ex)
@@ -65,7 +68,9 @@ namespace Mariasek.AndroidClient
                 base.OnConfigurationChanged(newConfig);
 
                 //prevent the current game to be restarted due to changes defined in ActivityAttribute.ConfigurationChanges
-                SetContentView(g.Services.GetService<View>());
+                var view = g.Services.GetService<View>();
+                SetContentView(view);
+                view.KeepScreenOn = true;
             }
             catch (Exception ex)
             {
@@ -244,7 +249,14 @@ namespace Mariasek.AndroidClient
             browser.SetData(Android.Net.Uri.Parse(url));
 			StartActivity(browser);
         }
-	}
+
+        public void SetKeepScreenOnFlag(bool flag)
+        {
+            var view = g.Services.GetService<View>();
+
+            view.KeepScreenOn = flag;
+        }
+    }
 }
 
 

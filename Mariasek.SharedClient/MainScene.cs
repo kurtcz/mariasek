@@ -393,13 +393,14 @@ namespace Mariasek.SharedClient
 			_hintBtn = new Button(this)
             {
                 Text = "?",
+                IsEnabled = false,
                 Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 30),
                 Width = 50,
                 TextColor = new Color(0x60, 0x30, 0x10),//Color.SaddleBrown,
                 BackgroundColor = Color.White,
                 BorderColor = new Color(0x60, 0x30, 0x10),//Color.SaddleBrown,
                 ZIndex = 100,
-				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main                             
             };
             _hintBtn.Click += HintBtnClicked;
             //tlacitka ve hre
@@ -1165,14 +1166,15 @@ namespace Mariasek.SharedClient
 					this.ClearOperations();
 				});
                 _hintBtn.IsEnabled = false;
-                if (Game.Settings.HintEnabled)
-                {
-                    _hintBtn.Show();
-                }
-                else
-                {
-                    _hintBtn.Hide();
-                }
+                _hintBtn.Show();
+                //if (Game.Settings.HintEnabled)
+                //{
+                //    _hintBtn.Show();
+                //}
+                //else
+                //{
+                //    _hintBtn.Hide();
+                //}
                 if (g.GameStartingPlayerIndex != 0)
                 {
                     g.players[0].Hand.Sort(Game.Settings.SortMode == SortMode.Ascending, false);
@@ -1839,7 +1841,10 @@ namespace Mariasek.SharedClient
                         {
                             UpdateHand();
                         }
-                        _hintBtn.IsEnabled = true;
+                        if (Game.Settings.HintEnabled)
+                        {
+                            _hintBtn.IsEnabled = true;
+                        }
                         _hand.IsEnabled = true;
                         _hand.AllowDragging();
                     });
@@ -2294,11 +2299,23 @@ namespace Mariasek.SharedClient
                 {
                     Game.UpdateSettings();
 
-                    if (g.rounds[0] != null && (results.MoneyWon[0] >= 4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] >= 2)))
+                    if (g.rounds[0] != null &&
+                        results.MoneyWon[0] > 0 &&
+                        (g.Bidding.GameMultiplier > 1 ||
+                         g.Bidding.SevenMultiplier > 1 ||
+                         g.Bidding.BetlDurchMultiplier > 0 ||
+                         g.Bidding.SevenAgainstMultiplier > 0 ||
+                         g.Bidding.HundredAgainstMultiplier > 0))
                     {
                         Game.ClapSound?.PlaySafely();
                     }
-                    else if (g.rounds[0] != null && (results.MoneyWon[0] <= -4 || (g.GameStartingPlayerIndex != 0 && results.MoneyWon[0] <= -2)))
+                    else if (g.rounds[0] != null && 
+                             results.MoneyWon[0] < 0 &&
+                             (g.Bidding.GameMultiplier > 1 ||
+                              g.Bidding.SevenMultiplier > 1 ||
+                              g.Bidding.BetlDurchMultiplier > 0 ||
+                              g.Bidding.SevenAgainstMultiplier > 0 ||
+                              g.Bidding.HundredAgainstMultiplier > 0))
                     {
                         Game.BooSound?.PlaySafely();
                     }
@@ -2435,14 +2452,15 @@ namespace Mariasek.SharedClient
 						this.ClearOperations();
 					});
 					_hintBtn.IsEnabled = false;
-                    if (Game.Settings.HintEnabled)
-                    {
-                        _hintBtn.Show();
-                    }
-                    else
-                    {
-                        _hintBtn.Hide();
-                    }
+                    _hintBtn.Show();
+                    //if (Game.Settings.HintEnabled)
+                    //{
+                    //    _hintBtn.Show();
+                    //}
+                    //else
+                    //{
+                    //    _hintBtn.Hide();
+                    //}
                     if (g.GameStartingPlayerIndex != 0 || g.GameType != 0)
                     {
                         g.players[0].Hand.Sort(Game.Settings.SortMode == SortMode.Ascending, false);
@@ -2624,17 +2642,17 @@ namespace Mariasek.SharedClient
                         _progress1.Hide();
                     }
                 }
-                if (_hintBtn != null)
-                {
-                    if (Game.Settings.HintEnabled)
-                    {
-                        _hintBtn.Show();
-                    }
-                    else
-                    {
-                        _hintBtn.Hide();
-                    }
-                }
+                //if (_hintBtn != null)
+                //{
+                //    if (Game.Settings.HintEnabled)
+                //    {
+                //        _hintBtn.Show();
+                //    }
+                //    else
+                //    {
+                //        _hintBtn.Hide();
+                //    }
+                //}
                 var newBackSideRect = Game.Settings.CardBackSide.ToTextureRect();
 
                 if (Game.BackSideRect != newBackSideRect)
@@ -2671,6 +2689,7 @@ namespace Mariasek.SharedClient
                     UpdateCardTextures(this, oldTextures, newTextures);
                     Game.CardTextures = newTextures;
                 }
+                Game.ScreenManager.SetKeepScreenOnFlag(Game.Settings.KeepScreenOn);
             //});
 		}
 
@@ -2761,8 +2780,11 @@ namespace Mariasek.SharedClient
         public void SuggestBidsAndDoubles(string bid, int? t = null)
         {
             _progress1.Progress = _progress1.Max;
-            _hintBtn.IsEnabled = true;
-            HintBtnFunc = () => ShowMsgLabel(string.Format("Nápověda: {0}", bid), false);
+            if (Game.Settings.HintEnabled)
+            {
+                _hintBtn.IsEnabled = true;
+                HintBtnFunc = () => ShowMsgLabel(string.Format("Nápověda: {0}", bid), false);
+            }
         }
 
 		public void SuggestBidsAndDoublesNew(Hra bid)
@@ -2783,18 +2805,21 @@ namespace Mariasek.SharedClient
 		public void SuggestCardToPlay(Card cardToPlay, string hint, string rule, int? t = null)
         {
             _progress1.Progress = _progress1.Max;
-            _hintBtn.IsEnabled = true;
-            HintBtnFunc = () =>
+            if (Game.Settings.HintEnabled)
             {
-                ShowMsgLabel(hint, false);
-                _msgLabelSmall.Text = $"\n\n{rule}";
-                _msgLabelSmall.Show();
-                if (!_hand.HighlightCard(cardToPlay))
+                _hintBtn.IsEnabled = true;
+                HintBtnFunc = () =>
                 {
-                    var msg = string.Format("Chyba simulace: hráč nemá {0}", cardToPlay);
-                    ShowMsgLabel(msg, false);
-                }
-            };
+                    ShowMsgLabel(hint, false);
+                    _msgLabelSmall.Text = $"\n\n{rule}";
+                    _msgLabelSmall.Show();
+                    if (!_hand.HighlightCard(cardToPlay))
+                    {
+                        var msg = string.Format("Chyba simulace: hráč nemá {0}", cardToPlay);
+                        ShowMsgLabel(msg, false);
+                    }
+                };
+            }
         }
 
         public void SortHand(Card cardToHide = null, int numberOfCardsToSort = 12)

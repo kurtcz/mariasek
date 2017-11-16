@@ -151,7 +151,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             catch(Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Failed to create rounded rectangle texture");
+                System.Diagnostics.Debug.WriteLine($"Failed to create rounded rectangle texture: {ex.Message}");
                 _texture = null;
             }
         }

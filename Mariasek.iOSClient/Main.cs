@@ -32,7 +32,9 @@ namespace Mariasek.iOSClient
         {
 			var emailSender = new EmailSender();
             var navigator = new WebNavigate();
-			game = new MariasekMonoGame(emailSender, navigator);
+            var screenUpdater = new ScreenUpdater();
+
+			game = new MariasekMonoGame(emailSender, navigator, screenUpdater);
 
 			var gameController = game.Services.GetService(typeof(UIViewController)) as UIViewController;
 			emailSender.GameController = gameController;

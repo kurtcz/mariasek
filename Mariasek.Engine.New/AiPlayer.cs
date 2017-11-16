@@ -238,6 +238,13 @@ namespace Mariasek.Engine.New
 
         private List<Card> ChooseBetlTalon(List<Card> hand, Card trumpCard)
         {
+            //nedavej do talonu karty v barve kde mam 7 karet vcetne esa a sedmy
+            var bannedSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                  .Where(b => hand.CardCount(b) == 7 &&
+                                              hand.HasA(b) &&
+                                              hand.Has7(b))
+                                  .ToList();
+
 			var holesByCard = hand.Select(i =>
 			{
 				//pro kazdou kartu spocitej diry (mensi karty v barve ktere nemam)
@@ -280,7 +287,7 @@ namespace Mariasek.Engine.New
 				}
 
 				return new Tuple<Card, int, int, int, int>(i, hand.CardCount(i.Suit), holesDelta, holes, higherCards);
-			}).Where(i => i.Item4 > 0);
+            }).Where(i => !bannedSuits.Contains(i.Item1.Suit) && i.Item4 > 0);
 
             //nejprve vem karty ktere jsou ve hre nejvyssi a tudiz nejvice rizikove (A, K)
             var talon = holesByCard.Where(i => i.Item2 < 7 && i.Item5 == 0)// &&               
@@ -317,7 +324,10 @@ namespace Mariasek.Engine.New
             //pokud je potreba, doplnime o nejake nizke karty (abych zhorsil talon na durcha)
             if(talon.Count < 2)
             {
-				talon.AddRange(hand.Where(i => !talon.Contains(i)).OrderBy(i => i.BadValue).Take(2 - talon.Count));
+                talon.AddRange(hand.Where(i => !bannedSuits.Contains(i.Suit) &&
+                                               !talon.Contains(i))
+                                   .OrderBy(i => i.BadValue)
+                                   .Take(2 - talon.Count));
             }
 
 			if (talon == null || talon.Distinct().Count() != 2)

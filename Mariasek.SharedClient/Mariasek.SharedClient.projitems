@@ -54,6 +54,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)AiSettingsScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\DragEndEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IWebNavigate.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IScreenManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)SavedGame\SavedGame.hra">

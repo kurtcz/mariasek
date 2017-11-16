@@ -176,16 +176,17 @@ namespace Mariasek.SharedClient
         public Song NaPankraciSong { get; private set; }
         public IEmailSender EmailSender { get; private set; }
         public IWebNavigate Navigator { get; private set; }
+        public IScreenManager ScreenManager { get; private set; }
         public readonly Vector2 CardScaleFactor;
 
         public List<Mariasek.Engine.New.MoneyCalculatorBase> Money = new List<Mariasek.Engine.New.MoneyCalculatorBase>();
 
         public MariasekMonoGame()
-            : this(null, null)
+            : this(null, null, null)
         {
         }
 
-        public MariasekMonoGame(IEmailSender emailSender, IWebNavigate navigator)
+        public MariasekMonoGame(IEmailSender emailSender, IWebNavigate navigator, IScreenManager screenManager)
         {
             System.Diagnostics.Debug.WriteLine("MariasekMonoGame()");
             Graphics = new GraphicsDeviceManager(this);
@@ -199,6 +200,8 @@ namespace Mariasek.SharedClient
             CardScaleFactor = new Vector2(0.6f, 0.6f);
             EmailSender = emailSender;
             Navigator = navigator;
+            ScreenManager = screenManager;
+
             Resumed += GameResumed;
             Paused += GamePaused;
         }
@@ -532,7 +535,7 @@ namespace Mariasek.SharedClient
 		/// </summary>
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Update (GameTime gameTime)
-		{
+		{            
 #if !__IOS__ && !__TVOS__
 			// For Mobile devices, this logic will close the Game when the Back button is pressed
 			if (GamePad.GetState (PlayerIndex.One).Buttons.Back == ButtonState.Pressed) {
