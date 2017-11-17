@@ -452,21 +452,29 @@ namespace Mariasek.Engine.New
                                 .OrderBy(i => i.Value));                           //vybirej od nejmensich karet
 
             //potom zkus cokoli mimo trumfu,A,X,trumfove 7, hlasu a samotne plivy ktera doplnuje X
-            talon.AddRange(hand.Where(i => !(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
-                                             i.Suit == trumpCard.Suit) &&
-                                           i.Value != Hodnota.Eso &&               //ani A,X
-                                           i.Value != Hodnota.Desitka &&
-                                           !((i.Value == Hodnota.Kral ||           //ani hlasy
-                                               i.Value == Hodnota.Svrsek) &&
-                                           hand.HasK(i.Suit) && hand.HasQ(i.Suit)) &&
-                                           !(i.Value == Hodnota.Sedma &&           //ani trumfovou sedmu
-                                             i.Suit == trumpCard.Suit) &&
+            //talon.AddRange(hand.Where(i => !(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
+                                //             i.Suit == trumpCard.Suit) &&
+                                //           i.Value != Hodnota.Eso &&               //ani A,X
+                                //           i.Value != Hodnota.Desitka &&
+                                //           !((i.Value == Hodnota.Kral ||           //ani hlasy
+                                //               i.Value == Hodnota.Svrsek) &&
+                                //           hand.HasK(i.Suit) && hand.HasQ(i.Suit)) &&
+                                //           !(i.Value == Hodnota.Sedma &&           //ani trumfovou sedmu
+                                //             i.Suit == trumpCard.Suit) &&
+                                //           !(hand.HasX(i.Suit) &&                  //pokud mam jen X+plivu, tak nech plivu byt
+                                //             hand.CardCount(i.Suit) <= 2) &&
+                                //           !(hand.HasX(i.Suit) &&                  //nebo pokud mam jen X+2 plivy
+                                //             !hand.HasA(i.Suit) &&
+                                //             hand.CardCount(i.Suit) == 3))
+                                //.OrderByDescending(i => i.Value));               //vybirej od nejvetsich karet (spodek -> sedma)
+            //potom zkus netrumfove 7 pokud nejsou s desitkou nebo je v barve dost karet
+            talon.AddRange(hand.Where(i => i.Suit != trumpCard.Suit &&
+                                           i.Value == Hodnota.Sedma &&
                                            !(hand.HasX(i.Suit) &&                  //pokud mam jen X+plivu, tak nech plivu byt
                                              hand.CardCount(i.Suit) <= 2) &&
                                            !(hand.HasX(i.Suit) &&                  //nebo pokud mam jen X+2 plivy
                                              !hand.HasA(i.Suit) &&
-                                             hand.CardCount(i.Suit) == 3))
-                                .OrderByDescending(i => i.Value));               //vybirej od nejvetsich karet (spodek -> sedma)
+                                             hand.CardCount(i.Suit) == 3)));
 
             //nakonec cokoli co je podle pravidel
             talon.AddRange(hand.Where(i => !(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu

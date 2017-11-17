@@ -170,7 +170,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 5,
-                Description = "hrát nejmenší kartu v barvě, ve které chytám",
+                Description = "hrát nejmenší kartu v barvě, ve které chytám",   //melo by byt nejvetsi?
                 ChooseCard2 = (Card c1) =>
                 {
                     var topCardsPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
