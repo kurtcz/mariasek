@@ -539,8 +539,9 @@ namespace Mariasek.SharedClient
 #if !__IOS__ && !__TVOS__
 			// For Mobile devices, this logic will close the Game when the Back button is pressed
 			if (GamePad.GetState (PlayerIndex.One).Buttons.Back == ButtonState.Pressed) {
-				Exit ();
-			}
+                //Exit ();                      //under MonoGame 3.6.0 there is a bug that prevents activity from being able to resume again
+                Activity.MoveTaskToBack(true);  //so we need to call this instead
+            }
 #endif
 			if (AmbientSound == null || AmbientSound.IsDisposed)
 			{
