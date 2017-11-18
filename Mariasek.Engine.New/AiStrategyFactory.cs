@@ -15,7 +15,7 @@ namespace Mariasek.Engine.New
             switch(gt)
             {
                 case Hra.Durch:
-                    return new AiDurchStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, teamMatesSuits, probabilities)
+                    return new AiDurchStrategy2(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, teamMatesSuits, probabilities)
                     {
                         MyIndex = playerIndex,
                         MyName = name,
