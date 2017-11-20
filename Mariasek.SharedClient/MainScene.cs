@@ -1038,8 +1038,11 @@ namespace Mariasek.SharedClient
         {
             g = null;
             _testGame = true;
-            Task.Run(() => File.Copy(_newGameFilePath, _savedGameFilePath, true));
-			LoadGame();
+            Task.Run(() =>
+            {
+                File.Copy(_newGameFilePath, _savedGameFilePath, true);
+                LoadGame();
+            });
         }
 
         public void ShuffleDeck()
