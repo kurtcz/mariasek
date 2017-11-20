@@ -39,6 +39,7 @@ namespace Mariasek.Engine.New
         private int _betlSimulations;
         private int _durchSimulations;
         private bool _initialSimulation;
+        private bool _rerunSimulations;
         private bool _teamMateDoubledGame;
         private bool _shouldMeasureThroughput;
         private List<Barva> _teamMatesSuits;
@@ -615,6 +616,7 @@ namespace Mariasek.Engine.New
                         if (_talon == null || !_talon.Any())
                         {
                             _talon = ChooseDurchTalon(Hand, null);
+
                         }
                         DebugInfo.Rule = "Durch";
                         DebugInfo.RuleCount = _durchBalance;
@@ -650,10 +652,12 @@ namespace Mariasek.Engine.New
                             DebugInfo.TotalRuleCount = _durchSimulations;
                         }
                     }
+                    _rerunSimulations = false;
                 }
                 else
                 {
                     RunGameSimulations(bidding, PlayerIndex, false, true);
+                    _rerunSimulations = true;
                 }
                 _initialSimulation = false;
             }
@@ -1440,10 +1444,8 @@ namespace Mariasek.Engine.New
 
             if ((validGameTypes & (Hra.Betl | Hra.Durch)) != 0)
             {
-                //pokud se AI chce rozhodovat po hlaseni spatne barvy, musi sjet simulace znovu se skutecnym talonem
-                var rerunSimulations = validGameTypes == (Hra.Betl | Hra.Durch);
-
-                if (rerunSimulations)
+                //pokud se AI chce rozhodovat po hlaseni spatne barvy, musi sjet simulace znovu se skutecnym talonem (neni treba pokud jsem volil)
+                if (_rerunSimulations)
                 {
                     var bidding = new Bidding(_g);
                     RunGameSimulations(bidding, PlayerIndex, false, true);
