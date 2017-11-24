@@ -206,9 +206,12 @@ namespace Mariasek.SharedClient
                                         msg.AppendFormat(string.Format("{0}{1}", debugInfo.Rule, (k++) % 2 == 1 ? "\n" : "\t"));
                                     }
     							}
-                                _scene.SuggestGameType(gameType.ToDescription(_trump), msg.ToString().TrimEnd(), _t1-_t0);
-                                _scene.SuggestGameTypeNew(gameType);
-                                _scene.SuggestGameFlavourNew(gameType);
+                                if (_aiPlayer.DebugInfo.TotalRuleCount > 0)
+                                {
+                                    _scene.SuggestGameType(gameType.ToDescription(_trump), msg.ToString().TrimEnd(), _t1 - _t0);
+                                    _scene.SuggestGameTypeNew(gameType);
+                                    _scene.SuggestGameFlavourNew(gameType);
+                                }
                                 //nasimulovany talon musime nahradit skutecnym pokud ho uz znam, jinak to udelam v ChooseTalon
                                 if (_talon != null)
                                 {
@@ -302,8 +305,11 @@ namespace Mariasek.SharedClient
                             msg.AppendFormat(string.Format("{0}{1}", debugInfo.Rule, (k++) % 2 == 1 ? "\n" : "\t"));
                         }
                     }
-                    _scene.SuggestGameType(gameType.ToDescription(_trump), msg.ToString().TrimEnd(), _t1 - _t0);
-                    _scene.SuggestGameTypeNew(gameType);
+                    if (_aiPlayer.DebugInfo.TotalRuleCount > 0)
+                    {
+                        _scene.SuggestGameType(gameType.ToDescription(_trump), msg.ToString().TrimEnd(), _t1 - _t0);
+                        _scene.SuggestGameTypeNew(gameType);
+                    }
                 }, _cancellationTokenSource.Token);
             }
             var gt = _scene.ChooseGameType(validGameTypes);
@@ -358,7 +364,10 @@ namespace Mariasek.SharedClient
                         var cardToplay = _aiPlayer.PlayCard(r);
                         
                         _scene.SimulatedSuccessRate = _aiPlayer.DebugInfo.TotalRuleCount > 0 ? _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1;
-                        _scene.SuggestCardToPlay(_aiPlayer.DebugInfo.Card, _aiPlayer.DebugInfo.Card.ToString(), _aiPlayer.DebugInfo.Rule, _t1 - _t0);
+                        if (_aiPlayer.DebugInfo.TotalRuleCount > 0)
+                        {
+                            _scene.SuggestCardToPlay(_aiPlayer.DebugInfo.Card, _aiPlayer.DebugInfo.Card.ToString(), _aiPlayer.DebugInfo.Rule, _t1 - _t0);
+                        }
                     }, _cancellationTokenSource.Token);
             }
             while (true)

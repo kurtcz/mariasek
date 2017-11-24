@@ -527,13 +527,28 @@ namespace Mariasek.Engine.New
             else
             {
                 //protihrac nejdriv sjede simulaci nanecisto (bez talonu) a potom znovu s kartami talonu a vybere novy talon
-                if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0)
+                if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][1] * _durchSimulations && _durchSimulations > 0)
                 {
                     _talon = ChooseDurchTalon(Hand, null);
                 }
-                else
+                else if (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations && _betlSimulations > 0)
                 {
                     _talon = ChooseBetlTalon(Hand, null);
+                }
+                else 
+                {
+                    //ani jedno nevyslo pres prah, vezmeme to co vyslo lepe
+                    if (_durchBalance > 0 &&
+                        _durchSimulations > 0 &&
+                        (_betlSimulations == 0 ||
+                         (float)_durchBalance / (float)_durchSimulations > (float)_betlBalance / (float)_betlSimulations))
+                    {
+                        _talon = ChooseDurchTalon(Hand, null);
+                    }
+                    else
+                    {
+                        _talon = ChooseBetlTalon(Hand, null);
+                    }
                 }
             }
 			if (_talon == null || _talon.Count != 2)
@@ -1467,10 +1482,22 @@ namespace Mariasek.Engine.New
                 }
                 else if (validGameTypes == (Hra.Betl | Hra.Durch))
                 {
-                    //ani po posledni simulaci nevyslo, ze bychom meli hrat betl, ale musime ho zvolit jako unikovyho
-					gameType = Hra.Betl;
-					DebugInfo.RuleCount = _betlBalance;
-					DebugInfo.TotalRuleCount = _betlSimulations;
+                    //po posledni simulaci nevysel pres prah ani betl ani durch, zvolime tedy to, co vyslo lepe
+                    if (_durchBalance > 0 &&
+                        _durchSimulations > 0 && 
+                        (_betlSimulations == 0 ||
+                         (float)_durchBalance / (float)_durchSimulations > (float)_betlBalance  / (float)_betlSimulations))
+                    {
+                        gameType = Hra.Durch;
+                        DebugInfo.RuleCount = _durchBalance;
+                        DebugInfo.TotalRuleCount = _durchSimulations;
+                    }
+                    else
+                    {
+                        gameType = Hra.Betl;
+                        DebugInfo.RuleCount = _betlBalance;
+                        DebugInfo.TotalRuleCount = _betlSimulations;
+                    }
 				}
             }
             else
@@ -1953,7 +1980,38 @@ namespace Mariasek.Engine.New
                 {
                     _log.InfoFormat("Other simulations have been skipped");
                 }
-                cardToPlay = ChooseCardToPlay(cardScores.ToDictionary(k => k.Key, v => new List<GameComputationResult>(v.Value)));
+                try
+                {
+                    cardToPlay = ChooseCardToPlay(cardScores.ToDictionary(k => k.Key, v => new List<GameComputationResult>(v.Value)));
+                }
+                catch(InvalidOperationException)
+                {
+                    List<Card> cardsToPlay;
+
+                    DebugInfo.Rule = "Náhodná karta (simulace neproběhla)";
+                    DebugInfo.RuleCount = 0;
+                    DebugInfo.TotalRuleCount = 0;
+                    if (r.c2 != null)
+                    {
+                        cardsToPlay = ValidCards(Hand, _trump, _gameType.Value, TeamMateIndex, r.c1, r.c2);
+                    }
+                    else if (r.c1 != null)
+                    {
+                        cardsToPlay = ValidCards(Hand, _trump, _gameType.Value, TeamMateIndex, r.c1);
+                    }
+                    else
+                    {
+                        cardsToPlay = ValidCards(Hand, _trump, _gameType.Value, TeamMateIndex);
+                    }
+                    if ((_gameType.Value & (Hra.Betl | Hra.Durch)) != 0)
+                    {
+                        cardToPlay = cardsToPlay.OrderByDescending(i => i.BadValue).First();
+                    }
+                    else
+                    {
+                        cardToPlay = cardsToPlay.OrderBy(i => i.Value).First();
+                    }
+                }
             }
 
             _log.InfoFormat("{0} plays card: {1} - {2}", Name, cardToPlay, DebugInfo.Rule);
@@ -2277,7 +2335,7 @@ namespace Mariasek.Engine.New
                     player3 = (PlayerIndex + 2) % Game.NumPlayers;
                     playerName = _g.players[player1].Name;
                     playerIndex = player1;
-                    teamMateIndex = TeamMateIndex;
+                    teamMateIndex = ImpersonateGameStartingPlayer ?  -1 : TeamMateIndex;
                 }
             }
             else if (c2 == null)
