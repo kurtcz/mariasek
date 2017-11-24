@@ -2302,23 +2302,11 @@ namespace Mariasek.SharedClient
                 {
                     Game.UpdateSettings();
 
-                    if (g.rounds[0] != null &&
-                        results.MoneyWon[0] > 0 &&
-                        (g.Bidding.GameMultiplier > 1 ||
-                         g.Bidding.SevenMultiplier > 1 ||
-                         g.Bidding.BetlDurchMultiplier > 0 ||
-                         g.Bidding.SevenAgainstMultiplier > 0 ||
-                         g.Bidding.HundredAgainstMultiplier > 0))
+                    if (results.GamePlayed && results.MoneyWon[0] > 0)
                     {
                         Game.ClapSound?.PlaySafely();
                     }
-                    else if (g.rounds[0] != null && 
-                             results.MoneyWon[0] < 0 &&
-                             (g.Bidding.GameMultiplier > 1 ||
-                              g.Bidding.SevenMultiplier > 1 ||
-                              g.Bidding.BetlDurchMultiplier > 0 ||
-                              g.Bidding.SevenAgainstMultiplier > 0 ||
-                              g.Bidding.HundredAgainstMultiplier > 0))
+                    else if (results.GamePlayed && results.MoneyWon[0] < 0)
                     {
                         Game.BooSound?.PlaySafely();
                     }
