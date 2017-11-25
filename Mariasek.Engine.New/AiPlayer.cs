@@ -1925,9 +1925,9 @@ namespace Mariasek.Engine.New
                 var progress = 0;
                 var start = DateTime.Now;
 
-                if (goodGame && _g.CurrentRound != null)
+                if (_gameType != Hra.Betl && _g.CurrentRound != null)
                 {
-                    //pokud je hra v behu tak u klasicke hry nepotrebujeme paralelni vypocty
+                    //pokud je hra v behu tak krome betla nepotrebujeme paralelni vypocty
                     //protoze ted pouzivame pravdepodobnostni pravidla
                     options = new ParallelOptions
                     {
