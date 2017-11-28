@@ -113,14 +113,27 @@ namespace Mariasek.Engine.New
                                                    .FirstOrDefault(i => i != null))
                                     .Where(i => i != null);
             var teamMatesCatchingCards = catchingCards.Where(i => teamMatesCardsPlayed.Contains(i));
+            var topCardPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                     .ToDictionary(b => b,
+                                                   b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                   .Select(h => new Card(b, h))
+                                                   .OrderByDescending(i => i.BadValue)
+                                                   .FirstOrDefault(i => _probabilities.CardProbability(MyIndex, i) == 1 ||
+                                                                        _probabilities.CardProbability(player1, i) > 0 ||
+                                                                        _probabilities.CardProbability(player3, i) > 0)
+                                                   ?? new Card(b, Hodnota.Sedma));
             var myCatchingCards = catchingCards.Where(i => myInitialHand.Any(j => j == i))  //pripocti chytaky, ktere mam v ruce
                                                .Concat(hands[MyIndex].Where(i => teamMatesCatchingCards.All(j => j.Suit != i.Suit) &&
-                                                                                 (i.Value == Hodnota.Eso ||
-                                                                                  (i.Value == Hodnota.Kral &&
+                                                                                 (topCardPerSuit[i.Suit].BadValue - i.BadValue == 0 ||
+                                                                                 //(i.Value == Hodnota.Eso ||
+                                                                                  (topCardPerSuit[i.Suit].BadValue - i.BadValue == 1 &&
+                                                                                  //(i.Value == Hodnota.Kral &&
                                                                                    hands[MyIndex].CardCount(i.Suit) >= 2) ||
-                                                                                  (i.Value == Hodnota.Svrsek &&
+                                                                                  (topCardPerSuit[i.Suit].BadValue - i.BadValue == 2 &&
+                                                                                  //(i.Value == Hodnota.Svrsek &&
                                                                                    hands[MyIndex].CardCount(i.Suit) >= 3) ||
-                                                                                  (i.Value == Hodnota.Spodek &&
+                                                                                  (topCardPerSuit[i.Suit].BadValue - i.BadValue == 3 &&
+                                                                                  //(i.Value == Hodnota.Spodek &&
                                                                                    hands[MyIndex].CardCount(i.Suit) >= 4))));
             var cardsToKeep = new Dictionary<Barva, IEnumerable<Card>>();
 
@@ -128,54 +141,58 @@ namespace Mariasek.Engine.New
             {
                 var numCardsToKeep = 0;
 
-                if (myInitialHand.HasA(b))
+                //if (myInitialHand.HasA(b))
+                if (myInitialHand.Any(i => i.Suit == b && i.Value == topCardPerSuit[b].Value))
                 {
                     numCardsToKeep = 1;
                 }
-                else if (myInitialHand.HasK(b))
+                //else if (myInitialHand.HasK(b))
+                else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 1))
                 {
                     numCardsToKeep = 2;
                 }
-                else if (myInitialHand.HasQ(b))
+                //else if (myInitialHand.HasQ(b))
+                else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 2))
                 {
                     numCardsToKeep = 3;
                 }
-                else if (myInitialHand.HasJ(b))
+                //else if (myInitialHand.HasJ(b))
+                else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 3))
                 {
                     numCardsToKeep = 4;
                 }
                 if (numCardsToKeep > 0 &&
                     hands[MyIndex].CardCount(b) >= numCardsToKeep)
                 {
-                    var topCard = myInitialHand.Where(i => i.Suit == b)
-                                               .OrderByDescending(i => i.BadValue)
-                                               .First();
-                    var bottomCards = myInitialHand.Where(i => i.Suit == b)
-                                                   .OrderBy(i => i.BadValue)
-                                                   .Take(numCardsToKeep - 1);
+                    var topCard = hands[MyIndex].Where(i => i.Suit == b)
+                                                .OrderByDescending(i => i.BadValue)
+                                                .First();
+                    var bottomCards = hands[MyIndex].Where(i => i.Suit == b)
+                                                    .OrderBy(i => i.BadValue)
+                                                    .Take(numCardsToKeep - 1);
                     var holesAboveTopCard = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                 .Select(h => new Card(b, h))
                                                 .Count(i => i.BadValue > topCard.BadValue &&
                                                             _probabilities.CardProbability(player1, i) > 0);
                     //drz nejnizsi z karet, nad kterou je stejne der jako nad nejvyssi kartou v dane barve
-                    topCard = myInitialHand.Where(i => i.Suit == b)
-                                           .OrderByDescending(i => i.BadValue)
-                                           .Last(i => bottomCards.All(j => j.BadValue < i.BadValue) &&
-                                                      Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                          .Select(h => new Card(b, h))
-                                                          .Count(j => j.BadValue > i.BadValue &&
-                                                                      _probabilities.CardProbability(player1, j) > 0) == holesAboveTopCard);
+                    topCard = hands[MyIndex].Where(i => i.Suit == b)
+                                            .OrderByDescending(i => i.BadValue)
+                                            .Last(i => bottomCards.All(j => j.BadValue < i.BadValue) &&
+                                                       Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                           .Select(h => new Card(b, h))
+                                                           .Count(j => j.BadValue > i.BadValue &&
+                                                                       _probabilities.CardProbability(player1, j) > 0) == holesAboveTopCard);
                     if (holesAboveTopCard == 0)
                     {
                         //zadne vysoke karty v dane barve nezbyly
                         //postaci drzet nejnizsi z nejvyssich karet abych chytal nizke karty
                         bottomCards = Enumerable.Empty<Card>();
-                        topCard = myInitialHand.Where(i => i.Suit == b)
-                                               .OrderByDescending(i => i.BadValue)
-                                               .Last(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                              .Select(h => new Card(b, h))
-                                                              .Count(j => j.BadValue > i.BadValue &&
-                                                                          _probabilities.CardProbability(player1, j) > 0) == holesAboveTopCard);
+                        topCard = hands[MyIndex].Where(i => i.Suit == b)
+                                                .OrderByDescending(i => i.BadValue)
+                                                .Last(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                               .Select(h => new Card(b, h))
+                                                               .Count(j => j.BadValue > i.BadValue &&
+                                                                           _probabilities.CardProbability(player1, j) > 0) == holesAboveTopCard);
                         var holesBelowTopCard = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                     .Select(h => new Card(b, h))
                                                     .Count(i => i.BadValue < topCard.BadValue &&
@@ -370,46 +387,71 @@ namespace Mariasek.Engine.New
                                                    .FirstOrDefault(i => i != null))
                                     .Where(i => i != null);
             var teamMatesCatchingCards = catchingCards.Where(i => teamMatesCardsPlayed.Contains(i));
-            var myCatchingCards = catchingCards.Where(i => myInitialHand.Any(j => j == i));
+            var topCardPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                         .ToDictionary(b => b,
+                                       b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                       .Select(h => new Card(b, h))
+                                       .OrderByDescending(i => i.BadValue)
+                                       .FirstOrDefault(i => _probabilities.CardProbability(MyIndex, i) == 1 ||
+                                                            _probabilities.CardProbability(player1, i) > 0 ||
+                                                            _probabilities.CardProbability(player2, i) > 0)
+                                       ?? new Card(b, Hodnota.Sedma));
+            var myCatchingCards = catchingCards.Where(i => myInitialHand.Any(j => j == i))  //pripocti chytaky, ktere mam v ruce
+                                               .Concat(hands[MyIndex].Where(i => teamMatesCatchingCards.All(j => j.Suit != i.Suit) &&
+                                                                                 (topCardPerSuit[i.Suit].BadValue - i.BadValue == 0 ||
+                                                                                  //(i.Value == Hodnota.Eso ||
+                                                                                  (topCardPerSuit[i.Suit].BadValue - i.BadValue == 1 &&
+                                                                                   //(i.Value == Hodnota.Kral &&
+                                                                                   hands[MyIndex].CardCount(i.Suit) >= 2) ||
+                                                                                  (topCardPerSuit[i.Suit].BadValue - i.BadValue == 2 &&
+                                                                                   //(i.Value == Hodnota.Svrsek &&
+                                                                                   hands[MyIndex].CardCount(i.Suit) >= 3) ||
+                                                                                  (topCardPerSuit[i.Suit].BadValue - i.BadValue == 3 &&
+                                                                                  //(i.Value == Hodnota.Spodek &&
+                                                                                   hands[MyIndex].CardCount(i.Suit) >= 4))));
             var cardsToKeep = new Dictionary<Barva, IEnumerable<Card>>();
 
             foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
             {
                 var numCardsToKeep = 0;
 
-                if (myInitialHand.HasA(b))
+                //if (myInitialHand.HasA(b))
+                if (myInitialHand.Any(i => i.Suit == b && i.Value == topCardPerSuit[b].Value))
                 {
                     numCardsToKeep = 1;
                 }
-                else if (myInitialHand.HasK(b))
+                //else if (myInitialHand.HasK(b))
+                else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 1))
                 {
                     numCardsToKeep = 2;
                 }
-                else if (myInitialHand.HasQ(b))
+                //else if (myInitialHand.HasQ(b))
+                else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 2))
                 {
                     numCardsToKeep = 3;
                 }
-                else if (myInitialHand.HasJ(b))
+                //else if (myInitialHand.HasJ(b))
+                else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 3))
                 {
                     numCardsToKeep = 4;
                 }
                 if (numCardsToKeep > 0 &&
                     hands[MyIndex].CardCount(b) >= numCardsToKeep)
                 {
-                    var topCard = myInitialHand.Where(i => i.Suit == b)
-                                               .OrderByDescending(i => i.BadValue)
-                                               .First();
-                    var bottomCards = myInitialHand.Where(i => i.Suit == b)
-                                                   .OrderBy(i => i.BadValue)
-                                                   .Take(numCardsToKeep - 1);
+                    var topCard = hands[MyIndex].Where(i => i.Suit == b)
+                                                .OrderByDescending(i => i.BadValue)
+                                                .First();
+                    var bottomCards = hands[MyIndex].Where(i => i.Suit == b)
+                                                    .OrderBy(i => i.BadValue)
+                                                    .Take(numCardsToKeep - 1);
                     var holesAboveTopCard = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                 .Select(h => new Card(b, h))
                                                 .Count(i => i.BadValue > topCard.BadValue &&
                                                             _probabilities.CardProbability(player1, i) > 0);
                     //drz nejnizsi z karet, nad kterou je stejne der jako nad nejvyssi kartou v dane barve
-                    topCard = myInitialHand.Where(i => i.Suit == b)
-                                           .OrderByDescending(i => i.BadValue)
-                                           .Last(i => bottomCards.All(j => j.BadValue < i.BadValue) &&
+                    topCard = hands[MyIndex].Where(i => i.Suit == b)
+                                            .OrderByDescending(i => i.BadValue)
+                                            .Last(i => bottomCards.All(j => j.BadValue < i.BadValue) &&
                                                       Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                           .Select(h => new Card(b, h))
                                                           .Count(j => j.BadValue > i.BadValue &&
@@ -419,12 +461,12 @@ namespace Mariasek.Engine.New
                         //zadne vysoke karty v dane barve nezbyly
                         //postaci drzet nejnizsi z nejvyssich karet abych chytal nizke karty
                         bottomCards = Enumerable.Empty<Card>();
-                        topCard = myInitialHand.Where(i => i.Suit == b)
-                                               .OrderByDescending(i => i.BadValue)
-                                               .Last(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                              .Select(h => new Card(b, h))
-                                                              .Count(j => j.BadValue > i.BadValue &&
-                                                                          _probabilities.CardProbability(player1, j) > 0) == holesAboveTopCard);
+                        topCard = hands[MyIndex].Where(i => i.Suit == b)
+                                                .OrderByDescending(i => i.BadValue)
+                                                .Last(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                               .Select(h => new Card(b, h))
+                                                               .Count(j => j.BadValue > i.BadValue &&
+                                                                           _probabilities.CardProbability(player1, j) > 0) == holesAboveTopCard);
                         var holesBelowTopCard = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                     .Select(h => new Card(b, h))
                                                     .Count(i => i.BadValue < topCard.BadValue &&

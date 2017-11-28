@@ -89,17 +89,27 @@ namespace Mariasek.Engine.New
         {
             get
             {
-                if (Value == Hodnota.Desitka)
+                switch(Value)
                 {
-                    return (int)(Hodnota.Devitka) + 1;
+                    case Hodnota.Eso:
+                        return 7;
+                    case Hodnota.Kral:
+                        return 6;
+                    case Hodnota.Svrsek:
+                        return 5;
+                    case Hodnota.Spodek:
+                        return 4;
+                    case Hodnota.Desitka:
+                        return 3;
+                    case Hodnota.Devitka:
+                        return 2;
+                    case Hodnota.Osma:
+                        return 1;
+                    case Hodnota.Sedma:
+                        return 0;
+                    default:
+                        return -1;
                 }
-
-                if (Value > Hodnota.Devitka)
-                {
-                    return (int)Value + 1;
-                }
-
-                return (int)Value;
             }
         }
         private const string CharCodes = "789sSKXA";
