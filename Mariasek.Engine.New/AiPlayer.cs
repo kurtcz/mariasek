@@ -614,6 +614,7 @@ namespace Mariasek.Engine.New
                 {
                     _talon = PlayerIndex == _g.GameStartingPlayerIndex ? new List<Card>() : null;
                 }
+                var probabilities = Probabilities;
 				Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, _talon)
 				{
 					ExternalDebugString = _debugString
@@ -672,6 +673,10 @@ namespace Mariasek.Engine.New
                 else
                 {
                     RunGameSimulations(bidding, PlayerIndex, false, true);
+                    if (probabilities != null)
+                    {
+                        Probabilities = probabilities;
+                    }
                     _rerunSimulations = true;
                 }
                 _initialSimulation = false;
@@ -1919,6 +1924,10 @@ namespace Mariasek.Engine.New
                     Math.Max(Probabilities.PossibleCombinations((PlayerIndex + 1) % Game.NumPlayers, r.number), //*3 abych snizil sanci ze budu generovat nektere kombinace vickrat
                              Probabilities.PossibleCombinations((PlayerIndex + 2) % Game.NumPlayers, r.number))) * 3;
                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = 0, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Generuju karty"});
+                if (Probabilities.IsUpdateProbabilitiesAfterTalonNeeded())
+                {
+                    Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
+                }
                 var source = goodGame && _g.CurrentRound != null
                                ? Probabilities.GenerateHands(r.number, roundStarterIndex, 1) 
                                : Probabilities.GenerateHands(r.number, roundStarterIndex, simulations);

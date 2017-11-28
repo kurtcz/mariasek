@@ -903,6 +903,11 @@ namespace Mariasek.Engine.New
             //}
         }
 
+        public bool IsUpdateProbabilitiesAfterTalonNeeded()
+        {
+            return _myIndex == _gameStarterIndex && (_myTalon == null || _myTalon.Count() == 0);
+        }
+
         public void UpdateProbabilitiesAfterTalon(List<Card> hand, List<Card> talon)
         {
             if (UseDebugString)
