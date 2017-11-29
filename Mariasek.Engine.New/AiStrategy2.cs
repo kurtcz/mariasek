@@ -43,17 +43,18 @@ namespace Mariasek.Engine.New
             {
                 foreach (var r in _rounds.Where(i => i != null && i.c3 != null))
                 {
-                    if (r.player1.PlayerIndex == TeamMateIndex &&
-                        (r.c1.Value == Hodnota.Eso ||
-                         r.c1.Value == Hodnota.Desitka) &&
-                        (_probabilities.CardProbability(r.player1.PlayerIndex, new Card(r.c1.Suit, Hodnota.Eso)) > _epsilon ||
-                         _probabilities.CardProbability(r.player1.PlayerIndex, new Card(r.c1.Suit, Hodnota.Desitka)) > _epsilon) &&
-                        r.roundWinner.PlayerIndex != r.player1.PlayerIndex &&
-                        r.roundWinner.PlayerIndex != MyIndex)
-                    {
-                        _bannedSuits.Add(r.c1.Suit);
-                    }
-                    else if (r.player2.PlayerIndex == TeamMateIndex &&
+                    //if (r.player1.PlayerIndex == TeamMateIndex &&
+                    //    (r.c1.Value == Hodnota.Eso ||
+                    //     r.c1.Value == Hodnota.Desitka) &&
+                    //    (_probabilities.CardProbability(r.player1.PlayerIndex, new Card(r.c1.Suit, Hodnota.Eso)) > _epsilon ||
+                    //     _probabilities.CardProbability(r.player1.PlayerIndex, new Card(r.c1.Suit, Hodnota.Desitka)) > _epsilon) &&
+                    //    r.roundWinner.PlayerIndex != r.player1.PlayerIndex &&
+                    //    r.roundWinner.PlayerIndex != MyIndex)
+                    //{
+                    //    _bannedSuits.Add(r.c1.Suit);
+                    //}
+                    //else 
+                    if (r.player2.PlayerIndex == TeamMateIndex &&
                              (r.c2.Value == Hodnota.Eso ||
                               r.c2.Value == Hodnota.Desitka) &&
                              (_probabilities.CardProbability(r.player2.PlayerIndex, new Card(r.c2.Suit, Hodnota.Eso)) > _epsilon ||
