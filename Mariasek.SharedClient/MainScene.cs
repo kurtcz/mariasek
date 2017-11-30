@@ -910,6 +910,7 @@ namespace Mariasek.SharedClient
 
         public void CancelRunningTask()
         {
+            ClearActionQueue();
             if (_gameTask != null && _gameTask.Status == TaskStatus.Running)
             {
 				ClearTable(true);
@@ -2340,7 +2341,6 @@ namespace Mariasek.SharedClient
 
         public void LoadGame(bool testGame = false)
         {
-            //var gameToLoadString = ResourceLoader.GetEmbeddedResourceString(this.GetType().Assembly, "GameToLoad");
             if (g == null)
             {
 				CancelRunningTask();

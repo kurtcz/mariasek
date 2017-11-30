@@ -116,11 +116,11 @@ namespace Mariasek.SharedClient
             _trumpCard = _scene.ChooseTrump();
 
             _trump = _trumpCard.Suit;
+            CancelAiTask();
 			if (_aiPlayer != null)
 			{
 				_aiPlayer.TrumpCard = _trumpCard;
 			}
-			CancelAiTask();
 			return _trumpCard;
         }
 
@@ -141,6 +141,7 @@ namespace Mariasek.SharedClient
             }
             _talon = _scene.ChooseTalon();
 
+            CancelAiTask();
             if (_aiPlayer != null)
             {
                 _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon)
@@ -150,7 +151,6 @@ namespace Mariasek.SharedClient
                 _aiPlayer._talon = _talon;
                 _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
             }
-            CancelAiTask();
             return _talon;
         }
 
@@ -361,6 +361,10 @@ namespace Mariasek.SharedClient
                 _aiTask = Task.Run(() =>
                     { 
 						_t1 = Environment.TickCount;
+                        if (_aiPlayer.Probabilities.IsUpdateProbabilitiesAfterTalonNeeded())
+                        {
+                            _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
+                        }
                         var cardToplay = _aiPlayer.PlayCard(r);
                         
                         _scene.SimulatedSuccessRate = _aiPlayer.DebugInfo.TotalRuleCount > 0 ? _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1;

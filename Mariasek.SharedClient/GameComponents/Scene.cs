@@ -122,9 +122,20 @@ namespace Mariasek.SharedClient.GameComponents
             _uiThreadId = Thread.CurrentThread.ManagedThreadId;
             if (_actionQueue.TryDequeue(out action))
             {
-                action();
+                try
+                {
+                    action();
+                }
+                catch(Exception)
+                {                    
+                }
             }
             base.Update(gameTime);
+        }
+
+        protected void ClearActionQueue()
+        {
+            _actionQueue.Clear();
         }
 
 		public override void Draw (GameTime gameTime)

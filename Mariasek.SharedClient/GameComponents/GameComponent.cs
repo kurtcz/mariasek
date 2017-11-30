@@ -324,7 +324,13 @@ namespace Mariasek.SharedClient
                 {
                     if (operation.ActionHandler != null)
                     {
-                        operation.ActionHandler();
+                        try
+                        {
+                            operation.ActionHandler();
+                        }
+                        catch(Exception)
+                        {                            
+                        }
                     }
                     ScheduledOperations.TryDequeue(out operation);
                 }

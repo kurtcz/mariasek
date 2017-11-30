@@ -791,6 +791,21 @@ namespace Mariasek.Engine.New
 
             for (var i = 0; i < NumPlayers; i++)
             {
+                var aiPlayer = players[i] as AiPlayer;
+
+                if (aiPlayer != null &&
+                    aiPlayer.Probabilities != null &&
+                    aiPlayer.PlayerIndex == GameStartingPlayerIndex &&
+                    (aiPlayer._talon == null ||
+                     aiPlayer._talon.Count() == 0))
+                {
+                    aiPlayer._talon = talon;
+                    if (aiPlayer.Probabilities.IsUpdateProbabilitiesAfterTalonNeeded())
+                    {
+                        aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(aiPlayer.Hand, aiPlayer._talon);
+                    }
+                }
+
                 players[i].Hand = players[i].Hand.Distinct().ToList();
                 foreach (var c in cardsPlayed)
                 {
