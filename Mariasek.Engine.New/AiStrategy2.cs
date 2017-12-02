@@ -23,6 +23,7 @@ namespace Mariasek.Engine.New
         private new Barva _trump { get { return base._trump.Value; } } //dirty
         private List<Barva> _bannedSuits = new List<Barva>();
         public float RiskFactor { get; set; }
+        public float SolitaryXThreshold { get; set; }
         private const float _epsilon = 0.01f;
 
         public AiStrategy2(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities)
@@ -33,6 +34,7 @@ namespace Mariasek.Engine.New
                 throw new InvalidOperationException("AiStrategy2: trump is null");
             }
             RiskFactor = 0.275f; //0.2727f ~ (9 nad 5) / (11 nad 5)
+            SolitaryXThreshold = 0.13f;
 		}
 
         private void BeforeGetRules()
@@ -603,7 +605,7 @@ namespace Mariasek.Engine.New
                     var cardsToPlay = new List<Card>();
 					//pokud mam na zacatku 6 karet, tak P(souper ma plonkovou X) = (18 nad 9) / (20 nad 10) ~ 0.263
                     //pokud mam na zacatku 5 karet, tak P(souper ma plonkovou X) ~ 0.131
-                    var SolitaryXThreshold = 0.13f;//25f;
+                    //var SolitaryXThreshold = 0.13f;//25f;
 
 					if (TeamMateIndex == -1)
                     {

@@ -8,7 +8,7 @@ namespace Mariasek.Engine.New
 {
     public static class AiStrategyFactory
     {
-        public static AiStrategyBase GetAiStrategy(Game g, Hra? gameType, Barva? trump, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities, string name, int playerIndex, int teamMateIndex, int? initialRoundNumber, float riskFactor)
+        public static AiStrategyBase GetAiStrategy(Game g, Hra? gameType, Barva? trump, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities, string name, int playerIndex, int teamMateIndex, int? initialRoundNumber, float riskFactor, float solitaryXThreshold)
         {
             var gt = gameType.HasValue ? gameType.Value : g.GameType;
 
@@ -21,7 +21,6 @@ namespace Mariasek.Engine.New
                         MyName = name,
                         TeamMateIndex = teamMateIndex,
                         RoundNumber = initialRoundNumber.HasValue ? initialRoundNumber.Value : g.RoundNumber
-                                                        
                     };
                 case Hra.Betl:
                     return new AiBetlStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, teamMatesSuits, probabilities)
@@ -38,7 +37,8 @@ namespace Mariasek.Engine.New
                         MyName = name,
                         TeamMateIndex = teamMateIndex,
                         RoundNumber = initialRoundNumber.HasValue ? initialRoundNumber.Value : g.RoundNumber,
-                        RiskFactor = riskFactor
+                        RiskFactor = riskFactor,
+                        SolitaryXThreshold = solitaryXThreshold
                     };
             }
         }

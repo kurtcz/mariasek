@@ -107,7 +107,8 @@ namespace Mariasek.Engine.New
                                             },
                 SigmaMultiplier = 0,
 				GameFlavourSelectionStrategy = GameFlavourSelectionStrategy.Standard,
-                RiskFactor = 0.275f
+                RiskFactor = 0.275f,
+                SolitaryXThreshold = 0.13f
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
@@ -158,6 +159,7 @@ namespace Mariasek.Engine.New
             Settings.GameThresholdsForGameType[Hra.Durch] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
             //Settings.MaxDoubleCount = int.Parse(parameters["MaxDoubleCount"].Value);
             Settings.RiskFactor = float.Parse(parameters["RiskFactor"].Value, CultureInfo.InvariantCulture);
+            Settings.SolitaryXThreshold = float.Parse(parameters["SolitaryXThreshold"].Value, CultureInfo.InvariantCulture);
             Settings.MaxDoubleCountForGameType = new Dictionary<Hra, int>();
             Settings.MaxDoubleCountForGameType[Hra.Hra] = int.Parse(parameters["MaxDoubleCount.Hra"].Value);
             Settings.MaxDoubleCountForGameType[Hra.Sedma] = int.Parse(parameters["MaxDoubleCount.Sedma"].Value);
@@ -2389,7 +2391,7 @@ namespace Mariasek.Engine.New
             {
                 teamMatesSuits.Add(suit);
             }
-            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.rounds, teamMatesSuits, prob, playerName, playerIndex, teamMateIndex, initialRoundNumber, Settings.RiskFactor);
+            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.rounds, teamMatesSuits, prob, playerName, playerIndex, teamMateIndex, initialRoundNumber, Settings.RiskFactor, Settings.SolitaryXThreshold);
             
             _log.DebugFormat("Round {0}. Starting simulation for {1}", _g.RoundNumber, _g.players[PlayerIndex].Name);
             if (c1 != null) _log.DebugFormat("First card: {0}", c1);

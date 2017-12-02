@@ -363,6 +363,11 @@ namespace Mariasek.SharedClient
 						_t1 = Environment.TickCount;
                         if (_aiPlayer.Probabilities.IsUpdateProbabilitiesAfterTalonNeeded())
                         {
+                            if (_talon == null || _talon.Count() == 0)
+                            {
+                                _talon = _g.talon;
+                            }
+                            _aiPlayer._talon = _talon;
                             _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
                         }
                         var cardToplay = _aiPlayer.PlayCard(r);

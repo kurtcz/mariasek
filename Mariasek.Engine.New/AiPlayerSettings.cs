@@ -44,6 +44,7 @@ namespace Mariasek.Engine.New
         public int SigmaMultiplier { get; set; }
 		public GameFlavourSelectionStrategy GameFlavourSelectionStrategy { get; set; }
         public float RiskFactor { get; set; }
+        public float SolitaryXThreshold { get; set; }
 
 #if !PORTABLE
         public override string ToString()
