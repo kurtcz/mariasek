@@ -674,12 +674,18 @@ namespace Mariasek.Engine.New
                 }
                 else
                 {
-                    RunGameSimulations(bidding, PlayerIndex, false, true);
-                    if (probabilities != null)
+                    try
                     {
-                        Probabilities = probabilities;
+                        RunGameSimulations(bidding, PlayerIndex, false, true);
                     }
-                    _rerunSimulations = true;
+                    finally
+                    {
+                        if (probabilities != null)
+                        {
+                            Probabilities = probabilities;
+                        }
+                        _rerunSimulations = true;
+                    }
                 }
                 _initialSimulation = false;
             }

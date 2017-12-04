@@ -932,7 +932,10 @@ namespace Mariasek.Engine.New
             }
             foreach (var card in talon)
             {
-                _cardProbabilityForPlayer[_myIndex][card.Suit][card.Value] = 0f;
+                for (var i = 0; i < Game.NumPlayers + 1; i++)
+                {
+                    _cardProbabilityForPlayer[i][card.Suit][card.Value] = 0f;
+                }
                 _cardProbabilityForPlayer[talonIndex][card.Suit][card.Value] = 1f;
             }
             if (UseDebugString)
