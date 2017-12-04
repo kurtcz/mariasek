@@ -55,6 +55,7 @@ namespace Mariasek.SharedClient
         public BidThresholdSettings[] Thresholds { get; set; }
         public float RiskFactor { get; set; }
         public float SolitaryXThreshold { get; set; }
+        public bool AutoFinish { get; set; }
 
         public GameSettings()
         {
@@ -68,6 +69,7 @@ namespace Mariasek.SharedClient
             BubbleTimeMs = 1000;
             MaxHistoryLength = 0;
             KeepScreenOn = true;
+            AutoFinish = true;
 			CardDesign = CardFace.Single;
             CardBackSide = CardBackSide.Horse;
             PlayerNames = new [] { "Já", "Karel", "Pepa" };

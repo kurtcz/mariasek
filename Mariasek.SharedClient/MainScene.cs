@@ -1814,7 +1814,7 @@ namespace Mariasek.SharedClient
                             bubble.Hide();
                         }
                         _state = GameState.Play;
-                        if (g.players[0].Hand.Count() == 1)
+                        if (g.players[0].Hand.Count() == 1 && Game.Settings.AutoFinish)
                         {
                             var button = _hand.CardButtonForCard(g.players[0].Hand.First());
                             
