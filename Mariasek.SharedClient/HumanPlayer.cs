@@ -415,17 +415,33 @@ namespace Mariasek.SharedClient
             if (e.Flavour == GameFlavour.Bad && e.Player.PlayerIndex != PlayerIndex)
             {
                 _talon = null;
+                if (_aiPlayer != null)
+                {
+                    _aiPlayer.Probabilities.UpdateProbabilitiesAfterGameFlavourChosen(e);
+                }
             }
         }
 
         private void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
         {
             _previousBid = e.GameType;
+            if (e.GameStartingPlayerIndex != PlayerIndex && _aiPlayer != null)
+            {
+                _aiPlayer.Probabilities = new Probability(PlayerIndex, e.GameStartingPlayerIndex, new Hand(Hand), _trump, _talon)
+                {
+                    ExternalDebugString = _aiPlayer._debugString
+                };
+                _aiPlayer.Probabilities.UpdateProbabilitiesAfterGameTypeChosen(e);
+            }
         }
 
         private new void BidMade(object sender, BidEventArgs e)
         {
             _previousBid = e.BidMade;
+            if (_aiPlayer != null)
+            {
+                _aiPlayer.Probabilities.UpdateProbabilitiesAfterBidMade(e, _g.Bidding);
+            }
         }
     }
 }
