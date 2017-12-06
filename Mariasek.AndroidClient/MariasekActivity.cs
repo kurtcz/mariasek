@@ -195,9 +195,17 @@ namespace Mariasek.AndroidClient
             {
                 ex = ae.Flatten().InnerExceptions[0];
             }
+            MainScene mainScene = null;
+            try
+            {
+                mainScene = g?.MainScene;
+            }
+            catch
+            {
+            }
             var msg = string.Format("{0}\n{1}\n{2}\n-\n{3}", ex?.Message, ex?.StackTrace,
-                                    g?.MainScene?.g?.DebugString?.ToString() ?? string.Empty,
-                                    g?.MainScene?.g?.BiddingDebugInfo?.ToString() ?? string.Empty);
+                                    mainScene?.g?.DebugString?.ToString() ?? string.Empty,
+                                    mainScene?.g?.BiddingDebugInfo?.ToString() ?? string.Empty);
 
             SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariasek crash report", msg, new string[0]);
         }

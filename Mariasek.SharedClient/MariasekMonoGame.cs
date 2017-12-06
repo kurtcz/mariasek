@@ -548,6 +548,10 @@ namespace Mariasek.SharedClient
 				AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
 				AmbientSound.IsLooped = true;
 			}
+            if (gameTime.ElapsedGameTime.TotalMilliseconds > 500)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("!!!!! Update called after {0} ms", gameTime.ElapsedGameTime.TotalMilliseconds));
+            }
             TouchCollection = TouchPanel.GetState();
 			// TODO: Add your update logic here
             CurrentScene.Update(gameTime);

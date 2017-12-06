@@ -1289,6 +1289,7 @@ namespace Mariasek.Engine.New
             var lastRoundWinner = rounds[0] == null ? GameStartingPlayer : rounds[0].roundWinner;
 
             DebugString.AppendLine("CompleteUnfinishedRounds()");
+            RoundSanityCheck();
             for (var i = 0; i < Game.NumRounds; i++)
             {                
                 if (rounds[i] == null)
