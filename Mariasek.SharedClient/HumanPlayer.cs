@@ -417,6 +417,10 @@ namespace Mariasek.SharedClient
                 _talon = null;
                 if (_aiPlayer != null)
                 {
+                    _aiPlayer.Probabilities = new Probability(PlayerIndex, e.Player.PlayerIndex, new Hand(Hand), _trump, _talon)
+                    {
+                        ExternalDebugString = _aiPlayer._debugString
+                    };
                     _aiPlayer.Probabilities.UpdateProbabilitiesAfterGameFlavourChosen(e);
                 }
             }
