@@ -673,7 +673,8 @@ namespace Mariasek.SharedClient
                 ZIndex = 100
             };
 
-            flekBtn.Click += BidButtonClicked;
+            //flekBtn.Click += BidButtonClicked;
+            flekBtn.TouchDown += (sender, tl) => BidButtonClicked(sender);
             flekBtn.Hide();
             sedmaBtn = new ToggleButton(this)
             {
@@ -683,7 +684,8 @@ namespace Mariasek.SharedClient
                 Tag = Hra.Sedma | Hra.SedmaProti,
                 ZIndex = 100
             };
-            sedmaBtn.Click += BidButtonClicked;
+            //sedmaBtn.Click += BidButtonClicked;
+            sedmaBtn.TouchDown += (sender, tl) => BidButtonClicked(sender);
             sedmaBtn.Hide();
             kiloBtn = new ToggleButton(this)
             {
@@ -693,7 +695,8 @@ namespace Mariasek.SharedClient
                 Tag = Hra.KiloProti,
                 ZIndex = 100
             };
-            kiloBtn.Click += BidButtonClicked;
+            //kiloBtn.Click += BidButtonClicked;
+            kiloBtn.TouchDown += (sender, tl) => BidButtonClicked(sender);
             kiloBtn.Hide();
             bidButtons = new [] { flekBtn, sedmaBtn, kiloBtn };
             _progress1 = new ProgressIndicator(this)
