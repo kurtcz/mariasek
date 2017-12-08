@@ -27,6 +27,7 @@ namespace Mariasek.Engine.New
         private Hra? _gameType;
         public List<Card> _talon; //public so that HumanPlayer can set it
         private List<AddingMoneyCalculator> _moneyCalculations;
+        private bool _hundredOverDurch;
         private int _gamesBalance;
         private int _hundredsBalance;
         private int _hundredsAgainstBalance;
@@ -515,7 +516,8 @@ namespace Mariasek.Engine.New
 				//jiank vybirame betlovej talon
 				if (AdvisorMode && (_talon == null || !_talon.Any()))
 				{
-                    if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0 ||
+                    if ((_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
+                         _durchSimulations > 0) ||
 					    _gameType == Hra.Betl)
 					{
 						_talon = ChooseDurchTalon(Hand, null);
@@ -629,7 +631,8 @@ namespace Mariasek.Engine.New
                     RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, true);
                     if (Settings.CanPlayGameType[Hra.Durch] && 
                         _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
-                        _durchSimulations > 0)
+                        _durchSimulations > 0 &&
+                        !_hundredOverDurch)
                     {
                         if (_talon == null || !_talon.Any())
                         {
@@ -702,7 +705,8 @@ namespace Mariasek.Engine.New
             {
                 //pouzivam vyssi prahy: pokud nam vysel durch (beru 70% prah), abych kompenzoval, ze simulace nejsou presne
                 var thresholdIndex = Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 1);    //70%
-                if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][thresholdIndex] * _durchSimulations && _durchSimulations > 0)
+                if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][thresholdIndex] * _durchSimulations && 
+                    _durchSimulations > 0)
                 {
 					_talon = ChooseDurchTalon(Hand, null);
 					DebugInfo.RuleCount = _durchBalance;
@@ -719,7 +723,9 @@ namespace Mariasek.Engine.New
                 var betlThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Betl].Length - 1, 1);     //85%
                 var durchThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 1);    //85%
                 if ((Settings.CanPlayGameType[Hra.Durch] && 
-                     _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][durchThresholdIndex] * _durchSimulations && _durchSimulations > 0) ||
+                     _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][durchThresholdIndex] * _durchSimulations && 
+                     _durchSimulations > 0 &&
+                     !_hundredOverDurch) ||
                     (Settings.CanPlayGameType[Hra.Betl] && 
                      _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][betlThresholdIndex] * _betlSimulations && _betlSimulations > 0))
                 {
@@ -1058,7 +1064,17 @@ namespace Mariasek.Engine.New
             _durchSimulations = _moneyCalculations.Count(i => i.GameType == Hra.Durch);
 
             Hra? goodGameType = _gameType.HasValue && (_gameType & Hra.Sedma) != 0 ? Hra.Sedma : (Hra?)null;
+            var avgPointsForHundred = _moneyCalculations.Any(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0)
+                                        ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0)
+                                                            .Average(i => (i.BasicPointsWon + i.MaxHlasWon))
+                                        : 0;
 
+            _hundredOverDurch = PlayerIndex == gameStartingPlayerIndex
+                                ? avgPointsForHundred >= 120 || 
+                                  (_trump.HasValue &&
+                                   _trump.Value == Barva.Cerveny &&
+                                   avgPointsForHundred >= 110)
+                                : false;
             _gamesBalance = PlayerIndex == gameStartingPlayerIndex
                             ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => i.GameWon)
                             : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => !i.GameWon);
@@ -1479,7 +1495,9 @@ namespace Mariasek.Engine.New
                     RunGameSimulations(bidding, PlayerIndex, false, true);
                 }
                 if (Settings.CanPlayGameType[Hra.Durch] && 
-                    (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0) ||
+                    (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
+                     _durchSimulations > 0 &&
+                     !_hundredOverDurch) ||
 				    validGameTypes == Hra.Durch)
                 {
                     gameType = Hra.Durch;

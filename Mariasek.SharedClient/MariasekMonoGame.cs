@@ -573,27 +573,57 @@ namespace Mariasek.SharedClient
 			//TODO: Add your drawing code here
 			CurrentRenderingGroup = AnchorType.Main;
 			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, MainScaleMatrix);
-			CurrentScene.Draw(gameTime);
+            try
+            {
+                CurrentScene.Draw(gameTime);
+            }
+            catch
+            {                
+            }
 			SpriteBatch.End();
 
 			CurrentRenderingGroup = AnchorType.Left;
 			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, LeftScaleMatrix);
-			CurrentScene.Draw(gameTime);
+            try
+            {
+                CurrentScene.Draw(gameTime);
+            }
+            catch
+            {
+            }
 			SpriteBatch.End();
 
 			CurrentRenderingGroup = AnchorType.Top;
 			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, TopScaleMatrix);
-			CurrentScene.Draw(gameTime);
+            try
+            {
+                CurrentScene.Draw(gameTime);
+            }
+            catch
+            {
+            }
 			SpriteBatch.End();
 
 			CurrentRenderingGroup = AnchorType.Right;
 			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, RightScaleMatrix);
-			CurrentScene.Draw(gameTime);
+            try
+            {
+                CurrentScene.Draw(gameTime);
+            }
+            catch
+            {
+            }
 			SpriteBatch.End();
 
 			CurrentRenderingGroup = AnchorType.Bottom;
 			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, BottomScaleMatrix);
-			CurrentScene.Draw(gameTime);
+            try
+            {
+                CurrentScene.Draw(gameTime);
+            }
+            catch
+            {
+            }
 			SpriteBatch.End();
 		}
 	}
