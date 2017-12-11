@@ -107,11 +107,18 @@ namespace Mariasek.SharedClient
             {
 				_t0 = Environment.TickCount;
                 _aiTask = Task.Run(() =>
-                    { 
-						_t1 = Environment.TickCount;
+                {
+                    try
+                    {
+                        _t1 = Environment.TickCount;
                         var trump = _aiPlayer.ChooseTrump();
-						_scene.SuggestTrump(trump, _t1-_t0);
-                    }, _cancellationTokenSource.Token);
+                        _scene.SuggestTrump(trump, _t1 - _t0);
+                    }
+                    catch (Exception ex)
+                    {
+                        _scene.GameException(this, new GameExceptionEventArgs { e = ex });
+                    }
+                }, _cancellationTokenSource.Token);
             }
             _trumpCard = _scene.ChooseTrump();
 
@@ -131,12 +138,19 @@ namespace Mariasek.SharedClient
 				_t0 = Environment.TickCount;
 				_aiTask = Task.Run(() =>
                 {
-					_t1 = Environment.TickCount;
-                    _aiPlayer._talon = null;
-                    _aiPlayer.Hand = Hand;
-                    var talon = _aiPlayer.ChooseTalon();
+                    try
+                    {
+    					_t1 = Environment.TickCount;
+                        _aiPlayer._talon = null;
+                        _aiPlayer.Hand = Hand;
+                        var talon = _aiPlayer.ChooseTalon();
 
-					_scene.SuggestTalon(talon, _t1 - _t0);
+    					_scene.SuggestTalon(talon, _t1 - _t0);
+                    }
+                    catch (Exception ex)
+                    {
+                        _scene.GameException(this, new GameExceptionEventArgs { e = ex });
+                    }
                 }, _cancellationTokenSource.Token);
             }
             _talon = _scene.ChooseTalon();
@@ -177,6 +191,8 @@ namespace Mariasek.SharedClient
 
 						_t0 = Environment.TickCount;
                         _aiTask = Task.Run(() =>
+                        {
+                            try
                             {
 								_t1 = Environment.TickCount;
 								//dej 2 karty z ruky do talonu aby byl _aiPlayer v aktualnim stavu
@@ -221,7 +237,12 @@ namespace Mariasek.SharedClient
 									};
 									_aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
                                 }
-                            }, _cancellationTokenSource.Token);
+                            }
+                            catch (Exception ex)
+                            {
+                                _scene.GameException(this, new GameExceptionEventArgs { e = ex });
+                            }
+                        }, _cancellationTokenSource.Token);
                     }
                     //Musime jeste poladit kry presne tlacitko ukazat
                     //Bud pri volbe typu hry nebo v 1. kole nebo kdykoli v prubehu hry
@@ -246,25 +267,32 @@ namespace Mariasek.SharedClient
             {
 				_t0 = Environment.TickCount;
                 _aiTask = Task.Run(() =>
-                    { 
-						_t1 = Environment.TickCount;
+                {
+                    try
+                    {
+                        _t1 = Environment.TickCount;
                         var flavour = _aiPlayer.ChooseGameFlavour();
                         var msg = _aiPlayer.DebugInfo.TotalRuleCount > 0
-                                           ? string.Format("{0} ({1}%)\n", flavour.Description(),  100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount)
+                                           ? string.Format("{0} ({1}%)\n", flavour.Description(), 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount)
                                            : string.Format("{0}\n", flavour.Description());
 
                         _scene.SuggestGameFlavour(msg.TrimEnd(), _t1 - _t0);
                         _scene.SuggestGameFlavourNew(flavour);
                         //nasimulovany talon musime nahradit skutecnym pokud ho uz znam, jinak to udelam v ChooseTalon
-                        if(_talon != null)
+                        if (_talon != null)
                         {
                             _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon)
-							{
-								ExternalDebugString = _aiPlayer._debugString
-							};
-							_aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
+                            {
+                                ExternalDebugString = _aiPlayer._debugString
+                            };
+                            _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
                         }
-                    }, _cancellationTokenSource.Token);                
+                    }
+                    catch (Exception ex)
+                    {
+                        _scene.GameException(this, new GameExceptionEventArgs { e = ex });
+                    }
+                }, _cancellationTokenSource.Token);              
             }
             var gf = _scene.ChooseGameFlavour();
 
@@ -286,29 +314,36 @@ namespace Mariasek.SharedClient
                 _t0 = Environment.TickCount;
                 _aiTask = Task.Run(() =>
                 {
-                    _t1 = Environment.TickCount;
-                    var gameType = _aiPlayer.ChooseGameType(validGameTypes);
-                    //var temp = new Bidding(_g.Bidding);
-                    //temp.SetLastBidder(_aiPlayer, gameType);
-                    //var e = temp.GetEventArgs(_aiPlayer, gameType, 0);
-                    //var msg = new StringBuilder(string.Format("{0} ({1}%)\n", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1));
-                    var msg = new StringBuilder();
-                    var k = 0;
-                    foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(i => i.RuleCount > 0))
+                    try
                     {
-                        if (debugInfo.TotalRuleCount > 0)
+                        _t1 = Environment.TickCount;
+                        var gameType = _aiPlayer.ChooseGameType(validGameTypes);
+                        //var temp = new Bidding(_g.Bidding);
+                        //temp.SetLastBidder(_aiPlayer, gameType);
+                        //var e = temp.GetEventArgs(_aiPlayer, gameType, 0);
+                        //var msg = new StringBuilder(string.Format("{0} ({1}%)\n", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1));
+                        var msg = new StringBuilder();
+                        var k = 0;
+                        foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(i => i.RuleCount > 0))
                         {
-                            msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (k++) % 2 == 1 ? "\n" : "\t"));
+                            if (debugInfo.TotalRuleCount > 0)
+                            {
+                                msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (k++) % 2 == 1 ? "\n" : "\t"));
+                            }
+                            else
+                            {
+                                msg.AppendFormat(string.Format("{0}{1}", debugInfo.Rule, (k++) % 2 == 1 ? "\n" : "\t"));
+                            }
                         }
-                        else
+                        if (_aiPlayer.DebugInfo.TotalRuleCount > 0)
                         {
-                            msg.AppendFormat(string.Format("{0}{1}", debugInfo.Rule, (k++) % 2 == 1 ? "\n" : "\t"));
+                            _scene.SuggestGameType(gameType.ToDescription(_trump), msg.ToString().TrimEnd(), _t1 - _t0);
+                            _scene.SuggestGameTypeNew(gameType);
                         }
                     }
-                    if (_aiPlayer.DebugInfo.TotalRuleCount > 0)
+                    catch (Exception ex)
                     {
-                        _scene.SuggestGameType(gameType.ToDescription(_trump), msg.ToString().TrimEnd(), _t1 - _t0);
-                        _scene.SuggestGameTypeNew(gameType);
+                        _scene.GameException(this, new GameExceptionEventArgs { e = ex });
                     }
                 }, _cancellationTokenSource.Token);
             }
@@ -324,7 +359,9 @@ namespace Mariasek.SharedClient
             {
 				_t0 = Environment.TickCount;
                 _aiTask = Task.Run(() =>
-                    { 
+                { 
+                    try
+                    {
 						_t1 = Environment.TickCount;
                         var bid = _aiPlayer.GetBidsAndDoubles(bidding);
                         var temp = new Bidding(bidding);                            //vyrobit kopii objektu
@@ -342,7 +379,12 @@ namespace Mariasek.SharedClient
                             _scene.SuggestGameType(e.Description, string.Empty, _t1 - _t0);
                         }
                         _scene.SuggestBidsAndDoublesNew(bid);
-                    }, _cancellationTokenSource.Token);
+                    }
+                    catch (Exception ex)
+                    {
+                        _scene.GameException(this, new GameExceptionEventArgs { e = ex });
+                    }
+                }, _cancellationTokenSource.Token);
             }
             var bd = _scene.GetBidsAndDoubles(bidding);
 
@@ -359,8 +401,10 @@ namespace Mariasek.SharedClient
             {
 				_t0 = Environment.TickCount;
                 _aiTask = Task.Run(() =>
-                    { 
-						_t1 = Environment.TickCount;
+                {
+                    try
+                    {
+                        _t1 = Environment.TickCount;
                         if (_aiPlayer.Probabilities.IsUpdateProbabilitiesAfterTalonNeeded())
                         {
                             if (_talon == null || _talon.Count() == 0)
@@ -371,13 +415,18 @@ namespace Mariasek.SharedClient
                             _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
                         }
                         var cardToplay = _aiPlayer.PlayCard(r);
-                        
+
                         _scene.SimulatedSuccessRate = _aiPlayer.DebugInfo.TotalRuleCount > 0 ? _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1;
                         if (_aiPlayer.DebugInfo.TotalRuleCount > 0)
                         {
                             _scene.SuggestCardToPlay(_aiPlayer.DebugInfo.Card, _aiPlayer.DebugInfo.Card.ToString(), _aiPlayer.DebugInfo.Rule, _t1 - _t0);
                         }
-                    }, _cancellationTokenSource.Token);
+                    }
+                    catch(Exception ex)
+                    {
+                        _scene.GameException(this, new GameExceptionEventArgs{ e = ex });
+                    }
+                }, _cancellationTokenSource.Token);
             }
             while (true)
             {
@@ -415,12 +464,8 @@ namespace Mariasek.SharedClient
             if (e.Flavour == GameFlavour.Bad && e.Player.PlayerIndex != PlayerIndex)
             {
                 _talon = null;
-                if (_aiPlayer != null)
+                if (_aiPlayer != null && _aiPlayer.Probabilities != null)
                 {
-                    _aiPlayer.Probabilities = new Probability(PlayerIndex, e.Player.PlayerIndex, new Hand(Hand), _trump, _talon)
-                    {
-                        ExternalDebugString = _aiPlayer._debugString
-                    };
                     _aiPlayer.Probabilities.UpdateProbabilitiesAfterGameFlavourChosen(e);
                 }
             }
@@ -431,7 +476,7 @@ namespace Mariasek.SharedClient
             _previousBid = e.GameType;
             if (e.GameStartingPlayerIndex != PlayerIndex && _aiPlayer != null)
             {
-                _aiPlayer.Probabilities = new Probability(PlayerIndex, e.GameStartingPlayerIndex, new Hand(Hand), _trump, _talon)
+                _aiPlayer.Probabilities = new Probability(PlayerIndex, e.GameStartingPlayerIndex, new Hand(Hand), e.TrumpCard != null ? e.TrumpCard.Suit : (Barva?)null, _talon)
                 {
                     ExternalDebugString = _aiPlayer._debugString
                 };

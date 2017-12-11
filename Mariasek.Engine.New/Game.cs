@@ -57,6 +57,7 @@ namespace Mariasek.Engine.New
 		public int RoundNumber { get; private set; }
         public Bidding Bidding { get; private set; }
         public string Author { get; set; }
+        public bool DoSort { get; set; }
 #if !PORTABLE
         public static Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
 #else
@@ -451,12 +452,15 @@ namespace Mariasek.Engine.New
             {
                 throw new InvalidDataException("Game check failed");
             }
-            if (RoundNumber > 0)
+            if (DoSort)
             {
-                players[GameStartingPlayerIndex].Hand.Sort();   //voliciho hrace utridime pokud uz zvolil trumf
+                if (RoundNumber > 0)
+                {
+                    players[GameStartingPlayerIndex].Hand.Sort();   //voliciho hrace utridime pokud uz zvolil trumf
+                }
+                players[(GameStartingPlayerIndex + 1) % NumPlayers].Hand.Sort();
+                players[(GameStartingPlayerIndex + 2) % NumPlayers].Hand.Sort();
             }
-            players[(GameStartingPlayerIndex + 1) % NumPlayers].Hand.Sort();
-            players[(GameStartingPlayerIndex + 2) % NumPlayers].Hand.Sort();
 			RoundSanityCheck();
 			if(RoundNumber == 0)
             {

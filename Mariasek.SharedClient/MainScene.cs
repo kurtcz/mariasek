@@ -1189,7 +1189,11 @@ namespace Mariasek.SharedClient
                 //}
                 if (g.GameStartingPlayerIndex != 0)
                 {
-                    g.players[0].Hand.Sort(Game.Settings.SortMode == SortMode.Ascending, false);
+                    //if (Game.Settings.SortMode != SortMode.None)
+                    //{
+                    //    g.players[0].Hand.Sort(Game.Settings.SortMode == SortMode.Ascending, false);
+                    //}
+                    SortHand();
                     ShowThinkingMessage(g.GameStartingPlayerIndex);
                     _hand.Show();
                     UpdateHand();
@@ -2376,6 +2380,7 @@ namespace Mariasek.SharedClient
 
                     try
                     {
+                        g.DoSort = Game.Settings.SortMode != SortMode.None;
                         using (var fs = File.Open(testGame ? _testGameFilePath : _savedGameFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
                             g.LoadGame(fs);
@@ -2462,7 +2467,11 @@ namespace Mariasek.SharedClient
                     //}
                     if (g.GameStartingPlayerIndex != 0 || g.GameType != 0)
                     {
-                        g.players[0].Hand.Sort(Game.Settings.SortMode == SortMode.Ascending, false);
+                        //if (Game.Settings.SortMode != SortMode.None)
+                        //{
+                        //    g.players[0].Hand.Sort(Game.Settings.SortMode == SortMode.Ascending, false);
+                        //}
+                        SortHand();
                         if (g.GameType == 0)
                         {
                             ShowThinkingMessage(g.GameStartingPlayerIndex);
