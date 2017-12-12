@@ -398,7 +398,26 @@ namespace Mariasek.Engine.New
             players[0].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null).Select(i => new Card(i.Hrac1.Barva, i.Hrac1.Hodnota)));
             players[1].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac2 != null).Select(i => new Card(i.Hrac2.Barva, i.Hrac2.Hodnota)));
             players[2].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac3 != null).Select(i => new Card(i.Hrac3.Barva, i.Hrac3.Hodnota)));
-
+            var temp = new List<Card>();
+            for (int i = 0; i < 3; i++)
+            {
+                foreach (var c in players[i].Hand)
+                {
+                    if (temp.Contains(c))
+                    {
+                        throw new InvalidDataException($"LoadGame error: {c} spotted more than once");
+                    }
+                    temp.Add(c);
+                }
+            }
+            foreach (var c in talon)
+            {
+                if (temp.Contains(c))
+                {
+                    throw new InvalidDataException($"LoadGame error: {c} spotted more than once");
+                }
+                temp.Add(c);
+            }
             InitPlayers();
             OnGameLoaded();
 
@@ -516,6 +535,7 @@ namespace Mariasek.Engine.New
                         startingPlayerIndex = CurrentRound.roundWinner.PlayerIndex;
                         roundNumber++;
                     }
+                    RoundSanityCheck();
                 }
                 var fleky = Enum.GetValues(typeof(Hra))
                                 .Cast<Hra>()
@@ -795,6 +815,12 @@ namespace Mariasek.Engine.New
 
             for (var i = 0; i < NumPlayers; i++)
             {
+                players[i].Hand = players[i].Hand.Distinct().ToList();
+                foreach (var c in cardsPlayed)
+                {
+                    players[i].Hand.Remove(c);
+                }
+
                 var aiPlayer = players[i] as AiPlayer;
 
                 if (aiPlayer != null &&
@@ -808,12 +834,6 @@ namespace Mariasek.Engine.New
                     {
                         aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(aiPlayer.Hand, aiPlayer._talon);
                     }
-                }
-
-                players[i].Hand = players[i].Hand.Distinct().ToList();
-                foreach (var c in cardsPlayed)
-                {
-                    players[i].Hand.Remove(c);
                 }
 			}
 			if (talon != null)

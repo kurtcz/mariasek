@@ -122,8 +122,8 @@ namespace Mariasek.SharedClient
             }
             _trumpCard = _scene.ChooseTrump();
 
-            _trump = _trumpCard.Suit;
             CancelAiTask();
+            _trump = _trumpCard.Suit;
 			if (_aiPlayer != null)
 			{
 				_aiPlayer.TrumpCard = _trumpCard;
