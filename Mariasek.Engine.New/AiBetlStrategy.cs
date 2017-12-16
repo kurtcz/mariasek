@@ -25,6 +25,15 @@ namespace Mariasek.Engine.New
 
             if (TeamMateIndex != -1 && _rounds != null && _rounds[0] != null)
             {
+                //pokud v 1.kole vsichni priznali barvu ale spoluhrac nesel vejs
+                if (_rounds[0].c1.Suit == _rounds[0].c2.Suit &&
+                    (_rounds[0].player2.PlayerIndex == TeamMateIndex &&
+                     _rounds[0].c1.BadValue > _rounds[0].c2.BadValue) ||
+                    (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
+                     _rounds[0].c1.BadValue > _rounds[0].c3.BadValue))
+                {
+                    preferredSuits.Add(_rounds[0].c1.Suit);
+                }
 				//prednostne zkousej hrat barvu kterou spoluhrac odmazaval
 				for (var i = 0; i < RoundNumber - 1; i++)
                 {
@@ -103,6 +112,16 @@ namespace Mariasek.Engine.New
 
                     if (TeamMateIndex == player2)//co-
                     {
+                        if (RoundNumber == 2 && preferredSuits.Any())
+                        {
+                            //v 2.kole zkus rovnou zahrat preferovanou barvu, pokud takova je
+                            cardsToPlay = hands[MyIndex].Where(i => i.Suit == preferredSuits.First());
+
+                            if (cardsToPlay.Any())
+                            {
+                                return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+                            }
+                        }
                         cardsToPlay = hands[MyIndex].Where(i =>
 		                                    (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
                                             ValidCards(i, hands[player2]).Any(j =>
@@ -125,6 +144,16 @@ namespace Mariasek.Engine.New
                     }
                     else if (TeamMateIndex == player3)//c-o
                     {
+                        if (RoundNumber == 2 && preferredSuits.Any())
+                        {
+                            //v 2.kole zkus rovnou zahrat preferovanou barvu, pokud takova je
+                            cardsToPlay = hands[MyIndex].Where(i => i.Suit == preferredSuits.First());
+
+                            if (cardsToPlay.Any())
+                            {
+                                return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+                            }
+                        }
                         cardsToPlay = hands[MyIndex].Where(i =>
 		                                    (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
                                             ValidCards(i, hands[player2]).All(j =>

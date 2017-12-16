@@ -1486,9 +1486,9 @@ namespace Mariasek.Engine.New
                     {
                         var hiCards = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                           .SelectMany(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                               .Where(h => _probabilities.CardProbability(player3, new Card(b, h)) > _epsilon &&
-                                                                           c1.IsLowerThan(new Card(b, h), _trump))
-                                                               .Select(h => new Card(b, h)));
+                                                               .Select(h => new Card(b, h)))
+                                                               .Where(i => _probabilities.CardProbability(player3, i) > _epsilon &&
+                                                                           c1.IsLowerThan(i, _trump));
                         //oc-
                         var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Desitka &&
                                                                                     !hiCards.Any() &&                     //spoluhrac hral nejvyssi kartu co ve hre zbyva

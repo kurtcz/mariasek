@@ -2232,7 +2232,17 @@ namespace Mariasek.SharedClient
                     DeleteArchiveFolder();                        
                 }
 				Game.Money.Add(results);
-                Task.Run(() => SaveHistory());
+                Task.Run(() =>
+                { 
+                    try
+                    {
+                        SaveHistory();
+                    }
+                    catch(Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(string.Format("Cannot save history\n{0}", ex.Message));
+                    }
+                });
             }
             EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
@@ -2370,12 +2380,12 @@ namespace Mariasek.SharedClient
 
         public void LoadGame(bool testGame = false)
         {
-            if (!_gameSync.Wait(0))
-            {
-                return;
-            }
             if (g == null)
             {
+                if (!_gameSync.Wait(0))
+                {
+                    return;
+                }
                 var gameTask = _gameTask;
 
                 _trumpLabel1.Hide();

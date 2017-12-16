@@ -400,6 +400,7 @@ namespace Mariasek.SharedClient
             if (_aiPlayer != null)
             {
 				_t0 = Environment.TickCount;
+                _aiPlayer.ResetDebugInfo();
                 _aiTask = Task.Run(() =>
                 {
                     try

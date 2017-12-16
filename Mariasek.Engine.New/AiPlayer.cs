@@ -793,6 +793,15 @@ namespace Mariasek.Engine.New
             return hands.ToArray();
         }
 
+        public void ResetDebugInfo()
+        {
+            DebugInfo.Card = null;
+            DebugInfo.Rule = null;
+            DebugInfo.RuleCount = 0;
+            DebugInfo.TotalRuleCount = 0;
+            DebugInfo.AllChoices = new RuleDebugInfo[0];
+        }
+
         //vola se jak pro voliciho hrace tak pro oponenty 
         private void RunGameSimulations(Bidding bidding, int gameStartingPlayerIndex, bool simulateGoodGames, bool simulateBadGames)
         {
