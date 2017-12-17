@@ -35,7 +35,7 @@ namespace Mariasek.SharedClient
     public class MainScene : Scene
     {
         #region Child components
-        #pragma warning disable 414
+#pragma warning disable 414
 
         //TODO:Add child components here
         private GameComponents.Hand _hand;
@@ -79,7 +79,7 @@ namespace Mariasek.SharedClient
         private ProgressIndicator _progress1, _progress2, _progress3;
         private ProgressIndicator[] _progressBars;
         private TextBox _bubble1, _bubble2, _bubble3;
-		private TextBox[] _bubbles;
+        private TextBox[] _bubbles;
         private int _bubbleSemaphore;
         private bool[] _bubbleAutoHide;
         private bool _skipBidBubble;
@@ -108,7 +108,7 @@ namespace Mariasek.SharedClient
         private string _deckFilePath = Path.Combine(_path, "Mariasek.deck");
         private string _savedGameFilePath = Path.Combine(_path, "_temp.hra");
         private string _testGameFilePath = Path.Combine(_path, "test.hra");
-		private string _newGameFilePath = Path.Combine(_path, "_def.hra");
+        private string _newGameFilePath = Path.Combine(_path, "_def.hra");
         private string _screenPath = Path.Combine(_path, "screen.png");
         private string _errorFilePath = Path.Combine(_path, "_error.hra");
         private string _errorMsgFilePath = Path.Combine(_path, "_error.txt");
@@ -215,8 +215,8 @@ namespace Mariasek.SharedClient
                 _aiConfig.Add(string.Format("GameThreshold.{0}", thresholdSettings.GameType.ToString()),
                               new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
                               {
-                                    Name = string.Format("GameThreshold.{0}", thresholdSettings.GameType.ToString()),
-                                    Value = thresholdSettings.Thresholds
+                                  Name = string.Format("GameThreshold.{0}", thresholdSettings.GameType.ToString()),
+                                  Value = thresholdSettings.Thresholds
                               });
                 _aiConfig.Add(string.Format("MaxDoubleCount.{0}", thresholdSettings.GameType.ToString()),
                               new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
@@ -246,17 +246,17 @@ namespace Mariasek.SharedClient
                 Name = "GameFlavourSelectionStrategy",
                 Value = "Fast"
             });
-			_aiConfig.Add("RiskFactor", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-			{
-				Name = "RiskFactor",
+            _aiConfig.Add("RiskFactor", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "RiskFactor",
                 Value = Game.Settings.RiskFactor.ToString(CultureInfo.InvariantCulture)
-			});
+            });
             _aiConfig.Add("SolitaryXThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "SolitaryXThreshold",
                 Value = Game.Settings.SolitaryXThreshold.ToString(CultureInfo.InvariantCulture)
             });
-		}
+        }
 
         /// <summary>
         /// Allows the game component to perform any initialization it needs to before starting
@@ -267,9 +267,9 @@ namespace Mariasek.SharedClient
             base.Initialize();
             Game.OnSettingsChanged();
             var backSideRect = Game.Settings.CardBackSide.ToTextureRect();
-			Game.CardTextures = Game.Settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
+            Game.CardTextures = Game.Settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
             //PopulateAiConfig(); //volano uz v Game.OnSettingsChanged()
-            _hlasy = new []
+            _hlasy = new[]
             {
                 new []
                 {
@@ -295,21 +295,21 @@ namespace Mariasek.SharedClient
             };
             _hlasy[0][0].Click += TrumpCardClicked;
             _hlasy[0][0].DragEnd += TrumpCardDragged;
-			_hlasy[0][0].CanDrag = true;
+            _hlasy[0][0].CanDrag = true;
             _hlasy[0][0].ZIndex = 70;
-			_stareStychy = new []
+            _stareStychy = new[]
             {
                 new Sprite(this, Game.ReverseTexture, backSideRect) { Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f + 40), Scale = Game.CardScaleFactor, Name = "StareStychy1" },
                 new Sprite(this, Game.ReverseTexture, backSideRect) { Position = new Vector2(60, 90), Scale = Game.CardScaleFactor, Name = "StareStychy2" },
                 new Sprite(this, Game.ReverseTexture, backSideRect) { Position = new Vector2(Game.VirtualScreenWidth - 60, 90), Scale = Game.CardScaleFactor, Name = "StareStychy3" }
             };
-            _stychy = new []
+            _stychy = new[]
             {
                 new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy1" }) { Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f + 40), ReverseSpriteRectangle = backSideRect, IsEnabled = false, ZIndex = 10 },
                 new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy2" }) { Position = new Vector2(60, 90), ReverseSpriteRectangle = backSideRect, IsEnabled = false, ZIndex = 10 },
                 new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy3" }) { Position = new Vector2(Game.VirtualScreenWidth - 60, 90), ReverseSpriteRectangle = backSideRect, IsEnabled = false, ZIndex = 10 }
             };
-            _cardsPlayed = new []
+            _cardsPlayed = new[]
             {
                 new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f - 90), Scale = Game.CardScaleFactor, Name="CardsPlayed1", ZIndex = 10 },
                 new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f - 50, Game.VirtualScreenHeight / 2f - 130), Scale = Game.CardScaleFactor, Name="CardsPlayed2", ZIndex = 10 },
@@ -348,7 +348,7 @@ namespace Mariasek.SharedClient
                 Text = "Menu",
                 Position = new Vector2(10, Game.VirtualScreenHeight / 2f - 30),
                 ZIndex = 100,
-				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
                 Width = 150
             };
             _menuBtn.Click += MenuBtnClicked;
@@ -387,16 +387,16 @@ namespace Mariasek.SharedClient
             {
                 _reviewGameToggleBtn.Hide();
             }
-			_sendBtn = new Button(this)
-			{
-				Text = "@",
-				Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 90),
-				ZIndex = 100,
-				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main,
-				Width = 50
-			};
-			_sendBtn.Click += SendBtnClicked;
-			_hintBtn = new Button(this)
+            _sendBtn = new Button(this)
+            {
+                Text = "@",
+                Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 90),
+                ZIndex = 100,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main,
+                Width = 50
+            };
+            _sendBtn.Click += SendBtnClicked;
+            _hintBtn = new Button(this)
             {
                 Text = "?",
                 IsEnabled = false,
@@ -406,7 +406,7 @@ namespace Mariasek.SharedClient
                 BackgroundColor = Color.White,
                 BorderColor = new Color(0x60, 0x30, 0x10),//Color.SaddleBrown,
                 ZIndex = 100,
-				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main                             
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main
             };
             _hintBtn.Click += HintBtnClicked;
             //tlacitka ve hre
@@ -495,41 +495,41 @@ namespace Mariasek.SharedClient
             gfSpatnaButton.Hide();
             gfButtons = new[] { gfDobraButton, gfSpatnaButton };
             _trumpLabel1 = new Label(this)
-            { 
+            {
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle,
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 140, 1),
                 Width = 280,
                 Height = 50,
                 ZIndex = 100,
-				Anchor = AnchorType.Top
+                Anchor = AnchorType.Top
             };
-			_trumpLabel1.Hide();
+            _trumpLabel1.Hide();
             _trumpLabel2 = new Label(this)
-            { 
+            {
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Middle,
                 Position = new Vector2(10, 1),
                 Width = 280,
                 Height = 50,
                 ZIndex = 100,
-				Anchor = AnchorType.Top
+                Anchor = AnchorType.Top
             };
-			_trumpLabel2.Hide();
+            _trumpLabel2.Hide();
             _trumpLabel3 = new Label(this)
-            { 
+            {
                 HorizontalAlign = HorizontalAlignment.Right,
                 VerticalAlign = VerticalAlignment.Middle,
                 Position = new Vector2(Game.VirtualScreenWidth - 290, 1),
                 Width = 280,
                 Height = 50,
                 ZIndex = 100,
-				Anchor = AnchorType.Top
+                Anchor = AnchorType.Top
             };
-			_trumpLabel3.Hide();
+            _trumpLabel3.Hide();
             _trumpLabels = new[] { _trumpLabel1, _trumpLabel2, _trumpLabel3 };
             _msgLabel = new Label(this)
-            { 
+            {
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle,
                 Position = new Vector2(10, 60),
@@ -550,7 +550,7 @@ namespace Mariasek.SharedClient
                 ZIndex = 100
             };
             _msgLabelLeft = new Label(this)
-            { 
+            {
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
                 Position = new Vector2(165, 140),
@@ -563,7 +563,7 @@ namespace Mariasek.SharedClient
             _msgLabelLeftOrigPosition = new Vector2(160, 140);
             _msgLabelLeftHiddenPosition = new Vector2(160, 140 - Game.VirtualScreenHeight);
             _msgLabelRight = new Label(this)
-            { 
+            {
                 HorizontalAlign = HorizontalAlignment.Right,
                 VerticalAlign = VerticalAlignment.Top,
                 Position = new Vector2(165, 140),
@@ -614,11 +614,11 @@ namespace Mariasek.SharedClient
             };
             _totalBalanceOrigPosition = new Vector2(120, (int)Game.VirtualScreenHeight - 60);
             _totalBalanceHiddenPosition = new Vector2(120, -60);
-			_hand = new GameComponents.Hand(this, new Card[0])
-			{
-				ZIndex = 50,
-				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Main : AnchorType.Bottom
-			};
+            _hand = new GameComponents.Hand(this, new Card[0])
+            {
+                ZIndex = 50,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Main : AnchorType.Bottom
+            };
             _hand.Click += CardClicked;
             //_hand.ShowArc((float)Math.PI / 2);
             _bubble1 = new TextBox(this)
@@ -663,9 +663,9 @@ namespace Mariasek.SharedClient
                 ZIndex = 100
             };
             _bubble3.Hide();
-			_bubbles = new[] { _bubble1, _bubble2, _bubble3 };
-			_bubbleAutoHide = new [] {false, false, false};
-			flekBtn = new ToggleButton(this)
+            _bubbles = new[] { _bubble1, _bubble2, _bubble3 };
+            _bubbleAutoHide = new[] { false, false, false };
+            flekBtn = new ToggleButton(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 230, Game.VirtualScreenHeight / 2f - 155),
                 Width = 150,
@@ -699,7 +699,7 @@ namespace Mariasek.SharedClient
             //kiloBtn.Click += BidButtonClicked;
             kiloBtn.TouchDown += (sender, tl) => BidButtonClicked(sender);
             kiloBtn.Hide();
-            bidButtons = new [] { flekBtn, sedmaBtn, kiloBtn };
+            bidButtons = new[] { flekBtn, sedmaBtn, kiloBtn };
             _progress1 = new ProgressIndicator(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 75, 0),
@@ -707,7 +707,7 @@ namespace Mariasek.SharedClient
                 Height = 8,
                 Color = Color.Red,
                 ZIndex = 100,
-				Anchor = AnchorType.Top
+                Anchor = AnchorType.Top
             };
             if (!Game.Settings.HintEnabled)
             {
@@ -720,7 +720,7 @@ namespace Mariasek.SharedClient
                 Height = 8,
                 Color = Color.Green,
                 ZIndex = 100,
-				Anchor = AnchorType.Top
+                Anchor = AnchorType.Top
             };
             _progress3 = new ProgressIndicator(this)
             {
@@ -729,9 +729,9 @@ namespace Mariasek.SharedClient
                 Height = 8,
                 Color = Color.Blue,
                 ZIndex = 100,
-				Anchor = AnchorType.Top
+                Anchor = AnchorType.Top
             };
-            _progressBars = new [] { _progress1, _progress2, _progress3 };
+            _progressBars = new[] { _progress1, _progress2, _progress3 };
             //Children.Sort((a, b) => a.ZIndex - b.ZIndex);
 
             _review = new GameReview(this)
@@ -777,14 +777,14 @@ namespace Mariasek.SharedClient
         {
             try
             {
-				var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
+                var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
 
-				using (var fs = File.Open(_historyFilePath, FileMode.Open))
+                using (var fs = File.Open(_historyFilePath, FileMode.Open))
                 {
                     Game.Money = (List<MoneyCalculatorBase>)xml.Deserialize(fs);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine("Cannot load history\n{0}", e.Message);
             }
@@ -794,15 +794,15 @@ namespace Mariasek.SharedClient
         {
             try
             {
-				var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
+                var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
 
                 CreateDirectoryForFilePath(_historyFilePath);
-				using (var fs = File.Open(_historyFilePath, FileMode.Create))
+                using (var fs = File.Open(_historyFilePath, FileMode.Create))
                 {
                     xml.Serialize(fs, Game.Money);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine("Cannot save history\n{0}", e.Message);
             }
@@ -818,10 +818,10 @@ namespace Mariasek.SharedClient
                     _deck.LoadDeck(fs);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
-				System.Diagnostics.Debug.WriteLine(string.Format("Cannot load deck\n{0}", e.Message));
-				_deck.Init();
+                System.Diagnostics.Debug.WriteLine(string.Format("Cannot load deck\n{0}", e.Message));
+                _deck.Init();
                 _deck.Shuffle();
             }
         }
@@ -836,7 +836,7 @@ namespace Mariasek.SharedClient
                     _deck.SaveDeck(fs);
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine(string.Format("Cannot save deck\n{0}", e.Message));
             }
@@ -922,12 +922,12 @@ namespace Mariasek.SharedClient
             ClearActionQueue();
             if (gameTask != null && gameTask.Status == TaskStatus.Running)
             {
-				ClearTable(true);
+                ClearTable(true);
                 try
                 {
                     (g.players[0] as HumanPlayer).CancelAiTask();
-					_cancellationTokenSource.Cancel();
-					_evt.Set();
+                    _cancellationTokenSource.Cancel();
+                    _evt.Set();
                     gameTask.Wait();
                 }
                 catch (Exception)
@@ -946,15 +946,15 @@ namespace Mariasek.SharedClient
 
             flekBtn.IsEnabled = (bids & (Hra.Hra | Hra.Kilo | Hra.Betl | Hra.Durch)) != 0;
             sedmaBtn.IsEnabled = ((bids & Hra.Sedma) != 0) ||
-								 (((bids & Hra.SedmaProti) != 0) &&
+                                 (((bids & Hra.SedmaProti) != 0) &&
                                   (bidding.SevenAgainstLastBidder == null ||
                                    bidding.SevenAgainstLastBidder.PlayerIndex != g.players[0].TeamMateIndex));
             kiloBtn.IsEnabled = (bids & Hra.KiloProti) != 0 &&
                                 (bidding.HundredAgainstLastBidder == null ||
                                  bidding.HundredAgainstLastBidder.PlayerIndex != g.players[0].TeamMateIndex);
 
-			flekBtn.Text = Bidding.MultiplierToString((g.GameType & (Hra.Betl | Hra.Durch)) == 0 ? bidding.GameMultiplier * 2 : bidding.BetlDurchMultiplier * 2);
-            sedmaBtn.Text = (bids & Hra.SedmaProti) != 0 && (_bidding.SevenAgainstMultiplier == 0)? "Sedma proti" : "Na sedmu";
+            flekBtn.Text = Bidding.MultiplierToString((g.GameType & (Hra.Betl | Hra.Durch)) == 0 ? bidding.GameMultiplier * 2 : bidding.BetlDurchMultiplier * 2);
+            sedmaBtn.Text = (bids & Hra.SedmaProti) != 0 && (_bidding.SevenAgainstMultiplier == 0) ? "Sedma proti" : "Na sedmu";
             kiloBtn.Text = (bids & Hra.KiloProti) != 0 && (_bidding.HundredAgainstMultiplier == 0) ? "Kilo proti" : "Na kilo";
 
             flekBtn.Show();
@@ -1064,9 +1064,9 @@ namespace Mariasek.SharedClient
             else if (_deck.IsEmpty())
             {
                 _deck = g.GetDeckFromLastGame();
-                if(_deck.IsEmpty())
+                if (_deck.IsEmpty())
                 {
-					LoadDeck();
+                    LoadDeck();
                 }
             }
             _deck.Shuffle();
@@ -1082,8 +1082,8 @@ namespace Mariasek.SharedClient
             var gameTask = _gameTask;
 
             _trumpLabel1.Hide();
-			_trumpLabel2.Hide();
-			_trumpLabel3.Hide();
+            _trumpLabel2.Hide();
+            _trumpLabel3.Hide();
             _newGameBtn.Hide();
             _repeatGameBtn.Hide();
             _testGame = false;
@@ -1244,8 +1244,8 @@ namespace Mariasek.SharedClient
         private void GameWonPrematurely(object sender, GameWonPrematurelyEventArgs e)
         {
             g.ThrowIfCancellationRequested();
-			_evt.Reset();
-			this.WaitUntil(() => _bubbles.All(i => !i.IsVisible))
+            _evt.Reset();
+            this.WaitUntil(() => _bubbles.All(i => !i.IsVisible))
                 .Invoke(() =>
                 {
                     if ((g.GameType & Hra.Betl) != 0)
@@ -1287,9 +1287,9 @@ namespace Mariasek.SharedClient
                         }
                     }
                     if ((g.GameType & (Hra.Betl | Hra.Durch)) != 0)
-                    {                    
-						winningCards = winningCards.Sort(false, true).ToList();
-					}
+                    {
+                        winningCards = winningCards.Sort(false, true).ToList();
+                    }
                     _winningHand = new GameComponents.Hand(this, winningCards.ToArray());
                     _winningHand.ShowWinningHand(e.winner.PlayerIndex);
                     _winningHand.Show();
@@ -1303,7 +1303,7 @@ namespace Mariasek.SharedClient
         {
             var ex = e.e;
             if (ex.ContainsCancellationException())
-			{
+            {
                 return;
             }
             var ae = ex as AggregateException;
@@ -1320,7 +1320,7 @@ namespace Mariasek.SharedClient
             {
                 Game.EmailSender.SendEmail(
                     new[] { "mariasek.app@gmail.com" },
-                    "Mariasek crash report", msg2,
+                    "Mariasek crash report " + MariasekMonoGame.Version, msg2,
                     new[] { _newGameFilePath, _errorFilePath, _errorMsgFilePath, SettingsScene._settingsFilePath });
             }
         }
@@ -1350,23 +1350,25 @@ namespace Mariasek.SharedClient
             {
                 //RefreshReview(true);
                 _review.UpdateReview();
-				using (var fs = GetFileStream(Path.GetFileName(_screenPath)))
+#if !__IOS__
+                using (var fs = GetFileStream(Path.GetFileName(_screenPath)))
 				{
                     var target = _review.SaveTexture();
 					target.SaveAsPng(fs, target.Width, target.Height);
 				}
+#endif
 				if (g != null && g.IsRunning)
                 {
                     using (var fs = GetFileStream(Path.GetFileName(_savedGameFilePath)))
                     {
                         g.SaveGame(fs, saveDebugInfo: true);
                     }
-                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariášek: komentář", "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře\n:",
+                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariášek: komentář " + MariasekMonoGame.Version, "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře\n:",
                                                new[] { _screenPath, _newGameFilePath, _savedGameFilePath, SettingsScene._settingsFilePath });
                 }
                 else
                 {
-                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariášek: komentář", "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře\n:",
+                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariášek: komentář " + MariasekMonoGame.Version, "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře\n:",
                                                new[] { _screenPath, _newGameFilePath, _endGameFilePath, SettingsScene._settingsFilePath });
                 }
             }
@@ -1617,7 +1619,7 @@ namespace Mariasek.SharedClient
                         : 0));
         }
 
-        #region HumanPlayer methods
+#region HumanPlayer methods
 
         public Card ChooseTrump()
         {
@@ -1896,9 +1898,9 @@ namespace Mariasek.SharedClient
 			return _cardClicked;
         }
 
-        #endregion
+#endregion
 
-        #region Game event handlers
+#region Game event handlers
 
         public void GameFlavourChosen(object sender, GameFlavourChosenEventArgs e)
         {
@@ -2362,7 +2364,7 @@ namespace Mariasek.SharedClient
             });
         }
 
-        #endregion
+#endregion
 
         public bool CanLoadGame()
         {

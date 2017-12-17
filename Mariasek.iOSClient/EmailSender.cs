@@ -24,8 +24,8 @@ namespace Mariasek.iOSClient
 				{
 					var mailController = new MFMailComposeViewController();
 					mailController.SetToRecipients(new string[] { "mariasek.app@gmail.com" });
-					mailController.SetSubject("Mariasek iOS test");
-					mailController.SetMessageBody("this is a test", false);
+                    mailController.SetSubject(subject);
+					mailController.SetMessageBody(body, false);
 					if (attachments != null)
 					{
 						foreach (var attachment in attachments)
