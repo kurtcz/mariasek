@@ -417,18 +417,19 @@ namespace Mariasek.Engine.New
                                .OrderBy(i => hand.Count(j => j.Suit == i.Suit)));  //vybirej od nejkratsich barev
 
             //pokud mas X + 2 plivy, tak vezmi tu mensi
-            var c = hand.Where(i => !(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
-                                      i.Suit == trumpCard.Suit) &&
-                                     i.Value != Hodnota.Eso &&             //ani A,X
-                                     i.Value != Hodnota.Desitka &&
-                                     !((i.Value == Hodnota.Kral ||         //ani hlasy
-                                        i.Value == Hodnota.Svrsek) &&
-                                       hand.HasK(i.Suit) && hand.HasQ(i.Suit)) &&
-                                      !(i.Value == Hodnota.Sedma &&         //ani trumfovou sedmu
-                                        i.Suit == trumpCard.Suit) &&
-                                       hand.HasX(i.Suit) &&                 //pokud mam jen X+2 plivy, viz nasl. krok
-                                       !hand.HasA(i.Suit) &&
-                                       hand.CardCount(i.Suit) == 3)
+            var c = hand.Where(i => //!(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
+                                    //  i.Suit == trumpCard.Suit) &&
+                                    i.Suit != trumpCard.Suit &&
+                                    i.Value != Hodnota.Eso &&             //ani A,X
+                                    i.Value != Hodnota.Desitka &&
+                                    !((i.Value == Hodnota.Kral ||         //ani hlasy
+                                       i.Value == Hodnota.Svrsek) &&
+                                      hand.HasK(i.Suit) && hand.HasQ(i.Suit)) &&
+                                     !(i.Value == Hodnota.Sedma &&         //ani trumfovou sedmu
+                                       i.Suit == trumpCard.Suit) &&
+                                      hand.HasX(i.Suit) &&                 //pokud mam jen X+2 plivy, viz nasl. krok
+                                      !hand.HasA(i.Suit) &&
+                                      hand.CardCount(i.Suit) == 3)
                          .OrderBy(i => i.Value)
                         .FirstOrDefault();
 

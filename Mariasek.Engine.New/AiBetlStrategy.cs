@@ -25,27 +25,49 @@ namespace Mariasek.Engine.New
 
             if (TeamMateIndex != -1 && _rounds != null && _rounds[0] != null)
             {
-                //pokud v 1.kole vsichni priznali barvu ale spoluhrac nesel vejs
-                if (_rounds[0].c1.Suit == _rounds[0].c2.Suit &&
-                    (_rounds[0].player2.PlayerIndex == TeamMateIndex &&
-                     _rounds[0].c1.BadValue > _rounds[0].c2.BadValue) ||
-                    (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
-                     _rounds[0].c1.BadValue > _rounds[0].c3.BadValue))
+                if (RoundNumber == 2)
                 {
-                    preferredSuits.Add(_rounds[0].c1.Suit);
-                }
-				//prednostne zkousej hrat barvu kterou spoluhrac odmazaval
-				for (var i = 0; i < RoundNumber - 1; i++)
-                {
-                    if (_rounds[i].player2.PlayerIndex == TeamMateIndex &&
-                         _rounds[i].c1.Suit != _rounds[i].c2.Suit)
+                    //pokud v 1.kole vsichni priznali barvu ale spoluhrac nesel vejs
+                    if (_rounds[0].c1.Suit == _rounds[0].c2.Suit &&
+                        (_rounds[0].player2.PlayerIndex == TeamMateIndex &&
+                         _rounds[0].c1.BadValue > _rounds[0].c2.BadValue) ||
+                        (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
+                         _rounds[0].c1.BadValue > _rounds[0].c3.BadValue))
                     {
-                        preferredSuits.Add(_rounds[i].c2.Suit);
+                        preferredSuits.Add(_rounds[0].c1.Suit);
                     }
-                    if (_rounds[i].player3.PlayerIndex == TeamMateIndex &&
-                        _rounds[i].c1.Suit != _rounds[i].c3.Suit)
+                    //pokud v 2.kole spoluhrac nepriznal barv
+                    if (_rounds[0].c1.Suit == _rounds[0].c2.Suit &&
+                        (_rounds[0].player2.PlayerIndex == TeamMateIndex &&
+                         _rounds[0].c1.BadValue > _rounds[0].c2.BadValue) ||
+                        (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
+                         _rounds[0].c1.BadValue > _rounds[0].c3.BadValue))
                     {
-                        preferredSuits.Add(_rounds[i].c3.Suit);
+                        preferredSuits.Add(_rounds[0].c1.Suit);
+                    }
+                    if ((_rounds[0].player2.PlayerIndex == TeamMateIndex &&
+                         _rounds[0].c1.Suit != _rounds[0].c2.Suit) ||
+                        (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
+                         _rounds[0].c1.Suit != _rounds[0].c3.Suit))
+                    {
+                        preferredSuits.Add(_rounds[0].c1.Suit);
+                    }
+                }
+                if (!preferredSuits.Any())
+                {
+                    //prednostne zkousej hrat barvu kterou spoluhrac odmazaval
+                    for (var i = 0; i < RoundNumber - 1; i++)
+                    {
+                        if (_rounds[i].player2.PlayerIndex == TeamMateIndex &&
+                             _rounds[i].c1.Suit != _rounds[i].c2.Suit)
+                        {
+                            preferredSuits.Add(_rounds[i].c2.Suit);
+                        }
+                        if (_rounds[i].player3.PlayerIndex == TeamMateIndex &&
+                            _rounds[i].c1.Suit != _rounds[i].c3.Suit)
+                        {
+                            preferredSuits.Add(_rounds[i].c3.Suit);
+                        }
                     }
                 }
             }
