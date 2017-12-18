@@ -4,12 +4,8 @@
 <dict>
 	<key>CFBundleDisplayName</key>
 	<string>Mariášek</string>
-	<key>CFBundleIconFiles</key>
-	<array>
-		<string>Icon</string>
-	</array>
 	<key>CFBundleIdentifier</key>
-	<string>project.MonoGame.Mariasek.iOSClient</string>
+	<string>project.MonoGame.Mariasek.iOS</string>
 	<key>MinimumOSVersion</key>
 	<string>7.0</string>
 	<key>UISupportedInterfaceOrientations</key>
@@ -37,5 +33,17 @@
 	<true/>
 	<key>CFBundleName</key>
 	<string>Mariášek</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Launch</string>
+	<key>UIRequiresFullScreen</key>
+	<true/>
+	<key>XSLaunchImageAssets</key>
+	<string>Resources/Images.xcassets/LaunchImage.launchimage</string>
+	<key>XSAppIconAssets</key>
+	<string>Resources/Images.xcassets/AppIcon.appiconset</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
 </dict>
 </plist>

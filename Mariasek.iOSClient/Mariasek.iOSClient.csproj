@@ -26,11 +26,13 @@
     <MtouchArch>i386</MtouchArch>
     <MtouchLink>SdkOnly</MtouchLink>
     <MtouchDebug>true</MtouchDebug>
-    <CodesignKey>iPhone Developer: tomas_nemec@yahoo.com (NM6BPUVRDM)</CodesignKey>
+    <CodesignKey>iPhone Developer: tnemec78@gmail.com (9TS4RT5F7W)</CodesignKey>
     <MtouchFastDev>true</MtouchFastDev>
+<AssemblyName>Mariasek.iOS</AssemblyName>
+<CodesignProvision>VS: project.MonoGame.Mariasek.iOS Development</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
-    <DebugType>full</DebugType>
+    <DebugType></DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\iPhone\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
@@ -39,9 +41,11 @@
     <MtouchArch>ARMv7, ARM64</MtouchArch>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchFloat32>true</MtouchFloat32>
-    <CodesignKey>iPhone Developer: tomas_nemec@yahoo.com (NM6BPUVRDM)</CodesignKey>
+    <CodesignKey>iPhone Developer: tnemec78@gmail.com (9TS4RT5F7W)</CodesignKey>
     <MtouchUseLlvm>true</MtouchUseLlvm>
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
+    <CodesignProvision>VS: project.MonoGame.Mariasek.iOS Development</CodesignProvision>
+    <AssemblyName>Mariasek.iOS</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>full</DebugType>
@@ -52,7 +56,9 @@
     <ConsolePause>false</ConsolePause>
     <MtouchArch>i386</MtouchArch>
     <MtouchLink>None</MtouchLink>
-    <CodesignKey>iPhone Developer</CodesignKey>
+    <CodesignKey>iPhone Developer: tnemec78@gmail.com (9TS4RT5F7W)</CodesignKey>
+<AssemblyName>Mariasek.iOS</AssemblyName>
+<CodesignProvision>VS: project.MonoGame.Mariasek.iOS Development</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -68,12 +74,12 @@
     <MtouchFloat32>true</MtouchFloat32>
     <MtouchDebug>true</MtouchDebug>
     <DeviceSpecificBuild>true</DeviceSpecificBuild>
-    <CodesignKey>iPhone Developer: tomas_nemec@yahoo.com (NM6BPUVRDM)</CodesignKey>
+    <CodesignKey>iPhone Developer: tnemec78@gmail.com (9TS4RT5F7W)</CodesignKey>
     <MtouchExtraArgs>-v -v -v</MtouchExtraArgs>
     <IpaPackageName>
     </IpaPackageName>
     <MtouchLink>SdkOnly</MtouchLink>
-    <CodesignProvision>iOS Team Provisioning Profile: project.MonoGame.Mariasek.iOSClient</CodesignProvision>
+    <CodesignProvision>VS: project.MonoGame.Mariasek.iOS Development</CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -99,7 +105,14 @@
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="GameThumbnail.png" />
-    <BundleResource Include="Resources\Icon.png" />
+    <BundleResource Include="Resources\Icon-76.png" />
+    <BundleResource Include="Resources\Icon-120.png" />
+    <BundleResource Include="Resources\Icon-152.png" />
+    <BundleResource Include="Resources\Icon-167.png" />
+    <BundleResource Include="Resources\iPad-Landscape.png" />
+    <BundleResource Include="Resources\iPhone-Portrait.png" />
+    <BundleResource Include="Resources\Icon-80.png" />
+    <BundleResource Include="Resources\Icon-40.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
@@ -114,6 +127,16 @@
   </ItemGroup>
   <ItemGroup>
     <ImageAsset Include="Resources\Images.xcassets\LaunchImage.launchimage\Contents.json" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcon.appiconset\Contents.json" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcon.appiconset\Icon-76.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcon.appiconset\Icon-152.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcon.appiconset\Icon-167.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcon.appiconset\Icon1024.png" />
+    <ImageAsset Include="Resources\Images.xcassets\LaunchImage.launchimage\iPad-Landscape.png" />
+    <ImageAsset Include="Resources\Images.xcassets\LaunchImage.launchimage\iPhone-Portrait.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcon.appiconset\Icon-40.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcon.appiconset\Icon-120.png" />
+    <ImageAsset Include="Resources\Images.xcassets\AppIcon.appiconset\Icon-80.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\" />
@@ -136,5 +159,9 @@
       <Link>Content\SegoeUI40Outl.fnt</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ITunesArtwork Include="Resources\Icon.png" />
+    <ITunesArtwork Include="iTunesArtwork%402x" />
   </ItemGroup>
 </Project>

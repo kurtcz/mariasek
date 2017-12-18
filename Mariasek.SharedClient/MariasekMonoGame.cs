@@ -11,6 +11,9 @@ using Microsoft.Xna.Framework.Media;
 using Mariasek.SharedClient.GameComponents;
 using System.Xml.Serialization;
 using Mariasek.Engine.New;
+#if __IOS__
+using Foundation;
+#endif
 
 namespace Mariasek.SharedClient
 {
@@ -221,6 +224,10 @@ namespace Mariasek.SharedClient
                 var versionCode = context.PackageManager.GetPackageInfo(context.PackageName, 0).VersionCode;
 
                 return new Version(v.Major, v.Minor, versionCode);
+#elif __IOS__
+                var v = assembly.GetName().Version;
+                var buildNumber = int.Parse(NSBundle.MainBundle.InfoDictionary["CFBundleVersion"].ToString());
+                return new Version(v.Major, v.Minor, buildNumber);
 #else
                 return assembly.GetName().Version;
 #endif
@@ -604,8 +611,8 @@ namespace Mariasek.SharedClient
             }
 			SpriteBatch.End();
 
-			CurrentRenderingGroup = AnchorType.Right;
-			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, RightScaleMatrix);
+            CurrentRenderingGroup = AnchorType.Right;
+            SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, RightScaleMatrix);
             try
             {
                 CurrentScene.Draw(gameTime);
@@ -613,9 +620,9 @@ namespace Mariasek.SharedClient
             catch
             {
             }
-			SpriteBatch.End();
+            SpriteBatch.End();
 
-			CurrentRenderingGroup = AnchorType.Bottom;
+            CurrentRenderingGroup = AnchorType.Bottom;
 			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, BottomScaleMatrix);
             try
             {
