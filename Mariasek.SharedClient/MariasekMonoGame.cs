@@ -209,6 +209,20 @@ namespace Mariasek.SharedClient
             Paused += GamePaused;
         }
 
+        public static string Platform
+        {
+            get
+            {
+#if __ANDROID__
+                return "Android";
+#elif __IOS__
+                return "iOS";
+#else
+                return "unknown";
+#endif
+            }
+        }
+
         public static Version Version
         {
             get

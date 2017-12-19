@@ -1311,8 +1311,9 @@ namespace Mariasek.SharedClient
             {
                 ex = ae.Flatten().InnerExceptions[0];
             }
+            var subject = $"Mariášek crash report v{MariasekMonoGame.Version} ({MariasekMonoGame.Platform})";
             var msg1 = string.Format("Chyba:\n{0}\nOdesílám zprávu...", ex.Message.Split('\n').First());
-            var msg2 = string.Format("{0}\n{1}", ex.Message, ex.StackTrace);
+            var msg2 = string.Format("{0}\n{1}\n{2}", subject, ex.Message, ex.StackTrace);
 
             ShowMsgLabel(msg1, false);
 
@@ -1320,7 +1321,7 @@ namespace Mariasek.SharedClient
             {
                 Game.EmailSender.SendEmail(
                     new[] { "mariasek.app@gmail.com" },
-                    "Mariasek crash report " + MariasekMonoGame.Version, msg2,
+                    subject, msg2,
                     new[] { _newGameFilePath, _errorFilePath, _errorMsgFilePath, SettingsScene._settingsFilePath });
             }
         }
@@ -1352,23 +1353,25 @@ namespace Mariasek.SharedClient
                 _review.UpdateReview();
 #if !__IOS__
                 using (var fs = GetFileStream(Path.GetFileName(_screenPath)))
-				{
+                {
                     var target = _review.SaveTexture();
-					target.SaveAsPng(fs, target.Width, target.Height);
-				}
+                    target.SaveAsPng(fs, target.Width, target.Height);
+                }
 #endif
+
+                var subject = $"Mariášek: komentář v{MariasekMonoGame.Version} ({MariasekMonoGame.Platform})";
 				if (g != null && g.IsRunning)
                 {
                     using (var fs = GetFileStream(Path.GetFileName(_savedGameFilePath)))
                     {
                         g.SaveGame(fs, saveDebugInfo: true);
                     }
-                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariášek: komentář " + MariasekMonoGame.Version, "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře\n:",
+                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře\n:",
                                                new[] { _screenPath, _newGameFilePath, _savedGameFilePath, SettingsScene._settingsFilePath });
                 }
                 else
                 {
-                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, "Mariášek: komentář " + MariasekMonoGame.Version, "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře\n:",
+                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře\n:",
                                                new[] { _screenPath, _newGameFilePath, _endGameFilePath, SettingsScene._settingsFilePath });
                 }
             }
