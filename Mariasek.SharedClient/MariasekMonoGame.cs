@@ -426,52 +426,65 @@ namespace Mariasek.SharedClient
 
         private void GameResumed()
         {
-            if (Settings == null)
+            try
             {
-                LoadGameSettings(true);
+                if (Settings == null)
+                {
+                    LoadGameSettings(true);
+                }
+                SoundEffect.MasterVolume = Settings.SoundEnabled ? 1f : 0f;
+                if (AmbientSound == null || AmbientSound.IsDisposed)
+                {
+                    AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
+                    AmbientSound.IsLooped = true;
+                    AmbientSound.Volume = Settings.BgSoundEnabled ? 0.2f : 0f;
+                    AmbientSound.PlaySafely();
+                }
+                if (ClickSound == null || ClickSound.IsDisposed)
+                {
+                    ClickSound = Content.Load<SoundEffect>("watch-tick");
+                }
+                if (OnSound == null || OnSound.IsDisposed)
+                {
+                    OnSound = Content.Load<SoundEffect>("on");
+                }
+                if (OffSound == null || OffSound.IsDisposed)
+                {
+                    OffSound = Content.Load<SoundEffect>("off");
+                }
+                if (ClapSound == null || ClapSound.IsDisposed)
+                {
+                    ClapSound = Content.Load<SoundEffect>("clap");
+                }
+                if (CoughSound == null || CoughSound.IsDisposed)
+                {
+                    CoughSound = Content.Load<SoundEffect>("cough");
+                }
+                if (BooSound == null || BooSound.IsDisposed)
+                {
+                    BooSound = Content.Load<SoundEffect>("boo");
+                }
+                if (LaughSound == null || LaughSound.IsDisposed)
+                {
+                    LaughSound = Content.Load<SoundEffect>("laugh");
+                }
+                if (NaPankraciSong == null || NaPankraciSong.IsDisposed)
+                {
+                    NaPankraciSong = Content.Load<Song>("na pankraci");
+                    Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
+                    Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Settings.BgSoundEnabled ? 0.1f : 0f;
+                    Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
+                }
             }
-            SoundEffect.MasterVolume = Settings.SoundEnabled ? 1f : 0f;
-            if (AmbientSound == null || AmbientSound.IsDisposed)
+            catch (Exception ex)
             {
-                AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
-                AmbientSound.IsLooped = true;
-                AmbientSound.Volume = Settings.BgSoundEnabled ? 0.2f : 0f;
-                AmbientSound.PlaySafely();
-            }
-            if (ClickSound == null || ClickSound.IsDisposed)
-            {
-                ClickSound = Content.Load<SoundEffect>("watch-tick");
-            }
-            if (OnSound == null || OnSound.IsDisposed)
-            {
-                OnSound = Content.Load<SoundEffect>("on");
-            }
-            if (OffSound == null || OffSound.IsDisposed)
-            {
-                OffSound = Content.Load<SoundEffect>("off");
-            }
-            if (ClapSound == null || ClapSound.IsDisposed)
-            {
-                ClapSound = Content.Load<SoundEffect>("clap");
-            }
-            if (CoughSound == null || CoughSound.IsDisposed)
-            {
-                CoughSound = Content.Load<SoundEffect>("cough");
-            }
-            if (BooSound == null || BooSound.IsDisposed)
-            {
-                BooSound = Content.Load<SoundEffect>("boo");
-            }
-            if (LaughSound == null || LaughSound.IsDisposed)
-            {
-                LaughSound = Content.Load<SoundEffect>("laugh");
-            }
-            if (NaPankraciSong == null || NaPankraciSong.IsDisposed)
-            {
-                NaPankraciSong = Content.Load<Song>("na pankraci");
-                Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
-                Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Settings.BgSoundEnabled ? 0.1f : 0f;
-                Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
+                try
+                {
+                    MainScene?.GameException(this, new GameExceptionEventArgs() { e = ex });
+                }
+                catch
+                {                    
+                }
             }
 		}
 
@@ -556,27 +569,41 @@ namespace Mariasek.SharedClient
 		/// </summary>
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Update (GameTime gameTime)
-		{            
-#if !__IOS__ && !__TVOS__
-			// For Mobile devices, this logic will close the Game when the Back button is pressed
-			if (GamePad.GetState (PlayerIndex.One).Buttons.Back == ButtonState.Pressed) {
-                //Exit ();                      //under MonoGame 3.6.0 there is a bug that prevents activity from being able to resume again
-                Activity.MoveTaskToBack(true);  //so we need to call this instead
-            }
-#endif
-			if (AmbientSound == null || AmbientSound.IsDisposed)
-			{
-				AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
-				AmbientSound.IsLooped = true;
-			}
-            if (gameTime.ElapsedGameTime.TotalMilliseconds > 500)
+		{
+            try
             {
-                System.Diagnostics.Debug.WriteLine(string.Format("!!!!! Update called after {0} ms", gameTime.ElapsedGameTime.TotalMilliseconds));
+#if !__IOS__ && !__TVOS__
+                // For Mobile devices, this logic will close the Game when the Back button is pressed
+                if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+                {
+                    //Exit ();                      //under MonoGame 3.6.0 there is a bug that prevents activity from being able to resume again
+                    Activity.MoveTaskToBack(true);  //so we need to call this instead
+                }
+#endif
+                if (AmbientSound == null || AmbientSound.IsDisposed)
+                {
+                    AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
+                    AmbientSound.IsLooped = true;
+                }
+                if (gameTime.ElapsedGameTime.TotalMilliseconds > 500)
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("!!!!! Update called after {0} ms", gameTime.ElapsedGameTime.TotalMilliseconds));
+                }
+                TouchCollection = TouchPanel.GetState();
+                // TODO: Add your update logic here
+                CurrentScene.Update(gameTime);
             }
-            TouchCollection = TouchPanel.GetState();
-			// TODO: Add your update logic here
-            CurrentScene.Update(gameTime);
-			base.Update (gameTime);
+            catch(Exception ex)
+            {
+                try
+                {
+                    MainScene?.GameException(this, new GameExceptionEventArgs { e = ex });
+                }
+                catch
+                {                    
+                }
+            }
+            base.Update(gameTime);
 		}
 
 		/// <summary>

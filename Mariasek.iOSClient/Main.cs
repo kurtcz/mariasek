@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using Mariasek.SharedClient;
+using System.Threading.Tasks;
 
 #if MONOMAC
 using MonoMac.AppKit;
@@ -27,12 +28,13 @@ namespace Mariasek.iOSClient
     {
         private static MariasekMonoGame game;
 		private static Program instance = new Program();
+        private static EmailSender emailSender = null;
 
         internal static void RunGame()
         {
-			var emailSender = new EmailSender();
             var navigator = new WebNavigate();
             var screenUpdater = new ScreenUpdater();
+            emailSender = new EmailSender();
 
 			game = new MariasekMonoGame(emailSender, navigator, screenUpdater);
 
@@ -71,6 +73,8 @@ namespace Mariasek.iOSClient
         public override void FinishedLaunching(UIApplication app)
         {
 			app.IdleTimerDisabled = true; //stop iOS from stalling our game
+            TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
+            AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             RunGame();
         }
 
@@ -88,6 +92,54 @@ namespace Mariasek.iOSClient
         public override void WillTerminate(UIApplication application)
         {
             game.Dispose();
+        }
+
+        private void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs args)
+        {
+            System.Diagnostics.Debug.WriteLine("OnUnobservedTaskException()");
+            HandleException(args.Exception as Exception);
+        }
+
+        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
+        {
+            System.Diagnostics.Debug.WriteLine("OnUnhandledException()");
+            HandleException(args.ExceptionObject as Exception);
+        }
+
+        private void HandleException(Exception ex)
+        {
+            try
+            {
+                var ae = ex as AggregateException;
+                if (ae != null)
+                {
+                    ex = ae.Flatten().InnerExceptions[0];
+                }
+                MainScene mainScene = null;
+                try
+                {
+                    mainScene = game?.MainScene;
+                }
+                catch
+                {
+                }
+                if (mainScene != null)
+                {
+                    mainScene.GameException(this, new Engine.New.GameExceptionEventArgs() { e = ex });
+                }
+                else
+                {
+                    var subject = $"Mariášek crash report v{MariasekMonoGame.Version} ({MariasekMonoGame.Platform})";
+                    var msg = string.Format("{0}\n{1}\n{2}\n-\n{3}", ex?.Message, ex?.StackTrace,
+                                            mainScene?.g?.DebugString?.ToString() ?? string.Empty,
+                                            mainScene?.g?.BiddingDebugInfo?.ToString() ?? string.Empty);
+
+                    emailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, msg, new string[0]);
+                }
+            }
+            catch
+            {
+            }
         }
     }
 

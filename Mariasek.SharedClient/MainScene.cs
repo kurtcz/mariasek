@@ -89,7 +89,7 @@ namespace Mariasek.SharedClient
         #endregion
 
         public Mariasek.Engine.New.Game g;
-        private SemaphoreSlim _gameSync = new SemaphoreSlim(1);
+        private SemaphoreSlim _gameSemaphore = new SemaphoreSlim(1);
         private Task _gameTask;
         private CancellationTokenSource _cancellationTokenSource;
         private readonly AutoResetEvent _evt = new AutoResetEvent(false);
@@ -1050,8 +1050,15 @@ namespace Mariasek.SharedClient
             _testGame = true;
             Task.Run(() =>
             {
-                File.Copy(_newGameFilePath, _savedGameFilePath, true);
-                LoadGame();
+                try
+                {
+                    File.Copy(_newGameFilePath, _savedGameFilePath, true);
+                    LoadGame();
+                }
+                catch(Exception ex)
+                {
+                    ShowMsgLabel(ex.Message, false);
+                }
             });
         }
 
@@ -1075,7 +1082,7 @@ namespace Mariasek.SharedClient
 
         public void NewGameBtnClicked(object sender)
         {
-            if (!_gameSync.Wait(0))
+            if (!_gameSemaphore.Wait(0))
             {
                 return;
             }
@@ -1235,7 +1242,10 @@ namespace Mariasek.SharedClient
                  }
                  finally
                  {
-                     _gameSync.Release();
+                     if (_gameSemaphore.CurrentCount == 0)
+                     {
+                         _gameSemaphore.Release();
+                     }
                  }
                  g.PlayGame(_cancellationTokenSource.Token);
              }, cancellationTokenSource.Token);
@@ -1301,28 +1311,41 @@ namespace Mariasek.SharedClient
 
         public void GameException(object sender, GameExceptionEventArgs e)
         {
-            var ex = e.e;
-            if (ex.ContainsCancellationException())
+            try
             {
-                return;
-            }
-            var ae = ex as AggregateException;
-            if (ae != null)
-            {
-                ex = ae.Flatten().InnerExceptions[0];
-            }
-            var subject = $"Mariášek crash report v{MariasekMonoGame.Version} ({MariasekMonoGame.Platform})";
-            var msg1 = string.Format("Chyba:\n{0}\nOdesílám zprávu...", ex.Message.Split('\n').First());
-            var msg2 = string.Format("{0}\n{1}\n{2}", subject, ex.Message, ex.StackTrace);
+                var ex = e.e;
+                if (ex.ContainsCancellationException())
+                {
+                    return;
+                }
+                var ae = ex as AggregateException;
+                if (ae != null)
+                {
+                    ex = ae.Flatten().InnerExceptions[0];
+                }
+                var subject = $"Mariášek crash report v{MariasekMonoGame.Version} ({MariasekMonoGame.Platform})";
+                var msg1 = string.Format("Chyba:\n{0}\nOdesílám zprávu...", ex.Message.Split('\n').First());
+                var msg2 = string.Format("{0}\n{1}\n{2}\n{3}\n-\n{4}", 
+                                         subject, ex.Message, ex.StackTrace, 
+                                         g?.DebugString?.ToString() ?? string.Empty,
+                                         g?.BiddingDebugInfo?.ToString() ?? string.Empty);
 
-            ShowMsgLabel(msg1, false);
+                if (_gameSemaphore.CurrentCount == 0)
+                {
+                    _gameSemaphore.Release();
+                }
+                ShowMsgLabel(msg1, false);
 
-            if (Game.EmailSender != null)
-            {
-                Game.EmailSender.SendEmail(
-                    new[] { "mariasek.app@gmail.com" },
-                    subject, msg2,
-                    new[] { _newGameFilePath, _errorFilePath, _errorMsgFilePath, SettingsScene._settingsFilePath });
+                if (Game.EmailSender != null)
+                {
+                    Game.EmailSender.SendEmail(
+                        new[] { "mariasek.app@gmail.com" },
+                        subject, msg2,
+                        new[] { _newGameFilePath, _errorFilePath, _errorMsgFilePath, SettingsScene._settingsFilePath });
+                }
+            }
+            catch
+            {                
             }
         }
 
@@ -2387,7 +2410,7 @@ namespace Mariasek.SharedClient
         {
             if (g == null)
             {
-                if (!_gameSync.Wait(0))
+                if (!_gameSemaphore.Wait(0))
                 {
                     return;
                 }
@@ -2570,7 +2593,10 @@ namespace Mariasek.SharedClient
                     }
                     finally
                     {
-                        _gameSync.Release();
+                        if (_gameSemaphore.CurrentCount == 0)
+                        {
+                            _gameSemaphore.Release();
+                        }
                     }
                     g.PlayGame(_cancellationTokenSource.Token);
                 }, cancellationTokenSource.Token);
@@ -2605,16 +2631,23 @@ namespace Mariasek.SharedClient
 
         public void ResumeGame()
         {
-            if (CanLoadGame())
+            try
             {
-                _testGame = false;
-                LoadGame();
+                if (CanLoadGame())
+                {
+                    _testGame = false;
+                    LoadGame();
+                }
+                else if (CanLoadTestGame())
+                {
+                    _testGame = true;
+                    File.Copy(_testGameFilePath, _newGameFilePath, true);
+                    LoadGame(true);
+                }
             }
-            else if (CanLoadTestGame())
+            catch (Exception ex)
             {
-                _testGame = true;
-                File.Copy(_testGameFilePath, _newGameFilePath, true);
-                LoadGame(true);
+                GameException(this, new GameExceptionEventArgs(){ e = ex });
             }
         }
 
