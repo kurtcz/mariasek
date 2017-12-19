@@ -743,12 +743,13 @@ namespace Mariasek.Engine.New
                                                                                   _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) <= _epsilon &&
                                                                                   _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) <= _epsilon)) &&
                                                                                   _probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor &&
-                                                                                  _probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor &&
-                                                                                  (myInitialHand.CardCount(i.Suit) <= 2 ||
-                                                                                   (myInitialHand.CardCount(i.Suit) <= 3 &&
-                                                                                    myInitialHand.CardCount(_trump) <= 3) ||
-																				   (myInitialHand.CardCount(i.Suit) <= 4 &&
-																					myInitialHand.CardCount(_trump) <= 2)))
+                                                                                  _probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor
+                     //                                                             (myInitialHand.CardCount(i.Suit) <= 2 ||
+                     //                                                              (myInitialHand.CardCount(i.Suit) <= 3 &&
+                     //                                                               myInitialHand.CardCount(_trump) <= 3) ||
+																				 //  (myInitialHand.CardCount(i.Suit) <= 4 &&
+																					//myInitialHand.CardCount(_trump) <= 2))
+                                                                          )
                                                                     .ToList();
                         return cardsToPlay.OrderByDescending(i => myInitialHand.CardCount(i.Suit))
                                           .ThenBy(i => i.Value)
@@ -781,12 +782,13 @@ namespace Mariasek.Engine.New
                                                                                 (i.Value == Hodnota.Eso ||
                                                                                  (i.Value == Hodnota.Desitka &&
                                                                                   _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) <= _epsilon)) &&
-                                                                                  _probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor &&
-                                                                                  (myInitialHand.CardCount(i.Suit) <= 2 ||
-                                                                                   (myInitialHand.CardCount(i.Suit) <= 3 &&
-                                                                                    myInitialHand.CardCount(_trump) <= 3) ||
-                                                                                   (myInitialHand.CardCount(i.Suit) <= 4 &&
-                                                                                    myInitialHand.CardCount(_trump) <= 2)))
+                                                                                  _probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor
+                                                                                  //(myInitialHand.CardCount(i.Suit) <= 2 ||
+                                                                                   //(myInitialHand.CardCount(i.Suit) <= 3 &&
+                                                                                   // myInitialHand.CardCount(_trump) <= 3) ||
+                                                                                   //(myInitialHand.CardCount(i.Suit) <= 4 &&
+                                                                                    //myInitialHand.CardCount(_trump) <= 2))
+                                                                          )
                                                                     .ToList();
                         return cardsToPlay.OrderByDescending(i => myInitialHand.CardCount(i.Suit))
                                           .ThenBy(i => i.Value)
@@ -819,12 +821,13 @@ namespace Mariasek.Engine.New
                                                                                 (i.Value == Hodnota.Eso ||
                                                                                  (i.Value == Hodnota.Desitka &&
                                                                                   _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) <= _epsilon)) &&
-                                                                                  _probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor &&
-                                                                                  (myInitialHand.CardCount(i.Suit) <= 2 ||
-                                                                                   (myInitialHand.CardCount(i.Suit) <= 3 &&
-                                                                                    myInitialHand.CardCount(_trump) <= 3) ||
-                                                                                   (myInitialHand.CardCount(i.Suit) <= 4 &&
-                                                                                    myInitialHand.CardCount(_trump) <= 2)))
+                                                                                  _probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor
+                                                                                  //(myInitialHand.CardCount(i.Suit) <= 2 ||
+                                                                                   //(myInitialHand.CardCount(i.Suit) <= 3 &&
+                                                                                   // myInitialHand.CardCount(_trump) <= 3) ||
+                                                                                   //(myInitialHand.CardCount(i.Suit) <= 4 &&
+                                                                                    //myInitialHand.CardCount(_trump) <= 2))
+                                                                          )
                                                                     .ToList();
                         return cardsToPlay.OrderByDescending(i => myInitialHand.CardCount(i.Suit))
                                           .ThenBy(i => i.Value)

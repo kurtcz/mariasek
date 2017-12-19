@@ -37,6 +37,7 @@ namespace Mariasek.Engine.New
         private int _durchBalance;
         private int _gameSimulations;
         private int _sevenSimulations;
+        private int _hundredSimulations;
         private int _betlSimulations;
         private int _durchSimulations;
         private bool _initialSimulation;
@@ -872,11 +873,15 @@ namespace Mariasek.Engine.New
                 {
                     source = tempSource.ToArray();
                 }
-                if (PlayerIndex == _g.GameStartingPlayerIndex && _gameType == null && Hand.Has7(_trump ?? _g.trump.Value))
+                if (PlayerIndex == _g.GameStartingPlayerIndex && 
+                    _gameType == null && 
+                    (Hand.Has7(_trump ?? _g.trump.Value) ||
+                     (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                          .Any(b => Hand.HasK(b) && Hand.HasQ(b)))))
                 {
                     var start7 = DateTime.Now;
 
-                    _debugString.Append("Simulating sevens\n");
+                    _debugString.Append("Simulating hundreds and sevens\n");
                     Parallel.ForEach(source, options, (hh, loopState) =>
                     {
                         ThrowIfCancellationRequested();
@@ -900,14 +905,15 @@ namespace Mariasek.Engine.New
                             UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
 
                             // to ?? vypada chybne
-                            var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : (Hra.Hra | Hra.Sedma | Hra.SedmaProti), 10, 1);
+                            var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : (Hra.Kilo | Hra.Sedma | Hra.SedmaProti), 10, 1);
                             gameComputationResults.Enqueue(gameComputationResult);
                         }
                         var val = Interlocked.Increment(ref progress);
 
-                        OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju hru" });
+                        OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju kilo a sedmu" });
                     });
                     _sevenSimulations = actualSimulations7;
+                    _hundredSimulations = _sevenSimulations;
                 }
                 else
                 {
@@ -1081,7 +1087,7 @@ namespace Mariasek.Engine.New
                 return calc;
             }).Union(gameComputationResults.Where(i => (i.GameType & Hra.Sedma) != 0).Select((i, idx) =>
 			{
-	            var calc = new AddingMoneyCalculator(Hra.Sedma, _trump ?? _g.trump, gameStartingPlayerIndex, bidding, i);
+	            var calc = new AddingMoneyCalculator(Hra.Kilo | Hra.Sedma, _trump ?? _g.trump, gameStartingPlayerIndex, bidding, i);
 
                 calc.CalculateMoney();
                 _sevenStrings.Add(GetComputationResultString(i, calc));
@@ -1108,8 +1114,8 @@ namespace Mariasek.Engine.New
             _durchSimulations = _moneyCalculations.Count(i => i.GameType == Hra.Durch);
 
             Hra? goodGameType = _gameType.HasValue && (_gameType & Hra.Sedma) != 0 ? Hra.Sedma : (Hra?)null;
-            var avgPointsForHundred = _moneyCalculations.Any(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0)
-                                        ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0)
+            var avgPointsForHundred = _moneyCalculations.Any(i => (i.GameType & (goodGameType ?? Hra.Kilo)) != 0)
+                                        ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Kilo)) != 0)
                                                             .Average(i => (i.BasicPointsWon + i.MaxHlasWon))
                                         : 0;
 
@@ -1123,8 +1129,8 @@ namespace Mariasek.Engine.New
                             ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => i.GameWon)
                             : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => !i.GameWon);
             _hundredsBalance = PlayerIndex == gameStartingPlayerIndex
-                                ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => i.HundredWon)
-                                : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => !i.HundredWon);
+                                ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Kilo)) != 0).Count(i => i.HundredWon)
+                                : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Kilo)) != 0).Count(i => !i.HundredWon);
             _hundredsAgainstBalance = PlayerIndex == gameStartingPlayerIndex
                                         ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => !i.QuietHundredAgainstWon)
                                         : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => i.QuietHundredAgainstWon);
@@ -1578,7 +1584,7 @@ namespace Mariasek.Engine.New
             else
             {
                 if (Settings.CanPlayGameType[Hra.Kilo] && 
-                    _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _gameSimulations && _gameSimulations > 0 &&
+                    _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations && _hundredSimulations > 0 &&
                     ((Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value)) || //abych nehral kilo pokud aspon netrham a nemam aspon 2 hlasky
                      Enum.GetValues(typeof(Barva)).Cast<Barva>()
                          .Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2))
@@ -1743,11 +1749,11 @@ namespace Mariasek.Engine.New
             //?! Pokud bych chtel simulovat sance na to, ze volici hrac hlasene kilo neuhraje, tak musim nejak generovat "karty na kilo" (aspon 1 hlas) a ne nahodne karty
             if ((bidding.Bids & Hra.Kilo) != 0 &&
                 Settings.CanPlayGameType[Hra.Kilo] &&
-                _gameSimulations > 0 &&
+                _hundredSimulations > 0 &&
                 (bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Kilo] ||
 				 (bidding._gameFlek <= MaxFlek &&
-				  _hundredsBalance / (float)_gameSimulations >= certaintyThreshold)) &&
-                ((PlayerIndex == _g.GameStartingPlayerIndex && _hundredsBalance / (float)_gameSimulations >= hundredThreshold) ||
+                  _hundredsBalance / (float)_hundredSimulations >= certaintyThreshold)) &&
+                ((PlayerIndex == _g.GameStartingPlayerIndex && _hundredsBalance / (float)_hundredSimulations >= hundredThreshold) ||
 			     (PlayerIndex != _g.GameStartingPlayerIndex && Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0)))
             {
                 bid |= bidding.Bids & Hra.Kilo;
@@ -1816,7 +1822,11 @@ namespace Mariasek.Engine.New
                                         ? _betlSimulations 
                                         : _gameType == Hra.Durch 
                                             ? _durchSimulations 
-                                            : _gameSimulations;
+                                            : (_gameType & Hra.Kilo) != 0
+                                                ? _hundredSimulations
+                                                : (_gameType & Hra.Sedma) != 0
+                                                    ? _sevenSimulations
+                                                    : _gameSimulations;
             BidConfidence = DebugInfo.TotalRuleCount > 0 ? (float)DebugInfo.RuleCount / (float)DebugInfo.TotalRuleCount : -1;
             var allChoices = new List<RuleDebugInfo>();
             allChoices.Add(new RuleDebugInfo
@@ -1841,7 +1851,7 @@ namespace Mariasek.Engine.New
             {
                 Rule = Hra.Kilo.ToString(),
                 RuleCount = _hundredsBalance,
-                TotalRuleCount = _gameSimulations
+                TotalRuleCount = _hundredSimulations
             });
 			allChoices.Add(new RuleDebugInfo
 			{

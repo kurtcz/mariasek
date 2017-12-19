@@ -110,7 +110,6 @@
     <BundleResource Include="Resources\Icon-152.png" />
     <BundleResource Include="Resources\Icon-167.png" />
     <BundleResource Include="Resources\iPad-Landscape.png" />
-    <BundleResource Include="Resources\iPhone-Portrait.png" />
     <BundleResource Include="Resources\Icon-80.png" />
     <BundleResource Include="Resources\Icon-40.png" />
   </ItemGroup>
@@ -126,20 +125,18 @@
     <InterfaceDefinition Include="Launch.storyboard" />
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Resources\Images.xcassets\LaunchImage.launchimage\Contents.json" />
     <ImageAsset Include="Resources\Images.xcassets\AppIcon.appiconset\Contents.json" />
     <ImageAsset Include="Resources\Images.xcassets\AppIcon.appiconset\Icon-76.png" />
     <ImageAsset Include="Resources\Images.xcassets\AppIcon.appiconset\Icon-152.png" />
     <ImageAsset Include="Resources\Images.xcassets\AppIcon.appiconset\Icon-167.png" />
     <ImageAsset Include="Resources\Images.xcassets\AppIcon.appiconset\Icon1024.png" />
-    <ImageAsset Include="Resources\Images.xcassets\LaunchImage.launchimage\iPad-Landscape.png" />
-    <ImageAsset Include="Resources\Images.xcassets\LaunchImage.launchimage\iPhone-Portrait.png" />
     <ImageAsset Include="Resources\Images.xcassets\AppIcon.appiconset\Icon-40.png" />
     <ImageAsset Include="Resources\Images.xcassets\AppIcon.appiconset\Icon-120.png" />
     <ImageAsset Include="Resources\Images.xcassets\AppIcon.appiconset\Icon-80.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\" />
+    <Folder Include="Resources\Images.xcassets\LaunchImage0.launchimage\" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="..\Mariasek.Content\Content.mgcb">

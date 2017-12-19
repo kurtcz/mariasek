@@ -36,7 +36,6 @@ namespace Mariasek.Engine.New
                     {
                         preferredSuits.Add(_rounds[0].c1.Suit);
                     }
-                    //pokud v 2.kole spoluhrac nepriznal barv
                     if (_rounds[0].c1.Suit == _rounds[0].c2.Suit &&
                         (_rounds[0].player2.PlayerIndex == TeamMateIndex &&
                          _rounds[0].c1.BadValue > _rounds[0].c2.BadValue) ||
@@ -45,10 +44,12 @@ namespace Mariasek.Engine.New
                     {
                         preferredSuits.Add(_rounds[0].c1.Suit);
                     }
-                    if ((_rounds[0].player2.PlayerIndex == TeamMateIndex &&
-                         _rounds[0].c1.Suit != _rounds[0].c2.Suit) ||
-                        (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
-                         _rounds[0].c1.Suit != _rounds[0].c3.Suit))
+                    //pokud v 2.kole spoluhrac nepriznal barvu a jeste nejake karty v barve zbyvaji
+                    if (hands[MyIndex].CardCount(_rounds[0].c1.Suit) < 6 &&
+                        ((_rounds[0].player2.PlayerIndex == TeamMateIndex &&
+                          _rounds[0].c1.Suit != _rounds[0].c2.Suit) ||
+                         (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
+                          _rounds[0].c1.Suit != _rounds[0].c3.Suit)))
                     {
                         preferredSuits.Add(_rounds[0].c1.Suit);
                     }

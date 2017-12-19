@@ -37,8 +37,6 @@
 	<string>Launch</string>
 	<key>UIRequiresFullScreen</key>
 	<true/>
-	<key>XSLaunchImageAssets</key>
-	<string>Resources/Images.xcassets/LaunchImage.launchimage</string>
 	<key>XSAppIconAssets</key>
 	<string>Resources/Images.xcassets/AppIcon.appiconset</string>
 	<key>CFBundleShortVersionString</key>
