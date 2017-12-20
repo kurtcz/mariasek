@@ -99,7 +99,13 @@ namespace Mariasek.SharedClient.GameComponents
 		{
 			if (Thread.CurrentThread.ManagedThreadId == _uiThreadId)
 			{
-				action();
+                try
+                {
+                    action();
+                }
+                catch
+                {                    
+                }
 			}
 			else
 			{

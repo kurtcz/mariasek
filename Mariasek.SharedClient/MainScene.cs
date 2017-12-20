@@ -1330,7 +1330,7 @@ namespace Mariasek.SharedClient
                                          g?.DebugString?.ToString() ?? string.Empty,
                                          g?.BiddingDebugInfo?.ToString() ?? string.Empty);
 
-                if (_gameSemaphore.CurrentCount == 0)
+                if (_gameSemaphore != null && _gameSemaphore.CurrentCount == 0)
                 {
                     _gameSemaphore.Release();
                 }
@@ -3005,38 +3005,41 @@ namespace Mariasek.SharedClient
 
         private void ClearTable(bool hlasy = false)
         {
-            _cardsPlayed[0].Hide();
-            _cardsPlayed[1].Hide();
-            _cardsPlayed[2].Hide();
-
-            if (hlasy)
+            RunOnUiThread(() =>
             {
-                for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
+                _cardsPlayed[0].Hide();
+                _cardsPlayed[1].Hide();
+                _cardsPlayed[2].Hide();
+
+                if (hlasy)
                 {
-                    _hlasy[i][0].Hide();
-                    _hlasy[i][1].Hide();
-                    _hlasy[i][2].Hide();
-                    _hlasy[i][3].Hide();
+                    for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
+                    {
+                        _hlasy[i][0].Hide();
+                        _hlasy[i][1].Hide();
+                        _hlasy[i][2].Hide();
+                        _hlasy[i][3].Hide();
+                    }
+                    _stychy[0].Hide();
+                    _stychy[1].Hide();
+                    _stychy[2].Hide();
+                    _stareStychy[0].Hide();
+                    _stareStychy[1].Hide();
+                    _stareStychy[2].Hide();
                 }
-                _stychy[0].Hide();
-                _stychy[1].Hide();
-                _stychy[2].Hide();
-                _stareStychy[0].Hide();
-                _stareStychy[1].Hide();
-                _stareStychy[2].Hide();
-            }
-            _msgLabel.Hide();
-            _msgLabelSmall.Hide();
-            _msgLabelLeft.Hide();
-            _msgLabelRight.Hide();
-            _gameResult.Hide();
-            _totalBalance.Hide();
-            _hand.Hide();
+                _msgLabel.Hide();
+                _msgLabelSmall.Hide();
+                _msgLabelLeft.Hide();
+                _msgLabelRight.Hide();
+                _gameResult.Hide();
+                _totalBalance.Hide();
+                _hand.Hide();
 
-            if (_winningHand != null)
-            {
-                _winningHand.Hide();
-            }
+                if (_winningHand != null)
+                {
+                    _winningHand.Hide();
+                }
+            });
         }
 
         private void ShowMsgLabel(string message, bool showButton)
