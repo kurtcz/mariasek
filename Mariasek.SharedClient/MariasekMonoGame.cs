@@ -612,67 +612,87 @@ namespace Mariasek.SharedClient
 		/// <param name="gameTime">Provides a snapshot of timing values.</param>
 		protected override void Draw (GameTime gameTime)
 		{
-            GraphicsDevice.Clear (Color.ForestGreen);
-
-			if (SpriteBatch == null || SpriteBatch.IsDisposed)
-			{
-				SpriteBatch = new SpriteBatch(GraphicsDevice);
-			}
-			//TODO: Add your drawing code here
-			CurrentRenderingGroup = AnchorType.Main;
-			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, MainScaleMatrix);
             try
             {
-                CurrentScene.Draw(gameTime);
+                GraphicsDevice.Clear(Color.ForestGreen);
+
+                if (SpriteBatch == null || SpriteBatch.IsDisposed)
+                {
+                    SpriteBatch = new SpriteBatch(GraphicsDevice);
+                }
+                try
+                {
+                    CurrentRenderingGroup = AnchorType.Main;
+                    SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, MainScaleMatrix);
+                    CurrentScene.Draw(gameTime);
+                }
+                catch
+                {
+                }
+                finally
+                {
+                    SpriteBatch.End();
+                }
+
+                try
+                {
+                    CurrentRenderingGroup = AnchorType.Left;
+                    SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, LeftScaleMatrix);
+                    CurrentScene.Draw(gameTime);
+                }
+                catch
+                {
+                }
+                finally
+                {
+                    SpriteBatch.End();
+                }
+
+                try
+                {
+                    CurrentRenderingGroup = AnchorType.Top;
+                    SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, TopScaleMatrix);
+                    CurrentScene.Draw(gameTime);
+                }
+                catch
+                {
+                }
+                finally
+                {
+                    SpriteBatch.End();
+                }
+
+                try
+                {
+                    CurrentRenderingGroup = AnchorType.Right;
+                    SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, RightScaleMatrix);
+                    CurrentScene.Draw(gameTime);
+                }
+                catch
+                {
+                }
+                finally
+                {
+                    SpriteBatch.End();
+                }
+
+                try
+                {
+                    CurrentRenderingGroup = AnchorType.Bottom;
+                    SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, BottomScaleMatrix);
+                    CurrentScene.Draw(gameTime);
+                }
+                catch
+                {
+                }
+                finally
+                {
+                    SpriteBatch.End();
+                }
             }
             catch
             {                
             }
-			SpriteBatch.End();
-
-			CurrentRenderingGroup = AnchorType.Left;
-			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, LeftScaleMatrix);
-            try
-            {
-                CurrentScene.Draw(gameTime);
-            }
-            catch
-            {
-            }
-			SpriteBatch.End();
-
-			CurrentRenderingGroup = AnchorType.Top;
-			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, TopScaleMatrix);
-            try
-            {
-                CurrentScene.Draw(gameTime);
-            }
-            catch
-            {
-            }
-			SpriteBatch.End();
-
-            CurrentRenderingGroup = AnchorType.Right;
-            SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, RightScaleMatrix);
-            try
-            {
-                CurrentScene.Draw(gameTime);
-            }
-            catch
-            {
-            }
-            SpriteBatch.End();
-
-            CurrentRenderingGroup = AnchorType.Bottom;
-			SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, BottomScaleMatrix);
-            try
-            {
-                CurrentScene.Draw(gameTime);
-            }
-            catch
-            {
-            }
-			SpriteBatch.End();
 		}
 	}
 }

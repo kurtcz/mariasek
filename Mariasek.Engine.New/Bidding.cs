@@ -129,6 +129,7 @@ namespace Mariasek.Engine.New
             Round = 0;
             var e = GetEventArgs(_g.GameStartingPlayer, gameType, 0);
             _log.DebugFormat("Bidding: {0}: {1} ({2})", e.Player.Name, e.Description, Bids);
+            _g.DebugString.AppendFormat("StartBidding: Player{0}: {1} ({2})\n", e.Player.PlayerIndex + 1, e.Description, Bids);
             _g.BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1}\n", e.Player.PlayerIndex + 1, e.Description);
             _g.AddBiddingDebugInfo(e.Player.PlayerIndex);
             _g.OnBidMade(e);
@@ -142,6 +143,7 @@ namespace Mariasek.Engine.New
             Round = 0;
             var e = GetEventArgs(_g.GameStartingPlayer, gameType, 0);
             _log.DebugFormat("Bidding: {0}: {1} ({2})", e.Player.Name, e.Description, Bids);
+            _g.DebugString.AppendFormat("CompleteBidding: Player{0}: {1} ({2})\n", e.Player.PlayerIndex + 1, e.Description, Bids);
             _g.BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1}\n", e.Player.PlayerIndex + 1, e.Description);
             _g.AddBiddingDebugInfo(e.Player.PlayerIndex);
             _g.OnBidMade(e);
@@ -152,13 +154,15 @@ namespace Mariasek.Engine.New
                 Round = j % Game.NumPlayers;
                 //zrus priznak u her ktere cele kolo nikdo neflekoval aby uz nesly flekovat dal
                 AdjustValidBidsForPlayer(i, j);
-                
+                _g.DebugString.AppendFormat("Player{0} GetBidsAndDoubles()\n", i + 1);
+            
                 var bid = _g.players[i].GetBidsAndDoubles(this);
                 //nastav priznak co hrac hlasil a flekoval
                 SetLastBidder(_g.players[i], bid);
                 gameType |= bid;
                 e = GetEventArgs(_g.players[i], bid, Bids);
                 _log.DebugFormat("Bidding: {0}: {1} ({2})", e.Player.Name, e.Description, bid);
+                _g.DebugString.AppendFormat("\nBidding: Player{0}: {1} ({2})\n", e.Player.PlayerIndex + 1, e.Description, bid);
                 _g.BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1}\n", e.Player.PlayerIndex + 1, e.Description);
                 e.Player.BidMade += bid == 0 ? "" : e.Description + " ";
                 _g.AddBiddingDebugInfo(e.Player.PlayerIndex);
@@ -180,6 +184,7 @@ namespace Mariasek.Engine.New
         {
             AdjustValidBidsForPlayer(player.PlayerIndex, bidNumber);
 
+            _g.DebugString.AppendFormat("Player{0} GetBidsAndDoubles()\n", player.PlayerIndex + 1);
             var bid = player.GetBidsAndDoubles(this);
 
             //nastav priznak co hrac hlasil a flekoval
@@ -187,6 +192,7 @@ namespace Mariasek.Engine.New
             gameType |= bid;
             var e = GetEventArgs(player, bid, Bids);
             _log.DebugFormat("Bidding: {0}: {1} ({2})", e.Player.Name, e.Description, bid);
+            _g.DebugString.AppendFormat("Bidding: Player{0}: {1} ({2})\n", player.PlayerIndex + 1, e.Description, bid);
             _g.BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1}\n", player.PlayerIndex + 1, e.Description);
             e.Player.BidMade += bid == 0 ? "" : e.Description + " ";
             _g.AddBiddingDebugInfo(player.PlayerIndex);

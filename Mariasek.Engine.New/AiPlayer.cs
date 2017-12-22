@@ -2448,10 +2448,10 @@ namespace Mariasek.Engine.New
                 initialRoundNumber = _g.RoundNumber;
                 roundsToCompute = Settings.RoundsToCompute;
             }
-            if (!trump.HasValue && (gameType & (Hra.Betl | Hra.Durch)) == 0)
+            if (!trump.HasValue)
             {
                 trump = _g.trump;
-                if (!trump.HasValue)
+                if (!trump.HasValue && (gameType & (Hra.Betl | Hra.Durch)) == 0)
                 {
                     throw new InvalidOperationException("AiPlayer: trump is null");
                 }

@@ -1140,6 +1140,7 @@ namespace Mariasek.Engine.New
             DebugString.AppendLine("ChooseGame()");
             DebugString.AppendFormat("Player {0} ChooseTrump()\n", GameStartingPlayer.PlayerIndex + 1);
             TrumpCard = GameStartingPlayer.ChooseTrump();
+            DebugString.AppendFormat("TrumpCard: {0}\n", TrumpCard);
             trump = TrumpCard.Suit;
             GameType = 0;
             talon = new List<Card>();
@@ -1173,6 +1174,7 @@ namespace Mariasek.Engine.New
                     {
                         throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex + 1} during ChooseGame(): {talon.Count()}");
                     }
+                    DebugString.AppendFormat("talon: {0} {1}\n", talon[0], talon[1]);
 					BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
                     if (GameStartingPlayer.Hand.Count() != 10)
                     {
@@ -1187,6 +1189,7 @@ namespace Mariasek.Engine.New
                 {
                     DebugString.AppendFormat("Player {0} ChooseGameFlavour()\n", nextPlayer.PlayerIndex + 1);
                     gameFlavour = nextPlayer.ChooseGameFlavour();
+                    DebugString.AppendFormat("ChooseGameFlavour: {0}\n", gameFlavour);
                     BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1} ({2}/{3})", nextPlayer.PlayerIndex + 1, gameFlavour.Description(), nextPlayer.DebugInfo.RuleCount, nextPlayer.DebugInfo.TotalRuleCount);
                     BiddingDebugInfo.AppendFormat("\nBetl ({0}/{1})", nextPlayer.DebugInfo.AllChoices.FirstOrDefault(i => i.Rule == "Betl")?.RuleCount ?? -1, nextPlayer.DebugInfo.TotalRuleCount);
                     BiddingDebugInfo.AppendFormat("\nDurch ({0}/{1})", nextPlayer.DebugInfo.AllChoices.FirstOrDefault(i => i.Rule == "Durch")?.RuleCount ?? -1, nextPlayer.DebugInfo.TotalRuleCount);
@@ -1248,6 +1251,7 @@ namespace Mariasek.Engine.New
                         {
                             throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex+1} during ChooseGame(): {talon.Count()}");
                         }
+                        DebugString.AppendFormat("talon: {0} {1}\n", talon[0], talon[1]);
                         BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
                         if (GameStartingPlayer.Hand.Count() != 10)
                         {
