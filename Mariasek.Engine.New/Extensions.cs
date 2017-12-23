@@ -47,8 +47,12 @@ namespace Mariasek.Engine.New
             return String.Join(", ", description);
         }
 
-        public static string ToDescription(this Hra gt, Barva? trump = null)
+        public static string ToDescription(this Hra gt, Barva? trump = null, bool showGiveUp = false)
         {
+            if (gt == 0)
+            {
+                return showGiveUp ? "Vzdát" : string.Empty;
+            }
             if ((gt & Hra.Hra) != 0)
             {
                 if ((gt & Hra.Sedma) != 0)

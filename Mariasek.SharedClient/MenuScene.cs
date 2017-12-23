@@ -101,20 +101,22 @@ namespace Mariasek.SharedClient
             AnimateLogo();
             _version = new Label(this)
             {
-                Position = new Vector2(5, Game.VirtualScreenHeight - 34),
+                Position = new Vector2(5, Game.VirtualScreenHeight - 30),
                 Width = 200,
-                Height = 34,
+                Height = 30,
                 Text = string.Format("v{0}", MariasekMonoGame.Version),
-                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Bottom
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Bottom,
+                FontScaleFactor = Game.RealScreenGeometry == ScreenGeometry.Wide ? 0.9f : 0.75f
             };
             _author = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 405, Game.VirtualScreenHeight - 34),
+                Position = new Vector2(Game.VirtualScreenWidth - 405, Game.VirtualScreenHeight - 30),
                 Width = 400,
-                Height = 34,
+                Height = 30,
                 HorizontalAlign = HorizontalAlignment.Right,
                 Text = "©2017 Tomáš Němec",
-				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Bottom
+				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Bottom,
+                FontScaleFactor = Game.RealScreenGeometry == ScreenGeometry.Wide ? 0.9f : 0.75f
             };
             SoundEffect.MasterVolume = Game.Settings.SoundEnabled ? 1f : 0f;
             if (Game.AmbientSound != null && !Game.AmbientSound.IsDisposed)

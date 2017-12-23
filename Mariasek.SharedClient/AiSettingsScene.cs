@@ -434,8 +434,8 @@ namespace Mariasek.SharedClient
                 UpdateAiSettings();
                 UpdateControls(true);
             }
-            _maxBidCountSelector.IsEnabled = _playSelector.SelectedIndex >= 0 && (bool)_playSelector.SelectedValue; 
-            _threshold0Selector.IsEnabled = _playSelector.SelectedIndex >= 0 && (bool)_playSelector.SelectedValue && (Hra)_gameTypeSelector.SelectedValue != Hra.Hra;
+            _maxBidCountSelector.IsEnabled = _playSelector.SelectedIndex >= 0 && (bool)_playSelector.SelectedValue;
+            _threshold0Selector.IsEnabled = _playSelector.SelectedIndex >= 0 && (bool)_playSelector.SelectedValue;// && (Hra)_gameTypeSelector.SelectedValue != Hra.Hra;
             _threshold1Selector.IsEnabled = _playSelector.SelectedIndex >= 0 && (bool)_playSelector.SelectedValue && _maxBidCountSelector.SelectedIndex > 0;
             _threshold2Selector.IsEnabled = _playSelector.SelectedIndex >= 0 && (bool)_playSelector.SelectedValue && _maxBidCountSelector.SelectedIndex > 1;
             _threshold3Selector.IsEnabled = _playSelector.SelectedIndex >= 0 && (bool)_playSelector.SelectedValue && _maxBidCountSelector.SelectedIndex > 2;

@@ -311,9 +311,9 @@ namespace Mariasek.SharedClient
             };
             _cardsPlayed = new[]
             {
-                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f - 90), Scale = Game.CardScaleFactor, Name="CardsPlayed1", ZIndex = 10 },
-                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f - 50, Game.VirtualScreenHeight / 2f - 130), Scale = Game.CardScaleFactor, Name="CardsPlayed2", ZIndex = 10 },
-                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f + 50, Game.VirtualScreenHeight / 2f - 140), Scale = Game.CardScaleFactor, Name="CardsPlayed3", ZIndex = 10 }
+                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f - 65), Scale = Game.CardScaleFactor, Name="CardsPlayed1", ZIndex = 10 },
+                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f - 50, Game.VirtualScreenHeight / 2f - 95), Scale = Game.CardScaleFactor, Name="CardsPlayed2", ZIndex = 10 },
+                new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth / 2f + 50, Game.VirtualScreenHeight / 2f - 105), Scale = Game.CardScaleFactor, Name="CardsPlayed3", ZIndex = 10 }
             };
             _overlay = new ClickableArea(this)
             {
@@ -354,12 +354,13 @@ namespace Mariasek.SharedClient
             _menuBtn.Click += MenuBtnClicked;
             giveUpButton = new Button(this)
             {
-                Text = "Vzdát hru",
-                Position = new Vector2(10, Game.VirtualScreenHeight / 2f + 30),
+                Text = "Vzdát",
+                //Position = new Vector2(10, Game.VirtualScreenHeight / 2f + 30),
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 50, Game.VirtualScreenHeight / 2f - 90),
                 Tag = 0,
                 ZIndex = 100,
-                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
-                Width = 150
+                //Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                //Width = 150
             };
             giveUpButton.Click += GtButtonClicked;
             giveUpButton.Hide();
@@ -423,7 +424,7 @@ namespace Mariasek.SharedClient
             gtHraButton = new Button(this)
             {
                 Text = "Hra",
-                Position = new Vector2(Game.VirtualScreenWidth / 2f - 325, Game.VirtualScreenHeight / 2f - 100),
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 325, Game.VirtualScreenHeight / 2f - 155),
                 Tag = Hra.Hra,
                 ZIndex = 100
             };
@@ -432,7 +433,7 @@ namespace Mariasek.SharedClient
             gt7Button = new Button(this)
             {
                 Text = "Sedma",
-                Position = new Vector2(Game.VirtualScreenWidth / 2f - 215, Game.VirtualScreenHeight / 2f - 100),
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 215, Game.VirtualScreenHeight / 2f - 155),
                 Tag = Hra.Hra | Hra.Sedma,
                 ZIndex = 100
             };
@@ -441,7 +442,7 @@ namespace Mariasek.SharedClient
             gt100Button = new Button(this)
             {
                 Text = "Kilo",
-                Position = new Vector2(Game.VirtualScreenWidth / 2f - 105, Game.VirtualScreenHeight / 2f - 100),
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 105, Game.VirtualScreenHeight / 2f - 155),
                 Tag = Hra.Kilo,
                 ZIndex = 100
             };
@@ -450,7 +451,7 @@ namespace Mariasek.SharedClient
             gt107Button = new Button(this)
             {
                 Text = "Stosedm",
-                Position = new Vector2(Game.VirtualScreenWidth / 2f + 5, Game.VirtualScreenHeight / 2f - 100),
+                Position = new Vector2(Game.VirtualScreenWidth / 2f + 5, Game.VirtualScreenHeight / 2f - 155),
                 Tag = Hra.Kilo | Hra.Sedma,
                 ZIndex = 100
             };
@@ -459,7 +460,7 @@ namespace Mariasek.SharedClient
             gtBetlButton = new Button(this)
             {
                 Text = "Betl",
-                Position = new Vector2(Game.VirtualScreenWidth / 2f + 115, Game.VirtualScreenHeight / 2f - 100),
+                Position = new Vector2(Game.VirtualScreenWidth / 2f + 115, Game.VirtualScreenHeight / 2f - 155),
                 Tag = Hra.Betl,
                 ZIndex = 100
             };
@@ -468,7 +469,7 @@ namespace Mariasek.SharedClient
             gtDurchButton = new Button(this)
             {
                 Text = "Durch",
-                Position = new Vector2(Game.VirtualScreenWidth / 2f + 225, Game.VirtualScreenHeight / 2f - 100),
+                Position = new Vector2(Game.VirtualScreenWidth / 2f + 225, Game.VirtualScreenHeight / 2f - 155),
                 Tag = Hra.Durch,
                 ZIndex = 100
             };
@@ -497,34 +498,37 @@ namespace Mariasek.SharedClient
             _trumpLabel1 = new Label(this)
             {
                 HorizontalAlign = HorizontalAlignment.Center,
-                VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(Game.VirtualScreenWidth / 2f - 140, 1),
+                VerticalAlign = VerticalAlignment.Top,
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 140, 5),
                 Width = 280,
-                Height = 50,
+                Height = 60,
                 ZIndex = 100,
-                Anchor = AnchorType.Top
+                Anchor = AnchorType.Top,
+                FontScaleFactor = 0.85f
             };
             _trumpLabel1.Hide();
             _trumpLabel2 = new Label(this)
             {
                 HorizontalAlign = HorizontalAlignment.Left,
-                VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(10, 1),
+                VerticalAlign = VerticalAlignment.Top,
+                Position = new Vector2(10, 5),
                 Width = 280,
-                Height = 50,
+                Height = 60,
                 ZIndex = 100,
-                Anchor = AnchorType.Top
+                Anchor = AnchorType.Top,
+                FontScaleFactor = 0.85f
             };
             _trumpLabel2.Hide();
             _trumpLabel3 = new Label(this)
             {
                 HorizontalAlign = HorizontalAlignment.Right,
-                VerticalAlign = VerticalAlignment.Middle,
-                Position = new Vector2(Game.VirtualScreenWidth - 290, 1),
+                VerticalAlign = VerticalAlignment.Top,
+                Position = new Vector2(Game.VirtualScreenWidth - 290, 5),
                 Width = 280,
-                Height = 50,
+                Height = 60,
                 ZIndex = 100,
-                Anchor = AnchorType.Top
+                Anchor = AnchorType.Top,
+                FontScaleFactor = 0.85f
             };
             _trumpLabel3.Hide();
             _trumpLabels = new[] { _trumpLabel1, _trumpLabel2, _trumpLabel3 };
@@ -547,7 +551,8 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth - 20,
                 Height = (int)Game.VirtualScreenHeight - 120,
                 TextColor = Color.Yellow,
-                ZIndex = 100
+                ZIndex = 100,
+                FontScaleFactor = 0.9f
             };
             _msgLabelLeft = new Label(this)
             {
@@ -746,7 +751,7 @@ namespace Mariasek.SharedClient
 
             LoadHistory();
             Game.LoadGameSettings(false);
-            Background = Game.Content.Load<Texture2D>("wood2");
+            SettingsChanged(this, new SettingsChangedEventArgs(){ Settings = Game.Settings });
             BackgroundTint = Color.DimGray;
             ClearTable(true);
         }
@@ -999,6 +1004,10 @@ namespace Mariasek.SharedClient
             {
                 if (!_review.IsVisible)
                 {
+                    for (var i = 0; i < _trumpLabels.Count(); i++)
+                    {
+                        _trumpLabels[i].Height = 30; //aby neprekazel _review
+                    }
                     if (g.IsRunning)
                     {
                         _review.Position = origPosition;
@@ -1022,6 +1031,10 @@ namespace Mariasek.SharedClient
                 }
                 else
                 {
+                    for (var i = 0; i < _trumpLabels.Count(); i++)
+                    {
+                        _trumpLabels[i].Height = 60; //vratit na puvodni vysku
+                    }
                     _hand.IsEnabled = true;
                     if (g.IsRunning)
                     {
@@ -1228,7 +1241,11 @@ namespace Mariasek.SharedClient
                      }
                      for (var i = 0; i < _trumpLabels.Count(); i++)
                      {
-                         _trumpLabels[i].Text = g.players[i].Name;
+                         //_trumpLabels[i].Text = g.players[i].Name;
+                         _trumpLabels[i].Text = string.Format("{0}\n{1}",
+                                                  GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
+                                                  (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+                         _trumpLabels[i].Height = 60; 
                          _trumpLabels[i].Show();
                      }
                      _hlasy[0][0].Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f + 20);
@@ -2005,6 +2022,23 @@ namespace Mariasek.SharedClient
             _firstTimeGameFlavourChosen = false;
         }
 
+        private string GetTrumpLabelForPlayer(int playerIndex)
+        {
+            var text = playerIndex == g.GameStartingPlayerIndex
+                                   ? string.Format("{0}: {1}",
+                                       Game.MainScene.g.players[playerIndex].Name,
+                                       Game.MainScene.g.GameType.ToDescription().Trim() +
+                                           (string.IsNullOrEmpty(Game.MainScene.g.players[playerIndex].BidMade)
+                                            ? string.Empty
+                                            : string.Format(" {0}", Game.MainScene.g.players[playerIndex].BidMade.TrimEnd())))
+                                   : string.IsNullOrEmpty(Game.MainScene.g.players[playerIndex].BidMade)
+                                       ? Game.MainScene.g.players[playerIndex].Name
+                                       : string.Format("{0}: {1}", Game.MainScene.g.players[playerIndex].Name,
+                                                                   Game.MainScene.g.players[playerIndex].BidMade.Trim());
+
+            return text;
+        }
+
         public void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
         {
             //pokud se hrac vzdal, tak nic neukazujeme
@@ -2022,11 +2056,17 @@ namespace Mariasek.SharedClient
                 };
                 this.Invoke(() =>
                 {
+                    //for (var i = 0; i < _trumpLabels.Count(); i++)
+                    //{
+                    //    _trumpLabels[i].Text = g.players[i].Name;
+                    //}
+                    //_trumpLabels[e.GameStartingPlayerIndex].Text = string.Format("{0}: {1}", g.players[e.GameStartingPlayerIndex].Name, g.GameType.ToDescription(g.trump));
                     for (var i = 0; i < _trumpLabels.Count(); i++)
                     {
-                        _trumpLabels[i].Text = g.players[i].Name;
+                        _trumpLabels[e.GameStartingPlayerIndex].Text = string.Format("{0}\n{1}", 
+                                                                             GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
+                                                                             (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
                     }
-                    _trumpLabels[e.GameStartingPlayerIndex].Text = string.Format("{0}: {1}", g.players[e.GameStartingPlayerIndex].Name, g.GameType.ToDescription(g.trump));
                 });
 
                 if (e.TrumpCard != null)
@@ -2088,6 +2128,15 @@ namespace Mariasek.SharedClient
             {
                 ShowThinkingMessage((e.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
             }
+            this.Invoke(() =>
+            {
+                for (var i = 0; i < _trumpLabels.Count(); i++)
+                {
+                    _trumpLabels[i].Text = string.Format("{0}\n{1}",
+                                             GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
+                                             (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+                }
+            });
         }
 
         public void CardPlayed(object sender, Round r)
@@ -2200,9 +2249,18 @@ namespace Mariasek.SharedClient
             _cardsPlayed[r.player2.PlayerIndex].ZIndex = (r.number - 1) * 3 + 2;
             _cardsPlayed[r.player3.PlayerIndex].ZIndex = (r.number - 1) * 3 + 3;
             // 3 * (r-1) + i
-            _hlasy[r.player1.PlayerIndex][r.player1.Hlasy].ZIndex = (r.number - 1) * 3 + 1;
-            _hlasy[r.player2.PlayerIndex][r.player2.Hlasy].ZIndex = (r.number - 1) * 3 + 2;
-            _hlasy[r.player3.PlayerIndex][r.player3.Hlasy].ZIndex = (r.number - 1) * 3 + 3;
+            if (r.player1.Hlasy < 4)
+            {
+                _hlasy[r.player1.PlayerIndex][r.player1.Hlasy].ZIndex = (r.number - 1) * 3 + 1;
+            }
+            if (r.player2.Hlasy < 4)
+            {
+                _hlasy[r.player2.PlayerIndex][r.player2.Hlasy].ZIndex = (r.number - 1) * 3 + 2;
+            }
+            if (r.player3.Hlasy < 4)
+            {
+                _hlasy[r.player3.PlayerIndex][r.player3.Hlasy].ZIndex = (r.number - 1) * 3 + 3;
+            }
             // 3 * (r-1) + i
             _stychy[r.player1.PlayerIndex].ZIndex = (r.number - 1) * 3 + 1;
             _stychy[r.player2.PlayerIndex].ZIndex = (r.number - 1) * 3 + 2;
@@ -2319,6 +2377,12 @@ namespace Mariasek.SharedClient
                 HideThinkingMessage();
                 var totalWon = Game.Money.Sum(i => i.MoneyWon[0]) * Game.Settings.BaseBet;
                 _totalBalance.Text = string.Format("Celkem jsem {0}: {1}", totalWon >= 0 ? "vyhrál" : "prohrál", totalWon.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+                for (var i = 0; i < _trumpLabels.Count(); i++)
+                {
+                    _trumpLabels[i].Text = string.Format("{0}\n{1}",
+                                             GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
+                                             (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+                }
                 if (!results.GamePlayed || results.MoneyWon[0] == 0)
                 {
                     _gameResult.BorderColor = Color.Blue;
@@ -2587,7 +2651,11 @@ namespace Mariasek.SharedClient
                         }
                         for (var i = 0; i < _trumpLabels.Count(); i++)
                         {
-                            _trumpLabels[i].Text = g.players[i].Name;
+                            //_trumpLabels[i].Text = g.players[i].Name;
+                            _trumpLabels[i].Text = string.Format("{0}\n{1}",
+                                                     GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
+                                                     (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+                            _trumpLabels[i].Height = 60;
                             _trumpLabels[i].Show();
                         }
                         if (g.GameType != 0)
@@ -2721,71 +2789,84 @@ namespace Mariasek.SharedClient
 			}
 		}
 
+        private void UpdateBackground()
+        {
+            switch (Game.Settings.BackgroundImage)
+            {
+                case BackgroundImage.Canvas:
+                    Background = Game.CanvasBackground;
+                    break;
+                case BackgroundImage.Dark:
+                    Background = Game.DarkBackground;
+                    break;
+                case BackgroundImage.Default:
+                default:
+                    Background = Game.DefaultBackground;
+                    break;
+            }
+        }
+
         public void SettingsChanged(object sender, SettingsChangedEventArgs e)
         {
-            //Task.Run(() =>
-            //{
-                PopulateAiConfig();
-                if (_progress1 != null)
+            PopulateAiConfig();
+            if (_progress1 != null)
+            {
+                if (Game.Settings.HintEnabled)
                 {
-                    if (Game.Settings.HintEnabled)
-                    {
-                        _progress1.Show();
-                    }
-                    else
-                    {
-                        _progress1.Hide();
-                    }
-                }
-                //if (_hintBtn != null)
-                //{
-                //    if (Game.Settings.HintEnabled)
-                //    {
-                //        _hintBtn.Show();
-                //    }
-                //    else
-                //    {
-                //        _hintBtn.Hide();
-                //    }
-                //}
-                var newBackSideRect = Game.Settings.CardBackSide.ToTextureRect();
-
-                if (Game.BackSideRect != newBackSideRect)
-                {
-                    Game.BackSideRect = newBackSideRect;
-                    UpdateCardBackSides(this);
-                    if (_stareStychy != null)
-                    {
-                        foreach (var sprite in _stareStychy)
-                        {
-                            sprite.SpriteRectangle = newBackSideRect;
-                        }
-                    }
-                }
-                //call UpdateHand() instead
-                if (_state == GameState.ChooseTrump)
-                {
-                    SortHand(null, 7);
-                }
-                else if (_state == GameState.ChooseTalon)
-                {
-                    SortHand(_trumpCardChosen);
+                    _progress1.Show();
                 }
                 else
                 {
-                    SortHand(null);
+                    _progress1.Hide();
                 }
-
-                var oldTextures = Game.CardTextures;
-                var newTextures = Game.Settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
-
-                if (oldTextures != newTextures)
-                {
-                    UpdateCardTextures(this, oldTextures, newTextures);
-                    Game.CardTextures = newTextures;
-                }
+            }
+            RunOnUiThread(() =>
+            {
+                //Buggy on Android when called from outside of the game constructor
+                //if (Game.Graphics.IsFullScreen != !Game.Settings.ShowStatusBar)
+                //{
+                //    Game.Graphics.ToggleFullScreen();
+                //    Game.Graphics.ApplyChanges();
+                //}
                 Game.ScreenManager.SetKeepScreenOnFlag(Game.Settings.KeepScreenOn);
-            //});
+            });
+            UpdateBackground();
+            var newBackSideRect = Game.Settings.CardBackSide.ToTextureRect();
+
+            if (Game.BackSideRect != newBackSideRect)
+            {
+                Game.BackSideRect = newBackSideRect;
+                UpdateCardBackSides(this);
+                if (_stareStychy != null)
+                {
+                    foreach (var sprite in _stareStychy)
+                    {
+                        sprite.SpriteRectangle = newBackSideRect;
+                    }
+                }
+            }
+            //call UpdateHand() instead
+            if (_state == GameState.ChooseTrump)
+            {
+                SortHand(null, 7);
+            }
+            else if (_state == GameState.ChooseTalon)
+            {
+                SortHand(_trumpCardChosen);
+            }
+            else
+            {
+                SortHand(null);
+            }
+
+            var oldTextures = Game.CardTextures;
+            var newTextures = Game.Settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
+
+            if (oldTextures != newTextures)
+            {
+                UpdateCardTextures(this, oldTextures, newTextures);
+                Game.CardTextures = newTextures;
+            }
 		}
 
         public void SuggestTrump(Card trumpCard, int? t = null)
@@ -2845,7 +2926,7 @@ namespace Mariasek.SharedClient
         }
 
         public void SuggestGameTypeNew(Hra gameType)
-        {
+        {            
             foreach (var gtButton in gtButtons)
             {
                 if (gameType == (Hra)gtButton.Tag)
@@ -2857,6 +2938,7 @@ namespace Mariasek.SharedClient
                     gtButton.BorderColor = Color.White;
                 }
             }
+            giveUpButton.BorderColor = gameType == 0 ? Color.Green : Color.White;
         }
 
         public void SuggestGameFlavourNew(Hra gameType)

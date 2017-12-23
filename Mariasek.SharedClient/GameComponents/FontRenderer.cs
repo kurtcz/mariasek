@@ -138,7 +138,7 @@ namespace Mariasek.SharedClient.GameComponents
             return new Rectangle(0, 0, (int)Math.Ceiling(width), (int)Math.Ceiling(height));
         }
 
-        public Rectangle DrawText(SpriteBatch spriteBatch, string text, Vector2 position, Color color, Alignment alignment = Alignment.TopLeft, Tab[] tabs = null)
+        public Rectangle DrawText(SpriteBatch spriteBatch, string text, Vector2 position, float scaleFactor, Color color, Alignment alignment = Alignment.TopLeft, Tab[] tabs = null)
         {
             var lineSeparators = new [] { '\r', '\n' };
             var lines = text.Split(lineSeparators);
@@ -148,6 +148,10 @@ namespace Mariasek.SharedClient.GameComponents
 
             var boundsRect = GetBoundsRect(lines);
 
+            boundsRect = new Rectangle(0, 
+                                       0, 
+                                       (int)(boundsRect.Width * scaleFactor), 
+                                       (int)(boundsRect.Height * scaleFactor));
             if (((VerticalAlignment)alignment & VerticalAlignment.Bottom) != 0)
             {
                 dy -= boundsRect.Height;
@@ -163,6 +167,14 @@ namespace Mariasek.SharedClient.GameComponents
                 var lineRect = GetBoundsRect(new [] { line }, wordWidths);
                 FontChar fc;
 
+                lineRect = new Rectangle(0,
+                                         0,
+                                         (int)(lineRect.Width * scaleFactor),
+                                         (int)(lineRect.Height * scaleFactor));
+                for (var i = 0; i < wordWidths.Count; i++)
+                {
+                    wordWidths[i] = (int)(wordWidths[i] * scaleFactor);
+                }
                 if (((HorizontalAlignment)alignment & HorizontalAlignment.Right) != 0)
                 {
                     dx -= lineRect.Width;
@@ -174,7 +186,7 @@ namespace Mariasek.SharedClient.GameComponents
                 //vyska radku bude da nezavisle na textu
                 if (_characterMap.TryGetValue('X', out fc))
                 {
-                    lineHeight = fc.YOffset + fc.Height;
+                    lineHeight = (int)((fc.YOffset + fc.Height) * scaleFactor);
                 }
                 var wordNumber = 0;
                 var tabNumber = 0;
@@ -185,11 +197,12 @@ namespace Mariasek.SharedClient.GameComponents
                     if (_characterMap.TryGetValue(c, out fc))
                     {
                         var sourceRectangle = new Rectangle(fc.X, fc.Y, fc.Width, fc.Height);
-                        var charPosition = new Vector2(dx + fc.XOffset, dy + fc.YOffset);
+                        var charPosition = new Vector2(dx + fc.XOffset * scaleFactor, dy + fc.YOffset * scaleFactor);
 
-                        spriteBatch.Draw(_textures[fc.Page], charPosition, sourceRectangle, color);
+                        //spriteBatch.Draw(_textures[fc.Page], charPosition, sourceRectangle, color);
+                        spriteBatch.Draw(_textures[fc.Page], charPosition, sourceRectangle, color, 0f, Vector2.Zero, scaleFactor, SpriteEffects.None, 0);
                         //lineHeight = Math.Max(fc.YOffset + fc.Height, lineHeight);
-                        dx += fc.XAdvance;
+                        dx += fc.XAdvance * scaleFactor;
                         if (char.IsWhiteSpace(c) && !char.IsWhiteSpace(prev))
                         {
                             wordNumber++;
@@ -203,7 +216,7 @@ namespace Mariasek.SharedClient.GameComponents
                         }
                         _characterMap.TryGetValue('X', out fc);
 
-                        var tabWidth = _tabWidthChars * fc.XAdvance;
+                        var tabWidth = _tabWidthChars * fc.XAdvance * scaleFactor;
 
                         if (tabs == null || tabNumber >= tabs.Length)   //simple tabs
                         {

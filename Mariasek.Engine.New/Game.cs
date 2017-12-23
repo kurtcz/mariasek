@@ -45,9 +45,13 @@ namespace Mariasek.Engine.New
 
         public bool SkipBidding { get; set; }
         public float BaseBet { get; set; }
+        public int MinimalBidsForGame { get; set; }
+        public int MinimalBidsForSeven { get; set; }
+        public bool Top107 { get; set; }
         public CalculationStyle CalculationStyle { get; set; }
         public bool IsRunning { get; private set; }
         public Hra GameType { get; private set; }
+        public bool GivenUp { get; private set; }
         public float GameTypeConfidence { get; private set; }
         public Barva? trump { get; private set; }
         public Card TrumpCard { get; private set; }
@@ -182,6 +186,9 @@ namespace Mariasek.Engine.New
         public Game()
         {
             BaseBet = 1f;
+            MinimalBidsForGame = 1;
+            MinimalBidsForSeven = 0;
+            Top107 = false;
             GameTypeConfidence = -1f;
             BiddingDebugInfo = new StringBuilder();
 			DebugString = new StringBuilder();
@@ -1013,7 +1020,7 @@ namespace Mariasek.Engine.New
 
         private bool ShouldPlayGame()
         {
-            if (GameType == 0)
+            if (GivenUp)
             {
                 return false;
             }
@@ -1021,13 +1028,23 @@ namespace Mariasek.Engine.New
             {
                 return true; //pokud je vyple flekovani, tak hrajeme vzdycky
             }
-            if (GameType == Hra.Hra && Bidding.GameMultiplier == 1)
+            //if (GameType == Hra.Hra && Bidding.GameMultiplier == 1)
+            if (GameType == Hra.Hra && 
+                Bidding.GameMultiplier < (1 << MinimalBidsForGame))
             {
-                return false; //neflekovana hra se nehraje
+                return false; //neflekovana hra se nehraje v zavislosti na nastaveni
             }
-            if (GameType == (Hra.Hra | Hra.Sedma) && Bidding.SevenMultiplier == 1 && Bidding.GameMultiplier == 2)
+            if (GameType == (Hra.Hra | Hra.Sedma) && 
+                Bidding.SevenMultiplier < (1 << MinimalBidsForSeven) && 
+                Bidding.GameMultiplier < (1 << MinimalBidsForGame))
             {
-                return false; //sedma a flek na hru se nehraje
+                return false; //neflekovana sedma se nehraje v zavislosti na nastaveni
+            }
+            if (GameType == (Hra.Hra | Hra.Sedma) && 
+                Bidding.SevenMultiplier == 1 && 
+                Bidding.GameMultiplier == 2)
+            {
+                return false; //sedma a flek na hru se nehraje nikdy
             }
             return true;
         }
@@ -1189,6 +1206,11 @@ namespace Mariasek.Engine.New
                 {
                     DebugString.AppendFormat("Player {0} ChooseGameFlavour()\n", nextPlayer.PlayerIndex + 1);
                     gameFlavour = nextPlayer.ChooseGameFlavour();
+                    if (gameFlavour == GameFlavour.Good107 && 
+                        (!Top107 || !firstTime))
+                    {
+                        gameFlavour = GameFlavour.Good;
+                    }
                     DebugString.AppendFormat("ChooseGameFlavour: {0}\n", gameFlavour);
                     BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1} ({2}/{3})", nextPlayer.PlayerIndex + 1, gameFlavour.Description(), nextPlayer.DebugInfo.RuleCount, nextPlayer.DebugInfo.TotalRuleCount);
                     BiddingDebugInfo.AppendFormat("\nBetl ({0}/{1})", nextPlayer.DebugInfo.AllChoices.FirstOrDefault(i => i.Rule == "Betl")?.RuleCount ?? -1, nextPlayer.DebugInfo.TotalRuleCount);
@@ -1282,6 +1304,11 @@ namespace Mariasek.Engine.New
                         Bidding.StartBidding(GameType);
                     }
                 }
+                else if (gameFlavour == GameFlavour.Good107)
+                {
+                    GameType = Hra.Kilo | Hra.Sedma;
+                    break;
+                }
                 nextPlayer = players[(nextPlayer.PlayerIndex + 1) % Game.NumPlayers];
                 gameTypeForPlayer[nextPlayer.PlayerIndex] = 0;
                 if (players[(nextPlayer.PlayerIndex + 2) % Game.NumPlayers].PlayerIndex != nextPlayer.TeamMateIndex)
@@ -1294,12 +1321,24 @@ namespace Mariasek.Engine.New
                 }
                 firstTime = false;
             }
-            if (GameType == 0)
+            if (GameType == 0 || (Top107 && GameType == (Hra.Kilo | Hra.Sedma)))
             {
                 //hrac1 vybira normalni hru
                 validGameTypes = GetValidGameTypesForPlayer(GameStartingPlayer, GameFlavour.Good, minimalBid);
                 DebugString.AppendFormat("Player {0} ChooseGameType()\n", GameStartingPlayer.PlayerIndex + 1);
-                GameType = GameStartingPlayer.ChooseGameType(validGameTypes);
+                if (Top107 && GameType == (Hra.Kilo | Hra.Sedma))
+                {
+                    GameStartingPlayer.ChooseGameType(validGameTypes); //vysledek zahodime, uz vime, co se bude hrat
+                }
+                else
+                {
+                    GameType = GameStartingPlayer.ChooseGameType(validGameTypes);
+                    if (GameType == 0)
+                    {
+                        GameType = Hra.Hra;
+                        GivenUp = true;
+                    }
+                }
                 GameTypeConfidence = GameStartingPlayer.DebugInfo.TotalRuleCount > 0 ? (float)GameStartingPlayer.DebugInfo.RuleCount / (float)GameStartingPlayer.DebugInfo.TotalRuleCount : -1f;
                 DebugString.AppendFormat("ChooseGameType: {0}\n", GameType);
                 OnGameTypeChosen(new GameTypeChosenEventArgs
@@ -1315,6 +1354,13 @@ namespace Mariasek.Engine.New
                     {
                         GameType = Bidding.CompleteBidding();
                     }
+                }
+                if (GivenUp &&
+                    (Bidding.SevenAgainstMultiplier > 0 ||      //bude se hrat
+                     Bidding.HundredAgainstMultiplier > 0 ||    //bude se hrat
+                     Bidding.GameMultiplier == 1))              //stejne se hrat nebude
+                {
+                    GivenUp = false;
                 }
             }
             _roundStartingPlayer = GameStartingPlayer;

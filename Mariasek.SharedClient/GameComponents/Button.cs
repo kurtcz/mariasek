@@ -164,7 +164,6 @@ namespace Mariasek.SharedClient.GameComponents
 
         public override bool CollidesWithPosition(Vector2 position)
         {
-            //TODO: use texture.GetData and poll for alpha channel in case we implement rounded corners
             return position.X >= Position.X &&
                 position.Y >= Position.Y &&
                 position.X <= Position.X + Width &&

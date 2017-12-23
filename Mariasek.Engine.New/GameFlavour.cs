@@ -6,6 +6,7 @@ namespace Mariasek.Engine.New
         [Description("Dobrá")]
         Good,
         [Description("Špatná")]
-        Bad
+        Bad,
+        Good107
     }
 }

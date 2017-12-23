@@ -199,7 +199,8 @@ namespace Mariasek.SharedClient
                                 _aiPlayer._talon = _talon;
                                 _aiPlayer.Hand = Hand;
                                 var flavour = _scene.TrumpCardTakenBack ? GameFlavour.Bad : _aiPlayer.ChooseGameFlavour(); //uvnitr se zvoli talon, ale clovek muze ve skutecnosti volit jinak nez ai!!!
-                                if (flavour == GameFlavour.Good)
+                                if (flavour == GameFlavour.Good ||
+                                    flavour == GameFlavour.Good107)
                                 {
                                     validGameTypes &= ((Hra)~0 ^ (Hra.Betl | Hra.Durch));
                                 }
@@ -224,7 +225,7 @@ namespace Mariasek.SharedClient
     							}
                                 if (_aiPlayer.DebugInfo.TotalRuleCount > 0)
                                 {
-                                    _scene.SuggestGameType(gameType.ToDescription(_trump), msg.ToString().TrimEnd(), _t1 - _t0);
+                                    _scene.SuggestGameType(gameType.ToDescription(_trump, true), msg.ToString().TrimEnd(), _t1 - _t0);
                                     _scene.SuggestGameTypeNew(gameType);
                                     _scene.SuggestGameFlavourNew(gameType);
                                 }
@@ -247,12 +248,16 @@ namespace Mariasek.SharedClient
                     //Musime jeste poladit kry presne tlacitko ukazat
                     //Bud pri volbe typu hry nebo v 1. kole nebo kdykoli v prubehu hry
                     //_gameType = _scene.ChooseGameType(validGameTypes, true);
-                    _gameType = _scene.ChooseGameType(validGameTypes);
+                    _gameType = _scene.ChooseGameType(validGameTypes, true);
                     _givenUp = _gameType == 0;
                     CancelAiTask();
                     if ((_gameType & (Hra.Betl | Hra.Durch)) != 0)
                     {
                         return GameFlavour.Bad;
+                    }
+                    else if (_g.Top107 && _gameType == (Hra.Kilo | Hra.Sedma))
+                    {
+                        return GameFlavour.Good107;
                     }
                     else
                     {
@@ -337,7 +342,7 @@ namespace Mariasek.SharedClient
                         }
                         if (_aiPlayer.DebugInfo.TotalRuleCount > 0)
                         {
-                            _scene.SuggestGameType(gameType.ToDescription(_trump), msg.ToString().TrimEnd(), _t1 - _t0);
+                            _scene.SuggestGameType(gameType.ToDescription(_trump, true), msg.ToString().TrimEnd(), _t1 - _t0);
                             _scene.SuggestGameTypeNew(gameType);
                         }
                     }
@@ -347,7 +352,7 @@ namespace Mariasek.SharedClient
                     }
                 }, _cancellationTokenSource.Token);
             }
-            var gt = _scene.ChooseGameType(validGameTypes);
+            var gt = _scene.ChooseGameType(validGameTypes, true);
 
             CancelAiTask();
             return gt;
@@ -355,6 +360,12 @@ namespace Mariasek.SharedClient
 
         public override Hra GetBidsAndDoubles(Bidding bidding)
         {
+            if (_givenUp &&
+                bidding.SevenAgainstMultiplier == 0 &&
+                bidding.HundredAgainstMultiplier == 0)
+            {
+                return 0;
+            }
             if (_aiPlayer != null)
             {
 				_t0 = Environment.TickCount;

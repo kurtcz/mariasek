@@ -98,17 +98,8 @@ namespace Mariasek.Engine.New
             _gameStartingPlayerIndex = g.GameStartingPlayerIndex;
             _trump = g.trump;
             _bidding = g.Bidding;
-            GivenUp = g.GameType == 0;
-            if (GivenUp)
-            {
-                _gameType = Hra.Hra;
-                _bidding._gameFlek = 2;
-            }
-            else
-            {
-                _gameType = g.GameType;
-            }
-            GameTypeString = _gameType.ToDescription(null);
+            _gameType = g.GameType;
+            GameTypeString = _gameType.ToDescription();
             GameTypeConfidence = g.GameTypeConfidence;
             PlayerNames = g.players.Select(i => i.Name).ToArray();
             BaseBet = g.BaseBet;
@@ -193,7 +184,7 @@ namespace Mariasek.Engine.New
                 }
                 else //hra se nehrala
                 {
-                    GameWon = !GivenUp && (g.GameType & Hra.Sedma) == 0; //neflekovana hra se bere jako vyhrana, flekovana hra pri sedme se bere jako prohrana
+                    GameWon = !g.GivenUp && (g.GameType & Hra.Sedma) == 0; //neflekovana hra se bere jako vyhrana, flekovana hra pri sedme se bere jako prohrana
                     SevenWon = (g.GameType & Hra.Sedma) != 0;
                     QuietSevenWon = false;
                     SevenAgainstWon = false;
@@ -241,7 +232,7 @@ namespace Mariasek.Engine.New
         {
             _gameType = gameType;
             _trump = trump;
-            GameTypeString = _gameType.ToDescription(null);
+            GameTypeString = _gameType.ToDescription();
             _bidding = bidding;
             _gameStartingPlayerIndex = gameStartingPlayerIndex;
             SimulatedSuccessRate = -1;

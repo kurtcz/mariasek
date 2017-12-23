@@ -145,6 +145,9 @@ namespace Mariasek.SharedClient
         public Texture2D CardTextures2 { get; private set; }
         public Texture2D ReverseTexture { get; private set; }
         public Texture2D LogoTexture { get; private set; }
+        public Texture2D DefaultBackground { get; private set; }
+        public Texture2D CanvasBackground { get; private set; }
+        public Texture2D DarkBackground { get; private set; }
         public Dictionary<string, FontRenderer> FontRenderers { get; private set; }
 
         //Let's create a virtual screen with acpect ratio that is neither widescreen nor narrowscreen
@@ -195,7 +198,8 @@ namespace Mariasek.SharedClient
             Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsFixedTimeStep = false;
-            Graphics.IsFullScreen = true;
+            LoadGameSettings();
+            Graphics.IsFullScreen = !Settings.ShowStatusBar;
             //make sure SupportedOrientations is set accordingly to ActivityAttribute.ScreenOrientation
             Graphics.SupportedOrientations = DisplayOrientation.LandscapeRight |
                                              DisplayOrientation.LandscapeLeft;
@@ -302,14 +306,22 @@ namespace Mariasek.SharedClient
 		/// all of your content.
 		/// </summary>
 		protected override void LoadContent ()
-        {
+        {            
             System.Diagnostics.Debug.WriteLine("LoadContent()");
+            var canvas = new Texture2D(GraphicsDevice, 1, 1);
+            canvas.SetData(new[] { Color.DarkGreen });
+            var dark = new Texture2D(GraphicsDevice, 1, 1);
+            dark.SetData(new[] { Color.Black });
+
             // Create a new SpriteBatch, which can be used to draw textures.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             CardTextures1 = Content.Load<Texture2D>("marias");
 			CardTextures2 = Content.Load<Texture2D>("marias2");
             ReverseTexture = Content.Load<Texture2D>("revers");
             LogoTexture = Content.Load<Texture2D>("logo_hracikarty");
+            DefaultBackground = Content.Load<Texture2D>("wood2");
+            CanvasBackground = canvas;//Content.Load<Texture2D>("wood2");
+            DarkBackground = dark;//Content.Load<Texture2D>("wood2");
             FontRenderers = new Dictionary<string, FontRenderer>
             {
                 { "BMFont", FontRenderer.GetFontRenderer(this, 5, 8, "BMFont.fnt", "BMFont_0", "BMFont_1") },
@@ -342,8 +354,6 @@ namespace Mariasek.SharedClient
             {
                 System.Diagnostics.Debug.WriteLine(ex.Message + "\n" + ex.StackTrace);
             }
-
-			LoadGameSettings();
 
 			MenuScene.SetActive();
             MainScene.ResumeGame();

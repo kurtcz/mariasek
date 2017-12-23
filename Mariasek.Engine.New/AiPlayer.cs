@@ -726,7 +726,6 @@ namespace Mariasek.Engine.New
             }
             else
             {
-                //pouzivam vyssi prahy: pokud nam vysel betl nebo durch (beru 70% prah), abych kompenzoval, ze simulace nejsou presne
                 var betlThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Betl].Length - 1, 1);     //85%
                 var durchThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 1);    //85%
                 if ((Settings.CanPlayGameType[Hra.Durch] && 
@@ -758,6 +757,15 @@ namespace Mariasek.Engine.New
                 {
                     DebugInfo.RuleCount = _durchSimulations - _durchBalance;
                     DebugInfo.TotalRuleCount = _durchSimulations;
+                }
+                if (_g.Top107 &&
+                    PlayerIndex == _g.GameStartingPlayerIndex &&
+                    _hundredSimulations > 0 && 
+                    _sevenSimulations > 0 &&
+                    _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&
+                    _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _sevenSimulations)
+                {
+                    return GameFlavour.Good107;
                 }
                 return GameFlavour.Good;
             }
@@ -1591,15 +1599,25 @@ namespace Mariasek.Engine.New
                     gameType = Hra.Kilo;
                     DebugInfo.RuleCount = _hundredsBalance;
                 }
-                else
+                else if (Settings.CanPlayGameType[Hra.Hra] &&
+                         _gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0)
                 {
                     gameType = Hra.Hra;
+                    DebugInfo.RuleCount = _gamesBalance;
+                }
+                else
+                {
+                    gameType = 0; //vzdat se
                     DebugInfo.RuleCount = _gamesBalance;
                 }
                 DebugInfo.TotalRuleCount = _gameSimulations;
                 if (Settings.CanPlayGameType[Hra.Sedma] && 
                     _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)
                 {
+                    if (gameType == 0)
+                    {
+                        gameType = Hra.Hra;
+                    }
                     if (gameType == Hra.Hra)    //u sedmy budu zobrazovat sedmu a u 107 kilo
                     {
                         DebugInfo.RuleCount = _sevensBalance;
@@ -1643,10 +1661,6 @@ namespace Mariasek.Engine.New
             DebugInfo.AllChoices = allChoices.OrderByDescending(i => i.RuleCount).ToArray();
             _log.DebugFormat("Selected game type: {0}", gameType);
 
-            if (gameType == 0)
-            {
-                throw new InvalidOperationException("No game type chosen");
-            }
             return gameType;
         }
 

@@ -133,6 +133,7 @@ namespace Mariasek.SharedClient
             }
         }
         public object Tag { get; set; }
+        public int Group { get; set; }
 
         /// <summary>
         /// This constructor shall be called only from the Scene constructor.

@@ -9,6 +9,7 @@ namespace Mariasek.SharedClient.GameComponents
         public virtual int Height { get; set; }
         public virtual string Text { get; set; }
         public virtual Color TextColor { get; set; }
+        public virtual float FontScaleFactor { get; set; }
         public virtual VerticalAlignment VerticalAlign { get; set; }
         public virtual HorizontalAlignment HorizontalAlign { get; set; }
         public virtual FontRenderer TextRenderer { get; set; }
@@ -27,6 +28,7 @@ namespace Mariasek.SharedClient.GameComponents
             TextRenderer = Game.FontRenderers["BM2Font"];
             Text = Name;
             Tabs = null;
+            FontScaleFactor = 1f;
         }
 
         public override void Draw(GameTime gameTime)
@@ -69,6 +71,7 @@ namespace Mariasek.SharedClient.GameComponents
                     Game.SpriteBatch,
                     Text,
                     position,
+                    FontScaleFactor,
                     TextColor * Opacity,
                     (Alignment)VerticalAlign | (Alignment)HorizontalAlign,
                     Tabs);
@@ -89,6 +92,7 @@ namespace Mariasek.SharedClient.GameComponents
                     Game.SpriteBatch,
                     Text,
                     position,
+                    FontScaleFactor,
                     TextColor * Opacity,
                     (Alignment)VerticalAlign | (Alignment)HorizontalAlign,
                     Tabs);

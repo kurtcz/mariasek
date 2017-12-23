@@ -14,6 +14,7 @@ using Android.OS;
 
 using Microsoft.Xna.Framework;
 using Mariasek.SharedClient;
+using Android.Views.InputMethods;
 
 namespace Mariasek.AndroidClient
 {
@@ -51,7 +52,6 @@ namespace Mariasek.AndroidClient
 
                 // Create our OpenGL view, and display it
                 g = new MariasekMonoGame(this, this, this);
-
                 SetContentView(g.Services.GetService<View>());
 
                 g.Run();

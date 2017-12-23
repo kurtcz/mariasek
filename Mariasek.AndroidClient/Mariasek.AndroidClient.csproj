@@ -55,6 +55,9 @@
       <HintPath>..\packages\MonoGame.Framework.Android.3.6.0.1625\lib\MonoAndroid\MonoGame.Framework.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="MonoGame.Framework.Net">
+      <HintPath>..\libs\Android\AnyCPU\Release\MonoGame.Framework.Net.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages\MonoGame.Framework.dll" />

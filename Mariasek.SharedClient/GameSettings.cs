@@ -23,6 +23,13 @@ namespace Mariasek.SharedClient
         Lace
 	}
 
+    public enum BackgroundImage
+    {
+        Default,
+        Canvas,
+        Dark
+    }
+
 	public class BidThresholdSettings
     {
         public Hra GameType { get; set; }
@@ -56,6 +63,11 @@ namespace Mariasek.SharedClient
         public float RiskFactor { get; set; }
         public float SolitaryXThreshold { get; set; }
         public bool AutoFinish { get; set; }
+        public int MinimalBidsForGame { get; set; }
+        public int MinimalBidsForSeven { get; set; }
+        public bool Top107 { get; set; }
+        public bool ShowStatusBar { get; set; }
+        public BackgroundImage BackgroundImage { get; set; }
 
         public GameSettings()
         {
@@ -67,12 +79,18 @@ namespace Mariasek.SharedClient
             CalculationStyle = CalculationStyle.Adding;
             CurrentStartingPlayerIndex = 0;
             BubbleTimeMs = 1000;
+            ThinkingTimeMs = 1500;
             MaxHistoryLength = 0;
             KeepScreenOn = true;
             AutoFinish = true;
 			CardDesign = CardFace.Single;
             CardBackSide = CardBackSide.Horse;
             PlayerNames = new [] { "Já", "Karel", "Pepa" };
+            MinimalBidsForGame = 1;
+            MinimalBidsForSeven = 0;
+            Top107 = false;
+            ShowStatusBar = false;
+            BackgroundImage = BackgroundImage.Default;
 			ResetThresholds();
         }
 
@@ -85,7 +103,6 @@ namespace Mariasek.SharedClient
 			//pravdepodobnost, ze souper nezna ani jednu z 2 neznamych karet v dane barve
 			RiskFactor = 0.28f; //0.2727f ~ (9 nad 5) / (11 nad 5)
             SolitaryXThreshold = 0.13f; //pokud mam na zacatku 5 karet, tak P(souper ma plonkovou X) ~ 0.131
-            ThinkingTimeMs = 1500;
 			Thresholds = new []
             {
                 new BidThresholdSettings
@@ -93,7 +110,7 @@ namespace Mariasek.SharedClient
                     GameType = Hra.Hra,
                     Use = true,
                     MaxBidCount = 3,
-                    Thresholds = "0|25|40|80"
+                    Thresholds = "10|25|40|80"
                 },
                 new BidThresholdSettings
                 {
