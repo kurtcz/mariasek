@@ -50,14 +50,14 @@ namespace Mariasek.Engine.New
                     {
                         if (HundredAgainstWon)
                         {
-                            GameMoneyWon = HundredValue * (1 << (_bidding.GameMultiplier - 1) + (_bidding.HundredAgainstMultiplier - 1)) * (PointsLost - 90) / 10;
+                            HundredAgainstMoneyWon = -HundredValue * (1 << _bidding.HundredAgainstMultiplier - 1 + (PointsLost - 100) / 10);
                         }
                         else
                         {
                             var bodyProti = BasicPointsLost + MaxHlasLost;
                             var mojeHlasy = PointsWon - BasicPointsWon;
 
-                            HundredAgainstMoneyWon = -HundredValue * (1 << (_bidding.GameMultiplier - 1) + (_bidding.HundredAgainstMultiplier - 1)) * (100 + mojeHlasy - bodyProti) / 10;
+                            HundredAgainstMoneyWon = HundredValue * (1 << _bidding.HundredAgainstMultiplier - 1 + (90 + mojeHlasy - bodyProti) / 10);
                         }
                         money += HundredAgainstMoneyWon;
                     }
@@ -68,7 +68,7 @@ namespace Mariasek.Engine.New
                             GameMoneyWon = GameValue * _bidding.GameMultiplier;
                             if (QuietHundredWon)
                             {
-                                GameMoneyWon = GameValue * (1 << (_bidding.GameMultiplier - 1)) * (PointsWon - 90) / 10;
+                                GameMoneyWon = GameValue * (1 << _bidding.GameMultiplier - 1 + (PointsWon - 100) / 10);
                             }
                         }
                         else
@@ -76,7 +76,7 @@ namespace Mariasek.Engine.New
                             GameMoneyWon = -GameValue * _bidding.GameMultiplier;
                             if (QuietHundredAgainstWon)
                             {
-                                GameMoneyWon = -GameValue * (1 << (_bidding.GameMultiplier - 1)) * (PointsLost - 90) / 10;
+                                GameMoneyWon = -GameValue * (1 << _bidding.GameMultiplier - 1 + (PointsLost - 90) / 10);
                             }
                         }
                         money += GameMoneyWon;
@@ -154,48 +154,16 @@ namespace Mariasek.Engine.New
                 {
                     if (HundredWon)
                     {
-                        HundredMoneyWon = HundredValue * (1 << (_bidding.GameMultiplier - 1)) * (PointsWon - 90) / 10;
+                        HundredMoneyWon = HundredValue * (1 << _bidding.GameMultiplier - 1 + (PointsWon - 100) / 10);
                     }
                     else
                     {
                         var mojeBody = BasicPointsWon + MaxHlasWon;
                         var hlasyProti = PointsLost - BasicPointsLost;
 
-                        HundredMoneyWon = - HundredValue * (1 << (_bidding.GameMultiplier - 1)) * (100 + hlasyProti - mojeBody) / 10;
+                        HundredMoneyWon = - HundredValue * (1 << _bidding.GameMultiplier - 1 + (90 + hlasyProti - mojeBody) / 10);
                     }
                     money += HundredMoneyWon;
-                }
-                else
-                {
-                    if (QuietHundredWon)
-                    {
-                        QuietHundredMoneyWon = QuietHundredValue * (1 << (_bidding.GameMultiplier - 1)) * (PointsWon - 90) / 10;
-                        money += QuietHundredMoneyWon;
-                    }
-                }
-
-                if ((_gameType & Hra.KiloProti) != 0)
-                {
-                    if (HundredAgainstWon)
-                    {
-                        HundredAgainstMoneyWon = - HundredValue * (1 << (_bidding.GameMultiplier - 1)) * (PointsLost - 90) / 10;
-                    }
-                    else
-                    {
-                        var bodyProti = BasicPointsLost + MaxHlasLost;
-                        var mojeHlasy = PointsWon - BasicPointsWon;
-
-                        HundredAgainstMoneyWon = HundredValue * (1 << (_bidding.GameMultiplier - 1)) * (100 + mojeHlasy - bodyProti) / 10;
-                    }
-                    money += HundredAgainstMoneyWon;
-                }
-                else
-                {
-                    if (QuietHundredAgainstWon)
-                    {
-                        QuietHundredAgainstMoneyWon = - GameValue * (1 << (_bidding.GameMultiplier - 1)) * (PointsLost - 90) / 10; //nepouzivam QuietHundredValue, protoze uz jsem vise zapocital hru
-                        money += QuietHundredAgainstMoneyWon;
-                    }
                 }
 
                 if (_trump == Barva.Cerveny)

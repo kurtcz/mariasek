@@ -1107,8 +1107,12 @@ namespace Mariasek.SharedClient
                      }
                      g = new Mariasek.Engine.New.Game()
                      {
-                         SkipBidding = false,
                          BaseBet = Game.Settings.BaseBet,
+                         SkipBidding = false,
+                         MinimalBidsForGame = Game.Settings.MinimalBidsForGame,
+                         MinimalBidsForSeven = Game.Settings.MinimalBidsForSeven,
+                         CalculationStyle = Game.Settings.CalculationStyle,
+                         Top107 = Game.Settings.Top107,
                          GetFileStream = GetFileStream,
                          GetVersion = () => MariasekMonoGame.Version
                      };
@@ -2434,6 +2438,10 @@ namespace Mariasek.SharedClient
                             SkipBidding = false,
                             GetFileStream = GetFileStream,
                             BaseBet = Game.Settings.BaseBet,
+                            MinimalBidsForGame = Game.Settings.MinimalBidsForGame,
+                            MinimalBidsForSeven = Game.Settings.MinimalBidsForSeven,
+                            CalculationStyle = Game.Settings.CalculationStyle,
+                            Top107 = Game.Settings.Top107,
                             GetVersion = () => MariasekMonoGame.Version
                         };
                         g.RegisterPlayers(
