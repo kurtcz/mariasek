@@ -23,7 +23,7 @@ namespace Mariasek.Engine.New
                         RoundNumber = initialRoundNumber.HasValue ? initialRoundNumber.Value : g.RoundNumber
                     };
                 case Hra.Betl:
-                    return new AiBetlStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, teamMatesSuits, probabilities)
+                    return new AiBetlStrategy2(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, teamMatesSuits, probabilities)
                     {
                         MyIndex = playerIndex,
                         MyName = name,

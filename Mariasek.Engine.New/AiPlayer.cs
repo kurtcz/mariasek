@@ -1414,7 +1414,10 @@ namespace Mariasek.Engine.New
 				foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
 				{
 					var c = new Card(b, h);
-                    var n = hh.Count(i => i.Suit == b && i.BadValue > c.BadValue && !hh.Contains(c) && !talon.Contains(c));
+                    var n = hh.Count(i => i.Suit == b && 
+                                          i.BadValue > c.BadValue && 
+                                          !hh.Contains(c) && 
+                                          !talon.Contains(c));
 
 					if (n > 0)
 					{
@@ -1431,9 +1434,9 @@ namespace Mariasek.Engine.New
 			//nebo max jedna barva s hodne vysokymi kartami ale prave jednou dirou (musim mit sedmu v dane barve)
 			if ((hiCardsPerSuit.Sum(i => i.Value) <= 3 && hiCardsPerSuit.All(i => i.Value <= 2)) ||
 			    (hiCardsPerSuit.Count(i => i.Value > 2 &&
-                 holesPerSuit[i.Key] <= 2 &&
-                 (hh.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key) ||
-                  talon.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key))) == 1))
+                                           holesPerSuit[i.Key] <= 2 &&
+                                           (hh.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key) ||
+                                           talon.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key))) == 1))
 			{
 				return true;
 			}

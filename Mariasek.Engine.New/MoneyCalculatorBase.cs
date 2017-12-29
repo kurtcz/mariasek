@@ -184,8 +184,11 @@ namespace Mariasek.Engine.New
                 }
                 else //hra se nehrala
                 {
-                    GameWon = !g.GivenUp && (g.GameType & Hra.Sedma) == 0; //neflekovana hra se bere jako vyhrana, flekovana hra pri sedme se bere jako prohrana
-                    SevenWon = (g.GameType & Hra.Sedma) != 0;
+                    //neflekovana hra se bere jako vyhrana, flekovana hra pri sedme se bere jako prohrana
+                    GameWon = !g.GivenUp && 
+                              _bidding.GameMultiplier == 1;
+                    SevenWon = (g.GameType & Hra.Sedma) != 0 &&
+                               _bidding.SevenMultiplier == 1;
                     QuietSevenWon = false;
                     SevenAgainstWon = false;
                     QuietSevenAgainstWon = false;

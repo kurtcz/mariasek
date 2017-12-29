@@ -155,6 +155,8 @@ namespace Mariasek.Engine.New
         private readonly Dictionary<Barva, bool> _hasK = new Dictionary<Barva, bool>();
         private readonly Dictionary<Barva, bool> _hasQ = new Dictionary<Barva, bool>();
         private readonly Dictionary<Barva, bool> _hasJ = new Dictionary<Barva, bool>();
+        private readonly Dictionary<Barva, bool> _has9 = new Dictionary<Barva, bool>();
+        private readonly Dictionary<Barva, bool> _has8 = new Dictionary<Barva, bool>();
         private readonly Dictionary<Barva, bool> _has7 = new Dictionary<Barva, bool>();
 
         public Hand(IEnumerable<Card> hand)
@@ -274,6 +276,8 @@ namespace Mariasek.Engine.New
                 _hasK[suit] = _hand.Where(i => i != null).Any(i => i.Value == Hodnota.Kral && i.Suit == suit);
                 _hasQ[suit] = _hand.Where(i => i != null).Any(i => i.Value == Hodnota.Svrsek && i.Suit == suit);
                 _hasJ[suit] = _hand.Where(i => i != null).Any(i => i.Value == Hodnota.Spodek && i.Suit == suit);
+                _has9[suit] = _hand.Where(i => i != null).Any(i => i.Value == Hodnota.Devitka && i.Suit == suit);
+                _has8[suit] = _hand.Where(i => i != null).Any(i => i.Value == Hodnota.Osma && i.Suit == suit);
                 _has7[suit] = _hand.Where(i => i != null).Any(i => i.Value == Hodnota.Sedma && i.Suit == suit);
             }
         }
@@ -321,6 +325,16 @@ namespace Mariasek.Engine.New
         public bool HasJ(Barva suit)
         {
             return _hasJ[suit];
+        }
+
+        public bool Has9(Barva suit)
+        {
+            return _has9[suit];
+        }
+
+        public bool Has8(Barva suit)
+        {
+            return _has8[suit];
         }
 
         public bool Has7(Barva suit)

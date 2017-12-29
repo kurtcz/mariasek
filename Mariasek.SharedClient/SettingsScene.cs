@@ -367,7 +367,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth - 300, pageOffset + 250),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Krátce", 500 }, { "Středně", 1500 }, { "Dlouho", 2500 } }
+                Items = new SelectorItems() { { "Krátce", 750 }, { "Středně", 1500 }, { "Dlouho", 2500 } }
             };
             _thinkingTimeSelector.SelectedIndex = _thinkingTimeSelector.Items.FindIndex(Game.Settings.ThinkingTimeMs);
             _thinkingTimeSelector.SelectionChanged += ThinkingTimeChanged;
@@ -820,10 +820,10 @@ namespace Mariasek.SharedClient
         {
             var selector = sender as LeftRightSelector;
 
-            ScrollToCurrentPage((int)selector.SelectedValue);
+            ShowPage((int)selector.SelectedValue);
         }
 
-        void ScrollToCurrentPage(int pageIndex)
+        void ShowPage(int pageIndex)
         {
             var delta = pageIndex - currentPage;
             var controls = Children.Where(i => i.Group == 1);
@@ -832,9 +832,7 @@ namespace Mariasek.SharedClient
             {
                 foreach (var control in controls)
                 {
-                    var newPosition = new Vector2(control.Position.X, control.Position.Y - delta * pageOffset);
-
-                    control.MoveTo(newPosition, 5000);
+                    control.Position = new Vector2(control.Position.X, control.Position.Y - delta * pageOffset);
                 }
             }
             currentPage = pageIndex;
