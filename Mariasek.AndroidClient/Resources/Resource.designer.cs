@@ -60,11 +60,27 @@ namespace Mariasek.Client.Android
 			}
 		}
 		
-		public partial class Style
+		public partial class Mipmap
 		{
 			
 			// aapt resource value: 0x7f030000
-			public const int Theme_Splash = 2130903040;
+			public const int ic_launcher = 2130903040;
+			
+			static Mipmap()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Mipmap()
+			{
+			}
+		}
+		
+		public partial class Style
+		{
+			
+			// aapt resource value: 0x7f040000
+			public const int Theme_Splash = 2130968576;
 			
 			static Style()
 			{

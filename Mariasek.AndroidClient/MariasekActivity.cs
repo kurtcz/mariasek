@@ -14,14 +14,13 @@ using Android.OS;
 
 using Microsoft.Xna.Framework;
 using Mariasek.SharedClient;
-using Android.Views.InputMethods;
 
 namespace Mariasek.AndroidClient
 {
 	[Activity (Name = "com.tnemec.mariasek.android.MariasekActivity",
                Label = "Mariášek", 
                MainLauncher = true,
-               Icon = "@drawable/icon",
+               Icon = "@mipmap/ic_launcher",
                Theme = "@style/Theme.Splash",
                AlwaysRetainTaskState = true,
                LaunchMode = LaunchMode.SingleInstance,
