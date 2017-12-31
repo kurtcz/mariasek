@@ -1162,7 +1162,7 @@ namespace Mariasek.Engine.New
             _log.DebugFormat("** Game {0} by {1} {2} times ({3}%)", PlayerIndex == gameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
                              _gamesBalance, 100 * _gamesBalance / (_gameSimulations > 0 ? _gameSimulations : 1));
             _log.DebugFormat("** Hundred {0} by {1} {2} times ({3}%)", PlayerIndex == gameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
-                _hundredsBalance, 100 * _hundredsBalance / (_gameSimulations > 0 ? _gameSimulations : 1));            //sgrupuj simulace podle vysledku skore
+                             _hundredsBalance, 100 * _hundredsBalance / (_hundredSimulations > 0 ? _hundredSimulations : 1));            //sgrupuj simulace podle vysledku skore
             _log.DebugFormat("** Hundred against won {0} times ({1}%)",
                 _hundredsAgainstBalance, 100f * _hundredsAgainstBalance / (_gameSimulations > 0 ? _gameSimulations : 1));            //sgrupuj simulace podle vysledku skore
             _log.DebugFormat("** Seven {0} by {1} {2} times ({3}%)", PlayerIndex == gameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
@@ -1200,7 +1200,7 @@ namespace Mariasek.Engine.New
             {
                 Rule = "Kilo",
                 RuleCount = _hundredsBalance,
-                TotalRuleCount = _gameSimulations
+                TotalRuleCount = _hundredSimulations
             });
             allChoices.Add(new RuleDebugInfo
             {
@@ -1601,19 +1601,21 @@ namespace Mariasek.Engine.New
                 {
                     gameType = Hra.Kilo;
                     DebugInfo.RuleCount = _hundredsBalance;
+                    DebugInfo.TotalRuleCount = _hundredSimulations;
                 }
                 else if (Settings.CanPlayGameType[Hra.Hra] &&
                          _gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0)
                 {
                     gameType = Hra.Hra;
                     DebugInfo.RuleCount = _gamesBalance;
+                    DebugInfo.TotalRuleCount = _gameSimulations;
                 }
                 else
                 {
                     gameType = 0; //vzdat se
                     DebugInfo.RuleCount = _gamesBalance;
+                    DebugInfo.TotalRuleCount = _gameSimulations;
                 }
-                DebugInfo.TotalRuleCount = _gameSimulations;
                 if (Settings.CanPlayGameType[Hra.Sedma] && 
                     _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)
                 {
@@ -1682,7 +1684,6 @@ namespace Mariasek.Engine.New
             var hundredAgainstThreshold = bidding._hundredAgainstFlek < Settings.GameThresholdsForGameType[Hra.KiloProti].Length ? Settings.GameThresholdsForGameType[Hra.KiloProti][bidding._hundredAgainstFlek] : 1f;
             var betlThreshold = bidding._betlDurchFlek < Settings.GameThresholdsForGameType[Hra.Betl].Length ? Settings.GameThresholdsForGameType[Hra.Betl][bidding._betlDurchFlek] : 1f;
             var durchThreshold = bidding._betlDurchFlek < Settings.GameThresholdsForGameType[Hra.Durch].Length ? Settings.GameThresholdsForGameType[Hra.Durch][bidding._betlDurchFlek] : 1f;
-			var minRuleCount = int.MaxValue;
 
             if (_moneyCalculations == null)
             {
@@ -1709,6 +1710,7 @@ namespace Mariasek.Engine.New
             {
                 RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, false);
             }
+            DebugInfo.RuleCount = -1;
             //Flekovani u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) 
             if ((bidding.Bids & Hra.Hra) != 0 &&
                 Settings.CanPlayGameType[Hra.Hra] &&
@@ -1746,7 +1748,9 @@ namespace Mariasek.Engine.New
                  // Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit)))))
             {
                 bid |= bidding.Bids & Hra.Hra;
-                minRuleCount = Math.Min(minRuleCount, _gamesBalance);
+                //minRuleCount = Math.Min(minRuleCount, _gamesBalance);
+                DebugInfo.RuleCount = _gamesBalance;
+                DebugInfo.TotalRuleCount = _gameSimulations;
             }
             //sedmu flekuju pokud mam aspon 2 trumfy
             if ((bidding.Bids & Hra.Sedma) != 0 &&
@@ -1758,7 +1762,9 @@ namespace Mariasek.Engine.New
                 Hand.CardCount(_g.trump.Value) >= 2 && _sevensBalance / (float)_sevenSimulations >= sevenThreshold)
             {
                 bid |= bidding.Bids & Hra.Sedma;
-                minRuleCount = Math.Min(minRuleCount, _sevensBalance);
+                //minRuleCount = Math.Min(minRuleCount, _sevensBalance);
+                DebugInfo.RuleCount = _sevensBalance;
+                DebugInfo.TotalRuleCount = _sevenSimulations;
             }
             //kilo flekuju jen pokud jsem volil sam kilo a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem nevolil a je nemozne aby mel volici hrac kilo (nema hlas)
@@ -1773,7 +1779,9 @@ namespace Mariasek.Engine.New
 			     (PlayerIndex != _g.GameStartingPlayerIndex && Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0)))
             {
                 bid |= bidding.Bids & Hra.Kilo;
-                minRuleCount = Math.Min(minRuleCount, _hundredsBalance);
+                //minRuleCount = Math.Min(minRuleCount, _hundredsBalance);
+                DebugInfo.RuleCount = _hundredsBalance;
+                DebugInfo.TotalRuleCount = _hundredSimulations;
             }
             //sedmu proti flekuju jen pokud jsem hlasil sam sedmu proti a v simulacich jsem ji uhral dost casto a navic mam aspon 3 trumfy
             //nebo pokud jsem volil trumf a v simulacich ani jednou nevysla
@@ -1786,7 +1794,9 @@ namespace Mariasek.Engine.New
                 _gameSimulations > 0 && _sevensAgainstBalance / (float)_gameSimulations >= sevenAgainstThreshold)
             {
                 bid |= bidding.Bids & Hra.SedmaProti;
-                minRuleCount = Math.Min(minRuleCount, _sevensAgainstBalance);
+                //minRuleCount = Math.Min(minRuleCount, _sevensAgainstBalance);
+                DebugInfo.RuleCount = _sevensAgainstBalance;
+                DebugInfo.TotalRuleCount = _gameSimulations;
             }
             //kilo proti flekuju jen pokud jsem hlasil sam kilo proti a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem volil trumf a je nemozne aby meli protihraci kilo (nemaji hlas)
@@ -1800,7 +1810,9 @@ namespace Mariasek.Engine.New
             {
                 bid |= bidding.Bids & Hra.KiloProti;
                 bid &= (Hra)~Hra.Hra; //u kila proti uz nehlasime flek na hru
-                minRuleCount = Math.Min(minRuleCount, _hundredsAgainstBalance);
+                //minRuleCount = Math.Min(minRuleCount, _hundredsAgainstBalance);
+                DebugInfo.RuleCount = _hundredsAgainstBalance;
+                DebugInfo.TotalRuleCount = _gameSimulations;
             }
             //durch flekuju jen pokud jsem volil sam durch a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem nevolil a nejde teoreticky uhrat            
@@ -1814,7 +1826,9 @@ namespace Mariasek.Engine.New
 			     (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) == 4)))
             {
                 bid |= bidding.Bids & Hra.Durch;
-                minRuleCount = Math.Min(minRuleCount, _durchBalance);
+                //minRuleCount = Math.Min(minRuleCount, _durchBalance);
+                DebugInfo.RuleCount = _durchBalance;
+                DebugInfo.TotalRuleCount = _durchSimulations;
             }
             //betla flekuju jen pokud jsem volil sam betla a v simulacich jsem ho uhral dost casto
             if ((bidding.Bids & Hra.Betl) != 0 &&
@@ -1826,23 +1840,32 @@ namespace Mariasek.Engine.New
                 PlayerIndex == _g.GameStartingPlayerIndex && _betlBalance / (float)_betlSimulations >= betlThreshold)
             {
                 bid |= bidding.Bids & Hra.Betl;
-                minRuleCount = Math.Min(minRuleCount, _betlBalance);
+                //minRuleCount = Math.Min(minRuleCount, _betlBalance);
+                DebugInfo.RuleCount = _betlBalance;
+                DebugInfo.TotalRuleCount = _betlSimulations;
             }
-            if (minRuleCount == int.MaxValue)
+            if (DebugInfo.RuleCount == -1)
             {
-                minRuleCount = _gamesBalance;
+                DebugInfo.RuleCount = _gameType == Hra.Betl
+                                            ? _betlBalance
+                                            : _gameType == Hra.Durch
+                                                ? _durchBalance
+                                                : (_gameType & Hra.Kilo) != 0
+                                                    ? _hundredsBalance
+                                                    : (_gameType & Hra.Sedma) != 0
+                                                        ? _sevensBalance
+                                                        : _gamesBalance;
+                DebugInfo.TotalRuleCount = _gameType == Hra.Betl
+                                            ? _betlSimulations
+                                            : _gameType == Hra.Durch
+                                                ? _durchSimulations
+                                                : (_gameType & Hra.Kilo) != 0
+                                                    ? _hundredSimulations
+                                                    : (_gameType & Hra.Sedma) != 0
+                                                        ? _sevenSimulations
+                                                        : _gameSimulations;
             }
             DebugInfo.Rule = bid.ToString();
-			DebugInfo.RuleCount = minRuleCount;
-            DebugInfo.TotalRuleCount = _gameType == Hra.Betl 
-                                        ? _betlSimulations 
-                                        : _gameType == Hra.Durch 
-                                            ? _durchSimulations 
-                                            : (_gameType & Hra.Kilo) != 0
-                                                ? _hundredSimulations
-                                                : (_gameType & Hra.Sedma) != 0
-                                                    ? _sevenSimulations
-                                                    : _gameSimulations;
             BidConfidence = DebugInfo.TotalRuleCount > 0 ? (float)DebugInfo.RuleCount / (float)DebugInfo.TotalRuleCount : -1;
             var allChoices = new List<RuleDebugInfo>();
             allChoices.Add(new RuleDebugInfo

@@ -2249,15 +2249,15 @@ namespace Mariasek.SharedClient
             _cardsPlayed[r.player2.PlayerIndex].ZIndex = (r.number - 1) * 3 + 2;
             _cardsPlayed[r.player3.PlayerIndex].ZIndex = (r.number - 1) * 3 + 3;
             // 3 * (r-1) + i
-            if (r.player1.Hlasy < 4)
+            if (r.player1.Hlasy >=0 && r.player1.Hlasy < 4)
             {
                 _hlasy[r.player1.PlayerIndex][r.player1.Hlasy].ZIndex = (r.number - 1) * 3 + 1;
             }
-            if (r.player2.Hlasy < 4)
+            if (r.player2.Hlasy >= 0 && r.player2.Hlasy < 4)
             {
                 _hlasy[r.player2.PlayerIndex][r.player2.Hlasy].ZIndex = (r.number - 1) * 3 + 2;
             }
-            if (r.player3.Hlasy < 4)
+            if (r.player3.Hlasy >= 0 && r.player3.Hlasy < 4)
             {
                 _hlasy[r.player3.PlayerIndex][r.player3.Hlasy].ZIndex = (r.number - 1) * 3 + 3;
             }
