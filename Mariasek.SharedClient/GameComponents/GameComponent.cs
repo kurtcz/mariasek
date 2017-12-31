@@ -316,7 +316,19 @@ namespace Mariasek.SharedClient
                 }
                 else if (operation.OperationType == GameComponentOperationType.Condition)
                 {
-                    if (operation.ConditionFunc == null || operation.ConditionFunc())
+                    var result = true;
+
+                    if (operation.ConditionFunc != null)
+                    {
+                        try
+                        {
+                            result = operation.ConditionFunc();
+                        }
+                        catch
+                        {                            
+                        }
+                    }
+                    if (result)
                     {
                         ScheduledOperations.TryDequeue(out operation);
                     }
@@ -371,6 +383,7 @@ namespace Mariasek.SharedClient
                 var moveFinished = operation != null && operation.OperationType == GameComponentOperationType.Move && positionDiff == Vector2.Zero;
                 if (moveFinished)
                 {
+                    System.Diagnostics.Debug.WriteLine($"Move finished {Name} at {Position}");
                     ScheduledOperations.TryDequeue(out operation);
                 }
                 IsMoving = operation != null && (operation.OperationType & GameComponentOperationType.Move) != 0 && positionDiff != Vector2.Zero;

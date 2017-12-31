@@ -31,6 +31,8 @@ namespace Mariasek.SharedClient
         private Label _thinkingTime;
 		private Label _cardFace;
         private Label _cardBack;
+        private Label _roundFinishedWaitTime;
+        private Label _autoFinishRounds;
         private Label _autoFinishLastRound;
         private Label _player1;
         private Label _player2;
@@ -39,7 +41,7 @@ namespace Mariasek.SharedClient
         private Label _minBidsForSeven;
         private Label _maxHistoryLength;
         private Label _bubbleTime;
-        private Label _showStatusBar;
+        //private Label _showStatusBar;
         private Label _bgImage;
 		private ToggleButton _hintBtn;
         private ToggleButton _soundBtn;
@@ -51,9 +53,11 @@ namespace Mariasek.SharedClient
 		private LeftRightSelector _thinkingTimeSelector;
 		private LeftRightSelector _cardFaceSelector;
         private LeftRightSelector _cardBackSelector;
+        private LeftRightSelector _roundFinishedWaitTimeSelector;
+        private LeftRightSelector _autoFinishRoundsSelector;
         private LeftRightSelector _autoFinishLastRoundSelector;
         private LeftRightSelector _bubbleTimeSelector;
-        private LeftRightSelector _showStatusBarSelector;
+        //private LeftRightSelector _showStatusBarSelector;
         private LeftRightSelector _bgImageSelector;
         private Button _player1Name;
         private Button _player2Name;
@@ -398,29 +402,29 @@ namespace Mariasek.SharedClient
             {
                 _bubbleTimeSelector.SelectedIndex = 1;
             }
-            _autoFinishLastRound = new Label(this)
+            _bgImage = new Label(this)
             {
                 Position = new Vector2(200, pageOffset + 370),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
+                Text = "Pozadí při hře",
                 Group = 1,
-                Text = "Poslední kolo sehrát",
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
-            _autoFinishLastRoundSelector = new LeftRightSelector(this)
+            _bgImageSelector = new LeftRightSelector(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 300, pageOffset + 370),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Automaticky", true}, { "Ručně", false } }
+                Items = new SelectorItems() { { "Výchozí", BackgroundImage.Default }, { "Plátno", BackgroundImage.Canvas }, { "Tmavé", BackgroundImage.Dark } }
             };
-            _autoFinishLastRoundSelector.SelectedIndex = _autoFinishLastRoundSelector.Items.FindIndex(Game.Settings.AutoFinish);
-            _autoFinishLastRoundSelector.SelectionChanged += AutoFinishLastRoundChanged;
-            if (_autoFinishLastRoundSelector.SelectedIndex < 0)
+            _bgImageSelector.SelectedIndex = _bgImageSelector.Items.FindIndex(Game.Settings.BackgroundImage);
+            _bgImageSelector.SelectionChanged += BackgroundImageChanged;
+            if (_bgImageSelector.SelectedIndex < 0)
             {
-                _autoFinishLastRoundSelector.SelectedIndex = 0;
-            }
+                _bgImageSelector.SelectedIndex = 0;
+            }            
 // PAGE 3 //
             _player1 = new Label(this)
             {
@@ -488,55 +492,101 @@ namespace Mariasek.SharedClient
                 BackgroundColor = Color.Transparent
             };
             _player3Name.Click += ChangePlayerName;
-            _bgImage = new Label(this)
+            _autoFinishRounds = new Label(this)
             {
                 Position = new Vector2(200, 2 * pageOffset + 190),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
-                Text = "Pozadí při hře",
                 Group = 1,
+                Text = "Ukončení kola",
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
-            _bgImageSelector = new LeftRightSelector(this)
+            _autoFinishRoundsSelector = new LeftRightSelector(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 190),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Výchozí", BackgroundImage.Default }, { "Plátno", BackgroundImage.Canvas }, { "Tmavé", BackgroundImage.Dark } }
+                Items = new SelectorItems() { { "Automaticky", true }, { "Ručně", false } }
             };
-            _bgImageSelector.SelectedIndex = _bgImageSelector.Items.FindIndex(Game.Settings.BackgroundImage);
-            _bgImageSelector.SelectionChanged += BackgroundImageChanged;
-            if (_bgImageSelector.SelectedIndex < 0)
+            _autoFinishRoundsSelector.SelectedIndex = _autoFinishRoundsSelector.Items.FindIndex(Game.Settings.AutoFinishRounds);
+            _autoFinishRoundsSelector.SelectionChanged += AutoFinishRoundsChanged;
+            if (_autoFinishRoundsSelector.SelectedIndex < 0)
             {
-                _bgImageSelector.SelectedIndex = 0;
+                _autoFinishRoundsSelector.SelectedIndex = 0;
             }
-            _showStatusBar = new Label(this)
+            //_showStatusBar = new Label(this)
+            //{
+            //    Position = new Vector2(200, 2 * pageOffset + 250),
+            //    Width = (int)Game.VirtualScreenWidth / 2 - 150,
+            //    Height = 50,
+            //    Text = "Stavový řádek",
+            //    Group = 1,
+            //    HorizontalAlign = HorizontalAlignment.Center,
+            //    VerticalAlign = VerticalAlignment.Middle
+            //};
+            //_showStatusBarSelector = new LeftRightSelector(this)
+            //{
+            //    Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 250),
+            //    Width = 270,
+            //    Group = 1,
+            //    Items = new SelectorItems() { { "Nezobrazovat", false }, { "Zobrazit", true } }
+            //};
+            //_showStatusBarSelector.SelectedIndex = _showStatusBarSelector.Items.FindIndex(Game.Settings.ShowStatusBar);
+            //_showStatusBarSelector.SelectionChanged += ShowStatusBarChanged;
+            //if (_showStatusBarSelector.SelectedIndex < 0)
+            //{
+            //    _showStatusBarSelector.SelectedIndex = 0;
+            //}
+            _roundFinishedWaitTime = new Label(this)
             {
                 Position = new Vector2(200, 2 * pageOffset + 250),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
-                Text = "Stavový řádek",
                 Group = 1,
+                Text = "Čekání na konci kola",
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
-            _showStatusBarSelector = new LeftRightSelector(this)
+            _roundFinishedWaitTimeSelector = new LeftRightSelector(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 250),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Nezobrazovat", false }, { "Zobrazit", true } }
+                Items = new SelectorItems() { { "Krátké", 1000 }, { "Dlouhé", 2000 } }
             };
-            _showStatusBarSelector.SelectedIndex = _showStatusBarSelector.Items.FindIndex(Game.Settings.ShowStatusBar);
-            _showStatusBarSelector.SelectionChanged += ShowStatusBarChanged;
-            if (_showStatusBarSelector.SelectedIndex < 0)
+            _roundFinishedWaitTimeSelector.SelectedIndex = _roundFinishedWaitTimeSelector.Items.FindIndex(Game.Settings.RoundFinishedWaitTimeMs);
+            _roundFinishedWaitTimeSelector.SelectionChanged += RoundFinishedWaitTimeChanged ;
+            if (_roundFinishedWaitTimeSelector.SelectedIndex < 0)
             {
-                _showStatusBarSelector.SelectedIndex = 0;
+                _roundFinishedWaitTimeSelector.SelectedIndex = 0;
+            }
+            _autoFinishLastRound = new Label(this)
+            {
+                Position = new Vector2(200, 2 * pageOffset + 310),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Poslední kolo sehrát",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _autoFinishLastRoundSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 310),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Automaticky", true }, { "Ručně", false } }
+            };
+            _autoFinishLastRoundSelector.SelectedIndex = _autoFinishLastRoundSelector.Items.FindIndex(Game.Settings.AutoFinish);
+            _autoFinishLastRoundSelector.SelectionChanged += AutoFinishLastRoundChanged;
+            if (_autoFinishLastRoundSelector.SelectedIndex < 0)
+            {
+                _autoFinishLastRoundSelector.SelectedIndex = 0;
             }
             _maxHistoryLength = new Label(this)
             {
-                Position = new Vector2(200, 2 * pageOffset + 310),
+                Position = new Vector2(200, 2 * pageOffset + 370),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Max. délka historie",
@@ -546,7 +596,7 @@ namespace Mariasek.SharedClient
             };
             _maxHistoryLengthSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 310),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 370),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Neomezená", 0 }, { "1000 her", 1000 }, { "2000 her", 2000 }, { "5000 her", 5000 }, { "10000 her", 10000 } }
@@ -694,11 +744,29 @@ namespace Mariasek.SharedClient
 			Game.OnSettingsChanged();
 		}
 
+        void AutoFinishRoundsChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.AutoFinishRounds = (bool)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
         void AutoFinishLastRoundChanged(object sender)
         {
             var selector = sender as LeftRightSelector;
 
             Game.Settings.AutoFinish = (bool)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        void RoundFinishedWaitTimeChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.RoundFinishedWaitTimeMs = (int)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }

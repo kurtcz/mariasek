@@ -2271,27 +2271,38 @@ namespace Mariasek.SharedClient
         {
             if (r.number <= 10)
             {
-                g.ThrowIfCancellationRequested();
-                _evt.Reset();
-                RunOnUiThread(() =>
+                if (Game.Settings.AutoFinishRounds)
                 {
-                    this.Wait(1000)
-                        .Invoke(() =>
-                        {
-                            var roundWinnerIndex = r.roundWinner.PlayerIndex;
-
-                            //pokud hrajeme hru v barve a sebereme nekomu desitku nebo eso, tak se zasmej
-                            if ((g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
-                                ((r.player1.PlayerIndex != roundWinnerIndex && r.player1.TeamMateIndex != roundWinnerIndex && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka)) ||
-                                 (r.player2.PlayerIndex != roundWinnerIndex && r.player2.TeamMateIndex != roundWinnerIndex && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka)) ||
-                                 (r.player3.PlayerIndex != roundWinnerIndex && r.player3.TeamMateIndex != roundWinnerIndex && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))))
+                    g.ThrowIfCancellationRequested();
+                    _evt.Reset();
+                    RunOnUiThread(() =>
+                    {
+                        this.Wait(Game.Settings.RoundFinishedWaitTimeMs)
+                            .Invoke(() =>
                             {
-                                Game.LaughSound?.PlaySafely();
-                            }
-                            ClearTableAfterRoundFinished();
-                        });
-                });
-                WaitForUIThread();
+                                var roundWinnerIndex = r.roundWinner.PlayerIndex;
+
+                                //pokud hrajeme hru v barve a sebereme nekomu desitku nebo eso, tak se zasmej
+                                if ((g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+                                    ((r.player1.PlayerIndex != roundWinnerIndex && r.player1.TeamMateIndex != roundWinnerIndex && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka)) ||
+                                     (r.player2.PlayerIndex != roundWinnerIndex && r.player2.TeamMateIndex != roundWinnerIndex && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka)) ||
+                                     (r.player3.PlayerIndex != roundWinnerIndex && r.player3.TeamMateIndex != roundWinnerIndex && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))))
+                                {
+                                    Game.LaughSound?.PlaySafely();
+                                }
+                                ClearTableAfterRoundFinished();
+                            });
+                    });
+                    WaitForUIThread();
+                }
+                else
+                {
+                    ShowMsgLabel("\n\nKlikni pro pokračování ...", false);
+                    //_msgLabelSmall.Text = "\n\nKlikni kamkoli ...";
+                    //_msgLabelSmall.Show();
+                    ShowInvisibleClickableOverlay();
+                    WaitForUIThread();
+                }
             }
         }
 
@@ -3223,12 +3234,9 @@ namespace Mariasek.SharedClient
         private void OverlayTouchUp(object sender, TouchLocation tl)
         {
             _state = GameState.NotPlaying;
-            RunOnUiThread(() =>
-            {
-                ClearTableAfterRoundFinished();
-                HideMsgLabel();
-                HideInvisibleClickableOverlay();
-            });
+            ClearTableAfterRoundFinished();
+            HideMsgLabel();
+            HideInvisibleClickableOverlay();
 		}
 
         private void ShowInvisibleClickableOverlay()

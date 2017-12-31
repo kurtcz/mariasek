@@ -62,6 +62,8 @@ namespace Mariasek.SharedClient
         public BidThresholdSettings[] Thresholds { get; set; }
         public float RiskFactor { get; set; }
         public float SolitaryXThreshold { get; set; }
+        public int RoundFinishedWaitTimeMs { get; set; }
+        public bool AutoFinishRounds { get; set; }
         public bool AutoFinish { get; set; }
         public int MinimalBidsForGame { get; set; }
         public int MinimalBidsForSeven { get; set; }
@@ -82,6 +84,8 @@ namespace Mariasek.SharedClient
             ThinkingTimeMs = 1500;
             MaxHistoryLength = 0;
             KeepScreenOn = true;
+            RoundFinishedWaitTimeMs = 1000;
+            AutoFinishRounds = true;
             AutoFinish = true;
 			CardDesign = CardFace.Single;
             CardBackSide = CardBackSide.Horse;

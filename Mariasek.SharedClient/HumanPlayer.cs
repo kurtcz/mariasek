@@ -103,6 +103,7 @@ namespace Mariasek.SharedClient
 
         public override Card ChooseTrump()
         {
+            _g.ThrowIfCancellationRequested();
             if (_aiPlayer != null)
             {
 				_t0 = Environment.TickCount;
@@ -123,6 +124,7 @@ namespace Mariasek.SharedClient
             _trumpCard = _scene.ChooseTrump();
 
             CancelAiTask();
+            _g.ThrowIfCancellationRequested();
             _trump = _trumpCard.Suit;
 			if (_aiPlayer != null)
 			{
@@ -156,6 +158,7 @@ namespace Mariasek.SharedClient
             _talon = _scene.ChooseTalon();
 
             CancelAiTask();
+            _g.ThrowIfCancellationRequested();
             if (_aiPlayer != null)
             {
                 _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon)
@@ -170,6 +173,7 @@ namespace Mariasek.SharedClient
 
         public override GameFlavour ChooseGameFlavour()
         {
+            _g.ThrowIfCancellationRequested();
             if (firstTimeChoosingFlavour)
             {                
                 firstTimeChoosingFlavour = false;
@@ -251,6 +255,7 @@ namespace Mariasek.SharedClient
                     _gameType = _scene.ChooseGameType(validGameTypes, true);
                     _givenUp = _gameType == 0;
                     CancelAiTask();
+                    _g.ThrowIfCancellationRequested();
                     if ((_gameType & (Hra.Betl | Hra.Durch)) != 0)
                     {
                         return GameFlavour.Bad;
@@ -302,11 +307,13 @@ namespace Mariasek.SharedClient
             var gf = _scene.ChooseGameFlavour();
 
             CancelAiTask();
+            _g.ThrowIfCancellationRequested();
             return gf;
         }
 
         public override Hra ChooseGameType(Hra validGameTypes)
         {
+            _g.ThrowIfCancellationRequested();
             if(_gameType != 0 || _givenUp)
             {
                 return _gameType;
@@ -355,11 +362,13 @@ namespace Mariasek.SharedClient
             var gt = _scene.ChooseGameType(validGameTypes, true);
 
             CancelAiTask();
+            _g.ThrowIfCancellationRequested();
             return gt;
         }
 
         public override Hra GetBidsAndDoubles(Bidding bidding)
         {
+            _g.ThrowIfCancellationRequested();
             if (_givenUp &&
                 bidding.SevenAgainstMultiplier == 0 &&
                 bidding.HundredAgainstMultiplier == 0)
@@ -400,6 +409,7 @@ namespace Mariasek.SharedClient
             var bd = _scene.GetBidsAndDoubles(bidding);
 
             CancelAiTask();
+            _g.ThrowIfCancellationRequested();
             return bd;
         }
 
@@ -408,6 +418,7 @@ namespace Mariasek.SharedClient
             Card card;
             var validationState = Renonc.Ok;
 
+            _g.ThrowIfCancellationRequested();
             if (_aiPlayer != null)
             {
 				_t0 = Environment.TickCount;
@@ -468,6 +479,7 @@ namespace Mariasek.SharedClient
             }
 
             CancelAiTask();
+            _g.ThrowIfCancellationRequested();
             return card;
         }
             
