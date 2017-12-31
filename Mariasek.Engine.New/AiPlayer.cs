@@ -532,7 +532,12 @@ namespace Mariasek.Engine.New
             }
             else
             {
-                //protihrac nejdriv sjede simulaci nanecisto (bez talonu) a potom znovu s kartami talonu a vybere novy talon
+                //pokud se AI chce rozhodovat po hlaseni spatne barvy, musi sjet simulace znovu se skutecnym talonem (neni treba pokud jsem volil)
+                if (_rerunSimulations)
+                {
+                    var bidding = new Bidding(_g);
+                    RunGameSimulations(bidding, PlayerIndex, false, true);
+                }
                 if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][1] * _durchSimulations && _durchSimulations > 0)
                 {
                     _talon = ChooseDurchTalon(Hand, null);
@@ -1538,12 +1543,6 @@ namespace Mariasek.Engine.New
 
             if ((validGameTypes & (Hra.Betl | Hra.Durch)) != 0)
             {
-                //pokud se AI chce rozhodovat po hlaseni spatne barvy, musi sjet simulace znovu se skutecnym talonem (neni treba pokud jsem volil)
-                if (_rerunSimulations)
-                {
-                    var bidding = new Bidding(_g);
-                    RunGameSimulations(bidding, PlayerIndex, false, true);
-                }
                 if (Settings.CanPlayGameType[Hra.Durch] && 
                     (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
                      _durchSimulations > 0 &&
