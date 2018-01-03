@@ -858,12 +858,16 @@ namespace Mariasek.Engine.New
                 {
                     var cardsToPlay = Enumerable.Empty<Card>();
 
-                    if (TeamMateIndex != -1) //o-c
+                    if (TeamMateIndex != -1) 
                     {
-                        cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => c1.Suit == c2.Suit &&
-                                                                                    c1.BadValue < c2.BadValue &&
-                                                                                    i.Suit == c2.Suit &&
-                                                                                    i.BadValue < c2.BadValue);
+                        if (RoundNumber == 1) //-oc
+                        {
+                            cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => Round.WinningCard(c1, c2, i, null) == c1);
+                        }
+                        else //o-c
+                        {
+                            cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => Round.WinningCard(c1, c2, i, null) == c2);
+                        }
                     }
 
                     return cardsToPlay.ToList().RandomOneOrDefault();

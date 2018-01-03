@@ -869,7 +869,6 @@ namespace Mariasek.Engine.New
                             }
                             UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
 
-                            // to ?? vypada chybne
                             var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : (Hra.Hra | Hra.SedmaProti), 10, 1);
                             gameComputationResults.Enqueue(gameComputationResult);
                         }
@@ -917,8 +916,7 @@ namespace Mariasek.Engine.New
 
                             UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
 
-                            // to ?? vypada chybne
-                            var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : (Hra.Kilo | Hra.Sedma | Hra.SedmaProti), 10, 1);
+                            var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType ?? (Hra.Kilo | Hra.Sedma), 10, 1);
                             gameComputationResults.Enqueue(gameComputationResult);
                         }
                         var val = Interlocked.Increment(ref progress);
@@ -926,7 +924,7 @@ namespace Mariasek.Engine.New
                         OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju kilo a sedmu" });
                     });
                     _sevenSimulations = actualSimulations7;
-                    _hundredSimulations = _sevenSimulations;
+                    _hundredSimulations = actualSimulations7;
                 }
                 else
                 {
@@ -1649,7 +1647,7 @@ namespace Mariasek.Engine.New
             {
                 Rule = Hra.Kilo.ToDescription(_trump),
                 RuleCount = _hundredsBalance,
-                TotalRuleCount = _gameSimulations
+                TotalRuleCount = _hundredSimulations
             });
             allChoices.Add(new RuleDebugInfo
             {
