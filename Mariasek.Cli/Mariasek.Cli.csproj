@@ -41,6 +41,9 @@
     <Compile Include="..\Mariasek.SharedClient\GameSettings.cs">
       <Link>GameSettings.cs</Link>
     </Compile>
+    <Compile Include="..\Mariasek.Engine.New\AiStrategy2.cs">
+      <Link>AiStrategy2.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

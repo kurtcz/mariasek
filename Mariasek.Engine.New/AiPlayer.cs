@@ -27,6 +27,7 @@ namespace Mariasek.Engine.New
         private Hra? _gameType;
         public List<Card> _talon; //public so that HumanPlayer can set it
         private List<AddingMoneyCalculator> _moneyCalculations;
+        private float _avgWinForHundred;
         private bool _hundredOverDurch;
         private int _gamesBalance;
         private int _hundredsBalance;
@@ -1137,7 +1138,11 @@ namespace Mariasek.Engine.New
                                         ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Kilo)) != 0)
                                                             .Average(i => (i.BasicPointsWon + i.MaxHlasWon))
                                         : 0;
-
+            _avgWinForHundred = _moneyCalculations.Any(i => (i.GameType & (goodGameType ?? Hra.Kilo)) != 0)
+                                        ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Kilo)) != 0)
+                                                            .Average(i => (float)i.MoneyWon[gameStartingPlayerIndex])
+                                        : 0;
+            
             _hundredOverDurch = PlayerIndex == gameStartingPlayerIndex
                                 ? avgPointsForHundred >= 120 || 
                                   (_trump.HasValue &&
@@ -1147,9 +1152,11 @@ namespace Mariasek.Engine.New
             _gamesBalance = PlayerIndex == gameStartingPlayerIndex
                             ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => i.GameWon)
                             : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => !i.GameWon);
-            _hundredsBalance = PlayerIndex == gameStartingPlayerIndex
-                                ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Kilo)) != 0).Count(i => i.HundredWon)
-                                : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Kilo)) != 0).Count(i => !i.HundredWon);
+            _hundredsBalance =  true//ShouldChooseHundred()
+                                ? PlayerIndex == gameStartingPlayerIndex                                
+                                    ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Kilo)) != 0).Count(i => i.HundredWon)
+                                    : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Kilo)) != 0).Count(i => !i.HundredWon)
+                                : 0;
             _hundredsAgainstBalance = PlayerIndex == gameStartingPlayerIndex
                                         ? _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => !i.QuietHundredAgainstWon)
                                         : _moneyCalculations.Where(i => (i.GameType & (goodGameType ?? Hra.Hra)) != 0).Count(i => i.QuietHundredAgainstWon);
@@ -1451,12 +1458,13 @@ namespace Mariasek.Engine.New
 
 		public bool ShouldChooseHundred()
 		{
+            var trump = _trump ?? _g.trump;
 			var axCount = Hand.Count(i => i.Value == Hodnota.Eso || 
 			                         	  (i.Value == Hodnota.Desitka && 
 			                          	   Hand.Any(j => j.Suit == i.Suit && 
 			                                   			 (j.Value == Hodnota.Eso || j.Value == Hodnota.Kral))));
-			var trumpCount = Hand.Count(i => i.Suit == _trump.Value && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka); //bez A,X
-			var axTrumpCount = Hand.Count(i => i.Suit == _trump.Value && (i.Value == Hodnota.Eso ||
+			var trumpCount = Hand.Count(i => i.Suit == trump && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka); //bez A,X
+			var axTrumpCount = Hand.Count(i => i.Suit == trump && (i.Value == Hodnota.Eso ||
 										   (i.Value == Hodnota.Desitka &&
 											Hand.Any(j => j.Suit == i.Suit &&
 			                                              (j.Value == Hodnota.Eso || j.Value == Hodnota.Kral)))));
@@ -1479,7 +1487,7 @@ namespace Mariasek.Engine.New
 				return false;
 			}
 			//pridej body za hlasky
-			if (kqs.Any(i => i == _trump.Value))
+			if (kqs.Any(i => i == trump))
 			{
 				n += 40;
 			}
@@ -1600,6 +1608,7 @@ namespace Mariasek.Engine.New
             else
             {
                 if (Settings.CanPlayGameType[Hra.Kilo] && 
+                    //_avgWinForHundred > -4 &&
                     _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations && _hundredSimulations > 0 &&
                     ((Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value)) || //abych nehral kilo pokud aspon netrham a nemam aspon 2 hlasky
                      Enum.GetValues(typeof(Barva)).Cast<Barva>()

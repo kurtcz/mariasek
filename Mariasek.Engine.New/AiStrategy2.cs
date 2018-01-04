@@ -984,6 +984,7 @@ namespace Mariasek.Engine.New
                         //c--
                         if ((_probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 ||
                              _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0) &&
+                            (_gameType & Hra.Kilo) == 0 &&              //tohle pravidlo nehraju pro kilu
                             (((_gameType & Hra.Sedma)!=0 &&             //pokud hraju sedmu tak se pokusim uhrat A,X nize 
                               hands[MyIndex].CardCount(_trump) > 1) ||  //a dalsi karty pripadne hrat v ramci "hrat cokoli mimo A,X,trumf a dalsich"
                              (hands[MyIndex].CardCount(_trump) > 0)))   //to same pokud jsem volil, sedmu nehraju a uz nemam zadny trumf v ruce
@@ -1210,6 +1211,23 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 14,
+                Description = "hrát největší trumf",
+                SkipSimulations = true,
+                ChooseCard1 = () =>
+                {
+                    if (TeamMateIndex == -1 && (_gameType & Hra.Kilo) != 0)
+                    {
+                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump);
+
+                        return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
+                    }
+                    return null;
+                }
+            };
+
+            yield return new AiRule()
+            {
+                Order = 15,
                 Description = "zbavit se plev",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -1238,9 +1256,12 @@ namespace Mariasek.Engine.New
                                               .OrderBy(i => i.Value)
                                               .FirstOrDefault();
                         }
-                        return cardsToPlay.OrderBy(i => i.Value)
-                                          .FirstOrDefault();
-
+                        if ((_gameType & Hra.Kilo) == 0)
+                        {
+                            return cardsToPlay.OrderBy(i => hands[MyIndex].CardCount(i.Suit))
+                                              .ThenBy(i => i.Value)
+                                              .FirstOrDefault();
+                        }
 					}
                     return null;
                 }
@@ -1248,7 +1269,7 @@ namespace Mariasek.Engine.New
 
 			yield return new AiRule()
 			{
-				Order = 15,
+				Order = 16,
 				Description = "hrát cokoli mimo A,X,trumf",
 				SkipSimulations = true,
 				ChooseCard1 = () =>
@@ -1260,8 +1281,12 @@ namespace Mariasek.Engine.New
 
                     if (TeamMateIndex == -1)
                     {
-						return cardsToPlay.OrderBy(i => i.Value)
-										  .FirstOrDefault();
+                        if ((_gameType & Hra.Kilo) == 0)
+                        {
+                            return cardsToPlay.OrderBy(i => i.Value)
+                                              .FirstOrDefault();
+                        }
+                        return null;
 					}
                     return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
 									  .ThenBy(i => i.Value)
