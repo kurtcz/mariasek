@@ -61,6 +61,7 @@ parse_dom() {
                 CONFIDENCE=${BASH_REMATCH[1]}
                 #echo Simulace $CONFIDENCE
                 #echo Jistota $((100*$CONFIDENCE))%
+                echo 111 $CONFIDENCE
             fi
         else
             #potom zkus najit procenta v prvni simulaci po volbe
