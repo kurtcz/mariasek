@@ -718,8 +718,7 @@ namespace Mariasek.Engine.New
                                                                         .Where(i => i.Item2 > 0);
                             cardsToPlay = hiCards.OrderByDescending(i => i.Item2)
                                                  .ThenByDescending(i => i.Item1.BadValue)
-                                                 .Select(i => i.Item1)
-                                                 .Take(1);
+                                                 .Select(i => i.Item1);
                         }
                     }
                     else //oc-
@@ -741,8 +740,7 @@ namespace Mariasek.Engine.New
                         {
                             cardsToPlay = hiCards.OrderByDescending(i => i.Item2)
                                                  .ThenByDescending(i => i.Item1.BadValue)
-                                                 .Select(i => i.Item1)
-                                                 .Take(1);
+                                                 .Select(i => i.Item1);
                         }
                     }
 
@@ -896,8 +894,7 @@ namespace Mariasek.Engine.New
                                                                         .Where(i => i.Item2 > 0);
                             cardsToPlay = hiCards.OrderByDescending(i => i.Item2)
                                                  .ThenByDescending(i => i.Item1.BadValue)
-                                                 .Select(i => i.Item1)
-                                                 .Take(1);
+                                                 .Select(i => i.Item1);
                         }
                     }
                     else //o-c
@@ -919,8 +916,7 @@ namespace Mariasek.Engine.New
                         {
                             cardsToPlay = hiCards.OrderByDescending(i => i.Item2)
                                                  .ThenByDescending(i => i.Item1.BadValue)
-                                                 .Select(i => i.Item1)
-                                                 .Take(1);
+                                                 .Select(i => i.Item1);
                         }
                     }
 

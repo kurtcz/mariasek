@@ -536,6 +536,11 @@ namespace Mariasek.Engine.New
                 if (_rerunSimulations)
                 {
                     var bidding = new Bidding(_g);
+                    Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, new List<Card>())
+                    {
+                        ExternalDebugString = _debugString,
+                        UseDebugString = true
+                    };
                     RunGameSimulations(bidding, PlayerIndex, false, true);
                 }
                 if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][1] * _durchSimulations && _durchSimulations > 0)
@@ -776,7 +781,7 @@ namespace Mariasek.Engine.New
             const int talonIndex = 3;
 
             //volicimu hraci dame i to co je v talonu, aby mohl vybrat skutecny talon
-            hands[GameStartingPlayerIndex].AddRange(hands[3]);
+            hands[GameStartingPlayerIndex].AddRange(hands[talonIndex]);
 
             var talon = chooseTalonFunc(hands[GameStartingPlayerIndex], TrumpCard);
 
@@ -789,7 +794,7 @@ namespace Mariasek.Engine.New
             const int talonIndex = 3;
 
             //volicimu hraci dame i to co je v talonu, aby mohl vybrat skutecny talon
-            hands[GameStartingPlayerIndex].AddRange(hands[3]);
+            hands[GameStartingPlayerIndex].AddRange(hands[talonIndex]);
 
             var trumpCard = ChooseTrump(hands[GameStartingPlayerIndex]);
             var talon = chooseTalonFunc(hands[GameStartingPlayerIndex], trumpCard);
@@ -977,7 +982,7 @@ namespace Mariasek.Engine.New
                             {
                                 UpdateGeneratedHandsByChoosingTrumpAndTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
                             }
-                            else //pokud volim, tak v UpdateGeneratedHandsByChoosingTalon() beru v potaz trumfovou kartu kterou jsem zvolil
+                            else if(!_rerunSimulations) //pokud volim (poprve, tak v UpdateGeneratedHandsByChoosingTalon() beru v potaz trumfovou kartu kterou jsem zvolil
                             {
                                 UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
                             }
@@ -1039,13 +1044,16 @@ namespace Mariasek.Engine.New
                                 tempSource.Enqueue(hands);
                             }
                             //nasimuluj ze volici hrac vybral trumfy a/nebo talon
-                            if (_g.GameType == Hra.Betl || PlayerIndex == _g.GameStartingPlayerIndex)
-                            {   //pokud jsem volil ja tak v UpdateGeneratedHandsByChoosingTalon() pouziju skutecne zvoleny trumf
-                                UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, _g.GameStartingPlayerIndex);
-                            }
-                            else
+                            if (PlayerIndex != _g.GameStartingPlayerIndex)
                             {
-                                UpdateGeneratedHandsByChoosingTrumpAndTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
+                                if (_g.GameType == Hra.Betl)
+                                {   //pokud jsem volil ja tak v UpdateGeneratedHandsByChoosingTalon() pouziju skutecne zvoleny trumf
+                                    UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, _g.GameStartingPlayerIndex);
+                                }
+                                else
+                                {
+                                    UpdateGeneratedHandsByChoosingTrumpAndTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
+                                }
                             }
                             UpdateGeneratedHandsByChoosingTalon(hands, ChooseDurchTalon, gameStartingPlayerIndex);
 

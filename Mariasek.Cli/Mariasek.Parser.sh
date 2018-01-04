@@ -23,14 +23,18 @@ read_dom () {
 parse_dom() {
     if [[ $TAG_NAME == "Hra" ]]; then
         if [[ $ATTRIBUTES =~ Typ\=\"([A-Za-z\ ]+)\" ]]; then
-            GAME_TYPE=${BASH_REMATCH[1]}
-            GAME_TYPE_STR=$GAME_TYPE
+            GAME_TYPE_COMPLETE=${BASH_REMATCH[1]}
+            GAME_TYPE_STR=$GAME_TYPE_COMPLETE
+            GAME_TYPE=$GAME_TYPE_COMPLETE
             if [[ $GAME_TYPE == "Sedma Kilo" ]]; then
                 GAME_TYPE_STR="Stosedm"
                 GAME_TYPE="Kilo"
-            elif [[ $GAME_TYPE == "Hra Sedma" ]]; then
+            elif [[ $GAME_TYPE == "Hra Sedma" ]] || [[ $GAME_TYPE == "Hra Sedma KiloProti" ]]; then
                 GAME_TYPE_STR="Sedma"
                 GAME_TYPE="Sedma"
+            elif [[ $GAME_TYPE == "Hra SedmaProti" ]] || [[ $GAME_TYPE == "Hra KiloProti" ]] || [[ $GAME_TYPE == "Hra SedmaProti KiloProti" ]]; then
+                GAME_TYPE_STR="Hra"
+                GAME_TYPE="Hra"
             fi
             #echo Typ $GAME_TYPE \($GAME_TYPE_STR\)
         fi
@@ -38,7 +42,8 @@ parse_dom() {
             GAME_STARTER=${BASH_REMATCH[1]}
             #echo Voli $GAME_STARTER
         fi
-    elif [[ ! -z $COMMENT ]]; then
+    elif [[ ! -z $COMMENT ]] && [[ $CONFIDENCE == "-1" ]]; then
+        #echo Komentar $COMMENT
         #zkus najit procenta v komentari 
         #nejdriv zkus hledat procenta posledni simulaci pred volbou
         #bash nepodporuje lookahead regex, musime ho nahradit pomoci while cyklu
@@ -63,14 +68,14 @@ parse_dom() {
             #echo $pattern
             if [[ $COMMENT =~ $pattern ]]; then
                 CONFIDENCE=${BASH_REMATCH[1]}
-                #echo ano
+                #echo Confidence $CONFIDENCE
             else
                 pattern="$GAME_TYPE\ \(([^\)]*)\)"
                 pattern="$GAME_TYPE"
                 #echo $pattern
                 if [[ $COMMENT =~ $pattern ]]; then
                     CONFIDENCE=${BASH_REMATCH[1]}
-                    #echo ano
+                    #echo Confidence $CONFIDENCE
                 fi
             fi
         fi
@@ -84,6 +89,8 @@ parse_dom() {
 }
 
 GAME_TYPE="?"
+GAME_TYPE_STR="?"
+GAME_TYPE_COMPLETE="?"
 GAME_STARTER="?"
 CONFIDENCE="-1"
 MONEY_WON="?"
@@ -93,4 +100,5 @@ done < $1
 if [[ $CONFIDENCE =~ /0$ ]]; then
     CONFIDENCE="-1"
 fi
-echo ${1##*/},$GAME_TYPE,$GAME_STARTER,$CONFIDENCE,$((100*$CONFIDENCE)),$MONEY_WON
+BUCKET=$((100 * $CONFIDENCE - 100 * $CONFIDENCE % 10))
+echo ${1##*/},$GAME_TYPE_COMPLETE,$GAME_STARTER,$CONFIDENCE,$((100*$CONFIDENCE)),$BUCKET,$MONEY_WON
