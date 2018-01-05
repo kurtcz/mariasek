@@ -80,7 +80,7 @@ namespace Mariasek.Engine.New
                     }
                 }
             }
-            else //TeamMateIndex == -1
+            else if (TeamMateIndex == -1)
             {
                 foreach (var r in _rounds.Where(i => i != null && i.c3 != null))
                 {
@@ -89,12 +89,12 @@ namespace Mariasek.Engine.New
                           r.c2.Suit != _trump &&
                           (r.c2.Value == Hodnota.Eso ||
                            r.c2.Value == Hodnota.Desitka) &&
-                           (_probabilities.CardProbability(r.player2.PlayerIndex, new Card(r.c1.Suit, Hodnota.Eso)) > _epsilon ||
-                            _probabilities.CardProbability(r.player2.PlayerIndex, new Card(r.c1.Suit, Hodnota.Desitka)) > _epsilon)) ||
+                           (_probabilities.CardProbability(r.player2.PlayerIndex, new Card(r.c2.Suit, Hodnota.Eso)) > _epsilon ||
+                            _probabilities.CardProbability(r.player2.PlayerIndex, new Card(r.c2.Suit, Hodnota.Desitka)) > _epsilon)) ||
                          ((r.c3.Value == Hodnota.Eso ||
                            r.c3.Value == Hodnota.Desitka) &&
-                           (_probabilities.CardProbability(r.player3.PlayerIndex, new Card(r.c1.Suit, Hodnota.Eso)) > _epsilon ||
-                            _probabilities.CardProbability(r.player3.PlayerIndex, new Card(r.c1.Suit, Hodnota.Desitka)) > _epsilon))) &&
+                           (_probabilities.CardProbability(r.player3.PlayerIndex, new Card(r.c3.Suit, Hodnota.Eso)) > _epsilon ||
+                            _probabilities.CardProbability(r.player3.PlayerIndex, new Card(r.c3.Suit, Hodnota.Desitka)) > _epsilon))) &&
                         r.roundWinner.PlayerIndex != MyIndex)
                     {
                         _bannedSuits.Add(r.c1.Suit);
@@ -108,7 +108,7 @@ namespace Mariasek.Engine.New
                            _probabilities.CardProbability(r.player3.PlayerIndex, new Card(r.c1.Suit, Hodnota.Desitka)) > _epsilon)) &&
                         r.roundWinner.PlayerIndex != MyIndex)
                     {
-                        _bannedSuits.Add(r.c2.Suit);
+                        _bannedSuits.Add(r.c1.Suit);
                     }
                     else if (r.player3.PlayerIndex == MyIndex &&
                         (r.c2.Suit != r.c1.Suit &&
@@ -119,7 +119,7 @@ namespace Mariasek.Engine.New
                            _probabilities.CardProbability(r.player2.PlayerIndex, new Card(r.c1.Suit, Hodnota.Desitka)) > _epsilon)) &&
                         r.roundWinner.PlayerIndex != MyIndex)
                     {
-                        _bannedSuits.Add(r.c3.Suit);
+                        _bannedSuits.Add(r.c1.Suit);
                     }
                 }
             }
@@ -713,7 +713,10 @@ namespace Mariasek.Engine.New
                 SkipSimulations = true,
                 ChooseCard1 = () =>
                 {
-                    if (TeamMateIndex == -1 && (_gameType & Hra.Kilo) == 0)
+                    if (TeamMateIndex == -1 && 
+                        ((_gameType & Hra.Kilo) == 0 ||
+                         _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0 ||
+                         _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0))
                     {
                         //c--
                         var myPlayedCards = _rounds.Where(r => r != null && r.c3 != null)
@@ -1215,7 +1218,10 @@ namespace Mariasek.Engine.New
                 SkipSimulations = true,
                 ChooseCard1 = () =>
                 {
-                    if (TeamMateIndex == -1 && (_gameType & Hra.Kilo) != 0)
+                    if (TeamMateIndex == -1 && 
+                        (_gameType & Hra.Kilo) != 0 &&
+                        (_probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 ||
+                         _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0))
                     {
                         var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump);
 
