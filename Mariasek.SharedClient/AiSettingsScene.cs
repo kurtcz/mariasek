@@ -296,7 +296,8 @@ namespace Mariasek.SharedClient
 				Height = 60,
 				Text = "",
 				HorizontalAlign = HorizontalAlignment.Center,
-                VerticalAlign = VerticalAlignment.Top
+                VerticalAlign = VerticalAlignment.Top,
+                FontScaleFactor = 0.9f
 			};
 
 			_riskFactor = new Label(this)

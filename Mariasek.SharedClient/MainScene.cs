@@ -562,8 +562,8 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth - 280,
                 Height = (int)Game.VirtualScreenHeight - 210,
                 TextColor = Color.Yellow,
-                //TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
-                ZIndex = 100
+                ZIndex = 100,
+                FontScaleFactor = 0.9f
             };
             _msgLabelLeftOrigPosition = new Vector2(160, 140);
             _msgLabelLeftHiddenPosition = new Vector2(160, 140 - Game.VirtualScreenHeight);
@@ -575,8 +575,8 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth - 280,
                 Height = (int)Game.VirtualScreenHeight - 210,
                 TextColor = Color.Yellow,
-                //TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
-                ZIndex = 100
+                ZIndex = 100,
+                FontScaleFactor = 0.9f
             };
             _msgLabelRightOrigPosition = new Vector2(160, 140);
             _msgLabelRightHiddenPosition = new Vector2(160, 140 - Game.VirtualScreenHeight);

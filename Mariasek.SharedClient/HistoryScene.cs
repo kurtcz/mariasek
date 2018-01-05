@@ -180,7 +180,8 @@ namespace Mariasek.SharedClient
                         TabPosition = 720,
                         TabAlignment = HorizontalAlignment.Right
                     }
-                }
+                },
+                FontScaleFactor = 0.9f
             };
             _historyBox.Hide();
 			_footer = new Label(this)

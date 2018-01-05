@@ -346,7 +346,8 @@ namespace Mariasek.SharedClient.GameComponents
                     //Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player1.Name, Game.MainScene.g.rounds[i].player1.PlayerIndex == 0 ? "-" : debugNote1 != null ? debugNote1.Split('\n')[0] : "-"),
                     //TextColor = Game.MainScene.g.rounds[i].roundWinner.PlayerIndex == Game.MainScene.g.rounds[i].player1.PlayerIndex ? Color.Yellow : Color.White,
                     UseCommonScissorRect = true,
-                    ZIndex = 200
+                    ZIndex = 200,
+                    FontScaleFactor = 0.9f
                 };
                 //rect = Game.MainScene.g.rounds[i].c2.ToTextureRect();
                 Rounds[i][1] = new Sprite(this, Game.CardTextures)//, rect)
@@ -374,7 +375,8 @@ namespace Mariasek.SharedClient.GameComponents
                     //Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player2.Name, Game.MainScene.g.rounds[i].player2.PlayerIndex == 0 ? "-" : debugNote2 != null ? debugNote2.Split('\n')[0] : "-"),
                     //TextColor = Game.MainScene.g.rounds[i].roundWinner.PlayerIndex == Game.MainScene.g.rounds[i].player2.PlayerIndex ? Color.Yellow : Color.White,
                     UseCommonScissorRect = true,
-                    ZIndex = 200
+                    ZIndex = 200,
+                    FontScaleFactor = 0.9f
                 };
                 //rect = Game.MainScene.g.rounds[i].c3.ToTextureRect();
                 Rounds[i][2] = new Sprite(this, Game.CardTextures)//, rect)
@@ -402,7 +404,8 @@ namespace Mariasek.SharedClient.GameComponents
                     //Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player3.Name, Game.MainScene.g.rounds[i].player3.PlayerIndex == 0 ? "-" : debugNote3 != null ? debugNote3.Split('\n')[0] : "-"),
                     //TextColor = Game.MainScene.g.rounds[i].roundWinner.PlayerIndex == Game.MainScene.g.rounds[i].player3.PlayerIndex ? Color.Yellow : Color.White,
                     UseCommonScissorRect = true,
-                    ZIndex = 200
+                    ZIndex = 200,
+                    FontScaleFactor = 0.9f
                 };
             }
             //_initialHands[3] = Game.MainScene.g.talon;
