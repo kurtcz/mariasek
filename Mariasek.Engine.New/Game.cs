@@ -1262,6 +1262,7 @@ namespace Mariasek.Engine.New
                 }
                 else if(gameFlavour == GameFlavour.Bad)
                 {
+                    GivenUp = false;
                     if (!firstTime)
                     {
                         GameStartingPlayer.Hand.AddRange(talon);
@@ -1289,6 +1290,11 @@ namespace Mariasek.Engine.New
                     GameType = GameStartingPlayer.ChooseGameType(validGameTypes); //TODO: zkontrolovat ze hrac nezvolil nelegalni variantu
                     GameTypeConfidence = GameStartingPlayer.DebugInfo.TotalRuleCount > 0 ? (float)GameStartingPlayer.DebugInfo.RuleCount / (float)GameStartingPlayer.DebugInfo.TotalRuleCount : -1f;
                     DebugString.AppendFormat("ChooseGameType: {0}\n", GameType);
+                    if (GameType == 0)
+                    {
+                        GameType = minimalBid;
+                        GivenUp = true;
+                    }
                     minimalBid = Hra.Durch;
                     gameTypeForPlayer[GameStartingPlayerIndex] = GameType;
                     OnGameTypeChosen(new GameTypeChosenEventArgs

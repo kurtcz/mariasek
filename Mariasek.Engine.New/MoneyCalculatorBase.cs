@@ -215,11 +215,11 @@ namespace Mariasek.Engine.New
             {
                 if (g.GameType == Hra.Betl)
                 {
-                    BetlWon = g.rounds.All(r => r.roundWinner != g.GameStartingPlayer);
+                    BetlWon = g.rounds.All(r => r != null && r.roundWinner != g.GameStartingPlayer);
                 }
                 else
                 {
-                    DurchWon = g.rounds.All(r => r.roundWinner == g.GameStartingPlayer);
+                    DurchWon = g.rounds.All(r => r != null && r.roundWinner == g.GameStartingPlayer);
                 }
             }
             MoneyWon = new int[Game.NumPlayers];

@@ -2430,15 +2430,21 @@ namespace Mariasek.SharedClient
                             System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
                         }
                     }
-                    var value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
-                    if (value > 0)
+                    try
                     {
-                        Game.Settings.GameTypeSimulationsPerSecond = value;
+                        var value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
+                        if (value > 0)
+                        {
+                            Game.Settings.GameTypeSimulationsPerSecond = value;
+                        }
+                        value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
+                        if (value > 0)
+                        {
+                            Game.Settings.RoundSimulationsPerSecond = value;
+                        }
                     }
-                    value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
-                    if (value > 0)
-                    {
-                        Game.Settings.RoundSimulationsPerSecond = value;
+                    catch
+                    {                        
                     }
                 });
                 //_aiConfig["SimulationsPerGameTypePerSecond"].Value = Game.Settings.GameTypeSimulationsPerSecond.ToString();

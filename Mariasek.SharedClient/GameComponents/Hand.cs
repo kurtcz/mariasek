@@ -165,7 +165,7 @@ namespace Mariasek.SharedClient.GameComponents
                 var refreshSprites = _cardButtons[i] == null;
                 if (refreshSprites)
                 {
-                    _cardButtons[i] = new CardButton(this, new Sprite(this, Game.CardTextures) { Name = string.Format("HandSprite{0}", i + 1), Scale = Game.CardScaleFactor })
+                    _cardButtons[i] = new CardButton(this, new Sprite(this, Game.CardTextures, rect) { Name = string.Format("HandSprite{0}", i + 1), Scale = Game.CardScaleFactor })
                     { Name = string.Format("HandButton{0}", i + 1), ReverseSpriteRectangle = Game.BackSideRect, ZIndex = 50 + i };
                     _cardButtons[i].Click += CardClicked;
                     _cardButtons[i].DragEnd += CardDragged;
