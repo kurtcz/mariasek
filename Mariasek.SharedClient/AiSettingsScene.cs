@@ -40,9 +40,9 @@ namespace Mariasek.SharedClient
         {
             { Hra.Hra, "AI flekuje jen když trhá\nnebo má aspoň 40 bodů v hlasech." },
             { Hra.Sedma, "AI flekuje jen když má aspoň 2 trumfy." },
-            { Hra.Kilo, "AI nevolí kilo pokud netrhá\na nemá aspoň 40 bodů v hlasech." },
-            { Hra.Betl, "AI používá práh pro Flek když nevolil\na hlásí špatnou barvu. Pokud AI nevolil, neflekuje." },
-            { Hra.Durch, "AI používá práh pro Flek když nevolil\na hlásí špatnou barvu." }
+            { Hra.Kilo, "AI kilo flekuje jen když nejde uhrát." },
+            { Hra.Betl, "AI používá práh pro Flek když nevolil a hlásí\nšpatnou barvu. Pokud AI nevolil, neflekuje." },
+            { Hra.Durch, "AI používá práh pro Flek když nevolil a hlásí\nšpatnou barvu. AI durch flekuje jen když nejde uhrát." }
 		};
 #endregion
 
