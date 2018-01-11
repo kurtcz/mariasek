@@ -2063,9 +2063,8 @@ namespace Mariasek.SharedClient
                     //_trumpLabels[e.GameStartingPlayerIndex].Text = string.Format("{0}: {1}", g.players[e.GameStartingPlayerIndex].Name, g.GameType.ToDescription(g.trump));
                     for (var i = 0; i < _trumpLabels.Count(); i++)
                     {
-                        _trumpLabels[e.GameStartingPlayerIndex].Text = string.Format("{0}\n{1}", 
-                                                                             GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
-                                                                             (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+                        _trumpLabels[i].Text = string.Format("{0}\n{1}", GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
+                                                                         (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
                     }
                 });
 
@@ -2674,10 +2673,6 @@ namespace Mariasek.SharedClient
                                                      (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
                             _trumpLabels[i].Height = 60;
                             _trumpLabels[i].Show();
-                        }
-                        if (g.GameType != 0)
-                        {
-                            _trumpLabels[g.GameStartingPlayerIndex].Text = string.Format("{0}: {1}", g.players[g.GameStartingPlayerIndex].Name, g.GameType.ToDescription(g.trump));
                         }
                         if (!_testGame)
                         {

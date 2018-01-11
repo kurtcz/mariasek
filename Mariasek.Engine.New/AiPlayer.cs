@@ -1761,6 +1761,7 @@ namespace Mariasek.Engine.New
                       ((bidding.GameMultiplier > 2 && 
                         Hand.HasSuit(_g.trump.Value)) ||
                        (bidding.GameMultiplier < 2 &&
+                        Hand.HasSuit(_g.trump.Value) &&
                         (Hand.HasK(_g.trump.Value) || 
                          Hand.HasQ(_g.trump.Value) || 
                          Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2))))))) ||

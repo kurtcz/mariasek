@@ -507,7 +507,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 190),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Automaticky", true }, { "Ručně", false } }
+                Items = new SelectorItems() { { "Automaticky", true }, { "Dotykem", false } }
             };
             _autoFinishRoundsSelector.SelectedIndex = _autoFinishRoundsSelector.Items.FindIndex(Game.Settings.AutoFinishRounds);
             _autoFinishRoundsSelector.SelectionChanged += AutoFinishRoundsChanged;
@@ -544,7 +544,7 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
-                Text = "Čekání na konci kola",
+                Text = "Prodleva na konci kola",
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
@@ -553,7 +553,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 250),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Krátké", 1000 }, { "Dlouhé", 2000 } }
+                Items = new SelectorItems() { { "Krátká", 1000 }, { "Dlouhá", 2000 } }
             };
             _roundFinishedWaitTimeSelector.SelectedIndex = _roundFinishedWaitTimeSelector.Items.FindIndex(Game.Settings.RoundFinishedWaitTimeMs);
             _roundFinishedWaitTimeSelector.SelectionChanged += RoundFinishedWaitTimeChanged ;
