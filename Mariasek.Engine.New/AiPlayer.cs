@@ -28,6 +28,8 @@ namespace Mariasek.Engine.New
         public List<Card> _talon; //public so that HumanPlayer can set it
         private List<AddingMoneyCalculator> _moneyCalculations;
         private float _avgWinForHundred;
+        private float _avgBasicPointsLost;
+        private float _maxBasicPointsLost;
         private bool _hundredOverDurch;
         private int _gamesBalance;
         private int _hundredsBalance;
@@ -1154,7 +1156,14 @@ namespace Mariasek.Engine.New
                                                                     : (Hra.Betl | Hra.Durch) == 0)
                                                             .Average(i => (float)i.MoneyWon[gameStartingPlayerIndex])
                                         : 0;
-            
+            _avgBasicPointsLost = _moneyCalculations.Any(i => (i.GameType & Hra.Hra) != 0)
+                                        ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0)
+                                                            .Average(i => (float)i.BasicPointsLost)
+                                        : 0;
+            _maxBasicPointsLost = _moneyCalculations.Any(i => (i.GameType & Hra.Hra) != 0)
+                                        ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0)
+                                                            .Max(i => (float)i.BasicPointsLost)
+                                        : 0;
             _hundredOverDurch = PlayerIndex == gameStartingPlayerIndex
                                 ? avgPointsForHundred >= 120 || 
                                   (_trump.HasValue &&
@@ -1742,35 +1751,36 @@ namespace Mariasek.Engine.New
             if ((bidding.Bids & Hra.Hra) != 0 &&
                 Settings.CanPlayGameType[Hra.Hra] &&
                 bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Hra] &&
-                (bidding._gameFlek <= 3 ||                      //ai nedava tutti pokud neflekoval i clovek
+                (bidding._gameFlek < 3 ||                      //ai nedava tutti pokud neflekoval i clovek
                  PlayerIndex == 0 || 
                  (bidding.PlayerBids[0] & Hra.Hra) != 0) &&
                 _gameSimulations > 0 &&
-                ((_gamesBalance / (float)_gameSimulations >= gameThreshold &&
-                    //pokud jsem volil (re a vys) a:
-                    //trham trumfovy hlas
-                    //nebo ho netrham a mam aspon dva hlasy
-                    ((TeamMateIndex == -1 && 
-                      (Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2 ||
-                       ((Hand.HasK(_trump.Value) || 
-                         Hand.HasQ(_trump.Value)) && true)) ||
-                     //nebo jsem nevolil a:
-                     // - (flek) trham trumfovou hlasku nebo mam aspon dva hlasy nebo
-                     // - (tutti a vys) mam trumf (navic jsem musel splnit podminky pro flek) a citim se na flek
-                     (TeamMateIndex != -1 &&
-                      ((bidding.GameMultiplier > 2 && 
-                        Hand.HasSuit(_g.trump.Value)) ||
-                       (bidding.GameMultiplier < 2 &&
-                        Hand.HasSuit(_g.trump.Value) &&
-                        (Hand.HasK(_g.trump.Value) || 
-                         Hand.HasQ(_g.trump.Value) || 
-                         Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2))))))) ||
+                _gamesBalance / (float)_gameSimulations >= gameThreshold &&
+                //pokud jsem volil (re a vys) a:
+                //trham trumfovy hlas
+                //nebo ho netrham a mam aspon dva hlasy
+                ((TeamMateIndex == -1 && 
+                  (Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2 ||
+                   ((Hand.HasK(_trump.Value) || 
+                     Hand.HasQ(_trump.Value)) &&
+                    Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => b != _trump && (Hand.HasK(b) || Hand.HasQ(b)))))) ||
+                 //nebo jsem nevolil a:
+                 // - (flek) trham trumfovou hlasku nebo mam aspon dva hlasy nebo
+                 // - (tutti a vys) mam trumf (navic jsem musel splnit podminky pro flek) a citim se na flek
+                 (TeamMateIndex != -1 &&
+                  ((bidding.GameMultiplier > 2 && 
+                    Hand.HasSuit(_g.trump.Value)) ||
+                   (bidding.GameMultiplier < 2 &&
+                    Hand.HasSuit(_g.trump.Value) &&
+                    (Hand.HasK(_g.trump.Value) || 
+                     Hand.HasQ(_g.trump.Value) || 
+                     Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2)))) ||
                  //nebo davam re a jsem si dost jisty nehlede na hlasy
-                 (TeamMateIndex == -1 &&
+                 ((TeamMateIndex == -1 &&
                   _gamesBalance / (float)_gameSimulations >= gameThresholdNext) ||
                  //nebo jsem si opravdu hodne jisty at jsem kdokoli
-                 (bidding._gameFlek <= MaxFlek &&
-                  _gamesBalance / (float)_gameSimulations >= certaintyThreshold)))// ||
+                  (bidding._gameFlek <= MaxFlek &&
+                   _gamesBalance / (float)_gameSimulations >= certaintyThreshold))))// ||
                  //nebo kolega flekoval a ja mam nejakou hlasku a citil jsem se na flek jiz minule (tutti a vys),
                  //(_teamMateDoubledGame && _gamesBalance / (float)_gameSimulations >= gameThresholdPrevious && 
                  // Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit)))))
