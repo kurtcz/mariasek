@@ -1223,7 +1223,10 @@ namespace Mariasek.Engine.New
                         (_probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 ||
                          _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0))
                     {
-                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump);
+                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&
+                                                                                ((_probabilities.CardProbability(player2, new Card(_trump, Hodnota.Eso)) == 0 &&                                                                                    
+                                                                                  _probabilities.CardProbability(player3, new Card(_trump, Hodnota.Eso)) == 0) ||
+                                                                                 i.Value < Hodnota.Desitka));
 
                         return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
                     }
