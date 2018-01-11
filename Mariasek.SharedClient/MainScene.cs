@@ -2027,7 +2027,7 @@ namespace Mariasek.SharedClient
             var text = playerIndex == g.GameStartingPlayerIndex
                                    ? string.Format("{0}: {1}",
                                        Game.MainScene.g.players[playerIndex].Name,
-                                       Game.MainScene.g.GameType.ToDescription().Trim() +
+                                           Game.MainScene.g.GameType.ToDescription(g.trump).Trim() +
                                            (string.IsNullOrEmpty(Game.MainScene.g.players[playerIndex].BidMade)
                                             ? string.Empty
                                             : string.Format(" {0}", Game.MainScene.g.players[playerIndex].BidMade.TrimEnd())))

@@ -872,9 +872,10 @@ namespace Mariasek.SharedClient
 
             //var playerIndex = (int)result.AsyncState;
             var playerIndex = editedPlayerIndex;
-            var button = Children.Select(i => i as Button)
-                                 .Where(i => i != null && (int)i.Tag == playerIndex)
-                                 .FirstOrDefault();
+            var button = Children.FirstOrDefault(i => i is Button &&
+                                                      i.Tag != null &&
+                                                      i.Tag is int &&
+                                                      (int)i.Tag == playerIndex) as Button;
             if (button != null)
             {
                 button.Text = text;
