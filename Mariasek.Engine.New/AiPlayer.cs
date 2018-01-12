@@ -1477,7 +1477,52 @@ namespace Mariasek.Engine.New
 			return false;
 		}
 
-		public bool ShouldChooseHundred()
+        public int EstimateFinalBasicScore()
+        {
+            var trump = _trump ?? _g.trump;
+            var axCount = Hand.Count(i => i.Value == Hodnota.Eso ||
+                                           (i.Value == Hodnota.Desitka &&
+                                             Hand.Any(j => j.Suit == i.Suit &&
+                                                            (j.Value == Hodnota.Eso || j.Value == Hodnota.Kral))));
+            var trumpCount = Hand.Count(i => i.Suit == trump && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka); //bez A,X
+            var axTrumpCount = Hand.Count(i => i.Suit == trump && (i.Value == Hodnota.Eso ||
+                                           (i.Value == Hodnota.Desitka &&
+                                            Hand.Any(j => j.Suit == i.Suit &&
+                                                          (j.Value == Hodnota.Eso || j.Value == Hodnota.Kral)))));
+            var cardsPerSuit = new Dictionary<Barva, int>();
+            //var kqCount = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+            //                  .Count(b => b != trump && Hand.HasK(b) && Hand.HasQ(b));
+            //var kqTrumpCount = Hand.HasK(trump.Value) && Hand.HasQ(trump.Value) ? 1 : 0;
+            var emptySuits = cardsPerSuit.Count(i => i.Value == 0);
+            var aceOnlySuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                   .Count(b => Hand.HasA(b) && !Hand.HasX(b));
+            var n = axCount * 10 +
+                    2 * emptySuits * 10 +
+                    aceOnlySuits * 10;// +
+                                      //kqCount * 20 + 
+                                      //kqTrumpCount * 40;
+            if (Hand.CardCount(trump.Value) >= 4 ||
+                Hand.Average(i => (float)i.Value) >= (float)Hodnota.Kral)
+            {
+                n += 10;
+            }
+
+            return n;
+        }
+
+        public bool Is100AgainstPossible()
+        {
+            var trump = _trump ?? _g.trump;
+            var noKQSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => !Hand.HasK(b) &&
+                                            !Hand.HasQ(b));
+            var estimatedKQPointsLost = noKQSuits.Sum(b => b == _trump ? 40 : 20);
+            var estimatedBasicPointsLost = 90 - EstimateFinalBasicScore();
+
+            return estimatedBasicPointsLost + estimatedKQPointsLost >= 100;
+        }
+
+        public bool ShouldChooseHundred()
 		{
             var trump = _trump ?? _g.trump;
 			var axCount = Hand.Count(i => i.Value == Hodnota.Eso || 
@@ -1760,10 +1805,7 @@ namespace Mariasek.Engine.New
                 //trham trumfovy hlas
                 //nebo ho netrham a mam aspon dva hlasy
                 ((TeamMateIndex == -1 && 
-                  (Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2 ||
-                   ((Hand.HasK(_trump.Value) || 
-                     Hand.HasQ(_trump.Value)) &&
-                    Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => b != _trump && (Hand.HasK(b) || Hand.HasQ(b)))))) ||
+                  !Is100AgainstPossible()) ||
                  //nebo jsem nevolil a:
                  // - (flek) trham trumfovou hlasku nebo mam aspon dva hlasy nebo
                  // - (tutti a vys) mam trumf (navic jsem musel splnit podminky pro flek) a citim se na flek
