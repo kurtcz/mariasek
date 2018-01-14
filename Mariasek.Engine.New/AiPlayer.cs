@@ -2567,7 +2567,7 @@ namespace Mariasek.Engine.New
                 initialRoundNumber = _g.RoundNumber;
                 roundsToCompute = Settings.RoundsToCompute;
             }
-            if (!trump.HasValue)
+            if (!trump.HasValue && (gameType & (Hra.Betl | Hra.Durch)) == 0)
             {
                 trump = _g.trump;
                 if (!trump.HasValue && (gameType & (Hra.Betl | Hra.Durch)) == 0)
