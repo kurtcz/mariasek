@@ -1490,17 +1490,11 @@ namespace Mariasek.Engine.New
                                             Hand.Any(j => j.Suit == i.Suit &&
                                                           (j.Value == Hodnota.Eso || j.Value == Hodnota.Kral)))));
             var cardsPerSuit = new Dictionary<Barva, int>();
-            //var kqCount = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-            //                  .Count(b => b != trump && Hand.HasK(b) && Hand.HasQ(b));
-            //var kqTrumpCount = Hand.HasK(trump.Value) && Hand.HasQ(trump.Value) ? 1 : 0;
             var emptySuits = cardsPerSuit.Count(i => i.Value == 0);
             var aceOnlySuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                    .Count(b => Hand.HasA(b) && !Hand.HasX(b));
             var n = axCount * 10 +
-                    2 * emptySuits * 10 +
-                    aceOnlySuits * 10;// +
-                                      //kqCount * 20 + 
-                                      //kqTrumpCount * 40;
+                Math.Min(2 * emptySuits + aceOnlySuits, Hand.CardCount(trump.Value) / 2) * 10;  // ne kazdym trumfem prebiju a nebo x
             if (Hand.CardCount(trump.Value) >= 4 ||
                 Hand.Average(i => (float)i.Value) >= (float)Hodnota.Kral)
             {
@@ -1816,7 +1810,9 @@ namespace Mariasek.Engine.New
                     Hand.HasSuit(_g.trump.Value) &&
                     (Hand.HasK(_g.trump.Value) || 
                      Hand.HasQ(_g.trump.Value) || 
-                     Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2)))) ||
+                     Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2 ||
+                     (EstimateFinalBasicScore() >= 70 &&
+                      Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b))))))) ||
                  //nebo davam re a jsem si dost jisty nehlede na hlasy
                  ((TeamMateIndex == -1 &&
                   _gamesBalance / (float)_gameSimulations >= gameThresholdNext) ||
