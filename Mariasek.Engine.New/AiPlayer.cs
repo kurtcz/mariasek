@@ -1482,19 +1482,14 @@ namespace Mariasek.Engine.New
             var trump = _trump ?? _g.trump;
             var axCount = Hand.Count(i => i.Value == Hodnota.Eso ||
                                            (i.Value == Hodnota.Desitka &&
-                                             Hand.Any(j => j.Suit == i.Suit &&
-                                                            (j.Value == Hodnota.Eso || j.Value == Hodnota.Kral))));
+                                            (Hand.HasA(i.Suit) ||
+                                             Hand.HasK(i.Suit))));
             var trumpCount = Hand.Count(i => i.Suit == trump && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka); //bez A,X
-            var axTrumpCount = Hand.Count(i => i.Suit == trump && (i.Value == Hodnota.Eso ||
-                                           (i.Value == Hodnota.Desitka &&
-                                            Hand.Any(j => j.Suit == i.Suit &&
-                                                          (j.Value == Hodnota.Eso || j.Value == Hodnota.Kral)))));
-            var cardsPerSuit = new Dictionary<Barva, int>();
+            var cardsPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>().ToDictionary(b => b, b => Hand.CardCount(b));
             var emptySuits = cardsPerSuit.Count(i => i.Value == 0);
-            var aceOnlySuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                   .Count(b => Hand.HasA(b) && !Hand.HasX(b));
             var n = axCount * 10 +
-                Math.Min(2 * emptySuits + aceOnlySuits, Hand.CardCount(trump.Value) / 2) * 10;  // ne kazdym trumfem prebiju a nebo x
+                    Math.Min(2 * emptySuits, Hand.CardCount(trump.Value) / 2) * 10;  // ne kazdym trumfem prebiju a nebo x
+
             if (Hand.CardCount(trump.Value) >= 4 ||
                 Hand.Average(i => (float)i.Value) >= (float)Hodnota.Kral)
             {
@@ -1667,6 +1662,14 @@ namespace Mariasek.Engine.New
             }
             else
             {
+                var kqScore = _g.trump.HasValue
+                                ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                      .Where(b => Hand.HasK(b) && Hand.HasQ(b))
+                                      .Sum(b => b == _g.trump.Value ? 40 : 20)
+                                : 0;
+                var estimatedFinalBasicScore = _g.trump.HasValue ? EstimateFinalBasicScore() + kqScore : 0;
+                var estimatefOpponentFinalBasicScore = 90 - estimatedFinalBasicScore;
+
                 if (Settings.CanPlayGameType[Hra.Kilo] && 
                     //_avgWinForHundred > -4 &&
                     _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations && _hundredSimulations > 0 &&
@@ -1679,7 +1682,10 @@ namespace Mariasek.Engine.New
                     DebugInfo.TotalRuleCount = _hundredSimulations;
                 }
                 else if (Settings.CanPlayGameType[Hra.Hra] &&
-                         _gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0)
+                         ((_gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0) ||
+                          estimatedFinalBasicScore + kqScore >= estimatedFinalBasicScore + 40 ||
+                          (estimatedFinalBasicScore + kqScore >= estimatedFinalBasicScore &&
+                           (Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value)))))
                 {
                     gameType = Hra.Hra;
                     DebugInfo.RuleCount = _gamesBalance;
@@ -1786,6 +1792,14 @@ namespace Mariasek.Engine.New
                 RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, false);
             }
             DebugInfo.RuleCount = -1;
+            var kqScore = _g.trump.HasValue
+                            ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                  .Where(b => Hand.HasK(b) && Hand.HasQ(b))
+                                  .Sum(b => b == _g.trump.Value ? 40 : 20)
+                            : 0;
+            var estimatedFinalBasicScore = _g.trump.HasValue ? EstimateFinalBasicScore() + kqScore : 0;
+            var estimatedOpponentFinalBasicScore = 90 - estimatedFinalBasicScore;
+
             //Flekovani u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) 
             if ((bidding.Bids & Hra.Hra) != 0 &&
                 Settings.CanPlayGameType[Hra.Hra] &&
@@ -1801,18 +1815,19 @@ namespace Mariasek.Engine.New
                 ((TeamMateIndex == -1 && 
                   !Is100AgainstPossible()) ||
                  //nebo jsem nevolil a:
-                 // - (flek) trham trumfovou hlasku nebo mam aspon dva hlasy nebo
+                 // - (flek) trham trumfovou hlasku nebo mam aspon dva hlasy a trumfa 
+                 // nebo mam potencialne vic bodu nez souper bez hlasu a souper nema na to uhrat kilo ani s trumfovou hlaskou
                  // - (tutti a vys) mam trumf (navic jsem musel splnit podminky pro flek) a citim se na flek
                  (TeamMateIndex != -1 &&
+                  Hand.HasSuit(_g.trump.Value) &&
                   ((bidding.GameMultiplier > 2 && 
-                    Hand.HasSuit(_g.trump.Value)) ||
+                    (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b)) ||
+                     Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) || Hand.HasQ(b)) >= 2)) ||
                    (bidding.GameMultiplier < 2 &&
-                    Hand.HasSuit(_g.trump.Value) &&
                     (Hand.HasK(_g.trump.Value) || 
                      Hand.HasQ(_g.trump.Value) || 
-                     Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2 ||
-                     (EstimateFinalBasicScore() >= 70 &&
-                      Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b))))))) ||
+                     (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
+                      estimatedOpponentFinalBasicScore + 40 < 100))))) ||
                  //nebo davam re a jsem si dost jisty nehlede na hlasy
                  ((TeamMateIndex == -1 &&
                   _gamesBalance / (float)_gameSimulations >= gameThresholdNext) ||
