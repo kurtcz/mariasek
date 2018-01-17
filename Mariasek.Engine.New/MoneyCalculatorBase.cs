@@ -282,7 +282,14 @@ namespace Mariasek.Engine.New
 
             if (!GamePlayed)
             {
-                sb.Append("Nehrálo se\t»»»»»»\n");
+                if (GivenUp)
+                {
+                    sb.Append("Zahozená hra\t»»»»»»\n");
+                }
+                else
+                {
+                    sb.Append("Nehrálo se\t»»»»»»\n");
+                }
             }
             else
             {

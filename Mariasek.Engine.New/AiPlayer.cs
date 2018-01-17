@@ -1827,13 +1827,13 @@ namespace Mariasek.Engine.New
                     (Hand.HasK(_g.trump.Value) || 
                      Hand.HasQ(_g.trump.Value) || 
                      (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
-                      estimatedOpponentFinalBasicScore + 40 < 100))))) ||
+                      estimatedOpponentFinalBasicScore + 40 < 100)))))))// ||
                  //nebo davam re a jsem si dost jisty nehlede na hlasy
-                 ((TeamMateIndex == -1 &&
-                  _gamesBalance / (float)_gameSimulations >= gameThresholdNext) ||
+                 //((TeamMateIndex == -1 &&
+                 // _gamesBalance / (float)_gameSimulations >= gameThresholdNext) ||
                  //nebo jsem si opravdu hodne jisty at jsem kdokoli
-                  (bidding._gameFlek <= MaxFlek &&
-                   _gamesBalance / (float)_gameSimulations >= certaintyThreshold))))// ||
+                 // (bidding._gameFlek <= MaxFlek &&
+                 //  _gamesBalance / (float)_gameSimulations >= certaintyThreshold))))// ||
                  //nebo kolega flekoval a ja mam nejakou hlasku a citil jsem se na flek jiz minule (tutti a vys),
                  //(_teamMateDoubledGame && _gamesBalance / (float)_gameSimulations >= gameThresholdPrevious && 
                  // Hand.Any(i => i.Value == Hodnota.Svrsek && Hand.Any(j => j.Value == Hodnota.Kral && j.Suit == i.Suit)))))

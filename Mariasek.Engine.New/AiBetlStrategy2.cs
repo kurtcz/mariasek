@@ -689,6 +689,12 @@ namespace Mariasek.Engine.New
                         }
                     }
 
+                    if (c1.Value == Hodnota.Sedma ||
+                        c1.Value == Hodnota.Osma)
+                    {
+                        //zkusíme soupeře dostat nízkýma kartama (v následujícím pravidle)
+                        return null;
+                    }
                     return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                 }
             };
@@ -947,10 +953,9 @@ namespace Mariasek.Engine.New
                 {
                     var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]);
 
-                    return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+                    return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                 }
             };
-
         }
     }
 }

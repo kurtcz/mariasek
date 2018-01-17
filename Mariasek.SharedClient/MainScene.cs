@@ -2405,7 +2405,7 @@ namespace Mariasek.SharedClient
                 {
                     _gameResult.BorderColor = Color.Red;
                 }
-                _gameResult.Text = g.GivenUp ? "Zahozená hra" : firstWord;
+                _gameResult.Text = firstWord;
                 _msgLabelLeft.Text = leftMessage.ToString();
                 _msgLabelRight.Text = rightMessage.ToString();
                 ShowGameScore();
