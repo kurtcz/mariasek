@@ -180,6 +180,13 @@ namespace Mariasek.Engine.New
                                                   .FirstOrDefault(i => i.Suit != _trump || i.Value != Hodnota.Sedma) ??
                                                    cardsToPlay.ToList().RandomOneOrDefault();
                             }
+                            //pokud souperi hrajou sedmu proti a ja mam jeste jeden trumf, tak se snaz jim ji zabit
+                            if ((_gameType & Hra.SedmaProti) != 0 &&
+                                hands[MyIndex].HasSuit(_trump) &&
+                                hands[MyIndex].Any(i => i.Suit != _trump))
+                            {
+                                cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump);
+                            }
                             //jinak zkus uhrat aspon posledni stych
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
 
@@ -238,6 +245,13 @@ namespace Mariasek.Engine.New
                                                   .FirstOrDefault(i => i.Suit != _trump || i.Value != Hodnota.Sedma) ??
                                                    cardsToPlay.ToList().RandomOneOrDefault();
                             }
+                            //pokud souper hraje sedmu a ja mam jeste jeden trumf, tak se snaz mu ji zabit
+                            if ((_gameType & Hra.Sedma) != 0 &&
+                                hands[MyIndex].HasSuit(_trump) &&
+                                hands[MyIndex].Any(i => i.Suit != _trump))
+                            {
+                                cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump);
+                            }
                             //jinak zkus uhrat aspon posledni stych
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>
                                                                       ValidCards(i, j, hands[player3]).All(k =>
@@ -286,6 +300,13 @@ namespace Mariasek.Engine.New
                                 return cardsToPlay.OrderBy(i => i.Value)
                                                   .FirstOrDefault(i => i.Suit != _trump || i.Value != Hodnota.Sedma) ??
                                                    cardsToPlay.ToList().RandomOneOrDefault();
+                            }
+                            //pokud souper hraje sedmu a ja mam jeste jeden trumf, tak se snaz mu ji zabit
+                            if ((_gameType & Hra.Sedma) != 0 &&
+                                hands[MyIndex].HasSuit(_trump) &&
+                                hands[MyIndex].Any(i => i.Suit != _trump))
+                            {
+                                cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump);
                             }
                             //jinak zkus uhrat aspon posledni stych
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => ValidCards(i, hands[player2]).All(j =>

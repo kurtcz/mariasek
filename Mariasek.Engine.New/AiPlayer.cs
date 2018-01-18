@@ -262,7 +262,7 @@ namespace Mariasek.Engine.New
 
 				foreach (var h in Enum.GetValues(typeof(Hodnota))
 									 .Cast<Hodnota>()
-									 .Where(h => i.IsHigherThan(new Card(i.Suit, h), null)))
+                                     .Where(h => i.BadValue > Card.GetBadValue(h)))
 				{
 					if (!hand.Any(j => j.Suit == i.Suit && j.Value == h))
 					{
@@ -270,8 +270,8 @@ namespace Mariasek.Engine.New
 					}
 				}
                 foreach (var h in Enum.GetValues(typeof(Hodnota))
-                                     .Cast<Hodnota>()
-                                     .Where(h => !i.IsHigherThan(new Card(i.Suit, h), null)))
+                                      .Cast<Hodnota>()
+                                      .Where(h => i.BadValue < Card.GetBadValue(h)))
                 {
                     if (!hand.Any(j => j.Suit == i.Suit && j.Value == h))
                     {
@@ -360,7 +360,7 @@ namespace Mariasek.Engine.New
 
                 foreach (var h in Enum.GetValues(typeof(Hodnota))
                                       .Cast<Hodnota>()
-                                      .Where(h => i.IsLowerThan(new Card(i.Suit, h), null)))
+                                      .Where(h => i.BadValue < Card.GetBadValue(h)))
                 {
                     if (!hand.Any(j => j.Suit == i.Suit && j.Value == h))
                     {
@@ -372,7 +372,8 @@ namespace Mariasek.Engine.New
             }).Where(i => i.Item2 > 0);
 
             talon.AddRange(holesByCard.OrderByDescending(i => i.Item2) //pak doplnime kartama v barvach s nejvice dirama
-                                      .ThenByDescending(i => i.Item1.Value)
+                                      .ThenBy(i => hand.CardCount(i.Item1.Suit))    //prednostne ber kratsi barvy
+                                      .ThenBy(i => i.Item1.BadValue)                //a nizsi karty
                                       .Select(i => i.Item1)
                                       .Take(2 - talon.Count()));
             var count = talon.Count();
@@ -380,7 +381,7 @@ namespace Mariasek.Engine.New
             //pokud je potreba, doplnime o nejake nizke karty
             if (count < 2)
             {
-                talon.AddRange(hand.Where(i => !talon.Contains(i)).OrderBy(i => i.Value).Take(2 - count));
+                talon.AddRange(hand.Where(i => !talon.Contains(i)).OrderBy(i => i.BadValue).Take(2 - count));
             }
 
 			if (talon == null || talon.Distinct().Count() != 2)
@@ -1404,7 +1405,7 @@ namespace Mariasek.Engine.New
             {
                 var minHole = new Card(Barva.Cerveny, Hodnota.Desitka);
                 var topCards = Hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                   .Where(h => new Card(Barva.Cerveny, h).BadValue > i.BadValue)
+                                                   .Where(h => Card.GetBadValue(h) > i.BadValue)
                                                    .All(h => Probabilities.CardProbability((PlayerIndex + 1) % Game.NumPlayers, new Card(i.Suit, h)) == 0 &&
                                                              Probabilities.CardProbability((PlayerIndex + 2) % Game.NumPlayers, new Card(i.Suit, h)) == 0))
                                    .ToList();
@@ -1418,7 +1419,7 @@ namespace Mariasek.Engine.New
             {
                 var minHole = new Card(Barva.Cerveny, Hodnota.Spodek);
                 var topCards = Hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                   .Where(h => new Card(Barva.Cerveny, h).BadValue > i.BadValue)
+                                                   .Where(h => Card.GetBadValue(h) > i.BadValue)
                                                    .All(h => Probabilities.CardProbability((PlayerIndex + 1) % Game.NumPlayers, new Card(i.Suit, h)) == 0 &&
                                                              Probabilities.CardProbability((PlayerIndex + 2) % Game.NumPlayers, new Card(i.Suit, h)) == 0))
                                    .ToList();

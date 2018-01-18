@@ -356,11 +356,11 @@ namespace Mariasek.Engine.New
                 }
                 else
                 {
-                    return _cardProbabilityForPlayer[playerIndex][c.Suit].Any(h => (int)h.Key > c.BadValue && h.Value == 1f) ? 0f : 1f;
+                    return _cardProbabilityForPlayer[playerIndex][c.Suit].Any(h => Card.GetBadValue(h.Key) > c.BadValue && h.Value == 1f) ? 0f : 1f;
                 }
             }
             if ((goodGame && _cardProbabilityForPlayer[playerIndex][c.Suit].Any(h => h.Key > c.Value && h.Value >= 0.9f)) ||
-                (!goodGame && _cardProbabilityForPlayer[playerIndex][c.Suit].Any(h => (int)h.Key > c.BadValue && h.Value >= 0.9f)))
+                (!goodGame && _cardProbabilityForPlayer[playerIndex][c.Suit].Any(h => Card.GetBadValue(h.Key) > c.BadValue && h.Value >= 0.9f)))
             {
                 return 0f;
             }
@@ -370,7 +370,7 @@ namespace Mariasek.Engine.New
                     ? _cardProbabilityForPlayer[playerIndex].Where(i => i.Key != c.Suit).Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 0.9f)) +
                       _cardProbabilityForPlayer[playerIndex][c.Suit].Where(i => i.Key < c.Value).Count(h => h.Value > 0f && h.Value < 0.9f)
                     : _cardProbabilityForPlayer[playerIndex].Where(i => i.Key != c.Suit).Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 0.9f)) +
-                      _cardProbabilityForPlayer[playerIndex][c.Suit].Where(i => (int)i.Key < c.BadValue).Count(h => h.Value > 0f && h.Value < 0.9f);
+                      _cardProbabilityForPlayer[playerIndex][c.Suit].Where(i => Card.GetBadValue(i.Key) < c.BadValue).Count(h => h.Value > 0f && h.Value < 0.9f);
             var uncertainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 0.9f));
             var certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value >= 0.9f));
             var totalCards = 10 - roundNumber + 1;
@@ -381,7 +381,7 @@ namespace Mariasek.Engine.New
                     ? _cardProbabilityForPlayer[playerIndex].Where(i => i.Key != c.Suit).Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 0.99f)) +
                       _cardProbabilityForPlayer[playerIndex][c.Suit].Where(i => i.Key < c.Value).Count(h => h.Value > 0f && h.Value < 0.99f)
                     : _cardProbabilityForPlayer[playerIndex].Where(i => i.Key != c.Suit).Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 0.99f)) +
-                      _cardProbabilityForPlayer[playerIndex][c.Suit].Where(i => (int)i.Key < c.BadValue).Count(h => h.Value > 0f && h.Value < 0.99f);
+                      _cardProbabilityForPlayer[playerIndex][c.Suit].Where(i => Card.GetBadValue(i.Key) < c.BadValue).Count(h => h.Value > 0f && h.Value < 0.99f);
                 uncertainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 0.99f));
                 certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value >= 0.99f));
             }

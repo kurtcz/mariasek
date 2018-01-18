@@ -85,33 +85,32 @@ namespace Mariasek.Engine.New
 
         public Barva Suit { get; set; }
         public Hodnota Value { get; set; }
-        public int BadValue
+        public static int GetBadValue (Hodnota value)
         {
-            get
+            switch (value)
             {
-                switch(Value)
-                {
-                    case Hodnota.Eso:
-                        return 7;
-                    case Hodnota.Kral:
-                        return 6;
-                    case Hodnota.Svrsek:
-                        return 5;
-                    case Hodnota.Spodek:
-                        return 4;
-                    case Hodnota.Desitka:
-                        return 3;
-                    case Hodnota.Devitka:
-                        return 2;
-                    case Hodnota.Osma:
-                        return 1;
-                    case Hodnota.Sedma:
-                        return 0;
-                    default:
-                        return -1;
-                }
+                case Hodnota.Eso:
+                    return 7;
+                case Hodnota.Kral:
+                    return 6;
+                case Hodnota.Svrsek:
+                    return 5;
+                case Hodnota.Spodek:
+                    return 4;
+                case Hodnota.Desitka:
+                    return 3;
+                case Hodnota.Devitka:
+                    return 2;
+                case Hodnota.Osma:
+                    return 1;
+                case Hodnota.Sedma:
+                    return 0;
+                default:
+                    return -1;
             }
         }
+        public int BadValue => GetBadValue(Value);
+
         private const string CharCodes = "789sSKXA";
         public char CharCode
         {

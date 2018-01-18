@@ -1092,12 +1092,12 @@ namespace Mariasek.Engine.New
                                                               .Count(h => (players[player2].Hand.Any(i => i.Suit == b && i.Value == h) ||
                                                                            players[player3].Hand.Any(i => i.Suit == b && i.Value == h)) &&
                                                                           (((GameType & (Hra.Betl | Hra.Durch)) != 0 &&
-                                                                            player.Hand.Any(i => i.Suit == b && i.BadValue < new Card(Barva.Cerveny, h).BadValue)) ||
+                                                                            player.Hand.Any(i => i.Suit == b && i.BadValue < Card.GetBadValue(h))) ||
 																		   ((GameType & (Hra.Betl | Hra.Durch)) == 0 &&
 																		    player.Hand.Any(i => i.Suit == b && i.Value < h)))));
 				var topCards = player.Hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
 				                                          .Where(h => ((GameType & (Hra.Betl | Hra.Durch)) == 0 && h > i.Value) ||
-				                                                      ((GameType & (Hra.Betl | Hra.Durch)) != 0 && new Card(Barva.Cerveny, h).BadValue > i.BadValue))
+                                                                       ((GameType & (Hra.Betl | Hra.Durch)) != 0 && Card.GetBadValue(h) > i.BadValue))
                                                           .All(h => players[player2].Hand.All(j => j.Suit != i.Suit || j.Value != h) &&
                                                                     players[player3].Hand.All(j => j.Suit != i.Suit || j.Value != h)))
 				                          .GroupBy(g => g.Suit);
