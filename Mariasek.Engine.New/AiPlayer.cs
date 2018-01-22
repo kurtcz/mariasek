@@ -558,10 +558,11 @@ namespace Mariasek.Engine.New
                 else 
                 {
                     //ani jedno nevyslo pres prah, vezmeme to co vyslo lepe
-                    if (_durchBalance > 0 &&
-                        _durchSimulations > 0 &&
-                        (_betlSimulations == 0 ||
-                         (float)_durchBalance / (float)_durchSimulations > (float)_betlBalance / (float)_betlSimulations))
+                    if (_g.GameType == Hra.Betl ||  //tudiz zbyva uz jen vzit talon na durcha
+                        (_durchBalance > 0 &&
+                         _durchSimulations > 0 &&
+                         (_betlSimulations == 0 ||
+                          (float)_durchBalance / (float)_durchSimulations > (float)_betlBalance / (float)_betlSimulations)))
                     {
                         _talon = ChooseDurchTalon(Hand, null);
                     }
