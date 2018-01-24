@@ -57,7 +57,7 @@ namespace Mariasek.Engine.New
         public Card TrumpCard { get; private set; }
         public List<Card> talon { get; private set; }
         public Round[] rounds { get; private set; }
-        public Round CurrentRound { get { return RoundNumber > 0  && RoundNumber <= 10 ? rounds[RoundNumber - 1] : null; } }
+        public Round CurrentRound { get { return rounds != null && RoundNumber > 0  && RoundNumber <= rounds.Length ? rounds[RoundNumber - 1] : null; } }
 		public int RoundNumber { get; private set; }
         public Bidding Bidding { get; private set; }
         public string Author { get; set; }
@@ -1123,8 +1123,14 @@ namespace Mariasek.Engine.New
 
             if(minimalBid == Hra.Hra)
             {
-                validGameTypes = Hra.Hra | Hra.Kilo;
-                if(player.Hand.Contains(new Card(trump.Value, Hodnota.Sedma)))
+                validGameTypes = Hra.Hra;
+                if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                        .Any(b => player.Hand.HasK(b) && 
+                                  player.Hand.HasQ(b)))
+                {
+                    validGameTypes |= Hra.Kilo; //aby neslo omylem hlasit kilo bez hlasky
+                }
+                if(player.Hand.Has7(trump.Value))
                 {
                     validGameTypes |= Hra.Sedma;
                 }

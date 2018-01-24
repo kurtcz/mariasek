@@ -103,6 +103,7 @@ namespace Mariasek.SharedClient.GameComponents
                 }
             }
         }
+        public bool IsCyclicSelector { get; set; }
 		public SelectorItems<TValue> Items;
 		public int _selectedIndex;
 		public int SelectedIndex
@@ -206,6 +207,7 @@ namespace Mariasek.SharedClient.GameComponents
 			};
 			_valueLabel.Click += RightButtonClick;
 			SelectedIndex = -1;
+            IsCyclicSelector = true;
 			UpdateControls();
 		}
 
@@ -236,8 +238,12 @@ namespace Mariasek.SharedClient.GameComponents
 			{
 				SelectedIndex--;
 			}
-			else
+            else
 			{
+                if (!IsCyclicSelector)
+                {
+                    return;
+                }
 				SelectedIndex = Items.Count - 1;
 			}
 			UpdateValue();
@@ -251,6 +257,10 @@ namespace Mariasek.SharedClient.GameComponents
 			}
 			else
 			{
+                if (!IsCyclicSelector)
+                {
+                    return;
+                }
 				SelectedIndex = 0;
 			}
 			UpdateValue();

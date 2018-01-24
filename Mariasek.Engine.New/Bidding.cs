@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 //using log4net;
@@ -240,8 +242,11 @@ namespace Mariasek.Engine.New
                 {
                     Bids |= Hra.SedmaProti;
                 }
-                if (_g.players[playerIndex].TeamMateIndex == (playerIndex + 1) % Game.NumPlayers ||
-                    (PlayerBids[_g.players[playerIndex].TeamMateIndex] & Hra.KiloProti) == 0)
+                if ((Enum.GetValues(typeof(Barva)).Cast<Barva>()   //aby neslo omylem hlasit kilo proti bez hlasky
+                         .Any(b => _g.players[playerIndex].Hand.HasK(b) &&
+                                   _g.players[playerIndex].Hand.HasQ(b))) &&
+                    (_g.players[playerIndex].TeamMateIndex == (playerIndex + 1) % Game.NumPlayers ||
+                       (PlayerBids[_g.players[playerIndex].TeamMateIndex] & Hra.KiloProti) == 0))
                 {
                     Bids |= Hra.KiloProti;
                 }

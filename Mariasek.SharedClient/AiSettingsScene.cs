@@ -197,6 +197,7 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 115),
                 Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                IsCyclicSelector = false,
                 Items = new SelectorItems() { { "0x", 0 }, { "1x", 1 }, { "2x", 2 }, { "3x", 3 } }
             };
             _maxBidCountSelector.SelectionChanged += MaxBidCountChanged;
@@ -214,6 +215,7 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 55),
                 Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                IsCyclicSelector = false,
                 Items = new SelectorItems() { { "0%", 0 }, { "5%", 5 }, { "10%", 10 }, { "15%", 15 },
                                               { "20%", 20 }, { "25%", 25 }, { "30%", 30 }, { "35%", 35 },
                                               { "40%", 40 }, { "45%", 45 }, { "50%", 50 }, { "55%", 55 },
@@ -236,6 +238,7 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 + 5),
                 Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                IsCyclicSelector = false,
                 Items = new SelectorItems() { { "0%", 0 }, { "5%", 5 }, { "10%", 10 }, { "15%", 15 },
                                               { "20%", 20 }, { "25%", 25 }, { "30%", 30 }, { "35%", 35 },
                                               { "40%", 40 }, { "45%", 45 }, { "50%", 50 }, { "55%", 55 },
@@ -258,6 +261,7 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 + 65),
                 Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                IsCyclicSelector = false,
                 Items = new SelectorItems() { { "0%", 0 }, { "5%", 5 }, { "10%", 10 }, { "15%", 15 },
                                               { "20%", 20 }, { "25%", 25 }, { "30%", 30 }, { "35%", 35 },
                                               { "40%", 40 }, { "45%", 45 }, { "50%", 50 }, { "55%", 55 },
@@ -280,6 +284,7 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 + 125),
                 Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                IsCyclicSelector = false,
                 Items = new SelectorItems() { { "0%", 0 }, { "5%", 5 }, { "10%", 10 }, { "15%", 15 },
                                               { "20%", 20 }, { "25%", 25 }, { "30%", 30 }, { "35%", 35 },
                                               { "40%", 40 }, { "45%", 45 }, { "50%", 50 }, { "55%", 55 },

@@ -959,8 +959,8 @@ namespace Mariasek.SharedClient
                                  bidding.HundredAgainstLastBidder.PlayerIndex != g.players[0].TeamMateIndex);
 
             flekBtn.Text = Bidding.MultiplierToString((g.GameType & (Hra.Betl | Hra.Durch)) == 0 ? bidding.GameMultiplier * 2 : bidding.BetlDurchMultiplier * 2);
-            sedmaBtn.Text = (bids & Hra.SedmaProti) != 0 && (_bidding.SevenAgainstMultiplier == 0) ? "Sedma proti" : "Na sedmu";
-            kiloBtn.Text = (bids & Hra.KiloProti) != 0 && (_bidding.HundredAgainstMultiplier == 0) ? "Kilo proti" : "Na kilo";
+            sedmaBtn.Text = (g.GameType & Hra.Sedma) == 0 && (_bidding.SevenAgainstMultiplier == 0) ? "Sedma proti" : "Na sedmu";
+            kiloBtn.Text = (g.GameType & Hra.Kilo) == 0 && (_bidding.HundredAgainstMultiplier == 0) ? "Kilo proti" : "Na kilo";
 
             flekBtn.Show();
             sedmaBtn.Show();
