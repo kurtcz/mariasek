@@ -550,7 +550,8 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     Position = new Vector2(200 + j * (Hand.CardWidth * reviewCardScaleFactor.X - 10), 100 + 3 * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 30),
                     ZIndex = Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + j + 1,
-					Scale = reviewCardScaleFactor
+					Scale = reviewCardScaleFactor,
+                    SpriteRectangle = Rectangle.Empty
                 };
             }
         }

@@ -305,9 +305,9 @@ namespace Mariasek.SharedClient
             };
             _stychy = new[]
             {
-                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy1" }) { Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f + 40), ReverseSpriteRectangle = backSideRect, IsEnabled = false, ZIndex = 10 },
-                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy2" }) { Position = new Vector2(60, 90), ReverseSpriteRectangle = backSideRect, IsEnabled = false, ZIndex = 10 },
-                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy3" }) { Position = new Vector2(Game.VirtualScreenWidth - 60, 90), ReverseSpriteRectangle = backSideRect, IsEnabled = false, ZIndex = 10 }
+                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy1", SpriteRectangle = Rectangle.Empty }) { Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f + 40), ReverseSpriteRectangle = backSideRect, IsEnabled = false, ZIndex = 10 },
+                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy2", SpriteRectangle = Rectangle.Empty }) { Position = new Vector2(60, 90), ReverseSpriteRectangle = backSideRect, IsEnabled = false, ZIndex = 10 },
+                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy3", SpriteRectangle = Rectangle.Empty }) { Position = new Vector2(Game.VirtualScreenWidth - 60, 90), ReverseSpriteRectangle = backSideRect, IsEnabled = false, ZIndex = 10 }
             };
             _cardsPlayed = new[]
             {
