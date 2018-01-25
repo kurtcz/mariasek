@@ -1685,8 +1685,8 @@ namespace Mariasek.Engine.New
                 }
                 else if (Settings.CanPlayGameType[Hra.Hra] &&
                          ((_gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0) ||
-                          estimatedFinalBasicScore + kqScore >= estimatedFinalBasicScore + 40 ||
-                          (estimatedFinalBasicScore + kqScore >= estimatedFinalBasicScore &&
+                          estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore + 40 ||
+                          (estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore &&
                            (Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value)))))
                 {
                     gameType = Hra.Hra;
@@ -1799,7 +1799,7 @@ namespace Mariasek.Engine.New
                                   .Where(b => Hand.HasK(b) && Hand.HasQ(b))
                                   .Sum(b => b == _g.trump.Value ? 40 : 20)
                             : 0;
-            var estimatedFinalBasicScore = _g.trump.HasValue ? EstimateFinalBasicScore() + kqScore : 0;
+            var estimatedFinalBasicScore = _g.trump.HasValue ? EstimateFinalBasicScore() : 0;
             var estimatedOpponentFinalBasicScore = 90 - estimatedFinalBasicScore;
 
             //Flekovani u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) 

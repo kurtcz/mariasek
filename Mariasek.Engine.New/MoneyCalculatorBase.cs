@@ -104,6 +104,7 @@ namespace Mariasek.Engine.New
             PlayerNames = g.players.Select(i => i.Name).ToArray();
             BaseBet = g.BaseBet;
             GamePlayed = g.rounds[0] != null;
+            GivenUp = g.GivenUp;
             SimulatedSuccessRate = -1;
 
             if (ci == null)

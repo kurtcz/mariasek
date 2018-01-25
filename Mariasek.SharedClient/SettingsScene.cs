@@ -279,7 +279,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth - 300, pageOffset + 10),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Vždy", 0 }, { "S Flekem", 1 }, { "S Re", 2 } }
+                Items = new SelectorItems() { { "Vždy", 0 }, { "Jen po fleku", 1 }, { "Jen po re", 2 } }
             };
             _minBidsForGameSelector.SelectedIndex = _minBidsForGameSelector.Items.FindIndex(Game.Settings.MinimalBidsForGame);
             _minBidsForGameSelector.SelectionChanged += MinBidsForGameChanged;
@@ -302,7 +302,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth - 300, pageOffset + 70),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Vždy", 0 }, { "S Flekem", 1 }, { "S Re", 2 } }
+                Items = new SelectorItems() { { "Vždy", 0 }, { "Jen po fleku", 1 }, { "Jen po re", 2 } }
             };
             _minBidsForSevenSelector.SelectedIndex = _minBidsForSevenSelector.Items.FindIndex(Game.Settings.MinimalBidsForSeven);
             _minBidsForSevenSelector.SelectionChanged += MinBidsForSevenChanged;
