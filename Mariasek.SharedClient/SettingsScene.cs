@@ -39,10 +39,11 @@ namespace Mariasek.SharedClient
         private Label _player3;
         private Label _minBidsForGame;
         private Label _minBidsForSeven;
-        private Label _maxHistoryLength;
+        //private Label _maxHistoryLength;
         private Label _bubbleTime;
         //private Label _showStatusBar;
         private Label _bgImage;
+        private Label _aiMayGiveUp;
 		private ToggleButton _hintBtn;
         private ToggleButton _soundBtn;
         private ToggleButton _bgsoundBtn;
@@ -59,12 +60,13 @@ namespace Mariasek.SharedClient
         private LeftRightSelector _bubbleTimeSelector;
         //private LeftRightSelector _showStatusBarSelector;
         private LeftRightSelector _bgImageSelector;
+        private LeftRightSelector _aiMayGiveUpSelector;
         private Button _player1Name;
         private Button _player2Name;
         private Button _player3Name;
         private LeftRightSelector _minBidsForGameSelector;
         private LeftRightSelector _minBidsForSevenSelector;
-        private LeftRightSelector _maxHistoryLengthSelector;
+        //private LeftRightSelector _maxHistoryLengthSelector;
         private RectangleShape _hline;
         private Label _performance;
         private Button _menuBtn;
@@ -379,28 +381,28 @@ namespace Mariasek.SharedClient
             {
             	_thinkingTimeSelector.SelectedIndex = 1;
             }
-            _bubbleTime = new Label(this)
+            _aiMayGiveUp = new Label(this)
             {
                 Position = new Vector2(200, pageOffset + 310),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
-                Text = "Rychlost dialogů",
+                Text = "AI může hru zahodit",
                 Group = 1,
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
-            _bubbleTimeSelector = new LeftRightSelector(this)
+            _aiMayGiveUpSelector = new LeftRightSelector(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 300, pageOffset + 310),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Rychlá", 500 }, { "Střední", 1000 }, { "Pomalá", 2000 } }
+                Items = new SelectorItems() { { "Ano", true }, { "Ne", false } }
             };
-            _bubbleTimeSelector.SelectedIndex = _bubbleTimeSelector.Items.FindIndex(Game.Settings.BubbleTimeMs);
-            _bubbleTimeSelector.SelectionChanged += BubbleTimeChanged;
-            if (_bubbleTimeSelector.SelectedIndex < 0)
+            _aiMayGiveUpSelector.SelectedIndex = _aiMayGiveUpSelector.Items.FindIndex(Game.Settings.AiMayGiveUp);
+            _aiMayGiveUpSelector.SelectionChanged += AiMayGiveUpChanged;
+            if (_aiMayGiveUpSelector.SelectedIndex < 0)
             {
-                _bubbleTimeSelector.SelectedIndex = 1;
+                _aiMayGiveUpSelector.SelectedIndex = 0;
             }
             _bgImage = new Label(this)
             {
@@ -584,28 +586,51 @@ namespace Mariasek.SharedClient
             {
                 _autoFinishLastRoundSelector.SelectedIndex = 0;
             }
-            _maxHistoryLength = new Label(this)
+            //_maxHistoryLength = new Label(this)
+            //{
+            //    Position = new Vector2(200, 2 * pageOffset + 370),
+            //    Width = (int)Game.VirtualScreenWidth / 2 - 150,
+            //    Height = 50,
+            //    Text = "Max. délka historie",
+            //    Group = 1,
+            //    HorizontalAlign = HorizontalAlignment.Center,
+            //    VerticalAlign = VerticalAlignment.Middle
+            //};
+            //_maxHistoryLengthSelector = new LeftRightSelector(this)
+            //{
+            //    Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 370),
+            //    Width = 270,
+            //    Group = 1,
+            //    Items = new SelectorItems() { { "Neomezená", 0 }, { "1000 her", 1000 }, { "2000 her", 2000 }, { "5000 her", 5000 }, { "10000 her", 10000 } }
+            //};
+            //_maxHistoryLengthSelector.SelectedIndex = _maxHistoryLengthSelector.Items.FindIndex(Game.Settings.MaxHistoryLength);
+            //_maxHistoryLengthSelector.SelectionChanged += MaxHistoryLengthChanged;
+            //if (_maxHistoryLengthSelector.SelectedIndex < 0)
+            //{
+            //    _maxHistoryLengthSelector.SelectedIndex = 0;
+            //}
+            _bubbleTime = new Label(this)
             {
                 Position = new Vector2(200, 2 * pageOffset + 370),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
-                Text = "Max. délka historie",
+                Text = "Rychlost dialogů",
                 Group = 1,
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
-            _maxHistoryLengthSelector = new LeftRightSelector(this)
+            _bubbleTimeSelector = new LeftRightSelector(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 370),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Neomezená", 0 }, { "1000 her", 1000 }, { "2000 her", 2000 }, { "5000 her", 5000 }, { "10000 her", 10000 } }
+                Items = new SelectorItems() { { "Rychlá", 500 }, { "Střední", 1000 }, { "Pomalá", 2000 } }
             };
-            _maxHistoryLengthSelector.SelectedIndex = _maxHistoryLengthSelector.Items.FindIndex(Game.Settings.MaxHistoryLength);
-            _maxHistoryLengthSelector.SelectionChanged += MaxHistoryLengthChanged;
-            if (_maxHistoryLengthSelector.SelectedIndex < 0)
+            _bubbleTimeSelector.SelectedIndex = _bubbleTimeSelector.Items.FindIndex(Game.Settings.BubbleTimeMs);
+            _bubbleTimeSelector.SelectionChanged += BubbleTimeChanged;
+            if (_bubbleTimeSelector.SelectedIndex < 0)
             {
-                _maxHistoryLengthSelector.SelectedIndex = 0;
+                _bubbleTimeSelector.SelectedIndex = 1;
             }
 
             _menuBtn = new Button(this)
@@ -785,6 +810,15 @@ namespace Mariasek.SharedClient
             var selector = sender as LeftRightSelector;
 
             Game.Settings.MaxHistoryLength = (int)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        void AiMayGiveUpChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.AiMayGiveUp = (bool)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }

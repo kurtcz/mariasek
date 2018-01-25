@@ -52,6 +52,7 @@ namespace Mariasek.SharedClient
         public int ThinkingTimeMs { get; set; }
         public int BubbleTimeMs { get; set; }
         public int MaxHistoryLength { get; set; }
+        public bool AiMayGiveUp { get; set; }
         public bool KeepScreenOn { get; set; }
         public CalculationStyle CalculationStyle { get; set; }
         public int GameTypeSimulationsPerSecond { get; set; }
@@ -94,6 +95,7 @@ namespace Mariasek.SharedClient
             MinimalBidsForSeven = 0;
             Top107 = false;
             ShowStatusBar = false;
+            AiMayGiveUp = true;
             BackgroundImage = BackgroundImage.Default;
 			ResetThresholds();
         }

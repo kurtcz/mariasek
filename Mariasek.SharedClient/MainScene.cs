@@ -155,6 +155,11 @@ namespace Mariasek.SharedClient
                 Name = "AiCheating",
                 Value = "false"
             });
+            _aiConfig.Add("AiMayGiveUp", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "AiMayGiveUp",
+                Value = "true"
+            });
             _aiConfig.Add("RoundsToCompute", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "RoundsToCompute",

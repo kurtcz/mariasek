@@ -131,6 +131,7 @@ namespace Mariasek.Engine.New
         public AiPlayer(Game g, ParameterConfigurationElementCollection parameters) : this(g)
         {
             Settings.Cheat = bool.Parse(parameters["AiCheating"].Value);
+            Settings.AiMayGiveUp = bool.Parse(parameters["AiMayGiveUp"].Value);
             Settings.RoundsToCompute = int.Parse(parameters["RoundsToCompute"].Value);
             Settings.CardSelectionStrategy = (CardSelectionStrategy)Enum.Parse(typeof(CardSelectionStrategy), parameters["CardSelectionStrategy"].Value);
             Settings.SimulationsPerGameType = int.Parse(parameters["SimulationsPerGameType"].Value);
@@ -1684,10 +1685,12 @@ namespace Mariasek.Engine.New
                     DebugInfo.TotalRuleCount = _hundredSimulations;
                 }
                 else if (Settings.CanPlayGameType[Hra.Hra] &&
-                         ((_gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0) ||
-                          estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore + 40 ||
-                          (estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore &&
-                           (Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value)))))
+                         ((!Settings.AiMayGiveUp &&
+                           !AdvisorMode) ||
+                          ((_gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0) ||
+                           estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore + 40 ||
+                           (estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore &&
+                            (Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value))))))
                 {
                     gameType = Hra.Hra;
                     DebugInfo.RuleCount = _gamesBalance;

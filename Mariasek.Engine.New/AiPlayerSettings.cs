@@ -27,6 +27,7 @@ namespace Mariasek.Engine.New
     public class AiPlayerSettings
     {
         public bool Cheat { get; set; }
+        public bool AiMayGiveUp { get; set; }
         public CardSelectionStrategy CardSelectionStrategy { get; set; }
         public int SimulationsPerGameType { get; set; }
         public int SimulationsPerGameTypePerSecond { get; set; }
