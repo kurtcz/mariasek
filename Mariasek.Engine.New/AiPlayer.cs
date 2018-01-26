@@ -1671,7 +1671,7 @@ namespace Mariasek.Engine.New
                                       .Where(b => Hand.HasK(b) && Hand.HasQ(b))
                                       .Sum(b => b == _g.trump.Value ? 40 : 20)
                                 : 0;
-                var estimatedFinalBasicScore = _g.trump.HasValue ? EstimateFinalBasicScore() + kqScore : 0;
+                var estimatedFinalBasicScore = _g.trump.HasValue ? EstimateFinalBasicScore() : 0;
                 var estimatefOpponentFinalBasicScore = 90 - estimatedFinalBasicScore;
 
                 if (Settings.CanPlayGameType[Hra.Kilo] && 
