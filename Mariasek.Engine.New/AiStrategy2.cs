@@ -499,6 +499,13 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex == -1)
                     {
                         //: c--
+                        if (RoundNumber == 8 &&
+                            _gameType == (Hra.Hra | Hra.Sedma) &&
+                            hands[MyIndex].CardCount(_trump) == 2)
+                        {
+                            //v osmem kole pokud hraju sedmu a mam posl. dva trumfy setri trumfy nakonec
+                            return null;
+                        }
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
                                                                 i.Value != Hodnota.Eso &&
                                                                 i.Suit != _trump &&
@@ -568,6 +575,14 @@ namespace Mariasek.Engine.New
                     else if (TeamMateIndex == player2)
                     {
                         //: co-
+                        if (RoundNumber == 8 &&
+                            (_gameType & Hra.SedmaProti) != 0 &&
+                            hands[MyIndex].Has7(_trump) &&
+                            hands[MyIndex].CardCount(_trump) == 2)
+                        {
+                            //v osmem kole pokud hraju sedmu proti a mam posl. dva trumfy setri trumfy nakonec
+                            return null;
+                        }
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
                                                                 i.Value != Hodnota.Eso &&
                                                                 i.Suit != _trump &&
@@ -607,6 +622,14 @@ namespace Mariasek.Engine.New
                     else
                     {
                         //: c-o
+                        if (RoundNumber == 8 &&
+                            (_gameType & Hra.SedmaProti) != 0 &&
+                            hands[MyIndex].Has7(_trump) &&
+                            hands[MyIndex].CardCount(_trump) == 2)
+                        {
+                            //v osmem kole pokud hraju sedmu proti a mam posl. dva trumfy setri trumfy nakonec
+                            return null;
+                        }
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
                                                                 i.Value != Hodnota.Eso &&
                                                                 i.Suit != _trump &&
