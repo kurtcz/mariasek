@@ -1182,8 +1182,8 @@ namespace Mariasek.Engine.New
                                     : _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.HundredWon)
                                 : 0;
             _hundredsAgainstBalance = PlayerIndex == gameStartingPlayerIndex
-                                        ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.QuietHundredAgainstWon)
-                                        : _moneyCalculations.Where(i => (i.GameType & (i.GameType & (Hra.Betl | Hra.Durch))) == 0).Count(i => i.QuietHundredAgainstWon);
+                                        ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.HundredAgainstWon)
+                                        : _moneyCalculations.Where(i => (i.GameType & (i.GameType & (Hra.Betl | Hra.Durch))) == 0).Count(i => i.HundredAgainstWon);
             _sevensBalance = PlayerIndex == gameStartingPlayerIndex
                                 ? _moneyCalculations.Where(i => (i.GameType & Hra.Sedma) != 0).Count(i => i.SevenWon)
                                 : _moneyCalculations.Where(i => (i.GameType & (i.GameType & (Hra.Betl | Hra.Durch))) == 0).Count(i => !i.SevenWon);
@@ -1489,9 +1489,10 @@ namespace Mariasek.Engine.New
                                              Hand.HasK(i.Suit))));
             var trumpCount = Hand.Count(i => i.Suit == trump && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka); //bez A,X
             var cardsPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>().ToDictionary(b => b, b => Hand.CardCount(b));
+            var aceOnlySuits = cardsPerSuit.Count(i => i.Value == 1 && Hand.HasA(i.Key)); //zapocitame desitku pokud mame od barvy jen eso
             var emptySuits = cardsPerSuit.Count(i => i.Value == 0);
             var n = axCount * 10 +
-                    Math.Min(2 * emptySuits, Hand.CardCount(trump.Value) / 2) * 10;  // ne kazdym trumfem prebiju a nebo x
+                    Math.Min(2 * emptySuits + aceOnlySuits, Hand.CardCount(trump.Value) / 2) * 10;  // ne kazdym trumfem prebiju a nebo x
 
             if (Hand.CardCount(trump.Value) >= 4 ||
                 Hand.Average(i => (float)i.Value) >= (float)Hodnota.Kral)
@@ -1898,6 +1899,7 @@ namespace Mariasek.Engine.New
             //nebo pokud jsem volil trumf a je nemozne aby meli protihraci kilo (nemaji hlas)
             if ((bidding.Bids & Hra.KiloProti) != 0 &&                
                 ((Settings.CanPlayGameType[Hra.KiloProti] &&
+                  estimatedFinalBasicScore >= 60 &&
                   (bidding._hundredAgainstFlek <= Settings.MaxDoubleCountForGameType[Hra.KiloProti] ||
                    (PlayerIndex == _g.GameStartingPlayerIndex &&
                     (Probabilities.HlasProbability((PlayerIndex + 1) % Game.NumPlayers) == 0) &&
@@ -1946,18 +1948,18 @@ namespace Mariasek.Engine.New
                                             ? _betlBalance
                                             : _gameType == Hra.Durch
                                                 ? _durchBalance
-                                                : (_gameType & Hra.Kilo) != 0
+                                                : (bidding.Bids & Hra.Kilo) != 0
                                                     ? _hundredsBalance
-                                                    : (_gameType & Hra.Sedma) != 0
+                                                    : (bidding.Bids & Hra.Sedma) != 0
                                                         ? _sevensBalance
                                                         : _gamesBalance;
                 DebugInfo.TotalRuleCount = _gameType == Hra.Betl
                                             ? _betlSimulations
                                             : _gameType == Hra.Durch
                                                 ? _durchSimulations
-                                                : (_gameType & Hra.Kilo) != 0
+                                                : (bidding.Bids & Hra.Kilo) != 0
                                                     ? _hundredSimulations
-                                                    : (_gameType & Hra.Sedma) != 0
+                                                    : (bidding.Bids & Hra.Sedma) != 0
                                                         ? _sevenSimulations
                                                         : _gameSimulations;
             }
