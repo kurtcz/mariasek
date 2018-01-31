@@ -158,7 +158,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("AiMayGiveUp", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "AiMayGiveUp",
-                Value = "true"
+                Value = Game.Settings.AiMayGiveUp.ToString()
             });
             _aiConfig.Add("RoundsToCompute", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
@@ -240,11 +240,6 @@ namespace Mariasek.SharedClient
             {
                 Name = "SigmaMultiplier",
                 Value = "0"
-            });
-            _aiConfig.Add("BaseBet", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
-            {
-                Name = "BaseBet",
-                Value = "1"
             });
             _aiConfig.Add("GameFlavourSelectionStrategy", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {

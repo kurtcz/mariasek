@@ -1757,21 +1757,21 @@ namespace Mariasek.Engine.New
                     {
                         var hiCards = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                           .SelectMany(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                               .Where(h => _probabilities.CardProbability(player3, new Card(b, h)) > 0 &&
-                                                                           c1.IsLowerThan(new Card(b, h), _trump))
-                                                               .Select(h => new Card(b, h)));
+                                                               .Select(h => new Card(b, h))
+                                                               .Where(i => _probabilities.CardProbability(player3, i) > _epsilon &&
+                                                                           c1.IsLowerThan(i, _trump)));
                         //oc-
                         return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                   i.Suit != _trump &&
-                                                                                  (c1.IsLowerThan(i, _trump) ||       //vitezna X
-                                                                                   !hiCards.Any()) &&                   //nebo spoluhrac hral nejvyssi kartu co ve hre zbyva
-                                                                                  (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 ||
-                                                                                   _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) >= 1 -_epsilon  ||
-                                                                                   _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
-                                                                                  (_probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon ||
-                                                                                   Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                                       .Where(h => h != Hodnota.Desitka)
-                                                                                       .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) <= _epsilon)));
+                                                                                  (!hiCards.Any() ||                //spoluhrac hral nejvyssi kartu co ve hre zbyva
+                                                                                   (c1.IsLowerThan(i, _trump) &&    //vitezna X
+                                                                                    (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 ||
+                                                                                     _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) >= 1 - _epsilon ||
+                                                                                     _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
+                                                                                    (_probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon ||
+                                                                                     Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                         .Where(h => h != Hodnota.Desitka)
+                                                                                         .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) <= _epsilon)))));
                     }
                 }
             };
