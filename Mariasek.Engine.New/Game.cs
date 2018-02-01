@@ -1195,13 +1195,15 @@ namespace Mariasek.Engine.New
                     GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
                     if (talon == null || talon.Count() != 2)
                     {
-                        throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex + 1} during ChooseGame(): {talon.Count()}");
+                        LogHands();                            
+                        throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex + 1} during ChooseGame(): {talon?.Count()}");
                     }
                     DebugString.AppendFormat("talon: {0} {1}\n", talon[0], talon[1]);
 					BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
                     if (GameStartingPlayer.Hand.Count() != 10)
                     {
-                        throw new InvalidOperationException("Invalid card count during ChooseGame()");
+                        LogHands();                            
+                        throw new InvalidOperationException($"Invalid card count during ChooseGame(): {GameStartingPlayer.Hand.Count()}");
                     }
 					if (talon.Any(i => !IsValidTalonCard(i))) //pokud je v talonu eso nebo desitka, musime hrat betla nebo durch
                     {
@@ -1271,20 +1273,33 @@ namespace Mariasek.Engine.New
                     GivenUp = false;
                     if (!firstTime)
                     {
+                        if (talon == null || talon.Count() != 2)
+                        {
+                            LogHands();
+                            throw new InvalidOperationException($"Invalid talon count after ChooseGameFlavour(): {talon?.Count()}");
+                        }
+                        DebugString.AppendFormat("Old talon {0} {1} goes to Player {2}\n", talon[0], talon[1], GameStartingPlayer.PlayerIndex + 1);
                         GameStartingPlayer.Hand.AddRange(talon);
 						talon.Clear();
+                        if (GameStartingPlayer.Hand.Count() != 12)
+                        {
+                            LogHands();
+                            throw new InvalidOperationException($"Invalid card count after taking old talon: {GameStartingPlayer.Hand.Count()}");
+                        }
                         DebugString.AppendFormat("Player {0} ChooseTalon()\n", GameStartingPlayer.PlayerIndex + 1);
 						talon = GameStartingPlayer.ChooseTalon();
                         GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
 						if (talon == null || talon.Count() != 2)
                         {
-                            throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex+1} during ChooseGame(): {talon.Count()}");
+                            LogHands();
+                            throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex+1} during ChooseGame(): {talon?.Count()}");
                         }
                         DebugString.AppendFormat("talon: {0} {1}\n", talon[0], talon[1]);
                         BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
                         if (GameStartingPlayer.Hand.Count() != 10)
                         {
-                            throw new InvalidOperationException("Invalid card count during ChooseGame()");
+                            LogHands();
+                            throw new InvalidOperationException($"Invalid card count during ChooseGame(): {GameStartingPlayer.Hand.Count()}");
                         }
                     }
                     if(minimalBid == Hra.Hra)
