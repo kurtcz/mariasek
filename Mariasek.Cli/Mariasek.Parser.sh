@@ -71,7 +71,6 @@ parse_dom() {
                 #echo Confidence $CONFIDENCE
             else
                 pattern="$GAME_TYPE\ \(([^\)]*)\)"
-                pattern="$GAME_TYPE"
                 #echo $pattern
                 if [[ $COMMENT =~ $pattern ]]; then
                     CONFIDENCE=${BASH_REMATCH[1]}

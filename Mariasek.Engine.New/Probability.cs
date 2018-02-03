@@ -267,6 +267,11 @@ namespace Mariasek.Engine.New
             return _cardProbabilityForPlayer[playerIndex][c.Suit][c.Value];
         }
 
+        public int MaxCardCount(int playerIndex, Barva b)
+        {
+            return _cardProbabilityForPlayer[playerIndex][b].Count(p => p.Value > 0.01f);
+        }
+
         public float SuitProbability(int playerIndex, Barva b, int roundNumber)
         {
             return 1 - NoSuitProbability(playerIndex, b, roundNumber);

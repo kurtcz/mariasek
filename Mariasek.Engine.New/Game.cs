@@ -1190,11 +1190,18 @@ namespace Mariasek.Engine.New
 				}
                 if (firstTime)
                 {
+                    if (GameStartingPlayer.Hand.Count() != 12)
+                    {
+                        DebugString.AppendLine("Invalid card count during ChooseGame()");
+                        LogHands();
+                        throw new InvalidOperationException($"Invalid card count during ChooseGame(): {GameStartingPlayer.Hand.Count()}");
+                    }
                     DebugString.AppendFormat("Player {0} ChooseTalon()\n", GameStartingPlayer.PlayerIndex + 1);
                     talon = GameStartingPlayer.ChooseTalon();
                     GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
                     if (talon == null || talon.Count() != 2)
                     {
+                        DebugString.AppendLine("Invalid talon count during ChooseGame()");
                         LogHands();                            
                         throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex + 1} during ChooseGame(): {talon?.Count()}");
                     }
@@ -1202,6 +1209,7 @@ namespace Mariasek.Engine.New
 					BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
                     if (GameStartingPlayer.Hand.Count() != 10)
                     {
+                        DebugString.AppendLine("Invalid card count during ChooseGame()");
                         LogHands();                            
                         throw new InvalidOperationException($"Invalid card count during ChooseGame(): {GameStartingPlayer.Hand.Count()}");
                     }
@@ -1275,6 +1283,7 @@ namespace Mariasek.Engine.New
                     {
                         if (talon == null || talon.Count() != 2)
                         {
+                            DebugString.AppendLine("Invalid talon count during ChooseGame()");
                             LogHands();
                             throw new InvalidOperationException($"Invalid talon count after ChooseGameFlavour(): {talon?.Count()}");
                         }
@@ -1283,6 +1292,7 @@ namespace Mariasek.Engine.New
 						talon.Clear();
                         if (GameStartingPlayer.Hand.Count() != 12)
                         {
+                            DebugString.AppendLine("Invalid card count during ChooseGame()");
                             LogHands();
                             throw new InvalidOperationException($"Invalid card count after taking old talon: {GameStartingPlayer.Hand.Count()}");
                         }
@@ -1291,13 +1301,15 @@ namespace Mariasek.Engine.New
                         GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
 						if (talon == null || talon.Count() != 2)
                         {
+                            DebugString.AppendLine("Invalid talon count during ChooseGame()");
                             LogHands();
                             throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex+1} during ChooseGame(): {talon?.Count()}");
                         }
                         DebugString.AppendFormat("talon: {0} {1}\n", talon[0], talon[1]);
                         BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
                         if (GameStartingPlayer.Hand.Count() != 10)
-                        {
+                        {                            
+                            DebugString.AppendLine("Invalid card count during ChooseGame()");
                             LogHands();
                             throw new InvalidOperationException($"Invalid card count during ChooseGame(): {GameStartingPlayer.Hand.Count()}");
                         }

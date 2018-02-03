@@ -39,8 +39,8 @@ namespace Mariasek.SharedClient
         private static readonly Dictionary<Hra, string> _notes = new Dictionary<Hra, string>
         {
             { Hra.Hra, "AI flekuje jen když trhá nebo má aspoň 40 bodů v hlasech\nnebo má dost bodů jistých." },
-            { Hra.Sedma, "AI flekuje jen když má aspoň 2 trumfy." },
-            { Hra.Kilo, "AI kilo flekuje jen když nejde uhrát." },
+            { Hra.Sedma, "AI volí sedmu jen když má aspoň 4 trumfy.\nAI flekuje sedmu jen když má aspoň 3 trumfy." },
+            { Hra.Kilo, "AI flekuje kilo jen když nejde uhrát." },
             { Hra.Betl, "AI používá práh pro Flek když nevolil a hlásí\nšpatnou barvu. Pokud AI nevolil, neflekuje." },
             { Hra.Durch, "AI používá práh pro Flek když nevolil a hlásí\nšpatnou barvu. AI durch flekuje jen když nejde uhrát." }
 		};

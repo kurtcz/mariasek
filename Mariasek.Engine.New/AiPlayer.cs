@@ -1515,6 +1515,65 @@ namespace Mariasek.Engine.New
             return estimatedBasicPointsLost + estimatedKQPointsLost >= 100;
         }
 
+        public bool IsHundredTooRisky()
+        {
+            var n = 0;
+            var axCount = Hand.Count(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka);
+
+            if (axCount >= 6)
+            {
+                return false;
+            }
+            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            {
+                var hiCards = Hand.Count(i => i.Suit == b &&
+                                              Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                  .Select(h => new Card(b, h))
+                                                  .All(j => j.Value < i.Value ||
+                                                            Hand.Contains(j))); //pocet nejvyssich karet v barve
+                var loCards = Hand.CardCount(b) - hiCards;                      //pocet karet ktere maji nad sebou diru v barve
+                var opCards = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()   //vsechny hodnoty ktere v dane barve neznam
+                                .Where(h => !Hand.Any(i => i.Suit == b &&
+                                                           i.Value == h))
+                                .ToList();
+                var opA = 0;
+                if (opCards.Count() >= hiCards)                                 //odstran tolik nejmensich hodnot kolik mam nejvyssich karet
+                {
+                    opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
+                    if (hiCards == 0)
+                    {
+                        //Korekce: -XKS--8- by podle tohoto vyslo jako 3, ale ve skutecnosti vytlacim eso (1) kralem
+                        //zbyvajici 2 nejvyssi trumfy pokryjou 2 diry a zbyde jedna dira. Cili spravny vysledek ma byt 2
+
+                        //spocitej nevyssi karty bez esa
+                        hiCards = Hand.Count(i => i.Suit == b &&
+                                              Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()                                                   
+                                                  .Where(h => h < Hodnota.Eso)
+                                                  .Select(h => new Card(b, h))
+                                                  .All(j => j.Value < i.Value ||
+                                                            Hand.Contains(j)));
+                        if (hiCards > 1) //mame aspon X a K - eso vytlacime kralem, cili pocitame, ze mame o trumf mene a o diru mene (nize)
+                        {
+                            loCards--;
+                            opA++;
+                        }
+                    }
+                }
+                else
+                {
+                    opCards.Clear();
+                }
+                var holes = opCards.Count(h => Hand.Any(i => i.Suit == b &&     //pocet zbylych der vyssich nez moje nejnizsi karta
+                                                             i.Value < h)) - opA;
+                n += Math.Min(holes, loCards);
+            }
+
+            return n > 3 ||                         //u vice nez 3 neodstranitelnych der kilo urcite neuhraju
+                   (n > 1 &&                        //pokud mam vic nez 1 neodstranitelnou diru
+                    !(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
+                      Hand.HasQ(_trump.Value)));
+        }
+
         public bool ShouldChooseHundred()
 		{
             var trump = _trump ?? _g.trump;
@@ -1675,11 +1734,11 @@ namespace Mariasek.Engine.New
                 var estimatefOpponentFinalBasicScore = 90 - estimatedFinalBasicScore;
 
                 if (Settings.CanPlayGameType[Hra.Kilo] && 
-                    //_avgWinForHundred > -4 &&
                     _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations && _hundredSimulations > 0 &&
                     ((Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value)) || //abych nehral kilo pokud aspon netrham a nemam aspon 2 hlasky
                      Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                         .Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2))
+                         .Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2) &&
+                    !IsHundredTooRisky())
                 {
                     gameType = Hra.Kilo;
                     DebugInfo.RuleCount = _hundredsBalance;
@@ -1704,7 +1763,8 @@ namespace Mariasek.Engine.New
                     DebugInfo.TotalRuleCount = _gameSimulations;
                 }
                 if (Settings.CanPlayGameType[Hra.Sedma] && 
-                    _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)
+                    _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0 &&
+                    Hand.CardCount(_trump.Value) >= 4)
                 {
                     if (gameType == 0)
                     {
@@ -1849,14 +1909,14 @@ namespace Mariasek.Engine.New
                 DebugInfo.RuleCount = _gamesBalance;
                 DebugInfo.TotalRuleCount = _gameSimulations;
             }
-            //sedmu flekuju pokud mam aspon 2 trumfy
+            //sedmu flekuju pokud mam aspon 3 trumfy
             if ((bidding.Bids & Hra.Sedma) != 0 &&
                 Settings.CanPlayGameType[Hra.Sedma] &&
                 _sevenSimulations > 0 && 
                 (bidding._sevenFlek <= Settings.MaxDoubleCountForGameType[Hra.Sedma] ||
 				 (bidding._sevenFlek <= MaxFlek &&
 				  _sevensBalance / (float)_sevenSimulations >= certaintyThreshold)) &&
-                Hand.CardCount(_g.trump.Value) >= 2 && _sevensBalance / (float)_sevenSimulations >= sevenThreshold)
+                Hand.CardCount(_g.trump.Value) >= 3 && _sevensBalance / (float)_sevenSimulations >= sevenThreshold)
             {
                 bid |= bidding.Bids & Hra.Sedma;
                 //minRuleCount = Math.Min(minRuleCount, _sevensBalance);

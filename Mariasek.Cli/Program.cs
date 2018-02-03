@@ -368,6 +368,11 @@ namespace Mariasek.Cli
                 Name = "SigmaMultiplier",
                 Value = "0"
             });
+            _aiConfig.Add("AiMayGiveUp", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "AiMayGiveUp",
+                Value = "true"
+            });
             _aiConfig.Add("BaseBet", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "BaseBet",

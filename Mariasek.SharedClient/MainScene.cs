@@ -141,6 +141,8 @@ namespace Mariasek.SharedClient
             : base(game)
         {
             Game.SettingsChanged += SettingsChanged;
+            Game.Activated += Activated;
+            Game.Deactivated += Deactivated;
             Game.Stopped += SaveGame;
             Game.Started += ResumeGame;
         }
@@ -2695,6 +2697,10 @@ namespace Mariasek.SharedClient
        {
             if (g != null && g.IsRunning)
             {
+                if (g != null)
+                {
+                    g.DebugString.AppendLine("SaveGame");
+                }
                 try
                 {
                     CreateDirectoryForFilePath(_savedGameFilePath);
@@ -2721,6 +2727,10 @@ namespace Mariasek.SharedClient
         {
             try
             {
+                if (g != null)
+                {
+                    g.DebugString.AppendLine("ResumeGame");
+                }
                 if (CanLoadGame())
                 {
                     _testGame = false;
@@ -3272,6 +3282,21 @@ namespace Mariasek.SharedClient
 
             return result;
         }
+
+        private void Activated(object sender, EventArgs e)
+        {
+            if (g != null)
+            {
+                g.DebugString.AppendLine("Game activated");
+            }
+        }
+
+        private void Deactivated(object sender, EventArgs e)
+        {
+            if (g != null)
+            {
+                g.DebugString.AppendLine("Game deactivated");
+            }
+        }
     }
 }
-
