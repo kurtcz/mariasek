@@ -1757,6 +1757,7 @@ namespace Mariasek.SharedClient
                     {
                         gfButton.Show();
                     }
+
                     if (!Game.Settings.HintEnabled || !_msgLabel.IsVisible) //abych neprepsal napovedu
                     {
                         ShowMsgLabel("Co řekneš?", false);

@@ -180,11 +180,15 @@ namespace Mariasek.SharedClient
                 //poprve volici hrac nehlasi dobra/spatna ale vybira z typu her, cimz se dobra/spatna implicitne zvoli
                 if (PlayerIndex == _g.GameStartingPlayerIndex)
                 {
-                    var validGameTypes = Hra.Hra | Hra.Kilo | Hra.Betl | Hra.Durch;
+                    var validGameTypes = Hra.Hra | Hra.Betl | Hra.Durch;
 
                     if (Hand.Contains(new Card(_trump, Hodnota.Sedma)))
                     {
                         validGameTypes |= Hra.Sedma;
+                    }
+                    if (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b)))
+                    {
+                        validGameTypes |= Hra.Kilo;
                     }
                     if (_aiPlayer != null)
                         
@@ -249,9 +253,6 @@ namespace Mariasek.SharedClient
                             }
                         }, _cancellationTokenSource.Token);
                     }
-                    //Musime jeste poladit kry presne tlacitko ukazat
-                    //Bud pri volbe typu hry nebo v 1. kole nebo kdykoli v prubehu hry
-                    //_gameType = _scene.ChooseGameType(validGameTypes, true);
                     _gameType = _scene.ChooseGameType(validGameTypes, true);
                     _givenUp = _gameType == 0;
                     CancelAiTask();
