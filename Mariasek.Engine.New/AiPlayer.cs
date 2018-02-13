@@ -1892,7 +1892,7 @@ namespace Mariasek.Engine.New
                    (bidding.GameMultiplier < 2 &&
                     (Hand.HasK(_g.trump.Value) || 
                      Hand.HasQ(_g.trump.Value) || 
-                     (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
+                     (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + 10 &&
                       estimatedOpponentFinalBasicScore + 40 < 100)))))))// ||
                  //nebo davam re a jsem si dost jisty nehlede na hlasy
                  //((TeamMateIndex == -1 &&

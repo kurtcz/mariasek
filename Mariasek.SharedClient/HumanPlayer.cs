@@ -155,7 +155,10 @@ namespace Mariasek.SharedClient
                     }
                 }, _cancellationTokenSource.Token);
             }
-            _talon = _scene.ChooseTalon();
+            do
+            {
+                _talon = _scene.ChooseTalon();
+            } while (_talon == null || _talon.Count() != 2);
 
             CancelAiTask();
             _g.ThrowIfCancellationRequested();
