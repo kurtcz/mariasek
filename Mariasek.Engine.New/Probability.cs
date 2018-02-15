@@ -34,9 +34,9 @@ namespace Mariasek.Engine.New
         private Hand _myHand;
         private List<Card> _talon;
         private List<Card> _myTalon;
-        public StringBuilder _debugString;
-        public StringBuilder _verboseString;
-        public StringBuilder ExternalDebugString;
+        public IStringLogger _debugString;
+        public IStringLogger _verboseString;
+        public IStringLogger ExternalDebugString;
         private List<int> _gameBidders;
         private int _gameIndex;
         private int _sevenIndex;
@@ -47,7 +47,7 @@ namespace Mariasek.Engine.New
         //private Dictionary<Hra, float> _initialExpectedTrumpsPerGameType = new Dictionary<Hra, float>() { { Hra.Hra, 3f }, { Hra.Sedma, 5f }, { Hra.Kilo, 7f}};
         private float _gameStarterCurrentExpectedTrumps = 3f;
 
-        public Probability(int myIndex, int gameStarterIndex, Hand myHand, Barva? trump, List<Card> talon = null)
+        public Probability(int myIndex, int gameStarterIndex, Hand myHand, Barva? trump, Func<IStringLogger> stringLoggerFactory, List<Card> talon = null)
         {
             _myIndex = myIndex;
 			_gameIndex = -1;
@@ -62,9 +62,9 @@ namespace Mariasek.Engine.New
             _myHand = myHand;
             _talon = talon;
             _myTalon = talon;
-            _debugString = new StringBuilder();
-			_verboseString = new StringBuilder();
-			ExternalDebugString = new StringBuilder();
+            _debugString = stringLoggerFactory();
+            _verboseString = stringLoggerFactory();
+            ExternalDebugString = stringLoggerFactory();
 			_debugString.AppendFormat("ctor\nhand:\n{0}\ntalon:\n{1}", 
 				_myHand, _talon != null ? _talon.Any() ? string.Format("{0} {1}", _talon[0], _talon[1]) : "empty" : "null");
             var GenerateTalonProbabilities = talon == null;

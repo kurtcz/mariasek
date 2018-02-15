@@ -152,6 +152,11 @@ namespace Mariasek.SharedClient
             //TODO: Nastavit prahy podle uspesnosti v predchozich zapasech
             _aiConfig = new Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection();
 
+            _aiConfig.Add("DoLog", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "DoLog",
+                Value = Game.Settings.DoLog.ToString()
+            });
             _aiConfig.Add("AiCheating", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "AiCheating",

@@ -61,7 +61,8 @@ namespace Mariasek.Engine.New
 			get { return _trumpCard; }
 			set { _trumpCard = value; _trump = value != null ? (Barva?)value.Suit : null; }
 		}
-		public StringBuilder _debugString { get; set; }
+        public Func<IStringLogger> _stringLoggerFactory { get; set; }
+		public IStringLogger _debugString { get; set; }
         public Probability Probabilities { get; set; }
         public AiPlayerSettings Settings { get; set; }
         
@@ -117,7 +118,7 @@ namespace Mariasek.Engine.New
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
-            _debugString = new StringBuilder();//g.DebugString;
+            _debugString = g.GetStringLogger();//g.DebugString;
             _teamMatesSuits = new List<Barva>();
             DebugInfo = new PlayerDebugInfo();
             g.GameLoaded += GameLoaded;
@@ -130,6 +131,9 @@ namespace Mariasek.Engine.New
 
         public AiPlayer(Game g, ParameterConfigurationElementCollection parameters) : this(g)
         {
+            var b = bool.Parse(parameters["DoLog"].Value);
+            _stringLoggerFactory = () => new StringLogger(b);
+
             Settings.Cheat = bool.Parse(parameters["AiCheating"].Value);
             Settings.AiMayGiveUp = bool.Parse(parameters["AiMayGiveUp"].Value);
             Settings.RoundsToCompute = int.Parse(parameters["RoundsToCompute"].Value);
@@ -541,7 +545,7 @@ namespace Mariasek.Engine.New
                 if (_rerunSimulations)
                 {
                     var bidding = new Bidding(_g);
-                    Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, new List<Card>())
+                    Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, _stringLoggerFactory, new List<Card>())
                     {
                         ExternalDebugString = _debugString,
                         UseDebugString = true
@@ -618,7 +622,7 @@ namespace Mariasek.Engine.New
                     }
                     flavour = GameFlavour.Good;
                 }
-                Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, _talon)
+                Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, _stringLoggerFactory, _talon)
                 {
                     ExternalDebugString = _debugString,
                     UseDebugString = true
@@ -637,7 +641,7 @@ namespace Mariasek.Engine.New
                     _talon = PlayerIndex == _g.GameStartingPlayerIndex ? new List<Card>() : null;
                 }
                 var probabilities = Probabilities;
-				Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, _talon)
+                Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, _stringLoggerFactory, _talon)
 				{
 					ExternalDebugString = _debugString
 				};
@@ -2091,7 +2095,7 @@ namespace Mariasek.Engine.New
 			{
 				_talon = _g.talon;
 			}
-			Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon)
+            Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _stringLoggerFactory, _talon)
 			{
 				ExternalDebugString = _debugString
 			};
@@ -2127,7 +2131,7 @@ namespace Mariasek.Engine.New
             }
             if (PlayerIndex != _g.GameStartingPlayerIndex || Probabilities == null) //Probabilities == null by nemelo nastat, ale ...
             {
-				Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _talon)
+                Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _stringLoggerFactory, _talon)
 				{
 					ExternalDebugString = _debugString
 				};

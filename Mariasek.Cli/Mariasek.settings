@@ -12,6 +12,7 @@
   </PlayerNames>
   <SortMode>Descending</SortMode>
   <BaseBet>1</BaseBet>
+  <DoLog>true</DoLog>
   <AiMayGiveUp>true</AiMayGiveUp>
   <ThinkingTimeMs>1500</ThinkingTimeMs>
   <BubbleTimeMs>1000</BubbleTimeMs>

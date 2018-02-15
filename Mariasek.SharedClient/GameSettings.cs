@@ -42,6 +42,7 @@ namespace Mariasek.SharedClient
     {
         public bool? Default { get; set; }
         public bool? TestMode { get; set; }
+        public bool DoLog { get; set; }
         public bool ShouldSerializeTestMode() { return TestMode.HasValue && TestMode.Value; }
         public bool HintEnabled { get; set; }
         public bool SoundEnabled { get; set; }
@@ -74,6 +75,10 @@ namespace Mariasek.SharedClient
 
         public GameSettings()
         {
+            DoLog = true;
+#if __IOS__
+            DoLog = false;
+#endif
             HintEnabled = true;
             SoundEnabled = true;
             BgSoundEnabled = true;

@@ -192,6 +192,9 @@
     <Compile Include="..\Mariasek.Engine.New\AiDurchStrategy2.cs">
       <Link>AiDurchStrategy2.cs</Link>
     </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Logger\StringLogger.cs">
+      <Link>Logger\StringLogger.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

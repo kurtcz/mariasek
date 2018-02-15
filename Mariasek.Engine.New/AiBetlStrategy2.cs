@@ -550,27 +550,46 @@ namespace Mariasek.Engine.New
                 //    }
                 //};
             }
+
             yield return new AiRule()
             {
                 Order = 10,
-                Description = "Hrát krátkou barvu",
+                Description = "Zkusit soupeře chytit",
                 ChooseCard1 = () =>
                 {
-                    var cardsToPlay = new List<Card>();
-
-                    var lo = hands[MyIndex].Where(i => (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
-                                                       (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0 ||
-                                                        _probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0))
-                                           .GroupBy(g => g.Suit);   //seskup podle barev
-
-                    if (!lo.Any())
-                    {
-                        lo = hands[MyIndex].GroupBy(g => g.Suit);
-                    }
-                    //vyber nejkratsi barvu
-                    cardsToPlay = lo.OrderBy(g => g.Count()).Select(g => g.ToList()).FirstOrDefault();
+                    var cardsToPlay = hands[MyIndex].Where(i => 
+                                                   (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
+                                                   _probabilities.SuitHigherThanCardProbability(opponent, i, RoundNumber, false) > 0);
 
                     return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault(); //nejmensi karta
+                }
+            };
+
+            yield return new AiRule()
+            {
+                Order = 11,
+                Description = "Dostat spoluhráče do štychu",
+                ChooseCard1 = () =>
+                {
+                    var cardsToPlay = hands[MyIndex].Where(i => 
+                                                   (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
+                                                   _probabilities.SuitHigherThanCardProbability(TeamMateIndex, i, RoundNumber, false) > 0);   //seskup podle barev
+
+                    return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault(); //nejmensi karta
+                }
+            };
+
+            yield return new AiRule()
+            {
+                Order = 12,
+                Description = "Hrát cokoli",
+                ChooseCard1 = () =>
+                {
+                    var cardsToPlay = hands[MyIndex].Where(i => i != null);
+
+                    return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(opponent, i.Suit, RoundNumber))
+                                      .ThenBy(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+                                      .ThenBy(i => i.BadValue).FirstOrDefault();
                 }
             };
         }

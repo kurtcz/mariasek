@@ -34,7 +34,8 @@ namespace Mariasek.Engine.New
         public const int NumRounds = 10;
         public const int NumSuits = 4;
 
-        public StringBuilder BiddingDebugInfo { get; private set; }
+        public Func<IStringLogger> GetStringLogger { get; set; }
+        public IStringLogger BiddingDebugInfo { get; private set; }
         public AbstractPlayer[] players { get; private set; }
 
         public AbstractPlayer GameStartingPlayer { get { return players[GameStartingPlayerIndex]; } }
@@ -70,7 +71,7 @@ namespace Mariasek.Engine.New
 		public Func<Version> GetVersion { get; set; }
 #endif
         public string Comment { get; set; }
-		public StringBuilder DebugString { get; private set; }
+        public IStringLogger DebugString { get; private set; }
 
         #endregion
 
@@ -183,15 +184,20 @@ namespace Mariasek.Engine.New
 
         #region Public methods
 
-        public Game()
+        public Game(Func<IStringLogger> stringLoggerFactory = null)
         {
             BaseBet = 1f;
             MinimalBidsForGame = 1;
             MinimalBidsForSeven = 0;
             Top107 = false;
             GameTypeConfidence = -1f;
-            BiddingDebugInfo = new StringBuilder();
-			DebugString = new StringBuilder();
+            GetStringLogger = stringLoggerFactory;
+            if (GetStringLogger == null)
+            {
+                GetStringLogger = () => new StringLogger();
+            }
+            BiddingDebugInfo = GetStringLogger();
+            DebugString = GetStringLogger();
 #if PORTABLE
             GetFileStream = _ => new MemoryStream(); //dummy stream factory
 #endif

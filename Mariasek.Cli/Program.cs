@@ -282,6 +282,11 @@ namespace Mariasek.Cli
             _aiConfig = new Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection();
 
             LoadGameSettings();
+            _aiConfig.Add("DoLog", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "DoLog",
+                Value = Settings.DoLog.ToString()
+            });
             _aiConfig.Add("AiCheating", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "AiCheating",
