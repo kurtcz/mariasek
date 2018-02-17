@@ -1156,6 +1156,7 @@ namespace Mariasek.Engine.New
                             var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                             .OrderBy(b => Math.Min(_probabilities.SuitProbability(player2, b, RoundNumber),
                                                                    _probabilities.SuitProbability(player3, b, RoundNumber)))
+                                            .ThenBy(b => hands[MyIndex].CardCount(b))
                                             .Where(b => b != _trump &&
                                                         !_bannedSuits.Contains(b) &&                                                    
                                                         ValidCards(hands[MyIndex]).Any(i => i.Suit == b &&
@@ -1715,7 +1716,8 @@ namespace Mariasek.Engine.New
                                                                                 ((i.Suit != _trump &&                 //a pokud moje X neni trumfova
                                                                                   (_probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor ||
                                                                                    _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor)) ||
-                                                                                 !hands[MyIndex].HasA(_trump))).ToList();     //trumfovou X hraju jen kdyz nemam A
+                                                                                 (i.Suit == _trump &&
+                                                                                  !hands[MyIndex].HasA(_trump)))).ToList();     //trumfovou X hraju jen kdyz nemam A
 
 						if (cardsToPlay.Any())
                         {

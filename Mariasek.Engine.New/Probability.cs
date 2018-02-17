@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Mariasek.Engine.New.Logger;
 using MersenneTwister;
@@ -1330,7 +1331,7 @@ namespace Mariasek.Engine.New
                     if (c3.Suit == c1.Suit)
                     {
                         //treti hrac nesel vejs
-                        if (_trump.HasValue && c2.Suit != _trump.Value || !_trump.HasValue)
+                        if (!_trump.HasValue || c1.Suit == _trump.Value || c2.Suit != _trump.Value)
                         {
                             //druhy hrac nepriznal barvu ani nehral trumf a treti hrac nesel vejs
                             SetCardProbabilitiesHigherThanCardToZero((roundStarterIndex + 2) % Game.NumPlayers, c1);

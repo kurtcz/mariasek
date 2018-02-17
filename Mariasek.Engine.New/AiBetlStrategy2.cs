@@ -151,7 +151,9 @@ namespace Mariasek.Engine.New
                     {
                         var cardsToPlay = hands[MyIndex].Where(i => i.Value != Hodnota.Eso &&
                                                                     i.Value != Hodnota.Sedma &&
-                                                                    hands[MyIndex].CardCount(i.Suit) == 1);
+                                                                    hands[MyIndex].CardCount(i.Suit) == 1 &&
+                                                                    (_probabilities.SuitHigherThanCardProbability(player2, i, RoundNumber, false) > 0 ||
+                                                                     _probabilities.SuitHigherThanCardProbability(player3, i, RoundNumber, false) > 0));
 
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
@@ -434,7 +436,7 @@ namespace Mariasek.Engine.New
 
                         return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                     }
-                };
+                };  
 
                 yield return new AiRule()
                 {
@@ -582,13 +584,14 @@ namespace Mariasek.Engine.New
             yield return new AiRule()
             {
                 Order = 12,
-                Description = "Hrát cokoli",
+                Description = "Hrát krátkou barvu",
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = hands[MyIndex].Where(i => i != null);
 
                     return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(opponent, i.Suit, RoundNumber))
                                       .ThenBy(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+                                      .ThenBy(i => hands[MyIndex].CardCount(i.Suit))
                                       .ThenBy(i => i.BadValue).FirstOrDefault();
                 }
             };
