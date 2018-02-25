@@ -20,9 +20,11 @@ namespace Mariasek.SharedClient
         private Label _author;
         private Sprite[] _cards;
         private SpriteButton _logo;
-		private Vector2 _originalLogoScale;
+        private SpriteButton _rateApp;
+        private Vector2 _originalLogoScale;
+        private Vector2 _originalRatingScale;
 
-		public MenuScene(MariasekMonoGame game)
+        public MenuScene(MariasekMonoGame game)
             : base(game)
         {
         }
@@ -89,7 +91,13 @@ namespace Mariasek.SharedClient
             Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;
 
-            _logo = new SpriteButton(this, new Sprite(this, Game.LogoTexture) { Name = "LogoSprite", Scale = new Vector2(0.7f, 0.7f), Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top })
+            _logo = new SpriteButton(this, 
+                                     new Sprite(this, Game.LogoTexture) 
+                                     {
+                                        Name = "LogoSprite", 
+                                        Scale = new Vector2(0.7f, 0.7f), 
+                                        Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top 
+                                     })
             {
                 //Position = new Vector2(70, 75),
                 Position = new Vector2(55, 58),
@@ -99,6 +107,22 @@ namespace Mariasek.SharedClient
             _logo.Click += LogoClicked;
             _originalLogoScale = _logo.Sprite.Scale;
             AnimateLogo();
+            _rateApp = new SpriteButton(this, 
+                                        new Sprite(this, Game.RatingTexture) 
+                                        {
+                                            Name = "RateSprite", 
+                                            Scale = new Vector2(0.7f, 0.7f), 
+                                            Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Top
+                                        })
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 55, 58),
+                Name = "RateApp",
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Top
+            };
+            _rateApp.Click += RatingClicked;
+            _originalRatingScale = _rateApp.Sprite.Scale;
+            AnimateRating();
+
             _version = new Label(this)
             {
                 Position = new Vector2(5, Game.VirtualScreenHeight - 30),
@@ -115,7 +139,7 @@ namespace Mariasek.SharedClient
                 Height = 30,
                 HorizontalAlign = HorizontalAlignment.Right,
                 Text = "©2018 Tomáš Němec",
-				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Bottom,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Bottom,
                 FontScaleFactor = Game.RealScreenGeometry == ScreenGeometry.Wide ? 0.9f : 0.75f
             };
             SoundEffect.MasterVolume = Game.Settings.SoundEnabled ? 1f : 0f;
@@ -126,13 +150,49 @@ namespace Mariasek.SharedClient
                 Microsoft.Xna.Framework.Media.MediaPlayer.Play(Game.NaPankraciSong);
                 Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
             }
-		}
+        }
 
-		void LogoClicked(object sender)
+        void LogoClicked(object sender)
         {
             if (Game.Navigator != null)
             {
-                Game.Navigator.Navigate("http://www.hracikarty.cz/");
+                var url = "http://www.hracikarty.cz/";
+                try
+                {
+                    Game.Navigator.Navigate(url);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Cannot navigate to url {url}\n{ex.Message}\n{ex.StackTrace}");
+                }
+            }
+        }
+
+        void RatingClicked(object sender)
+        {
+            if (Game.Navigator != null)
+            {
+#if __IOS__
+                //Game.Navigator.Navigate("itms-apps://itunes.apple.com/app/id1326617658?action=write-review");
+                Game.Navigator.Navigate("itms-apps://itunes.apple.com/app/id1326617658");
+#elif __ANDROID__
+                try
+                {
+                    Game.Navigator.Navigate("market://details?id=com.tnemec.mariasek.android");
+                }
+                catch (Exception ex0)
+                {
+                    var url = "https://play.google.com/store/apps/details?id=com.tnemec.mariasek.android";
+                    try
+                    {
+                        Game.Navigator.Navigate(url);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Cannot navigate to url {url}\n{ex.Message}\n{ex.StackTrace}");
+                    }
+                }
+#endif
             }
         }
 
@@ -167,6 +227,39 @@ namespace Mariasek.SharedClient
                  .WaitUntil(() => !_logo.Sprite.IsBusy)
                  .Wait(7000)
                  .Invoke(() => AnimateLogo());
+        }
+
+        void AnimateRating()
+        {
+            var normal = _originalRatingScale;
+            var slim = new Vector2(0, _originalRatingScale.Y);
+            const float flipSpeed = 1f;
+
+            _rateApp.Wait(2000)
+                 .Invoke(() =>
+                 {
+                     _rateApp.Sprite.ScaleTo(slim, flipSpeed);
+                 })
+                 .WaitUntil(() => !_rateApp.Sprite.IsBusy)
+                 .Invoke(() =>
+                 {
+                     _rateApp.Sprite.Flip = SpriteEffects.FlipHorizontally;
+                     _rateApp.Sprite.ScaleTo(normal, flipSpeed);
+                 })
+                 .WaitUntil(() => !_rateApp.Sprite.IsBusy)
+                 .Invoke(() =>
+                 {
+                     _rateApp.Sprite.ScaleTo(slim, flipSpeed);
+                 })
+                 .WaitUntil(() => !_rateApp.Sprite.IsBusy)
+                 .Invoke(() =>
+                 {
+                     _rateApp.Sprite.Flip = SpriteEffects.None;
+                     _rateApp.Sprite.ScaleTo(normal, flipSpeed);
+                 })
+                 .WaitUntil(() => !_rateApp.Sprite.IsBusy)
+                 .Wait(7000)
+                 .Invoke(() => AnimateRating());
         }
 
         void ShuffleBtnClicked(object sender)

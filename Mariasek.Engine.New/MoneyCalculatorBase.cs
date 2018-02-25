@@ -44,7 +44,7 @@ namespace Mariasek.Engine.New
         public int BasicPointsLost { get; private set; }
         public int MaxHlasWon { get; private set; }
         public int MaxHlasLost { get; private set; }
-
+        public int HlasPointsWasted { get; private set; }
         public bool FinalCardWon { get; private set; }
 
         public bool GameWon { get; private set; }
@@ -83,6 +83,7 @@ namespace Mariasek.Engine.New
         protected CultureInfo _ci;
 
         //Default constructor for XmlSerialize purposes
+        [Preserve]
         [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
         public MoneyCalculatorBase()
         {
@@ -116,6 +117,7 @@ namespace Mariasek.Engine.New
                 var score = new int[Game.NumPlayers];
                 var basicScore = new int[Game.NumPlayers];
                 var maxHlasScore = new int[Game.NumPlayers];
+                var totalHlasScore = new int[Game.NumPlayers];
 
                 foreach (var r in g.rounds.Where(i => i != null))
                 {
@@ -129,6 +131,7 @@ namespace Mariasek.Engine.New
 
                     if (r.hlas1)
                     {
+                        totalHlasScore[r.player1.PlayerIndex] += r.hlasPoints1;
                         if (r.hlasPoints1 > maxHlasScore[r.player1.PlayerIndex])
                         {
                             maxHlasScore[r.player1.PlayerIndex] = r.hlasPoints1;
@@ -136,6 +139,7 @@ namespace Mariasek.Engine.New
                     }
                     if (r.hlas2)
                     {
+                        totalHlasScore[r.player2.PlayerIndex] += r.hlasPoints2;
                         if (r.hlasPoints2 > maxHlasScore[r.player2.PlayerIndex])
                         {
                             maxHlasScore[r.player2.PlayerIndex] = r.hlasPoints2;
@@ -143,6 +147,7 @@ namespace Mariasek.Engine.New
                     }
                     if (r.hlas3)
                     {
+                        totalHlasScore[r.player3.PlayerIndex] += r.hlasPoints3;
                         if (r.hlasPoints3 > maxHlasScore[r.player3.PlayerIndex])
                         {
                             maxHlasScore[r.player3.PlayerIndex] = r.hlasPoints3;
@@ -203,13 +208,19 @@ namespace Mariasek.Engine.New
                 HundredWon = BasicPointsWon + MaxHlasWon >= 100;
                 HundredAgainstWon = BasicPointsLost + MaxHlasLost >= 100;
 
+                HlasPointsWasted = 0;
                 if ((g.GameType & Hra.Kilo) != 0 && !HundredWon)
                 {
                     PointsWon = BasicPointsWon + MaxHlasWon;
+                    HlasPointsWasted = totalHlasScore[_gameStartingPlayerIndex] - maxHlasScore[_gameStartingPlayerIndex];
                 }
                 if ((g.GameType & Hra.KiloProti) != 0 && !HundredAgainstWon)
 				{
 					PointsLost = BasicPointsLost + MaxHlasLost;
+                    HlasPointsWasted = totalHlasScore[(_gameStartingPlayerIndex + 1) % Game.NumPlayers] +
+                                       totalHlasScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers] -
+                                       Math.Max(maxHlasScore[(_gameStartingPlayerIndex + 1) % Game.NumPlayers],
+                                                maxHlasScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers]);
 				}
 			}
             else //bad game
@@ -266,6 +277,19 @@ namespace Mariasek.Engine.New
 
                 HundredWon = BasicPointsWon + MaxHlasWon >= 100;
                 HundredAgainstWon = BasicPointsLost + MaxHlasLost >= 100;
+
+                HlasPointsWasted = 0;
+                if ((_gameType & Hra.Kilo) != 0 && !HundredWon)
+                {
+                    HlasPointsWasted = res.TotalHlasScore[_gameStartingPlayerIndex] - res.MaxHlasScore[_gameStartingPlayerIndex];
+                }
+                if ((_gameType & Hra.KiloProti) != 0 && !HundredAgainstWon)
+                {
+                    HlasPointsWasted = res.TotalHlasScore[(_gameStartingPlayerIndex + 1) % Game.NumPlayers] +
+                                       res.TotalHlasScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers] -
+                                       Math.Max(res.MaxHlasScore[(_gameStartingPlayerIndex + 1) % Game.NumPlayers],
+                                                res.MaxHlasScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers]);
+                }
             }
             else
             {
@@ -344,7 +368,18 @@ namespace Mariasek.Engine.New
                         genre = Genre.Neutral;
                         multiplier = _bidding.GameMultiplier;
                         money = HundredMoneyWon;
-                        score = string.Format("Skóre: {0}:{1}{2}\t \n", PointsWon, PointsLost, won ? string.Empty : string.Format("\nDo kila schází: {0} bodů", 100 - (BasicPointsWon + MaxHlasWon)));
+                        score = string.Format("Skóre: {0}:{1}{2}\n", 
+                                              PointsWon, 
+                                              PointsLost, 
+                                              won 
+                                              ? string.Empty 
+                                              : string.Format("Do kila schází: {0} bodů{1}{2}\n", 100 - (BasicPointsWon + MaxHlasWon),
+                                                              HlasPointsWasted == 0
+                                                              ? string.Empty
+                                                              : string.Format("\nPropadlé hlasy: {0} bodů", HlasPointsWasted),
+                                                              PointsLost == BasicPointsLost
+                                                              ? string.Empty
+                                                              : string.Format("\nHlasy proti: {0} bodů", PointsLost - BasicPointsLost)));
                         break;
                     case Hra.SedmaProti:                        
                         won = SevenAgainstWon;
@@ -360,6 +395,13 @@ namespace Mariasek.Engine.New
                         gtString = "kilo proti";
                         multiplier = _bidding.HundredAgainstMultiplier;
                         money = HundredAgainstMoneyWon;
+                        score = string.Format("Do kila schází: {0} bodů{1}{2}\n", 100 - (BasicPointsLost + MaxHlasLost),
+                                                              HlasPointsWasted == 0
+                                                              ? string.Empty
+                                                              : string.Format("\nPropadlé hlasy: {0} bodů", HlasPointsWasted),
+                                                              PointsWon == BasicPointsWon
+                                                              ? string.Empty
+                                                              : string.Format("\nHlasy proti: {0} bodů", PointsWon - BasicPointsWon));
                         break;
                     case Hra.Betl:
                         won = BetlWon;
@@ -387,7 +429,21 @@ namespace Mariasek.Engine.New
                         break;
                 }
 
-                if ((gt & (Hra.SedmaProti | Hra.KiloProti)) == 0)
+                if (gt == Hra.SedmaProti)
+                {
+                    var playerIndex = _bidding.PlayerBids.Where(i => (i & Hra.SedmaProti) != 0)
+                                              .Select((i, idx) => idx)
+                                              .FirstOrDefault();
+                    sb.AppendFormat("{0}: ", PlayerNames[playerIndex]);
+                }
+                else if (gt == Hra.KiloProti)
+                {
+                    var playerIndex = _bidding.PlayerBids.Where(i => (i & Hra.KiloProti) != 0)
+                                              .Select((i, idx) => idx)
+                                              .FirstOrDefault();
+                    sb.AppendFormat("{0}: ", PlayerNames[playerIndex]);
+                }
+                else
                 {
                     sb.AppendFormat("{0}: ", PlayerNames[_gameStartingPlayerIndex]);
                 }

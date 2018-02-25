@@ -145,6 +145,7 @@ namespace Mariasek.SharedClient
         public Texture2D CardTextures2 { get; private set; }
         public Texture2D ReverseTexture { get; private set; }
         public Texture2D LogoTexture { get; private set; }
+        public Texture2D RatingTexture { get; private set; }
         public Texture2D DefaultBackground { get; private set; }
         public Texture2D CanvasBackground { get; private set; }
         public Texture2D DarkBackground { get; private set; }
@@ -319,6 +320,7 @@ namespace Mariasek.SharedClient
 			CardTextures2 = Content.Load<Texture2D>("marias2");
             ReverseTexture = Content.Load<Texture2D>("revers");
             LogoTexture = Content.Load<Texture2D>("logo_hracikarty");
+            RatingTexture = Content.Load<Texture2D>("mariasek_rate");
             DefaultBackground = Content.Load<Texture2D>("wood2");
             CanvasBackground = canvas;//Content.Load<Texture2D>("wood2");
             DarkBackground = dark;//Content.Load<Texture2D>("wood2");

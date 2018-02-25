@@ -559,11 +559,15 @@ namespace Mariasek.Engine.New
                 Description = "Zkusit soupeře chytit",
                 ChooseCard1 = () =>
                 {
-                    var cardsToPlay = hands[MyIndex].Where(i => 
-                                                   (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
-                                                   _probabilities.SuitHigherThanCardProbability(opponent, i, RoundNumber, false) > 0);
+                    if (TeamMateIndex != -1)
+                    {
+                        var cardsToPlay = hands[MyIndex].Where(i =>
+                                                       (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
+                                                       _probabilities.SuitHigherThanCardProbability(opponent, i, RoundNumber, false) > 0);
 
-                    return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault(); //nejmensi karta
+                        return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault(); //nejmensi karta
+                    }
+                    return null;
                 }
             };
 
@@ -573,11 +577,15 @@ namespace Mariasek.Engine.New
                 Description = "Dostat spoluhráče do štychu",
                 ChooseCard1 = () =>
                 {
-                    var cardsToPlay = hands[MyIndex].Where(i => 
-                                                   (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
-                                                   _probabilities.SuitHigherThanCardProbability(TeamMateIndex, i, RoundNumber, false) > 0);   //seskup podle barev
+                    if (TeamMateIndex != -1)
+                    {
+                        var cardsToPlay = hands[MyIndex].Where(i =>
+                                                       (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
+                                                       _probabilities.SuitHigherThanCardProbability(TeamMateIndex, i, RoundNumber, false) > 0);   //seskup podle barev
 
-                    return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault(); //nejmensi karta
+                        return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault(); //nejmensi karta
+                    }
+                    return null;
                 }
             };
 
@@ -589,10 +597,18 @@ namespace Mariasek.Engine.New
                 {
                     var cardsToPlay = hands[MyIndex].Where(i => i != null);
 
-                    return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(opponent, i.Suit, RoundNumber))
-                                      .ThenBy(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
-                                      .ThenBy(i => hands[MyIndex].CardCount(i.Suit))
-                                      .ThenBy(i => i.BadValue).FirstOrDefault();
+                    if (TeamMateIndex != -1)
+                    {
+                        return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(opponent, i.Suit, RoundNumber))
+                                          .ThenBy(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+                                          .ThenBy(i => hands[MyIndex].CardCount(i.Suit))
+                                          .ThenBy(i => i.BadValue).FirstOrDefault();
+                    }
+                    else
+                    {
+                        return cardsToPlay.OrderBy(i => hands[MyIndex].CardCount(i.Suit))
+                                          .ThenBy(i => i.BadValue).FirstOrDefault();
+                    }
                 }
             };
         }

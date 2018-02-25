@@ -15,7 +15,8 @@ public class StringLogger : IStringLogger
 
     public StringLogger(bool doLog = true)
     {
-        if (doLog)
+        _doLog = doLog;
+        if (_doLog)
         {
             _sb = new StringBuilder();
         }

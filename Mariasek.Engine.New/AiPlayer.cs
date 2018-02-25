@@ -1491,17 +1491,32 @@ namespace Mariasek.Engine.New
                                            (i.Value == Hodnota.Desitka &&
                                             (Hand.HasA(i.Suit) ||
                                              Hand.HasK(i.Suit))));
-            var trumpCount = Hand.Count(i => i.Suit == trump && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka); //bez A,X
+            var trumpCount = Hand.CardCount(trump.Value);
             var cardsPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>().ToDictionary(b => b, b => Hand.CardCount(b));
             var aceOnlySuits = cardsPerSuit.Count(i => i.Value == 1 && Hand.HasA(i.Key)); //zapocitame desitku pokud mame od barvy jen eso
             var emptySuits = cardsPerSuit.Count(i => i.Value == 0);
             var n = axCount * 10 +
                     Math.Min(2 * emptySuits + aceOnlySuits, Hand.CardCount(trump.Value) / 2) * 10;  // ne kazdym trumfem prebiju a nebo x
 
-            if (Hand.CardCount(trump.Value) >= 4 ||
+            if (trumpCount >= 4 ||
                 Hand.Average(i => (float)i.Value) >= (float)Hodnota.Kral)
             {
                 n += 10;
+            }
+            if (trumpCount <= 4)
+            {
+                if (!Hand.HasA(trump.Value))
+                {
+                    n -= 10;
+                    if (!Hand.HasX(trump.Value))
+                    {
+                        n -= 10;
+                    }
+                }
+                if (n < 0)
+                {
+                    n = 0;
+                }
             }
 
             return n;
@@ -1894,14 +1909,14 @@ namespace Mariasek.Engine.New
                  // nebo mam potencialne vic bodu nez souper bez hlasu a souper nema na to uhrat kilo ani s trumfovou hlaskou
                  // - (tutti a vys) mam trumf (navic jsem musel splnit podminky pro flek) a citim se na flek
                  (TeamMateIndex != -1 &&
-                  Hand.HasSuit(_g.trump.Value) &&
+                  Hand.CardCount(_g.trump.Value) >= 2 &&
                   ((bidding.GameMultiplier > 2 && 
                     (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b)) ||
                      Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) || Hand.HasQ(b)) >= 2)) ||
                    (bidding.GameMultiplier < 2 &&
                     (Hand.HasK(_g.trump.Value) || 
                      Hand.HasQ(_g.trump.Value) || 
-                     (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + 10 &&
+                     (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
                       estimatedOpponentFinalBasicScore + 40 < 100)))))))// ||
                  //nebo davam re a jsem si dost jisty nehlede na hlasy
                  //((TeamMateIndex == -1 &&
@@ -1918,14 +1933,17 @@ namespace Mariasek.Engine.New
                 DebugInfo.RuleCount = _gamesBalance;
                 DebugInfo.TotalRuleCount = _gameSimulations;
             }
-            //sedmu flekuju pokud mam aspon 3 trumfy
+            //sedmu flekuju pokud mam aspon 3 trumfy a vsechny barvy
             if ((bidding.Bids & Hra.Sedma) != 0 &&
                 Settings.CanPlayGameType[Hra.Sedma] &&
+                (bidding._sevenFlek < 3 ||                      //ai nedava tutti pokud neflekoval i clovek
+                 PlayerIndex == 0 ||
+                 (bidding.PlayerBids[0] & Hra.Sedma) != 0) &&
                 _sevenSimulations > 0 && 
-                (bidding._sevenFlek <= Settings.MaxDoubleCountForGameType[Hra.Sedma] ||
-				 (bidding._sevenFlek <= MaxFlek &&
-				  _sevensBalance / (float)_sevenSimulations >= certaintyThreshold)) &&
-                Hand.CardCount(_g.trump.Value) >= 3 && _sevensBalance / (float)_sevenSimulations >= sevenThreshold)
+                bidding._sevenFlek <= Settings.MaxDoubleCountForGameType[Hra.Sedma] &&
+                Hand.CardCount(_g.trump.Value) >= 3 && 
+                Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => Hand.HasSuit(b)) &&
+                _sevensBalance / (float)_sevenSimulations >= sevenThreshold)
             {
                 bid |= bidding.Bids & Hra.Sedma;
                 //minRuleCount = Math.Min(minRuleCount, _sevensBalance);
@@ -1954,9 +1972,10 @@ namespace Mariasek.Engine.New
             //?! Pokud bych chtel simulovat sance na to, ze volici hrac hlasenou sedmu neuhraje, tak musim nejak generovat "karty na sedmu" (aspon 4-5 trumfu) a ne nahodne karty
             if ((bidding.Bids & Hra.SedmaProti) != 0 &&
                 Settings.CanPlayGameType[Hra.SedmaProti] &&
-                (bidding._sevenAgainstFlek <= Settings.MaxDoubleCountForGameType[Hra.SedmaProti] ||
-				 (bidding._sevenAgainstFlek <= MaxFlek &&
-                  _sevensAgainstBalance / (float)_gameSimulations >= certaintyThreshold)) &&
+                bidding._sevenAgainstFlek <= Settings.MaxDoubleCountForGameType[Hra.SedmaProti] &&
+                (bidding._sevenAgainstFlek < 3 ||                      //ai nedava tutti pokud neflekoval i clovek
+                 PlayerIndex == 0 ||
+                 (bidding.PlayerBids[0] & Hra.SedmaProti) != 0) &&
                 _gameSimulations > 0 && _sevensAgainstBalance / (float)_gameSimulations >= sevenAgainstThreshold)
             {
                 bid |= bidding.Bids & Hra.SedmaProti;
@@ -1982,7 +2001,7 @@ namespace Mariasek.Engine.New
                 DebugInfo.TotalRuleCount = _gameSimulations;
             }
             //durch flekuju jen pokud jsem volil sam durch a v simulacich jsem ho uhral dost casto
-            //nebo pokud jsem nevolil a nejde teoreticky uhrat            
+            //nebo pokud jsem nevolil a nejde temer uhrat            
             if ((bidding.Bids & Hra.Durch) != 0 &&
                 Settings.CanPlayGameType[Hra.Durch] &&
                 _durchSimulations > 0 && 
@@ -1990,7 +2009,7 @@ namespace Mariasek.Engine.New
                  (bidding._betlDurchFlek <= MaxFlek &&
                   _durchBalance / (float)_durchSimulations >= certaintyThreshold)) &&
                 ((PlayerIndex == _g.GameStartingPlayerIndex && _durchBalance / (float)_durchSimulations >= durchThreshold) ||
-			     (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) == 4)))
+			     (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) >= 3)))
             {
                 bid |= bidding.Bids & Hra.Durch;
                 //minRuleCount = Math.Min(minRuleCount, _durchBalance);
@@ -2515,6 +2534,7 @@ namespace Mariasek.Engine.New
                 Score = new int[Game.NumPlayers],
                 BasicScore = new int[Game.NumPlayers],
                 MaxHlasScore = new int[Game.NumPlayers],
+                TotalHlasScore = new int[Game.NumPlayers],
                 Final7Won = null
             };
 
@@ -2537,6 +2557,9 @@ namespace Mariasek.Engine.New
                 result.MaxHlasScore[_g.rounds[i].player1.PlayerIndex] = Math.Max(_g.rounds[i].hlasPoints1, result.MaxHlasScore[_g.rounds[i].player1.PlayerIndex]);
                 result.MaxHlasScore[_g.rounds[i].player2.PlayerIndex] = Math.Max(_g.rounds[i].hlasPoints2, result.MaxHlasScore[_g.rounds[i].player2.PlayerIndex]);
                 result.MaxHlasScore[_g.rounds[i].player3.PlayerIndex] = Math.Max(_g.rounds[i].hlasPoints3, result.MaxHlasScore[_g.rounds[i].player3.PlayerIndex]);
+                result.TotalHlasScore[_g.rounds[i].player1.PlayerIndex] += _g.rounds[i].hlasPoints1;
+                result.TotalHlasScore[_g.rounds[i].player2.PlayerIndex] += _g.rounds[i].hlasPoints2;
+                result.TotalHlasScore[_g.rounds[i].player3.PlayerIndex] += _g.rounds[i].hlasPoints3;
             }
 
             return result;
@@ -2550,36 +2573,42 @@ namespace Mariasek.Engine.New
             {
                 var hlas = _g.trump.HasValue && c1.Suit == _g.trump.Value ? 40 : 20;
                 result.Score[roundStarterIndex] += hlas;
+                result.TotalHlasScore[roundStarterIndex] += hlas;
                 result.MaxHlasScore[roundStarterIndex] = Math.Max(hlas, result.MaxHlasScore[roundStarterIndex]);
             }
             if (c2.Value == Hodnota.Svrsek && hands[(roundStarterIndex + 1) % Game.NumPlayers].HasK(c2.Suit))
             {
                 var hlas = _g.trump.HasValue && c2.Suit == _g.trump.Value ? 40 : 20;
                 result.Score[(roundStarterIndex + 1) % Game.NumPlayers] += hlas;
+                result.TotalHlasScore[(roundStarterIndex + 1) % Game.NumPlayers] += hlas;
                 result.MaxHlasScore[(roundStarterIndex + 1) % Game.NumPlayers] = Math.Max(hlas, result.MaxHlasScore[(roundStarterIndex + 1) % Game.NumPlayers]);
             }
             if (c3.Value == Hodnota.Svrsek && hands[(roundStarterIndex + 2) % Game.NumPlayers].HasK(c3.Suit))
             {
                 var hlas = _g.trump.HasValue && c3.Suit == _g.trump.Value ? 40 : 20;
                 result.Score[(roundStarterIndex + 2) % Game.NumPlayers] += hlas;
+                result.TotalHlasScore[(roundStarterIndex + 2) % Game.NumPlayers] += hlas;
                 result.MaxHlasScore[(roundStarterIndex + 2) % Game.NumPlayers] = Math.Max(hlas, result.MaxHlasScore[(roundStarterIndex + 2) % Game.NumPlayers]);
             }
             if (c1.Value == Hodnota.Kral && hands[roundStarterIndex].HasQ(c1.Suit))
             {
                 var hlas = _g.trump.HasValue && c1.Suit == _g.trump.Value ? 40 : 20;
                 result.Score[roundStarterIndex] += hlas;
+                result.TotalHlasScore[roundStarterIndex] += hlas;
                 result.MaxHlasScore[roundStarterIndex] = Math.Max(hlas, result.MaxHlasScore[roundStarterIndex]);
             }
             if (c2.Value == Hodnota.Kral && hands[(roundStarterIndex + 1) % Game.NumPlayers].HasQ(c2.Suit))
             {
                 var hlas = _g.trump.HasValue && c2.Suit == _g.trump.Value ? 40 : 20;
                 result.Score[(roundStarterIndex + 1) % Game.NumPlayers] += hlas;
+                result.TotalHlasScore[(roundStarterIndex + 1) % Game.NumPlayers] += hlas;
                 result.MaxHlasScore[(roundStarterIndex + 1) % Game.NumPlayers] = Math.Max(hlas, result.MaxHlasScore[(roundStarterIndex + 1) % Game.NumPlayers]);
             }
             if (c3.Value == Hodnota.Kral && hands[(roundStarterIndex + 2) % Game.NumPlayers].HasQ(c3.Suit))
             {
                 var hlas = _g.trump.HasValue && c3.Suit == _g.trump.Value ? 40 : 20;
                 result.Score[(roundStarterIndex + 2) % Game.NumPlayers] += hlas;
+                result.TotalHlasScore[(roundStarterIndex + 2) % Game.NumPlayers] += hlas;
                 result.MaxHlasScore[(roundStarterIndex + 2) % Game.NumPlayers] = Math.Max(hlas, result.MaxHlasScore[(roundStarterIndex + 2) % Game.NumPlayers]);
             }
         }

@@ -30,6 +30,8 @@
     <MtouchFastDev>true</MtouchFastDev>
 <AssemblyName>Mariasek.iOS</AssemblyName>
 <CodesignProvision>VS: project.MonoGame.Mariasek.iOS Development</CodesignProvision>
+<MtouchProfiling>true</MtouchProfiling>
+<MtouchEnableSGenConc>true</MtouchEnableSGenConc>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType></DebugType>
@@ -46,6 +48,7 @@
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
     <CodesignProvision>VS: project.MonoGame.Mariasek.iOS Development</CodesignProvision>
     <AssemblyName>Mariasek.iOS</AssemblyName>
+    <MtouchLink>Full</MtouchLink>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>full</DebugType>
@@ -55,10 +58,14 @@
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <MtouchArch>i386, x86_64</MtouchArch>
-    <MtouchLink>None</MtouchLink>
+    <MtouchLink>Full</MtouchLink>
     <CodesignKey>iPhone Developer: tnemec78@gmail.com (9TS4RT5F7W)</CodesignKey>
 <AssemblyName>Mariasek.iOS</AssemblyName>
 <CodesignProvision>VS: project.MonoGame.Mariasek.iOS Development</CodesignProvision>
+<MtouchUseLlvm>true</MtouchUseLlvm>
+<MtouchEnableSGenConc>true</MtouchEnableSGenConc>
+<MtouchDebug>true</MtouchDebug>
+<MtouchProfiling>true</MtouchProfiling>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -78,8 +85,9 @@
     <MtouchExtraArgs>-v -v -v</MtouchExtraArgs>
     <IpaPackageName>
     </IpaPackageName>
-    <MtouchLink>SdkOnly</MtouchLink>
+    <MtouchLink>Full</MtouchLink>
     <CodesignProvision>VS: project.MonoGame.Mariasek.iOS Development</CodesignProvision>
+    <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

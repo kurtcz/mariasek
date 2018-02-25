@@ -19,6 +19,7 @@ namespace Mariasek.Engine.New
         private const int DurchValue = 10;
 
         //Default constructor for XmlSerialize purposes
+        [Preserve]
         public MultiplyingMoneyCalculator()
         {
         }

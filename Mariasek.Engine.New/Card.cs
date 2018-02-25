@@ -118,6 +118,7 @@ namespace Mariasek.Engine.New
         }
 
         //default constructor for XmlSerializer
+        [Preserve]
         public Card()
             :this (Barva.Cerveny, Hodnota.Sedma)
         {

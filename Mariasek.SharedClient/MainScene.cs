@@ -83,6 +83,7 @@ namespace Mariasek.SharedClient
         private int _bubbleSemaphore;
         private bool[] _bubbleAutoHide;
         private bool _skipBidBubble;
+        private bool _shouldShuffle;
         private GameReview _review;
 
 #pragma warning restore 414
@@ -1101,7 +1102,7 @@ namespace Mariasek.SharedClient
         }
 
         public void NewGameBtnClicked(object sender)
-        {
+        {            
             if (!_gameSemaphore.Wait(0))
             {
                 return;
@@ -1163,6 +1164,10 @@ namespace Mariasek.SharedClient
                          {
                              LoadDeck();
                          }
+                     }
+                     if (_shouldShuffle)
+                     {
+                         _deck.Shuffle();
                      }
                      _canSort = CurrentStartingPlayerIndex != 0;
 
@@ -1252,7 +1257,7 @@ namespace Mariasek.SharedClient
                          _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                                   GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
                                                   (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
-                         _trumpLabels[i].Height = 60; 
+                         _trumpLabels[i].Height = 60;
                          _trumpLabels[i].Show();
                      }
                      _hlasy[0][0].Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f + 20);
@@ -2419,6 +2424,7 @@ namespace Mariasek.SharedClient
                 ShowGameScore();
                 //});
                 _deck = g.GetDeckFromLastGame();
+                _shouldShuffle = results.GameWon && results.GamePlayed && g.RoundNumber == 1;
                 Task.Run(() =>
                 {
                     SaveDeck();

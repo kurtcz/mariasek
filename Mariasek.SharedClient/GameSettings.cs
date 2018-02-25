@@ -10,18 +10,18 @@ namespace Mariasek.SharedClient
         None
     }
 
-	public enum CardFace
-	{
-		Single,
-		Double
-	}
+    public enum CardFace
+    {
+        Single,
+        Double
+    }
 
-	public enum CardBackSide
-	{
-		Tartan,
-		Horse,
+    public enum CardBackSide
+    {
+        Tartan,
+        Horse,
         Lace
-	}
+    }
 
     public enum BackgroundImage
     {
@@ -30,7 +30,7 @@ namespace Mariasek.SharedClient
         Dark
     }
 
-	public class BidThresholdSettings
+    public class BidThresholdSettings
     {
         public Hra GameType { get; set; }
         public bool Use { get; set; }
@@ -73,6 +73,7 @@ namespace Mariasek.SharedClient
         public bool ShowStatusBar { get; set; }
         public BackgroundImage BackgroundImage { get; set; }
 
+        [Preserve]
         public GameSettings()
         {
             DoLog = true;
@@ -128,21 +129,21 @@ namespace Mariasek.SharedClient
                     GameType = Hra.Sedma,
                     Use = true,
                     MaxBidCount = 2,
-                    Thresholds = "35|65|85|95"
+                    Thresholds = "40|50|85|95"
                 },
                 new BidThresholdSettings
                 {
                     GameType = Hra.Kilo,
                     Use = true,
                     MaxBidCount = 0,
-                    Thresholds = "65|80|95|100"
+                    Thresholds = "55|80|95|100"
                 },
                 new BidThresholdSettings
                 {
                     GameType = Hra.SedmaProti,
                     Use = true,
                     MaxBidCount = 0,
-                    Thresholds = "35|75|95|100"
+                    Thresholds = "40|75|95|100"
                 },
                 new BidThresholdSettings
                 {

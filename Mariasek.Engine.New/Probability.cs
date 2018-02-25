@@ -1066,7 +1066,7 @@ namespace Mariasek.Engine.New
                 case Hra.Sedma:
                     if (myInitialTrumpCount == 3)
                     {
-                        return 4;
+                        return 5;
                     }
                     return Math.Min(5, 8 - myInitialTrumpCount);
                 default:

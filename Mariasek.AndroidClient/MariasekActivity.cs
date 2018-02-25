@@ -281,17 +281,11 @@ namespace Mariasek.AndroidClient
 
         public void Navigate(string url)
         {
-            try
-            {
-                var browser = new Intent(Intent.ActionView);
+            var browser = new Intent(Intent.ActionView);
 
-                browser.SetData(Android.Net.Uri.Parse(url));
-                StartActivity(browser);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Cannot navigate to url {url}\n{ex.Message}\n{ex.StackTrace}");
-            }
+            browser.SetData(Android.Net.Uri.Parse(url));
+            browser.SetFlags(ActivityFlags.NoHistory | ActivityFlags.NewTask | ActivityFlags.MultipleTask);
+            StartActivity(browser);
         }
 
         public void SetKeepScreenOnFlag(bool flag)

@@ -17,6 +17,7 @@ namespace Mariasek.Engine.New.Schema
         [XmlNamespaceDeclarations]
         public XmlSerializerNamespaces Namespaces { get { return _namespaces; } }
 
+        [Preserve]
         public GameDto()
         {
             _namespaces = new XmlSerializerNamespaces(new []
