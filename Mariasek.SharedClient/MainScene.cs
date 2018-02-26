@@ -3344,7 +3344,10 @@ namespace Mariasek.SharedClient
 
         private void Activated(object sender)
         {
-            AmendCardScaleFactor();                
+            if (g != null)
+            {
+                AmendCardScaleFactor();
+            }
         }
     }
 }

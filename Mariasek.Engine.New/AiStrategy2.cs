@@ -224,6 +224,10 @@ namespace Mariasek.Engine.New
                             }
                             return other;
                         }
+                        if (hands[MyIndex].CardCount(_trump) == 2)
+                        {
+                            return ValidCards(hands[MyIndex]).OrderBy(i => i.Value).FirstOrDefault();
+                        }
                         if (TeamMateIndex == -1)
                         {
                             //: c--

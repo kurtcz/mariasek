@@ -1269,6 +1269,7 @@ namespace Mariasek.Engine.New
             });
             DebugInfo.AllChoices = allChoices.ToArray();
             //DebugInfo.TotalRuleCount = Settings.SimulationsPerGameType;
+            GC.Collect();
         }
 
         public string GetComputationResultString(//string filename, 
