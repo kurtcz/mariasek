@@ -71,6 +71,9 @@ namespace Mariasek.SharedClient
         public int MinimalBidsForSeven { get; set; }
         public bool Top107 { get; set; }
         public bool ShowStatusBar { get; set; }
+        public bool ShowScoreDuringGame { get; set; }
+        public bool AutoDisable100Against { get; set; }
+        public float CardScaleFactor { get; set; }
         public BackgroundImage BackgroundImage { get; set; }
 
         [Preserve]
@@ -102,6 +105,9 @@ namespace Mariasek.SharedClient
             Top107 = false;
             ShowStatusBar = false;
             AiMayGiveUp = true;
+            ShowScoreDuringGame = true;
+            AutoDisable100Against = true;
+            CardScaleFactor = 0.6f;
             BackgroundImage = BackgroundImage.Default;
 			ResetThresholds();
         }

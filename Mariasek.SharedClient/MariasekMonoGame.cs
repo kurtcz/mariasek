@@ -184,7 +184,7 @@ namespace Mariasek.SharedClient
         public IEmailSender EmailSender { get; private set; }
         public IWebNavigate Navigator { get; private set; }
         public IScreenManager ScreenManager { get; private set; }
-        public readonly Vector2 CardScaleFactor;
+        public Vector2 CardScaleFactor { get; private set; }
 
         public List<Mariasek.Engine.New.MoneyCalculatorBase> Money = new List<Mariasek.Engine.New.MoneyCalculatorBase>();
 
@@ -205,7 +205,7 @@ namespace Mariasek.SharedClient
             Graphics.SupportedOrientations = DisplayOrientation.LandscapeRight |
                                              DisplayOrientation.LandscapeLeft;
             Graphics.ApplyChanges();
-            CardScaleFactor = new Vector2(0.6f, 0.6f);
+            CardScaleFactor = new Vector2(0.6f, 0.6f); //will be overwritten in LoadGameSettings()
             EmailSender = emailSender;
             Navigator = navigator;
             ScreenManager = screenManager;
@@ -537,6 +537,7 @@ namespace Mariasek.SharedClient
 				System.Diagnostics.Debug.WriteLine(string.Format("Cannot load settings\n{0}", e.Message));
 				Settings = new GameSettings();
 			}
+            CardScaleFactor = new Vector2(Settings.CardScaleFactor, Settings.CardScaleFactor);
 //			_performance.Text = string.Format("Výkon simulace: {0} her/s",
 //				Settings.GameTypeSimulationsPerSecond > 0 ? Settings.GameTypeSimulationsPerSecond.ToString() : "?");
 		}

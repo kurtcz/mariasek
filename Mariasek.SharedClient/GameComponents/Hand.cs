@@ -72,6 +72,23 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
+        public Vector2 Scale
+        {
+            get
+            {
+                return _cardButtons.Where(i => i != null)
+                                   .Select(i => i.Scale)
+                                   .FirstOrDefault();
+            }
+            set
+            {
+                foreach(var card in _cardButtons.Where(i => i != null))
+                {
+                    card.Scale = value;
+                }
+            }
+        }
+
 		/// <summary>
 		/// When this event is set then there are no animations going on.
 		/// </summary>

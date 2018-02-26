@@ -142,10 +142,11 @@ namespace Mariasek.SharedClient
             : base(game)
         {
             Game.SettingsChanged += SettingsChanged;
-            Game.Activated += Activated;
-            Game.Deactivated += Deactivated;
+            Game.Activated += GameActivated;
+            Game.Deactivated += GameDeactivated;
             Game.Stopped += SaveGame;
             Game.Started += ResumeGame;
+            SceneActivated += Activated;
         }
 
         private void PopulateAiConfig()
@@ -507,8 +508,8 @@ namespace Mariasek.SharedClient
             {
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Top,
-                Position = new Vector2(Game.VirtualScreenWidth / 2f - 140, 5),
-                Width = 280,
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 150, 5),
+                Width = 300,
                 Height = 60,
                 ZIndex = 100,
                 Anchor = AnchorType.Top,
@@ -520,7 +521,7 @@ namespace Mariasek.SharedClient
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
                 Position = new Vector2(10, 5),
-                Width = 280,
+                Width = 300,
                 Height = 60,
                 ZIndex = 100,
                 Anchor = AnchorType.Top,
@@ -531,8 +532,8 @@ namespace Mariasek.SharedClient
             {
                 HorizontalAlign = HorizontalAlignment.Right,
                 VerticalAlign = VerticalAlignment.Top,
-                Position = new Vector2(Game.VirtualScreenWidth - 290, 5),
-                Width = 280,
+                Position = new Vector2(Game.VirtualScreenWidth - 310, 5),
+                Width = 300,
                 Height = 60,
                 ZIndex = 100,
                 Anchor = AnchorType.Top,
@@ -1134,6 +1135,7 @@ namespace Mariasek.SharedClient
                          MinimalBidsForSeven = Game.Settings.MinimalBidsForSeven,
                          CalculationStyle = Game.Settings.CalculationStyle,
                          Top107 = Game.Settings.Top107,
+                         AutoDisable100Against = Game.Settings.AutoDisable100Against,
                          GetFileStream = GetFileStream,
                          GetVersion = () => MariasekMonoGame.Version
                      };
@@ -1256,7 +1258,9 @@ namespace Mariasek.SharedClient
                          //_trumpLabels[i].Text = g.players[i].Name;
                          _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                                   GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
-                                                  (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+                                                  Game.Settings.ShowScoreDuringGame 
+                                                  ? (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ"))
+                                                  : string.Empty);
                          _trumpLabels[i].Height = 60;
                          _trumpLabels[i].Show();
                      }
@@ -1282,6 +1286,30 @@ namespace Mariasek.SharedClient
                  }
                  g.PlayGame(_cancellationTokenSource.Token);
              }, cancellationTokenSource.Token);
+        }
+
+        private void AmendCardScaleFactor()
+        {
+            foreach (var hlasy in _hlasy)
+            {
+                foreach (var card in hlasy)
+                {
+                    card.Scale = Game.CardScaleFactor;
+                }
+            }
+            foreach (var card in _stychy)
+            {
+                card.Scale = Game.CardScaleFactor;
+            }
+            foreach (var card in _stareStychy)
+            {
+                card.Scale = Game.CardScaleFactor;
+            }
+            foreach (var card in _cardsPlayed)
+            {
+                card.Scale = Game.CardScaleFactor;
+            }
+            _hand.Scale = Game.CardScaleFactor;
         }
 
         private void GameWonPrematurely(object sender, GameWonPrematurelyEventArgs e)
@@ -2146,7 +2174,9 @@ namespace Mariasek.SharedClient
                 {
                     _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                              GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
-                                             (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+                                             Game.Settings.ShowScoreDuringGame
+                                             ? (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ"))
+                                             : string.Empty);
                 }
             });
         }
@@ -2529,13 +2559,14 @@ namespace Mariasek.SharedClient
                         _cancellationTokenSource = cancellationTokenSource;
                         g = new Mariasek.Engine.New.Game()
                         {
-                            SkipBidding = false,
-                            GetFileStream = GetFileStream,
                             BaseBet = Game.Settings.BaseBet,
+                            SkipBidding = false,
                             MinimalBidsForGame = Game.Settings.MinimalBidsForGame,
                             MinimalBidsForSeven = Game.Settings.MinimalBidsForSeven,
                             CalculationStyle = Game.Settings.CalculationStyle,
                             Top107 = Game.Settings.Top107,
+                            AutoDisable100Against = Game.Settings.AutoDisable100Against,
+                            GetFileStream = GetFileStream,
                             GetVersion = () => MariasekMonoGame.Version
                         };
                         g.RegisterPlayers(
@@ -3295,7 +3326,7 @@ namespace Mariasek.SharedClient
             return result;
         }
 
-        private void Activated(object sender, EventArgs e)
+        private void GameActivated(object sender, EventArgs e)
         {
             if (g != null)
             {
@@ -3303,12 +3334,17 @@ namespace Mariasek.SharedClient
             }
         }
 
-        private void Deactivated(object sender, EventArgs e)
+        private void GameDeactivated(object sender, EventArgs e)
         {
             if (g != null)
             {
                 g.DebugString.AppendLine("Game deactivated");
             }
+        }
+
+        private void Activated(object sender)
+        {
+            AmendCardScaleFactor();                
         }
     }
 }

@@ -272,6 +272,9 @@ namespace Mariasek.SharedClient
             {                
                 return;
             }
+            _cards[0].Scale = Game.CardScaleFactor;
+            _cards[1].Scale = Game.CardScaleFactor;
+            _cards[2].Scale = Game.CardScaleFactor;
             _cards[0].ZIndex = 50;
             _cards[1].ZIndex = 51;
             _cards[2].ZIndex = 52;

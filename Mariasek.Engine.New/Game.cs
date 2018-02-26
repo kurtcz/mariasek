@@ -63,6 +63,7 @@ namespace Mariasek.Engine.New
         public Bidding Bidding { get; private set; }
         public string Author { get; set; }
         public bool DoSort { get; set; }
+        public bool AutoDisable100Against { get; set; }
 #if !PORTABLE
         public static Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
 #else

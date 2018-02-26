@@ -246,7 +246,7 @@ namespace Mariasek.SharedClient.GameComponents
         {
             const int headLength = Mariasek.Engine.New.Game.NumPlayers + 1;
             var roundsLength = Game.MainScene?.g?.CurrentRound?.number ?? 0;
-			var reviewCardScaleFactor = Game.CardScaleFactor * 0.7f;
+            var reviewCardScaleFactor = new Vector2(0.42f, 0.42f);//Game.CardScaleFactor * 0.7f; //default card scale factor = 0.6f
 
 			_background = new RectangleShape(this)
             {

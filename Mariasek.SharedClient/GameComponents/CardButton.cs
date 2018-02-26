@@ -86,6 +86,16 @@ namespace Mariasek.SharedClient.GameComponents
 			}
 		}
 
+        public Vector2 Scale
+        {
+            get { return Sprite.Scale; }
+            set
+            {
+                Sprite.Scale = value;
+                _reverseSprite.Scale = value;
+            }
+        }
+
 		public override void Show()
         {
             ShowFrontSide();

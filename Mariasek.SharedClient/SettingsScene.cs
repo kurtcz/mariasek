@@ -34,6 +34,9 @@ namespace Mariasek.SharedClient
         private Label _roundFinishedWaitTime;
         private Label _autoFinishRounds;
         private Label _autoFinishLastRound;
+        private Label _autoDisable100Against;
+        private Label _showScoreDuringGame;
+        private Label _cardSize;
         private Label _player1;
         private Label _player2;
         private Label _player3;
@@ -57,6 +60,9 @@ namespace Mariasek.SharedClient
         private LeftRightSelector _roundFinishedWaitTimeSelector;
         private LeftRightSelector _autoFinishRoundsSelector;
         private LeftRightSelector _autoFinishLastRoundSelector;
+        private LeftRightSelector _autoDisable100AgainstSelector;
+        private LeftRightSelector _showScoreDuringGameSelector;
+        private LeftRightSelector _cardSizeSelector;
         private LeftRightSelector _bubbleTimeSelector;
         //private LeftRightSelector _showStatusBarSelector;
         private LeftRightSelector _bgImageSelector;
@@ -404,9 +410,34 @@ namespace Mariasek.SharedClient
             {
                 _aiMayGiveUpSelector.SelectedIndex = 0;
             }
-            _bgImage = new Label(this)
+            _cardSize = new Label(this)
             {
                 Position = new Vector2(200, pageOffset + 370),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Text = "Velikost karet",
+                Group = 1,
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _cardSizeSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, pageOffset + 370),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Standardní", 0.6f }, { "Větší", 0.7f }, { "Menší", 0.5f } }
+            };
+            _cardSizeSelector.SelectedIndex = _cardSizeSelector.Items.FindIndex(Game.Settings.CardScaleFactor);
+            _cardSizeSelector.SelectionChanged += CardSizeChanged;
+            if (_cardSizeSelector.SelectedIndex < 0)
+            {
+                _cardSizeSelector.SelectedIndex = 0;
+            }
+
+// PAGE 3 //
+            _bgImage = new Label(this)
+            {
+                Position = new Vector2(200, 2 * pageOffset + 10),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Pozadí při hře",
@@ -416,7 +447,7 @@ namespace Mariasek.SharedClient
             };
             _bgImageSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, pageOffset + 370),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 10),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Výchozí", BackgroundImage.Default }, { "Plátno", BackgroundImage.Canvas }, { "Tmavé", BackgroundImage.Dark } }
@@ -426,74 +457,53 @@ namespace Mariasek.SharedClient
             if (_bgImageSelector.SelectedIndex < 0)
             {
                 _bgImageSelector.SelectedIndex = 0;
-            }            
-// PAGE 3 //
-            _player1 = new Label(this)
-            {
-                Position = new Vector2(200, 2 * pageOffset + 10),
-                Width = (int)Game.VirtualScreenWidth / 2 - 150,
-                Height = 50,
-                Group = 1,
-                Text = "Jméno hráče č.1",
-                HorizontalAlign = HorizontalAlignment.Center,
-                VerticalAlign = VerticalAlignment.Middle
-            };
-            _player1Name = new Button(this)
-            {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 10),
-                Width = 270,
-                Height = 50,
-                Group = 1,
-                Text = Game.Settings.PlayerNames[0],
-                Tag = 1,
-                BorderColor = Color.Transparent,
-                BackgroundColor = Color.Transparent
-            };
-            _player1Name.Click += ChangePlayerName;
-            _player2 = new Label(this)
+            }
+            _autoDisable100Against = new Label(this)
             {
                 Position = new Vector2(200, 2 * pageOffset + 70),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
+                Text = "Hlásit kilo proti lze",
                 Group = 1,
-                Text = "Jméno hráče č.2",
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
-            _player2Name = new Button(this)
+            _autoDisable100AgainstSelector = new LeftRightSelector(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 70),
                 Width = 270,
-                Height = 50,
                 Group = 1,
-                Text = Game.Settings.PlayerNames[1],
-                Tag = 2,
-                BorderColor = Color.Transparent,
-                BackgroundColor = Color.Transparent
+                Items = new SelectorItems() { { "Jen s hlasem", true }, { "Vždy", false } }
             };
-            _player2Name.Click += ChangePlayerName;
-            _player3 = new Label(this)
+            _autoDisable100AgainstSelector.SelectedIndex = _autoDisable100AgainstSelector.Items.FindIndex(Game.Settings.AutoDisable100Against);
+            _autoDisable100AgainstSelector.SelectionChanged += AutoDisable100AgainstChanged;
+            if (_autoDisable100AgainstSelector.SelectedIndex < 0)
+            {
+                _autoDisable100AgainstSelector.SelectedIndex = 0;
+            }
+            _showScoreDuringGame = new Label(this)
             {
                 Position = new Vector2(200, 2 * pageOffset + 130),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
+                Text = "Skóre zobrazovat",
                 Group = 1,
-                Text = "Jméno hráče č.3",
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
-            _player3Name = new Button(this)
+            _showScoreDuringGameSelector = new LeftRightSelector(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 130),
                 Width = 270,
-                Height = 50,
                 Group = 1,
-                Text = Game.Settings.PlayerNames[2],
-                Tag = 3,
-                BorderColor = Color.Transparent,
-                BackgroundColor = Color.Transparent
+                Items = new SelectorItems() { { "Stále", true }, { "Na konci hry", false } }
             };
-            _player3Name.Click += ChangePlayerName;
+            _showScoreDuringGameSelector.SelectedIndex = _showScoreDuringGameSelector.Items.FindIndex(Game.Settings.ShowScoreDuringGame);
+            _showScoreDuringGameSelector.SelectionChanged += ShowScoreDuringGameChanged;
+            if (_showScoreDuringGameSelector.SelectedIndex < 0)
+            {
+                _showScoreDuringGameSelector.SelectedIndex = 0;
+            }
             _autoFinishRounds = new Label(this)
             {
                 Position = new Vector2(200, 2 * pageOffset + 190),
@@ -632,6 +642,73 @@ namespace Mariasek.SharedClient
             {
                 _bubbleTimeSelector.SelectedIndex = 1;
             }
+// PAGE 4 //
+            _player1 = new Label(this)
+            {
+                Position = new Vector2(200, 3 * pageOffset + 10),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Jméno hráče č.1",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _player1Name = new Button(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 10),
+                Width = 270,
+                Height = 50,
+                Group = 1,
+                Text = Game.Settings.PlayerNames[0],
+                Tag = 1,
+                BorderColor = Color.Transparent,
+                BackgroundColor = Color.Transparent
+            };
+            _player1Name.Click += ChangePlayerName;
+            _player2 = new Label(this)
+            {
+                Position = new Vector2(200, 3 * pageOffset + 70),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Jméno hráče č.2",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _player2Name = new Button(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 70),
+                Width = 270,
+                Height = 50,
+                Group = 1,
+                Text = Game.Settings.PlayerNames[1],
+                Tag = 2,
+                BorderColor = Color.Transparent,
+                BackgroundColor = Color.Transparent
+            };
+            _player2Name.Click += ChangePlayerName;
+            _player3 = new Label(this)
+            {
+                Position = new Vector2(200, 3 * pageOffset + 130),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Jméno hráče č.3",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _player3Name = new Button(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 130),
+                Width = 270,
+                Height = 50,
+                Group = 1,
+                Text = Game.Settings.PlayerNames[2],
+                Tag = 3,
+                BorderColor = Color.Transparent,
+                BackgroundColor = Color.Transparent
+            };
+            _player3Name.Click += ChangePlayerName;
 
             _menuBtn = new Button(this)
             {
@@ -639,7 +716,7 @@ namespace Mariasek.SharedClient
                 Width = 200,
                 Height = 50,
                 Text = "Menu",
-				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Bottom
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Bottom
             };
             _menuBtn.Click += MenuBtnClick;
             _aiBtn = new Button(this)
@@ -655,7 +732,7 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(210, (int)Game.VirtualScreenHeight - 60),
                 Width = (int)Game.VirtualScreenWidth - 210,
-                Items = new SelectorItems() { { "1/3", 0 }, { "2/3", 1 }, { "3/3", 2 } },
+                Items = new SelectorItems() { { "1/4", 0 }, { "2/4", 1 }, { "3/4", 2 }, { "4/4", 3 } },
                 TextRenderer = Game.FontRenderers["SegoeUI40Outl"]
             };
             _pageSelector.SelectedIndex = 0;
@@ -675,15 +752,42 @@ namespace Mariasek.SharedClient
                 BorderThickness = 1,
                 Opacity = 0.7f
             };
-			_performance.Text = string.Format("Výkon simulace: {0} her/s",
-				Game.Settings.GameTypeSimulationsPerSecond > 0 ? Game.Settings.GameTypeSimulationsPerSecond.ToString() : "?");
+            _performance.Text = string.Format("Výkon simulace: {0} her/s",
+                Game.Settings.GameTypeSimulationsPerSecond > 0 ? Game.Settings.GameTypeSimulationsPerSecond.ToString() : "?");
 
-			Background = Game.Content.Load<Texture2D>("wood2");
+            Background = Game.Content.Load<Texture2D>("wood2");
             BackgroundTint = Color.DimGray;
             Game.OnSettingsChanged();
         }
 
-        void HintBtnClick (object sender)
+        private void ShowScoreDuringGameChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.ShowScoreDuringGame = (bool)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        private void CardSizeChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.CardScaleFactor = (float)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        private void AutoDisable100AgainstChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.AutoDisable100Against = (bool)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        void HintBtnClick(object sender)
         {
             var btn = sender as ToggleButton;
 
@@ -693,7 +797,7 @@ namespace Mariasek.SharedClient
             Game.OnSettingsChanged();
         }
 
-        void SoundBtnClick (object sender)
+        void SoundBtnClick(object sender)
         {
             var btn = sender as ToggleButton;
 
@@ -713,61 +817,61 @@ namespace Mariasek.SharedClient
             Game.OnSettingsChanged();
         }
 
-        void SortModeChanged (object sender)
+        void SortModeChanged(object sender)
         {
-			var selector = sender as LeftRightSelector;
+            var selector = sender as LeftRightSelector;
 
-			Game.Settings.SortMode = (SortMode)selector.SelectedValue;
+            Game.Settings.SortMode = (SortMode)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
 
-        void BaseBetChanged (object sender)
+        void BaseBetChanged(object sender)
         {
-			var selector = sender as LeftRightSelector;
+            var selector = sender as LeftRightSelector;
 
-			Game.Settings.BaseBet = (float)selector.SelectedValue;
+            Game.Settings.BaseBet = (float)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
 
-		void ThinkingTimeChanged(object sender)
-		{
-			var selector = sender as LeftRightSelector;
-
-			Game.Settings.ThinkingTimeMs = (int)selector.SelectedValue;
-			Game.SaveGameSettings();
-			Game.OnSettingsChanged();
-		}
-
-		void KiloCountingChanged (object sender)
+        void ThinkingTimeChanged(object sender)
         {
-			var selector = sender as LeftRightSelector;
+            var selector = sender as LeftRightSelector;
 
-			Game.Settings.CalculationStyle = (CalculationStyle)selector.SelectedValue;
+            Game.Settings.ThinkingTimeMs = (int)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
 
-		void CardFaceChanged(object sender)
-		{
-			var selector = sender as LeftRightSelector;
-			var origValue = Game.Settings.CardDesign;
+        void KiloCountingChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
 
-			Game.Settings.CardDesign = (CardFace)selector.SelectedValue;
-			Game.SaveGameSettings();
-			Game.OnSettingsChanged();
-		}
+            Game.Settings.CalculationStyle = (CalculationStyle)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
 
-		void CardBackChanged(object sender)
-		{
-			var selector = sender as LeftRightSelector;
-			var origValue = Game.Settings.CardBackSide;
+        void CardFaceChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+            var origValue = Game.Settings.CardDesign;
 
-			Game.Settings.CardBackSide = (CardBackSide)selector.SelectedValue;
-			Game.SaveGameSettings();
-			Game.OnSettingsChanged();
-		}
+            Game.Settings.CardDesign = (CardFace)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        void CardBackChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+            var origValue = Game.Settings.CardBackSide;
+
+            Game.Settings.CardBackSide = (CardBackSide)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
 
         void AutoFinishRoundsChanged(object sender)
         {
@@ -890,7 +994,7 @@ namespace Mariasek.SharedClient
             const int MaxNameLength = 12;
             var text = Guide.EndShowKeyboardInput(result);
 
-            if(text == null)
+            if (text == null)
             {
                 return;
             }
@@ -941,7 +1045,7 @@ namespace Mariasek.SharedClient
             currentPage = pageIndex;
         }
 
-        void MenuBtnClick (object sender)
+        void MenuBtnClick(object sender)
         {
             Game.MenuScene.SetActive();
         }
