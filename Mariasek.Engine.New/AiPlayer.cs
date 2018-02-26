@@ -26,7 +26,6 @@ namespace Mariasek.Engine.New
         public Barva? _trump;
         private Hra? _gameType;
         public List<Card> _talon; //public so that HumanPlayer can set it
-        private List<AddingMoneyCalculator> _moneyCalculations;
         private float _avgWinForHundred;
         private float _avgBasicPointsLost;
         private float _maxBasicPointsLost;
@@ -44,6 +43,7 @@ namespace Mariasek.Engine.New
         private int _betlSimulations;
         private int _durchSimulations;
         private bool _initialSimulation;
+        private bool _runSimulations;
         private bool _rerunSimulations;
         private bool _teamMateDoubledGame;
         private bool _shouldMeasureThroughput;
@@ -118,6 +118,7 @@ namespace Mariasek.Engine.New
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
+            _runSimulations = true;
             _debugString = g.GetStringLogger();//g.DebugString;
             _teamMatesSuits = new List<Barva>();
             DebugInfo = new PlayerDebugInfo();
@@ -714,7 +715,7 @@ namespace Mariasek.Engine.New
                 }
                 _initialSimulation = false;
             }
-            _moneyCalculations = null; //abychom v GetBidsAndDoubles znovu sjeli simulaci normalni hry
+            _runSimulations = true; //abychom v GetBidsAndDoubles znovu sjeli simulaci normalni hry
 
 			//byla uz zavolena nejaka hra?
             if (_gameType == Hra.Durch)
@@ -1110,7 +1111,7 @@ namespace Mariasek.Engine.New
             var _durchStrings = new List<string>();
             var _betlStrings = new List<string>();
 
-            _moneyCalculations = gameComputationResults.Where(i => (i.GameType & Hra.Sedma) == 0).Select((i, idx) =>
+            var moneyCalculations = gameComputationResults.Where(i => (i.GameType & Hra.Sedma) == 0).Select((i, idx) =>
             {
                 var calc = new AddingMoneyCalculator(Hra.Hra, _trump ?? _g.trump, gameStartingPlayerIndex, bidding, i);
 
@@ -1144,31 +1145,31 @@ namespace Mariasek.Engine.New
 
                 return calc;
             }))).ToList();
-            _betlSimulations = _moneyCalculations.Count(i => i.GameType == Hra.Betl);
-            _durchSimulations = _moneyCalculations.Count(i => i.GameType == Hra.Durch);
+            _betlSimulations = moneyCalculations.Count(i => i.GameType == Hra.Betl);
+            _durchSimulations = moneyCalculations.Count(i => i.GameType == Hra.Durch);
 
-            var avgPointsForHundred = _moneyCalculations.Any(i => PlayerIndex == gameStartingPlayerIndex
+            var avgPointsForHundred = moneyCalculations.Any(i => PlayerIndex == gameStartingPlayerIndex
                                                                     ? (i.GameType & Hra.Kilo) != 0
                                                                     : (Hra.Betl | Hra.Durch) == 0)
-                                        ? _moneyCalculations.Where(i => PlayerIndex == gameStartingPlayerIndex
+                                        ? moneyCalculations.Where(i => PlayerIndex == gameStartingPlayerIndex
                                                                                    ? (i.GameType & Hra.Kilo) != 0
                                                                                    : (Hra.Betl | Hra.Durch) == 0)
                                                             .Average(i => (i.BasicPointsWon + i.MaxHlasWon))
                                         : 0;
-            _avgWinForHundred = _moneyCalculations.Any(i => PlayerIndex == gameStartingPlayerIndex
+            _avgWinForHundred = moneyCalculations.Any(i => PlayerIndex == gameStartingPlayerIndex
                                                                     ? (i.GameType & Hra.Kilo) != 0
                                                                     : (Hra.Betl | Hra.Durch) == 0)
-                                        ? _moneyCalculations.Where(i => PlayerIndex == gameStartingPlayerIndex
+                                        ? moneyCalculations.Where(i => PlayerIndex == gameStartingPlayerIndex
                                                                     ? (i.GameType & Hra.Kilo) != 0
                                                                     : (Hra.Betl | Hra.Durch) == 0)
                                                             .Average(i => (float)i.MoneyWon[gameStartingPlayerIndex])
                                         : 0;
-            _avgBasicPointsLost = _moneyCalculations.Any(i => (i.GameType & Hra.Hra) != 0)
-                                        ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0)
+            _avgBasicPointsLost = moneyCalculations.Any(i => (i.GameType & Hra.Hra) != 0)
+                                        ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0)
                                                             .Average(i => (float)i.BasicPointsLost)
                                         : 0;
-            _maxBasicPointsLost = _moneyCalculations.Any(i => (i.GameType & Hra.Hra) != 0)
-                                        ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0)
+            _maxBasicPointsLost = moneyCalculations.Any(i => (i.GameType & Hra.Hra) != 0)
+                                        ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0)
                                                             .Max(i => (float)i.BasicPointsLost)
                                         : 0;
             _hundredOverDurch = PlayerIndex == gameStartingPlayerIndex
@@ -1178,28 +1179,28 @@ namespace Mariasek.Engine.New
                                    avgPointsForHundred >= 110)
                                 : false;
             _gamesBalance = PlayerIndex == gameStartingPlayerIndex
-                            ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => i.GameWon)
-                            : _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.GameWon);
+                            ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => i.GameWon)
+                            : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.GameWon);
             _hundredsBalance =  true//ShouldChooseHundred()
                                 ? PlayerIndex == gameStartingPlayerIndex                                
-                                    ? _moneyCalculations.Where(i => (i.GameType & Hra.Kilo) != 0).Count(i => i.HundredWon)
-                                    : _moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.HundredWon)
+                                    ? moneyCalculations.Where(i => (i.GameType & Hra.Kilo) != 0).Count(i => i.HundredWon)
+                                    : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.HundredWon)
                                 : 0;
             _hundredsAgainstBalance = PlayerIndex == gameStartingPlayerIndex
-                                        ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.HundredAgainstWon)
-                                        : _moneyCalculations.Where(i => (i.GameType & (i.GameType & (Hra.Betl | Hra.Durch))) == 0).Count(i => i.HundredAgainstWon);
+                                        ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.HundredAgainstWon)
+                                        : moneyCalculations.Where(i => (i.GameType & (i.GameType & (Hra.Betl | Hra.Durch))) == 0).Count(i => i.HundredAgainstWon);
             _sevensBalance = PlayerIndex == gameStartingPlayerIndex
-                                ? _moneyCalculations.Where(i => (i.GameType & Hra.Sedma) != 0).Count(i => i.SevenWon)
-                                : _moneyCalculations.Where(i => (i.GameType & (i.GameType & (Hra.Betl | Hra.Durch))) == 0).Count(i => !i.SevenWon);
+                                ? moneyCalculations.Where(i => (i.GameType & Hra.Sedma) != 0).Count(i => i.SevenWon)
+                                : moneyCalculations.Where(i => (i.GameType & (i.GameType & (Hra.Betl | Hra.Durch))) == 0).Count(i => !i.SevenWon);
             _sevensAgainstBalance = PlayerIndex == gameStartingPlayerIndex
-                                        ? _moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.SevenAgainstWon)
-                                        : _moneyCalculations.Where(i => (i.GameType & (i.GameType & (Hra.Betl | Hra.Durch))) == 0).Count(i => i.SevenAgainstWon);
+                                        ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.SevenAgainstWon)
+                                        : moneyCalculations.Where(i => (i.GameType & (i.GameType & (Hra.Betl | Hra.Durch))) == 0).Count(i => i.SevenAgainstWon);
             _durchBalance = PlayerIndex == gameStartingPlayerIndex
-                                ? _moneyCalculations.Where(i => (i.GameType & Hra.Durch) != 0).Count(i => i.DurchWon)
-                                : _moneyCalculations.Where(i => (i.GameType & Hra.Durch) != 0).Count(i => !i.DurchWon);
+                                ? moneyCalculations.Where(i => (i.GameType & Hra.Durch) != 0).Count(i => i.DurchWon)
+                                : moneyCalculations.Where(i => (i.GameType & Hra.Durch) != 0).Count(i => !i.DurchWon);
             _betlBalance = PlayerIndex == gameStartingPlayerIndex
-                                ? _moneyCalculations.Where(i => (i.GameType & Hra.Betl) != 0).Count(i => i.BetlWon)
-                                : _moneyCalculations.Where(i => (i.GameType & Hra.Betl) != 0).Count(i => !i.BetlWon);
+                                ? moneyCalculations.Where(i => (i.GameType & Hra.Betl) != 0).Count(i => i.BetlWon)
+                                : moneyCalculations.Where(i => (i.GameType & Hra.Betl) != 0).Count(i => !i.BetlWon);
             _log.DebugFormat("** Game {0} by {1} {2} times ({3}%)", PlayerIndex == gameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
                              _gamesBalance, 100 * _gamesBalance / (_gameSimulations > 0 ? _gameSimulations : 1));
             _log.DebugFormat("** Hundred {0} by {1} {2} times ({3}%)", PlayerIndex == gameStartingPlayerIndex ? "won" : "lost", _g.GameStartingPlayer.Name,
@@ -1214,7 +1215,7 @@ namespace Mariasek.Engine.New
                 _durchBalance, 100 * _durchBalance / (_durchSimulations > 0 ? _durchSimulations : 1));            //sgrupuj simulace podle vysledku skore
             _log.DebugFormat("** Betl won {0} times ({1}%)",
                 _betlBalance, 100 * _betlBalance / (_betlSimulations > 0 ? _betlSimulations : 1));            //sgrupuj simulace podle vysledku skore
-            var scores = _moneyCalculations.GroupBy(i => i.PointsWon)
+            var scores = moneyCalculations.GroupBy(i => i.PointsWon)
                 .Select(g => new
                 {
                     Score = g.Key,
@@ -1269,6 +1270,10 @@ namespace Mariasek.Engine.New
             });
             DebugInfo.AllChoices = allChoices.ToArray();
             //DebugInfo.TotalRuleCount = Settings.SimulationsPerGameType;
+            gameComputationResults = null;
+            moneyCalculations = null;
+            scores = null;
+            _runSimulations = false;
             GC.Collect();
         }
 
@@ -1857,7 +1862,7 @@ namespace Mariasek.Engine.New
             var betlThreshold = bidding._betlDurchFlek < Settings.GameThresholdsForGameType[Hra.Betl].Length ? Settings.GameThresholdsForGameType[Hra.Betl][bidding._betlDurchFlek] : 1f;
             var durchThreshold = bidding._betlDurchFlek < Settings.GameThresholdsForGameType[Hra.Durch].Length ? Settings.GameThresholdsForGameType[Hra.Durch][bidding._betlDurchFlek] : 1f;
 
-            if (_moneyCalculations == null)
+            if (_runSimulations)
             {
                 //mame flekovat hru
                 //kilo simulovat nema cenu, hrac ho asi ma, takze flekovat stejne nebudeme
