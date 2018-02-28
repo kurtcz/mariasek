@@ -920,7 +920,7 @@ namespace Mariasek.Engine.New
             {
                 _debugString.AppendFormat("After talon: {0} {1}\n", talon[0], talon[1]);
             }
-            _myTalon = talon;
+            _myTalon = new List<Card>(talon);
             foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
             {
                 foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())

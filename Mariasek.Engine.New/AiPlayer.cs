@@ -1511,19 +1511,16 @@ namespace Mariasek.Engine.New
             }
             if (trumpCount <= 4)
             {
-                if (!Hand.HasA(trump.Value))
+                if (!Hand.HasA(trump.Value) || !Hand.HasX(trump.Value))
                 {
                     n -= 10;
-                    if (!Hand.HasX(trump.Value))
-                    {
-                        n -= 10;
-                    }
                 }
                 if (n < 0)
                 {
                     n = 0;
                 }
             }
+            _debugString.AppendFormat("EstimatedFinalBasicScore: {0}\n", n);
 
             return n;
         }
@@ -1911,7 +1908,7 @@ namespace Mariasek.Engine.New
                 ((TeamMateIndex == -1 && 
                   !Is100AgainstPossible()) ||
                  //nebo jsem nevolil a:
-                 // - (flek) trham trumfovou hlasku nebo mam aspon dva hlasy a trumfa 
+                 // - (flek) mam aspon dva trumfy a trham trumfovou hlasku
                  // nebo mam potencialne vic bodu nez souper bez hlasu a souper nema na to uhrat kilo ani s trumfovou hlaskou
                  // - (tutti a vys) mam trumf (navic jsem musel splnit podminky pro flek) a citim se na flek
                  (TeamMateIndex != -1 &&
@@ -1920,8 +1917,9 @@ namespace Mariasek.Engine.New
                     (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b)) ||
                      Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) || Hand.HasQ(b)) >= 2)) ||
                    (bidding.GameMultiplier < 2 &&
-                    (Hand.HasK(_g.trump.Value) || 
-                     Hand.HasQ(_g.trump.Value) || 
+                    (((Hand.HasK(_g.trump.Value) ||
+                       Hand.HasQ(_g.trump.Value)) &&
+                      estimatedFinalBasicScore >= 30) ||
                      (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
                       estimatedOpponentFinalBasicScore + 40 < 100)))))))// ||
                  //nebo davam re a jsem si dost jisty nehlede na hlasy
@@ -2123,7 +2121,7 @@ namespace Mariasek.Engine.New
 		{
 			if (PlayerIndex == _g.GameStartingPlayerIndex)
 			{
-				_talon = _g.talon;
+                _talon = new List<Card>(_g.talon); //TODO: tohle by se melo delat v Game.LoadGame()!
 			}
             Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _stringLoggerFactory, _talon)
 			{
