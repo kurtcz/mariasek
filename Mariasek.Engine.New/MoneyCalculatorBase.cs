@@ -66,8 +66,8 @@ namespace Mariasek.Engine.New
         public int QuietSevenMoneyWon { get; protected set; }
         public int SevenAgainstMoneyWon { get; protected set; }
         public int QuietSevenAgainstMoneyWon { get; protected set; }
-        public int KilledSevenMoneyWon { get; protected set; }
-        public int KilledSevenAgainstMoneyWon { get; protected set; }
+        //public int KilledSevenMoneyWon { get; protected set; }
+        //public int KilledSevenAgainstMoneyWon { get; protected set; }
         public int HundredMoneyWon { get; protected set; }
         public int QuietHundredMoneyWon { get; protected set; }
         public int HundredAgainstMoneyWon { get; protected set; }
@@ -360,7 +360,7 @@ namespace Mariasek.Engine.New
                         won = SevenWon;
                         genre = Genre.Feminine;
                         multiplier = _bidding.SevenMultiplier;
-                        money = SevenMoneyWon + KilledSevenMoneyWon;
+                        money = SevenMoneyWon;// + KilledSevenMoneyWon;
                         other = KilledSeven ? "\nzabitá" : string.Empty;
                         break;
                     case Hra.Kilo:
@@ -386,7 +386,7 @@ namespace Mariasek.Engine.New
                         genre = Genre.Feminine;
                         gtString = "sedma proti";
                         multiplier = _bidding.SevenAgainstMultiplier;
-                        money = SevenAgainstMoneyWon + KilledSevenAgainstMoneyWon;
+                        money = SevenAgainstMoneyWon;// + KilledSevenAgainstMoneyWon;
                         other = KilledSevenAgainst ? "\nzabitá" : string.Empty;
                         break;
                     case Hra.KiloProti:

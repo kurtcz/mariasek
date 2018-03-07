@@ -12,7 +12,7 @@ namespace Mariasek.Engine.New
         private const int GameValue = 1;
         private const int SevenValue = 2;
         private const int QuietSevenValue = 1;
-        private const int KilledSevenValue = 1;
+        //private const int KilledSevenValue = 1;
         private const int HundredValue = 4;
         private const int QuietHundredValue = 2;
         private const int BetlValue = 5;
@@ -93,12 +93,12 @@ namespace Mariasek.Engine.New
                     else
                     {
                         SevenMoneyWon = -SevenValue * _bidding.SevenMultiplier;
-                        if (KilledSeven)
-                        {
-                            KilledSevenMoneyWon = -KilledSevenValue * _bidding.SevenMultiplier;
-                        }
+                        //if (KilledSeven)
+                        //{
+                        //    KilledSevenMoneyWon = -KilledSevenValue * _bidding.SevenMultiplier;
+                        //}
                     }
-                    money += SevenMoneyWon + KilledSevenMoneyWon;
+                    money += SevenMoneyWon;// + KilledSevenMoneyWon;
                 }
                 else if (SevenWon)
                 {
@@ -107,8 +107,10 @@ namespace Mariasek.Engine.New
                 }
                 else if (KilledSeven)
                 {
-                    KilledSevenMoneyWon = -KilledSevenValue * _bidding.SevenMultiplier;
-                    money += KilledSevenMoneyWon;
+                    //KilledSevenMoneyWon = -KilledSevenValue * _bidding.SevenMultiplier;
+                    //money += KilledSevenMoneyWon;
+                    QuietSevenMoneyWon = -QuietSevenValue;
+                    money += QuietSevenMoneyWon;
                 }
 
                 if ((_gameType & Hra.SedmaProti) != 0)
@@ -120,12 +122,12 @@ namespace Mariasek.Engine.New
                     else
                     {
                         SevenAgainstMoneyWon = SevenValue * _bidding.SevenAgainstMultiplier;
-                        if (KilledSevenAgainst)
-                        {
-                            KilledSevenAgainstMoneyWon = KilledSevenValue * _bidding.SevenAgainstMultiplier;
-                        }
+                        //if (KilledSevenAgainst)
+                        //{
+                        //    KilledSevenAgainstMoneyWon = KilledSevenValue * _bidding.SevenAgainstMultiplier;
+                        //}
                     }
-                    money += SevenAgainstMoneyWon + KilledSevenAgainstMoneyWon;
+                    money += SevenAgainstMoneyWon;// + KilledSevenAgainstMoneyWon;
                 }
                 else if (SevenAgainstWon)
                 {
@@ -134,22 +136,24 @@ namespace Mariasek.Engine.New
                 }
                 else if (KilledSevenAgainst)
                 {
-                    KilledSevenAgainstMoneyWon = KilledSevenValue;
-                    money += KilledSevenAgainstMoneyWon;
+                    //KilledSevenAgainstMoneyWon = KilledSevenValue;
+                    //money += KilledSevenAgainstMoneyWon;
+                    QuietSevenAgainstMoneyWon = QuietSevenValue;
+                    money += QuietSevenAgainstMoneyWon;
                 }
 
-                if ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 && KilledSeven)
-                {
-                    if (FinalCardWon)
-                    {
-                        KilledSevenMoneyWon = KilledSevenValue;
-                    }
-                    else
-                    {
-                        KilledSevenMoneyWon = - KilledSevenValue;
-                    }
-                    money += KilledSevenMoneyWon;
-                }
+                //if ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 && KilledSeven)
+                //{
+                //    if (FinalCardWon)
+                //    {
+                //        KilledSevenMoneyWon = KilledSevenValue;
+                //    }
+                //    else
+                //    {
+                //        KilledSevenMoneyWon = - KilledSevenValue;
+                //    }
+                //    money += KilledSevenMoneyWon;
+                //}
 
                 if ((_gameType & Hra.Kilo) != 0)
                 {
