@@ -461,7 +461,8 @@ namespace Mariasek.Engine.New
             }
             if (KilledSeven && (_gameType & Hra.Sedma) == 0)
             {
-                sb.AppendFormat("Tichá sedma zabitá\t{0}\n", (KilledSevenMoneyWon * BaseBet).ToString("C", _ci));
+                //sb.AppendFormat("Tichá sedma zabitá\t{0}\n", (KilledSevenMoneyWon * BaseBet).ToString("C", _ci));
+                sb.AppendFormat("Tichá sedma zabitá\t{0}\n", (QuietSevenMoneyWon * BaseBet).ToString("C", _ci));
             }
             if (QuietSevenAgainstWon)
             {
@@ -469,7 +470,8 @@ namespace Mariasek.Engine.New
             }
             if (KilledSevenAgainst && (_gameType & Hra.SedmaProti) == 0)
             {
-                sb.AppendFormat("Tichá sedma proti zabitá\t{0}\n", (KilledSevenAgainstMoneyWon * BaseBet).ToString("C", _ci));
+                //sb.AppendFormat("Tichá sedma proti zabitá\t{0}\n", (KilledSevenAgainstMoneyWon * BaseBet).ToString("C", _ci));
+                sb.AppendFormat("Tichá sedma proti zabitá\t{0}\n", (QuietSevenAgainstMoneyWon * BaseBet).ToString("C", _ci));
             }
             if (_trump.HasValue && _trump.Value == Barva.Cerveny)
             {

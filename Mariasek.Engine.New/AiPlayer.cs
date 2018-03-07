@@ -1511,7 +1511,7 @@ namespace Mariasek.Engine.New
             }
             if (trumpCount <= 4)
             {
-                if (!Hand.HasA(trump.Value) || !Hand.HasX(trump.Value))
+                if (!Hand.HasA(trump.Value))
                 {
                     n -= 10;
                 }
@@ -1521,6 +1521,7 @@ namespace Mariasek.Engine.New
                 }
             }
             _debugString.AppendFormat("EstimatedFinalBasicScore: {0}\n", n);
+            DebugInfo.EstimatedFinalBasicScore = n;
 
             return n;
         }

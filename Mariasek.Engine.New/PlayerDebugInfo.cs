@@ -9,6 +9,7 @@ namespace Mariasek.Engine.New
     {
         public RuleDebugInfo[] AllChoices { get; set; }
 		public TimeSpan ComputationTime { get; set; }
+        public int EstimatedFinalBasicScore { get; set; }
 
         public PlayerDebugInfo()
         {

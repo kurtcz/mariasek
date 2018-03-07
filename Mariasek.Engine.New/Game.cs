@@ -1473,12 +1473,13 @@ namespace Mariasek.Engine.New
 
         public void AddBiddingDebugInfo(int playerIndex)
         {
-            BiddingDebugInfo.Append("Všechny simulace:");
-			if (players[playerIndex].DebugInfo == null)
-			{
-				BiddingDebugInfo.Append("DebugInfo == null");
-				return;
-			}
+            if (players[playerIndex].DebugInfo == null)
+            {
+                BiddingDebugInfo.Append("DebugInfo == null");
+                return;
+            }
+            BiddingDebugInfo.AppendFormat("Odhad skóre: {0}", players[playerIndex].DebugInfo.EstimatedFinalBasicScore);
+            BiddingDebugInfo.Append("\nVšechny simulace:");
 			if (players[playerIndex].DebugInfo.AllChoices == null)
 			{
 				BiddingDebugInfo.Append("DebugInfo.AllChoices == null");
