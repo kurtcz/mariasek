@@ -706,7 +706,7 @@ namespace Mariasek.Engine.New
                 {
                     var cardsToPlay = Enumerable.Empty<Card>();
 
-                    if (TeamMateIndex != -1)
+                    if (TeamMateIndex == player3) //Tohle plati jen v 1. kole
                     {
                         if (ValidCards(c1, hands[MyIndex]).All(i => i.Suit == c1.Suit))
                         {
@@ -729,13 +729,6 @@ namespace Mariasek.Engine.New
                                 cardsToPlay = ValidCards(c1, hands[MyIndex]);
                             }
                         }
-
-                        if (c1.Value == Hodnota.Sedma ||
-                            c1.Value == Hodnota.Osma)
-                        {
-                            //zkusíme soupeře dostat nízkýma kartama (v následujícím pravidle)
-                            return null;
-                        }
                     }
                     return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                 }
@@ -751,7 +744,7 @@ namespace Mariasek.Engine.New
                     var cardsToPlay = Enumerable.Empty<Card>();
                     var svrsek = new Card(Barva.Cerveny, Hodnota.Svrsek);
 
-                    if (TeamMateIndex != -1)
+                    if (TeamMateIndex != -1 && RoundNumber > 1)
                     {
                         cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == c1.Suit &&
                                                                                 i.BadValue > c1.BadValue);

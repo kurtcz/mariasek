@@ -921,35 +921,27 @@ namespace Mariasek.Engine.New
                 {
 					sb.AppendFormat("Adding hand of player {0}\n", player.PlayerIndex + 1);
                     //dodame karty ve stychu vyjma hlasu
-                    foreach (var r in rounds)
+                    foreach (var r in rounds.Where(r => r != null))
                     {
-                        if (r == null)
+                        if (r.roundWinner == player && !r.hlas3)
                         {
-                            break;
+                            deck.Add(r.c3);
+                            sb.AppendFormat("Round {0} card 3: Adding {1}\n", r.number, r.c3);
+                        }
+                        if (r.roundWinner == player && !r.hlas2)
+                        {
+                            deck.Add(r.c2);
+                            sb.AppendFormat("Round {0} card 2: Adding {1}\n", r.number, r.c2);
                         }
 						if (r.roundWinner == player && !r.hlas1)
                         {
                             deck.Add(r.c1);
 							sb.AppendFormat("Round {0} card 1: Adding {1}\n", r.number, r.c1);
                         }
-						if (r.roundWinner == player && !r.hlas2)
-                        {
-                            deck.Add(r.c2);
-							sb.AppendFormat("Round {0} card 2: Adding {1}\n", r.number, r.c2);
-                        }
-						if (r.roundWinner == player && !r.hlas3)
-                        {
-                            deck.Add(r.c3);
-							sb.AppendFormat("Round {0} card 3: Adding {1}\n", r.number, r.c3);
-                        }
                     }
 					sb.Append("Hlasy\n");
-                    foreach (var r in rounds)
+                    foreach (var r in rounds.Where(r => r != null).OrderByDescending(r => r.number))
                     {
-                        if (r == null)
-                        {
-                            break;
-                        }
                         //dodame hlasy
                         if (r.hlas1 && r.player1 == player)
                         {

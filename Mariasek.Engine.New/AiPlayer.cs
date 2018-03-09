@@ -1552,6 +1552,10 @@ namespace Mariasek.Engine.New
             {
                 return true;
             }
+            if (Hand.Count(i => i.Suit == _trump.Value && i.Value >= Hodnota.Spodek) < 3)
+            {
+                return true;
+            }
             foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
             {
                 var hiCards = Hand.Count(i => i.Suit == b &&

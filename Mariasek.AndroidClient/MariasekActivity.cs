@@ -264,14 +264,15 @@ namespace Mariasek.AndroidClient
                     uris.Add(uri);
                 }
                 email.PutParcelableArrayListExtra(Intent.ExtraStream, uris.ToArray());
-                try
-                {
-                    StartActivity(email);
-                }
-                catch
-                {
-                    StartActivity(Intent.CreateChooser(email, "Jakou aplikací odeslat email?"));
-                }
+                StartActivity(Intent.CreateChooser(email, "Jakou aplikací odeslat email?"));
+                //try
+                //{
+                //    StartActivity(email);
+                //}
+                //catch
+                //{
+                //    StartActivity(Intent.CreateChooser(email, "Jakou aplikací odeslat email?"));
+                //}
             }
             catch(Exception ex)
             {

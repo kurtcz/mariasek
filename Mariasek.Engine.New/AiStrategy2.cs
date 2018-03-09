@@ -1116,6 +1116,10 @@ namespace Mariasek.Engine.New
                         //u sedmy proti hraju od nejvyssi karty (A nebo X) v nejdelsi netrumfove barve
                         //bud projde nebo ze soupere vytlacim trumf
                         var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                _probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0 &&                                                                                
+                                                                                _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 &&
+                                                                                _probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 &&                                                                                
+                                                                                _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0 &&
                                                                                 (i.Value == Hodnota.Eso ||
                                                                                 (i.Value == Hodnota.Desitka &&
                                                                                  _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0 &&
@@ -1132,6 +1136,8 @@ namespace Mariasek.Engine.New
                         //u sedmy hraju od nejvyssi karty (A nebo X) v nejdelsi netrumfove barve
                         //bud projde nebo ze soupere vytlacim trumf
                         var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                _probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 &&
+                                                                                _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0 &&
                                                                                 (i.Value == Hodnota.Eso ||
                                                                                 (i.Value == Hodnota.Desitka &&
                                                                                  _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0)))
@@ -1148,6 +1154,8 @@ namespace Mariasek.Engine.New
                         //u sedmy hraju od nejvyssi karty (A nebo X) v nejdelsi netrumfove barve
                         //bud projde nebo ze soupere vytlacim trumf
                         var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                _probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0 &&
+                                                                                _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 &&
                                                                                 (i.Value == Hodnota.Eso ||
                                                                                 (i.Value == Hodnota.Desitka &&
                                                                                  _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0)))
