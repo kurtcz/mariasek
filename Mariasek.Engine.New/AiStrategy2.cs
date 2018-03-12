@@ -45,6 +45,19 @@ namespace Mariasek.Engine.New
             //u sedmy mi nevadi, kdyz se spoluhrace tlacim desitky a esa, snazim se hlavne hrat proti sedme
             if (TeamMateIndex != -1)
             {
+                var opponent = TeamMateIndex == (MyIndex + 1) % Game.NumPlayers
+                                ? (MyIndex + 2) % Game.NumPlayers
+                                : (MyIndex + 1) % Game.NumPlayers;
+
+                //nehraj barvu pokud mam eso a souper muze mit desitku
+                foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                     .Where(b => _probabilities.CardProbability(MyIndex, new Card(b, Hodnota.Eso)) == 1 &&
+                                                 _probabilities.CardProbability(opponent, new Card(b, Hodnota.Desitka)) > _epsilon))// &&
+                                                 //_probabilities.HasSolitaryX(TeamMateIndex, b, RoundNumber) < SolitaryXThreshold))
+                {
+                    _bannedSuits.Add(b);
+                }
+
                 foreach (var r in _rounds.Where(i => i != null && i.c3 != null))
                 {
                     if (r.player2.PlayerIndex == TeamMateIndex &&
@@ -70,6 +83,11 @@ namespace Mariasek.Engine.New
                     {
                         _preferredSuits.Add(r.c3.Suit);
                     }
+                    //deje se v AiPlayer.UpdateProbabilitiesAfterCardPlayed()
+                    //if (r.player1.TeamMateIndex == MyIndex)
+                    //{
+                    //    _teamMatesSuits.Add(r.c1.Suit);
+                    //}
                 }
                 if (_gameType != (Hra.Hra | Hra.Sedma))
                 {
@@ -1171,9 +1189,35 @@ namespace Mariasek.Engine.New
                 }
             };
 
+            //TODO: Hrat spoluhracovu barvu
             yield return new AiRule()
             {
                 Order = 10,
+                Description = "hrát spoluhráčovu barvu",
+                SkipSimulations = true,
+                ChooseCard1 = () =>
+                {
+                    if (TeamMateIndex != -1 && _teamMatesSuits.Any())
+                    {
+                        var opponent = TeamMateIndex == player2 ? player3 : player2;
+                        var cardsToPlay =  ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&                                                                                 
+                                                                                 _teamMatesSuits.Contains(i.Suit) &&
+                                                                                 _probabilities.SuitProbability(opponent, _trump, RoundNumber) > 0 &&
+                                                                                 _probabilities.HasSolitaryX(player2, i.Suit, RoundNumber) < SolitaryXThreshold &&
+                                                                                 i.Value != Hodnota.Eso &&
+                                                                                 i.Value != Hodnota.Desitka);
+
+                        return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+                                          .ThenBy(i => i.Value)
+                                          .FirstOrDefault();
+                    }
+                    return null;
+                }
+            };
+
+            yield return new AiRule()
+            {
+                Order = 11,
                 Description = "hrát dlouhou barvu mimo A,X,trumf",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -1183,7 +1227,7 @@ namespace Mariasek.Engine.New
                         //c--
                         if ((_probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 ||
                              _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0) &&
-                            (_gameType & Hra.Kilo) == 0 &&              //tohle pravidlo nehraju pro kilu
+                            (_gameType & Hra.Kilo) == 0 &&              //tohle pravidlo nehraju pri kilu
                             (((_gameType & Hra.Sedma)!=0 &&             //pokud hraju sedmu tak se pokusim uhrat A,X nize 
                               hands[MyIndex].CardCount(_trump) > 1) ||  //a dalsi karty pripadne hrat v ramci "hrat cokoli mimo A,X,trumf a dalsich"
                              (hands[MyIndex].CardCount(_trump) > 0)))   //to same pokud jsem volil, sedmu nehraju a uz nemam zadny trumf v ruce
@@ -1288,7 +1332,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 11,
+                Order = 12,
                 Description = "obětuj plonkovou X",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -1321,7 +1365,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 12,
+                Order = 13,
                 Description = "hrát vítěznou kartu",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -1374,7 +1418,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 13,
+                Order = 14,
                 Description = "hrát vítězné A",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -1418,7 +1462,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 14,
+                Order = 15,
                 Description = "hrát největší trumf",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -1442,7 +1486,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 15,
+                Order = 16,
                 Description = "zbavit se plev",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -1457,10 +1501,15 @@ namespace Mariasek.Engine.New
                                                                                 i.Value != Hodnota.Eso &&
                                                                                 i.Value != Hodnota.Desitka &&
                                                                                 !topCards.Contains(i)).ToList();
-
+                        
                         if (TeamMateIndex != -1)
                         {
                             var opponentIndex = Enumerable.Range(0, Game.NumPlayers).First(i => i != MyIndex && i != TeamMateIndex);
+
+                            if (cardsToPlay.Any(i => _teamMatesSuits.Contains(i.Suit)))
+                            {
+                                cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
+                            }
 
                             //neobetuj karty kterymi bych ze spoluhrace vytahl A,X ktery by souper vzal trumfem
                             return cardsToPlay.Where(i => !_bannedSuits.Contains(i.Suit) &&
@@ -1485,7 +1534,7 @@ namespace Mariasek.Engine.New
 
 			yield return new AiRule()
 			{
-				Order = 16,
+				Order = 17,
 				Description = "hrát cokoli mimo A,X,trumf",
 				SkipSimulations = true,
 				ChooseCard1 = () =>
@@ -1504,6 +1553,11 @@ namespace Mariasek.Engine.New
                         }
                         return null;
 					}
+                    if (cardsToPlay.Any(i => _teamMatesSuits.Contains(i.Suit)))
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
+                    }
+
                     return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
 									  .ThenBy(i => i.Value)
 									  .FirstOrDefault();
@@ -1545,7 +1599,7 @@ namespace Mariasek.Engine.New
             {
                 yield return new AiRule()
                 {
-                    Order = 17,
+                    Order = 18,
                     Description = "hrát cokoli mimo trumf",
                     SkipSimulations = true,
                     ChooseCard1 = () =>
@@ -1561,6 +1615,11 @@ namespace Mariasek.Engine.New
                             return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
                         }
 
+                        if (cardsToPlay.Any(i => _teamMatesSuits.Contains(i.Suit)))
+                        {
+                            cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
+                        }
+
                         return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
                                           .ThenBy(i => i.Value)
                                           .FirstOrDefault();
@@ -1570,7 +1629,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule()
             {
-                Order = 18,
+                Order = 19,
                 Description = "hrát cokoli",
                 SkipSimulations = true,
                 ChooseCard1 = () =>
@@ -1585,6 +1644,11 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex == -1)
                     {
                         return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                    }
+
+                    if (cardsToPlay.Any(i => _teamMatesSuits.Contains(i.Suit)))
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
                     }
 
                     return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))

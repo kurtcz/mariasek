@@ -19,6 +19,7 @@ bld/
 [Bb]in/
 [Oo]bj/
 SavedGames/
+.vs/
 
 # Roslyn cache directories
 *.ide/

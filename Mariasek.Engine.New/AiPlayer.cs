@@ -1509,7 +1509,7 @@ namespace Mariasek.Engine.New
             {
                 n += 10;
             }
-            if (trumpCount <= 4)
+            if (trumpCount <= 4 && PlayerIndex == _g.GameStartingPlayerIndex)
             {
                 if (!Hand.HasA(trump.Value))
                 {
@@ -2200,7 +2200,7 @@ namespace Mariasek.Engine.New
             else
             {
                 probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, hlas1);
-                if (roundStarterIndex == teamMateIndex && teamMateDoubledGame)
+                if (roundStarterIndex == teamMateIndex)// && teamMateDoubledGame)
                 {
                     if (teamMatesSuits.All(i => i != c1.Suit))
                     {

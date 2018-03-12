@@ -395,13 +395,15 @@ namespace Mariasek.Engine.New
                         gtString = "kilo proti";
                         multiplier = _bidding.HundredAgainstMultiplier;
                         money = HundredAgainstMoneyWon;
-                        score = string.Format("Do kila schází: {0} bodů{1}{2}\n", 100 - (BasicPointsLost + MaxHlasLost),
-                                                              HlasPointsWasted == 0
-                                                              ? string.Empty
-                                                              : string.Format("\nPropadlé hlasy: {0} bodů", HlasPointsWasted),
-                                                              PointsWon == BasicPointsWon
-                                                              ? string.Empty
-                                                              : string.Format("\nHlasy proti: {0} bodů", PointsWon - BasicPointsWon));
+                        score = won
+                                ? string.Empty
+                                : string.Format("Do kila schází: {0} bodů{1}{2}\n", 100 - (BasicPointsLost + MaxHlasLost),
+                                                  HlasPointsWasted == 0
+                                                  ? string.Empty
+                                                  : string.Format("\nPropadlé hlasy: {0} bodů", HlasPointsWasted),
+                                                  PointsWon == BasicPointsWon
+                                                  ? string.Empty
+                                                  : string.Format("\nHlasy proti: {0} bodů", PointsWon - BasicPointsWon));
                         break;
                     case Hra.Betl:
                         won = BetlWon;

@@ -2589,8 +2589,8 @@ namespace Mariasek.SharedClient
                             if (!testGame)
                             {
                                 File.Delete(_savedGameFilePath);
+                                MenuBtnClicked(this);
                             }
-                            MenuBtnClicked(this);
                             return;
                         }
                         g.GameFlavourChosen += GameFlavourChosen;

@@ -28,7 +28,8 @@ namespace Mariasek.Engine.New
                         MyIndex = playerIndex,
                         MyName = name,
                         TeamMateIndex = teamMateIndex,
-                        RoundNumber = initialRoundNumber.HasValue ? initialRoundNumber.Value : g.RoundNumber
+                        RoundNumber = initialRoundNumber.HasValue ? initialRoundNumber.Value : g.RoundNumber,
+                        RiskFactor = riskFactor
                     };
                 default:
                     return new AiStrategy2(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, teamMatesSuits, probabilities)

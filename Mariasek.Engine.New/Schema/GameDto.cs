@@ -42,16 +42,10 @@ namespace Mariasek.Engine.New.Schema
             get { return Typ.HasValue? Typ.Value : 0; }
             set { Typ = value; }
         }
-        [XmlIgnore]
+        [XmlAttribute]
         public Barva? Trumf;
         [XmlIgnore]
-        public bool TrumfValueSpecified { get { return Trumf.HasValue; } }
-        [XmlAttribute(AttributeName = "Trumf")]
-        public Barva TrumfValue
-        {
-			get { return Trumf.HasValue ? Trumf.Value : 0; }
-            set { Trumf = value; }
-        }
+        public bool TrumfSpecified { get { return Trumf.HasValue; } }
         [XmlAttribute]
         public Hrac Voli;
         [XmlElement]

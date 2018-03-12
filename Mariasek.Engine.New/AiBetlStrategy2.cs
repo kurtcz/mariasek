@@ -32,20 +32,13 @@ namespace Mariasek.Engine.New
             {
                 if (RoundNumber == 2)
                 {
-                    //pokud v 1.kole vsichni priznali barvu ale spoluhrac nesel vejs
+                    //pokud v 1.kole vsichni priznali barvu ale spoluhrac nesel vejs (a bylo kam jit vejs)
                     if (_rounds[0].c1.Suit == _rounds[0].c2.Suit &&
                         (_rounds[0].player2.PlayerIndex == TeamMateIndex &&
                          _rounds[0].c1.BadValue > _rounds[0].c2.BadValue) ||
                         (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
-                         _rounds[0].c1.BadValue > _rounds[0].c3.BadValue))
-                    {
-                        preferredSuits.Add(_rounds[0].c1.Suit);
-                    }
-                    if (_rounds[0].c1.Suit == _rounds[0].c2.Suit &&
-                        (_rounds[0].player2.PlayerIndex == TeamMateIndex &&
-                         _rounds[0].c1.BadValue > _rounds[0].c2.BadValue) ||
-                        (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
-                         _rounds[0].c1.BadValue > _rounds[0].c3.BadValue))
+                         _rounds[0].c2.BadValue > _rounds[0].c3.BadValue &&
+                         _rounds[0].c2.Value != Hodnota.Eso))
                     {
                         preferredSuits.Add(_rounds[0].c1.Suit);
                     }
@@ -262,55 +255,6 @@ namespace Mariasek.Engine.New
                         return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                     }
                 };
-                //        yield return new AiRule()
-                //        {
-                //            Order = 1,
-                //            Description = "Zkus vítěznou kartu",
-                //SkipSimulations = true,
-                //           ChooseCard1 = () =>
-                //           {
-                //               IEnumerable<Card> cardsToPlay = Enumerable.Empty<Card>();
-
-                //               if (TeamMateIndex == player2)//co-
-                //               {
-                //                   cardsToPlay = hands[MyIndex].Where(i => (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
-                //                                                           _probabilities.SuitHigherThanCardProbability(player2, i, RoundNumber, false) <= RiskFactor &&
-                //                                                           _probabilities.SuitHigherThanCardProbability(player3, i, RoundNumber, false) >= 1 - RiskFactor);
-
-                //                   var certainCardsToPlay = cardsToPlay.Where(i => _probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0);
-                //
-                //                   if (certainCardsToPlay.Any())
-                //                   {
-                //                       return cardsToPlay.OrderBy(i => i.BadValue).First();
-                //                   }
-                //               }
-                //               else if (TeamMateIndex == player3)//c-o
-                //               {
-                //                   cardsToPlay = hands[MyIndex].Where(i => (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
-                //                                                           _probabilities.SuitHigherThanCardProbability(player2, i, RoundNumber, false) >= 1 - RiskFactor &&
-                //                                                           _probabilities.SuitHigherThanCardProbability(player3, i, RoundNumber, false) <= RiskFactor);
-                //
-                //                   var certainCardsToPlay = cardsToPlay.Where(i => _probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0);
-                //
-                //                   if (certainCardsToPlay.Any())
-                //                   {
-                //                       return cardsToPlay.OrderBy(i => i.BadValue).First();
-                //                   }
-                //               }
-                //
-                //if (RoundNumber == 2 && _rounds != null && _rounds[0] != null) //pri simulaci hry jsou skutecny kola jeste neodehrany
-                //{
-                //	//zahrat viteznou kartu v 2. kole (kolega asi nezna barvu voliciho hrace z prvniho kola)
-                //	var winner = cardsToPlay.FirstOrDefault(i => i.Suit == _rounds[0].c1.Suit);
-                //
-                //	if (winner != null)
-                //	{
-                //		return winner;
-                //	}
-                //}
-                //        return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
-                //    }
-                //};
 
                 yield return new AiRule()
                 {
@@ -459,7 +403,7 @@ namespace Mariasek.Engine.New
                                                                                     hiCards.First(k => k.Suit == i.Suit)
                                                                                            .BadValue > j.BadValue)
                                                                         .Count(j => _probabilities.CardProbability(opponent, j) > 0)))
-                                                    .Where(i => i.Item2 > 0);
+                                                    .Where(i => i.Item2 > 2);   //pokud je der 2 a min, tak hraj rovnou nizkou kartu
                         //Item1 je nizka karta a Item2 je pocet der mezi ni a vysokou kartou
                         //nehrat pokud mam prilis mnoho vysokych karet
                         if (hiCards.Count() <= 6 && loCards.Any())
@@ -489,68 +433,6 @@ namespace Mariasek.Engine.New
                         return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                     }
                 };
-                //       yield return new AiRule()
-                //       {
-                //           Order = 7,
-                //           Description = "Odmazat si vysokou kartu",
-                //           SkipSimulations = true,
-                //           ChooseCard1 = () =>
-                //           {
-                //               var cardsToPlay = new List<Card>();
-
-                //               //hi1 = pocet mych karet > nejmensi souperova
-                //               //hi2 = pocet kolegovych karet > nejmensi souperova
-                //               //mid1 = pocet souperovych karet > nejmensi moje
-                //               //mid2 = pocet souperovych karet > nejmensi kolegy
-                //               foreach (var barva in Enum.GetValues(typeof(Barva)).Cast<Barva>().Where(i => (!bannedSuit.HasValue || i != bannedSuit.Value)))
-                //               {
-                //                   if (hands[MyIndex].HasSuit(barva) && _probabilities.SuitProbability(opponent, barva, RoundNumber) > 0)
-                //                   {
-                //                       var low1 = hands[MyIndex].Where(i => i.Suit == barva)
-                //                                                .OrderBy(i => i.BadValue)
-                //                                                .FirstOrDefault()
-                //                                  ?? new Card(barva, Hodnota.Eso);
-                //                       var low2 = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                //                                      .Select(h => new Card(barva, h))
-                //                                      .OrderBy(i => i.BadValue)
-                //                                      .FirstOrDefault(i => _probabilities.CardProbability(TeamMateIndex, i) > 0)
-                //                                  ?? new Card(barva, Hodnota.Eso);
-                //                       var oplow = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                //                                       .Select(h => new Card(barva, h))
-                //                                       .OrderBy(i => i.BadValue)
-                //                                       .FirstOrDefault(i => _probabilities.CardProbability(opponent, i) > 0)
-                //                                   ?? new Card(barva, Hodnota.Eso);
-                //                       var hi1 = hands[MyIndex].Count(i => i.Suit == barva && i.BadValue > oplow.BadValue);
-                //                       var hi2 = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                //                                     .Select(h => new Card(barva, h))
-                //                                     .Count(i => i.BadValue > oplow.BadValue &&
-                //                                                 _probabilities.CardProbability(TeamMateIndex, i) > 0);
-                //                       var mid1 = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                //                                      .Select(h => new Card(barva, h))
-                //                                      .Count(i => i.BadValue > low1.BadValue &&
-                //                                                  _probabilities.CardProbability(opponent, i) > 0);
-                //                       var mid2 = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                //                                                                      .Select(h => new Card(barva, h))
-                //                                      .Count(i => i.BadValue > low2.BadValue &&
-                //                                                  _probabilities.CardProbability(opponent, i) > 0);
-
-                //                       //odmazavat ma smysl jen tehdy pokud:
-                //                       //mame nejmensi kartu a
-                //                       //nasich vysokych karet je mene nez souperovych strednich karet
-                //                       //(aby souperovi nejake karty zbyly pote co si vysoke odmazeme)
-                //                       if ((low1.IsLowerThan(oplow, null) && hi2 > 0 && hi2 < mid1) ||
-                //                           (low2.IsLowerThan(oplow, null) && hi1 > 0 && hi1 < mid2))
-                //                       {
-                //                           cardsToPlay.Add(hands[MyIndex].Where(i => i.Suit == barva)
-                //                                                         .OrderByDescending(i => i.BadValue)
-                //                                                         .First());
-                //                       }
-                //                   }
-                //               }
-
-                //return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
-                //    }
-                //};
             }
 
             yield return new AiRule()

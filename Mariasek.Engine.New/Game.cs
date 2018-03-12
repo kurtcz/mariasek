@@ -369,10 +369,13 @@ namespace Mariasek.Engine.New
             var gameData = (GameDto)serializer.Deserialize(fileStream);
 
             RoundNumber = 0;
-            trump = gameData.Trumf;
             if (gameData.Typ.HasValue)
             {
                 GameType = gameData.Typ.Value;
+            }
+            if (GameType != 0 && (GameType & (Hra.Betl | Hra.Durch)) == 0)
+            {
+                trump = gameData.Trumf;
             }
             GameStartingPlayerIndex = (int) gameData.Voli;
             OriginalGameStartingPlayerIndex = GameStartingPlayerIndex;
@@ -593,7 +596,7 @@ namespace Mariasek.Engine.New
                 {
                     Kolo = roundNumber,
                     Voli = (Hrac)GameStartingPlayerIndex,
-                    Trumf = trump.HasValue ? trump : null,
+                    Trumf = GameType != 0 ? trump : null,
                     Typ = GameType != 0 ? (Hra?)GameType : null,
                     Zacina = (Hrac)startingPlayerIndex,
                     Autor = Author,
