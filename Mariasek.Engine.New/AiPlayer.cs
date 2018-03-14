@@ -1496,7 +1496,11 @@ namespace Mariasek.Engine.New
             var axCount = Hand.Count(i => i.Value == Hodnota.Eso ||
                                            (i.Value == Hodnota.Desitka &&
                                             (Hand.HasA(i.Suit) ||
-                                             Hand.HasK(i.Suit))));
+                                             Hand.HasK(i.Suit) ||
+                                             (Hand.HasQ(i.Suit) &&
+                                              Hand.CardCount(i.Suit) > 2) ||
+                                             (Hand.HasJ(i.Suit) &&
+                                              Hand.CardCount(i.Suit) > 3))));
             var trumpCount = Hand.CardCount(trump.Value);
             var cardsPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>().ToDictionary(b => b, b => Hand.CardCount(b));
             var aceOnlySuits = cardsPerSuit.Count(i => i.Value == 1 && Hand.HasA(i.Key)); //zapocitame desitku pokud mame od barvy jen eso
@@ -1924,7 +1928,9 @@ namespace Mariasek.Engine.New
                    (bidding.GameMultiplier < 2 &&
                     (((Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&
-                      estimatedFinalBasicScore >= 30) ||
+                      (estimatedFinalBasicScore >= 30 ||
+                       (estimatedFinalBasicScore >= 20 &&
+                        kqScore >= 20))) ||
                      (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
                       estimatedOpponentFinalBasicScore + 40 < 100)))))))// ||
                  //nebo davam re a jsem si dost jisty nehlede na hlasy

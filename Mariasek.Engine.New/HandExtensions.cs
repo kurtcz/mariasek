@@ -134,6 +134,21 @@ namespace Mariasek.Engine.New
             return hand.Any(i => i.Value == Hodnota.Svrsek && i.Suit == suit);
         }
 
+        public static bool HasJ(this List<Card> hand, Barva suit)
+        {
+            return hand.Any(i => i.Value == Hodnota.Spodek && i.Suit == suit);
+        }
+
+        public static bool Has9(this List<Card> hand, Barva suit)
+        {
+            return hand.Any(i => i.Value == Hodnota.Devitka && i.Suit == suit);
+        }
+
+        public static bool Has8(this List<Card> hand, Barva suit)
+        {
+            return hand.Any(i => i.Value == Hodnota.Osma && i.Suit == suit);
+        }
+
         public static bool Has7(this List<Card> hand, Barva suit)
         {
             return hand.Any(i => i.Value == Hodnota.Sedma && i.Suit == suit);
