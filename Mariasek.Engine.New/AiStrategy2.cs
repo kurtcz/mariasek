@@ -1200,10 +1200,12 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex != -1 && _teamMatesSuits.Any())
                     {
                         var opponent = TeamMateIndex == player2 ? player3 : player2;
-                        var cardsToPlay =  ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&                                                                                 
+                        var cardsToPlay =  ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&    
+                                                                                 !_bannedSuits.Contains(i.Suit) &&
                                                                                  _teamMatesSuits.Contains(i.Suit) &&
                                                                                  _probabilities.SuitProbability(opponent, _trump, RoundNumber) > 0 &&
-                                                                                 _probabilities.HasSolitaryX(player2, i.Suit, RoundNumber) < SolitaryXThreshold &&
+                                                                                 _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) > 0 &&
+                                                                                 _probabilities.HasSolitaryX(TeamMateIndex, i.Suit, RoundNumber) < SolitaryXThreshold &&
                                                                                  i.Value != Hodnota.Eso &&
                                                                                  i.Value != Hodnota.Desitka);
 
