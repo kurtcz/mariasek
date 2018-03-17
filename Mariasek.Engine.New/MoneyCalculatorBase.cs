@@ -373,7 +373,7 @@ namespace Mariasek.Engine.New
                                               PointsLost, 
                                               won 
                                               ? string.Empty 
-                                              : string.Format("Do kila schází: {0} bodů{1}{2}\n", 100 - (BasicPointsWon + MaxHlasWon),
+                                              : string.Format("\nDo kila schází: {0} bodů{1}{2}\n", 100 - (BasicPointsWon + MaxHlasWon),
                                                               HlasPointsWasted == 0
                                                               ? string.Empty
                                                               : string.Format("\nPropadlé hlasy: {0} bodů", HlasPointsWasted),

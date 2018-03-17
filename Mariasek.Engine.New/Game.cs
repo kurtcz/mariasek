@@ -471,7 +471,8 @@ namespace Mariasek.Engine.New
                 var c1 = new Card(cards[player1].Barva, cards[player1].Hodnota);
                 var c2 = new Card(cards[player2].Barva, cards[player2].Hodnota);
                 var c3 = new Card(cards[player3].Barva, cards[player3].Hodnota);
-                var r = new Round(this, players[player1], c1, c2, c3, RoundNumber);  //inside this constructor we replay the round and call all event handlers to ensure that all players can update their ai model
+                //inside this constructor we replay the round and call all event handlers to ensure that all players can update their ai model
+                var r = new Round(this, players[player1], c1, c2, c3, RoundNumber); 
 
                 rounds[stych.Kolo - 1] = r;
 
@@ -1473,7 +1474,17 @@ namespace Mariasek.Engine.New
                 BiddingDebugInfo.Append("DebugInfo == null");
                 return;
             }
-            BiddingDebugInfo.AppendFormat("Odhad skóre: {0}", players[playerIndex].DebugInfo.EstimatedFinalBasicScore);
+            if (trump.HasValue)
+            {
+                BiddingDebugInfo.AppendFormat("Odhad skóre: {0}", players[playerIndex].DebugInfo.EstimatedFinalBasicScore);
+                var kqScore = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                  .Where(b => players[playerIndex].Hand.HasK(b) && players[playerIndex].Hand.HasQ(b))
+                                  .Sum(b => b == trump.Value ? 40 : 20);
+                if (kqScore > 0)
+                {
+                    BiddingDebugInfo.AppendFormat("+{0}", kqScore);
+                }
+            }
             BiddingDebugInfo.Append("\nVšechny simulace:");
 			if (players[playerIndex].DebugInfo.AllChoices == null)
 			{

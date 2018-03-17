@@ -1519,10 +1519,14 @@ namespace Mariasek.Engine.New
                 {
                     n -= 10;
                 }
-                if (n < 0)
-                {
-                    n = 0;
-                }
+            }
+            if (trumpCount <= 2 && PlayerIndex != _g.GameStartingPlayerIndex)
+            {
+                n -= 10;
+            }
+            if (n < 0)
+            {
+                n = 0;
             }
             _debugString.AppendFormat("EstimatedFinalBasicScore: {0}\n", n);
             DebugInfo.EstimatedFinalBasicScore = n;
@@ -1956,8 +1960,9 @@ namespace Mariasek.Engine.New
                  (bidding.PlayerBids[0] & Hra.Sedma) != 0) &&
                 _sevenSimulations > 0 && 
                 bidding._sevenFlek <= Settings.MaxDoubleCountForGameType[Hra.Sedma] &&
-                Hand.CardCount(_g.trump.Value) >= 3 && 
-                Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => Hand.HasSuit(b)) &&
+                (Hand.CardCount(_g.trump.Value) >= 4 ||
+                 (Hand.CardCount(_g.trump.Value) >= 3 && 
+                  Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => Hand.HasSuit(b)))) &&
                 _sevensBalance / (float)_sevenSimulations >= sevenThreshold)
             {
                 bid |= bidding.Bids & Hra.Sedma;
