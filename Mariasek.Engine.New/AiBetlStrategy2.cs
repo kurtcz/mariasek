@@ -123,8 +123,8 @@ namespace Mariasek.Engine.New
                     ChooseCard1 = () =>
                     {
                         var cardsToPlay = hands[MyIndex].Where(i => hands[MyIndex].CardCount(i.Suit) == 6 &&
-                                                                    (hands[MyIndex].Has7(i.Suit) ||
-                                                                     hands[MyIndex].Has8(i.Suit)) &&
+                                                                    (hands[MyIndex].HasA(i.Suit) ||
+                                                                     hands[MyIndex].HasK(i.Suit)) &&
                                                                     Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                         .Select(h => new Card(i.Suit, h))
                                                                         .Where(j => j.BadValue > i.BadValue)

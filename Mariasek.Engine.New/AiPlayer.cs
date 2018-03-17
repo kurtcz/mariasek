@@ -1788,7 +1788,9 @@ namespace Mariasek.Engine.New
                          ((!Settings.AiMayGiveUp &&
                            !AdvisorMode) ||
                           ((_gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0) ||
-                           estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore + 40 ||
+                           //estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore + 40 ||
+                           (estimatedFinalBasicScore >= 10 &&
+                            estimatedFinalBasicScore + kqScore >= 40) ||
                            (estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore &&
                             (Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value))))))
                 {
@@ -1919,6 +1921,9 @@ namespace Mariasek.Engine.New
                 //trham trumfovy hlas
                 //nebo ho netrham a mam aspon dva hlasy
                 ((TeamMateIndex == -1 && 
+                  (Hand.HasK(_g.trump.Value) ||
+                   Hand.HasQ(_g.trump.Value) ||
+                   Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b))) &&
                   !Is100AgainstPossible()) ||
                  //nebo jsem nevolil a:
                  // - (flek) mam aspon dva trumfy a trham trumfovou hlasku
@@ -1933,7 +1938,7 @@ namespace Mariasek.Engine.New
                     (((Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&
                       (estimatedFinalBasicScore >= 30 ||
-                       (estimatedFinalBasicScore >= 20 &&
+                       (estimatedFinalBasicScore >= 10 && //20 by bylo bezpecnejsi (neni 10 moc malo?)
                         kqScore >= 20))) ||
                      (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
                       estimatedOpponentFinalBasicScore + 40 < 100)))))))// ||
@@ -2255,7 +2260,7 @@ namespace Mariasek.Engine.New
                 var progress = 0;
                 var start = DateTime.Now;
 
-                if (_gameType != Hra.Betl && _g.CurrentRound != null)
+                if (_g.CurrentRound != null)
                 {
                     //pokud je hra v behu tak krome betla nepotrebujeme paralelni vypocty
                     //protoze ted pouzivame pravdepodobnostni pravidla

@@ -9,6 +9,7 @@ namespace Mariasek.SharedClient.GameComponents
 {
     public class GameReview : ScrollBox
     {
+        private static readonly Color Pink = new Color(0xff, 0x90, 0xa0);
         private RectangleShape _background;
         private List<Mariasek.Engine.New.Card>[] _initialHands;
         public Sprite[][] Hands;
@@ -607,7 +608,7 @@ namespace Mariasek.SharedClient.GameComponents
                     }
                     else
                     {
-                        Rounds[i][0].Tint = Color.LightPink;
+                        Rounds[i][0].Tint = Pink;
                     }
                 }
                 else
@@ -626,7 +627,7 @@ namespace Mariasek.SharedClient.GameComponents
                     }
                     else
                     {
-                        Rounds[i][1].Tint = Color.LightPink;
+                        Rounds[i][1].Tint = Pink;
                     }
                 }
                 else
@@ -645,7 +646,7 @@ namespace Mariasek.SharedClient.GameComponents
                     }
                     else
                     {
-                        Rounds[i][2].Tint = Color.LightPink;
+                        Rounds[i][2].Tint = Pink;
                     }
                 }
                 else
@@ -772,7 +773,7 @@ namespace Mariasek.SharedClient.GameComponents
                         }
                         else
                         {
-                            Hands[i][j].Tint = Color.LightPink;
+                            Hands[i][j].Tint = Pink;
                         }
                     }
                     else
@@ -787,7 +788,7 @@ namespace Mariasek.SharedClient.GameComponents
                         }
                         else
                         {
-                            Hands[i][j].Tint = Color.LightPink;
+                            Hands[i][j].Tint = Pink;
                         }
                     }
                 }
