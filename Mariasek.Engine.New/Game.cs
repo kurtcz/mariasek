@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Serialization;
 using Mariasek.Engine.New.Logger;
 using Mariasek.Engine.New.Configuration;
@@ -367,7 +368,51 @@ namespace Mariasek.Engine.New
 
             var serializer = new XmlSerializer(typeof(GameDto));
             var gameData = (GameDto)serializer.Deserialize(fileStream);
-
+            fileStream.Position = 0;
+            var xmlrdr = XmlReader.Create(fileStream);
+            var parentNodes = new Stack<string>();
+            var roundComments = new List<Queue<string>>();
+            string[] tmpcomments = null;
+            var comment = 0;
+            while(xmlrdr.Read())
+            {
+                switch(xmlrdr.NodeType)
+                {
+                    case XmlNodeType.Element:
+                        if (!xmlrdr.IsEmptyElement)
+                        {
+                            parentNodes.Push(xmlrdr.Name);
+                            if (xmlrdr.Name == "Stych")
+                            {
+                                tmpcomments = new [] {"-", "-", "-"};
+                                comment = 0;
+                            }
+                        }
+                        break;
+                    case XmlNodeType.Comment:
+                        if (parentNodes.Any() && 
+                            parentNodes.Peek() == "Stych" &&
+                            tmpcomments != null)
+                        {
+                            tmpcomments[comment++] = xmlrdr.Value.Trim();
+                        }
+                        break;
+                    case XmlNodeType.EndElement:
+                        if (xmlrdr.Name == "Hra")
+                        {
+                            BiddingDebugInfo.Clear();
+                            BiddingDebugInfo.Append(xmlrdr.Value.Trim());
+                        }
+                        else if (xmlrdr.Name == "Stych")
+                        {
+                            roundComments.Add(new Queue<string>(tmpcomments));
+                            tmpcomments = null;
+                        }
+                        parentNodes.Pop();
+                        break;
+                }
+            }
+                  
             RoundNumber = 0;
             if (gameData.Typ.HasValue)
             {
@@ -418,9 +463,15 @@ namespace Mariasek.Engine.New
                 gameData.Stychy = new Stych[0];
             }
 
-            players[0].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null).Select(i => new Card(i.Hrac1.Barva, i.Hrac1.Hodnota)));
-            players[1].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac2 != null).Select(i => new Card(i.Hrac2.Barva, i.Hrac2.Hodnota)));
-            players[2].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac3 != null).Select(i => new Card(i.Hrac3.Barva, i.Hrac3.Hodnota)));
+            players[0].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
+                                                                i.Hrac2 != null &&
+                                                                i.Hrac3 != null).Select(i => new Card(i.Hrac1.Barva, i.Hrac1.Hodnota)));
+            players[1].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
+                                                                i.Hrac2 != null &&
+                                                                i.Hrac3 != null).Select(i => new Card(i.Hrac2.Barva, i.Hrac2.Hodnota)));
+            players[2].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
+                                                                i.Hrac2 != null &&
+                                                                i.Hrac3 != null).Select(i => new Card(i.Hrac3.Barva, i.Hrac3.Hodnota)));
             var temp = new List<Card>();
             for (int i = 0; i < 3; i++)
             {
@@ -462,6 +513,20 @@ namespace Mariasek.Engine.New
                     });
                 }
                 RoundNumber++;
+
+                var comments = roundComments != null &&
+                               RoundNumber >= 1 && 
+                               RoundNumber <= roundComments.Count()
+                               ? roundComments[RoundNumber - 1]
+                               : null;
+                var debugNotes = comments != null && comments.Count() >= NumPlayers 
+                                     ? new [] 
+                                       {
+                                           comments.Dequeue().StringBeforeToken("\n").Trim(), 
+                                           comments.Dequeue().StringBeforeToken("\n").Trim(),
+                                           comments.Dequeue().StringBeforeToken("\n").Trim()
+                                       }
+                                     : new [] { string.Empty, string.Empty, string.Empty };
                 var cards = new[] {stych.Hrac1, stych.Hrac2, stych.Hrac3};
                 
                 var player1 = (int) stych.Zacina;
@@ -472,7 +537,7 @@ namespace Mariasek.Engine.New
                 var c2 = new Card(cards[player2].Barva, cards[player2].Hodnota);
                 var c3 = new Card(cards[player3].Barva, cards[player3].Hodnota);
                 //inside this constructor we replay the round and call all event handlers to ensure that all players can update their ai model
-                var r = new Round(this, players[player1], c1, c2, c3, RoundNumber); 
+                var r = new Round(this, players[player1], c1, c2, c3, RoundNumber, debugNotes[player1], debugNotes[player2], debugNotes[player3]);
 
                 rounds[stych.Kolo - 1] = r;
 

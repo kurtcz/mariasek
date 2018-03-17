@@ -59,7 +59,11 @@ namespace Mariasek.Engine.New
             player3 = _g.players[(player2.PlayerIndex + 1) % Game.NumPlayers];
         }
 
-        public Round(Game g, AbstractPlayer roundStarter, Card c1, Card c2, Card c3, int roundNumber) : this(g, roundStarter)
+        public Round(Game g, AbstractPlayer roundStarter, Card c1, Card c2, Card c3, int roundNumber) : this(g, roundStarter, c1, c2, c3, roundNumber, string.Empty, string.Empty, string.Empty)
+        {            
+        }
+
+        public Round(Game g, AbstractPlayer roundStarter, Card c1, Card c2, Card c3, int roundNumber, string debugNote1, string debugNote2, string debugNote3) : this(g, roundStarter)
         {
             number = roundNumber;
             player1 = roundStarter;
@@ -67,6 +71,7 @@ namespace Mariasek.Engine.New
             player3 = _g.players[(roundStarter.PlayerIndex + 2) % Game.NumPlayers];
 
             this.c1 = c1;
+            this.debugNote1 = debugNote1;
             if(_g.trump.HasValue && c1.Value == Hodnota.Svrsek && player1.Hand.HasK(c1.Suit))
             {
                 hlasPoints1 = c1.Suit == _g.trump.Value ? 40 : 20;
@@ -76,6 +81,7 @@ namespace Mariasek.Engine.New
             _g.OnCardPlayed(this);
             
             this.c2 = c2;
+            this.debugNote2 = debugNote2;
             if (_g.trump.HasValue && c2.Value == Hodnota.Svrsek && player2.Hand.HasK(c2.Suit))
             {
                 hlasPoints2 = c2.Suit == _g.trump.Value ? 40 : 20;
@@ -85,6 +91,7 @@ namespace Mariasek.Engine.New
             _g.OnCardPlayed(this);
 
             this.c3 = c3;
+            this.debugNote3 = debugNote3;
             if (_g.trump.HasValue && c3.Value == Hodnota.Svrsek && player3.Hand.HasK(c3.Suit))
             {
                 hlasPoints3 = c3.Suit == _g.trump.Value ? 40 : 20;

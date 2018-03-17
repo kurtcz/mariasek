@@ -111,5 +111,17 @@ namespace Mariasek.Engine.New
 
             return false;
 		}
+    
+        public static string StringBeforeToken(this string text, string token)
+        {
+            var index = text.IndexOf(token);
+
+            if (index >= 0)
+            {
+                return text.Substring(0, index);
+            }
+
+            return text;
+        }
     }
 }
