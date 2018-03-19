@@ -1520,10 +1520,10 @@ namespace Mariasek.Engine.New
                     n -= 10;
                 }
             }
-            if (trumpCount <= 2 && PlayerIndex != _g.GameStartingPlayerIndex)
-            {
-                n -= 10;
-            }
+            //if (trumpCount <= 2 && PlayerIndex != _g.GameStartingPlayerIndex)
+            //{
+            //    n -= 10;
+            //}
             if (n < 0)
             {
                 n = 0;
