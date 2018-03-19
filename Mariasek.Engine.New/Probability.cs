@@ -61,8 +61,8 @@ namespace Mariasek.Engine.New
             _gameBidders = new List<int>();
 			_playerWeights = new List<int>();
             _myHand = myHand;
-            _talon = talon;
-            _myTalon = talon;
+            _talon = talon != null ? new List<Card>(talon) : null;
+            _myTalon = talon != null ? new List<Card>(talon) : null;
             _debugString = stringLoggerFactory();
             _verboseString = stringLoggerFactory();
             ExternalDebugString = stringLoggerFactory();
