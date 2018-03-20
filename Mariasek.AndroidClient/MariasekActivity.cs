@@ -232,6 +232,35 @@ namespace Mariasek.AndroidClient
             }
         }
 
+        private Intent[] GetEmailApps()
+        {
+            var result = new List<Intent>();
+            try
+            {
+                //Intent that only email apps can handle:
+                var email = new Intent(Intent.ActionSendto);
+                email.SetData(Android.Net.Uri.Parse("mailto:"));
+                email.PutExtra(Android.Content.Intent.ExtraEmail, "");
+                email.PutExtra(Android.Content.Intent.ExtraSubject, "");
+
+                var packageManager = Application.Context.PackageManager;
+                var emailApps = packageManager.QueryIntentActivities(email, (PackageInfoFlags)0x20000); //PackageInfoFlags.MatchAll == 0x20000
+
+                foreach (var resolveInfo in emailApps)
+                {
+                    var packageName = resolveInfo.ActivityInfo.PackageName;
+                    var app = packageManager.GetLaunchIntentForPackage(packageName);
+
+                    result.Add(app);
+                }
+            }
+            catch
+            {
+                //fetching email apps failed
+            }
+            return result.ToArray();
+        }
+
 		public void SendEmail(string[] recipients, string subject, string body, string[] attachments)
         {
             var email = new Intent(Android.Content.Intent.ActionSendMultiple);
@@ -264,15 +293,14 @@ namespace Mariasek.AndroidClient
                     uris.Add(uri);
                 }
                 email.PutParcelableArrayListExtra(Intent.ExtraStream, uris.ToArray());
-                StartActivity(Intent.CreateChooser(email, "Jakou aplikací odeslat email?"));
-                //try
-                //{
-                //    StartActivity(email);
-                //}
-                //catch
-                //{
-                //    StartActivity(Intent.CreateChooser(email, "Jakou aplikací odeslat email?"));
-                //}
+
+                var chooser = Intent.CreateChooser(email, "Jakou aplikací odeslat email?");
+                var emailApps = GetEmailApps();
+                if (emailApps.Length > 0)
+                {
+                    chooser.PutExtra(Intent.ExtraInitialIntents, emailApps);
+                }
+                StartActivity(chooser);
             }
             catch(Exception ex)
             {

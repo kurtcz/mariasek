@@ -553,28 +553,37 @@ namespace Mariasek.Engine.New
                     };
                     RunGameSimulations(bidding, PlayerIndex, false, true);
                 }
-                if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][1] * _durchSimulations && _durchSimulations > 0)
+                //pokud je min. hra betl, zbyva uz jen talon na durcha
+                if (_g.GameType == Hra.Betl)
                 {
                     _talon = ChooseDurchTalon(Hand, null);
                 }
-                else if (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations && _betlSimulations > 0)
+                else
                 {
-                    _talon = ChooseBetlTalon(Hand, null);
-                }
-                else 
-                {
-                    //ani jedno nevyslo pres prah, vezmeme to co vyslo lepe
-                    if (_g.GameType == Hra.Betl ||  //tudiz zbyva uz jen vzit talon na durcha
-                        (_durchBalance > 0 &&
-                         _durchSimulations > 0 &&
-                         (_betlSimulations == 0 ||
-                          (float)_durchBalance / (float)_durchSimulations > (float)_betlBalance / (float)_betlSimulations)))
+                    //pokud vysel durch pres prah, vyber pro nej talon
+                    if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][1] * _durchSimulations && _durchSimulations > 0)
                     {
                         _talon = ChooseDurchTalon(Hand, null);
                     }
-                    else
+                    //pokud vysel betl pres prah, vyber pro nej talon
+                    else if (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations && _betlSimulations > 0)
                     {
                         _talon = ChooseBetlTalon(Hand, null);
+                    }
+                    else
+                    {
+                        //ani jedno nevyslo pres prah, vezmeme to co vyslo lepe
+                        if (_durchBalance > 0 &&
+                            _durchSimulations > 0 &&
+                            (_betlSimulations == 0 ||
+                             (float)_durchBalance / (float)_durchSimulations > (float)_betlBalance / (float)_betlSimulations))
+                        {
+                            _talon = ChooseDurchTalon(Hand, null);
+                        }
+                        else
+                        {
+                            _talon = ChooseBetlTalon(Hand, null);
+                        }
                     }
                 }
             }
