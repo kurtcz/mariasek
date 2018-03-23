@@ -55,7 +55,8 @@ namespace Mariasek.SharedClient
             _talon = null;
             _trumpCard = null;
             firstTimeChoosingFlavour = true;
-            Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _stringLoggerFactory, _g.talon);
+            Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, 
+                                            _g.AllowAXTalon, _g.AllowTrumpTalon, _stringLoggerFactory, _g.talon);
             _cancellationTokenSource = new CancellationTokenSource();
             if (_aiPlayer != null)
             {
@@ -167,7 +168,8 @@ namespace Mariasek.SharedClient
             _g.ThrowIfCancellationRequested();
             if (_aiPlayer != null)
             {
-                _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _stringLoggerFactory, _talon)
+                _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump,
+                                                          _g.AllowAXTalon, _g.AllowTrumpTalon, _stringLoggerFactory, _talon)
                 {
                     ExternalDebugString = _aiPlayer._debugString
                 };
@@ -246,7 +248,8 @@ namespace Mariasek.SharedClient
                                 //nasimulovany talon musime nahradit skutecnym pokud ho uz znam, jinak to udelam v ChooseTalon
                                 if (_talon != null)
                                 {
-                                    _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _stringLoggerFactory, _talon)
+                                    _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, 
+                                                                              _g.AllowAXTalon, _g.AllowTrumpTalon, _stringLoggerFactory, _talon)
 									{
 										ExternalDebugString = _aiPlayer._debugString
 									};
@@ -298,7 +301,8 @@ namespace Mariasek.SharedClient
                         //nasimulovany talon musime nahradit skutecnym pokud ho uz znam, jinak to udelam v ChooseTalon
                         if (_talon != null)
                         {
-                            _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _stringLoggerFactory, _talon)
+                            _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, 
+                                                                      _g.AllowAXTalon, _g.AllowTrumpTalon, _stringLoggerFactory, _talon)
                             {
                                 ExternalDebugString = _aiPlayer._debugString
                             };
@@ -507,7 +511,9 @@ namespace Mariasek.SharedClient
             _previousBid = e.GameType;
             if (e.GameStartingPlayerIndex != PlayerIndex && _aiPlayer != null)
             {
-                _aiPlayer.Probabilities = new Probability(PlayerIndex, e.GameStartingPlayerIndex, new Hand(Hand), e.TrumpCard != null ? e.TrumpCard.Suit : (Barva?)null, _stringLoggerFactory, _talon)
+                _aiPlayer.Probabilities = new Probability(PlayerIndex, e.GameStartingPlayerIndex, new Hand(Hand), 
+                                                          e.TrumpCard != null ? e.TrumpCard.Suit : (Barva?)null, 
+                                                          _g.AllowAXTalon, _g.AllowTrumpTalon, _stringLoggerFactory, _talon)
                 {
                     ExternalDebugString = _aiPlayer._debugString
                 };

@@ -54,6 +54,10 @@ namespace Mariasek.Engine.New
         public int BetlValue { get; set; }
         public int DurchValue { get; set; }
 
+        public bool AllowAXTalon { get; set; }
+        public bool AllowTrumpTalon { get; set; }
+        public bool AllowAIAutoFinish { get; set; }
+        public bool AllowPlayerAutoFinish { get; set; }
         public bool SkipBidding { get; set; }
         public float BaseBet { get; set; }
         public int MinimalBidsForGame { get; set; }
@@ -202,6 +206,10 @@ namespace Mariasek.Engine.New
             MinimalBidsForSeven = 0;
             Top107 = false;
             GameTypeConfidence = -1f;
+            AllowAXTalon = false;
+            AllowTrumpTalon = true;
+            AllowAIAutoFinish = true;
+            AllowPlayerAutoFinish = true;
             GetStringLogger = stringLoggerFactory;
             if (GetStringLogger == null)
             {
@@ -824,7 +832,10 @@ namespace Mariasek.Engine.New
                     {
                         //predcasne vitezstvi ukazuju jen do sedmeho kola, pro posledni 2 karty to nema smysl
                         //(kontrola je po sedmem kole)
-						if (RoundNumber <= 8 && PlayerWinsGame(roundWinner))
+						if (RoundNumber <= 8 && 
+                            ((AllowPlayerAutoFinish && roundWinner.PlayerIndex == 0) || 
+                             (AllowAIAutoFinish && roundWinner.PlayerIndex != 0)) &&
+                            PlayerWinsGame(roundWinner))
 						{
 							IsRunning = false;
 							if (GameType == Hra.Betl)
@@ -1064,18 +1075,21 @@ namespace Mariasek.Engine.New
         public bool IsValidTalonCard(Card c)
         {
 			//to druhe by nemelo teoreticky nastat, ale uz se to par hracum nejak povedlo
-			return IsValidTalonCard(c.Value, c.Suit, trump) && c != TrumpCard;
+			return IsValidTalonCard(c.Value, c.Suit, trump, AllowAXTalon, AllowTrumpTalon) && c != TrumpCard;
         }
 
-        public static bool IsValidTalonCard(Hodnota h, Barva b, Barva? trump)
+        public static bool IsValidTalonCard(Hodnota h, Barva b, Barva? trump, bool allowAX, bool allowTrump)
         {
             if (!trump.HasValue)
             {
                 return true;
             }
-
-            return h != Hodnota.Eso && 
-                   h != Hodnota.Desitka;
+            if (b == trump.Value && !allowTrump)
+            {
+                return false;
+            }
+            return (h != Hodnota.Eso && 
+                    h != Hodnota.Desitka) || allowAX;
         }
 
 #endregion

@@ -27,7 +27,8 @@ namespace Mariasek.Engine.New
         private static RandomMT mt = new RandomMT((ulong)(DateTime.Now - DateTime.MinValue).TotalMilliseconds);
         private List<int> _playerWeights;
         private List<Hand[]> generatedHands;
-
+        private bool _allowAXTalon;
+        private bool _allowTrumpTalon;
         public const int talonIndex = Game.NumPlayers;
         public bool UseDebugString { get; set; }
 
@@ -48,7 +49,7 @@ namespace Mariasek.Engine.New
         //private Dictionary<Hra, float> _initialExpectedTrumpsPerGameType = new Dictionary<Hra, float>() { { Hra.Hra, 3f }, { Hra.Sedma, 5f }, { Hra.Kilo, 7f}};
         private float _gameStarterCurrentExpectedTrumps = 3f;
 
-        public Probability(int myIndex, int gameStarterIndex, Hand myHand, Barva? trump, Func<IStringLogger> stringLoggerFactory, List<Card> talon = null)
+        public Probability(int myIndex, int gameStarterIndex, Hand myHand, Barva? trump, bool allowAXTalon, bool allowTrumpTalon, Func<IStringLogger> stringLoggerFactory, List<Card> talon = null)
         {
             _myIndex = myIndex;
 			_gameIndex = -1;
@@ -56,6 +57,8 @@ namespace Mariasek.Engine.New
             _sevenAgainstIndex = -1;
 			_hundredIndex = -1;
             _hundredAgainstIndex = -1;
+            _allowAXTalon = allowAXTalon;
+            _allowTrumpTalon = allowTrumpTalon;
             _gameStarterIndex = gameStarterIndex;
             _trump = trump;
             _gameBidders = new List<int>();
@@ -93,7 +96,7 @@ namespace Mariasek.Engine.New
                         }
                         else if (i == talonIndex)
                         {                            
-                            if(!Game.IsValidTalonCard(h, b, trump))
+                            if(!Game.IsValidTalonCard(h, b, trump, _allowAXTalon, _allowTrumpTalon))
                             {
                                 //karty co nemohou byt v talonu
                                 _cardProbabilityForPlayer[i][b].Add(h, 0f);
@@ -974,7 +977,7 @@ namespace Mariasek.Engine.New
                         foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
                         {
                             _cardProbabilityForPlayer[talonIndex][b][h] = _cardProbabilityForPlayer[_myIndex][b][h] == 1 ||
-                                                                          !Game.IsValidTalonCard(h, b, _trump) 
+                                                                          !Game.IsValidTalonCard(h, b, _trump, _allowAXTalon, _allowTrumpTalon) 
                                                                           ? 0 : 0.5f;
                         }
                     }

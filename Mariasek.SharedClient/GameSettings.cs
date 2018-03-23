@@ -57,6 +57,10 @@ namespace Mariasek.SharedClient
         public int HundredValue { get; set; }
         public int BetlValue { get; set; }
         public int DurchValue { get; set; }
+        public bool AllowAXTalon { get; set; }
+        public bool AllowTrumpTalon { get; set; }
+        public bool AllowAIAutoFinish { get; set; }
+        public bool AllowPlayerAutoFinish { get; set; }
         public int ThinkingTimeMs { get; set; }
         public int BubbleTimeMs { get; set; }
         public int MaxHistoryLength { get; set; }
@@ -110,6 +114,10 @@ namespace Mariasek.SharedClient
             MinimalBidsForGame = 1;
             MinimalBidsForSeven = 0;
             Top107 = false;
+            AllowAXTalon = false;
+            AllowTrumpTalon = true;
+            AllowAIAutoFinish = true;
+            AllowPlayerAutoFinish = true;
             ShowStatusBar = false;
             AiMayGiveUp = true;
             ShowScoreDuringGame = true;

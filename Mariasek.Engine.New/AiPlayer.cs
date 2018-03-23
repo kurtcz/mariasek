@@ -409,6 +409,13 @@ namespace Mariasek.Engine.New
                 trumpCard = hand.OrderByDescending(i => hand.CardCount(i.Suit))
                                 .ThenByDescending(i => i.Value).First();
             }
+            if (_g.AllowAXTalon)
+            {
+                //nejdriv se zbav plonkovych desitek (pokud se to smi)
+                talon.AddRange(hand.Where(i => i.Value == Hodnota.Desitka &&
+                                               i.Suit != trumpCard.Suit &&
+                                               hand.HasSolitaryX(i.Suit)));
+            }
             //nejdriv zkus vzit karty v barve kde krom esa mam max 2 plivy (a nemam hlasku)
             talon.AddRange(hand.Where(i => i.Suit != trumpCard.Suit &&             //nevybirej trumfy
                                            i.Value != Hodnota.Eso &&               //ani esa
@@ -495,11 +502,10 @@ namespace Mariasek.Engine.New
             //nakonec cokoli co je podle pravidel
             talon.AddRange(hand.Where(i => !(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
                                              i.Suit == trumpCard.Suit) &&
-                                           i.Value != Hodnota.Eso &&               //ani A,X
-                                           i.Value != Hodnota.Desitka)
-                                .OrderByDescending(i => i.Suit == trumpCard.Suit
-                                                        ? -1 : (int)trumpCard.Suit)//nejdriv zkus jine nez trumfy
-                                .ThenBy(i => i.Value));                            //vybirej od nejmensich karet
+                                           Game.IsValidTalonCard(i.Value, i.Suit, _trumpCard.Suit, _g.AllowAXTalon, _g.AllowTrumpTalon))
+                               .OrderByDescending(i => i.Suit == trumpCard.Suit
+                                                       ? -1 : (int)trumpCard.Suit)//nejdriv zkus jine nez trumfy
+                               .ThenBy(i => i.Value));                            //vybirej od nejmensich karet
 
             if(talon.Count < 2)
             {
@@ -546,7 +552,8 @@ namespace Mariasek.Engine.New
                 if (_rerunSimulations)
                 {
                     var bidding = new Bidding(_g);
-                    Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, _stringLoggerFactory, new List<Card>())
+                    Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, 
+                                                    true, true, _stringLoggerFactory, new List<Card>())
                     {
                         ExternalDebugString = _debugString,
                         UseDebugString = true
@@ -632,7 +639,8 @@ namespace Mariasek.Engine.New
                     }
                     flavour = GameFlavour.Good;
                 }
-                Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, _stringLoggerFactory, _talon)
+                Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), TrumpCard?.Suit, 
+                                                _g.AllowAXTalon, _g.AllowTrumpTalon, _stringLoggerFactory, _talon)
                 {
                     ExternalDebugString = _debugString,
                     UseDebugString = true
@@ -651,7 +659,8 @@ namespace Mariasek.Engine.New
                     _talon = PlayerIndex == _g.GameStartingPlayerIndex ? new List<Card>() : null;
                 }
                 var probabilities = Probabilities;
-                Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, _stringLoggerFactory, _talon)
+                Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, 
+                                                true, true, _stringLoggerFactory, _talon)
 				{
 					ExternalDebugString = _debugString
 				};
@@ -2153,7 +2162,8 @@ namespace Mariasek.Engine.New
 			{
                 _talon = new List<Card>(_g.talon); //TODO: tohle by se melo delat v Game.LoadGame()!
 			}
-            Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _stringLoggerFactory, _talon)
+            Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, 
+                                            _g.AllowAXTalon, _g.AllowTrumpTalon, _stringLoggerFactory, _talon)
 			{
 				ExternalDebugString = _debugString
 			};
@@ -2189,7 +2199,8 @@ namespace Mariasek.Engine.New
             }
             if (PlayerIndex != _g.GameStartingPlayerIndex || Probabilities == null) //Probabilities == null by nemelo nastat, ale ...
             {
-                Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, _stringLoggerFactory, _talon)
+                Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, 
+                                                _g.AllowAXTalon, _g.AllowTrumpTalon, _stringLoggerFactory, _talon)
 				{
 					ExternalDebugString = _debugString
 				};

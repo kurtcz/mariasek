@@ -1144,7 +1144,11 @@ namespace Mariasek.SharedClient
                          QuietHundredValue = Game.Settings.QuietHundredValue,
                          HundredValue = Game.Settings.HundredValue,
                          BetlValue = Game.Settings.BetlValue,
-                         DurchValue = Game.Settings.DurchValue
+                         DurchValue = Game.Settings.DurchValue,
+                         AllowAXTalon = Game.Settings.AllowAXTalon,
+                         AllowTrumpTalon = Game.Settings.AllowTrumpTalon,
+                         AllowAIAutoFinish = Game.Settings.AllowAIAutoFinish,
+                         AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish
                      };
                      g.RegisterPlayers(
                          new HumanPlayer(g, _aiConfig, this, Game.Settings.HintEnabled) { Name = Game.Settings.PlayerNames[0] },
@@ -1513,8 +1517,7 @@ namespace Mariasek.SharedClient
                     _okBtn.IsEnabled = _talon.Count == 2;
                     if (!TrumpCardTakenBack)
                     {
-                        if (_talon.Any(i => !g.IsValidTalonCard(i) &&
-                                            i != g.TrumpCard))
+                        if (_talon.Any(i => !g.IsValidTalonCard(i)))
                         {
                             _msgLabelSmall.Text = "\n\nS tímto talonem musíš hrát betl nebo durch";
                             _msgLabelSmall.Show();
@@ -2581,7 +2584,11 @@ namespace Mariasek.SharedClient
                             QuietHundredValue = Game.Settings.QuietHundredValue,
                             HundredValue = Game.Settings.HundredValue,
                             BetlValue = Game.Settings.BetlValue,
-                            DurchValue = Game.Settings.DurchValue
+                            DurchValue = Game.Settings.DurchValue,
+                            AllowAXTalon = Game.Settings.AllowAXTalon,
+                            AllowTrumpTalon = Game.Settings.AllowTrumpTalon,
+                            AllowAIAutoFinish = Game.Settings.AllowAIAutoFinish,
+                            AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish
                         };
                         g.RegisterPlayers(
                             new HumanPlayer(g, _aiConfig, this, Game.Settings.HintEnabled) { Name = Game.Settings.PlayerNames[0] },

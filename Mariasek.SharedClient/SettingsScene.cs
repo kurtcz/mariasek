@@ -47,6 +47,10 @@ namespace Mariasek.SharedClient
         private Label _player1;
         private Label _player2;
         private Label _player3;
+        private Label _allowAXTalon;
+        private Label _allowTrumpTalon;
+        private Label _allowAIAutoFinish;
+        private Label _allowPlayerAutoFinish;
         private Label _minBidsForGame;
         private Label _minBidsForSeven;
         //private Label _maxHistoryLength;
@@ -84,6 +88,10 @@ namespace Mariasek.SharedClient
         private Button _player1Name;
         private Button _player2Name;
         private Button _player3Name;
+        private LeftRightSelector _allowAXTalonSelector;
+        private LeftRightSelector _allowTrumpTalonSelector;
+        private LeftRightSelector _allowAIAutoFinishSelector;
+        private LeftRightSelector _allowPlayerAutoFinishSelector;
         private LeftRightSelector _minBidsForGameSelector;
         private LeftRightSelector _minBidsForSevenSelector;
         //private LeftRightSelector _maxHistoryLengthSelector;
@@ -518,143 +526,98 @@ namespace Mariasek.SharedClient
             {
                 _showScoreDuringGameSelector.SelectedIndex = 0;
             }
-            _autoFinishRounds = new Label(this)
+
+            _allowAXTalon = new Label(this)
             {
                 Position = new Vector2(200, 2 * pageOffset + 190),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
+                Text = "Ostré karty v talonu",
                 Group = 1,
-                Text = "Ukončení kola",
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
-            _autoFinishRoundsSelector = new LeftRightSelector(this)
+            _allowAXTalonSelector = new LeftRightSelector(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 190),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Automaticky", true }, { "Dotykem", false } }
+                Items = new SelectorItems() { { "Povolit", true }, { "Zakázat", false } }
             };
-            _autoFinishRoundsSelector.SelectedIndex = _autoFinishRoundsSelector.Items.FindIndex(Game.Settings.AutoFinishRounds);
-            _autoFinishRoundsSelector.SelectionChanged += AutoFinishRoundsChanged;
-            if (_autoFinishRoundsSelector.SelectedIndex < 0)
+            _allowAXTalonSelector.SelectedIndex = _allowAXTalonSelector.Items.FindIndex(Game.Settings.AllowAXTalon);
+            _allowAXTalonSelector.SelectionChanged += AllowAXTalonChanged;
+            if (_allowAXTalonSelector.SelectedIndex < 0)
             {
-                _autoFinishRoundsSelector.SelectedIndex = 0;
+                _allowAXTalonSelector.SelectedIndex = 0;
             }
-            //_showStatusBar = new Label(this)
-            //{
-            //    Position = new Vector2(200, 2 * pageOffset + 250),
-            //    Width = (int)Game.VirtualScreenWidth / 2 - 150,
-            //    Height = 50,
-            //    Text = "Stavový řádek",
-            //    Group = 1,
-            //    HorizontalAlign = HorizontalAlignment.Center,
-            //    VerticalAlign = VerticalAlignment.Middle
-            //};
-            //_showStatusBarSelector = new LeftRightSelector(this)
-            //{
-            //    Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 250),
-            //    Width = 270,
-            //    Group = 1,
-            //    Items = new SelectorItems() { { "Nezobrazovat", false }, { "Zobrazit", true } }
-            //};
-            //_showStatusBarSelector.SelectedIndex = _showStatusBarSelector.Items.FindIndex(Game.Settings.ShowStatusBar);
-            //_showStatusBarSelector.SelectionChanged += ShowStatusBarChanged;
-            //if (_showStatusBarSelector.SelectedIndex < 0)
-            //{
-            //    _showStatusBarSelector.SelectedIndex = 0;
-            //}
-            _roundFinishedWaitTime = new Label(this)
+            _allowTrumpTalon = new Label(this)
             {
                 Position = new Vector2(200, 2 * pageOffset + 250),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
+                Text = "Trumfy v talonu",
                 Group = 1,
-                Text = "Prodleva na konci kola",
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
-            _roundFinishedWaitTimeSelector = new LeftRightSelector(this)
+            _allowTrumpTalonSelector = new LeftRightSelector(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 250),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Krátká", 1000 }, { "Dlouhá", 2000 } }
+                Items = new SelectorItems() { { "Povolit", true }, { "Zakázat", false } }
             };
-            _roundFinishedWaitTimeSelector.SelectedIndex = _roundFinishedWaitTimeSelector.Items.FindIndex(Game.Settings.RoundFinishedWaitTimeMs);
-            _roundFinishedWaitTimeSelector.SelectionChanged += RoundFinishedWaitTimeChanged ;
-            if (_roundFinishedWaitTimeSelector.SelectedIndex < 0)
+            _allowTrumpTalonSelector.SelectedIndex = _allowTrumpTalonSelector.Items.FindIndex(Game.Settings.AllowTrumpTalon);
+            _allowTrumpTalonSelector.SelectionChanged += AllowTrumpTalonChanged;
+            if (_allowTrumpTalonSelector.SelectedIndex < 0)
             {
-                _roundFinishedWaitTimeSelector.SelectedIndex = 0;
+                _allowTrumpTalonSelector.SelectedIndex = 0;
             }
-            _autoFinishLastRound = new Label(this)
+            _allowAIAutoFinish = new Label(this)
             {
                 Position = new Vector2(200, 2 * pageOffset + 310),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
+                Text = "AI ložené hry",
                 Group = 1,
-                Text = "Poslední kolo sehrát",
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
-            _autoFinishLastRoundSelector = new LeftRightSelector(this)
+            _allowAIAutoFinishSelector = new LeftRightSelector(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 310),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Automaticky", true }, { "Ručně", false } }
+                Items = new SelectorItems() { { "Nedohrává", true }, { "Dohrává", false } }
             };
-            _autoFinishLastRoundSelector.SelectedIndex = _autoFinishLastRoundSelector.Items.FindIndex(Game.Settings.AutoFinish);
-            _autoFinishLastRoundSelector.SelectionChanged += AutoFinishLastRoundChanged;
-            if (_autoFinishLastRoundSelector.SelectedIndex < 0)
+            _allowAIAutoFinishSelector.SelectedIndex = _allowAIAutoFinishSelector.Items.FindIndex(Game.Settings.AllowAIAutoFinish);
+            _allowAIAutoFinishSelector.SelectionChanged += AllowAIAutoFinishChanged;
+            if (_allowAIAutoFinishSelector.SelectedIndex < 0)
             {
-                _autoFinishLastRoundSelector.SelectedIndex = 0;
+                _allowAIAutoFinishSelector.SelectedIndex = 0;
             }
-            //_maxHistoryLength = new Label(this)
-            //{
-            //    Position = new Vector2(200, 2 * pageOffset + 370),
-            //    Width = (int)Game.VirtualScreenWidth / 2 - 150,
-            //    Height = 50,
-            //    Text = "Max. délka historie",
-            //    Group = 1,
-            //    HorizontalAlign = HorizontalAlignment.Center,
-            //    VerticalAlign = VerticalAlignment.Middle
-            //};
-            //_maxHistoryLengthSelector = new LeftRightSelector(this)
-            //{
-            //    Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 370),
-            //    Width = 270,
-            //    Group = 1,
-            //    Items = new SelectorItems() { { "Neomezená", 0 }, { "1000 her", 1000 }, { "2000 her", 2000 }, { "5000 her", 5000 }, { "10000 her", 10000 } }
-            //};
-            //_maxHistoryLengthSelector.SelectedIndex = _maxHistoryLengthSelector.Items.FindIndex(Game.Settings.MaxHistoryLength);
-            //_maxHistoryLengthSelector.SelectionChanged += MaxHistoryLengthChanged;
-            //if (_maxHistoryLengthSelector.SelectedIndex < 0)
-            //{
-            //    _maxHistoryLengthSelector.SelectedIndex = 0;
-            //}
-            _bubbleTime = new Label(this)
+            _allowPlayerAutoFinish = new Label(this)
             {
                 Position = new Vector2(200, 2 * pageOffset + 370),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
-                Text = "Rychlost dialogů",
+                Text = "Hráč ložené hry",
                 Group = 1,
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
-            _bubbleTimeSelector = new LeftRightSelector(this)
+            _allowPlayerAutoFinishSelector = new LeftRightSelector(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 370),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Rychlá", 500 }, { "Střední", 1000 }, { "Pomalá", 2000 } }
+                Items = new SelectorItems() { { "Nedohrává", true }, { "Dohrává", false } }
             };
-            _bubbleTimeSelector.SelectedIndex = _bubbleTimeSelector.Items.FindIndex(Game.Settings.BubbleTimeMs);
-            _bubbleTimeSelector.SelectionChanged += BubbleTimeChanged;
-            if (_bubbleTimeSelector.SelectedIndex < 0)
+            _allowPlayerAutoFinishSelector.SelectedIndex = _allowPlayerAutoFinishSelector.Items.FindIndex(Game.Settings.AllowPlayerAutoFinish);
+            _allowPlayerAutoFinishSelector.SelectionChanged += AllowPlayerAutoFinishChanged;
+            if (_allowPlayerAutoFinishSelector.SelectedIndex < 0)
             {
-                _bubbleTimeSelector.SelectedIndex = 1;
+                _allowPlayerAutoFinishSelector.SelectedIndex = 0;
             }
 // PAGE 4 //
             _gameValue = new Label(this)
@@ -885,6 +848,144 @@ namespace Mariasek.SharedClient
                 BackgroundColor = Color.Transparent
             };
             _player3Name.Click += ChangePlayerName;
+            _autoFinishRounds = new Label(this)
+            {
+                Position = new Vector2(200, 4 * pageOffset + 190),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Ukončení kola",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _autoFinishRoundsSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 4 * pageOffset + 190),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Automaticky", true }, { "Dotykem", false } }
+            };
+            _autoFinishRoundsSelector.SelectedIndex = _autoFinishRoundsSelector.Items.FindIndex(Game.Settings.AutoFinishRounds);
+            _autoFinishRoundsSelector.SelectionChanged += AutoFinishRoundsChanged;
+            if (_autoFinishRoundsSelector.SelectedIndex < 0)
+            {
+                _autoFinishRoundsSelector.SelectedIndex = 0;
+            }
+            //_showStatusBar = new Label(this)
+            //{
+            //    Position = new Vector2(200, 2 * pageOffset + 250),
+            //    Width = (int)Game.VirtualScreenWidth / 2 - 150,
+            //    Height = 50,
+            //    Text = "Stavový řádek",
+            //    Group = 1,
+            //    HorizontalAlign = HorizontalAlignment.Center,
+            //    VerticalAlign = VerticalAlignment.Middle
+            //};
+            //_showStatusBarSelector = new LeftRightSelector(this)
+            //{
+            //    Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 250),
+            //    Width = 270,
+            //    Group = 1,
+            //    Items = new SelectorItems() { { "Nezobrazovat", false }, { "Zobrazit", true } }
+            //};
+            //_showStatusBarSelector.SelectedIndex = _showStatusBarSelector.Items.FindIndex(Game.Settings.ShowStatusBar);
+            //_showStatusBarSelector.SelectionChanged += ShowStatusBarChanged;
+            //if (_showStatusBarSelector.SelectedIndex < 0)
+            //{
+            //    _showStatusBarSelector.SelectedIndex = 0;
+            //}
+            _roundFinishedWaitTime = new Label(this)
+            {
+                Position = new Vector2(200, 4 * pageOffset + 250),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Prodleva na konci kola",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _roundFinishedWaitTimeSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 4 * pageOffset + 250),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Krátká", 1000 }, { "Dlouhá", 2000 } }
+            };
+            _roundFinishedWaitTimeSelector.SelectedIndex = _roundFinishedWaitTimeSelector.Items.FindIndex(Game.Settings.RoundFinishedWaitTimeMs);
+            _roundFinishedWaitTimeSelector.SelectionChanged += RoundFinishedWaitTimeChanged;
+            if (_roundFinishedWaitTimeSelector.SelectedIndex < 0)
+            {
+                _roundFinishedWaitTimeSelector.SelectedIndex = 0;
+            }
+            _autoFinishLastRound = new Label(this)
+            {
+                Position = new Vector2(200, 4 * pageOffset + 310),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Poslední kolo sehrát",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _autoFinishLastRoundSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 4 * pageOffset + 310),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Automaticky", true }, { "Ručně", false } }
+            };
+            _autoFinishLastRoundSelector.SelectedIndex = _autoFinishLastRoundSelector.Items.FindIndex(Game.Settings.AutoFinish);
+            _autoFinishLastRoundSelector.SelectionChanged += AutoFinishLastRoundChanged;
+            if (_autoFinishLastRoundSelector.SelectedIndex < 0)
+            {
+                _autoFinishLastRoundSelector.SelectedIndex = 0;
+            }
+            //_maxHistoryLength = new Label(this)
+            //{
+            //    Position = new Vector2(200, 2 * pageOffset + 370),
+            //    Width = (int)Game.VirtualScreenWidth / 2 - 150,
+            //    Height = 50,
+            //    Text = "Max. délka historie",
+            //    Group = 1,
+            //    HorizontalAlign = HorizontalAlignment.Center,
+            //    VerticalAlign = VerticalAlignment.Middle
+            //};
+            //_maxHistoryLengthSelector = new LeftRightSelector(this)
+            //{
+            //    Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 370),
+            //    Width = 270,
+            //    Group = 1,
+            //    Items = new SelectorItems() { { "Neomezená", 0 }, { "1000 her", 1000 }, { "2000 her", 2000 }, { "5000 her", 5000 }, { "10000 her", 10000 } }
+            //};
+            //_maxHistoryLengthSelector.SelectedIndex = _maxHistoryLengthSelector.Items.FindIndex(Game.Settings.MaxHistoryLength);
+            //_maxHistoryLengthSelector.SelectionChanged += MaxHistoryLengthChanged;
+            //if (_maxHistoryLengthSelector.SelectedIndex < 0)
+            //{
+            //    _maxHistoryLengthSelector.SelectedIndex = 0;
+            //}
+            _bubbleTime = new Label(this)
+            {
+                Position = new Vector2(200, 4 * pageOffset + 370),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Text = "Rychlost dialogů",
+                Group = 1,
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _bubbleTimeSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 4 * pageOffset + 370),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Rychlá", 500 }, { "Střední", 1000 }, { "Pomalá", 2000 } }
+            };
+            _bubbleTimeSelector.SelectedIndex = _bubbleTimeSelector.Items.FindIndex(Game.Settings.BubbleTimeMs);
+            _bubbleTimeSelector.SelectionChanged += BubbleTimeChanged;
+            if (_bubbleTimeSelector.SelectedIndex < 0)
+            {
+                _bubbleTimeSelector.SelectedIndex = 1;
+            }
 
             _menuBtn = new Button(this)
             {
@@ -1207,6 +1308,42 @@ namespace Mariasek.SharedClient
             var selector = sender as LeftRightSelector;
 
             Game.Settings.DurchValue = (int)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        private void AllowAXTalonChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.AllowAXTalon = (bool)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        private void AllowTrumpTalonChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.AllowTrumpTalon = (bool)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        private void AllowAIAutoFinishChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.AllowAIAutoFinish = (bool)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        private void AllowPlayerAutoFinishChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.AllowPlayerAutoFinish = (bool)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
