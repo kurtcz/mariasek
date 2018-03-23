@@ -1137,7 +1137,14 @@ namespace Mariasek.SharedClient
                          Top107 = Game.Settings.Top107,
                          AutoDisable100Against = Game.Settings.AutoDisable100Against,
                          GetFileStream = GetFileStream,
-                         GetVersion = () => MariasekMonoGame.Version
+                         GetVersion = () => MariasekMonoGame.Version,
+                         GameValue = Game.Settings.GameValue,
+                         QuietSevenValue = Game.Settings.QuietSevenValue,
+                         SevenValue = Game.Settings.SevenValue,
+                         QuietHundredValue = Game.Settings.QuietHundredValue,
+                         HundredValue = Game.Settings.HundredValue,
+                         BetlValue = Game.Settings.BetlValue,
+                         DurchValue = Game.Settings.DurchValue
                      };
                      g.RegisterPlayers(
                          new HumanPlayer(g, _aiConfig, this, Game.Settings.HintEnabled) { Name = Game.Settings.PlayerNames[0] },
@@ -2567,7 +2574,14 @@ namespace Mariasek.SharedClient
                             Top107 = Game.Settings.Top107,
                             AutoDisable100Against = Game.Settings.AutoDisable100Against,
                             GetFileStream = GetFileStream,
-                            GetVersion = () => MariasekMonoGame.Version
+                            GetVersion = () => MariasekMonoGame.Version,
+                            GameValue = Game.Settings.GameValue,
+                            QuietSevenValue = Game.Settings.QuietSevenValue,
+                            SevenValue = Game.Settings.SevenValue,
+                            QuietHundredValue = Game.Settings.QuietHundredValue,
+                            HundredValue = Game.Settings.HundredValue,
+                            BetlValue = Game.Settings.BetlValue,
+                            DurchValue = Game.Settings.DurchValue
                         };
                         g.RegisterPlayers(
                             new HumanPlayer(g, _aiConfig, this, Game.Settings.HintEnabled) { Name = Game.Settings.PlayerNames[0] },
@@ -2874,6 +2888,16 @@ namespace Mariasek.SharedClient
         public void SettingsChanged(object sender, SettingsChangedEventArgs e)
         {
             PopulateAiConfig();
+            if (g != null)
+            {
+                g.GameValue = Game.Settings.GameValue;
+                g.QuietSevenValue = Game.Settings.QuietSevenValue;
+                g.SevenValue = Game.Settings.SevenValue;
+                g.QuietHundredValue = Game.Settings.QuietHundredValue;
+                g.HundredValue = Game.Settings.HundredValue;
+                g.BetlValue = Game.Settings.BetlValue;
+                g.DurchValue = Game.Settings.DurchValue;
+            }
             if (_progress1 != null)
             {
                 if (Game.Settings.HintEnabled)

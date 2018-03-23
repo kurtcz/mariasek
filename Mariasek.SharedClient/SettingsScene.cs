@@ -37,6 +37,13 @@ namespace Mariasek.SharedClient
         private Label _autoDisable100Against;
         private Label _showScoreDuringGame;
         private Label _cardSize;
+        private Label _gameValue;
+        private Label _quietSevenValue;
+        private Label _sevenValue;
+        private Label _quietHundredValue;
+        private Label _hundredValue;
+        private Label _betlValue;
+        private Label _durchValue;
         private Label _player1;
         private Label _player2;
         private Label _player3;
@@ -67,6 +74,13 @@ namespace Mariasek.SharedClient
         //private LeftRightSelector _showStatusBarSelector;
         private LeftRightSelector _bgImageSelector;
         private LeftRightSelector _aiMayGiveUpSelector;
+        private LeftRightSelector _gameValueSelector;
+        private LeftRightSelector _quietSevenValueSelector;
+        private LeftRightSelector _sevenValueSelector;
+        private LeftRightSelector _quietHundredValueSelector;
+        private LeftRightSelector _hundredValueSelector;
+        private LeftRightSelector _betlValueSelector;
+        private LeftRightSelector _durchValueSelector;
         private Button _player1Name;
         private Button _player2Name;
         private Button _player3Name;
@@ -643,9 +657,171 @@ namespace Mariasek.SharedClient
                 _bubbleTimeSelector.SelectedIndex = 1;
             }
 // PAGE 4 //
-            _player1 = new Label(this)
+            _gameValue = new Label(this)
             {
                 Position = new Vector2(200, 3 * pageOffset + 10),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Hodnota hry",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _gameValueSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 10),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "1x základ", 1 }, { "2x základ", 2 } }
+            };
+            _gameValueSelector.SelectedIndex = _gameValueSelector.Items.FindIndex(Game.Settings.GameValue);
+            _gameValueSelector.SelectionChanged += GameValueChanged;
+            if (_gameValueSelector.SelectedIndex < 0)
+            {
+                _gameValueSelector.SelectedIndex = 0;
+            }
+            _quietSevenValue = new Label(this)
+            {
+                Position = new Vector2(200, 3 * pageOffset + 70),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Hodnota tiché sedmy",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _quietSevenValueSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 70),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "1x základ", 1 }, { "2x základ", 2 }, { "3x základ", 3 }, { "4x základ", 4 } }
+            };
+            _quietSevenValueSelector.SelectedIndex = _quietSevenValueSelector.Items.FindIndex(Game.Settings.QuietSevenValue);
+            _quietSevenValueSelector.SelectionChanged += QuietSevenValueChanged;
+            if (_quietSevenValueSelector.SelectedIndex < 0)
+            {
+                _quietSevenValueSelector.SelectedIndex = 0;
+            }
+            _sevenValue = new Label(this)
+            {
+                Position = new Vector2(200, 3 * pageOffset + 130),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Hodnota sedmy",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _sevenValueSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 130),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "1x základ", 1 }, { "2x základ", 2 }, { "3x základ", 3 }, { "4x základ", 4 } }
+            };
+            _sevenValueSelector.SelectedIndex = _sevenValueSelector.Items.FindIndex(Game.Settings.SevenValue);
+            _sevenValueSelector.SelectionChanged += SevenValueChanged;
+            if (_sevenValueSelector.SelectedIndex < 0)
+            {
+                _sevenValueSelector.SelectedIndex = 1;
+            }
+            _quietHundredValue = new Label(this)
+            {
+                Position = new Vector2(200, 3 * pageOffset + 190),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Hodnota tichýho kila",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _quietHundredValueSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 190),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "2x základ", 2 }, { "3x základ", 3 }, { "4x základ", 4 } }
+            };
+            _quietHundredValueSelector.SelectedIndex = _quietHundredValueSelector.Items.FindIndex(Game.Settings.QuietHundredValue);
+            _quietHundredValueSelector.SelectionChanged += QuietHundredValueChanged;
+            if (_quietHundredValueSelector.SelectedIndex < 0)
+            {
+                _quietHundredValueSelector.SelectedIndex = 0;
+            }
+            _hundredValue = new Label(this)
+            {
+                Position = new Vector2(200, 3 * pageOffset + 250),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Hodnota kila",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _hundredValueSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 250),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "2x základ", 2 }, { "4x základ", 4 }, { "6x základ", 6 }, { "8x základ", 8 } }
+            };
+            _hundredValueSelector.SelectedIndex = _hundredValueSelector.Items.FindIndex(Game.Settings.HundredValue);
+            _hundredValueSelector.SelectionChanged += HundredValueChanged;
+            if (_hundredValueSelector.SelectedIndex < 0)
+            {
+                _hundredValueSelector.SelectedIndex = 1;
+            }
+            _betlValue = new Label(this)
+            {
+                Position = new Vector2(200, 3 * pageOffset + 310),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Hodnota betla",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _betlValueSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 310),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "5x základ", 5 }, { "10x základ", 10 }, { "15x základ", 15 } }
+            };
+            _betlValueSelector.SelectedIndex = _betlValueSelector.Items.FindIndex(Game.Settings.BetlValue);
+            _betlValueSelector.SelectionChanged += BetlValueChanged;
+            if (_betlValueSelector.SelectedIndex < 0)
+            {
+                _betlValueSelector.SelectedIndex = 0;
+            }
+            _durchValue = new Label(this)
+            {
+                Position = new Vector2(200, 3 * pageOffset + 370),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Hodnota durcha",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _durchValueSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 370),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "10x základ", 10 }, { "20x základ", 20 }, { "30x základ", 30 } }
+            };
+            _durchValueSelector.SelectedIndex = _durchValueSelector.Items.FindIndex(Game.Settings.DurchValue);
+            _durchValueSelector.SelectionChanged += DurchValueChanged;
+            if (_durchValueSelector.SelectedIndex < 0)
+            {
+                _durchValueSelector.SelectedIndex = 0;
+            }
+// PAGE 5 //
+            _player1 = new Label(this)
+            {
+                Position = new Vector2(200, 4 * pageOffset + 10),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -655,7 +831,7 @@ namespace Mariasek.SharedClient
             };
             _player1Name = new Button(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 10),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 4 * pageOffset + 10),
                 Width = 270,
                 Height = 50,
                 Group = 1,
@@ -667,7 +843,7 @@ namespace Mariasek.SharedClient
             _player1Name.Click += ChangePlayerName;
             _player2 = new Label(this)
             {
-                Position = new Vector2(200, 3 * pageOffset + 70),
+                Position = new Vector2(200, 4 * pageOffset + 70),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -677,7 +853,7 @@ namespace Mariasek.SharedClient
             };
             _player2Name = new Button(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 70),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 4 * pageOffset + 70),
                 Width = 270,
                 Height = 50,
                 Group = 1,
@@ -689,7 +865,7 @@ namespace Mariasek.SharedClient
             _player2Name.Click += ChangePlayerName;
             _player3 = new Label(this)
             {
-                Position = new Vector2(200, 3 * pageOffset + 130),
+                Position = new Vector2(200, 4 * pageOffset + 130),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -699,7 +875,7 @@ namespace Mariasek.SharedClient
             };
             _player3Name = new Button(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 130),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 4 * pageOffset + 130),
                 Width = 270,
                 Height = 50,
                 Group = 1,
@@ -732,7 +908,7 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(210, (int)Game.VirtualScreenHeight - 60),
                 Width = (int)Game.VirtualScreenWidth - 210,
-                Items = new SelectorItems() { { "1/4", 0 }, { "2/4", 1 }, { "3/4", 2 }, { "4/4", 3 } },
+                Items = new SelectorItems() { { "1/5", 0 }, { "2/5", 1 }, { "3/5", 2 }, { "4/5", 3 }, { "5/5", 4 } },
                 TextRenderer = Game.FontRenderers["SegoeUI40Outl"]
             };
             _pageSelector.SelectedIndex = 0;
@@ -968,6 +1144,69 @@ namespace Mariasek.SharedClient
             var selector = sender as LeftRightSelector;
 
             Game.Settings.MinimalBidsForSeven = (int)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        private void GameValueChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.GameValue = (int)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        private void QuietSevenValueChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.QuietSevenValue = (int)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        private void SevenValueChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.SevenValue = (int)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        private void QuietHundredValueChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.QuietHundredValue = (int)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        private void HundredValueChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.HundredValue = (int)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        private void BetlValueChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.BetlValue = (int)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        private void DurchValueChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.DurchValue = (int)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }

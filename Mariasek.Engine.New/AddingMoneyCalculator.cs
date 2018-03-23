@@ -9,15 +9,6 @@ namespace Mariasek.Engine.New
 {
     public class AddingMoneyCalculator : MoneyCalculatorBase
     {
-        private const int GameValue = 1;
-        private const int SevenValue = 2;
-        private const int QuietSevenValue = 1;
-        //private const int KilledSevenValue = 1;
-        private const int HundredValue = 4;
-        private const int QuietHundredValue = 2;
-        private const int BetlValue = 5;
-        private const int DurchValue = 10;
-
         //Default constructor for XmlSerialize purposes
         [Preserve]
         public AddingMoneyCalculator()

@@ -75,6 +75,15 @@ namespace Mariasek.Engine.New
         public int BetlMoneyWon { get; protected set; }
         public int DurchMoneyWon { get; protected set; }
 
+        public int GameValue { get; private set; }
+        public int SevenValue { get; private set; }
+        public int QuietSevenValue { get; private set; }
+        //public int KilledSevenValue {get; private set; }
+        public int HundredValue { get; private set; }
+        public int QuietHundredValue { get; private set; }
+        public int BetlValue { get; private set; }
+        public int DurchValue { get; private set; }
+
         [XmlArray]
         public int[] MoneyWon { get; protected set; }
         [XmlElement]
@@ -91,6 +100,13 @@ namespace Mariasek.Engine.New
             BaseBet = 1f;
             _ci = new CultureInfo("cs-CZ");
             SimulatedSuccessRate = -1;
+            GameValue = 1;
+            QuietSevenValue = 1;
+            SevenValue = 2;
+            QuietHundredValue = 2;
+            HundredValue = 4;
+            BetlValue = 5;
+            DurchValue = 10;
         }
 
         //vola se na konci hry
@@ -107,6 +123,13 @@ namespace Mariasek.Engine.New
             GamePlayed = g.rounds[0] != null;
             GivenUp = g.GivenUp;
             SimulatedSuccessRate = -1;
+            GameValue = g.GameValue;
+            QuietSevenValue = g.QuietSevenValue;
+            SevenValue = g.SevenValue;
+            QuietHundredValue = g.QuietHundredValue;
+            HundredValue = g.HundredValue;
+            BetlValue = g.BetlValue;
+            DurchValue = g.DurchValue;
 
             if (ci == null)
             {

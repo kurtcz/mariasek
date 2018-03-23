@@ -45,6 +45,15 @@ namespace Mariasek.Engine.New
 
         public MoneyCalculatorBase Results { get; private set; }
 
+        public int GameValue { get; set; }
+        public int SevenValue { get; set; }
+        public int QuietSevenValue { get; set; }
+        //public int KilledSevenValue {get;set; }
+        public int HundredValue { get; set; }
+        public int QuietHundredValue { get; set; }
+        public int BetlValue { get; set; }
+        public int DurchValue { get; set; }
+
         public bool SkipBidding { get; set; }
         public float BaseBet { get; set; }
         public int MinimalBidsForGame { get; set; }

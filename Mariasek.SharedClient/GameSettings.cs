@@ -50,6 +50,13 @@ namespace Mariasek.SharedClient
         public string[] PlayerNames { get; set; }
         public SortMode SortMode { get; set; }
         public float BaseBet { get; set; }
+        public int GameValue { get; set; }
+        public int QuietSevenValue { get; set; }
+        public int SevenValue { get; set; }
+        public int QuietHundredValue { get; set; }
+        public int HundredValue { get; set; }
+        public int BetlValue { get; set; }
+        public int DurchValue { get; set; }
         public int ThinkingTimeMs { get; set; }
         public int BubbleTimeMs { get; set; }
         public int MaxHistoryLength { get; set; }
@@ -109,6 +116,13 @@ namespace Mariasek.SharedClient
             AutoDisable100Against = true;
             CardScaleFactor = 0.6f;
             BackgroundImage = BackgroundImage.Default;
+            GameValue = 1;
+            QuietSevenValue = 1;
+            SevenValue = 2;
+            QuietHundredValue = 2;
+            HundredValue = 4;
+            BetlValue = 5;
+            DurchValue = 10;
 			ResetThresholds();
         }
 
