@@ -177,12 +177,16 @@ namespace Mariasek.Engine.New
                         }
                     }
                 }
-
+                var talonPoints = GamePlayed
+                                    ? 10 * g.talon.Count(i => i.Value == Hodnota.Eso ||
+                                                              i.Value == Hodnota.Desitka)
+                                    : 0;
+                
                 PointsWon = score[_gameStartingPlayerIndex];
-                PointsLost = score[(_gameStartingPlayerIndex + 1) % Game.NumPlayers] + score[(_gameStartingPlayerIndex + 2) % Game.NumPlayers];
+                PointsLost = score[(_gameStartingPlayerIndex + 1) % Game.NumPlayers] + score[(_gameStartingPlayerIndex + 2) % Game.NumPlayers] + talonPoints;
 
                 BasicPointsWon = basicScore[_gameStartingPlayerIndex];
-                BasicPointsLost = basicScore[(_gameStartingPlayerIndex + 1) % Game.NumPlayers] + basicScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers];
+                BasicPointsLost = basicScore[(_gameStartingPlayerIndex + 1) % Game.NumPlayers] + basicScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers] + talonPoints;
 
                 MaxHlasWon = maxHlasScore[_gameStartingPlayerIndex];
                 MaxHlasLost = Math.Max(maxHlasScore[(_gameStartingPlayerIndex + 1) % Game.NumPlayers], maxHlasScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers]);
@@ -396,7 +400,7 @@ namespace Mariasek.Engine.New
                                               PointsLost, 
                                               won 
                                               ? string.Empty 
-                                              : string.Format("\nDo kila schází: {0} bodů{1}{2}\n", 100 - (BasicPointsWon + MaxHlasWon),
+                                              : string.Format("\nDo kila schází: {0} bodů{1}{2}", 100 - (BasicPointsWon + MaxHlasWon),
                                                               HlasPointsWasted == 0
                                                               ? string.Empty
                                                               : string.Format("\nPropadlé hlasy: {0} bodů", HlasPointsWasted),

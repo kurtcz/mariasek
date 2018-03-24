@@ -526,6 +526,7 @@ namespace Mariasek.Engine.New
                                                                            .OrderBy(i => i.Value)
                                                                            .First()
                                          : null,
+                        axTalon = talon.Where(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka).ToList(),
                         GameStartingPlayerIndex = GameStartingPlayerIndex
                     });
                 }
@@ -1425,7 +1426,8 @@ namespace Mariasek.Engine.New
                     {
                         GameStartingPlayerIndex = GameStartingPlayerIndex,
                         GameType = GameType,
-                        TrumpCard = null
+                        TrumpCard = null,
+                        axTalon = new List<Card>()
                     });
                     if (!SkipBidding)
                     {
@@ -1475,7 +1477,8 @@ namespace Mariasek.Engine.New
                 {
                     GameStartingPlayerIndex = GameStartingPlayerIndex,
                     GameType = GameType,
-                    TrumpCard = TrumpCard
+                    TrumpCard = TrumpCard,
+                    axTalon = talon.Where(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka).ToList()
                 });
                 if(!SkipBidding)
                 {

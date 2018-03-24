@@ -900,7 +900,7 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
-                Text = "Hodnota tichýho kila",
+                Text = "Hodnota tichého kila",
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };

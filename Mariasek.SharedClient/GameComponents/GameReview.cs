@@ -575,6 +575,30 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _initialHands[i] = new List<Mariasek.Engine.New.Card>(Game.MainScene.g.players[i].Hand);
             }
+            if (Game.MainScene.g.trump.HasValue)
+            {
+                var talon = Game.MainScene.g.talon;
+
+                for (var i = 0; i < talon.Count(); i++)
+                {
+                    if (talon[i].Value == Hodnota.Eso ||
+                        talon[i].Value == Hodnota.Desitka)
+                    {
+                        if (Game.MainScene.g.GameStartingPlayer.PlayerIndex == 0)
+                        {
+                            Hands[3][i].Tint = Pink;
+                        }
+                        else
+                        {
+                            Hands[3][i].Tint = Color.LightGreen;
+                        }
+                    }
+                    else
+                    {
+                        Hands[3][i].Tint = Color.White;
+                    }
+                }
+            }
             for (var i = 0; i < Rounds.Length; i++)
             {
                 if (Game.MainScene.g.rounds[i] == null || Game.MainScene.g.rounds[i].c3 == null)

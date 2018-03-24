@@ -1955,7 +1955,7 @@ namespace Mariasek.Engine.New
                    (bidding.GameMultiplier < 2 &&
                     (((Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&
-                      (estimatedFinalBasicScore >= 30 ||
+                      (estimatedFinalBasicScore >= 20 ||
                        (estimatedFinalBasicScore >= 10 && //20 by bylo bezpecnejsi (neni 10 moc malo?)
                         kqScore >= 20))) ||
                      (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&

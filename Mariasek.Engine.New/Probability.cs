@@ -1007,6 +1007,13 @@ namespace Mariasek.Engine.New
             }
 
             _trump = e.TrumpCard.Suit;
+            for (var i = 0; i < e.axTalon.Count(); i++)
+            {
+                for (var j = 0; j < Game.NumPlayers + 1; j++)
+                {
+                    _cardProbabilityForPlayer[j][e.axTalon[i].Suit][e.axTalon[i].Value] = j == talonIndex ? 1f : 0f;
+                }
+            }
             for (var i = 0; i < Game.NumPlayers + 1; i++)
             {
                 _cardProbabilityForPlayer[i][e.TrumpCard.Suit][e.TrumpCard.Value] = i == e.GameStartingPlayerIndex ? 1f : 0f;

@@ -11,5 +11,6 @@ namespace Mariasek.Engine.New
         public int GameStartingPlayerIndex;
         public Hra GameType;
         public Card TrumpCard;
+        public List<Card> axTalon;
     }
 }

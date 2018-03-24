@@ -41,10 +41,11 @@ namespace Mariasek.SharedClient
         private GameComponents.Hand _hand;
         private GameComponents.Hand _winningHand;
         private Deck _deck;
-        private Sprite[] _cardsPlayed;
-        private CardButton[][] _hlasy;
-        private CardButton[] _stychy;
-        private Sprite[] _stareStychy;
+        private Sprite[] _cardsPlayed;  //aktualni kolo
+        private CardButton[][] _hlasy;  //vylozene hlasy
+        private CardButton[] _stychy;   //animace otoceni stychu
+        private Sprite[] _stareStychy;  //stychy z minulych kol
+        private Sprite[][] _poslStych;  //zobrazeni posledniho stychu a talonu
         private ClickableArea _overlay;
         private Button _menuBtn;
         private Button _sendBtn;
@@ -312,6 +313,27 @@ namespace Mariasek.SharedClient
                 new Sprite(this, Game.ReverseTexture, backSideRect) { Position = new Vector2(60, 90), Scale = Game.CardScaleFactor, Name = "StareStychy2" },
                 new Sprite(this, Game.ReverseTexture, backSideRect) { Position = new Vector2(Game.VirtualScreenWidth - 60, 90), Scale = Game.CardScaleFactor, Name = "StareStychy3" }
             };
+            _poslStych = new[]
+            {
+                new[]
+                {
+                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth - 200, Game.VirtualScreenHeight / 2f + 40), Scale = Game.CardScaleFactor, Name = "PoslStych11", SpriteRectangle = Rectangle.Empty, ZIndex = 11 },
+                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth - 250, Game.VirtualScreenHeight / 2f + 40), Scale = Game.CardScaleFactor, Name = "PoslStych12", SpriteRectangle = Rectangle.Empty, ZIndex = 12 },
+                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth - 300, Game.VirtualScreenHeight / 2f + 40), Scale = Game.CardScaleFactor, Name = "PoslStych13", SpriteRectangle = Rectangle.Empty, ZIndex = 13 }
+                },
+                new[]
+                {
+                    new Sprite(this, Game.CardTextures) { Position = new Vector2(200, 90), Scale = Game.CardScaleFactor, Name = "PoslStych21", SpriteRectangle = Rectangle.Empty, ZIndex = 11 },
+                    new Sprite(this, Game.CardTextures) { Position = new Vector2(250, 90), Scale = Game.CardScaleFactor, Name = "PoslStych22", SpriteRectangle = Rectangle.Empty, ZIndex = 12 },
+                    new Sprite(this, Game.CardTextures) { Position = new Vector2(300, 90), Scale = Game.CardScaleFactor, Name = "PoslStych23", SpriteRectangle = Rectangle.Empty, ZIndex = 13 }
+                },
+                new[]
+                {
+                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth - 200, 90), Scale = Game.CardScaleFactor, Name = "PoslStych31", SpriteRectangle = Rectangle.Empty, ZIndex = 11 },
+                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth - 250, 90), Scale = Game.CardScaleFactor, Name = "PoslStych32", SpriteRectangle = Rectangle.Empty, ZIndex = 12 },
+                    new Sprite(this, Game.CardTextures) { Position = new Vector2(Game.VirtualScreenWidth - 300, 90), Scale = Game.CardScaleFactor, Name = "PoslStych33", SpriteRectangle = Rectangle.Empty, ZIndex = 13 }
+                }
+            };
             _stychy = new[]
             {
                 new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy1", SpriteRectangle = Rectangle.Empty }) { Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f + 40), ReverseSpriteRectangle = backSideRect, IsEnabled = false, ZIndex = 10 },
@@ -392,11 +414,9 @@ namespace Mariasek.SharedClient
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main,
                 Width = 50
             };
+            //_reviewGameToggleBtn.Hide();
+            _reviewGameToggleBtn.IsEnabled = false;
             _reviewGameToggleBtn.Click += ReviewGameBtnClicked;
-            if (!Game.Settings.TestMode.HasValue || !Game.Settings.TestMode.Value)
-            {
-                _reviewGameToggleBtn.Hide();
-            }
             _sendBtn = new Button(this)
             {
                 Text = "@",
@@ -1006,6 +1026,20 @@ namespace Mariasek.SharedClient
 
         public void ReviewGameBtnClicked(object sender)
         {
+            if (g.IsRunning &&
+                (!Game.Settings.TestMode.HasValue || !Game.Settings.TestMode.Value))
+            {
+                if (_reviewGameToggleBtn.IsSelected)
+                {
+                    ShowLastTrick();
+                }
+                else
+                {
+                    _reviewGameToggleBtn.IsSelected = false;
+                }
+                return;
+            }
+
             var origPosition = new Vector2(160, 45);
             var hiddenPosition = new Vector2(160, 45 + Game.VirtualScreenHeight);
 
@@ -1013,6 +1047,7 @@ namespace Mariasek.SharedClient
             {
                 if (!_review.IsVisible)
                 {
+                    //show
                     for (var i = 0; i < _trumpLabels.Count(); i++)
                     {
                         _trumpLabels[i].Height = 30; //aby neprekazel _review
@@ -1040,6 +1075,7 @@ namespace Mariasek.SharedClient
                 }
                 else
                 {
+                    //hide
                     for (var i = 0; i < _trumpLabels.Count(); i++)
                     {
                         _trumpLabels[i].Height = 60; //vratit na puvodni vysku
@@ -1204,11 +1240,10 @@ namespace Mariasek.SharedClient
                      ClearTable(true);
                      HideMsgLabel();
                      _reviewGameBtn.Hide();
-                     if (Game.Settings.TestMode.HasValue && Game.Settings.TestMode.Value)
-                     {
-                         _reviewGameToggleBtn.Show();
-                         _reviewGameToggleBtn.IsSelected = false;
-                     }
+                     _reviewGameToggleBtn.Show();
+                     _reviewGameToggleBtn.IsSelected = false;
+                     _reviewGameToggleBtn.IsEnabled = Game.Settings.TestMode.HasValue && Game.Settings.TestMode.Value;
+                     
                      if (_review != null)
                      {
                          _review.Hide();
@@ -2121,6 +2156,7 @@ namespace Mariasek.SharedClient
 
                 if (e.TrumpCard != null)
                 {
+                    ShowTalonIfNeeded();
                     this.Invoke(() =>
                     {
                         imgs[e.GameStartingPlayerIndex].Sprite.SpriteRectangle = e.TrumpCard.ToTextureRect();
@@ -2132,12 +2168,18 @@ namespace Mariasek.SharedClient
                     {
                         _bubbleAutoHide[e.GameStartingPlayerIndex] = true;
                         _bubbles[e.GameStartingPlayerIndex].Text = g.GameType.ToDescription(g.trump);
+                        if (g.trump.HasValue && g.talon.Any(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka))
+                        {
+                            _bubbles[e.GameStartingPlayerIndex].Height = 80;
+                            _bubbles[e.GameStartingPlayerIndex].Text += "\nostrá v talonu";
+                        }
                         _bubbles[e.GameStartingPlayerIndex].Show();
                     })
                     .Wait(2000)
                     .Invoke(() =>
                     {
                         _bubbles[e.GameStartingPlayerIndex].Hide();
+                        _bubbles[e.GameStartingPlayerIndex].Height = 50;
                     })
                     .Wait(1000)
                     .Invoke(() =>
@@ -2317,6 +2359,9 @@ namespace Mariasek.SharedClient
             _stychy[r.player1.PlayerIndex].ZIndex = (r.number - 1) * 3 + 1;
             _stychy[r.player2.PlayerIndex].ZIndex = (r.number - 1) * 3 + 2;
             _stychy[r.player3.PlayerIndex].ZIndex = (r.number - 1) * 3 + 3;
+
+            _reviewGameToggleBtn.IsEnabled = (Game.Settings.TestMode.HasValue && Game.Settings.TestMode.Value) ||
+                                             r.number > 1;
         }
 
         public void RoundFinished(object sender, Round r)
@@ -2435,7 +2480,8 @@ namespace Mariasek.SharedClient
                 //    _review = null;
                 //}
                 giveUpButton.Hide();
-                _reviewGameToggleBtn.Hide();
+                //_reviewGameToggleBtn.Hide();
+                _reviewGameToggleBtn.IsEnabled = false;
                 HideInvisibleClickableOverlay();
                 HideThinkingMessage();
                 var totalWon = Game.Money.Sum(i => i.MoneyWon[0]) * Game.Settings.BaseBet;
@@ -2638,11 +2684,10 @@ namespace Mariasek.SharedClient
                         ClearTable(true);
                         HideMsgLabel();
                         _reviewGameBtn.Hide();
-                        if (Game.Settings.TestMode.HasValue && Game.Settings.TestMode.Value)
-                        {
-                            _reviewGameToggleBtn.Show();
-                            _reviewGameToggleBtn.IsSelected = false;
-                        }
+                        _reviewGameToggleBtn.Show();
+                        _reviewGameToggleBtn.IsSelected = false;
+                        _reviewGameToggleBtn.IsEnabled = (Game.Settings.TestMode.HasValue && Game.Settings.TestMode.Value) || 
+                            (g.CurrentRound != null && g.RoundNumber > 1);
 
                         if (_review != null)
                         {
@@ -3189,6 +3234,60 @@ namespace Mariasek.SharedClient
             _bubbleSemaphore = 0;
         }
 
+        private void ShowLastTrick()
+        {
+            var prevRound = g.rounds.LastOrDefault(i => i != null && i.c3 != null);
+
+            if (prevRound != null)
+            {
+                ShowTalonOrLastTrick(prevRound.roundWinner.PlayerIndex, new List<Card>() { prevRound.c1, prevRound.c2, prevRound.c3 });
+                _poslStych[prevRound.roundWinner.PlayerIndex][0].Invoke(() =>
+                {
+                    _reviewGameToggleBtn.IsSelected = false;
+                });
+            }
+            else
+            {
+                _reviewGameToggleBtn.IsSelected = false;
+            }
+        }
+
+        private void ShowTalonIfNeeded()
+        {
+            var axTalon = g.talon.Where(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka).ToList();
+
+            if (g.trump.HasValue && axTalon.Any())
+            {
+                _poslStych[g.GameStartingPlayerIndex][0].Wait(2000)
+                                                        .Invoke(() => ShowTalonOrLastTrick(g.GameStartingPlayerIndex, axTalon));
+            }
+        }
+
+        private void ShowTalonOrLastTrick(int playerIndex, List<Card> cards)
+        {
+            var initialPosition = _poslStych[playerIndex][0].Position;
+
+            for (var i = 0; i < _poslStych.Count() && i < cards.Count(); i++)
+            {
+                var card = _poslStych[playerIndex][i];
+                var origPosition = card.Position;
+
+                card.Position = initialPosition;
+                card.SpriteRectangle = cards[i].ToTextureRect();
+                card.Show();
+                card.FadeIn(4f)
+                    .MoveTo(origPosition, 500)
+                    .Wait(2000)
+                    .MoveTo(initialPosition, 500)
+                    .FadeOut(4f)
+                    .Invoke(() => 
+                {
+                    card.Hide();
+                    card.Position = origPosition;
+                });
+            }
+        }
+
         private void ClearTable(bool hlasy = false)
         {
             RunOnUiThread(() =>
@@ -3197,6 +3296,12 @@ namespace Mariasek.SharedClient
                 _cardsPlayed[1].Hide();
                 _cardsPlayed[2].Hide();
 
+                for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
+                {
+                    _poslStych[i][0].Hide();
+                    _poslStych[i][1].Hide();
+                    _poslStych[i][2].Hide();
+                }
                 if (hlasy)
                 {
                     for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
