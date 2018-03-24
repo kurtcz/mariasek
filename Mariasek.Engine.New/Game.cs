@@ -1133,10 +1133,11 @@ namespace Mariasek.Engine.New
                 return false; //neflekovana sedma se nehraje v zavislosti na nastaveni
             }
             if (GameType == (Hra.Hra | Hra.Sedma) && 
-                Bidding.SevenMultiplier == 1 && 
-                Bidding.GameMultiplier == 2)
+                Bidding.SevenMultiplier == 1 &&
+                Bidding.GameMultiplier == 2 &&
+                SevenValue == GameValue * 2)
             {
-                return false; //sedma a flek na hru se nehraje nikdy
+                return false; //sedma a flek na hru se nehraje nikdy (pri standardnich hodnotach her)
             }
             return true;
         }

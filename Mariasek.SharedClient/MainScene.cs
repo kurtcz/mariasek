@@ -353,7 +353,8 @@ namespace Mariasek.SharedClient
                 IsEnabled = false
             };
             _overlay.TouchUp += OverlayTouchUp;
-            //tlacitka na leve strane
+
+//tlacitka na leve strane
             _newGameBtn = new Button(this)
             {
                 Text = "Nová hra",
@@ -405,11 +406,21 @@ namespace Mariasek.SharedClient
             };
             _reviewGameBtn.Click += ReviewGameBtnClicked;
             _reviewGameBtn.Hide();
-            //tlacitka na prave strane
+
+//tlacitka na prave strane
+            _sendBtn = new Button(this)
+            {
+                Text = "@",
+                Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 150),
+                ZIndex = 100,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main,
+                Width = 50
+            };
+            _sendBtn.Click += SendBtnClicked;
             _reviewGameToggleBtn = new ToggleButton(this)
             {
                 Text = "i",
-                Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 150),
+                Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 90),
                 ZIndex = 100,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main,
                 Width = 50
@@ -417,15 +428,6 @@ namespace Mariasek.SharedClient
             //_reviewGameToggleBtn.Hide();
             _reviewGameToggleBtn.IsEnabled = false;
             _reviewGameToggleBtn.Click += ReviewGameBtnClicked;
-            _sendBtn = new Button(this)
-            {
-                Text = "@",
-                Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 90),
-                ZIndex = 100,
-                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main,
-                Width = 50
-            };
-            _sendBtn.Click += SendBtnClicked;
             _hintBtn = new Button(this)
             {
                 Text = "?",
@@ -439,7 +441,8 @@ namespace Mariasek.SharedClient
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main
             };
             _hintBtn.Click += HintBtnClicked;
-            //tlacitka ve hre
+
+//tlacitka ve hre
             _okBtn = new Button(this)
             {
                 Text = "OK",

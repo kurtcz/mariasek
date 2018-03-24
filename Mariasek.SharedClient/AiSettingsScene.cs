@@ -35,15 +35,12 @@ namespace Mariasek.SharedClient
         private Label _50Percent;
         private Label _100Percent;
         private Label _note;
-
-  //      private static readonly Dictionary<Hra, string> _notes = new Dictionary<Hra, string>
-  //      {
-  //          { Hra.Hra, "AI flekuje jen když trhá nebo má aspoň 40 bodů v hlasech\nnebo má dost bodů jistých." },
-  //          { Hra.Sedma, "AI volí sedmu jen když má aspoň 4 trumfy.\nAI flekuje sedmu jen když má aspoň 3 trumfy." },
-  //          { Hra.Kilo, "AI flekuje kilo jen když nejde uhrát." },
-  //          { Hra.Betl, "AI používá práh pro Flek když nevolil a hlásí\nšpatnou barvu. Pokud AI nevolil, neflekuje." },
-  //          { Hra.Durch, "AI používá práh pro Flek když nevolil a hlásí\nšpatnou barvu. AI durch flekuje jen když nejde uhrát." },
-  //      };
+        private const string _defaultNote = "Prahy udávají jistotu, kterou AI potřebuje aby si dal flek.\nRisk faktor udává ochotu AI mazat a hrát ostrou kartu.";
+        private static readonly Dictionary<Hra, string> _notes = new Dictionary<Hra, string>
+        {
+            { Hra.Betl, "AI používá práh pro Flek když nevolil a hlásí\nšpatnou barvu. Pokud AI nevolil, neflekuje." },
+            { Hra.Durch, "AI používá práh pro Flek když nevolil a hlásí\nšpatnou barvu. AI durch flekuje jen když nejde uhrát." },
+        };
 #endregion
 
         private bool _settingsChanged;
@@ -300,7 +297,7 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth - 200,
 				Height = 60,
 				//Text = "",
-                Text = "Prahy udávají jistotu, kterou AI potřebuje aby si dal flek.\nRisk faktor udává ochotu AI mazat a hrát ostrou kartu.",
+                Text = _defaultNote,
 				HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Top,
                 FontScaleFactor = 0.9f
@@ -377,7 +374,7 @@ namespace Mariasek.SharedClient
 			_chart.Data = series;
 
             var gt = (Hra)_gameTypeSelector.SelectedValue;
-            //_note.Text = _notes.ContainsKey(gt) ? _notes[gt] : string.Empty;
+            _note.Text = _notes.ContainsKey(gt) ? _notes[gt] : _defaultNote;
         }
 
         private void UpdateAiSettings()
