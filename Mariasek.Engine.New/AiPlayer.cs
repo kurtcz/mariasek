@@ -1947,18 +1947,26 @@ namespace Mariasek.Engine.New
                  // - (flek) mam aspon dva trumfy a trham trumfovou hlasku
                  // nebo mam potencialne vic bodu nez souper bez hlasu a souper nema na to uhrat kilo ani s trumfovou hlaskou
                  // - (tutti a vys) mam trumf (navic jsem musel splnit podminky pro flek) a citim se na flek
-                 (TeamMateIndex != -1 &&
-                  Hand.CardCount(_g.trump.Value) >= 2 &&
+                 (TeamMateIndex != -1 &&                  
                   ((bidding.GameMultiplier > 2 && 
+                    Hand.CardCount(_g.trump.Value) >= 2 &&
                     (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b)) ||
                      Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) || Hand.HasQ(b)) >= 2)) ||
                    (bidding.GameMultiplier < 2 &&
-                    (((Hand.HasK(_g.trump.Value) ||
+                    ((Hand.CardCount(_g.trump.Value) >= 2 &&    //aspon 2 trumfy
+                      (Hand.HasK(_g.trump.Value) ||             //a ktimu trhak
                        Hand.HasQ(_g.trump.Value)) &&
-                      (estimatedFinalBasicScore >= 20 ||
+                      (estimatedFinalBasicScore >= 20 ||        //a aspon 20 nebo 10+20 bodu na ruce
                        (estimatedFinalBasicScore >= 10 && //20 by bylo bezpecnejsi (neni 10 moc malo?)
                         kqScore >= 20))) ||
-                     (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
+                     ((Hand.HasK(_g.trump.Value) ||             //pouze trhak a 10+40 bodu na ruce
+                       Hand.HasQ(_g.trump.Value)) &&
+                      (estimatedFinalBasicScore >= 10 && //20 by bylo bezpecnejsi (neni 10 moc malo?)
+                        kqScore >= 40)) ||
+                     ((Hand.CardCount(_g.trump.Value) >= 2 ||   //dva trumfy nebo trhak a vetsina bodu
+                       Hand.HasK(_g.trump.Value) ||
+                       Hand.HasQ(_g.trump.Value)) &&
+                      estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
                       estimatedOpponentFinalBasicScore + 40 < 100)))))))// ||
                  //nebo davam re a jsem si dost jisty nehlede na hlasy
                  //((TeamMateIndex == -1 &&

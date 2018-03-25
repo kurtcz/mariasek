@@ -460,19 +460,25 @@ namespace Mariasek.Engine.New
 
                 if (gt == Hra.SedmaProti)
                 {
-                    var playerIndex = _bidding.PlayerBids.Select((i, idx) => new { value = i, idx = idx })
-                                                         .Where(i => (i.value & Hra.SedmaProti) != 0)
-                                                         .Select(i => i.idx)
-                                                         .FirstOrDefault();
-                    sb.AppendFormat("{0}: ", PlayerNames[playerIndex]);
+                    if (_bidding.PlayerBids.Any(i => (i & Hra.SedmaProti) != 0))
+                    {
+                        var playerIndex = _bidding.PlayerBids.Select((i, idx) => new { value = i, idx = idx })
+                                                             .Where(i => (i.value & Hra.SedmaProti) != 0)
+                                                             .Select(i => i.idx)
+                                                             .FirstOrDefault();
+                        sb.AppendFormat("{0}: ", PlayerNames[playerIndex]);
+                    }
                 }
                 else if (gt == Hra.KiloProti)
                 {
-                    var playerIndex = _bidding.PlayerBids.Select((i, idx) => new { value = i, idx = idx })
-                                                         .Where(i => (i.value & Hra.KiloProti) != 0)
-                                                         .Select(i => i.idx)
-                                                         .FirstOrDefault();
-                    sb.AppendFormat("{0}: ", PlayerNames[playerIndex]);
+                    if (_bidding.PlayerBids.Any(i => (i & Hra.KiloProti) != 0))
+                    {
+                        var playerIndex = _bidding.PlayerBids.Select((i, idx) => new { value = i, idx = idx })
+                                                             .Where(i => (i.value & Hra.KiloProti) != 0)
+                                                             .Select(i => i.idx)
+                                                             .FirstOrDefault();
+                        sb.AppendFormat("{0}: ", PlayerNames[playerIndex]);
+                    }
                 }
                 else
                 {
