@@ -1317,6 +1317,13 @@ namespace Mariasek.SharedClient
             var selector = sender as LeftRightSelector;
 
             Game.Settings.AllowAXTalon = (bool)selector.SelectedValue;
+            //obe nastaveni nemuzou byt false protoze by nemuselo zbyt dost karet ktere jdou dat do talonu
+            if (!Game.Settings.AllowTrumpTalon && !Game.Settings.AllowAXTalon)
+            {
+                //toto zavola i SaveGameSettings() a OnSettingsChanged()
+                _allowTrumpTalonSelector.SelectedIndex = _allowTrumpTalonSelector.Items.FindIndex(true);
+                return;
+            }
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
@@ -1326,6 +1333,13 @@ namespace Mariasek.SharedClient
             var selector = sender as LeftRightSelector;
 
             Game.Settings.AllowTrumpTalon = (bool)selector.SelectedValue;
+            //obe nastaveni nemuzou byt false protoze by nemuselo zbyt dost karet ktere jdou dat do talonu
+            if (!Game.Settings.AllowTrumpTalon && !Game.Settings.AllowAXTalon)
+            {
+                //toto zavola i SaveGameSettings() a OnSettingsChanged()
+                _allowAXTalonSelector.SelectedIndex = _allowAXTalonSelector.Items.FindIndex(true);
+                return;
+            }
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }

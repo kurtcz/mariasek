@@ -75,7 +75,7 @@ namespace Mariasek.Engine.New
             foreach (var rule in GetRules1(_hands))
             {
                 var cardToPlay = rule.ChooseCard1();
-                if (cardToPlay != null)
+                    if (cardToPlay != null)
                 {
                     if (cardToPlay.Value == Hodnota.Kral && _trump.HasValue)
                     {

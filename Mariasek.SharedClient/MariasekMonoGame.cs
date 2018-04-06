@@ -530,6 +530,11 @@ namespace Mariasek.SharedClient
 					{
 						Settings.ResetThresholds();
 					}
+                    //obe nastaveni nemuzou byt false protoze by nemuselo zbyt dost karet ktere jdou dat do talonu
+                    if (!Settings.AllowAXTalon && !Settings.AllowTrumpTalon)
+                    {
+                        Settings.AllowTrumpTalon = true;
+                    }
 				}
 			}
 			catch (Exception e)

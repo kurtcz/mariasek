@@ -43,7 +43,8 @@ namespace Mariasek.Engine.New
                         preferredSuits.Add(_rounds[0].c1.Suit);
                     }
                     //pokud v 2.kole spoluhrac nepriznal barvu a jeste nejake karty v barve zbyvaji
-                    if (hands[MyIndex].CardCount(_rounds[0].c1.Suit) < 6 &&
+                    if (hands[MyIndex].HasSuit(_rounds[0].c1.Suit) &&
+                        hands[MyIndex].CardCount(_rounds[0].c1.Suit) < 6 &&
                         ((_rounds[0].player2.PlayerIndex == TeamMateIndex &&
                           _rounds[0].c1.Suit != _rounds[0].c2.Suit) ||
                          (_rounds[0].player3.PlayerIndex == TeamMateIndex &&

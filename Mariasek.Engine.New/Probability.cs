@@ -686,7 +686,7 @@ namespace Mariasek.Engine.New
             var certainCards = new List<Card>[Game.NumPlayers + 1];
             var uncertainCards = new List<Card>[Game.NumPlayers + 1];
             var totalCards = new int[Game.NumPlayers + 1];
-            var thresholds = new double[Game.NumPlayers + 1];
+            var thresholds = new float[Game.NumPlayers + 1];
 
             //inicializujeme si promenne
             for (int i = 0; i < Game.NumPlayers; i++)
@@ -786,17 +786,18 @@ namespace Mariasek.Engine.New
                     {
                         if ((i == 0 || n >= thresholds[i - 1]) && n < thresholds[i])
                         {
+                            //i == 0 by nemelo nikdy nastat (thresholds[0] je prah pro me a ma byt == 0 (moje karty nejsou nezname)
                             hands[i].Add(c);
 							if (i == Game.NumPlayers)
 							{
-                                _verboseString.AppendFormat("Talon += {0} (random) {1:0.000}:{2:0.000}:{3:0.000}\n",
-                                                            c, i > 0 ? thresholds[i - 1] : 0, n, thresholds[i]);
+                                _verboseString.AppendFormat("Talon += {0} (random) n = {1:0.000}; {2:0.000}:{3:0.000}:{4:0.000}:{5:0.000}\n",
+                                                            c, n, thresholds[0], thresholds[1], thresholds[2], thresholds[3]);
 							}
 							else
 							{
-                                _verboseString.AppendFormat("Hand{0} += {1} (random) {2:0.000}:{3:0.000}:{4:0.000}\n", 
-                                                            (_myIndex + i) % Game.NumPlayers + 1, c,
-                                                            i > 0 ? thresholds[i - 1]: 0, n, thresholds[i]);
+                                _verboseString.AppendFormat("Hand{0} += {1} (random) n = {2:0.000}; {3:0.000}:{4:0.000}:{5:0.000}:{6:0.000}\n", 
+                                                            (_myIndex + i) % Game.NumPlayers + 1, c, n,
+                                                            thresholds[0], thresholds[1], thresholds[2], thresholds[3]);
 							}
                             for (int j = 0; j < Game.NumPlayers + 1; j ++)
                             {

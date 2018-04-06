@@ -857,7 +857,7 @@ namespace Mariasek.Engine.New
                         rounds[RoundNumber - 1] = r;
                         roundWinner = r.PlayRound();
 
-						DebugString.AppendFormat("Finished round {0}\n", RoundNumber);
+                        DebugString.AppendFormat("Finished round {0}\n", RoundNumber);
                         OnRoundFinished(r);
                         if(IsGameOver(r))
                         {

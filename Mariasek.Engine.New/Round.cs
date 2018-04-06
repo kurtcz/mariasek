@@ -114,6 +114,7 @@ namespace Mariasek.Engine.New
                 throw new InvalidOperationException("Card c1 cannot be null");
             }
             player1.Hand.Remove(c1);
+            _g.DebugString.AppendFormat("Player{0}: {1}\n", player1.PlayerIndex + 1, c1);
             if (_g.rounds.Where(i => i != null && i.number < number).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).Contains(c1))
             {
                 throw new InvalidOperationException($"Card {c1} has already been played");
@@ -138,7 +139,8 @@ namespace Mariasek.Engine.New
                 throw new InvalidOperationException("Card c2 cannot be null");
             }
             player2.Hand.Remove(c2);
-			if (_g.rounds.Where(i => i != null && i.number < number).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).Contains(c2))
+            _g.DebugString.AppendFormat("Player{0}: {1}\n", player2.PlayerIndex + 1, c2);
+            if (_g.rounds.Where(i => i != null && i.number < number).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).Contains(c2))
 			{
 				throw new InvalidOperationException($"Card {c2} has already been played");
 			}
@@ -162,6 +164,7 @@ namespace Mariasek.Engine.New
                 throw new InvalidOperationException("Card c3 cannot be null");
             }
             player3.Hand.Remove(c3);
+            _g.DebugString.AppendFormat("Player{0}: {1}\n", player3.PlayerIndex + 1, c3);
 			if (_g.rounds.Where(i => i != null && i.number < number).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).Contains(c3))
 			{
 				throw new InvalidOperationException($"Card {c3} has already been played");

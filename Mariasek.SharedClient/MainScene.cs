@@ -1237,8 +1237,11 @@ namespace Mariasek.SharedClient
                      g.players[2].GameComputationProgress += GameComputationProgress;
                      _firstTimeGameFlavourChosen = true;
                      _trumpCardChosen = null;
+                     _cardClicked = null;
+                     _bid = 0;
                      TrumpCardTakenBack = false;
                      _state = GameState.NotPlaying;
+                     _talon = new List<Card>();
 
                      ClearTable(true);
                      HideMsgLabel();
@@ -2676,8 +2679,11 @@ namespace Mariasek.SharedClient
                         g.players[2].GameComputationProgress += GameComputationProgress;
                         _firstTimeGameFlavourChosen = true;
                         _trumpCardChosen = null;
+                        _cardClicked = null;
+                        _bid = 0;
                         TrumpCardTakenBack = false;
                         _state = GameState.NotPlaying;
+                        _talon = g.GameStartingPlayerIndex == 0 && g.talon != null && g.talon.Any() ? new List<Card>(g.talon) : new List<Card>();
 
                         CurrentStartingPlayerIndex = g.GameStartingPlayerIndex;
                         Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
