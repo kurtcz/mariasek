@@ -1155,9 +1155,20 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Kral] = 0f;
                 _cardProbabilityForPlayer[talonIndex][c1.Suit][Hodnota.Kral] = 0f;
             }
-            else if (_trump.HasValue && c1.Value == Hodnota.Svrsek)
+            else if (_trump.HasValue && c1.Value == Hodnota.Svrsek && roundStarterIndex != _myIndex)
             {
                 _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Kral] = 0;
+                if (!_allowTrumpTalon)
+                {
+                    //pokud trumfovy hlas a tedy i krale nema tento hrac a nesmi byt v talonu
+                    //a dalsi hrac ho mit muze (protoze ja ho nemam), tak ho ma jiste
+                    var otherPlayer = Enumerable.Range(0, Game.NumPlayers).First(i => i != _myIndex && i != roundStarterIndex);
+
+                    if (_cardProbabilityForPlayer[otherPlayer][c1.Suit][Hodnota.Kral] > 0)
+                    {
+                        _cardProbabilityForPlayer[otherPlayer][c1.Suit][Hodnota.Kral] = 1f;
+                    }
+                }
             }
             _cardsPlayedByPlayer[roundStarterIndex].Add(c1);
             ReduceUcertainCardSet();
@@ -1186,9 +1197,20 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c2.Suit][Hodnota.Kral] = 0f;
                 _cardProbabilityForPlayer[talonIndex][c2.Suit][Hodnota.Kral] = 0f;
             }
-            else if (_trump.HasValue && c2.Value == Hodnota.Svrsek)
+            else if (_trump.HasValue && c2.Value == Hodnota.Svrsek && (roundStarterIndex + 1) % Game.NumPlayers != _myIndex)
             {
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c2.Suit][Hodnota.Kral] = 0;
+                if (!_allowTrumpTalon)
+                {
+                    //pokud trumfovy hlas a tedy i krale nema tento hrac a nesmi byt v talonu
+                    //a dalsi hrac ho mit muze (protoze ja ho nemam), tak ho ma jiste
+                    var otherPlayer = Enumerable.Range(0, Game.NumPlayers).First(i => i != _myIndex && i != (roundStarterIndex + 1) % Game.NumPlayers);
+
+                    if (_cardProbabilityForPlayer[otherPlayer][c2.Suit][Hodnota.Kral] > 0)
+                    {
+                        _cardProbabilityForPlayer[otherPlayer][c2.Suit][Hodnota.Kral] = 1f;
+                    }
+                }
             }
 			const float epsilon = 0.01f;
 
@@ -1281,9 +1303,20 @@ namespace Mariasek.Engine.New
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Kral] = 1f;
                 _cardProbabilityForPlayer[talonIndex][c3.Suit][Hodnota.Kral] = 0f;
             }
-            else if (_trump.HasValue && c3.Value == Hodnota.Svrsek)
+            else if (_trump.HasValue && c3.Value == Hodnota.Svrsek && (roundStarterIndex + 2) % Game.NumPlayers != _myIndex)
             {
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Kral] = 0;
+                if (!_allowTrumpTalon)
+                {
+                    //pokud trumfovy hlas a tedy i krale nema tento hrac a nesmi byt v talonu
+                    //a dalsi hrac ho mit muze (protoze ja ho nemam), tak ho ma jiste
+                    var otherPlayer = Enumerable.Range(0, Game.NumPlayers).First(i => i != _myIndex && i != (roundStarterIndex + 2) % Game.NumPlayers);
+
+                    if (_cardProbabilityForPlayer[otherPlayer][c3.Suit][Hodnota.Kral] > 0)
+                    {
+                        _cardProbabilityForPlayer[otherPlayer][c3.Suit][Hodnota.Kral] = 1f;
+                    }
+                }
             }
 			const float epsilon = 0.01f;
 
