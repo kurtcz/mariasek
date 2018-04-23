@@ -1520,18 +1520,18 @@ namespace Mariasek.Engine.New
                     Barva? firstSuit;
                     Barva? lastSuit;
 
-                    if (trump.HasValue)// &&
-                        //(players[player2].Hand.HasSuit(trump.Value) ||
-                        // players[player3].Hand.HasSuit(trump.Value)))
+                    if (trump.HasValue &&
+                        (players[player2].Hand.HasSuit(trump.Value) ||
+                         players[player3].Hand.HasSuit(trump.Value)))
                     {
                         firstSuit = trump;
                         lastSuit = null;
                     }
-                    //else if (trump.HasValue)
-                    //{
-                    //    firstSuit = null;
-                    //    lastSuit = trump;
-                    //}
+                    else if (trump.HasValue)
+                    {
+                        firstSuit = null;
+                        lastSuit = trump;
+                    }
                     else if (GameType == Hra.Betl)
                     {
                         firstSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()

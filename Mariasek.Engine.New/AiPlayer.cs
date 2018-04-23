@@ -2017,15 +2017,16 @@ namespace Mariasek.Engine.New
                 DebugInfo.RuleCount = _hundredsBalance;
                 DebugInfo.TotalRuleCount = _hundredSimulations;
             }
-            //sedmu proti flekuju jen pokud jsem hlasil sam sedmu proti a v simulacich jsem ji uhral dost casto a navic mam aspon 3 trumfy
-            //nebo pokud jsem volil trumf a v simulacich ani jednou nevysla
-            //?! Pokud bych chtel simulovat sance na to, ze volici hrac hlasenou sedmu neuhraje, tak musim nejak generovat "karty na sedmu" (aspon 4-5 trumfu) a ne nahodne karty
+            //sedmu proti flekuju pokud mam aspon 3 trumfy a vsechny barvy
             if ((bidding.Bids & Hra.SedmaProti) != 0 &&
                 Settings.CanPlayGameType[Hra.SedmaProti] &&
                 bidding._sevenAgainstFlek <= Settings.MaxDoubleCountForGameType[Hra.SedmaProti] &&
                 (bidding._sevenAgainstFlek < 3 ||                      //ai nedava tutti pokud neflekoval i clovek
                  PlayerIndex == 0 ||
                  (bidding.PlayerBids[0] & Hra.SedmaProti) != 0) &&
+                (Hand.CardCount(_g.trump.Value) >= 4 ||
+                 (Hand.CardCount(_g.trump.Value) >= 3 &&
+                  Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => Hand.HasSuit(b)))) &&
                 _gameSimulations > 0 && _sevensAgainstBalance / (float)_gameSimulations >= sevenAgainstThreshold)
             {
                 bid |= bidding.Bids & Hra.SedmaProti;

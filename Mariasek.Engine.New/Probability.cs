@@ -687,6 +687,7 @@ namespace Mariasek.Engine.New
             var uncertainCards = new List<Card>[Game.NumPlayers + 1];
             var totalCards = new int[Game.NumPlayers + 1];
             var thresholds = new float[Game.NumPlayers + 1];
+            var badThreshold = string.Empty;
 
             //inicializujeme si promenne
             for (int i = 0; i < Game.NumPlayers; i++)
@@ -747,7 +748,7 @@ namespace Mariasek.Engine.New
                         {
                             thresholds[i] = 0;
                         }
-                        if (hands[i].Count() < totalCards[i])
+                        if (hands[i].Count() < totalCards[i] && i > 0)
                         {
                             if (i == talonIndex)
                             {
@@ -784,7 +785,22 @@ namespace Mariasek.Engine.New
                     //podle toho do ktereho intervalu urceneho prahy se vejdeme pridelime kartu konkretnimu hraci
                     for (int i = Game.NumPlayers; i >= 0; i--)
                     {
-                        if ((i == 0 || n >= thresholds[i - 1]) && n < thresholds[i])
+                        if (i == 0)
+                        {
+                            badThreshold += string.Format("Bad thresholds for card {0}:\n{1:0.000} {2:0.000} {3:0.000} {4:0.000}\n" +
+                                                          "card probabilities:\n{5:0.000} {6:0.000} {7:0.000} {8:0.000}\n" +
+                                                          "uncertain cards:\n[{9}]\n[{10}]\n[{11}]\n[{12}]\n",
+                                                          c, thresholds[0], thresholds[1], thresholds[2], thresholds[3],
+                                                          _cardProbabilityForPlayer[0][c.Suit][c.Value],
+                                                          _cardProbabilityForPlayer[1][c.Suit][c.Value],
+                                                          _cardProbabilityForPlayer[2][c.Suit][c.Value],
+                                                          _cardProbabilityForPlayer[3][c.Suit][c.Value],
+                                                          string.Join(" ", uncertainCards[0].Select(j => j.ToString())),
+                                                          string.Join(" ", uncertainCards[1].Select(j => j.ToString())),
+                                                          string.Join(" ", uncertainCards[2].Select(j => j.ToString())),
+                                                          string.Join(" ", uncertainCards[3].Select(j => j.ToString())));
+                        }
+                        if (n >= thresholds[i - 1] && n < thresholds[i])
                         {
                             //i == 0 by nemelo nikdy nastat (thresholds[0] je prah pro me a ma byt == 0 (moje karty nejsou nezname)
                             hands[i].Add(c);
@@ -870,8 +886,8 @@ namespace Mariasek.Engine.New
                         _myIndex+1, i < Game.NumPlayers ? string.Format("Player{0}", i+1) : "talon", FriendlyString(i, roundNumber));
                 }
 
-				throw new InvalidOperationException(string.Format("Badly generated hands for player {0}, round {1}:{2}\n{3}\nGenerovani:\n{4}\nHistorie:\n{5}\nExterni:\n{6}\n", 
-                              _myIndex + 1, roundNumber, sb.ToString(), friendlyString.ToString(), _verboseString.ToString(), _debugString.ToString(), ExternalDebugString.ToString()));
+                throw new InvalidOperationException(string.Format("Badly generated hands for player {0}, round {1}:{2}\n{3}{4}\nGenerovani:\n{5}\nHistorie:\n{6}\nExterni:\n{7}\n", 
+                              _myIndex + 1, roundNumber, sb.ToString(), badThreshold, friendlyString.ToString(), _verboseString.ToString(), _debugString.ToString(), ExternalDebugString.ToString()));
             }
             _verboseString.Append("-=-=-\n");
             _debugString.Append("-=-=-\n");
