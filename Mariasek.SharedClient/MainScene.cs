@@ -1107,7 +1107,18 @@ namespace Mariasek.SharedClient
 
         public void RepeatGameBtnClicked(object sender)
         {
-            g = null;
+            if (g != null)
+            {
+                try
+                {
+                    g.Die();
+                }
+                catch(Exception ex)
+                {                    
+                }
+            }
+            g = null;   //aby se provedl kod v LoadGame()
+            GC.Collect();
             _testGame = true;
             Task.Run(() =>
             {
@@ -1161,6 +1172,18 @@ namespace Mariasek.SharedClient
              {
                  try
                  {
+                     if (g != null)
+                     {
+                         try
+                         {
+                             g.Die();
+                         }
+                         catch (Exception ex)
+                         {
+                         }
+                         g = null;
+                         GC.Collect();
+                     }
                      _cancellationTokenSource = cancellationTokenSource;
                      if (File.Exists(_errorFilePath))
                      {
@@ -1249,7 +1272,7 @@ namespace Mariasek.SharedClient
                      _reviewGameToggleBtn.Show();
                      _reviewGameToggleBtn.IsSelected = false;
                      _reviewGameToggleBtn.IsEnabled = Game.Settings.TestMode.HasValue && Game.Settings.TestMode.Value;
-                     
+
                      if (_review != null)
                      {
                          _review.Hide();
@@ -1310,7 +1333,7 @@ namespace Mariasek.SharedClient
                          //_trumpLabels[i].Text = g.players[i].Name;
                          _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                                   GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
-                                                  Game.Settings.ShowScoreDuringGame 
+                                                  Game.Settings.ShowScoreDuringGame
                                                   ? (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ"))
                                                   : string.Empty);
                          _trumpLabels[i].Height = 60;

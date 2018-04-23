@@ -222,6 +222,11 @@ namespace Mariasek.Engine.New
 #endif
         }
 
+        ~Game()
+        {
+            System.Diagnostics.Debug.WriteLine("<<< end of game");
+        }
+
         public void RegisterPlayers(AbstractPlayer[] players)
         {
             RegisterPlayers(players[0], players[1], players[2]);
@@ -915,6 +920,91 @@ namespace Mariasek.Engine.New
             finally
             {
                 IsRunning = false;
+                try
+                {
+                    Die();
+                }
+                catch(Exception ex)
+                {                    
+                }
+            }
+        }
+
+        public void Die()
+        {
+            foreach (var player in players.Where(i => i != null))
+            {
+                player.Die();
+            }
+            if (GameLoaded != null)
+            {
+                foreach (Delegate d in GameLoaded.GetInvocationList())
+                {
+                    GameLoaded -= (GameLoadedEventHandler)d;
+                }
+            }
+            if (GameFlavourChosen != null)
+            {
+                foreach (Delegate d in GameFlavourChosen.GetInvocationList())
+                {
+                    GameFlavourChosen -= (GameFlavourChosenEventHandler)d;
+                }
+            }
+            if (GameTypeChosen != null)
+            {
+                foreach (Delegate d in GameTypeChosen.GetInvocationList())
+                {
+                    GameTypeChosen -= (GameTypeChosenEventHandler)d;
+                }
+            }
+            if (BidMade != null)
+            {
+                foreach (Delegate d in BidMade.GetInvocationList())
+                {
+                    BidMade -= (BidMadeEventHandler)d;
+                }
+            }
+            if (CardPlayed != null)
+            {
+                foreach (Delegate d in CardPlayed.GetInvocationList())
+                {
+                    CardPlayed -= (CardPlayedEventHandler)d;
+                }
+            }
+            if (RoundStarted != null)
+            {
+                foreach (Delegate d in RoundStarted.GetInvocationList())
+                {
+                    RoundStarted -= (RoundEventHandler)d;
+                }
+            }
+            if (RoundFinished != null)
+            {
+                foreach (Delegate d in RoundFinished.GetInvocationList())
+                {
+                    RoundFinished -= (RoundEventHandler)d;
+                }
+            }
+            if (GameFinished != null)
+            {
+                foreach (Delegate d in GameFinished.GetInvocationList())
+                {
+                    GameFinished -= (GameFinishedEventHandler)d;
+                }
+            }
+            if (GameWonPrematurely != null)
+            {
+                foreach (Delegate d in GameWonPrematurely.GetInvocationList())
+                {
+                    GameWonPrematurely -= (GameWonPrematurelyEventHandler)d;
+                }
+            }
+            if (GameException != null)
+            {
+                foreach (Delegate d in GameException.GetInvocationList())
+                {
+                    GameException -= (GameExceptionEventHandler)d;
+                }
             }
         }
 

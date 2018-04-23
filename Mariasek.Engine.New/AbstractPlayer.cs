@@ -67,6 +67,17 @@ namespace Mariasek.Engine.New
         /// </summary>
         public abstract void Init();
 
+        public virtual void Die()
+        {
+            if (GameComputationProgress != null)
+            {
+                foreach(Delegate d in GameComputationProgress.GetInvocationList())
+                {
+                    GameComputationProgress -= (GameComputationProgressEventHandler)d;
+                }
+            }
+        }
+
         public abstract Card PlayCard(Round r); //r obsahuje kontext (ktere karty uz nekdo hral prede mnou a jestli byly zahrany nejake hlasy)
 
         protected AbstractPlayer(Game g)
@@ -76,6 +87,11 @@ namespace Mariasek.Engine.New
             BidMade = string.Empty;
             Hand = new List<Card>();
             DebugInfo = new PlayerDebugInfo();
+        }
+
+        ~AbstractPlayer()
+        {
+            System.Diagnostics.Debug.WriteLine("<<< End of player {0}", PlayerIndex);
         }
 
         private static Renonc IsCardValid(List<Card> hand, Barva? trump, Hra gameType, int teamMateIndex, Card c, bool isFirstPlayer)
