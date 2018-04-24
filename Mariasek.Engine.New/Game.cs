@@ -1029,7 +1029,7 @@ namespace Mariasek.Engine.New
                     (aiPlayer._talon == null ||
                      aiPlayer._talon.Count() == 0))
                 {
-                    aiPlayer._talon = talon;
+                    aiPlayer._talon = new List<Card>(talon);
                     if (aiPlayer.Probabilities.IsUpdateProbabilitiesAfterTalonNeeded())
                     {
                         aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(aiPlayer.Hand, aiPlayer._talon);
@@ -1386,7 +1386,7 @@ namespace Mariasek.Engine.New
                     {
                         DebugString.AppendLine("Invalid talon count during ChooseGame()");
                         LogHands();                            
-                        throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex + 1} during ChooseGame(): {talon?.Count()}");
+                        throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex + 1} during ChooseGame(): {talon?.Count()} null: {talon == null}");
                     }
                     DebugString.AppendFormat("talon: {0} {1}\n", talon[0], talon[1]);
 					BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
@@ -1468,7 +1468,7 @@ namespace Mariasek.Engine.New
                         {
                             DebugString.AppendLine("Invalid talon count during ChooseGame()");
                             LogHands();
-                            throw new InvalidOperationException($"Invalid talon count after ChooseGameFlavour(): {talon?.Count()}");
+                            throw new InvalidOperationException($"Invalid talon count after ChooseGameFlavour(): {talon?.Count()} null: {talon == null}");
                         }
                         DebugString.AppendFormat("Old talon {0} {1} goes to Player {2}\n", talon[0], talon[1], GameStartingPlayer.PlayerIndex + 1);
                         GameStartingPlayer.Hand.AddRange(talon);
@@ -1486,7 +1486,7 @@ namespace Mariasek.Engine.New
                         {
                             DebugString.AppendLine("Invalid talon count during ChooseGame()");
                             LogHands();
-                            throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex+1} during ChooseGame(): {talon?.Count()}");
+                            throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex+1} during ChooseGame(): {talon?.Count()} null: {talon == null}");
                         }
                         DebugString.AppendFormat("talon: {0} {1}\n", talon[0], talon[1]);
                         BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
