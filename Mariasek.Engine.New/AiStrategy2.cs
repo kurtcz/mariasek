@@ -505,7 +505,7 @@ namespace Mariasek.Engine.New
 
                         if (holes.Count > 0 && 
                             topTrumps.Count >= holes.Count &&
-                            lowcards.Count() <= hands[MyIndex].CardCount(_trump))
+                            lowcards.Count() < hands[MyIndex].CardCount(_trump))
                         {
                             cardsToPlay = topTrumps;
                         }
