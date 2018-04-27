@@ -686,9 +686,11 @@ namespace Mariasek.Engine.New
             var certainCards = new List<Card>[Game.NumPlayers + 1];
             var uncertainCards = new List<Card>[Game.NumPlayers + 1];
             var totalCards = new int[Game.NumPlayers + 1];
-            var thresholds = new float[Game.NumPlayers + 1];
+            var thresholds = new [] { 0f, 0f, 0f, 0f };// new float[Game.NumPlayers + 1];
             var badThreshold = string.Empty;
-
+            var x = -1;
+            var randomNumbers = new[] { 0.266, 0.440, 0.830, 0.272, 0.117, 0.594, 0.109, 0.994, 0.859, 0.089, 
+                                        0.352, 0.551, 0.404, 0.087, 0.205, 0.584, 0.423, 0.541, 0.404};
             //inicializujeme si promenne
             for (int i = 0; i < Game.NumPlayers; i++)
             {
@@ -767,7 +769,7 @@ namespace Mariasek.Engine.New
 
                         for (int i = 0; i < Game.NumPlayers + 1; i++)
                         {
-							if (thresholds [i] == sum)
+							if (thresholds[i] == sum)
 							{
 								thresholds[i] = 1f;
 							}
@@ -780,7 +782,7 @@ namespace Mariasek.Engine.New
                     }
 
                     //var n = r.NextDouble();
-                    var n = mt.RandomDouble();
+                    var n = x < 0 ? mt.RandomDouble() : randomNumbers[x++];
 
                     //podle toho do ktereho intervalu urceneho prahy se vejdeme pridelime kartu konkretnimu hraci
                     for (int i = Game.NumPlayers; i >= 0; i--)
@@ -800,7 +802,7 @@ namespace Mariasek.Engine.New
                                                           string.Join(" ", uncertainCards[2].Select(j => j.ToString())),
                                                           string.Join(" ", uncertainCards[3].Select(j => j.ToString())));
                         }
-                        if (n >= thresholds[i - 1] && n < thresholds[i])
+                        if ((i == 0) || (n >= thresholds[i - 1] && n < thresholds[i]))
                         {
                             //i == 0 by nemelo nikdy nastat (thresholds[0] je prah pro me a ma byt == 0 (moje karty nejsou nezname)
                             hands[i].Add(c);
@@ -1174,7 +1176,7 @@ namespace Mariasek.Engine.New
             else if (_trump.HasValue && c1.Value == Hodnota.Svrsek && roundStarterIndex != _myIndex)
             {
                 _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Kral] = 0;
-                if (!_allowTrumpTalon)
+                if (!_allowTrumpTalon && c1.Suit == _trump)
                 {
                     //pokud trumfovy hlas a tedy i krale nema tento hrac a nesmi byt v talonu
                     //a dalsi hrac ho mit muze (protoze ja ho nemam), tak ho ma jiste
@@ -1216,7 +1218,7 @@ namespace Mariasek.Engine.New
             else if (_trump.HasValue && c2.Value == Hodnota.Svrsek && (roundStarterIndex + 1) % Game.NumPlayers != _myIndex)
             {
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c2.Suit][Hodnota.Kral] = 0;
-                if (!_allowTrumpTalon)
+                if (!_allowTrumpTalon && c2.Suit != _trump)
                 {
                     //pokud trumfovy hlas a tedy i krale nema tento hrac a nesmi byt v talonu
                     //a dalsi hrac ho mit muze (protoze ja ho nemam), tak ho ma jiste
@@ -1322,7 +1324,7 @@ namespace Mariasek.Engine.New
             else if (_trump.HasValue && c3.Value == Hodnota.Svrsek && (roundStarterIndex + 2) % Game.NumPlayers != _myIndex)
             {
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Kral] = 0;
-                if (!_allowTrumpTalon)
+                if (!_allowTrumpTalon && c3.Suit == _trump)
                 {
                     //pokud trumfovy hlas a tedy i krale nema tento hrac a nesmi byt v talonu
                     //a dalsi hrac ho mit muze (protoze ja ho nemam), tak ho ma jiste
