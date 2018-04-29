@@ -95,7 +95,7 @@ namespace Mariasek.Engine.New
                             _cardProbabilityForPlayer[i][b].Add(h, _myHand.Any(k => k.Suit == b && k.Value == h) ? 1f : 0f);
                         }
                         else if (i == talonIndex)
-                        {                            
+                        {
                             if(!Game.IsValidTalonCard(h, b, trump, _allowAXTalon, _allowTrumpTalon))
                             {
                                 //karty co nemohou byt v talonu
@@ -688,9 +688,7 @@ namespace Mariasek.Engine.New
             var totalCards = new int[Game.NumPlayers + 1];
             var thresholds = new [] { 0f, 0f, 0f, 0f };// new float[Game.NumPlayers + 1];
             var badThreshold = string.Empty;
-            var x = -1;
-            var randomNumbers = new[] { 0.266, 0.440, 0.830, 0.272, 0.117, 0.594, 0.109, 0.994, 0.859, 0.089, 
-                                        0.352, 0.551, 0.404, 0.087, 0.205, 0.584, 0.423, 0.541, 0.404};
+
             //inicializujeme si promenne
             for (int i = 0; i < Game.NumPlayers; i++)
             {
@@ -782,7 +780,7 @@ namespace Mariasek.Engine.New
                     }
 
                     //var n = r.NextDouble();
-                    var n = x < 0 ? mt.RandomDouble() : randomNumbers[x++];
+                    var n = mt.RandomDouble();
 
                     //podle toho do ktereho intervalu urceneho prahy se vejdeme pridelime kartu konkretnimu hraci
                     for (int i = Game.NumPlayers; i >= 0; i--)
@@ -1033,6 +1031,33 @@ namespace Mariasek.Engine.New
                     _cardProbabilityForPlayer[j][e.axTalon[i].Suit][e.axTalon[i].Value] = j == talonIndex ? 1f : 0f;
                 }
             }
+            if ((e.GameType & (Hra.Betl | Hra.Durch)) == 0 && e.GameStartingPlayerIndex != _myIndex)
+            {
+                //v talonu nesmi byt ostre karty vyjma tech hlasenych
+                foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                {
+                    var eso = new Card(b, Hodnota.Eso);
+                    var desitka = new Card(b, Hodnota.Desitka);
+
+                    for (var i = 0; i < Game.NumPlayers + 1; i++)
+                    {
+                        if (i == talonIndex)
+                        {
+                            _cardProbabilityForPlayer[i][b][Hodnota.Eso] = e.axTalon.Contains(eso) ? 1f : 0f;
+                            _cardProbabilityForPlayer[i][b][Hodnota.Desitka] = e.axTalon.Contains(desitka) ? 1f : 0f;
+                        }
+                        else if (i != _myIndex)
+                        {
+                            _cardProbabilityForPlayer[i][b][Hodnota.Eso] = e.axTalon.Contains(eso) || _myHand.HasA(b)
+                                                                            ? 0f
+                                                                            : 0.5f;
+                            _cardProbabilityForPlayer[i][b][Hodnota.Desitka] = e.axTalon.Contains(eso) || _myHand.HasX(b)
+                                                                                ? 0f
+                                                                                : 0.5f;
+                        }
+                    }
+                }
+            }
             for (var i = 0; i < Game.NumPlayers + 1; i++)
             {
                 _cardProbabilityForPlayer[i][e.TrumpCard.Suit][e.TrumpCard.Value] = i == e.GameStartingPlayerIndex ? 1f : 0f;
@@ -1218,7 +1243,7 @@ namespace Mariasek.Engine.New
             else if (_trump.HasValue && c2.Value == Hodnota.Svrsek && (roundStarterIndex + 1) % Game.NumPlayers != _myIndex)
             {
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c2.Suit][Hodnota.Kral] = 0;
-                if (!_allowTrumpTalon && c2.Suit != _trump)
+                if (!_allowTrumpTalon && c2.Suit == _trump)
                 {
                     //pokud trumfovy hlas a tedy i krale nema tento hrac a nesmi byt v talonu
                     //a dalsi hrac ho mit muze (protoze ja ho nemam), tak ho ma jiste
