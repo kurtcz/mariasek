@@ -1051,7 +1051,7 @@ namespace Mariasek.Engine.New
                             _cardProbabilityForPlayer[i][b][Hodnota.Eso] = e.axTalon.Contains(eso) || _myHand.HasA(b)
                                                                             ? 0f
                                                                             : 0.5f;
-                            _cardProbabilityForPlayer[i][b][Hodnota.Desitka] = e.axTalon.Contains(eso) || _myHand.HasX(b)
+                            _cardProbabilityForPlayer[i][b][Hodnota.Desitka] = e.axTalon.Contains(desitka) || _myHand.HasX(b)
                                                                                 ? 0f
                                                                                 : 0.5f;
                         }
