@@ -1608,6 +1608,13 @@ namespace Mariasek.Engine.New
                     {
                         var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                 !_bannedSuits.Contains(i.Suit)).ToList();
+                        if (cardsToPlay.Any(i => i.Value != Hodnota.Eso &&
+                                                 i.Value != Hodnota.Desitka))
+                        {
+                            cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Eso &&
+                                                                 i.Value != Hodnota.Desitka)
+                                                     .ToList();
+                        }
                         if (!cardsToPlay.Any())
                         {
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump).ToList();
@@ -1622,9 +1629,11 @@ namespace Mariasek.Engine.New
                             cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
                         }
 
-                        return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
-                                          .ThenBy(i => i.Value)
-                                          .FirstOrDefault();
+                        cardsToPlay = cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+                                                 .ThenBy(i => i.Value)
+                                                 .ToList();
+
+                        return cardsToPlay.FirstOrDefault();
                     }
                 };
             }
