@@ -1408,7 +1408,8 @@ namespace Mariasek.Engine.New
                                                                      .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0 &&
                                                                                _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0));
                         var solitaryXs = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                             .Where(b => hands[MyIndex].HasSolitaryX(b) &&                                      //plonkova X
+						                     .Where(b => b != _trump &&
+						                            hands[MyIndex].HasSolitaryX(b) &&                                      //plonkova X
                                                     (_probabilities.CardProbability(player2, new Card(b, Hodnota.Eso)) > 0 ||   //aby byla plonkova tak musi byt A jeste ve hre
                                                      _probabilities.CardProbability(player3, new Card(b, Hodnota.Eso)) > 0))
                                              .Select(b => new Card(b, Hodnota.Desitka))
