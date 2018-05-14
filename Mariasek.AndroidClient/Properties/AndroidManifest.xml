@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.tnemec.mariasek.android" android:installLocation="auto" android:versionName="1.2.111" android:versionCode="111">
-	<uses-sdk android:minSdkVersion="14" android:targetSdkVersion="19" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.tnemec.mariasek.android" android:installLocation="auto" android:versionName="1.2.112" android:versionCode="112">
+	<uses-sdk android:minSdkVersion="14" android:targetSdkVersion="26" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<application android:label="Mariášek" android:icon="@mipmap/ic_launcher"></application>
 	<supports-screens android:resizeable="true" android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:xlargeScreens="true" android:anyDensity="true" />
