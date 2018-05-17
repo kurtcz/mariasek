@@ -11,9 +11,12 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
+using Android.Support.V4.Content;
 
 using Microsoft.Xna.Framework;
 using Mariasek.SharedClient;
+using Android;
+using Android.Support.V4.App;
 
 namespace Mariasek.AndroidClient
 {
@@ -48,7 +51,15 @@ namespace Mariasek.AndroidClient
             {
                 base.OnCreate(bundle);
 
-
+				if ((int)Build.VERSION.SdkInt >= 23)
+				{
+					var permission = Manifest.Permission.WriteExternalStorage;
+					if (ContextCompat.CheckSelfPermission(this, permission) != Permission.Granted)
+					{
+						var requestCode = 1;
+						ActivityCompat.RequestPermissions(this, new[] { permission }, requestCode);
+					}
+				}
                 // Create our OpenGL view, and display it
                 g = new MariasekMonoGame(this, this, this);
                 SetContentView(g.Services.GetService<View>());
