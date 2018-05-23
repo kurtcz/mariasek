@@ -67,6 +67,7 @@ namespace Mariasek.Cli
                 {
                     SkipBidding = false,
                     BaseBet = Settings.BaseBet,
+					MaxWin = Settings.MaxWin,
                     GetFileStream = GetFileStream,
                     GetVersion = () => Assembly.GetExecutingAssembly().GetName().Version
                 };
@@ -110,6 +111,7 @@ namespace Mariasek.Cli
                 {
                     SkipBidding = false,
                     BaseBet = Settings.BaseBet,
+					MaxWin = Settings.MaxWin,
                     GetFileStream = GetFileStream,
                     GetVersion = () => Assembly.GetExecutingAssembly().GetName().Version
                 };
@@ -142,6 +144,7 @@ namespace Mariasek.Cli
                     {
                         SkipBidding = false,
                         BaseBet = Settings.BaseBet,
+						MaxWin = Settings.MaxWin,
                         GetFileStream = GetFileStream,
                         GetVersion = () => Assembly.GetExecutingAssembly().GetName().Version
                     };

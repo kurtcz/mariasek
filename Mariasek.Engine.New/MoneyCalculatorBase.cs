@@ -35,6 +35,7 @@ namespace Mariasek.Engine.New
         public bool GamePlayed { get; private set; }
         public bool GivenUp { get; private set; }
         public float BaseBet { get; set; }
+		public int MaxWin { get; set; }
         public Hra GameType { get { return _gameType; } }
         public string GameTypeString { get; set; }
         public float GameTypeConfidence { get; set; }
@@ -98,6 +99,7 @@ namespace Mariasek.Engine.New
         {
             PlayerNames = new[] { "Hráč1", "Hráč2", "Hráč3" };
             BaseBet = 1f;
+			MaxWin = 500;
             _ci = new CultureInfo("cs-CZ");
             SimulatedSuccessRate = -1;
             GameValue = 1;
@@ -120,6 +122,7 @@ namespace Mariasek.Engine.New
             GameTypeConfidence = g.GameTypeConfidence;
             PlayerNames = g.players.Select(i => i.Name).ToArray();
             BaseBet = g.BaseBet;
+			MaxWin = g.MaxWin;
             GamePlayed = g.rounds[0] != null;
             GivenUp = g.GivenUp;
             SimulatedSuccessRate = -1;

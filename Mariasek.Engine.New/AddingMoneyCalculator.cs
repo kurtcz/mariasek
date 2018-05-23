@@ -181,6 +181,17 @@ namespace Mariasek.Engine.New
                 }
             }
 
+			if (MaxWin > 0)
+            {
+                if (money < -MaxWin)
+                {
+                    money = -MaxWin;
+                }
+                if (money > MaxWin)
+                {
+                    money = MaxWin;
+                }
+            }
             for (var i = 0; i < Game.NumPlayers; i++)
             {
                 if (i == _gameStartingPlayerIndex)

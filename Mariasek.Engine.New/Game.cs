@@ -60,6 +60,7 @@ namespace Mariasek.Engine.New
         public bool AllowPlayerAutoFinish { get; set; }
         public bool SkipBidding { get; set; }
         public float BaseBet { get; set; }
+		public int MaxWin { get; set; }
         public int MinimalBidsForGame { get; set; }
         public int MinimalBidsForSeven { get; set; }
         public bool Top107 { get; set; }

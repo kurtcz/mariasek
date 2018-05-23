@@ -50,6 +50,7 @@ namespace Mariasek.SharedClient
         public string[] PlayerNames { get; set; }
         public SortMode SortMode { get; set; }
         public float BaseBet { get; set; }
+		public int MaxWin { get; set; }
         public int GameValue { get; set; }
         public int QuietSevenValue { get; set; }
         public int SevenValue { get; set; }
@@ -99,6 +100,7 @@ namespace Mariasek.SharedClient
             BgSoundEnabled = true;
             SortMode = SortMode.Descending;
             BaseBet = 1f;
+			MaxWin = 500;
             CalculationStyle = CalculationStyle.Adding;
             CurrentStartingPlayerIndex = 0;
             BubbleTimeMs = 1000;
