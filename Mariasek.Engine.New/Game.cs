@@ -880,7 +880,8 @@ namespace Mariasek.Engine.New
                 using (var fs = GetFileStream("_end.hra"))
                 {
                     SaveGame(fs, saveDebugInfo: true);
-                }
+
+				}
 #endif
                 OnGameFinished(Results);
             }

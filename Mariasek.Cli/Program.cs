@@ -69,7 +69,18 @@ namespace Mariasek.Cli
                     BaseBet = Settings.BaseBet,
 					MaxWin = Settings.MaxWin,
                     GetFileStream = GetFileStream,
-                    GetVersion = () => Assembly.GetExecutingAssembly().GetName().Version
+                    GetVersion = () => Assembly.GetExecutingAssembly().GetName().Version,
+					GameValue = Settings.GameValue,
+                    QuietSevenValue = Settings.QuietSevenValue,
+                    SevenValue = Settings.SevenValue,
+                    QuietHundredValue = Settings.QuietHundredValue,
+                    HundredValue = Settings.HundredValue,
+                    BetlValue = Settings.BetlValue,
+                    DurchValue = Settings.DurchValue,
+                    AllowAXTalon = Settings.AllowAXTalon,
+                    AllowTrumpTalon = Settings.AllowTrumpTalon,
+                    AllowAIAutoFinish = Settings.AllowAIAutoFinish,
+                    AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish
                 };
                 g.RegisterPlayers(
                     new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[0] },
@@ -113,7 +124,18 @@ namespace Mariasek.Cli
                     BaseBet = Settings.BaseBet,
 					MaxWin = Settings.MaxWin,
                     GetFileStream = GetFileStream,
-                    GetVersion = () => Assembly.GetExecutingAssembly().GetName().Version
+                    GetVersion = () => Assembly.GetExecutingAssembly().GetName().Version,
+					GameValue = Settings.GameValue,
+                    QuietSevenValue = Settings.QuietSevenValue,
+                    SevenValue = Settings.SevenValue,
+                    QuietHundredValue = Settings.QuietHundredValue,
+                    HundredValue = Settings.HundredValue,
+                    BetlValue = Settings.BetlValue,
+                    DurchValue = Settings.DurchValue,
+                    AllowAXTalon = Settings.AllowAXTalon,
+                    AllowTrumpTalon = Settings.AllowTrumpTalon,
+                    AllowAIAutoFinish = Settings.AllowAIAutoFinish,
+                    AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish
                 };
                 g.RegisterPlayers(
                     new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[0] },
@@ -146,7 +168,18 @@ namespace Mariasek.Cli
                         BaseBet = Settings.BaseBet,
 						MaxWin = Settings.MaxWin,
                         GetFileStream = GetFileStream,
-                        GetVersion = () => Assembly.GetExecutingAssembly().GetName().Version
+                        GetVersion = () => Assembly.GetExecutingAssembly().GetName().Version,
+						GameValue = Settings.GameValue,
+                        QuietSevenValue = Settings.QuietSevenValue,
+                        SevenValue = Settings.SevenValue,
+                        QuietHundredValue = Settings.QuietHundredValue,
+                        HundredValue = Settings.HundredValue,
+                        BetlValue = Settings.BetlValue,
+                        DurchValue = Settings.DurchValue,
+                        AllowAXTalon = Settings.AllowAXTalon,
+                        AllowTrumpTalon = Settings.AllowTrumpTalon,
+                        AllowAIAutoFinish = Settings.AllowAIAutoFinish,
+                        AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish
                     };
                     g.RegisterPlayers(
                         new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[0] },
@@ -452,7 +485,7 @@ namespace Mariasek.Cli
                     g.SaveGame(fs, true);
                 }
             }
-            return desiredGameType == null || (g.GameType & desiredGameType.Value) != 0;
+			return desiredGameType == null || ((g.GameType & desiredGameType.Value) != 0 && (g.GameType != Hra.Hra || g.Results.GamePlayed));
         }
 
         private static string GetTrumpLabelForPlayer(int playerIndex)

@@ -78,8 +78,14 @@ parse_dom() {
                 fi
             fi
         fi
-    elif [[ $ATTRIBUTES =~ Zisk\=\"([0-9\-]+) ]]; then
-        local money=${BASH_REMATCH[1]}
+    elif [[ $ATTRIBUTES =~ Body\=\"([0-9]+)\"\ Zisk\=\"([0-9\-]+) ]]; then
+        local pts=${BASH_REMATCH[1]}
+        if [[ $TAG_NAME == $GAME_STARTER ]]; then
+            POINTS_WON=$pts
+        else
+            POINTS_LOST=$pts
+        fi
+        local money=${BASH_REMATCH[2]}
         if [[ $TAG_NAME == $GAME_STARTER ]]; then
             MONEY_WON=$money
             #echo Vyhra $MONEY_WON
@@ -93,6 +99,8 @@ GAME_TYPE_COMPLETE="?"
 GAME_STARTER="?"
 CONFIDENCE="-1"
 MONEY_WON="?"
+POINTS_WON="?"
+POINTS_LOST="?"
 while read_dom; do
     parse_dom
 done < $1
@@ -100,4 +108,4 @@ if [[ $CONFIDENCE =~ /0$ ]]; then
     CONFIDENCE="-1"
 fi
 BUCKET=$((100 * $CONFIDENCE - 100 * $CONFIDENCE % 10))
-echo ${1##*/},$GAME_TYPE_COMPLETE,$GAME_STARTER,$CONFIDENCE,$((100*$CONFIDENCE)),$BUCKET,$MONEY_WON
+echo ${1##*/},$GAME_TYPE_COMPLETE,$GAME_STARTER,$CONFIDENCE,$((100*$CONFIDENCE)),$BUCKET,$POINTS_WON,$POINTS_LOST,$MONEY_WON

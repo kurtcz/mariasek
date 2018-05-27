@@ -242,7 +242,8 @@ namespace Mariasek.Engine.New
                 {
                     Bids |= Hra.SedmaProti;
                 }
-                if ((!_g.AutoDisable100Against ||
+				if ((_g.GameType & Hra.Kilo) == 0 &&    //pri kilu nejde hlasit kilo proti
+					(!_g.AutoDisable100Against ||
                      Enum.GetValues(typeof(Barva)).Cast<Barva>()   //aby neslo omylem hlasit kilo proti bez hlasky
                          .Any(b => _g.players[playerIndex].Hand.HasK(b) &&
                                    _g.players[playerIndex].Hand.HasQ(b))) &&

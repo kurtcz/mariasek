@@ -36,16 +36,24 @@ namespace Mariasek.Engine.New.Schema
         public Hra? Typ;
         [XmlIgnore]
         public bool TypValueSpecified { get { return Typ.HasValue; } }
+		public bool ShouldSerializeTypValue() { return Typ.HasValue; }
         [XmlAttribute(AttributeName = "Typ")]
         public Hra TypValue
         {
             get { return Typ.HasValue? Typ.Value : 0; }
             set { Typ = value; }
         }
-        [XmlAttribute]
-        public Barva? Trumf;
         [XmlIgnore]
-        public bool TrumfSpecified { get { return Trumf.HasValue; } }
+		public Barva? Trumf;
+		[XmlAttribute(AttributeName = "Trumf")]
+		public Barva TrumfValue
+		{
+			get { return Trumf.HasValue ? Trumf.Value : default(Barva); }
+			set { Trumf = value; }
+		}
+		[XmlIgnore]
+        public bool TrumfValueSpecified { get { return Trumf.HasValue; } }
+		public bool ShouldSerializeTrumfValue() { return Trumf.HasValue; }
         [XmlAttribute]
         public Hrac Voli;
         [XmlElement]

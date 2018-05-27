@@ -15,7 +15,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
+    <DefineConstants>DEBUG; CLI;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ExternalConsole>true</ExternalConsole>
@@ -40,9 +40,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\Mariasek.SharedClient\GameSettings.cs">
       <Link>GameSettings.cs</Link>
-    </Compile>
-    <Compile Include="..\Mariasek.Engine.New\AiStrategy2.cs">
-      <Link>AiStrategy2.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

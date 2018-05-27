@@ -36,9 +36,11 @@ echo Generating $gamesToGenerate games to $outputDir/ ...
 rm -rf $outputDir/*
 i=1
 while [ $i -le $gamesToGenerate ]; do
-  if [ $gameType == "" ]; then
-    mono $tool -SkipGame > /dev/null
-    filename=$(printf "%04d-%s.def.hra" $i $gameType)
+  if [ -z $gameType ]; then
+    mono $tool > /dev/null
+    filename=$(printf "%04d.def.hra" $i)
+    cp -f ${path}_def.hra $outputDir/$filename
+    filename=$(printf "%04d.end.hra" $i)
     cp -f ${path}_end.hra $outputDir/$filename
   else
     mono $tool -GameType=$gameType > /dev/null
@@ -46,8 +48,8 @@ while [ $i -le $gamesToGenerate ]; do
     cp -f ${path}_def.hra $outputDir/$filename
     filename=$(printf "%04d-%s.end.hra" $i $gameType)
     cp -f ${path}_end.hra $outputDir/$filename
-    echo $filename saved to $outputDir/
   fi
+  echo $filename saved to $outputDir/
   let i=i+1
 done
 

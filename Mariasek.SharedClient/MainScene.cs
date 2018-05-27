@@ -992,7 +992,7 @@ namespace Mariasek.SharedClient
 
             flekBtn.Text = Bidding.MultiplierToString((g.GameType & (Hra.Betl | Hra.Durch)) == 0 ? bidding.GameMultiplier * 2 : bidding.BetlDurchMultiplier * 2);
             sedmaBtn.Text = (g.GameType & Hra.Sedma) == 0 && (_bidding.SevenAgainstMultiplier == 0) ? "Sedma proti" : "Na sedmu";
-            kiloBtn.Text = (g.GameType & Hra.Kilo) == 0 && (_bidding.HundredAgainstMultiplier == 0) ? "Kilo proti" : "Na kilo";
+			kiloBtn.Text = "Kilo proti";//(g.GameType & Hra.Kilo) == 0 && (_bidding.HundredAgainstMultiplier == 0) ? "Kilo proti" : "Na kilo";
 
             flekBtn.Show();
             sedmaBtn.Show();
