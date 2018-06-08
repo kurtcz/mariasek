@@ -35,6 +35,9 @@ namespace Mariasek.Engine.New
         public const int NumRounds = 10;
         public const int NumSuits = 4;
 
+        private int CurrentGameNumber;
+        private static int GameCounter;
+
         public Func<IStringLogger> GetStringLogger { get; set; }
         public IStringLogger BiddingDebugInfo { get; private set; }
         public AbstractPlayer[] players { get; private set; }
@@ -202,6 +205,7 @@ namespace Mariasek.Engine.New
 
         public Game(Func<IStringLogger> stringLoggerFactory = null)
         {
+            CurrentGameNumber = ++GameCounter;
             BaseBet = 1f;
             MinimalBidsForGame = 1;
             MinimalBidsForSeven = 0;
@@ -225,7 +229,7 @@ namespace Mariasek.Engine.New
 
         ~Game()
         {
-            System.Diagnostics.Debug.WriteLine("<<< end of game");
+            System.Diagnostics.Debug.WriteLine("<<< end of game {0}", CurrentGameNumber);
         }
 
         public void RegisterPlayers(AbstractPlayer[] players)
@@ -883,6 +887,7 @@ namespace Mariasek.Engine.New
 
 				}
 #endif
+                Bidding.Die();
                 OnGameFinished(Results);
             }
             catch (Exception ex)
@@ -922,18 +927,20 @@ namespace Mariasek.Engine.New
             finally
             {
                 IsRunning = false;
-                try
-                {
-                    Die();
-                }
-                catch(Exception ex)
-                {                    
-                }
+                //try
+                //{
+                //    Die();
+                //}
+                //catch(Exception ex)
+                //{                    
+                //}
             }
         }
 
         public void Die()
         {
+            Bidding.Die();
+            Bidding = null;
             foreach (var player in players.Where(i => i != null))
             {
                 player.Die();

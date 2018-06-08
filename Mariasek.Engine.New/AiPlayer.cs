@@ -194,7 +194,13 @@ namespace Mariasek.Engine.New
             //Settings.SimulationsPerRound = Settings.SimulationsPerRoundPerSecond * Settings.MaxSimulationTimeMs / 1000;
         }
 
-        private int GetSuitScoreForTrumpChoice(List<Card> hand, Barva b)
+		public override void Die()
+		{
+			ThrowIfCancellationRequested = null;
+			base.Die();
+		}
+
+		private int GetSuitScoreForTrumpChoice(List<Card> hand, Barva b)
         {
             var score = 0;
             var count = hand.Count(i => i.Suit == b);

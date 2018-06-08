@@ -73,7 +73,13 @@ namespace Mariasek.SharedClient
             }
         }
 
-        public void CancelAiTask()
+		public override void Die()
+		{
+			_scene = null;
+			base.Die();
+		}
+
+		public void CancelAiTask()
         {
             if (_aiTask != null && _aiTask.Status == TaskStatus.Faulted)
             {

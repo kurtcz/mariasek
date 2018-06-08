@@ -32,9 +32,10 @@ namespace Mariasek.AndroidClient
                                       ConfigChanges.ScreenSize |
         		                      ConfigChanges.KeyboardHidden |
         		                      ConfigChanges.Keyboard)]
-    public class MariasekActivity : AndroidGameActivity, IEmailSender, IWebNavigate, IScreenManager
+	public class MariasekActivity : AndroidGameActivity, IEmailSender, IWebNavigate, IScreenManager, IStorageAccessor
 	{
         MariasekMonoGame g;
+		int storageAccessRequestCode;
 
 		protected override void OnCreate (Bundle bundle)
 		{
@@ -51,17 +52,8 @@ namespace Mariasek.AndroidClient
             {
                 base.OnCreate(bundle);
 
-				if ((int)Build.VERSION.SdkInt >= 23)
-				{
-					var permission = Manifest.Permission.WriteExternalStorage;
-					if (ContextCompat.CheckSelfPermission(this, permission) != Permission.Granted)
-					{
-						var requestCode = 1;
-						ActivityCompat.RequestPermissions(this, new[] { permission }, requestCode);
-					}
-				}
                 // Create our OpenGL view, and display it
-                g = new MariasekMonoGame(this, this, this);
+                g = new MariasekMonoGame(this, this, this, this);
                 SetContentView(g.Services.GetService<View>());
 
                 g.Run();
@@ -69,6 +61,18 @@ namespace Mariasek.AndroidClient
             catch(Exception ex)
             {
                 HandleException(ex);
+            }
+		}
+
+        public void GetStorageAccess()
+		{
+			if ((int)Build.VERSION.SdkInt >= 23)
+            {
+                var permission = Manifest.Permission.WriteExternalStorage;
+                if (ContextCompat.CheckSelfPermission(this, permission) != Permission.Granted)
+                {
+					ActivityCompat.RequestPermissions(this, new[] { permission }, ++storageAccessRequestCode);
+                }
             }
 		}
 
@@ -255,7 +259,7 @@ namespace Mariasek.AndroidClient
                 email.PutExtra(Android.Content.Intent.ExtraSubject, "");
 
                 var packageManager = Application.Context.PackageManager;
-                var emailApps = packageManager.QueryIntentActivities(email, (PackageInfoFlags)0x20000); //PackageInfoFlags.MatchAll == 0x20000
+				var emailApps = packageManager.QueryIntentActivities(email, PackageInfoFlags.MatchDefaultOnly);//(PackageInfoFlags)0x20000); //PackageInfoFlags.MatchAll == 0x20000
 
                 foreach (var resolveInfo in emailApps)
                 {
@@ -288,8 +292,7 @@ namespace Mariasek.AndroidClient
                     //copy attachment to external storage where an email application can have access to it
                     var externalPath = Path.Combine(global::Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
                     var path = Path.Combine(externalPath, Path.GetFileName(attachment));
-                    var file = new Java.IO.File(path);
-                    var uri = Android.Net.Uri.FromFile(file);
+                    var file = new Java.IO.File(path);                    
 
                     if (!File.Exists(attachment))
                     {
@@ -301,7 +304,16 @@ namespace Mariasek.AndroidClient
                         File.Copy(attachment, path, true);
                     }
                     file.SetReadable(true, false);
-                    uris.Add(uri);
+					if ((int)Build.VERSION.SdkInt < 24)
+					{
+						var uri = Android.Net.Uri.FromFile(file);
+						uris.Add(uri);
+					}
+					else
+					{
+						var uri = FileProvider.GetUriForFile(Application.Context, Application.Context.PackageName + ".fileprovider", file);
+						uris.Add(uri);
+					}
                 }
                 email.PutParcelableArrayListExtra(Intent.ExtraStream, uris.ToArray());
 

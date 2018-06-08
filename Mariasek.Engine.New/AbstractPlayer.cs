@@ -24,15 +24,23 @@ namespace Mariasek.Engine.New
         public string Name { get; set; }
         public int PlayerIndex { get; set; }
 
+		private int? _teamMateIndex;
         public int TeamMateIndex
         {
             get
             {
-                if (PlayerIndex == _g.GameStartingPlayerIndex)
-                {
-                    return -1;
-                }
-                return _g.players.First(i => i.PlayerIndex != PlayerIndex && i.PlayerIndex != _g.GameStartingPlayerIndex).PlayerIndex;
+				if (!_teamMateIndex.HasValue)
+				{
+					if (PlayerIndex == _g.GameStartingPlayerIndex)
+					{
+						_teamMateIndex = -1;
+					}
+					else
+					{
+						_teamMateIndex = _g.players.First(i => i.PlayerIndex != PlayerIndex && i.PlayerIndex != _g.GameStartingPlayerIndex).PlayerIndex;
+					}
+				}
+				return _teamMateIndex.Value;
             }
         }
 
@@ -76,6 +84,7 @@ namespace Mariasek.Engine.New
                     GameComputationProgress -= (GameComputationProgressEventHandler)d;
                 }
             }
+			_g = null;
         }
 
         public abstract Card PlayCard(Round r); //r obsahuje kontext (ktere karty uz nekdo hral prede mnou a jestli byly zahrany nejake hlasy)

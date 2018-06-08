@@ -184,21 +184,23 @@ namespace Mariasek.SharedClient
         public IEmailSender EmailSender { get; private set; }
         public IWebNavigate Navigator { get; private set; }
         public IScreenManager ScreenManager { get; private set; }
+		public IStorageAccessor StorageAccessor { get; private set; }
         public Vector2 CardScaleFactor { get; private set; }
 
         public List<Mariasek.Engine.New.MoneyCalculatorBase> Money = new List<Mariasek.Engine.New.MoneyCalculatorBase>();
 
         public MariasekMonoGame()
-            : this(null, null, null)
+            : this(null, null, null, null)
         {
         }
 
-        public MariasekMonoGame(IEmailSender emailSender, IWebNavigate navigator, IScreenManager screenManager)
+		public MariasekMonoGame(IEmailSender emailSender, IWebNavigate navigator, IScreenManager screenManager, IStorageAccessor storageAccessor)
         {
             System.Diagnostics.Debug.WriteLine("MariasekMonoGame()");
             Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsFixedTimeStep = false;
+			StorageAccessor = storageAccessor;
             LoadGameSettings();
             Graphics.IsFullScreen = !Settings.ShowStatusBar;
             //make sure SupportedOrientations is set accordingly to ActivityAttribute.ScreenOrientation
@@ -519,6 +521,7 @@ namespace Mariasek.SharedClient
 			var xml = new XmlSerializer(typeof(GameSettings));
 			try
 			{
+				StorageAccessor.GetStorageAccess();
 				using (var fs = File.Open(_settingsFilePath, FileMode.Open))
 				{
 					Settings = (GameSettings)xml.Deserialize(fs);
@@ -568,6 +571,7 @@ namespace Mariasek.SharedClient
 			var xml = new XmlSerializer(typeof(GameSettings));
 			try
 			{
+				StorageAccessor.GetStorageAccess();
 				MainScene.CreateDirectoryForFilePath(_settingsFilePath);
 				using (var fs = File.Open(_settingsFilePath, FileMode.Create))
 				{

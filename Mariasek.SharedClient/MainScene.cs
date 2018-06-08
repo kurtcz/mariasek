@@ -791,13 +791,24 @@ namespace Mariasek.SharedClient
         /// <summary>
         /// Gets the file stream. Callback function used from Mariasek.Engine.New.Game
         /// </summary>
-        private static Stream GetFileStream(string filename)
+        private Stream GetFileStream(string filename)
         {
             var path = Path.Combine(_path, filename);
 
+			Game.StorageAccessor.GetStorageAccess();
             CreateDirectoryForFilePath(path);
 
-            return new FileStream(path, FileMode.Create);
+            try
+            {
+                var fs = new FileStream(path, FileMode.Create);
+
+                return fs;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("Cannot create file stream\n{0}", ex.Message));
+                return new MemoryStream();
+            }
         }
 
         public static void CreateDirectoryForFilePath(string path)
@@ -816,6 +827,7 @@ namespace Mariasek.SharedClient
             {
                 var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
 
+				Game.StorageAccessor.GetStorageAccess();
                 using (var fs = File.Open(_historyFilePath, FileMode.Open))
                 {
                     Game.Money = (List<MoneyCalculatorBase>)xml.Deserialize(fs);
@@ -833,6 +845,7 @@ namespace Mariasek.SharedClient
             {
                 var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
 
+				Game.StorageAccessor.GetStorageAccess();
                 CreateDirectoryForFilePath(_historyFilePath);
                 using (var fs = File.Open(_historyFilePath, FileMode.Create))
                 {
@@ -850,6 +863,7 @@ namespace Mariasek.SharedClient
             _deck = new Deck();
             try
             {
+				Game.StorageAccessor.GetStorageAccess();
                 using (var fs = File.Open(_deckFilePath, FileMode.Open))
                 {
                     _deck.LoadDeck(fs);
@@ -867,6 +881,7 @@ namespace Mariasek.SharedClient
         {
             try
             {
+				Game.StorageAccessor.GetStorageAccess();
                 CreateDirectoryForFilePath(_deckFilePath);
                 using (var fs = File.Open(_deckFilePath, FileMode.Create))
                 {
@@ -1105,7 +1120,7 @@ namespace Mariasek.SharedClient
             });
         }
 
-        public void RepeatGameBtnClicked(object sender)
+        private void CleanUpOldGame()
         {
             if (g != null)
             {
@@ -1113,12 +1128,20 @@ namespace Mariasek.SharedClient
                 {
                     g.Die();
                 }
-                catch(Exception ex)
-                {                    
+                catch (Exception ex)
+                {
                 }
             }
-            g = null;   //aby se provedl kod v LoadGame()
+            _bidding = null;
+            _gameFlavourChosenEventArgs = null;
+            g = null;
             GC.Collect();
+            System.Diagnostics.Debug.WriteLine("<<< CleanUpOldGame()");
+        }
+
+        public void RepeatGameBtnClicked(object sender)
+        {
+            CleanUpOldGame();
             _testGame = true;
             Task.Run(() =>
             {
@@ -1172,19 +1195,8 @@ namespace Mariasek.SharedClient
              {
                  try
                  {
-                     if (g != null)
-                     {
-                         try
-                         {
-                             g.Die();
-                         }
-                         catch (Exception ex)
-                         {
-                         }
-                         g = null;
-                         GC.Collect();
-                     }
-                     _cancellationTokenSource = cancellationTokenSource;
+                    CleanUpOldGame();
+                    _cancellationTokenSource = cancellationTokenSource;
                      if (File.Exists(_errorFilePath))
                      {
                          File.Delete(_errorFilePath);
@@ -1461,7 +1473,7 @@ namespace Mariasek.SharedClient
                     ex = ae.Flatten().InnerExceptions[0];
                 }
                 var subject = $"Mariášek crash report v{MariasekMonoGame.Version} ({MariasekMonoGame.Platform})";
-                var msg1 = string.Format("Chyba:\n{0}\nOdesílám zprávu...", ex.Message.Split('\n').First());
+                var msg1 = string.Format("Chyba:\n{0}\nOdesílám zprávu...", ex.Message.Split('\n').First()+'n'+ex.StackTrace.Split('\n').Take(5));
                 var msg2 = string.Format("{0}\n{1}\n{2}\n{3}\n-\n{4}", 
                                          subject, ex.Message, ex.StackTrace, 
                                          g?.DebugString?.ToString() ?? string.Empty,
@@ -2676,6 +2688,7 @@ namespace Mariasek.SharedClient
                         try
                         {
                             g.DoSort = Game.Settings.SortMode != SortMode.None;
+							Game.StorageAccessor.GetStorageAccess();
                             using (var fs = File.Open(testGame ? _testGameFilePath : _savedGameFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                             {
                                 g.LoadGame(fs);
@@ -2849,6 +2862,7 @@ namespace Mariasek.SharedClient
                     CreateDirectoryForFilePath(_savedGameFilePath);
                     if (g.GameType != 0)
                     {
+						Game.StorageAccessor.GetStorageAccess();
                         using (var fs = File.Open(_savedGameFilePath, FileMode.Create))
                         {
                             g.SaveGame(fs, saveDebugInfo: true);

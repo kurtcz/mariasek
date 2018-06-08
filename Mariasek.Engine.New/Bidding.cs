@@ -91,6 +91,16 @@ namespace Mariasek.Engine.New
             BetlDurchLastBidder = b.BetlDurchLastBidder;
         }
 
+        public void Die()
+        {
+            _g = null;
+            GameLastBidder = null;
+            SevenLastBidder = null;
+            SevenAgainstLastBidder = null;
+            HundredAgainstLastBidder = null;
+            BetlDurchLastBidder = null;
+        }
+
         public void SetLastBidder(AbstractPlayer player, Hra bid)
         {
             if ((bid & (Hra.Hra | Hra.Kilo)) != 0)

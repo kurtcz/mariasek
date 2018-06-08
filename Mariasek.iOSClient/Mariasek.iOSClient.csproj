@@ -108,6 +108,7 @@
     <Compile Include="EmailSender.cs" />
     <Compile Include="WebNavigate.cs" />
     <Compile Include="ScreenManager.cs" />
+    <Compile Include="StorageAccessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Entitlements.plist" />
