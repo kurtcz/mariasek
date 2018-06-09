@@ -31,7 +31,10 @@ namespace Mariasek.iOSClient
 						foreach (var attachment in attachments)
 						{
 							var data = NSData.FromFile(attachment);
-							mailController.AddAttachmentData(data, "text/plain", Path.GetFileName(attachment));
+							if (data != null)
+							{
+								mailController.AddAttachmentData(data, "text/plain", Path.GetFileName(attachment));
+							}
 						}
 					}
 					mailController.Finished += (object s, MFComposeResultEventArgs args) =>
