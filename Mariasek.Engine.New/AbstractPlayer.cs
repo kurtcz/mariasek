@@ -24,23 +24,24 @@ namespace Mariasek.Engine.New
         public string Name { get; set; }
         public int PlayerIndex { get; set; }
 
-		private int? _teamMateIndex;
+		private int _teamMateIndex;
         public int TeamMateIndex
         {
             get
             {
-				if (!_teamMateIndex.HasValue)
+                if (_g == null) //after Die() has been called
+                {
+                    return _teamMateIndex;
+                }
+				if (PlayerIndex == _g.GameStartingPlayerIndex)
 				{
-					if (PlayerIndex == _g.GameStartingPlayerIndex)
-					{
-						_teamMateIndex = -1;
-					}
-					else
-					{
-						_teamMateIndex = _g.players.First(i => i.PlayerIndex != PlayerIndex && i.PlayerIndex != _g.GameStartingPlayerIndex).PlayerIndex;
-					}
+                    _teamMateIndex = -1;
 				}
-				return _teamMateIndex.Value;
+				else
+				{
+					_teamMateIndex = _g.players.First(i => i.PlayerIndex != PlayerIndex && i.PlayerIndex != _g.GameStartingPlayerIndex).PlayerIndex;
+				}
+				return _teamMateIndex;
             }
         }
 

@@ -1058,27 +1058,29 @@ namespace Mariasek.Engine.New
                 {
                     var cardsToPlay = new List<Card>();
 
-                    if (TeamMateIndex == player2)
+                    if ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0)
                     {
-                        //co-
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
-                                                                            (_probabilities.HasAOrXAndNothingElse(player3, i.Suit, RoundNumber) >= 1 - RiskFactor ||
-                                                                             _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
-                                                                            (_probabilities.SuitProbability(player2, _trump, RoundNumber) >= 1 - RiskFactor ||
-                                                                             (_probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 &&
-                                                                              _probabilities.SuitProbability(player2, i.Suit, RoundNumber) <= RiskFactor))).ToList();
+                        if (TeamMateIndex == player2)
+                        {
+                            //co-
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                (_probabilities.HasAOrXAndNothingElse(player3, i.Suit, RoundNumber) >= 1 - RiskFactor ||
+                                                                                 _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
+                                                                                (_probabilities.SuitProbability(player2, _trump, RoundNumber) >= 1 - RiskFactor ||
+                                                                                 (_probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 &&
+                                                                                  _probabilities.SuitProbability(player2, i.Suit, RoundNumber) <= RiskFactor))).ToList();
+                        }
+                        else if (TeamMateIndex == player3)
+                        {
+                            //c-o
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                (_probabilities.HasAOrXAndNothingElse(player2, i.Suit, RoundNumber) >= 1 - RiskFactor ||
+                                                                                 _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&
+                                                                                (_probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 - RiskFactor ||
+                                                                                 (_probabilities.SuitProbability(player3, _trump, RoundNumber) > 0 &&
+                                                                                  _probabilities.SuitProbability(player3, i.Suit, RoundNumber) <= RiskFactor))).ToList();
+                        }
                     }
-                    else if (TeamMateIndex == player3)
-                    {
-                        //c-o
-                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
-                                                                            (_probabilities.HasAOrXAndNothingElse(player2, i.Suit, RoundNumber) >= 1 - RiskFactor ||
-                                                                             _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&
-                                                                            (_probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 - RiskFactor ||
-                                                                             (_probabilities.SuitProbability(player3, _trump, RoundNumber) > 0 &&
-                                                                              _probabilities.SuitProbability(player3, i.Suit, RoundNumber) <= RiskFactor))).ToList();
-                    }
-
                     return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
                 }
             };

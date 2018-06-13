@@ -40,10 +40,10 @@
 	<key>XSAppIconAssets</key>
 	<string>Resources/Images.xcassets/AppIcon.appiconset</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.2.115</string>
+	<string>1.2.116</string>
 	<key>XSLaunchImageAssets</key>
 	<string>Resources/Images.xcassets/LaunchImage.launchimage</string>
 	<key>CFBundleVersion</key>
-	<string>115</string>
+	<string>116</string>
 </dict>
 </plist>
