@@ -803,7 +803,7 @@ namespace Mariasek.Engine.New
                     _hundredSimulations > 0 && 
                     _sevenSimulations > 0 &&
                     _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&
-                    _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _sevenSimulations)
+                    _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations)
                 {
                     return GameFlavour.Good107;
                 }
