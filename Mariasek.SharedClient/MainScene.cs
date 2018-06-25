@@ -1195,11 +1195,18 @@ namespace Mariasek.SharedClient
              {
                  try
                  {
-                    CleanUpOldGame();
-                    _cancellationTokenSource = cancellationTokenSource;
-                     if (File.Exists(_errorFilePath))
+                     CleanUpOldGame();
+                     _cancellationTokenSource = cancellationTokenSource;
+                     try
                      {
-                         File.Delete(_errorFilePath);
+                         if (File.Exists(_errorFilePath))
+                         {
+                             File.Delete(_errorFilePath);
+                         }
+                     }
+                     catch (Exception ex)
+                     {
+                        ShowMsgLabel(ex.Message, false);
                      }
                      g = new Mariasek.Engine.New.Game()
                      {
@@ -1353,16 +1360,16 @@ namespace Mariasek.SharedClient
                          _trumpLabels[i].Show();
                      }
                      _hlasy[0][0].Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f + 20);
-                     if (File.Exists(_endGameFilePath))
+                     try
                      {
-                         try
+                         if (File.Exists(_endGameFilePath))
                          {
                              File.Delete(_endGameFilePath);
                          }
-                         catch (Exception e)
-                         {
-                             System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
-                         }
+                     }
+                     catch (Exception e)
+                     {
+                         System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
                      }
                  }
                  finally
@@ -2560,16 +2567,16 @@ namespace Mariasek.SharedClient
                     {
                         ArchiveGame();
                     }
-                    if (File.Exists(_savedGameFilePath))
+                    try
                     {
-                        try
+                        if (File.Exists(_savedGameFilePath))
                         {
                             File.Delete(_savedGameFilePath);
                         }
-                        catch (Exception e)
-                        {
-                            System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
-                        }
+                    }
+                    catch (Exception e)
+                    {
+                        System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
                     }
                     try
                     {
@@ -2620,16 +2627,38 @@ namespace Mariasek.SharedClient
 
         public bool CanLoadGame()
         {
-            var fi = new FileInfo(_savedGameFilePath);
+            try
+            {
+                if (File.Exists(_savedGameFilePath))
+                {
+                    var fi = new FileInfo(_savedGameFilePath);
 
-            return File.Exists(_savedGameFilePath) && fi.Length > 0;
+                    return fi.Length > 0;
+                }                    
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+            }
+            return false;
         }
 
         public bool CanLoadTestGame()
 		{
-			var fi = new FileInfo(_testGameFilePath);
+            try
+            {
+                if (File.Exists(_testGameFilePath))
+                {
+                    var fi = new FileInfo(_testGameFilePath);
 
-			return File.Exists(_testGameFilePath) && fi.Length > 0;
+                    return fi.Length > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+            }
+            return false;
         }
 
         public void LoadGame(bool testGame = false)

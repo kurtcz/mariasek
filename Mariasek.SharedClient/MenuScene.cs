@@ -142,13 +142,20 @@ namespace Mariasek.SharedClient
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Bottom,
                 FontScaleFactor = Game.RealScreenGeometry == ScreenGeometry.Wide ? 0.9f : 0.75f
             };
-            SoundEffect.MasterVolume = Game.Settings.SoundEnabled ? 1f : 0f;
-            if (Game.AmbientSound != null && !Game.AmbientSound.IsDisposed)
+            try
             {
-                Game.AmbientSound.Volume = Game.Settings.BgSoundEnabled ? 0.2f : 0f;
-                Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Game.Settings.BgSoundEnabled ? 0.1f : 0f;
-                Microsoft.Xna.Framework.Media.MediaPlayer.Play(Game.NaPankraciSong);
-                Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
+                SoundEffect.MasterVolume = Game.Settings.SoundEnabled ? 1f : 0f;
+                if (Game.AmbientSound != null && !Game.AmbientSound.IsDisposed)
+                {
+                    Game.AmbientSound.Volume = Game.Settings.BgSoundEnabled ? 0.2f : 0f;
+                    Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Game.Settings.BgSoundEnabled ? 0.1f : 0f;
+                    Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
+                    Microsoft.Xna.Framework.Media.MediaPlayer.Play(Game.NaPankraciSong);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"{ex.Message}\n{ex.StackTrace}");
             }
         }
 
