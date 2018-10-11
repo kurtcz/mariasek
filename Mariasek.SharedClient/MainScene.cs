@@ -183,7 +183,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("SimulationsPerGameType", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "SimulationsPerGameType",
-                Value = "500"
+                Value = "1000"
             });
             _aiConfig.Add("SimulationsPerGameTypePerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {

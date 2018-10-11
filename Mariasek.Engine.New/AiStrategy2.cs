@@ -219,7 +219,15 @@ namespace Mariasek.Engine.New
                     {
                         IEnumerable<Card> cardsToPlay;
 
+                        //pokud spoluhrac zahlasil sedmu proti, tak pravidlo nehraj
+                        if (TeamMateIndex != -1 &&
+                            (_gameType & Hra.SedmaProti) != 0 &&
+                             _probabilities.CardProbability(TeamMateIndex, new Card(_trump, Hodnota.Sedma)) == 1)
+                        {
+                            return null;
+                        }
                         //pokud mam jen jeden trumf a neni to sedma, tak ho posetri nakonec
+                        //vyjimka je pokud spoluhrac zahlasil sedmu proti
                         if (hands[MyIndex].CardCount(_trump) == 1 &&
                             !hands[MyIndex].Has7(_trump))
                         {
@@ -1245,9 +1253,14 @@ namespace Mariasek.Engine.New
                                                hands[MyIndex].HasX(b))) &&
 							    opponentLoCards.Any())
                             {
+                                //chci se vyhnout tomu aby moji nebo spoluhracovu trumfovou desitku sebral akter esem
                                 cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&
-                                                                                    (i.Value != Hodnota.Desitka ||
-                                                                                     _probabilities.CardProbability(opponentIndex, new Card(_trump, Hodnota.Eso)) == 0));
+                                                                                    (_probabilities.CardProbability(opponentIndex, new Card(_trump, Hodnota.Eso)) <= _epsilon ||
+                                                                                     _probabilities.CardProbability(TeamMateIndex, new Card(_trump, Hodnota.Desitka)) <= _epsilon ||
+                                                                                     Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                         .Where(h => h > i.Value)
+                                                                                         .Select(h => new Card(_trump, h))
+                                                                                         .Count(j => _probabilities.CardProbability(TeamMateIndex, j) > _epsilon) > 1));
                             }
                         }
 
@@ -1760,6 +1773,13 @@ namespace Mariasek.Engine.New
                         //hrat tak abych bral posledni stych
                         IEnumerable<Card> cardsToPlay;
 
+                        //pokud spoluhrac zahlasil sedmu proti, tak pravidlo nehraj
+                        if (TeamMateIndex != -1 &&
+                            (_gameType & Hra.SedmaProti) != 0 &&
+                             _probabilities.CardProbability(TeamMateIndex, new Card(_trump, Hodnota.Sedma)) == 1)
+                        {
+                            return null;
+                        }
                         if (TeamMateIndex == -1)
                         {
                             //: -c-
@@ -2239,6 +2259,13 @@ namespace Mariasek.Engine.New
                         //hrat tak abych bral posledni stych
                         IEnumerable<Card> cardsToPlay;
 
+                        //pokud spoluhrac zahlasil sedmu proti, tak pravidlo nehraj
+                        if (TeamMateIndex != -1 &&
+                            (_gameType & Hra.SedmaProti) != 0 &&
+                             _probabilities.CardProbability(TeamMateIndex, new Card(_trump, Hodnota.Sedma)) == 1)
+                        {
+                            return null;
+                        }
                         if (TeamMateIndex == -1)
                         {
                             //: --c

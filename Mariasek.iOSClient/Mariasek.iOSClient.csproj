@@ -99,7 +99,7 @@
       <HintPath>..\libs\iOS\iPhone\Release\MonoGame.Framework.Net.dll</HintPath>
     </Reference>
     <Reference Include="MonoGame.Framework">
-      <HintPath>..\libs\iOS\iPhone\Release\MonoGame.Framework.dll</HintPath>
+      <HintPath>..\packages\MonoGame.Framework.iOS.3.7.0.1708\lib\XamariniOS\MonoGame.Framework.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -174,4 +174,5 @@
     <ITunesArtwork Include="Resources\Icon.png" />
     <ITunesArtwork Include="iTunesArtwork%402x" />
   </ItemGroup>
+  <Import Project="..\packages\MonoGame.Framework.iOS.3.7.0.1708\build\MonoGame.Framework.iOS.targets" Condition="Exists('..\packages\MonoGame.Framework.iOS.3.7.0.1708\build\MonoGame.Framework.iOS.targets')" />
 </Project>

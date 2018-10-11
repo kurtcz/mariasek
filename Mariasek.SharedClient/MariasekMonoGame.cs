@@ -266,43 +266,51 @@ namespace Mariasek.SharedClient
 		{
             System.Diagnostics.Debug.WriteLine("Initialize()");
 
+            SetupScaleMatrices();
+            base.Initialize();
+		}
+
+        private void SetupScaleMatrices()
+        {
             var width = Math.Max(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             var height = Math.Min(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             var scaleX = (float)width / (float)VirtualScreenWidth;
-			var scaleY = (float)height / (float)VirtualScreenHeight;
-            
-			var translation = new Vector3(width - VirtualScreenWidth * scaleY, 0, 0);
-			var scale = new Vector3(scaleY, scaleY, 1.0f);
+            var scaleY = (float)height / (float)VirtualScreenHeight;
 
-			LeftScaleMatrix = Matrix.CreateScale(scale);
-			RightScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
+            var translation = new Vector3(ScreenManager.Padding.Left * scaleY, 0, 0);
+            var scale = new Vector3(scaleY, scaleY, 1.0f);
 
-			translation = new Vector3(0, height - VirtualScreenHeight * scaleX, 0);
-			scale = new Vector3(scaleX, scaleX, 1.0f);
+            LeftScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
 
-			TopScaleMatrix = Matrix.CreateScale(scale);
-			BottomScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
+            translation = new Vector3(width - (VirtualScreenWidth + ScreenManager.Padding.Right) * scaleY, 0, 0);
+            RightScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
+
+            translation = new Vector3(0, ScreenManager.Padding.Top * scaleX, 0);
+            scale = new Vector3(scaleX, scaleX, 1.0f);
+
+            TopScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
+
+            translation = new Vector3(0, height - (VirtualScreenHeight + ScreenManager.Padding.Bottom) * scaleX, 0);
+            BottomScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
 
             if ((float)width / (float)height < (float)VirtualScreenWidth / (float)VirtualScreenHeight)
             {
                 //skutecna obrazovka ma pomery sran mene sirokouhle nez virtualni
                 //vertikalni pomer upravime podle horizontalniho, obraz vertikalne posuneme na stred (vzniknou okraje nahore a dole)
                 translation = new Vector3(0, (height - VirtualScreenHeight * scaleX) / 2f, 0);
-				scale = new Vector3(scaleX, scaleX, 1.0f);
-				RealScreenGeometry = ScreenGeometry.Narrow;
+                scale = new Vector3(scaleX, scaleX, 1.0f);
+                RealScreenGeometry = ScreenGeometry.Narrow;
             }
             else if ((float)width / (float)height > (float)VirtualScreenWidth / (float)VirtualScreenHeight)
             {
                 //skutecna obrazovka ma pomery sran vice sirokouhle nez virtualni
                 //horizontalni pomer upravime podle vertikalniho, obraz horizontalne posuneme na stred (vzniknou okraje vlevo a vpravo)
                 translation = new Vector3((width - VirtualScreenWidth * scaleY) / 2f, 0, 0);
-				scale = new Vector3(scaleY, scaleY, 1.0f);
-				RealScreenGeometry = ScreenGeometry.Wide;
+                scale = new Vector3(scaleY, scaleY, 1.0f);
+                RealScreenGeometry = ScreenGeometry.Wide;
             }
-			MainScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
-
-			base.Initialize();
-		}
+            MainScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
+        }
 
 		/// <summary>
 		/// LoadContent will be called once per game and is the place to load
@@ -560,7 +568,24 @@ namespace Mariasek.SharedClient
 			}
 		}
 
-		public void UpdateSettings()
+        //public delegate void OrientationChangedEventHandler(object sender, OrientationChangedEventArgs e);
+        //public event OrientationChangedEventHandler OrientationChanged;
+        public virtual void OnOrientationChanged()
+        {
+            if (ScreenManager.Padding.Left > 0 ||
+                ScreenManager.Padding.Top > 0 ||
+                ScreenManager.Padding.Right > 0 ||
+                ScreenManager.Padding.Bottom > 0)
+            {
+                SetupScaleMatrices();
+            }
+            //if (OrientationChanged != null)
+            //{
+            //    OrientationChanged(this, new OrientationChangedEventArgs { Padding = ScreenManager.Padding });
+            //}
+        }
+
+        public void UpdateSettings()
 		{
 			SaveGameSettings();
 			OnSettingsChanged();

@@ -204,11 +204,40 @@ namespace Mariasek.Engine.New
                 yield return new AiRule()
                 {
                     Order = 5,
+                    Description = "Hrát nejnižší od esa",
+                    SkipSimulations = true,
+                    ChooseCard1 = () =>
+                    {
+                        //pokud mam A, K, S, X tak hraj X (souper muze mit spodka)
+                        var topCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                         .Select(h => new Card(i.Suit, h))
+                                                                         .Where(j => j.BadValue > i.BadValue)
+                                                                         .All(j => _probabilities.CardProbability(player2, j) == 0 &&
+                                                                                   _probabilities.CardProbability(player3, j) == 0))
+                                                         .Distinct();
+                        var cardsToPlay = hands[MyIndex].Where(i => (!bannedSuit.HasValue || bannedSuit.Value != i.Suit) &&
+                                                                    topCards.Count(j => j.Suit == i.Suit) > 2 &&
+                                                                    !topCards.Contains(i));
+                        var prefCards = cardsToPlay.Where(i => preferredSuits.Contains(i.Suit));
+
+                        if (prefCards.Any())
+                        {
+                            return prefCards.OrderBy(i => i.BadValue).First();
+                        }
+
+                        return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+                    }
+                };
+
+                yield return new AiRule()
+                {
+                    Order = 6,
                     Description = "Hraj vítěznou kartu",
                     SkipSimulations = true,
                     ChooseCard1 = () =>
                     {
                         var cardsToPlay = Enumerable.Empty<Card>();
+
                         if (RoundNumber == 2 && preferredSuits.Any())
                         {
                             //v 2.kole zkus rovnou zahrat preferovanou barvu. Pokud takova je, tak je to vitezna barva
@@ -223,28 +252,28 @@ namespace Mariasek.Engine.New
                         if (TeamMateIndex == player2)//co-
                         {
                             cardsToPlay = hands[MyIndex].Where(i =>
-                                                   (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
-                                                   Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                            .Select(h => new Card(i.Suit, h))
-                                                            .Where(j => j.BadValue > i.BadValue)
-                                                            .Any(j => _probabilities.CardProbability(player3, j) > 0 &&
-                                                                        Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                            .Select(h => new Card(i.Suit, h))
-                                                                            .Where(k => k.BadValue >= j.BadValue)
-                                                                            .All(k => _probabilities.CardProbability(player2, k) == 0)));
+                                                               (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
+                                                               Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                   .Select(h => new Card(i.Suit, h))
+                                                                   .Where(j => j.BadValue > i.BadValue)
+                                                                   .Any(j => _probabilities.CardProbability(player3, j) > 0 &&
+                                                                             Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                 .Select(h => new Card(i.Suit, h))
+                                                                                 .Where(k => k.BadValue >= j.BadValue)
+                                                                                 .All(k => _probabilities.CardProbability(player2, k) == 0)));
                         }
                         else if (TeamMateIndex == player3)//c-o
                         {
                             cardsToPlay = hands[MyIndex].Where(i =>
-                                                   (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
-                                                   Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                            .Select(h => new Card(i.Suit, h))
-                                                            .Where(j => j.BadValue > i.BadValue)
-                                                            .Any(j => _probabilities.CardProbability(player2, j) > 0 &&
-                                                                        Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                            .Select(h => new Card(i.Suit, h))
-                                                                            .Where(k => k.BadValue >= j.BadValue)
-                                                                            .All(k => _probabilities.CardProbability(player3, k) == 0)));
+                                                               (!bannedSuit.HasValue || i.Suit != bannedSuit.Value) &&
+                                                               Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                   .Select(h => new Card(i.Suit, h))
+                                                                   .Where(j => j.BadValue > i.BadValue)
+                                                                   .Any(j => _probabilities.CardProbability(player2, j) > 0 &&
+                                                                             Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                 .Select(h => new Card(i.Suit, h))
+                                                                                 .Where(k => k.BadValue >= j.BadValue)
+                                                                                 .All(k => _probabilities.CardProbability(player3, k) == 0)));
                         }
                         var prefCards = cardsToPlay.Where(i => preferredSuits.Contains(i.Suit));
 
@@ -330,7 +359,7 @@ namespace Mariasek.Engine.New
 
                 yield return new AiRule()
                 {
-                    Order = 6,
+                    Order = 8,
                     Description = "Odmazat si plonkovou kartu",
                     SkipSimulations = true,
                     ChooseCard1 = () =>
@@ -354,34 +383,6 @@ namespace Mariasek.Engine.New
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
                 };
-
-                yield return new AiRule()
-                {
-                    Order = 8,
-                    Description = "Hrát nejnižší od esa",
-                    SkipSimulations = true,
-                    ChooseCard1 = () =>
-                    {
-                        //pokud mam A, K, S, X tak hraj X (souper muze mit spodka)
-                        var topCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                         .Select(h => new Card(i.Suit, h))
-                                                                         .Where(j => j.BadValue > i.BadValue)
-                                                                         .All(j => _probabilities.CardProbability(player2, j) == 0 &&
-                                                                                   _probabilities.CardProbability(player3, j) == 0))
-                                                         .Distinct();
-                        var cardsToPlay = hands[MyIndex].Where(i => (!bannedSuit.HasValue || bannedSuit.Value != i.Suit) &&
-                                                                    topCards.Count(j => j.Suit == i.Suit) > 2 &&
-                                                                    !topCards.Contains(i));
-                        var prefCards = cardsToPlay.Where(i => preferredSuits.Contains(i.Suit));
-
-                        if (prefCards.Any())
-                        {
-                            return prefCards.OrderBy(i => i.BadValue).First();
-                        }
-
-                        return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
-                    }
-                };  
 
                 yield return new AiRule()
                 {

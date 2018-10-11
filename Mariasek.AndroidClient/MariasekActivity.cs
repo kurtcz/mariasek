@@ -37,6 +37,8 @@ namespace Mariasek.AndroidClient
         MariasekMonoGame g;
 		int storageAccessRequestCode;
 
+        public Rectangle Padding { get; set; }
+
 		protected override void OnCreate (Bundle bundle)
 		{
             System.Diagnostics.Debug.WriteLine("OnCreate()");
@@ -87,6 +89,7 @@ namespace Mariasek.AndroidClient
                 var view = g.Services.GetService<View>();
                 SetContentView(view);
                 view.KeepScreenOn = true;
+                g.OnOrientationChanged();
             }
             catch (Exception ex)
             {

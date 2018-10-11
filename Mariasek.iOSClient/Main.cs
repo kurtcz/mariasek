@@ -5,6 +5,7 @@ using System.Linq;
 using System.IO;
 using Mariasek.SharedClient;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 
 #if MONOMAC
 using MonoMac.AppKit;
@@ -18,64 +19,85 @@ using UIKit;
 
 namespace Mariasek.iOSClient
 {
-    #if __IOS__ || __TVOS__
+#if __IOS__ || __TVOS__
     [Register("AppDelegate")]
 	class Program : UIApplicationDelegate
     
 #else
     static class Program
-    #endif
+#endif
     {
         private static MariasekMonoGame game;
 		private static Program instance = new Program();
         private static EmailSender emailSender = null;
-
+        private static ScreenManager screenManager = null;
         internal static void RunGame()
         {
 			var storageAccessor = new StorageAccessor();
             var navigator = new WebNavigate();
-            var screenUpdater = new ScreenUpdater();
+
+            screenManager = new ScreenManager();
             emailSender = new EmailSender();
 
-			game = new MariasekMonoGame(emailSender, navigator, screenUpdater, storageAccessor);
+            game = new MariasekMonoGame(emailSender, navigator, screenManager, storageAccessor);
 
 			var gameController = game.Services.GetService(typeof(UIViewController)) as UIViewController;
 			emailSender.GameController = gameController;
 
 			game.Run();
-            #if !__IOS__  && !__TVOS__
+            AmendScreenManagerPadding();    //SafeAreInsets on iPhone X is now populated
+#if !__IOS__ && !__TVOS__
             game.Dispose();
-            #endif
+#endif
         }
-			
+
+        public override void DidChangeStatusBarOrientation(UIApplication application, UIInterfaceOrientation oldStatusBarOrientation)
+        {
+            AmendScreenManagerPadding();
+        }
+
+        private static void AmendScreenManagerPadding()
+        {
+            if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
+            {
+                var insets = UIApplication.SharedApplication.KeyWindow.SafeAreaInsets;
+
+                screenManager.Padding = new Rectangle((int)insets.Left, (int)insets.Top, (int)insets.Right - (int)insets.Left, (int)insets.Bottom - (int)insets.Top);
+                game.OnOrientationChanged();
+            }
+        }
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        #if !MONOMAC && !__IOS__  && !__TVOS__
+#if !MONOMAC && !__IOS__ && !__TVOS__
         [STAThread]
-        #endif
+#endif
         static void Main(string[] args)
         {
-            #if MONOMAC
+#if MONOMAC
             NSApplication.Init ();
 
             using (var p = new NSAutoreleasePool ()) {
                 NSApplication.SharedApplication.Delegate = new AppDelegate();
                 NSApplication.Main(args);
             }
-            #elif __IOS__ || __TVOS__
+#elif __IOS__ || __TVOS__
             UIApplication.Main(args, null, "AppDelegate");
-            #else
+#else
             RunGame();
-            #endif
+#endif
         }
 
-        #if __IOS__ || __TVOS__
+#if __IOS__ || __TVOS__
         public override void FinishedLaunching(UIApplication app)
         {
 			app.IdleTimerDisabled = true; //stop iOS from stalling our game
             TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+            if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
+            {
+                //var insets = UIApplication.SharedApplication.KeyWindow?.SafeAreaInsets; // Can't use KeyWindow this early
+            }
             RunGame();
         }
 
@@ -88,7 +110,7 @@ namespace Mariasek.iOSClient
 		{
 			app.IdleTimerDisabled = false; //conserve battery when sleeping
 		}
-        #endif
+#endif
 
         public override void WillTerminate(UIApplication application)
         {

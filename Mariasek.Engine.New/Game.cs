@@ -1426,6 +1426,7 @@ namespace Mariasek.Engine.New
                     if (gameFlavour == GameFlavour.Bad)
                     {
 						GameStartingPlayerIndex = nextPlayer.PlayerIndex;
+                        GivenUp = false;
 						trump = null;
 						TrumpCard = null;
                         foreach (var player in players)
@@ -1470,7 +1471,6 @@ namespace Mariasek.Engine.New
                 }
                 else if(gameFlavour == GameFlavour.Bad)
                 {
-                    GivenUp = false;
                     if (!firstTime)
                     {
                         if (talon == null || talon.Count() != 2)
