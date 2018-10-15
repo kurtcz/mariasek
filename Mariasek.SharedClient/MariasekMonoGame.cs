@@ -271,7 +271,7 @@ namespace Mariasek.SharedClient
 		}
 
         private void SetupScaleMatrices()
-        {
+        {   
             var width = Math.Max(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             var height = Math.Min(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             var scaleX = (float)width / (float)VirtualScreenWidth;
@@ -285,7 +285,7 @@ namespace Mariasek.SharedClient
             translation = new Vector3(width - (VirtualScreenWidth + ScreenManager.Padding.Right) * scaleY, 0, 0);
             RightScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
 
-            translation = new Vector3(0, ScreenManager.Padding.Top * scaleX, 0);
+            translation = new Vector3(0, ScreenManager.Padding.Top * scale.X, 0);
             scale = new Vector3(scaleX, scaleX, 1.0f);
 
             TopScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
@@ -312,11 +312,11 @@ namespace Mariasek.SharedClient
             MainScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
         }
 
-		/// <summary>
-		/// LoadContent will be called once per game and is the place to load
-		/// all of your content.
-		/// </summary>
-		protected override void LoadContent ()
+        /// <summary>
+        /// LoadContent will be called once per game and is the place to load
+        /// all of your content.
+        /// </summary>
+        protected override void LoadContent ()
         {            
             System.Diagnostics.Debug.WriteLine("LoadContent()");
             var canvas = new Texture2D(GraphicsDevice, 1, 1);

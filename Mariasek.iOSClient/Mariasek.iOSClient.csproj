@@ -43,10 +43,9 @@
     <MtouchArch>ARMv7, ARM64</MtouchArch>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchFloat32>true</MtouchFloat32>
-    <CodesignKey>iPhone Developer: tnemec78@gmail.com (9TS4RT5F7W)</CodesignKey>
+    <CodesignKey>iPhone Developer: Tomas Nemec (9TS4RT5F7W)</CodesignKey>
     <MtouchUseLlvm>true</MtouchUseLlvm>
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
-    <CodesignProvision>VS: project.MonoGame.Mariasek.iOS Development</CodesignProvision>
     <AssemblyName>Mariasek.iOS</AssemblyName>
     <MtouchLink>Full</MtouchLink>
   </PropertyGroup>
@@ -81,12 +80,11 @@
     <MtouchFloat32>true</MtouchFloat32>
     <MtouchDebug>true</MtouchDebug>
     <DeviceSpecificBuild>true</DeviceSpecificBuild>
-    <CodesignKey>iPhone Developer: tnemec78@gmail.com (9TS4RT5F7W)</CodesignKey>
+    <CodesignKey>iPhone Developer: Tomas Nemec (9TS4RT5F7W)</CodesignKey>
     <MtouchExtraArgs>-v -v -v</MtouchExtraArgs>
     <IpaPackageName>
     </IpaPackageName>
     <MtouchLink>Full</MtouchLink>
-    <CodesignProvision>VS: project.MonoGame.Mariasek.iOS Development</CodesignProvision>
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
     <MtouchProfiling>true</MtouchProfiling>
   </PropertyGroup>
@@ -99,7 +97,7 @@
       <HintPath>..\libs\iOS\iPhone\Release\MonoGame.Framework.Net.dll</HintPath>
     </Reference>
     <Reference Include="MonoGame.Framework">
-      <HintPath>..\packages\MonoGame.Framework.iOS.3.7.0.1708\lib\XamariniOS\MonoGame.Framework.dll</HintPath>
+      <HintPath>..\libs\iOS\iPhone\Release\MonoGame.Framework.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -174,5 +172,4 @@
     <ITunesArtwork Include="Resources\Icon.png" />
     <ITunesArtwork Include="iTunesArtwork%402x" />
   </ItemGroup>
-  <Import Project="..\packages\MonoGame.Framework.iOS.3.7.0.1708\build\MonoGame.Framework.iOS.targets" Condition="Exists('..\packages\MonoGame.Framework.iOS.3.7.0.1708\build\MonoGame.Framework.iOS.targets')" />
 </Project>

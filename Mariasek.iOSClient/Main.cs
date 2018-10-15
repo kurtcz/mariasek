@@ -94,10 +94,6 @@ namespace Mariasek.iOSClient
 			app.IdleTimerDisabled = true; //stop iOS from stalling our game
             TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-            if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
-            {
-                //var insets = UIApplication.SharedApplication.KeyWindow?.SafeAreaInsets; // Can't use KeyWindow this early
-            }
             RunGame();
         }
 
