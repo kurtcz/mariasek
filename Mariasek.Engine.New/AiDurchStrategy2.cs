@@ -118,8 +118,13 @@ namespace Mariasek.Engine.New
                                                         }
                                                         return null;
                                                     })
+                                                   .OrderByDescending(i => i.BadValue)
                                                    .FirstOrDefault(i => i != null))
-                                    .Where(i => i != null);
+                                    .Where(i => i != null &&    //vyber jen karty kde je sance chytit akterovu nizsi kartu
+                                                Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                    .Select(h => new Card(i.Suit, h))
+                                                    .Where(j => j.BadValue < i.BadValue)
+                                                    .Any(j => _probabilities.CardProbability(player1, j) > 0));
             var teamMatesCatchingCards = catchingCards.Where(i => teamMatesCardsPlayed.Contains(i));
             var topCardPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                      .ToDictionary(b => b,
@@ -392,8 +397,13 @@ namespace Mariasek.Engine.New
                                                 }
                                                 return null;
                                             })
+                                                   .OrderByDescending(i => i.BadValue)
                                                    .FirstOrDefault(i => i != null))
-                                    .Where(i => i != null);
+                                    .Where(i => i != null &&    //vyber jen karty kde je sance chytit akterovu nizsi kartu
+                                                Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                    .Select(h => new Card(i.Suit, h))
+                                                    .Where(j => j.BadValue < i.BadValue)
+                                                    .Any(j => _probabilities.CardProbability(player1, j) > 0));
             var teamMatesCatchingCards = catchingCards.Where(i => teamMatesCardsPlayed.Contains(i));
             var topCardPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                          .ToDictionary(b => b,
