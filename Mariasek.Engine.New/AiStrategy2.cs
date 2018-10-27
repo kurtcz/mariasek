@@ -1071,6 +1071,12 @@ namespace Mariasek.Engine.New
                         if (TeamMateIndex == player2)
                         {
                             //co-
+                            if (RoundNumber == 9 &&
+                                ValidCards(hands[MyIndex]).Contains(new Card(_trump, Hodnota.Sedma)) &&
+                                _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0)
+                            {
+                                return null;
+                            }
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                 (_probabilities.HasAOrXAndNothingElse(player3, i.Suit, RoundNumber) >= 1 - RiskFactor ||
                                                                                  _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
@@ -1081,6 +1087,12 @@ namespace Mariasek.Engine.New
                         else if (TeamMateIndex == player3)
                         {
                             //c-o
+                            if (RoundNumber == 9 &&
+                                ValidCards(hands[MyIndex]).Contains(new Card(_trump, Hodnota.Sedma)) &&
+                                _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0)
+                            {
+                                return null;
+                            }
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                 (_probabilities.HasAOrXAndNothingElse(player2, i.Suit, RoundNumber) >= 1 - RiskFactor ||
                                                                                  _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&

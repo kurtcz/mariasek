@@ -232,7 +232,7 @@ namespace Mariasek.Engine.New
                 yield return new AiRule()
                 {
                     Order = 6,
-                    Description = "Hraj vítěznou kartu",
+                    Description = "Chytit soupeře",
                     SkipSimulations = true,
                     ChooseCard1 = () =>
                     {
