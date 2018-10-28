@@ -531,8 +531,8 @@ namespace Mariasek.SharedClient
             {
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Top,
-                Position = new Vector2(Game.VirtualScreenWidth / 2f - 150, 5),
-                Width = 300,
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 200, 5),
+                Width = 400,
                 Height = 60,
                 ZIndex = 100,
                 Anchor = AnchorType.Top,
@@ -544,7 +544,7 @@ namespace Mariasek.SharedClient
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
                 Position = new Vector2(10, 5),
-                Width = 300,
+                Width = 400,
                 Height = 60,
                 ZIndex = 100,
                 Anchor = AnchorType.Top,
@@ -555,8 +555,8 @@ namespace Mariasek.SharedClient
             {
                 HorizontalAlign = HorizontalAlignment.Right,
                 VerticalAlign = VerticalAlignment.Top,
-                Position = new Vector2(Game.VirtualScreenWidth - 310, 5),
-                Width = 300,
+                Position = new Vector2(Game.VirtualScreenWidth - 410, 5),
+                Width = 400,
                 Height = 60,
                 ZIndex = 100,
                 Anchor = AnchorType.Top,
@@ -752,7 +752,7 @@ namespace Mariasek.SharedClient
             }
             _progress2 = new ProgressIndicator(this)
             {
-                Position = new Vector2(0, 0),
+                Position = new Vector2(5, 0),
                 Width = 150,
                 Height = 8,
                 Color = Color.Green,
@@ -761,7 +761,7 @@ namespace Mariasek.SharedClient
             };
             _progress3 = new ProgressIndicator(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 150, 0),
+                Position = new Vector2(Game.VirtualScreenWidth - 155, 0),
                 Width = 150,
                 Height = 8,
                 Color = Color.Blue,

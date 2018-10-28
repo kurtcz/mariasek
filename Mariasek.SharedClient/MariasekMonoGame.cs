@@ -23,7 +23,8 @@ namespace Mariasek.SharedClient
         Left,
         Top,
         Right,
-        Bottom
+        Bottom,
+        Background
     }
 
     public enum ScreenGeometry
@@ -274,30 +275,30 @@ namespace Mariasek.SharedClient
         {   
             var width = Math.Max(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             var height = Math.Min(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
-            var scaleX = (float)width / (float)VirtualScreenWidth;
-            var scaleY = (float)height / (float)VirtualScreenHeight;
+            var scaleX = (float)(width - ScreenManager.Padding.Left - ScreenManager.Padding.Right) / (float)VirtualScreenWidth;
+            var scaleY = (float)(height - ScreenManager.Padding.Top - ScreenManager.Padding.Bottom) / (float)VirtualScreenHeight;
 
-            var translation = new Vector3(ScreenManager.Padding.Left * scaleY, 0, 0);
+            var translation = new Vector3(ScreenManager.Padding.Left, ScreenManager.Padding.Top, 0);
             var scale = new Vector3(scaleY, scaleY, 1.0f);
 
             LeftScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
 
-            translation = new Vector3(width - (VirtualScreenWidth + ScreenManager.Padding.Right) * scaleY, 0, 0);
+            translation = new Vector3(width - ScreenManager.Padding.Right - VirtualScreenWidth * scaleY, ScreenManager.Padding.Top, 0);
             RightScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
 
-            translation = new Vector3(0, ScreenManager.Padding.Top * scale.X, 0);
+            translation = new Vector3(ScreenManager.Padding.Left, ScreenManager.Padding.Top, 0);
             scale = new Vector3(scaleX, scaleX, 1.0f);
 
             TopScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
 
-            translation = new Vector3(0, height - (VirtualScreenHeight + ScreenManager.Padding.Bottom) * scaleX, 0);
+            translation = new Vector3(ScreenManager.Padding.Left, height - ScreenManager.Padding.Bottom - VirtualScreenHeight * scaleX, 0);
             BottomScaleMatrix = Matrix.CreateScale(scale) * Matrix.CreateTranslation(translation);
 
             if ((float)width / (float)height < (float)VirtualScreenWidth / (float)VirtualScreenHeight)
             {
                 //skutecna obrazovka ma pomery sran mene sirokouhle nez virtualni
                 //vertikalni pomer upravime podle horizontalniho, obraz vertikalne posuneme na stred (vzniknou okraje nahore a dole)
-                translation = new Vector3(0, (height - VirtualScreenHeight * scaleX) / 2f, 0);
+                translation = new Vector3(ScreenManager.Padding.Left, (height - VirtualScreenHeight * scaleX) / 2f, 0);
                 scale = new Vector3(scaleX, scaleX, 1.0f);
                 RealScreenGeometry = ScreenGeometry.Narrow;
             }
@@ -305,7 +306,7 @@ namespace Mariasek.SharedClient
             {
                 //skutecna obrazovka ma pomery sran vice sirokouhle nez virtualni
                 //horizontalni pomer upravime podle vertikalniho, obraz horizontalne posuneme na stred (vzniknou okraje vlevo a vpravo)
-                translation = new Vector3((width - VirtualScreenWidth * scaleY) / 2f, 0, 0);
+                translation = new Vector3((width - VirtualScreenWidth * scaleY) / 2f, ScreenManager.Padding.Top, 0);
                 scale = new Vector3(scaleY, scaleY, 1.0f);
                 RealScreenGeometry = ScreenGeometry.Wide;
             }
@@ -666,6 +667,19 @@ namespace Mariasek.SharedClient
                 if (SpriteBatch == null || SpriteBatch.IsDisposed)
                 {
                     SpriteBatch = new SpriteBatch(GraphicsDevice);
+                }
+                try
+                {
+                    CurrentRenderingGroup = AnchorType.Background;
+                    SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, null);
+                    CurrentScene.Draw(gameTime);
+                }
+                catch
+                {
+                }
+                finally
+                {
+                    SpriteBatch.End();
                 }
                 try
                 {

@@ -57,6 +57,9 @@ namespace Mariasek.AndroidClient
                 // Create our OpenGL view, and display it
                 g = new MariasekMonoGame(this, this, this, this);
                 SetContentView(g.Services.GetService<View>());
+                //if (Build.VERSION.SdkInt >= Build.VERSION_CODES.P) {
+                //  DisplayCutout displayCutout = Window.DecorView.RootWindowInsets.DisplayCutout;
+                //}
 
                 g.Run();
             }
@@ -73,7 +76,7 @@ namespace Mariasek.AndroidClient
                 var permission = Manifest.Permission.WriteExternalStorage;
                 if (ContextCompat.CheckSelfPermission(this, permission) != Permission.Granted)
                 {
-					ActivityCompat.RequestPermissions(this, new[] { permission }, ++storageAccessRequestCode);
+                    ActivityCompat.RequestPermissions(this, new[] { permission }, ++storageAccessRequestCode);
                 }
             }
 		}

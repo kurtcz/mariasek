@@ -149,20 +149,23 @@ namespace Mariasek.SharedClient.GameComponents
 #if DEBUG_SPRITES
             Counter = 0;
 #endif
-			if (Background != null && Game.CurrentRenderingGroup == AnchorType.Main)
+            if (Background != null && Game.CurrentRenderingGroup == AnchorType.Background)
             {
                 switch(BackgroundAlign)
                 {
                     case BackgroundAlignment.Stretch:
-                        Game.SpriteBatch.Draw(Background, new Rectangle(
-                                (int)(0 - Game.MainScaleMatrix.M41), 
-                                (int)(0 - Game.MainScaleMatrix.M42), 
-                                (int)(Game.VirtualScreenWidth + 2 * Game.MainScaleMatrix.M41), 
-                                (int)(Game.VirtualScreenHeight + 2 * Game.MainScaleMatrix.M42)), BackgroundTint);
+                        Game.SpriteBatch.Draw(Background, 
+                                              new Rectangle(0, 0, (int)Game.GraphicsDevice.Viewport.Width, (int)Game.GraphicsDevice.Viewport.Height), 
+                                              BackgroundTint);
                         break;
                     case BackgroundAlignment.Center:
                     default:
-                        Game.SpriteBatch.Draw(Background, new Rectangle(0, 0, (int)Game.VirtualScreenWidth, (int)Game.VirtualScreenHeight), BackgroundTint);
+                        Game.SpriteBatch.Draw(Background, 
+                                              new Rectangle((int)((Game.GraphicsDevice.Viewport.Width - Background.Width) / 2f),
+                                                            (int)((Game.GraphicsDevice.Viewport.Height - Background.Height) / 2f),
+                                                            Background.Width,
+                                                            Background.Height), 
+                                              BackgroundTint);
                         break;
                 }
             }

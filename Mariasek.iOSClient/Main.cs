@@ -61,8 +61,13 @@ namespace Mariasek.iOSClient
             if (UIDevice.CurrentDevice.CheckSystemVersion(11, 0))
             {
                 var insets = UIApplication.SharedApplication.KeyWindow.SafeAreaInsets;
+                var scale = UIScreen.MainScreen.Scale;
 
-                screenManager.Padding = new Rectangle((int)insets.Left, (int)insets.Top, (int)insets.Right - (int)insets.Left, (int)insets.Bottom - (int)insets.Top);
+                insets.Bottom = 0;  //ignore bottom inset area as we want to draw content into it
+                screenManager.Padding = new Rectangle((int)(insets.Left * scale), 
+                                                      (int)(insets.Top * scale), 
+                                                      (int)((insets.Right - insets.Left) * scale), 
+                                                      (int)((insets.Bottom - (int)insets.Top) * scale));
                 game.OnOrientationChanged();
             }
         }
