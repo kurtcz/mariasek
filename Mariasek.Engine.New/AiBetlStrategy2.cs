@@ -144,6 +144,7 @@ namespace Mariasek.Engine.New
                     ChooseCard1 = () =>
                     {
                         var cardsToPlay = hands[MyIndex].Where(i => i.Value != Hodnota.Eso &&
+                                                                    i.Value != Hodnota.Osma &&
                                                                     i.Value != Hodnota.Sedma &&
                                                                     hands[MyIndex].CardCount(i.Suit) == 1 &&
                                                                     (_probabilities.SuitHigherThanCardProbability(player2, i, RoundNumber, false) > 0 ||
