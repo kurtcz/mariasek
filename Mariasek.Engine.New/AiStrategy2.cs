@@ -2234,8 +2234,37 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex == player3)
                     {
                         //-co
-                        return ValidCards(c1, hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
-                                                                         i.Value != Hodnota.Eso)
+                        //preferuj barvu kde soupere nechytam
+                        var holesPerSuit = new Dictionary<Barva, int>();
+                        var hiCardsPerSuit = new Dictionary<Barva, int>();
+                        foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                        {
+                            var holes = 0;      //pocet der v barve
+                            var hiCards = 0;    //pocet karet ktere maji pod sebou diru v barve
+
+                            foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+                            {
+                                var c = new Card(b, h);
+                                var n = ValidCards(c1, hands[MyIndex]).Count(i => i.Suit == b &&
+                                                                                  i.Value > c.Value &&
+                                                                                  _probabilities.CardProbability(player1, c) > _epsilon);
+
+                                if (n > 0)
+                                {
+                                    holes++;
+                                    hiCards = Math.Max(hiCards, n);
+                                }
+                            }
+                            holesPerSuit.Add(b, holes);
+                            hiCardsPerSuit.Add(b, hiCards);
+                        }
+                        var validSuits = ValidCards(c1, hands[MyIndex]).Select(i => i.Suit).Distinct();
+                        var preferredSuit = holesPerSuit.Where(i => validSuits.Contains(i.Key))
+                                                        .OrderBy(i => i.Value)
+                                                        .Select(i => i.Key)
+                                                        .First();
+
+                        return ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == preferredSuit)
                                                              .OrderBy(i => i.Value)
                                                              .FirstOrDefault();
                     }
@@ -2537,6 +2566,45 @@ namespace Mariasek.Engine.New
                 SkipSimulations = true,
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
+                    if (TeamMateIndex != -1)
+                    {
+                        //preferuj barvu kde soupere nechytam
+                        var holesPerSuit = new Dictionary<Barva, int>();
+                        var hiCardsPerSuit = new Dictionary<Barva, int>();
+                        var opponent = TeamMateIndex == player1 ? player2 : player1;
+
+                        foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                        {
+                            var holes = 0;      //pocet der v barve
+                            var hiCards = 0;    //pocet karet ktere maji pod sebou diru v barve
+
+                            foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+                            {
+                                var c = new Card(b, h);
+                                var n = ValidCards(c1, c2, hands[MyIndex]).Count(i => i.Suit == b &&
+                                                                                      i.Value > c.Value &&
+                                                                                      _probabilities.CardProbability(opponent, c) > _epsilon);
+
+                                if (n > 0)
+                                {
+                                    holes++;
+                                    hiCards = Math.Max(hiCards, n);
+                                }
+                            }
+                            holesPerSuit.Add(b, holes);
+                            hiCardsPerSuit.Add(b, hiCards);
+                        }
+                        var validSuits = ValidCards(c1, c2, hands[MyIndex]).Select(i => i.Suit).Distinct();
+                        var preferredSuit = holesPerSuit.Where(i => validSuits.Contains(i.Key))
+                                                        .OrderBy(i => i.Value)
+                                                        .Select(i => i.Key)
+                                                        .First();
+
+                        return ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit == preferredSuit)
+                                                                 .OrderBy(i => i.Value)
+                                                                 .FirstOrDefault();
+                    }
+
                     return ValidCards(c1, c2, hands[MyIndex]).OrderBy(i => i.Value).FirstOrDefault();
                 }
             };

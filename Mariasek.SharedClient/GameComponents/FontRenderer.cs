@@ -64,7 +64,7 @@ namespace Mariasek.SharedClient.GameComponents
             using(var stream = TitleContainer.OpenStream(fontFilePath))
             {
                 var fontFile = FontLoader.Load(stream);
-                var fontTextures = fontBitmapFiles.Select(i => game.Content.Load<Texture2D>(i)).ToArray();
+                var fontTextures = fontBitmapFiles.Select(i => game.Assets.GetTexture(i) ?? new Texture2D(game.GraphicsDevice, 1, 1)).ToArray();
 
                 textRenderer = new FontRenderer(game, fontFile, fontTextures, lineSpacing, tabWidthChars);
                 stream.Close();

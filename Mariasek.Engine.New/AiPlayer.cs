@@ -1503,11 +1503,14 @@ namespace Mariasek.Engine.New
 				hiCardsPerSuit.Add(b, hiCards);
 			}
 
-			//max 3 vysoke karty s dirama celkove a max 2 v jedne barve => jednou kartou zacnu hrat, dalsi diry risknu
+            var spodek = new Card(Barva.Cerveny, Hodnota.Spodek);
+            //max 3 vysoke karty s dirama celkove a max 2 v jedne barve => jednou kartou zacnu hrat, dalsi diry risknu
             //simulace ukazou. pokud jsem puvodne nevolil, je sance, ze nekterou diru zalepi talon ...
-			//nebo max jedna barva s hodne vysokymi kartami ale prave jednou dirou (musim mit sedmu v dane barve)
-			if ((hiCardsPerSuit.Sum(i => i.Value) <= 3 && hiCardsPerSuit.All(i => i.Value <= 2)) ||
-			    (hiCardsPerSuit.Count(i => i.Value > 2 &&
+            //nebo max jedna barva s hodne vysokymi kartami ale prave jednou dirou (musim mit sedmu v dane barve)
+            //nebo pokud mam max 3 vysoke karty
+            if (hh.Count(i => i.BadValue >= spodek.BadValue) <= 3 ||
+                (hiCardsPerSuit.Sum(i => i.Value) <= 3 && hiCardsPerSuit.All(i => i.Value <= 2)) ||
+                (hiCardsPerSuit.Count(i => i.Value > 2 &&
                                            holesPerSuit[i.Key] <= 2 &&
                                            (hh.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key) ||
                                            talon.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key))) == 1))

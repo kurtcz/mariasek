@@ -17,6 +17,7 @@ using Microsoft.Xna.Framework;
 using Mariasek.SharedClient;
 using Android;
 using Android.Support.V4.App;
+using System.Diagnostics;
 
 namespace Mariasek.AndroidClient
 {
@@ -38,10 +39,12 @@ namespace Mariasek.AndroidClient
 		int storageAccessRequestCode;
 
         public Rectangle Padding { get; set; }
+        private Stopwatch sw = new Stopwatch();
 
 		protected override void OnCreate (Bundle bundle)
 		{
             System.Diagnostics.Debug.WriteLine("OnCreate()");
+            sw.Start();
 
             //handle unobserver task exceptions
             TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
@@ -53,14 +56,14 @@ namespace Mariasek.AndroidClient
             try
             {
                 base.OnCreate(bundle);
-
                 // Create our OpenGL view, and display it
                 g = new MariasekMonoGame(this, this, this, this);
                 SetContentView(g.Services.GetService<View>());
                 //if (Build.VERSION.SdkInt >= Build.VERSION_CODES.P) {
                 //  DisplayCutout displayCutout = Window.DecorView.RootWindowInsets.DisplayCutout;
                 //}
-
+                sw.Stop();
+                System.Diagnostics.Debug.WriteLine("OnCreate sw {0}", sw.ElapsedMilliseconds);
                 g.Run();
             }
             catch(Exception ex)
@@ -71,13 +74,10 @@ namespace Mariasek.AndroidClient
 
         public void GetStorageAccess()
 		{
-			if ((int)Build.VERSION.SdkInt >= 23)
+            var permission = Manifest.Permission.WriteExternalStorage;
+            if (ContextCompat.CheckSelfPermission(this, permission) != Permission.Granted)
             {
-                var permission = Manifest.Permission.WriteExternalStorage;
-                if (ContextCompat.CheckSelfPermission(this, permission) != Permission.Granted)
-                {
-                    ActivityCompat.RequestPermissions(this, new[] { permission }, ++storageAccessRequestCode);
-                }
+                ActivityCompat.RequestPermissions(this, new[] { permission }, ++storageAccessRequestCode);
             }
 		}
 

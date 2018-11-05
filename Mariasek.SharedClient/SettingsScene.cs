@@ -1042,7 +1042,7 @@ namespace Mariasek.SharedClient
             _performance.Text = string.Format("Výkon simulace: {0} her/s",
                 Game.Settings.GameTypeSimulationsPerSecond > 0 ? Game.Settings.GameTypeSimulationsPerSecond.ToString() : "?");
 
-            Background = Game.Content.Load<Texture2D>("wood2");
+            Background = Game.Assets.GetTexture("wood2");
             BackgroundTint = Color.DimGray;
             Game.OnSettingsChanged();
         }

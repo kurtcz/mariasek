@@ -138,7 +138,7 @@ namespace Mariasek.SharedClient
         /// <summary>
         /// This constructor shall be called only from the Scene constructor.
         /// </summary>
-        protected GameComponent(MariasekMonoGame game)
+        public GameComponent(MariasekMonoGame game)
             : base(game)
         {
             Game = game;

@@ -88,7 +88,7 @@ namespace Mariasek.SharedClient
                 };
                 _cards[i].Hide();
             }
-            Background = Game.Content.Load<Texture2D>("wood2");
+            Background = Game.Assets.GetTexture("wood2");
             BackgroundTint = Color.DimGray;
 
             _logo = new SpriteButton(this, 

@@ -209,7 +209,7 @@ namespace Mariasek.SharedClient
                     }
                 }
 			};
-            Background = Game.Content.Load<Texture2D>("wood2");
+            Background = Game.Assets.GetTexture("wood2");
             BackgroundTint = Color.DimGray;
 
             PopulateControls();
