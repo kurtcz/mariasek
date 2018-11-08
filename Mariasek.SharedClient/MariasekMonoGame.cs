@@ -297,6 +297,7 @@ namespace Mariasek.SharedClient
                                              "SegoeUI40Outl_2",
                                              "marias",
                                              "marias2",
+                                             "revers",
                                              "logo_hracikarty",
                                              "mariasek_rate"
                                          },

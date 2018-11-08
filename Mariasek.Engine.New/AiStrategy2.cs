@@ -2237,6 +2237,7 @@ namespace Mariasek.Engine.New
                         //preferuj barvu kde soupere nechytam
                         var holesPerSuit = new Dictionary<Barva, int>();
                         var hiCardsPerSuit = new Dictionary<Barva, int>();
+                        var catchCardsPerSuit = new Dictionary<Barva, int>();
                         foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
                         {
                             var holes = 0;      //pocet der v barve
@@ -2257,12 +2258,13 @@ namespace Mariasek.Engine.New
                             }
                             holesPerSuit.Add(b, holes);
                             hiCardsPerSuit.Add(b, hiCards);
+                            catchCardsPerSuit.Add(b, Math.Min(hiCards, holes));
                         }
                         var validSuits = ValidCards(c1, hands[MyIndex]).Select(i => i.Suit).Distinct();
-                        var preferredSuit = holesPerSuit.Where(i => validSuits.Contains(i.Key))
-                                                        .OrderBy(i => i.Value)
-                                                        .Select(i => i.Key)
-                                                        .First();
+                        var preferredSuit = catchCardsPerSuit.Where(i => validSuits.Contains(i.Key))
+                                                             .OrderBy(i => i.Value)
+                                                             .Select(i => i.Key)
+                                                             .First();
 
                         return ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == preferredSuit)
                                                              .OrderBy(i => i.Value)
@@ -2571,6 +2573,7 @@ namespace Mariasek.Engine.New
                         //preferuj barvu kde soupere nechytam
                         var holesPerSuit = new Dictionary<Barva, int>();
                         var hiCardsPerSuit = new Dictionary<Barva, int>();
+                        var catchCardsPerSuit = new Dictionary<Barva, int>();
                         var opponent = TeamMateIndex == player1 ? player2 : player1;
 
                         foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
@@ -2593,12 +2596,13 @@ namespace Mariasek.Engine.New
                             }
                             holesPerSuit.Add(b, holes);
                             hiCardsPerSuit.Add(b, hiCards);
+                            catchCardsPerSuit.Add(b, Math.Min(hiCards, holes));
                         }
                         var validSuits = ValidCards(c1, c2, hands[MyIndex]).Select(i => i.Suit).Distinct();
-                        var preferredSuit = holesPerSuit.Where(i => validSuits.Contains(i.Key))
-                                                        .OrderBy(i => i.Value)
-                                                        .Select(i => i.Key)
-                                                        .First();
+                        var preferredSuit = catchCardsPerSuit.Where(i => validSuits.Contains(i.Key))
+                                                             .OrderBy(i => i.Value)
+                                                             .Select(i => i.Key)
+                                                             .First();
 
                         return ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit == preferredSuit)
                                                                  .OrderBy(i => i.Value)

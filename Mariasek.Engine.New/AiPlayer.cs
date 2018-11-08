@@ -1576,6 +1576,12 @@ namespace Mariasek.Engine.New
             return estimatedBasicPointsLost + estimatedKQPointsLost >= 100;
         }
 
+        public bool IsSevenTooRisky()
+        {
+            return Hand.CardCount(_trump.Value) < 4 ||
+                   Hand.Count(i => i.Value >= Hodnota.Svrsek) < 4;
+        }
+
         public bool IsHundredTooRisky()
         {
             var n = 0;
@@ -1836,7 +1842,7 @@ namespace Mariasek.Engine.New
                 }
                 if (Settings.CanPlayGameType[Hra.Sedma] && 
                     _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0 &&
-                    Hand.CardCount(_trump.Value) >= 4)
+                    !IsSevenTooRisky())
                 {
                     if (gameType == 0)
                     {
