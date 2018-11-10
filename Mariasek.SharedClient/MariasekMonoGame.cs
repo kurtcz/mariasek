@@ -270,7 +270,7 @@ namespace Mariasek.SharedClient
 			}
         }
 
-        public AssetDictionary Assets;
+        public AssetLoader Assets;
 
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
@@ -284,7 +284,7 @@ namespace Mariasek.SharedClient
 
             SetupScaleMatrices();
             _loadProgress = 1;
-            Assets = new AssetDictionary(Content,
+            Assets = new AssetLoader(Content,
                                          new[]
                                          {
                                              "wood2",

@@ -57,7 +57,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)IScreenManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IStorageAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OrientationChangedEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)AssetDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AssetLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)SavedGame\SavedGame.hra">

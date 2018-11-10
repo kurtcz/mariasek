@@ -46,7 +46,7 @@
       <GameType>Sedma</GameType>
       <Use>true</Use>
       <MaxBidCount>2</MaxBidCount>
-      <Thresholds>40|50|85|100</Thresholds>
+      <Thresholds>30|50|85|100</Thresholds>
     </BidThresholdSettings>
     <BidThresholdSettings>
       <GameType>Kilo</GameType>

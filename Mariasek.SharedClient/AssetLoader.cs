@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Media;
 
 namespace Mariasek.SharedClient
 {
-    public class AssetDictionary
+    public class AssetLoader
     {
         private ContentManager _content;
         private Dictionary<string, Texture2D> _textures;
@@ -17,7 +17,7 @@ namespace Mariasek.SharedClient
 
         public int TotalCount => _textures.Count() + _soundEffects.Count() + _songs.Count();
 
-        public AssetDictionary(ContentManager content, string[] textures, string[] soundEffects, string[] songs)
+        public AssetLoader(ContentManager content, string[] textures, string[] soundEffects, string[] songs)
         {
             _content = content;
             _textures = new Dictionary<string, Texture2D>(textures.Select(i => new KeyValuePair<string, Texture2D>(i, null)));

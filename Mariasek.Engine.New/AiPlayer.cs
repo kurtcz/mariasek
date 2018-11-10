@@ -692,7 +692,8 @@ namespace Mariasek.Engine.New
                     }
                     else if (Settings.CanPlayGameType[Hra.Betl] && 
                              _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && 
-                             _betlSimulations > 0)
+                             _betlSimulations > 0 &&
+                             !_hundredOverDurch)
                     {
                         if (_talon == null || !_talon.Any())
                         {
@@ -771,9 +772,13 @@ namespace Mariasek.Engine.New
                 if ((Settings.CanPlayGameType[Hra.Durch] && 
                      _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][durchThresholdIndex] * _durchSimulations && 
                      _durchSimulations > 0 &&
-                     !_hundredOverDurch) ||
+                     (TeamMateIndex != -1 ||
+                      !_hundredOverDurch)) ||
                     (Settings.CanPlayGameType[Hra.Betl] && 
-                     _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][betlThresholdIndex] * _betlSimulations && _betlSimulations > 0))
+                     _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][betlThresholdIndex] * _betlSimulations &&
+                     _betlSimulations > 0 &&
+                     (TeamMateIndex != -1 ||
+                      !_hundredOverDurch)))
                 {
                     if (_betlSimulations > 0 && (_durchSimulations == 0 || (float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations))
                     {
@@ -1579,7 +1584,11 @@ namespace Mariasek.Engine.New
         public bool IsSevenTooRisky()
         {
             return Hand.CardCount(_trump.Value) < 4 ||
-                   Hand.Count(i => i.Value >= Hodnota.Svrsek) < 4;
+                   (Hand.CardCount(_trump.Value) == 4 &&
+                    (Hand.Count(i => i.Value >= Hodnota.Svrsek) < 4 ||
+                     Hand.Count(i => i.Value == Hodnota.Eso) < 2)) ||
+                   (Hand.CardCount(_trump.Value) == 5 &&
+                    Hand.Count(i => i.Value >= Hodnota.Svrsek) < 4);
         }
 
         public bool IsHundredTooRisky()
