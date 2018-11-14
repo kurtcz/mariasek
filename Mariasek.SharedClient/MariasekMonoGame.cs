@@ -381,45 +381,10 @@ namespace Mariasek.SharedClient
 
             // Create a new SpriteBatch, which can be used to draw textures.
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-            //CardTextures1 = Content.Load<Texture2D>("marias");
-			//CardTextures2 = Content.Load<Texture2D>("marias2");
-            //ReverseTexture = Content.Load<Texture2D>("revers");
-            //LogoTexture = Content.Load<Texture2D>("logo_hracikarty");
-            //RatingTexture = Content.Load<Texture2D>("mariasek_rate");
-            //DefaultBackground = Content.Load<Texture2D>("wood2");
             CanvasBackground = canvas;
             DarkBackground = dark;
-            //FontRenderers = new Dictionary<string, FontRenderer>
-            //{
-            //    { "BMFont", FontRenderer.GetFontRenderer(this, 5, 8, "BMFont.fnt", "BMFont_0", "BMFont_1") },
-            //    { "BM2Font", FontRenderer.GetFontRenderer(this, "BM2Font.fnt", "BM2Font_0", "BM2Font_1") },
-            //    { "SegoeUI40Outl", FontRenderer.GetFontRenderer(this, "SegoeUI40Outl.fnt", "SegoeUI40Outl_0", "SegoeUI40Outl_1", "SegoeUI40Outl_2") }
-            //};
 
-            try
-            {
-                //ClickSound = Content.Load<SoundEffect>("watch-tick");
-                //OnSound = Content.Load<SoundEffect>("on");
-                //OffSound = Content.Load<SoundEffect>("off");
-                //ClapSound = Content.Load<SoundEffect>("clap");
-                //CoughSound = Content.Load<SoundEffect>("cough");
-                //BooSound = Content.Load<SoundEffect>("boo");
-                //LaughSound = Content.Load<SoundEffect>("laugh");
-
-                //AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
-                //if (AmbientSound != null && !AmbientSound.IsDisposed)
-                //{
-                //    AmbientSound.IsLooped = true;
-                //    AmbientSound.Volume = 0;
-                //    AmbientSound.PlaySafely();
-                //}
-
-                //NaPankraciSong = Content.Load<Song>("na pankraci");
-            }
-            catch(Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex.Message + "\n" + ex.StackTrace);
-            }
+            //Assets are loaded via AssetLoader class in the Update() loop
             System.Diagnostics.Debug.WriteLine("LoadContent finished sw {0}", sw.ElapsedMilliseconds);
         }
 
@@ -506,51 +471,7 @@ namespace Mariasek.SharedClient
                 {
                     LoadGameSettings(true);
                 }
-                //ReloadContentIfNeeded();
-
-                //SoundEffect.MasterVolume = Settings.SoundEnabled ? 1f : 0f;
-                //if (AmbientSound == null || AmbientSound.IsDisposed)
-                //{
-                //    AmbientSound = Content.Load<SoundEffect>("tavern-ambience-looping").CreateInstance();
-                //    AmbientSound.IsLooped = true;
-                //    AmbientSound.Volume = Settings.BgSoundEnabled ? 0.2f : 0f;
-                //    AmbientSound.PlaySafely();
-                //}
-                //if (ClickSound == null || ClickSound.IsDisposed)
-                //{
-                //    ClickSound = Content.Load<SoundEffect>("watch-tick");
-                //}
-                //if (OnSound == null || OnSound.IsDisposed)
-                //{
-                //    OnSound = Content.Load<SoundEffect>("on");
-                //}
-                //if (OffSound == null || OffSound.IsDisposed)
-                //{
-                //    OffSound = Content.Load<SoundEffect>("off");
-                //}
-                //if (ClapSound == null || ClapSound.IsDisposed)
-                //{
-                //    ClapSound = Content.Load<SoundEffect>("clap");
-                //}
-                //if (CoughSound == null || CoughSound.IsDisposed)
-                //{
-                //    CoughSound = Content.Load<SoundEffect>("cough");
-                //}
-                //if (BooSound == null || BooSound.IsDisposed)
-                //{
-                //    BooSound = Content.Load<SoundEffect>("boo");
-                //}
-                //if (LaughSound == null || LaughSound.IsDisposed)
-                //{
-                //    LaughSound = Content.Load<SoundEffect>("laugh");
-                //}
-                //if (NaPankraciSong == null || NaPankraciSong.IsDisposed)
-                //{
-                //    NaPankraciSong = Content.Load<Song>("na pankraci");
-                //    Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
-                //    Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Settings.BgSoundEnabled ? 0.1f : 0f;
-                //    Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
-                //}
+                //Assets are handled by the ContentManager
             }
             catch (Exception ex)
             {
@@ -703,7 +624,7 @@ namespace Mariasek.SharedClient
 		{
             try
             {
-                if (!_contentLoaded)
+                if (!Assets.ContentLoaded)
                 {
                     _progressRenderWidth = _maxRenderWidth * _loadProgress / _maxProgress;
                     if (Assets.LoadOneAsset())
@@ -713,7 +634,6 @@ namespace Mariasek.SharedClient
                     else
                     {
                         ContentLoaded();
-                        _contentLoaded = true;
                     }
                 }
                 else
@@ -756,7 +676,7 @@ namespace Mariasek.SharedClient
 		{
             try
             {
-                if (!_contentLoaded)
+                if (!Assets.ContentLoaded)
                 {
                     GraphicsDevice.Clear(Color.Black);
                     if (DefaultBackground != null)

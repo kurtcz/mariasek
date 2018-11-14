@@ -17,6 +17,19 @@ namespace Mariasek.SharedClient
 
         public int TotalCount => _textures.Count() + _soundEffects.Count() + _songs.Count();
 
+        public bool ContentLoaded
+        {
+            get
+            {
+                return _textures.All(i => i.Value != null &&
+                                          !i.Value.IsDisposed) &&
+                       _soundEffects.All(i => i.Value != null &&
+                                              !i.Value.IsDisposed) &&
+                       _songs.All(i => i.Value != null &&
+                                       !i.Value.IsDisposed);
+            }
+        }
+
         public AssetLoader(ContentManager content, string[] textures, string[] soundEffects, string[] songs)
         {
             _content = content;
@@ -56,7 +69,7 @@ namespace Mariasek.SharedClient
                 }
             }
 
-            return found;
+            return !ContentLoaded;
         }
 
         public Texture2D GetTexture(string key)
