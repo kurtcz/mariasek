@@ -1586,7 +1586,8 @@ namespace Mariasek.Engine.New
             return Hand.CardCount(_trump.Value) < 4 ||
                    (Hand.CardCount(_trump.Value) == 4 &&
                     (Hand.Count(i => i.Value >= Hodnota.Svrsek) < 4 ||
-                     Hand.Count(i => i.Value == Hodnota.Eso) < 2)) ||
+                     Hand.Count(i => i.Value == Hodnota.Eso) < 2 ||
+                     Hand.Select(i => i.Suit).Distinct().Count() < 4)) ||
                    (Hand.CardCount(_trump.Value) == 5 &&
                     Hand.Count(i => i.Value >= Hodnota.Svrsek) < 4);
         }
