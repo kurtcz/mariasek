@@ -29,6 +29,7 @@ namespace Mariasek.Engine.New
         private float _avgWinForHundred;
         private float _avgBasicPointsLost;
         private float _maxBasicPointsLost;
+        private bool _hundredOverBetl;
         private bool _hundredOverDurch;
         private int _gamesBalance;
         private int _hundredsBalance;
@@ -693,7 +694,7 @@ namespace Mariasek.Engine.New
                     else if (Settings.CanPlayGameType[Hra.Betl] && 
                              _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && 
                              _betlSimulations > 0 &&
-                             !_hundredOverDurch)
+                             !_hundredOverBetl)
                     {
                         if (_talon == null || !_talon.Any())
                         {
@@ -778,7 +779,7 @@ namespace Mariasek.Engine.New
                      _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][betlThresholdIndex] * _betlSimulations &&
                      _betlSimulations > 0 &&
                      (TeamMateIndex != -1 ||
-                      !_hundredOverDurch)))
+                      !_hundredOverBetl)))
                 {
                     if (_betlSimulations > 0 && (_durchSimulations == 0 || (float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations))
                     {
@@ -1142,10 +1143,34 @@ namespace Mariasek.Engine.New
             var _sevenStrings = new List<string>();
             var _durchStrings = new List<string>();
             var _betlStrings = new List<string>();
+            Bidding gameBidding;
+            Bidding sevenBidding;
+            Bidding betlBidding;
+            Bidding durchBidding;
 
+            if (!bidding.HasBids)
+            {
+                gameBidding = new Bidding(_g);
+                gameBidding.SetLastBidder(_g.players[gameStartingPlayerIndex], Hra.Hra);
+                sevenBidding = new Bidding(_g);
+                sevenBidding.SetLastBidder(_g.players[gameStartingPlayerIndex], Hra.Kilo | Hra.Sedma);
+                betlBidding = new Bidding(_g);
+                betlBidding.SetLastBidder(_g.players[gameStartingPlayerIndex], Hra.Betl);
+                durchBidding = new Bidding(_g);
+                durchBidding.SetLastBidder(_g.players[gameStartingPlayerIndex], Hra.Durch);
+            }
+            else
+            {
+                gameBidding = bidding;
+                sevenBidding = bidding;
+                betlBidding = bidding;
+                durchBidding = bidding;
+            }
+
+            //bidding nema zadne zavazky, cili CalculateMoney() nic nespocita
             var moneyCalculations = gameComputationResults.Where(i => (i.GameType & Hra.Sedma) == 0).Select((i, idx) =>
             {
-                var calc = new AddingMoneyCalculator(Hra.Hra, _trump ?? _g.trump, gameStartingPlayerIndex, bidding, i);
+                var calc = GetMoneyCalculator(Hra.Hra, _trump ?? _g.trump, gameStartingPlayerIndex, gameBidding, i);
 
                 calc.CalculateMoney();
 
@@ -1154,7 +1179,7 @@ namespace Mariasek.Engine.New
                 return calc;
             }).Union(gameComputationResults.Where(i => (i.GameType & Hra.Sedma) != 0).Select((i, idx) =>
 			{
-	            var calc = new AddingMoneyCalculator(Hra.Kilo | Hra.Sedma, _trump ?? _g.trump, gameStartingPlayerIndex, bidding, i);
+                var calc = GetMoneyCalculator(Hra.Kilo | Hra.Sedma, _trump ?? _g.trump, gameStartingPlayerIndex, sevenBidding, i);
 
                 calc.CalculateMoney();
                 _sevenStrings.Add(GetComputationResultString(i, calc));
@@ -1162,7 +1187,7 @@ namespace Mariasek.Engine.New
                 return calc;
             }).Union(durchComputationResults.Select(i =>
             {
-                var calc = new AddingMoneyCalculator(Hra.Durch, null, gameStartingPlayerIndex, bidding, i);
+                var calc = GetMoneyCalculator(Hra.Durch, null, gameStartingPlayerIndex, durchBidding, i);
                 _durchStrings.Add(GetComputationResultString(i, calc));
 
                 calc.CalculateMoney();
@@ -1170,7 +1195,7 @@ namespace Mariasek.Engine.New
                 return calc;
             })).Union(betlComputationResults.Select(i =>
             {
-                var calc = new AddingMoneyCalculator(Hra.Betl, null, gameStartingPlayerIndex, bidding, i);
+                var calc = GetMoneyCalculator(Hra.Betl, null, gameStartingPlayerIndex, betlBidding, i);
 
                 calc.CalculateMoney();
                 _betlStrings.Add(GetComputationResultString(i, calc));
@@ -1204,11 +1229,17 @@ namespace Mariasek.Engine.New
                                         ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0)
                                                             .Max(i => (float)i.BasicPointsLost)
                                         : 0;
-            _hundredOverDurch = PlayerIndex == gameStartingPlayerIndex
-                                ? avgPointsForHundred >= 120 || 
+            _hundredOverBetl = PlayerIndex == gameStartingPlayerIndex
+                                ? avgPointsForHundred >= 105 || 
                                   (_trump.HasValue &&
                                    _trump.Value == Barva.Cerveny &&
-                                   avgPointsForHundred >= 110)
+                                   avgPointsForHundred >= 100)
+                                : false;
+            _hundredOverDurch = PlayerIndex == gameStartingPlayerIndex
+                                ? avgPointsForHundred >= 115 ||
+                                  (_trump.HasValue &&
+                                   _trump.Value == Barva.Cerveny &&
+                                   avgPointsForHundred >= 105)
                                 : false;
             _gamesBalance = PlayerIndex == gameStartingPlayerIndex
                             ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => i.GameWon)
@@ -1307,6 +1338,18 @@ namespace Mariasek.Engine.New
             scores = null;
             _runSimulations = false;
             GC.Collect();
+        }
+
+        private MoneyCalculatorBase GetMoneyCalculator(Hra gameType, Barva? trump, int gameStartingPlayerIndex, Bidding bidding, GameComputationResult result)
+        {
+            switch (_g.CalculationStyle)
+            {
+                case CalculationStyle.Multiplying:
+                    return new MultiplyingMoneyCalculator(gameType, trump, gameStartingPlayerIndex, bidding, result);
+                case CalculationStyle.Adding:
+                default:
+                    return new AddingMoneyCalculator(gameType, trump, gameStartingPlayerIndex, bidding, result);
+            }
         }
 
         public string GetComputationResultString(//string filename, 
@@ -1783,7 +1826,8 @@ namespace Mariasek.Engine.New
                     DebugInfo.TotalRuleCount = _durchSimulations;
                 }
                 else if (Settings.CanPlayGameType[Hra.Betl] && 
-                         _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && _betlSimulations > 0)
+                         _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && _betlSimulations > 0 &&
+                         !_hundredOverBetl)
                 {
                     gameType = Hra.Betl;
                     DebugInfo.RuleCount = _betlBalance;

@@ -274,6 +274,7 @@ namespace Mariasek.Engine.New
 
         //vola se na konci simulace
         protected MoneyCalculatorBase(Hra gameType, Barva? trump, int gameStartingPlayerIndex, Bidding bidding, GameComputationResult res)
+            : this()
         {
             _gameType = gameType;
             _trump = trump;
