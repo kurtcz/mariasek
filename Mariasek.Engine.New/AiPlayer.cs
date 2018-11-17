@@ -514,6 +514,28 @@ namespace Mariasek.Engine.New
                                                        ? -1 : (int)trumpCard.Suit)//nejdriv zkus jine nez trumfy
                                .ThenBy(i => i.Value));                            //vybirej od nejmensich karet
 
+            //pokud to vypada na sedmu se 4 kartama, tak se snaz mit vsechny barvy na ruce
+            if(hand.Has7(trumpCard.Suit) &&
+               hand.CardCount(trumpCard.Suit) == 4 &&
+               hand.Select(i => i.Suit).Distinct().Count() == 4)
+            {
+                var topCardPerSuit = hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                          .Where(h => h > i.Value)
+                                                          .All(h => !hand.Contains(new Card(i.Suit, h))))
+                                         .ToDictionary(k => k.Suit, v => new { TopCard = v, SuitCount = hand.CardCount(v.Suit) });
+
+                //u barvy kde mam dve karty se snaz si nechat tu vyssi
+                var reducedTalon = talon.Where(i => topCardPerSuit[i.Suit].SuitCount > 2 ||
+                                                    (topCardPerSuit[i.Suit].SuitCount == 2 &&
+                                                     topCardPerSuit[i.Suit].TopCard == i))
+                                        .Distinct()
+                                        .ToList();
+                //pouze pokud mi po odebrani v talonu zustane dost karet
+                if (reducedTalon.Count() >= 2)
+                {
+                    talon = reducedTalon;
+                }
+            }
             if(talon.Count < 2)
             {
                 var talonstr = string.Join(",", talon);
