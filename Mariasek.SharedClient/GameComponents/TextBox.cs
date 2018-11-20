@@ -13,12 +13,15 @@ namespace Mariasek.SharedClient.GameComponents
         private TouchLocation _touchHeldLocation;
         private TouchLocation _previoustouchHeldLocation;
         private RectangleShape _backgroundShape;
+        private RectangleShape _highlightShape;
         private ClickableArea _clickableArea;
 
         private Texture2D _scrollBarTexture, _scrollBarBgTexture;
         private int _scrollBarWidth = 5;
         private int _scrollBarHeight;
         private Vector2 _scrollBarPosition;
+
+        public int HighlightedLine { get; set; }
 
         public override Vector2 Position
         {
@@ -62,9 +65,9 @@ namespace Mariasek.SharedClient.GameComponents
                 base.Text = value;
 
                 var lineSeparators = new [] { '\r', '\n' };
-                var lines = value.Split(lineSeparators, StringSplitOptions.RemoveEmptyEntries);
+                var lines = value.Split(lineSeparators);
 
-                BoundsRect = TextRenderer.GetBoundsRect(lines);
+                BoundsRect = TextRenderer.GetBoundsRect(lines, FontScaleFactor);
 
                 //shift the bounding rectangle to the right offset
                 if (VerticalAlign == VerticalAlignment.Middle)
@@ -98,6 +101,18 @@ namespace Mariasek.SharedClient.GameComponents
                 _backgroundShape.UpdateTexture();
             } 
         }
+
+        public Color HighlightColor
+        {
+            get { return _highlightShape.BackgroundColors[0]; }
+            set
+            {
+                _highlightShape.BackgroundColors[0] = value;
+                _highlightShape.UpdateTexture();
+            }
+        }
+
+        public bool TapToHighlight { get; set; }
 
         public override float Opacity
         {
@@ -160,6 +175,14 @@ namespace Mariasek.SharedClient.GameComponents
                 BorderThickness = 3,
                 Opacity = 0
             };
+            _highlightShape = new RectangleShape(this)
+            {
+                BackgroundColors = new List<Color> { Color.Transparent },
+                BorderColors = new List<Color> { Color.Transparent },
+                BorderRadius = 1,
+                BorderThickness = 3,
+                Opacity = 0
+            };
             _clickableArea = new ClickableArea(this)
             {
                     Position = _backgroundShape.Position,
@@ -173,6 +196,7 @@ namespace Mariasek.SharedClient.GameComponents
             HorizontalAlign = HorizontalAlignment.Center;
             Width = _backgroundShape.Width;
             Height = _backgroundShape.Height;
+            HighlightedLine = -1;
             Game.Activated += (sender, e) => ScheduleTextureUpdate();
         }
 
@@ -275,7 +299,16 @@ namespace Mariasek.SharedClient.GameComponents
         {
             _touchDownLocation = tl;
             _touchHeldLocation = tl;
-			//System.Diagnostics.Debug.WriteLine("Down: {0} BR: {1} VO: {2}", tl.Position, BoundsRect, VerticalScrollOffset);
+            if (TapToHighlight)
+            {
+                var highlightedLine = PositionToLineNumber(tl.Position);
+                if (HighlightedLine == highlightedLine)
+                {
+                    highlightedLine = -1;
+                }
+                HighlightedLine = highlightedLine;
+            }
+            //System.Diagnostics.Debug.WriteLine("Down: {0} BR: {1} VO: {2}", tl.Position, BoundsRect, VerticalScrollOffset);
         }
 
         void HandleTouchUp (object sender, TouchLocation tl)
@@ -295,6 +328,27 @@ namespace Mariasek.SharedClient.GameComponents
             return handled;
         }
 
+        private int PositionToLineNumber(Vector2 position)
+        {
+            return (int)((BoundsRect.Height - Height - VerticalScrollOffset + position.Y - Position.Y) / (TextRenderer.LineHeightAndSpacing * FontScaleFactor));
+        }
+
+        public Rectangle HighlightedLineBoundsRect
+        {
+            get
+            {
+                if (HighlightedLine < 0)
+                {
+                    return default(Rectangle);
+                }
+
+                return new Rectangle((int)Position.X,
+                                     (int)(Math.Round(TextRenderer.LineHeightAndSpacing * FontScaleFactor) * HighlightedLine - BoundsRect.Height + Height + VerticalScrollOffset + Position.Y),
+                                     Width,
+                                     (int)(TextRenderer.LineHeightAndSpacing * FontScaleFactor));
+            }
+        }
+
 		private double _scrollingVelocity;
 		private int _scrollingDirection;
 		private const float decceleration = 0.01f;
@@ -306,6 +360,10 @@ namespace Mariasek.SharedClient.GameComponents
             var distance = _touchHeldLocation.Position.Y - _previoustouchHeldLocation.Position.Y;
 			var dt = gameTime.ElapsedGameTime;
 
+            //if (distance > 0)
+            //{
+            //System.Diagnostics.Debug.WriteLine("Distance: {0}", distance);
+            //}
             if (_textureUpdateNeeded)
             {
                 UpdateVerticalScrollbarPosition();
@@ -374,6 +432,62 @@ namespace Mariasek.SharedClient.GameComponents
                     Game.SpriteBatch.Draw(_scrollBarBgTexture, new Vector2(_scrollBarPosition.X, Position.Y), TextColor * 0.5f);
                     Game.SpriteBatch.Draw(_scrollBarTexture, _scrollBarPosition, TextColor * 0.8f);
                 }
+            }
+        }
+
+        private void DrawTextAtPosition(Vector2 position)
+        {
+            var colors = new[] { TextColor * Opacity };
+
+            if (HighlightColor != TextColor &&
+                HighlightColor != Color.Transparent)
+            {
+                var linesOfText = Text.Split('\n').Length;
+
+                colors = new Color[linesOfText];
+                for (var i = 0; i < linesOfText; i++)
+                {
+                    colors[i] = i == HighlightedLine
+                                ? HighlightColor
+                                : TextColor;
+                }
+            }
+            if (UseCommonScissorRect)
+            {
+                TextRenderer.DrawText(
+                    Game.SpriteBatch,
+                    Text,
+                    position,
+                    FontScaleFactor,
+                    colors,
+                    (Alignment)VerticalAlign | (Alignment)HorizontalAlign,
+                    Tabs);
+            }
+            else
+            {
+                Game.SpriteBatch.End();
+                var origClippingRectangle = Game.SpriteBatch.GraphicsDevice.ScissorRectangle;
+                //we need to create a new sprite batch instance that is going to use a clipping rectangle
+                Game.SpriteBatch.GraphicsDevice.ScissorRectangle = new Rectangle((int)(ScaleMatrix.M41 + Position.X * ScaleMatrix.M11),
+                                                                     (int)(ScaleMatrix.M42 + Position.Y * ScaleMatrix.M22),
+                                                                     (int)(Width * ScaleMatrix.M11),
+                                                                     (int)(Height * ScaleMatrix.M22));
+
+                Game.SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, null, null, new RasterizerState { ScissorTestEnable = true }, null, ScaleMatrix);
+
+                TextRenderer.DrawText(
+                    Game.SpriteBatch,
+                    Text,
+                    position,
+                    FontScaleFactor,
+                    colors,
+                    (Alignment)VerticalAlign | (Alignment)HorizontalAlign,
+                    Tabs);
+
+                Game.SpriteBatch.End();
+
+                Game.SpriteBatch.GraphicsDevice.ScissorRectangle = origClippingRectangle;
+                Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, ScaleMatrix);
             }
         }
     }

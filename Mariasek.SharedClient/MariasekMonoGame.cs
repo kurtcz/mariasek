@@ -146,9 +146,24 @@ namespace Mariasek.SharedClient
 			}
 			private set { _statScene = value; }
 		}
-		//public GeneratorScene GenerateScene { get; private set; }
 
-		public GameSettings Settings { get; private set; }
+        private ReviewScene _reviewScene;
+        public ReviewScene ReviewScene
+        {
+            get
+            {
+                if (_reviewScene == null)
+                {
+                    _reviewScene = new ReviewScene(this);
+                    _reviewScene.Initialize();
+                }
+                return _reviewScene;
+            }
+            private set { _reviewScene = value; }
+        }
+        //public GeneratorScene GenerateScene { get; private set; }
+
+        public GameSettings Settings { get; private set; }
 
 		public Rectangle BackSideRect { get; set; }
         public Texture2D CardTextures { get; set; }

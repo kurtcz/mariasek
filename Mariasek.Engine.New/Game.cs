@@ -376,7 +376,7 @@ namespace Mariasek.Engine.New
         }
 #endif
 
-        public void LoadGame(Stream fileStream)
+        public void LoadGame(Stream fileStream, bool calculateMoney = false)
         {
             _log.Init();
             _log.Info("********");
@@ -577,7 +577,8 @@ namespace Mariasek.Engine.New
             }
             RoundNumber = gameData.Kolo;
             DebugString.AppendLine($"Loaded round {RoundNumber}");
-            if (RoundNumber > 0 && 
+            if (!calculateMoney &&
+                RoundNumber > 0 && 
                 ((talon == null || !talon.Any()) ||
                  GameType == 0 ||
                  ((GameType & (Hra.Betl | Hra.Durch)) == 0 &&
@@ -601,6 +602,11 @@ namespace Mariasek.Engine.New
 			if(RoundNumber == 0)
             {
                 Rewind();
+            }
+            if(calculateMoney)
+            {
+                Results = GetMoneyCalculator();
+                Results.CalculateMoney();
             }
             RoundSanityCheck();
 #if !PORTABLE

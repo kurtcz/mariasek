@@ -89,7 +89,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
-        public Rectangle GetBoundsRect(string[] lines, List<int> wordWidths = null)
+        public Rectangle GetBoundsRect(string[] lines, float scaleFactor, List<int> wordWidths = null)
         {
             var width = 0f;
             var height = 0f;
@@ -114,20 +114,20 @@ namespace Mariasek.SharedClient.GameComponents
                         }
                         else if (wordWidths != null && wordWidth > 0)
                         {
-                            wordWidths.Add(wordWidth);
+                            wordWidths.Add((int)Math.Ceiling(wordWidth * scaleFactor));
                             wordWidth = 0;
                         }
                         linewidth += fc.XAdvance;
                     }
                     else if (c == '\t' && wordWidths != null && wordWidth > 0)
                     {
-                        wordWidths.Add(wordWidth);
+                        wordWidths.Add((int)Math.Ceiling(wordWidth * scaleFactor));
                         wordWidth = 0;
                     }
                 }
                 if (wordWidths != null && wordWidth > 0)
                 {
-                    wordWidths.Add(wordWidth);
+                    wordWidths.Add((int)Math.Ceiling(wordWidth * scaleFactor));
                     wordWidth = 0;
                 }
                 height += lineheight + _lineSpacing;
@@ -135,10 +135,30 @@ namespace Mariasek.SharedClient.GameComponents
                 linewidth = 0;
             }
 
-            return new Rectangle(0, 0, (int)Math.Ceiling(width), (int)Math.Ceiling(height));
+            return new Rectangle(0, 0, (int)Math.Ceiling(width * scaleFactor), (int)Math.Ceiling(height * scaleFactor));
+        }
+
+        public float LineHeightAndSpacing
+        {
+            get
+            {
+                FontChar fc;
+
+                if (_characterMap.TryGetValue('X', out fc))
+                {
+                    return fc.YOffset + fc.Height + _lineSpacing;
+                }
+
+                return 0f;
+            }
         }
 
         public Rectangle DrawText(SpriteBatch spriteBatch, string text, Vector2 position, float scaleFactor, Color color, Alignment alignment = Alignment.TopLeft, Tab[] tabs = null)
+        {
+            return DrawText(spriteBatch, text, position, scaleFactor, new[] { color }, alignment, tabs);
+        }
+
+        public Rectangle DrawText(SpriteBatch spriteBatch, string text, Vector2 position, float scaleFactor, Color[] colors, Alignment alignment = Alignment.TopLeft, Tab[] tabs = null)
         {
             var lineSeparators = new [] { '\r', '\n' };
             var lines = text.Split(lineSeparators);
@@ -146,12 +166,7 @@ namespace Mariasek.SharedClient.GameComponents
             var dx = position.X;
             var dy = position.Y;
 
-            var boundsRect = GetBoundsRect(lines);
-
-            boundsRect = new Rectangle(0, 
-                                       0, 
-                                       (int)(boundsRect.Width * scaleFactor), 
-                                       (int)(boundsRect.Height * scaleFactor));
+            var boundsRect = GetBoundsRect(lines, scaleFactor);
             if (((VerticalAlignment)alignment & VerticalAlignment.Bottom) != 0)
             {
                 dy -= boundsRect.Height;
@@ -161,19 +176,16 @@ namespace Mariasek.SharedClient.GameComponents
                 dy -= boundsRect.Height / 2f;
             }
 
+            int lineNumber = 0;
             foreach (var line in lines)
             {
                 var wordWidths = new List<int>();
-                var lineRect = GetBoundsRect(new [] { line }, wordWidths);
+                var lineRect = GetBoundsRect(new [] { line }, scaleFactor, wordWidths);
                 FontChar fc;
 
-                lineRect = new Rectangle(0,
-                                         0,
-                                         (int)(lineRect.Width * scaleFactor),
-                                         (int)(lineRect.Height * scaleFactor));
                 for (var i = 0; i < wordWidths.Count; i++)
                 {
-                    wordWidths[i] = (int)(wordWidths[i] * scaleFactor);
+                    wordWidths[i] = (int)wordWidths[i];
                 }
                 if (((HorizontalAlignment)alignment & HorizontalAlignment.Right) != 0)
                 {
@@ -192,61 +204,70 @@ namespace Mariasek.SharedClient.GameComponents
                 var tabNumber = 0;
                 var prev = ' ';
 
-                foreach (char c in line)
+                //nezdrzovat se s vykreslovanim radku mimo obrazovku
+                if (new Rectangle(0, 0,(int)_game.VirtualScreenWidth, (int)_game.VirtualScreenHeight).Intersects(
+                    new Rectangle((int)dx, (int)dy, lineRect.Width, lineRect.Height)))
                 {
-                    if (_characterMap.TryGetValue(c, out fc))
+                    foreach (char c in line)
                     {
-                        var sourceRectangle = new Rectangle(fc.X, fc.Y, fc.Width, fc.Height);
-                        var charPosition = new Vector2(dx + fc.XOffset * scaleFactor, dy + fc.YOffset * scaleFactor);
-
-                        //spriteBatch.Draw(_textures[fc.Page], charPosition, sourceRectangle, color);
-                        spriteBatch.Draw(_textures[fc.Page], charPosition, sourceRectangle, color, 0f, Vector2.Zero, scaleFactor, SpriteEffects.None, 0);
-                        //lineHeight = Math.Max(fc.YOffset + fc.Height, lineHeight);
-                        dx += fc.XAdvance * scaleFactor;
-                        if (char.IsWhiteSpace(c) && !char.IsWhiteSpace(prev))
+                        if (_characterMap.TryGetValue(c, out fc))
                         {
-                            wordNumber++;
-                        }
-                    }
-                    else if (c == '\t')
-                    {
-                        if (!char.IsWhiteSpace(prev))
-                        {
-                            wordNumber++;
-                        }
-                        _characterMap.TryGetValue('X', out fc);
+                            var sourceRectangle = new Rectangle(fc.X, fc.Y, fc.Width, fc.Height);
+                            var charPosition = new Vector2(dx + fc.XOffset * scaleFactor, dy + fc.YOffset * scaleFactor);
+                            var color = colors != null && colors.Length > 0
+                                        ? colors[lineNumber % colors.Length]
+                                        : Color.White;
 
-                        var tabWidth = _tabWidthChars * fc.XAdvance * scaleFactor;
-
-                        if (tabs == null || tabNumber >= tabs.Length)   //simple tabs
-                        {
-                            var nextTab = dx + tabWidth - dx % tabWidth;
-
-                            dx = nextTab;
-                        }
-                        else                                            //explicit tabs
-                        {
-                            var nextTab = tabs[tabNumber].TabPosition;
-
-                            switch (tabs[tabNumber].TabAlignment)
+                            //spriteBatch.Draw(_textures[fc.Page], charPosition, sourceRectangle, color);
+                            spriteBatch.Draw(_textures[fc.Page], charPosition, sourceRectangle, color, 0f, Vector2.Zero, scaleFactor, SpriteEffects.None, 0);
+                            //lineHeight = Math.Max(fc.YOffset + fc.Height, lineHeight);
+                            dx += fc.XAdvance * scaleFactor;
+                            if (char.IsWhiteSpace(c) && !char.IsWhiteSpace(prev))
                             {
-                                case HorizontalAlignment.Left:
-                                    dx = nextTab;
-                                    break;
-                                case HorizontalAlignment.Center:
-                                    dx = nextTab - wordWidths[wordNumber] / 2f;
-                                    break;
-                                case HorizontalAlignment.Right:
-                                    dx = nextTab - wordWidths[wordNumber];
-                                    break;
+                                wordNumber++;
                             }
-                            tabNumber++;
                         }
+                        else if (c == '\t')
+                        {
+                            if (!char.IsWhiteSpace(prev))
+                            {
+                                wordNumber++;
+                            }
+                            _characterMap.TryGetValue('X', out fc);
+
+                            var tabWidth = _tabWidthChars * fc.XAdvance * scaleFactor;
+
+                            if (tabs == null || tabNumber >= tabs.Length)   //simple tabs
+                            {
+                                var nextTab = dx + tabWidth - dx % tabWidth;
+
+                                dx = nextTab;
+                            }
+                            else                                            //explicit tabs
+                            {
+                                var nextTab = tabs[tabNumber].TabPosition;
+
+                                switch (tabs[tabNumber].TabAlignment)
+                                {
+                                    case HorizontalAlignment.Left:
+                                        dx = nextTab;
+                                        break;
+                                    case HorizontalAlignment.Center:
+                                        dx = nextTab - wordWidths[wordNumber] / 2f;
+                                        break;
+                                    case HorizontalAlignment.Right:
+                                        dx = nextTab - wordWidths[wordNumber];
+                                        break;
+                                }
+                                tabNumber++;
+                            }
+                        }
+                        prev = c;
                     }
-                    prev = c;
                 }
                 dx = position.X;
                 dy += lineHeight + _lineSpacing;
+                lineNumber++;
             }
 
             return boundsRect;

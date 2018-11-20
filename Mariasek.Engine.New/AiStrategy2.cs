@@ -1268,7 +1268,8 @@ namespace Mariasek.Engine.New
                                 //chci se vyhnout tomu aby moji nebo spoluhracovu trumfovou desitku sebral akter esem
                                 cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&
                                                                                     (_probabilities.CardProbability(opponentIndex, new Card(_trump, Hodnota.Eso)) <= _epsilon ||
-                                                                                     _probabilities.CardProbability(TeamMateIndex, new Card(_trump, Hodnota.Desitka)) <= _epsilon ||
+                                                                                     (i.Value != Hodnota.Desitka &&
+                                                                                      _probabilities.CardProbability(TeamMateIndex, new Card(_trump, Hodnota.Desitka)) <= _epsilon) ||
                                                                                      Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                                          .Where(h => h > i.Value)
                                                                                          .Select(h => new Card(_trump, h))

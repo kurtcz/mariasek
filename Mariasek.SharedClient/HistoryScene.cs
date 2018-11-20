@@ -6,12 +6,23 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input.Touch;
 using Mariasek.SharedClient.GameComponents;
+using System.IO;
+using System;
+using Mariasek.Engine.New;
 
 namespace Mariasek.SharedClient
 {
     public class HistoryScene : Scene
     {
+#if __ANDROID__
+        private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+#else   //#elif __IOS__
+        private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+#endif
+        private string _archivePath = Path.Combine(_path, "Archive");
+
         private Button _menuButton;
+        private Button _viewGameButton;
         private ToggleButton _tableButton;
         private ToggleButton _chartButton;
         private Button _statsButton;
@@ -29,6 +40,7 @@ namespace Mariasek.SharedClient
         private Vector2 _hiddenPosition;
 		private TouchLocation _touchDownLocation;
 		private TouchLocation _touchHeldLocation;
+        private int[] _archivedGames;
 
         public HistoryScene(MariasekMonoGame game)
             : base(game)
@@ -181,9 +193,21 @@ namespace Mariasek.SharedClient
                         TabAlignment = HorizontalAlignment.Right
                     }
                 },
-                FontScaleFactor = 0.9f
+                FontScaleFactor = 0.9f,
+                HighlightColor = Color.Yellow,
+                TapToHighlight = true
             };
             _historyBox.Hide();
+            _viewGameButton = new Button(this)
+            {
+                Position = new Vector2(115, (int)Game.VirtualScreenHeight - 240),
+                Text = "Náhled",
+                Width = 95,//(int)Math.Round(_historyBox.TextRenderer.LineHeightAndSpacing * _historyBox.FontScaleFactor),//150,
+                Height = 50,//(int)Math.Round(_historyBox.TextRenderer.LineHeightAndSpacing * _historyBox.FontScaleFactor)
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
+            };
+            _viewGameButton.Click += ViewGameButtonClicked;
+            _viewGameButton.Hide();
 			_footer = new Label(this)
 			{
 				Position = new Vector2(220, Game.VirtualScreenHeight - 50),
@@ -294,34 +318,115 @@ namespace Mariasek.SharedClient
             var sum3 = Game.Money.Sum(i => i.MoneyWon[2] * Game.Settings.BaseBet).ToString("C", numFormat);
 
             _footer.Text = string.Format("Součet:\t{0}\t{1}\t{2}", sum1, sum2, sum3);
+
+            //Elements of _archiveGames hold GameId or 0 if the game is not archived
+            _archivedGames = new int[Game.Money.Count()];
+            var k = 0;
+            for (var i = 0; i < _archivedGames.Length; i++)
+            {
+                if (!Game.Money[i].IsArchived)
+                {
+                    _archivedGames[i] = 0;
+                }
+                else
+                {
+                    var n = Game.Money[i].GameId == 0 ? k + 1 : Game.Money[i].GameId;
+                    var files = Directory.GetFiles(_archivePath, string.Format("{0:0000}-{1}*.hra", n, Game.Money[i].GameTypeString.Trim().ToLower()));
+
+                    if (files.Length == 2)
+                    {
+                        _archivedGames[i] = n;
+                        if (Game.Money[i].GameId == 0)
+                        {
+                            k++;
+                        }
+                    }
+                    else
+                    {
+                        _archivedGames[i] = 0;
+                    }
+                }
+            }
         }
+
+        //private string GetBaseFileName(int count, Hra gameType)
+        //{
+        //    var gt = string.Empty;
+
+        //    if ((gameType & Hra.Sedma) != 0)
+        //    {
+        //        if ((gameType & Hra.Hra) != 0)
+        //        {
+        //            gt = "sedma";
+        //        }
+        //        else
+        //        {
+        //            gt = "stosedm";
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if ((gameType & Hra.Hra) != 0)
+        //        {
+        //            gt = "hra";
+        //        }
+        //        else if ((gameType & Hra.Kilo) != 0)
+        //        {
+        //            gt = "kilo";
+        //        }
+        //        else if ((gameType & Hra.Betl) != 0)
+        //        {
+        //            gt = "betl";
+        //        }
+        //        else if ((gameType & Hra.Durch) != 0)
+        //        {
+        //            gt = "durch";
+        //        }
+        //    }
+        //    return string.Format("{0:0000}-{1}", count + 1, gt);
+        //}
 
         private void ChartButtonClicked(object sender)
         {
             if (_historyChart.IsVisible)
             {
                 _historyChart.MoveTo(_hiddenPosition, 5000)
-                             .Invoke(() => { _historyChart.Hide(); });
+                             .Invoke(() =>
+                             {
+                                 _historyChart.Hide();
+                                 _historyBox.Show();
+                                 _historyBox.MoveTo(_origPosition, 5000);
+                                 _tableButton.IsSelected = true;
+                                 _chartButton.IsSelected = false;
+                             });
             }
             else
             {
-                _historyChart.Invoke(() => { _historyChart.Show(); })
-                             .MoveTo(_origPosition, 5000);
+                _historyBox.MoveTo(_hiddenPosition, 5000)
+                            .Invoke(() =>
+                            {
+                                _historyBox.Hide();
+                                _historyChart.Show();
+                                _historyChart.MoveTo(_origPosition, 5000);
+                                _chartButton.IsSelected = true;
+                                _tableButton.IsSelected = false;
+                            });
             }
         }
 
         private void TableButtonClicked(object sender)
         {
-            if (_historyBox.IsVisible)
-            {
-                _historyBox.MoveTo(_hiddenPosition, 5000)
-                           .Invoke(() => { _historyBox.Hide(); });
-            }
-            else
-            {
-                _historyBox.Invoke(() => { _historyBox.Show(); })
-                    .MoveTo(_origPosition, 5000);
-            }
+            ChartButtonClicked(sender);
+            //if (_historyBox.IsVisible)
+            //{
+            //    _historyBox.MoveTo(_hiddenPosition, 5000)
+            //               .Invoke(() => { _historyBox.Hide(); });
+            //}
+            //else
+            //{
+            //    _historyBox.Invoke(() => { _historyBox.Show(); })
+            //        .MoveTo(_origPosition, 5000);
+            //}
         }
 
         private void StatsButtonClicked(object sender)
@@ -339,6 +444,35 @@ namespace Mariasek.SharedClient
             Game.MainScene.SaveHistory();
         }
 
+        private void ViewGameButtonClicked(object sender)
+        {
+            if (_historyBox.HighlightedLine >= 0 &&
+                _historyBox.HighlightedLine < Game.Money.Count())
+            {
+                var historicGame = Game.Money[_historyBox.HighlightedLine];
+                if (historicGame.GameId <= 0)
+                {
+                    historicGame.GameId = _archivedGames[_historyBox.HighlightedLine];
+                }
+                var pattern = string.Format("{0:0000}-*.hra", historicGame.GameId);
+                var files = Directory.GetFiles(_archivePath, pattern).OrderBy(i => i).ToArray();
+
+                if (historicGame.GameId > 0 &&
+                    files.Length == 2)
+                {
+                    var newGameFilePath = files[0];
+                    var endGameFilePath = files[1];
+
+                    if (File.Exists(newGameFilePath) &&
+                        File.Exists(endGameFilePath))
+                    {
+                        Game.ReviewScene.ShowGame(historicGame, newGameFilePath, endGameFilePath);
+                        Game.ReviewScene.SetActive();
+                    }
+                }
+            }
+        }
+
         private void MenuClicked(object sender)
         {
             Game.MenuScene.SetActive();
@@ -348,7 +482,20 @@ namespace Mariasek.SharedClient
         {
             base.Update(gameTime);
             _historyChart.IsEnabled = !_historyBox.IsVisible;
+
+            if (_historyBox.IsVisible &&
+                _historyBox.HighlightedLine >= 0 &&
+                _historyBox.HighlightedLine < Game.Money.Count() &&
+                _archivedGames[_historyBox.HighlightedLine] != 0)
+            {
+                //_viewGameButton.Position = new Vector2(753, _historyBox.HighlightedLineBoundsRect.Top);
+                //_viewGameButton.Height = _historyBox.HighlightedLineBoundsRect.Height;
+                _viewGameButton.Show();
+            }
+            else
+            {
+                _viewGameButton.Hide();
+            }
         }
     }
 }
-

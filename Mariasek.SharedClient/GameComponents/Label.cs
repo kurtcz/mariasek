@@ -63,7 +63,7 @@ namespace Mariasek.SharedClient.GameComponents
             base.Draw(gameTime);
         }
 
-        protected void DrawTextAtPosition(Vector2 position)
+        private void DrawTextAtPosition(Vector2 position)
         {
             if (UseCommonScissorRect)
             {

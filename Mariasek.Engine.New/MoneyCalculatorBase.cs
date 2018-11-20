@@ -90,6 +90,44 @@ namespace Mariasek.Engine.New
         [XmlElement]
         public float SimulatedSuccessRate { get; set; } //set from MainScene
 
+        public int GameId { get; set; }
+        [XmlIgnore]
+        public bool GameIdSpecified { get { return GameId > 0; } }
+        public bool ShouldSerializeNewFileName() { return GameId > 0; }
+
+        [XmlIgnore]
+        public Barva? Trumf;
+        [XmlAttribute(AttributeName = "Trumf")]
+        public Barva TrumfValue
+        {
+            get { return Trumf.HasValue ? Trumf.Value : default(Barva); }
+            set { Trumf = value; }
+        }
+        [XmlIgnore]
+        public bool TrumfValueSpecified { get { return Trumf.HasValue; } }
+        public bool ShouldSerializeTrumfValue() { return Trumf.HasValue; }
+
+        public bool IsArchived
+        {
+            get
+            {
+                return !((GameMoneyWon == 1 &&  //hra bez fleku
+                          SevenMoneyWon == 0 &&
+                          SevenAgainstMoneyWon == 0 &&
+                          HundredMoneyWon == 0 &&
+                          HundredAgainstMoneyWon == 0 &&
+                          BetlMoneyWon == 0 &&
+                          DurchMoneyWon == 0) ||
+                         (GameMoneyWon == -2 && //sedma bez fleku s flekem na hru
+                          SevenMoneyWon == 2 &&
+                          SevenAgainstMoneyWon == 0 &&
+                          HundredMoneyWon == 0 &&
+                          HundredAgainstMoneyWon == 0 &&
+                          BetlMoneyWon == 0 &&
+                          DurchMoneyWon == 0));
+            }
+        }
+
         protected CultureInfo _ci;
 
         //Default constructor for XmlSerialize purposes

@@ -269,7 +269,7 @@ namespace Mariasek.SharedClient.GameComponents
                 //_initialHands[i] = new List<Mariasek.Engine.New.Card>();
                 //if (i < Mariasek.Engine.New.Game.NumPlayers)
                 //{
-                //    _initialHands[i].AddRange(Game.MainScene.g.players[i].Hand);    //u betla a durcha mohly zustat karty v ruce
+                //    _initialHands[i].AddRange(game.players[i].Hand);    //u betla a durcha mohly zustat karty v ruce
                 //}
                 Names[i] = new Label(this)
                 {
@@ -283,7 +283,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             for (var i = 0; i < Rounds.Length; i++)
             {
-                //if (Game.MainScene.g.rounds[i] == null || Game.MainScene.g.rounds[i].c3 == null)
+                //if (game.rounds[i] == null || game.rounds[i].c3 == null)
                 //{
                 //    continue;
                 //}
@@ -301,7 +301,7 @@ namespace Mariasek.SharedClient.GameComponents
                     ZIndex = 200,
                     UseCommonScissorRect = true
                 };
-                //var r = Game.MainScene.g.rounds[i];
+                //var r = game.rounds[i];
                 Rounds[i] = new Sprite[Mariasek.Engine.New.Game.NumPlayers];
                 Labels[i] = new Label[Mariasek.Engine.New.Game.NumPlayers];
                 //if (r.c1 != null)
@@ -328,9 +328,9 @@ namespace Mariasek.SharedClient.GameComponents
 					ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 1,
 					Scale = reviewCardScaleFactor
                 };
-                //if ((Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka))
+                //if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka))
                 //{
-                //    if (r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].PlayerIndex || r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].TeamMateIndex)
+                //    if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
                 //    {
                 //        Rounds[i][0].Tint = Color.LightGreen;
                 //    }
@@ -344,22 +344,22 @@ namespace Mariasek.SharedClient.GameComponents
                     Position = new Vector2(200 + 3 * Hand.CardWidth * reviewCardScaleFactor.X - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 20),
                     Width = 600,
                     Height = 40,
-                    //Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player1.Name, Game.MainScene.g.rounds[i].player1.PlayerIndex == 0 ? "-" : debugNote1 != null ? debugNote1.Split('\n')[0] : "-"),
-                    //TextColor = Game.MainScene.g.rounds[i].roundWinner.PlayerIndex == Game.MainScene.g.rounds[i].player1.PlayerIndex ? Color.Yellow : Color.White,
+                    //Text = string.Format("{0}: {1}", game.rounds[i].player1.Name, game.rounds[i].player1.PlayerIndex == 0 ? "-" : debugNote1 != null ? debugNote1.Split('\n')[0] : "-"),
+                    //TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player1.PlayerIndex ? Color.Yellow : Color.White,
                     UseCommonScissorRect = true,
                     ZIndex = 200,
                     FontScaleFactor = 0.9f
                 };
-                //rect = Game.MainScene.g.rounds[i].c2.ToTextureRect();
+                //rect = game.rounds[i].c2.ToTextureRect();
                 Rounds[i][1] = new Sprite(this, Game.CardTextures)//, rect)
                 {
                     Position = new Vector2(200 + Hand.CardWidth * reviewCardScaleFactor.X - 10, 100 + (i + headLength) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 40),
 					ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 2,
 					Scale = reviewCardScaleFactor
                 };
-                //if ((Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka))
+                //if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka))
                 //{
-                //    if (r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].PlayerIndex || r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].TeamMateIndex)
+                //    if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
                 //    {
                 //        Rounds[i][1].Tint = Color.LightGreen;
                 //    }
@@ -373,22 +373,22 @@ namespace Mariasek.SharedClient.GameComponents
                     Position = new Vector2(200 + 3 * Hand.CardWidth * reviewCardScaleFactor.X - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 50),
                     Width = 600,
                     Height = 40,
-                    //Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player2.Name, Game.MainScene.g.rounds[i].player2.PlayerIndex == 0 ? "-" : debugNote2 != null ? debugNote2.Split('\n')[0] : "-"),
-                    //TextColor = Game.MainScene.g.rounds[i].roundWinner.PlayerIndex == Game.MainScene.g.rounds[i].player2.PlayerIndex ? Color.Yellow : Color.White,
+                    //Text = string.Format("{0}: {1}", game.rounds[i].player2.Name, game.rounds[i].player2.PlayerIndex == 0 ? "-" : debugNote2 != null ? debugNote2.Split('\n')[0] : "-"),
+                    //TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player2.PlayerIndex ? Color.Yellow : Color.White,
                     UseCommonScissorRect = true,
                     ZIndex = 200,
                     FontScaleFactor = 0.9f
                 };
-                //rect = Game.MainScene.g.rounds[i].c3.ToTextureRect();
+                //rect = game.rounds[i].c3.ToTextureRect();
                 Rounds[i][2] = new Sprite(this, Game.CardTextures)//, rect)
                 {
                     Position = new Vector2(200 + 2 * (Hand.CardWidth * reviewCardScaleFactor.X - 10), 100 + (i + headLength) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 50),
 					ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 3,
 					Scale = reviewCardScaleFactor
                 };
-                //if ((Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))
+                //if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))
                 //{
-                //    if (r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].PlayerIndex || r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].TeamMateIndex)
+                //    if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
                 //    {
                 //        Rounds[i][2].Tint = Color.LightGreen;
                 //    }
@@ -402,14 +402,14 @@ namespace Mariasek.SharedClient.GameComponents
                     Position = new Vector2(200 + 3 * Hand.CardWidth * reviewCardScaleFactor.X - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 80),
                     Width = 600,
                     Height = 40,
-                    //Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player3.Name, Game.MainScene.g.rounds[i].player3.PlayerIndex == 0 ? "-" : debugNote3 != null ? debugNote3.Split('\n')[0] : "-"),
-                    //TextColor = Game.MainScene.g.rounds[i].roundWinner.PlayerIndex == Game.MainScene.g.rounds[i].player3.PlayerIndex ? Color.Yellow : Color.White,
+                    //Text = string.Format("{0}: {1}", game.rounds[i].player3.Name, game.rounds[i].player3.PlayerIndex == 0 ? "-" : debugNote3 != null ? debugNote3.Split('\n')[0] : "-"),
+                    //TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player3.PlayerIndex ? Color.Yellow : Color.White,
                     UseCommonScissorRect = true,
                     ZIndex = 200,
                     FontScaleFactor = 0.9f
                 };
             }
-            //_initialHands[3] = Game.MainScene.g.talon;
+            //_initialHands[3] = game.talon;
             BoundsRect = new Rectangle(0, 0, (int)Game.VirtualScreenWidth - (int)Position.X, 
                                        30 + (roundsLength + headLength) * (int)(Hand.CardHeight * reviewCardScaleFactor.Y + 50) - 
                                        (int)Position.Y);
@@ -421,51 +421,51 @@ namespace Mariasek.SharedClient.GameComponents
             //var maxHlasQAgainstMarked = false;
 			for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
             {
-                //var ii = (Game.MainScene.g.GameStartingPlayerIndex + i) % Mariasek.Engine.New.Game.NumPlayers;
-                //var hand = new List<Card>(_initialHands[ii].Sort(false, Game.MainScene.g.trump.HasValue ? false : true, Game.MainScene.g.trump));
+                //var ii = (game.GameStartingPlayerIndex + i) % Mariasek.Engine.New.Game.NumPlayers;
+                //var hand = new List<Card>(_initialHands[ii].Sort(false, game.trump.HasValue ? false : true, game.trump));
 
                 Hands[i] = new Sprite[12];//hand.Count];
                 //Names[i].Text = i == 0 ? string.Format("{0}: {1}", 
-                                       //                Game.MainScene.g.players[ii].Name, 
-                                       //                Game.MainScene.g.GameType.ToDescription().Trim() +
-                                       //                (string.IsNullOrEmpty(Game.MainScene.g.players[ii].BidMade)
+                                       //                game.players[ii].Name, 
+                                       //                game.GameType.ToDescription().Trim() +
+                                       //                (string.IsNullOrEmpty(game.players[ii].BidMade)
                                        //                     ? string.Empty
-                                       //                     : string.Format(" {0}", Game.MainScene.g.players[ii].BidMade.TrimEnd()))) +
-                                       //  (Game.Settings.HintEnabled && Game.MainScene.g.GameTypeConfidence >= 0
-                                       //     ? string.Format(" ({0:0}%)", Game.MainScene.g.GameTypeConfidence * 100)
+                                       //                     : string.Format(" {0}", game.players[ii].BidMade.TrimEnd()))) +
+                                       //  (Game.Settings.HintEnabled && game.GameTypeConfidence >= 0
+                                       //     ? string.Format(" ({0:0}%)", game.GameTypeConfidence * 100)
                                        //     : string.Empty)
-                                       //: string.IsNullOrEmpty(Game.MainScene.g.players[ii].BidMade)
-                                            //? Game.MainScene.g.players[ii].Name
-                                            //: string.Format("{0}: {1}", Game.MainScene.g.players[ii].Name,
-                                              //                          Game.MainScene.g.players[ii].BidMade.Trim()) +
-                                              //(Game.Settings.HintEnabled && Game.MainScene.g.players[ii].BidConfidence >= 0
-                                                //? string.Format(" ({0:0}%)", Game.MainScene.g.players[ii].BidConfidence * 100)
+                                       //: string.IsNullOrEmpty(game.players[ii].BidMade)
+                                            //? game.players[ii].Name
+                                            //: string.Format("{0}: {1}", game.players[ii].Name,
+                                              //                          game.players[ii].BidMade.Trim()) +
+                                              //(Game.Settings.HintEnabled && game.players[ii].BidConfidence >= 0
+                                                //? string.Format(" ({0:0}%)", game.players[ii].BidConfidence * 100)
                                                 //: string.Empty);
                 //for (var j = 0; j < hand.Count; j++)
                 for (var j = 0; j < 12; j++)
                 {
                     //var rect = hand[j].ToTextureRect();
-                    //var hlas = (Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
-                        //       Game.MainScene.g.rounds[0] != null &&
-                        //       (Game.MainScene.g.Results == null ||
-                        //        Game.MainScene.g.Results.BasicPointsWon + Game.MainScene.g.Results.BasicPointsLost == 90) &&
+                    //var hlas = (game.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+                        //       game.rounds[0] != null &&
+                        //       (game.Results == null ||
+                        //        game.Results.BasicPointsWon + game.Results.BasicPointsLost == 90) &&
                         //((hand[j].Value == Hodnota.Kral && hand.Any(k => k.Value == Hodnota.Svrsek && k.Suit == hand[j].Suit)) ||
                          //(hand[j].Value == Hodnota.Svrsek && hand.Any(k => k.Value == Hodnota.Kral && k.Suit == hand[j].Suit)));
 
      //               if (hlas && 
-     //                   Game.MainScene.g.Results != null &&
+     //                   game.Results != null &&
      //                   i == 0 && 
-     //                   (Game.MainScene.g.GameType & Hra.Kilo) != 0 &&
-     //                   !Game.MainScene.g.Results.HundredWon)
+     //                   (game.GameType & Hra.Kilo) != 0 &&
+     //                   !game.Results.HundredWon)
      //               {
      //                   if (maxHlasKMarked && maxHlasQMarked)
      //                   {
 					//		hlas = false;
 					//	}
-     //                   else if ((Game.MainScene.g.Results.MaxHlasWon == 40 &&
-     //                             hand[j].Suit == Game.MainScene.g.trump) ||
-					//			 (Game.MainScene.g.Results.MaxHlasWon == 20 &&
-     //                             hand[j].Suit != Game.MainScene.g.trump))
+     //                   else if ((game.Results.MaxHlasWon == 40 &&
+     //                             hand[j].Suit == game.trump) ||
+					//			 (game.Results.MaxHlasWon == 20 &&
+     //                             hand[j].Suit != game.trump))
      //                   {
      //                       if (hand[j].Value == Hodnota.Kral)
      //                       {
@@ -478,19 +478,19 @@ namespace Mariasek.SharedClient.GameComponents
      //                   }
      //               }
 					//else if (hlas &&
-					//	     Game.MainScene.g.Results != null &&
+					//	     game.Results != null &&
 					//	     i != 0 &&
-					//	     (Game.MainScene.g.GameType & Hra.KiloProti) != 0 &&
-					//	     !Game.MainScene.g.Results.HundredAgainstWon)
+					//	     (game.GameType & Hra.KiloProti) != 0 &&
+					//	     !game.Results.HundredAgainstWon)
 					//{
 					//	if (maxHlasKAgainstMarked && maxHlasQAgainstMarked)
 					//	{
 					//		hlas = false;
 					//	}
-					//	else if ((Game.MainScene.g.Results.MaxHlasLost == 40 &&
-					//			  hand[j].Suit == Game.MainScene.g.trump) ||
-					//			 (Game.MainScene.g.Results.MaxHlasLost == 20 &&
-					//			  hand[j].Suit != Game.MainScene.g.trump))
+					//	else if ((game.Results.MaxHlasLost == 40 &&
+					//			  hand[j].Suit == game.trump) ||
+					//			 (game.Results.MaxHlasLost == 20 &&
+					//			  hand[j].Suit != game.trump))
 					//	{
      //                       if (hand[j].Value == Hodnota.Kral)
      //                       {
@@ -508,15 +508,15 @@ namespace Mariasek.SharedClient.GameComponents
 						ZIndex = i * Mariasek.Engine.New.Game.NumRounds + j + 1,
 						Scale = reviewCardScaleFactor
                     };
-     //               if ((Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+     //               if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
      //                   (hand[j].Value == Hodnota.Eso ||
      //                    hand[j].Value == Hodnota.Desitka) &&
-     //                   Game.MainScene.g.rounds.Any(k => k != null &&
+     //                   game.rounds.Any(k => k != null &&
      //                                                    (k.c1 == hand[j] ||
      //                                                     k.c2 == hand[j] ||
      //                                                     k.c3 == hand[j])))
      //               {
-					//	var roundWinner = Game.MainScene.g.rounds.First(k => k != null &&
+					//	var roundWinner = game.rounds.First(k => k != null &&
      //                                                                        (k.c1 == hand[j] ||
      //                                                                         k.c2 == hand[j] ||
      //                                                                         k.c3 == hand[j])).roundWinner;
@@ -531,7 +531,7 @@ namespace Mariasek.SharedClient.GameComponents
 					//}
                     //if (hlas)
                     //{
-                    //    if (Game.MainScene.g.players[ii].PlayerIndex == 0 || Game.MainScene.g.players[ii].TeamMateIndex == 0)
+                    //    if (game.players[ii].PlayerIndex == 0 || game.players[ii].TeamMateIndex == 0)
                     //    {
                     //        Hands[i][j].Tint = Color.LightGreen;
                     //    }
@@ -557,34 +557,34 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
-        public void UpdateReview()
+        public void UpdateReview(Mariasek.Engine.New.Game game)
         {
             const int headLength = Mariasek.Engine.New.Game.NumPlayers + 1;
-            var roundsLength = Game.MainScene.g.CurrentRound != null ? Game.MainScene.g.CurrentRound.number : 0;
+            var roundsLength = game.CurrentRound != null ? game.CurrentRound.number : 0;
             var reviewCardScaleFactor = Game.CardScaleFactor * 0.7f;
 
-            if (Game.MainScene.g.IsRunning)
-            {
-                BackgroundColor = Color.Black;
-            }
-            else
-            {
-                BackgroundColor = Color.Transparent;
-            }
+            //if (game.IsRunning)
+            //{
+            //    BackgroundColor = Color.Black;
+            //}
+            //else
+            //{
+            //    BackgroundColor = Color.Transparent;
+            //}
             for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
             {
-                _initialHands[i] = new List<Mariasek.Engine.New.Card>(Game.MainScene.g.players[i].Hand);
+                _initialHands[i] = new List<Mariasek.Engine.New.Card>(game.players[i].Hand);
             }
-            if (Game.MainScene.g.trump.HasValue)
+            if (game.trump.HasValue)
             {
-                var talon = Game.MainScene.g.talon;
+                var talon = game.talon;
 
                 for (var i = 0; i < talon.Count(); i++)
                 {
                     if (talon[i].Value == Hodnota.Eso ||
                         talon[i].Value == Hodnota.Desitka)
                     {
-                        if (Game.MainScene.g.GameStartingPlayer.PlayerIndex == 0)
+                        if (game.GameStartingPlayer.PlayerIndex == 0)
                         {
                             Hands[3][i].Tint = Pink;
                         }
@@ -601,7 +601,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             for (var i = 0; i < Rounds.Length; i++)
             {
-                if (Game.MainScene.g.rounds[i] == null || Game.MainScene.g.rounds[i].c3 == null)
+                if (game.rounds[i] == null || game.rounds[i].c3 == null)
                 {
                     for (var j = 0; j < Mariasek.Engine.New.Game.NumPlayers; j++)
                     {
@@ -614,7 +614,7 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     roundsLength = i + 1;
                 }
-                var r = Game.MainScene.g.rounds[i];
+                var r = game.rounds[i];
                 _initialHands[r.player1.PlayerIndex].Add(r.c1);
                 _initialHands[r.player2.PlayerIndex].Add(r.c2);
                 _initialHands[r.player3.PlayerIndex].Add(r.c3);
@@ -624,9 +624,9 @@ namespace Mariasek.SharedClient.GameComponents
                 var debugNote3 = GetMainDebugNote(r.debugNote3);
 
                 Rounds[i][0].SpriteRectangle = r.c1.ToTextureRect();
-                if ((Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka))
+                if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka))
                 {
-                    if (r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].PlayerIndex || r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].TeamMateIndex)
+                    if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
                     {
                         Rounds[i][0].Tint = Color.LightGreen;
                     }
@@ -639,13 +639,13 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     Rounds[i][0].Tint = Color.White;
                 }
-                Labels[i][0].Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player1.Name, Game.MainScene.g.rounds[i].player1.PlayerIndex == 0 ? "-" : debugNote1 != null ? debugNote1.Split('\n')[0] : "-");
-                Labels[i][0].TextColor = Game.MainScene.g.rounds[i].roundWinner.PlayerIndex == Game.MainScene.g.rounds[i].player1.PlayerIndex ? Color.Yellow : Color.White;
+                Labels[i][0].Text = string.Format("{0}: {1}", game.rounds[i].player1.Name, game.rounds[i].player1.PlayerIndex == 0 ? "-" : debugNote1 != null ? debugNote1.Split('\n')[0] : "-");
+                Labels[i][0].TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player1.PlayerIndex ? Color.Yellow : Color.White;
 
-                Rounds[i][1].SpriteRectangle = Game.MainScene.g.rounds[i].c2.ToTextureRect();
-                if ((Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka))
+                Rounds[i][1].SpriteRectangle = game.rounds[i].c2.ToTextureRect();
+                if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka))
                 {
-                    if (r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].PlayerIndex || r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].TeamMateIndex)
+                    if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
                     {
                         Rounds[i][1].Tint = Color.LightGreen;
                     }
@@ -658,13 +658,13 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     Rounds[i][1].Tint = Color.White;
                 }
-                Labels[i][1].Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player2.Name, Game.MainScene.g.rounds[i].player2.PlayerIndex == 0 ? "-" : debugNote2 != null ? debugNote2.Split('\n')[0] : "-");
-                Labels[i][1].TextColor = Game.MainScene.g.rounds[i].roundWinner.PlayerIndex == Game.MainScene.g.rounds[i].player2.PlayerIndex ? Color.Yellow : Color.White;
+                Labels[i][1].Text = string.Format("{0}: {1}", game.rounds[i].player2.Name, game.rounds[i].player2.PlayerIndex == 0 ? "-" : debugNote2 != null ? debugNote2.Split('\n')[0] : "-");
+                Labels[i][1].TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player2.PlayerIndex ? Color.Yellow : Color.White;
 
-                Rounds[i][2].SpriteRectangle = Game.MainScene.g.rounds[i].c3.ToTextureRect();
-                if ((Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))
+                Rounds[i][2].SpriteRectangle = game.rounds[i].c3.ToTextureRect();
+                if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))
                 {
-                    if (r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].PlayerIndex || r.roundWinner.PlayerIndex == Game.MainScene.g.players[0].TeamMateIndex)
+                    if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
                     {
                         Rounds[i][2].Tint = Color.LightGreen;
                     }
@@ -677,15 +677,15 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     Rounds[i][2].Tint = Color.White;
                 }
-                Labels[i][2].Text = string.Format("{0}: {1}", Game.MainScene.g.rounds[i].player3.Name, Game.MainScene.g.rounds[i].player3.PlayerIndex == 0 ? "-" : debugNote3 != null ? debugNote3.Split('\n')[0] : "-");
-                Labels[i][2].TextColor = Game.MainScene.g.rounds[i].roundWinner.PlayerIndex == Game.MainScene.g.rounds[i].player3.PlayerIndex ? Color.Yellow : Color.White;
+                Labels[i][2].Text = string.Format("{0}: {1}", game.rounds[i].player3.Name, game.rounds[i].player3.PlayerIndex == 0 ? "-" : debugNote3 != null ? debugNote3.Split('\n')[0] : "-");
+                Labels[i][2].TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player3.PlayerIndex ? Color.Yellow : Color.White;
                 for (var j = 0; j < Mariasek.Engine.New.Game.NumPlayers; j++)
                 {
                     Labels[i][j].Show();
                     Rounds[i][j].Show();
                 }
             }
-            _initialHands[3] = Game.MainScene.g.talon;
+            _initialHands[3] = game.talon;
             BoundsRect = new Rectangle(0, 0, (int)Game.VirtualScreenWidth - (int)Position.X,
                                        130 + 
                                        (int)((roundsLength + headLength - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50)) -
@@ -698,49 +698,49 @@ namespace Mariasek.SharedClient.GameComponents
             var maxHlasQAgainstMarked = false;
             for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
             {
-                var ii = (Game.MainScene.g.GameStartingPlayerIndex + i) % Mariasek.Engine.New.Game.NumPlayers;
-                var hand = new List<Card>(_initialHands[ii].Sort(false, Game.MainScene.g.trump.HasValue ? false : true, Game.MainScene.g.trump));
+                var ii = (game.GameStartingPlayerIndex + i) % Mariasek.Engine.New.Game.NumPlayers;
+                var hand = new List<Card>(_initialHands[ii].Sort(false, game.trump.HasValue ? false : true, game.trump));
 
                 Names[i].Text = i == 0 ? string.Format("{0}: {1}",
-                                                       Game.MainScene.g.players[ii].Name,
-                                                       Game.MainScene.g.GameType.ToDescription().Trim() +
-                                                       (string.IsNullOrEmpty(Game.MainScene.g.players[ii].BidMade)
+                                                       game.players[ii].Name,
+                                                       game.GameType.ToDescription().Trim() +
+                                                       (string.IsNullOrEmpty(game.players[ii].BidMade)
                                                             ? string.Empty
-                                                            : string.Format(" {0}", Game.MainScene.g.players[ii].BidMade.TrimEnd()))) +
-                                         (Game.MainScene.g.GameTypeConfidence >= 0
-                                            ? string.Format(" ({0:0}%)", Game.MainScene.g.GameTypeConfidence * 100)
+                                                            : string.Format(" {0}", game.players[ii].BidMade.TrimEnd()))) +
+                                         (game.GameTypeConfidence >= 0
+                                            ? string.Format(" ({0:0}%)", game.GameTypeConfidence * 100)
                                             : string.Empty)
-                                       : string.IsNullOrEmpty(Game.MainScene.g.players[ii].BidMade)
-                                            ? Game.MainScene.g.players[ii].Name
-                                            : string.Format("{0}: {1}", Game.MainScene.g.players[ii].Name,
-                                                                        Game.MainScene.g.players[ii].BidMade.Trim()) +
-                                              (Game.MainScene.g.players[ii].BidConfidence >= 0
-                                                ? string.Format(" ({0:0}%)", Game.MainScene.g.players[ii].BidConfidence * 100)
+                                       : string.IsNullOrEmpty(game.players[ii].BidMade)
+                                            ? game.players[ii].Name
+                                            : string.Format("{0}: {1}", game.players[ii].Name,
+                                                                        game.players[ii].BidMade.Trim()) +
+                                              (game.players[ii].BidConfidence >= 0
+                                                ? string.Format(" ({0:0}%)", game.players[ii].BidConfidence * 100)
                                                 : string.Empty);
                 for (var j = 0; j < hand.Count; j++)
                 {
                     var rect = hand[j].ToTextureRect();
-                    var hlas = (Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
-                               Game.MainScene.g.rounds[0] != null &&
-                               (Game.MainScene.g.Results == null ||
-                                Game.MainScene.g.Results.BasicPointsWon + Game.MainScene.g.Results.BasicPointsLost == 90) &&
+                    var hlas = (game.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+                               game.rounds[0] != null &&
+                               (game.Results == null ||
+                                game.Results.BasicPointsWon + game.Results.BasicPointsLost == 90) &&
                         ((hand[j].Value == Hodnota.Kral && hand.Any(k => k.Value == Hodnota.Svrsek && k.Suit == hand[j].Suit)) ||
                          (hand[j].Value == Hodnota.Svrsek && hand.Any(k => k.Value == Hodnota.Kral && k.Suit == hand[j].Suit)));
 
                     if (hlas &&
-                        Game.MainScene.g.Results != null &&
+                        game.Results != null &&
                         i == 0 &&
-                        (Game.MainScene.g.GameType & Hra.Kilo) != 0 &&
-                        !Game.MainScene.g.Results.HundredWon)
+                        (game.GameType & Hra.Kilo) != 0 &&
+                        !game.Results.HundredWon)
                     {
                         if (maxHlasKMarked && maxHlasQMarked)
                         {
                             hlas = false;
                         }
-                        else if ((Game.MainScene.g.Results.MaxHlasWon == 40 &&
-                                  hand[j].Suit == Game.MainScene.g.trump) ||
-                                 (Game.MainScene.g.Results.MaxHlasWon == 20 &&
-                                  hand[j].Suit != Game.MainScene.g.trump))
+                        else if ((game.Results.MaxHlasWon == 40 &&
+                                  hand[j].Suit == game.trump) ||
+                                 (game.Results.MaxHlasWon == 20 &&
+                                  hand[j].Suit != game.trump))
                         {
                             if (hand[j].Value == Hodnota.Kral)
                             {
@@ -753,19 +753,19 @@ namespace Mariasek.SharedClient.GameComponents
                         }
                     }
                     else if (hlas &&
-                             Game.MainScene.g.Results != null &&
+                             game.Results != null &&
                              i != 0 &&
-                             (Game.MainScene.g.GameType & Hra.KiloProti) != 0 &&
-                             !Game.MainScene.g.Results.HundredAgainstWon)
+                             (game.GameType & Hra.KiloProti) != 0 &&
+                             !game.Results.HundredAgainstWon)
                     {
                         if (maxHlasKAgainstMarked && maxHlasQAgainstMarked)
                         {
                             hlas = false;
                         }
-                        else if ((Game.MainScene.g.Results.MaxHlasLost == 40 &&
-                                  hand[j].Suit == Game.MainScene.g.trump) ||
-                                 (Game.MainScene.g.Results.MaxHlasLost == 20 &&
-                                  hand[j].Suit != Game.MainScene.g.trump))
+                        else if ((game.Results.MaxHlasLost == 40 &&
+                                  hand[j].Suit == game.trump) ||
+                                 (game.Results.MaxHlasLost == 20 &&
+                                  hand[j].Suit != game.trump))
                         {
                             if (hand[j].Value == Hodnota.Kral)
                             {
@@ -779,15 +779,15 @@ namespace Mariasek.SharedClient.GameComponents
                     }
                     Hands[i][j].SpriteRectangle = rect;
                     Hands[i][j].Show();
-                    if ((Game.MainScene.g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+                    if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
                         (hand[j].Value == Hodnota.Eso ||
                          hand[j].Value == Hodnota.Desitka) &&
-                        Game.MainScene.g.rounds.Any(k => k != null &&
+                        game.rounds.Any(k => k != null &&
                                                          (k.c1 == hand[j] ||
                                                           k.c2 == hand[j] ||
                                                           k.c3 == hand[j])))
                     {
-                        var roundWinner = Game.MainScene.g.rounds.First(k => k != null &&
+                        var roundWinner = game.rounds.First(k => k != null &&
                                                                              (k.c1 == hand[j] ||
                                                                               k.c2 == hand[j] ||
                                                                               k.c3 == hand[j])).roundWinner;
@@ -806,7 +806,7 @@ namespace Mariasek.SharedClient.GameComponents
                     }
                     if (hlas)
                     {
-                        if (Game.MainScene.g.players[ii].PlayerIndex == 0 || Game.MainScene.g.players[ii].TeamMateIndex == 0)
+                        if (game.players[ii].PlayerIndex == 0 || game.players[ii].TeamMateIndex == 0)
                         {
                             Hands[i][j].Tint = Color.LightGreen;
                         }

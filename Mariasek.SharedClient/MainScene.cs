@@ -791,7 +791,7 @@ namespace Mariasek.SharedClient
         /// <summary>
         /// Gets the file stream. Callback function used from Mariasek.Engine.New.Game
         /// </summary>
-        private Stream GetFileStream(string filename)
+        public Stream GetFileStream(string filename)
         {
             var path = Path.Combine(_path, filename);
 
@@ -912,15 +912,15 @@ namespace Mariasek.SharedClient
 
             return 0;
         }
-
-        private string GetBaseFileName(string path)
+        
+        private string GetBaseFileName(string path, Hra gameType, out int count)
         {
-            var count = GetGameCount(path);
+            count = GetGameCount(path);
             var gt = string.Empty;
 
-            if ((g.GameType & Hra.Sedma) != 0)
+            if ((gameType & Hra.Sedma) != 0)
             {
-                if ((g.GameType & Hra.Hra) != 0)
+                if ((gameType & Hra.Hra) != 0)
                 {
                     gt = "sedma";
                 }
@@ -931,19 +931,19 @@ namespace Mariasek.SharedClient
             }
             else
             {
-                if ((g.GameType & Hra.Hra) != 0)
+                if ((gameType & Hra.Hra) != 0)
                 {
                     gt = "hra";
                 }
-                else if ((g.GameType & Hra.Kilo) != 0)
+                else if ((gameType & Hra.Kilo) != 0)
                 {
                     gt = "kilo";
                 }
-                else if ((g.GameType & Hra.Betl) != 0)
+                else if ((gameType & Hra.Betl) != 0)
                 {
                     gt = "betl";
                 }
-                else if ((g.GameType & Hra.Durch) != 0)
+                else if ((gameType & Hra.Durch) != 0)
                 {
                     gt = "durch";
                 }
@@ -951,21 +951,25 @@ namespace Mariasek.SharedClient
             return string.Format("{0:0000}-{1}.{2}", count + 1, gt, DateTime.Now.ToString("yyyyMMdd"));
         }
 
-        public void ArchiveGame()
+        public int ArchiveGame()
         {
             try
             {
-                var baseFileName = GetBaseFileName(_archivePath);
+                int counter;
+                var baseFileName = GetBaseFileName(_archivePath, g.GameType,out counter);
                 var newGameArchivePath = Path.Combine(_archivePath, string.Format("{0}.def.hra", baseFileName));
                 var endGameArchivePath = Path.Combine(_archivePath, string.Format("{0}.end.hra", baseFileName));
 
                 CreateDirectoryForFilePath(newGameArchivePath);
                 File.Copy(_newGameFilePath, newGameArchivePath);
                 File.Copy(_endGameFilePath, endGameArchivePath);
+
+                return counter;
             }
             catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine("Cannot archive game\n{0}", e.Message);
+                return -1;
             }
         }
 
@@ -1073,7 +1077,8 @@ namespace Mariasek.SharedClient
                     if (g.IsRunning)
                     {
                         _review.Position = origPosition;
-                        _review.UpdateReview();
+                        _review.BackgroundColor = Color.Black;
+                        _review.UpdateReview(g);
                         _review.Opacity = 0f;
                         _review.Show();
                         _review.FadeIn(4f);
@@ -1083,7 +1088,8 @@ namespace Mariasek.SharedClient
                         _reviewGameBtn.Text = "Vyúčtování";
                         HideGameScore();
                         _review.Position = origPosition;
-                        _review.UpdateReview();
+                        _review.BackgroundColor = Color.Transparent;
+                        _review.UpdateReview(g);
                         _review.Position = hiddenPosition;
                         _review.Opacity = 1f;
                         _review.Show();
@@ -1141,20 +1147,7 @@ namespace Mariasek.SharedClient
 
         public void RepeatGameBtnClicked(object sender)
         {
-            CleanUpOldGame();
-            _testGame = true;
-            Task.Run(() =>
-            {
-                try
-                {
-                    File.Copy(_newGameFilePath, _savedGameFilePath, true);
-                    LoadGame();
-                }
-                catch(Exception ex)
-                {
-                    ShowMsgLabel(ex.Message, false);
-                }
-            });
+            ReplayGame(_newGameFilePath);
         }
 
         public void ShuffleDeck()
@@ -1529,7 +1522,7 @@ namespace Mariasek.SharedClient
             if (Game.EmailSender != null)
             {
                 //RefreshReview(true);
-                _review.UpdateReview();
+                _review.UpdateReview(g);
 #if !__IOS__
                 using (var fs = GetFileStream(Path.GetFileName(_screenPath)))
                 {
@@ -2478,9 +2471,41 @@ namespace Mariasek.SharedClient
                     Game.Money.Clear();
                     DeleteArchiveFolder();                        
                 }
-				Game.Money.Add(results);
                 Task.Run(() =>
-                { 
+                {
+                    SaveDeck();
+                    if (g.rounds[0] != null)
+                    {
+                        results.GameId = ArchiveGame();
+                    }
+                    try
+                    {
+                        if (File.Exists(_savedGameFilePath))
+                        {
+                            File.Delete(_savedGameFilePath);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
+                    }
+                    try
+                    {
+                        var value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
+                        if (value > 0)
+                        {
+                            Game.Settings.GameTypeSimulationsPerSecond = value;
+                        }
+                        value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
+                        if (value > 0)
+                        {
+                            Game.Settings.RoundSimulationsPerSecond = value;
+                        }
+                    }
+                    catch
+                    {
+                    }
+                    Game.Money.Add(results);
                     try
                     {
                         SaveHistory();
@@ -2523,11 +2548,6 @@ namespace Mariasek.SharedClient
                     leftMessage.Append("\n");
                     rightMessage.Append("\n");
                 }
-                //if (_review != null)
-                //{
-                //    _review.Dispose();
-                //    _review = null;
-                //}
                 giveUpButton.Hide();
                 //_reviewGameToggleBtn.Hide();
                 _reviewGameToggleBtn.IsEnabled = false;
@@ -2560,41 +2580,6 @@ namespace Mariasek.SharedClient
                 //});
                 _deck = g.GetDeckFromLastGame();
                 _shouldShuffle = results.GameWon && results.GamePlayed && g.RoundNumber == 1;
-                Task.Run(() =>
-                {
-                    SaveDeck();
-                    if (g.rounds[0] != null)
-                    {
-                        ArchiveGame();
-                    }
-                    try
-                    {
-                        if (File.Exists(_savedGameFilePath))
-                        {
-                            File.Delete(_savedGameFilePath);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
-                    }
-                    try
-                    {
-                        var value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
-                        if (value > 0)
-                        {
-                            Game.Settings.GameTypeSimulationsPerSecond = value;
-                        }
-                        value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
-                        if (value > 0)
-                        {
-                            Game.Settings.RoundSimulationsPerSecond = value;
-                        }
-                    }
-                    catch
-                    {                        
-                    }
-                });
                 //_aiConfig["SimulationsPerGameTypePerSecond"].Value = Game.Settings.GameTypeSimulationsPerSecond.ToString();
                 //_aiConfig["SimulationsPerRoundPerSecond"].Value = Game.Settings.RoundSimulationsPerSecond.ToString();
                 Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
@@ -2933,6 +2918,24 @@ namespace Mariasek.SharedClient
             {
                 GameException(this, new GameExceptionEventArgs(){ e = ex });
             }
+        }
+
+        public void ReplayGame(string gamePath)
+        {
+            CleanUpOldGame();
+            _testGame = true;
+            Task.Run(() =>
+            {
+                try
+                {
+                    File.Copy(gamePath, _savedGameFilePath, true);
+                    LoadGame();
+                }
+                catch (Exception ex)
+                {
+                    ShowMsgLabel(ex.Message, false);
+                }
+            });
         }
 
         public void UpdateHand(bool flipCardsUp = false, int cardsNotRevealed = 0, Card cardToHide = null)
