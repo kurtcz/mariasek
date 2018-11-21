@@ -2600,14 +2600,20 @@ namespace Mariasek.Engine.New
                             catchCardsPerSuit.Add(b, Math.Min(hiCards, holes));
                         }
                         var validSuits = ValidCards(c1, c2, hands[MyIndex]).Select(i => i.Suit).Distinct();
-                        var preferredSuit = catchCardsPerSuit.Where(i => validSuits.Contains(i.Key))
-                                                             .OrderBy(i => i.Value)
-                                                             .Select(i => i.Key)
-                                                             .First();
+                        var catchCardsPerSuitNoAX = catchCardsPerSuit.Where(i => validSuits.Contains(i.Key) &&
+                                                                                 hands[MyIndex].Any(j => j.Suit == i.Key &&
+                                                                                                         j.Value != Hodnota.Eso &&
+                                                                                                         j.Value != Hodnota.Desitka));
+                        if (catchCardsPerSuitNoAX.Any())
+                        {
+                            var preferredSuit = catchCardsPerSuitNoAX.OrderBy(i => i.Value)
+                                                                     .Select(i => i.Key)
+                                                                     .First();
 
-                        return ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit == preferredSuit)
-                                                                 .OrderBy(i => i.Value)
-                                                                 .FirstOrDefault();
+                            return ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit == preferredSuit)
+                                                                     .OrderBy(i => i.Value)
+                                                                     .FirstOrDefault();
+                        }
                     }
 
                     return ValidCards(c1, c2, hands[MyIndex]).OrderBy(i => i.Value).FirstOrDefault();

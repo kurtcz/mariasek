@@ -9,6 +9,7 @@ using Mariasek.SharedClient.GameComponents;
 using System.IO;
 using System;
 using Mariasek.Engine.New;
+using System.Threading.Tasks;
 
 namespace Mariasek.SharedClient
 {
@@ -40,7 +41,7 @@ namespace Mariasek.SharedClient
         private Vector2 _hiddenPosition;
 		private TouchLocation _touchDownLocation;
 		private TouchLocation _touchHeldLocation;
-        private int[] _archivedGames;
+        private bool _moneyDataFixupStarted;
 
         public HistoryScene(MariasekMonoGame game)
             : base(game)
@@ -320,71 +321,57 @@ namespace Mariasek.SharedClient
             _footer.Text = string.Format("Součet:\t{0}\t{1}\t{2}", sum1, sum2, sum3);
 
             //Elements of _archiveGames hold GameId or 0 if the game is not archived
-            _archivedGames = new int[Game.Money.Count()];
-            var k = 0;
-            for (var i = 0; i < _archivedGames.Length; i++)
-            {
-                if (!Game.Money[i].IsArchived)
-                {
-                    _archivedGames[i] = 0;
-                }
-                else
-                {
-                    var n = Game.Money[i].GameId == 0 ? k + 1 : Game.Money[i].GameId;
-                    var files = Directory.GetFiles(_archivePath, string.Format("{0:0000}-{1}*.hra", n, Game.Money[i].GameTypeString.Trim().ToLower()));
+            var noidGames = Game.Money.Count(i => i.GameId == 0);
 
-                    if (files.Length == 2)
+            if (noidGames > Game.Money.Count() / 2 && !_moneyDataFixupStarted)
+            {
+                _moneyDataFixupStarted = true;
+                Task.Run(() =>
+                {
+                    var k = 0;
+                    for (var i = 0; i < Game.Money.Count(); i++)
                     {
-                        _archivedGames[i] = n;
-                        if (Game.Money[i].GameId == 0)
+                        if (Game.Money[i].IsArchived)
                         {
-                            k++;
+                            var n = Game.Money[i].GameId == 0 ? k + 1 : Game.Money[i].GameId;
+                            var files = Directory.GetFiles(_archivePath, string.Format("{0:0000}-{1}*.hra", n, Game.Money[i].GameTypeString.Trim().ToLower()));
+
+                            if (files.Length == 2)
+                            {
+                                if (Game.Money[i].GameId == 0)
+                                {
+                                    Game.Money[i].GameId = n;
+                                    k = n;
+                                }
+                            }
+                            else
+                            {
+                                Game.Money[i].GameId = 0;
+                            }
                         }
                     }
-                    else
+                    //chci ziskat ostre rostouci posloupnost (nuly ignoruju)
+                    //vyhodime duplikaty, nechavam si vzdy posledni vyskyt, ostatni mazu
+                    //zbavime se zaroven i pripadnych nesetridenych prvku
+                    var minimum = int.MaxValue;
+                    for (var i = Game.Money.Count() - 1; i >= 0; i--)
                     {
-                        _archivedGames[i] = 0;
+                        if (Game.Money[i].GameId > 0)
+                        {
+                            if (Game.Money[i].GameId < minimum)
+                            {
+                                minimum = Game.Money[i].GameId;
+                            }
+                            else
+                            {
+                                Game.Money[i].GameId = 0;
+                            }
+                        }
                     }
-                }
+                    Game.MainScene.SaveHistory();
+                });
             }
         }
-
-        //private string GetBaseFileName(int count, Hra gameType)
-        //{
-        //    var gt = string.Empty;
-
-        //    if ((gameType & Hra.Sedma) != 0)
-        //    {
-        //        if ((gameType & Hra.Hra) != 0)
-        //        {
-        //            gt = "sedma";
-        //        }
-        //        else
-        //        {
-        //            gt = "stosedm";
-        //        }
-        //    }
-        //    else
-        //    {
-        //        if ((gameType & Hra.Hra) != 0)
-        //        {
-        //            gt = "hra";
-        //        }
-        //        else if ((gameType & Hra.Kilo) != 0)
-        //        {
-        //            gt = "kilo";
-        //        }
-        //        else if ((gameType & Hra.Betl) != 0)
-        //        {
-        //            gt = "betl";
-        //        }
-        //        else if ((gameType & Hra.Durch) != 0)
-        //        {
-        //            gt = "durch";
-        //        }
-        //    }
-        //    return string.Format("{0:0000}-{1}", count + 1, gt);
-        //}
 
         private void ChartButtonClicked(object sender)
         {
@@ -452,7 +439,7 @@ namespace Mariasek.SharedClient
                 var historicGame = Game.Money[_historyBox.HighlightedLine];
                 if (historicGame.GameId <= 0)
                 {
-                    historicGame.GameId = _archivedGames[_historyBox.HighlightedLine];
+                    return;
                 }
                 var pattern = string.Format("{0:0000}-*.hra", historicGame.GameId);
                 var files = Directory.GetFiles(_archivePath, pattern).OrderBy(i => i).ToArray();
@@ -486,7 +473,7 @@ namespace Mariasek.SharedClient
             if (_historyBox.IsVisible &&
                 _historyBox.HighlightedLine >= 0 &&
                 _historyBox.HighlightedLine < Game.Money.Count() &&
-                _archivedGames[_historyBox.HighlightedLine] != 0)
+                Game.Money[_historyBox.HighlightedLine].GameId > 0)
             {
                 //_viewGameButton.Position = new Vector2(753, _historyBox.HighlightedLineBoundsRect.Top);
                 //_viewGameButton.Height = _historyBox.HighlightedLineBoundsRect.Height;

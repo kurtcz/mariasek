@@ -153,12 +153,12 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
-        public Rectangle DrawText(SpriteBatch spriteBatch, string text, Vector2 position, float scaleFactor, Color color, Alignment alignment = Alignment.TopLeft, Tab[] tabs = null)
+        public Rectangle DrawText(SpriteBatch spriteBatch, string text, Vector2 position, float scaleFactor, Color color, Alignment alignment = Alignment.TopLeft, Tab[] tabs = null, bool renderOffscreen = true)
         {
-            return DrawText(spriteBatch, text, position, scaleFactor, new[] { color }, alignment, tabs);
+            return DrawText(spriteBatch, text, position, scaleFactor, new[] { color }, alignment, tabs, renderOffscreen);
         }
 
-        public Rectangle DrawText(SpriteBatch spriteBatch, string text, Vector2 position, float scaleFactor, Color[] colors, Alignment alignment = Alignment.TopLeft, Tab[] tabs = null)
+        public Rectangle DrawText(SpriteBatch spriteBatch, string text, Vector2 position, float scaleFactor, Color[] colors, Alignment alignment = Alignment.TopLeft, Tab[] tabs = null, bool renderOffscreen = true)
         {
             var lineSeparators = new [] { '\r', '\n' };
             var lines = text.Split(lineSeparators);
@@ -205,7 +205,8 @@ namespace Mariasek.SharedClient.GameComponents
                 var prev = ' ';
 
                 //nezdrzovat se s vykreslovanim radku mimo obrazovku
-                if (new Rectangle(0, 0,(int)_game.VirtualScreenWidth, (int)_game.VirtualScreenHeight).Intersects(
+                if (renderOffscreen ||
+                    new Rectangle(0, 0,(int)_game.VirtualScreenWidth, (int)_game.VirtualScreenHeight).Intersects(
                     new Rectangle((int)dx, (int)dy, lineRect.Width, lineRect.Height)))
                 {
                     foreach (char c in line)

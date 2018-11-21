@@ -92,14 +92,14 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth - 160,
                 Height = (int)Game.VirtualScreenHeight - 65,
                 BackgroundColor = Color.Transparent,
-                ZIndex = 200
+                ZIndex = 100
             };
             _rawData = new TextBox(this)
             {
                 Position = _hiddenPosition,
                 Width = (int)Game.VirtualScreenWidth - 160,
                 Height = (int)Game.VirtualScreenHeight - 65,
-                ZIndex = 201,
+                ZIndex = 100,
                 BackgroundColor = Color.TransparentBlack,
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
@@ -177,12 +177,15 @@ namespace Mariasek.SharedClient
                 var resultStr = g.Results.ToString().Split('\n');
                 var numFormat = (NumberFormatInfo)CultureInfo.GetCultureInfo("cs-CZ").NumberFormat.Clone();
                 var gameDate = new FileInfo(endGamePath).CreationTime;
-                _description.Text = string.Format("{0}\n{1} {2}\n{3}\n{4}\t\t{5}\n{6}\t\t{7}\n{8}\t\t{9}",
+                _description.Tabs = new[] { new Tab() { TabAlignment = HorizontalAlignment.Right, TabPosition = 180 } };
+                _description.Text = string.Format("{0}\n{1} {2}\n{3}\n{4}\t{5}\n{6}\t{7}\n{8}\t{9}",
                                                   gameDate.ToString("dd.MM.yyyy HH:mm"),
                                                   Path.GetFileName(endGamePath).Split('-')[0],
                                                   g.GameType.ToDescription(g.trump),
                                                   string.Join("\n", resultStr.Take(resultStr.Length - 3)
-                                                                             .Select(i => i.Split('\t')[0].Replace(" (", "\n("))
+                                                                             .Select(i => i.Split('\t')[0]
+                                                                                           .Replace(" (", "\n(")
+                                                                                           .Replace(", ", "\n"))
                                                                              .ToArray()),
                                                   Game.Settings.PlayerNames[g.GameStartingPlayerIndex],
                                                   (results.MoneyWon[g.GameStartingPlayerIndex] * Game.Settings.BaseBet).ToString("C", numFormat),

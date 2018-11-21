@@ -482,7 +482,8 @@ namespace Mariasek.SharedClient.GameComponents
                     FontScaleFactor,
                     colors,
                     (Alignment)VerticalAlign | (Alignment)HorizontalAlign,
-                    Tabs);
+                    Tabs,
+                    false);
 
                 Game.SpriteBatch.End();
 

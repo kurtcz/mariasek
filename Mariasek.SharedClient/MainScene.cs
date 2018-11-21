@@ -915,7 +915,7 @@ namespace Mariasek.SharedClient
         
         private string GetBaseFileName(string path, Hra gameType, out int count)
         {
-            count = GetGameCount(path);
+            count = GetGameCount(path) + 1;
             var gt = string.Empty;
 
             if ((gameType & Hra.Sedma) != 0)
@@ -948,7 +948,7 @@ namespace Mariasek.SharedClient
                     gt = "durch";
                 }
             }
-            return string.Format("{0:0000}-{1}.{2}", count + 1, gt, DateTime.Now.ToString("yyyyMMdd"));
+            return string.Format("{0:0000}-{1}.{2}", count, gt, DateTime.Now.ToString("yyyyMMdd"));
         }
 
         public int ArchiveGame()
@@ -956,7 +956,7 @@ namespace Mariasek.SharedClient
             try
             {
                 int counter;
-                var baseFileName = GetBaseFileName(_archivePath, g.GameType,out counter);
+                var baseFileName = GetBaseFileName(_archivePath, g.GameType, out counter);
                 var newGameArchivePath = Path.Combine(_archivePath, string.Format("{0}.def.hra", baseFileName));
                 var endGameArchivePath = Path.Combine(_archivePath, string.Format("{0}.end.hra", baseFileName));
 
@@ -2473,6 +2473,7 @@ namespace Mariasek.SharedClient
                 }
                 Task.Run(() =>
                 {
+                    _deck = g.GetDeckFromLastGame();
                     SaveDeck();
                     if (g.rounds[0] != null)
                     {
@@ -2578,7 +2579,6 @@ namespace Mariasek.SharedClient
                 _msgLabelRight.Text = rightMessage.ToString();
                 ShowGameScore();
                 //});
-                _deck = g.GetDeckFromLastGame();
                 _shouldShuffle = results.GameWon && results.GamePlayed && g.RoundNumber == 1;
                 //_aiConfig["SimulationsPerGameTypePerSecond"].Value = Game.Settings.GameTypeSimulationsPerSecond.ToString();
                 //_aiConfig["SimulationsPerRoundPerSecond"].Value = Game.Settings.RoundSimulationsPerSecond.ToString();
