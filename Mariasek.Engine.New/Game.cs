@@ -417,7 +417,13 @@ namespace Mariasek.Engine.New
                         }
                         break;
                     case XmlNodeType.Comment:
-                        if (parentNodes.Any() && 
+                        if (parentNodes.Any() &&
+                            parentNodes.Peek() == "Hra")
+                        {
+                            BiddingDebugInfo.Clear();
+                            BiddingDebugInfo.Append(xmlrdr.Value.Trim());
+                        }
+                        else if (parentNodes.Any() && 
                             parentNodes.Peek() == "Stych" &&
                             tmpcomments != null)
                         {
@@ -425,12 +431,7 @@ namespace Mariasek.Engine.New
                         }
                         break;
                     case XmlNodeType.EndElement:
-                        if (xmlrdr.Name == "Hra")
-                        {
-                            BiddingDebugInfo.Clear();
-                            BiddingDebugInfo.Append(xmlrdr.Value.Trim());
-                        }
-                        else if (xmlrdr.Name == "Stych")
+                        if (xmlrdr.Name == "Stych")
                         {
                             roundComments.Add(new Queue<string>(tmpcomments));
                             tmpcomments = null;

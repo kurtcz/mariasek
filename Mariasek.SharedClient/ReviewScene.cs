@@ -51,12 +51,14 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(10, 10),
                 Width = 200,
-                Height = (int)Game.VirtualScreenHeight - 200,
-                FontScaleFactor = 0.85f,
+                Height = (int)Game.VirtualScreenHeight - 190,
+                FontScaleFactor = 0.82f,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
                 HighlightColor = Color.Yellow,
+                HighlightedLine = 2,
                 HorizontalAlign = HorizontalAlignment.Left,
-                VerticalAlign = VerticalAlignment.Top
+                VerticalAlign = VerticalAlignment.Top,
+                Tabs = new[] { new Tab() { TabAlignment = HorizontalAlignment.Right, TabPosition = 180 } }
             };
             _backButton = new Button(this)
             {
@@ -173,11 +175,11 @@ namespace Mariasek.SharedClient
                     //ShowMsgLabel(string.Format("Error loading game:\n{0}", ex.Message), false);
                     return;
                 }
-                //Vysledky beru z g.Results ale penize beru z historie
+                //Vysledky beru z g.Results ale penize a procenta u aktera beru z historie
                 var resultStr = g.Results.ToString().Split('\n');
                 var numFormat = (NumberFormatInfo)CultureInfo.GetCultureInfo("cs-CZ").NumberFormat.Clone();
                 var gameDate = new FileInfo(endGamePath).CreationTime;
-                _description.Tabs = new[] { new Tab() { TabAlignment = HorizontalAlignment.Right, TabPosition = 180 } };
+
                 _description.Text = string.Format("{0}\n{1} {2}\n{3}\n{4}\t{5}\n{6}\t{7}\n{8}\t{9}",
                                                   gameDate.ToString("dd.MM.yyyy HH:mm"),
                                                   Path.GetFileName(endGamePath).Split('-')[0],
@@ -193,8 +195,10 @@ namespace Mariasek.SharedClient
                                                   (results.MoneyWon[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", numFormat),
                                                   Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers],
                                                   (results.MoneyWon[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", numFormat));
-                _description.HighlightedLine = 2;
                 _review.UpdateReview(g);
+                _review.Names[0].Text = string.Format("{0}: {1} ({2:0}%)", Game.Settings.PlayerNames[g.GameStartingPlayerIndex],
+                                                                           g.GameType.ToDescription().TrimEnd(),
+                                                                           results.GameTypeConfidence * 100);
                 _review.Show();
                 _newGamePath = newGamePath;
                 _endGamePath = endGamePath;
