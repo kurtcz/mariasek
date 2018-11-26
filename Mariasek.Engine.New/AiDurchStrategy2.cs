@@ -177,6 +177,8 @@ namespace Mariasek.Engine.New
                 if (numCardsToKeep > 0 &&
                     hands[MyIndex].CardCount(b) >= numCardsToKeep)
                 {
+                    //budu si drzet nejvyssi kartu a potom numCardsToKeep - 1 nejmensich karet v barve
+                    //zbytku se muzu zbavit
                     var topCard = hands[MyIndex].Where(i => i.Suit == b)
                                                 .OrderByDescending(i => i.BadValue)
                                                 .First();
@@ -373,6 +375,11 @@ namespace Mariasek.Engine.New
                                                             ? r.c2
                                                             : r.c3)
                                               .ToList();
+            if (_rounds[RoundNumber - 1] != null &&
+                _rounds[RoundNumber - 1].player2.PlayerIndex == TeamMateIndex)
+            {
+                teamMatesCardsPlayed.Add(_rounds[RoundNumber - 1].c2);
+            }
             var myCardsPlayed = _rounds.Where(r => r != null && r.c3 != null)
                                        .Select(r => r.player2.PlayerIndex == MyIndex
                                                             ? r.c2
@@ -383,20 +390,20 @@ namespace Mariasek.Engine.New
             var catchingCards = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                     .Select(b =>
                                             _rounds.Select(r =>
-                                            {
-                                                if (r != null && r.c3 != null)
-                                                {
-                                                    if (r.c2.Suit == b && r.c2.BadValue >= svrsek.BadValue)
                                                     {
-                                                        return r.c2;
-                                                    }
-                                                    if (r.c3.Suit == b && r.c3.BadValue >= svrsek.BadValue)
-                                                    {
-                                                        return r.c3;
-                                                    }
-                                                }
-                                                return null;
-                                            })
+                                                        if (r != null && r.c2 != null)
+                                                        {
+                                                            if (r.c2.Suit == b && r.c2.BadValue >= svrsek.BadValue)
+                                                            {
+                                                                return r.c2;
+                                                            }
+                                                            if (r.c3 != null && r.c3.Suit == b && r.c3.BadValue >= svrsek.BadValue)
+                                                            {
+                                                                return r.c3;
+                                                            }
+                                                        }
+                                                        return null;
+                                                    })
                                                    .OrderByDescending(i => i.BadValue)
                                                    .FirstOrDefault(i => i != null))
                                     .Where(i => i != null &&    //vyber jen karty kde je sance chytit akterovu nizsi kartu
@@ -406,14 +413,14 @@ namespace Mariasek.Engine.New
                                                     .Any(j => _probabilities.CardProbability(player1, j) > 0));
             var teamMatesCatchingCards = catchingCards.Where(i => teamMatesCardsPlayed.Contains(i));
             var topCardPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                         .ToDictionary(b => b,
+                                     .ToDictionary(b => b,
                                        b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                       .Select(h => new Card(b, h))
-                                       .OrderByDescending(i => i.BadValue)
-                                       .FirstOrDefault(i => _probabilities.CardProbability(MyIndex, i) == 1 ||
-                                                            _probabilities.CardProbability(player1, i) > 0 ||
-                                                            _probabilities.CardProbability(player2, i) > 0)
-                                       ?? new Card(b, Hodnota.Sedma));
+                                                .Select(h => new Card(b, h))
+                                                .OrderByDescending(i => i.BadValue)
+                                                .FirstOrDefault(i => _probabilities.CardProbability(MyIndex, i) == 1 ||
+                                                                     _probabilities.CardProbability(player1, i) > 0 ||
+                                                                     _probabilities.CardProbability(player2, i) > 0)
+                                            ?? new Card(b, Hodnota.Sedma));
             var myCatchingCards = catchingCards.Where(i => myInitialHand.Any(j => j == i))  //pripocti chytaky, ktere mam v ruce
                                                .Concat(hands[MyIndex].Where(i => teamMatesCatchingCards.All(j => j.Suit != i.Suit) &&
                                                                                  (topCardPerSuit[i.Suit].BadValue - i.BadValue == 0 ||
@@ -456,6 +463,8 @@ namespace Mariasek.Engine.New
                 if (numCardsToKeep > 0 &&
                     hands[MyIndex].CardCount(b) >= numCardsToKeep)
                 {
+                    //budu si drzet nejvyssi kartu a potom numCardsToKeep - 1 nejmensich karet v barve
+                    //zbytku se muzu zbavit
                     var topCard = hands[MyIndex].Where(i => i.Suit == b)
                                                 .OrderByDescending(i => i.BadValue)
                                                 .First();
@@ -531,7 +540,7 @@ namespace Mariasek.Engine.New
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     //chytaky: A, K+1, S+2, s+3
-                    //ukazat chytak muzeme pokud mame: A+K, K+S+1, S+s+2
+                    //ukazat chytak muzeme pokud mame: A+1, K+S+1, S+s+2
                     //toto jsou spoluhracovy ukazane chytaky
                     //(ignorujeme barvy kde sam chytam)
                     //pokud mam nebo jsem mel vsechny karty vyssi nez spoluhracuv chytak, tak se jich muzu zbavit
