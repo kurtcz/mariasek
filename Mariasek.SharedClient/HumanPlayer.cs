@@ -131,7 +131,10 @@ namespace Mariasek.SharedClient
                     }
                 }, _cancellationTokenSource.Token);
             }
-            _trumpCard = _scene.ChooseTrump();
+            do
+            {
+                _trumpCard = _scene.ChooseTrump();
+            } while (_trumpCard == null);
 
             CancelAiTask();
             _g.ThrowIfCancellationRequested();
