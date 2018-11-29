@@ -2462,17 +2462,19 @@ namespace Mariasek.SharedClient
         {
             _state = GameState.GameFinished;
 
+            g.ThrowIfCancellationRequested();
             results.SimulatedSuccessRate = SimulatedSuccessRate;
+
             if (!_testGame)
             {
-                if (Game.Settings.MaxHistoryLength > 0 &&
-                    Game.Money.Count() >= Game.Settings.MaxHistoryLength)
-                {
-                    Game.Money.Clear();
-                    DeleteArchiveFolder();                        
-                }
                 Task.Run(() =>
                 {
+                    if (Game.Settings.MaxHistoryLength > 0 &&
+                        Game.Money.Count() >= Game.Settings.MaxHistoryLength)
+                    {
+                        Game.Money.Clear();
+                        DeleteArchiveFolder();
+                    }
                     _deck = g.GetDeckFromLastGame();
                     SaveDeck();
                     if (g.rounds[0] != null)
@@ -2507,18 +2509,29 @@ namespace Mariasek.SharedClient
                     {
                     }
                     Game.Money.Add(results);
+                    EnsureBubblesHidden();
+                    PopulateResults(results);
                     try
                     {
                         SaveHistory();
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         System.Diagnostics.Debug.WriteLine(string.Format("Cannot save history\n{0}", ex.Message));
                     }
                 });
             }
-            EnsureBubblesHidden();
-			g.ThrowIfCancellationRequested();
+            else
+            {
+                EnsureBubblesHidden();
+                PopulateResults(results);
+            }
+        }
+
+#endregion
+
+        private void PopulateResults(MoneyCalculatorBase results)
+        {
             RunOnUiThread(() =>
             {
                 ClearTable(true);
@@ -2607,8 +2620,6 @@ namespace Mariasek.SharedClient
                 });
             });
         }
-
-#endregion
 
         public bool CanLoadGame()
         {
