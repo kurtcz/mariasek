@@ -1971,7 +1971,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule
             {
                 Order = 2,
-                Description = "hraj vítěznou A",
+                Description = "hrát vítězné A",
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
                 {
@@ -2001,33 +2001,32 @@ namespace Mariasek.Engine.New
                                                                                     c1.Value == Hodnota.Desitka) ||
                                                                                    _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon));
                     }
-                    else
-                    {
-                        var hiCards = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                          .SelectMany(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                               .Select(h => new Card(b, h))
-                                                               .Where(i => _probabilities.CardProbability(player3, i) > _epsilon &&
-                                                                           c1.IsLowerThan(i, _trump)));
-                        //oc-
-                        return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
-                                                                                  i.Suit != _trump &&
-                                                                                  ((!hiCards.Any() &&    //spoluhrac hral nejvyssi kartu co ve hre zbyva
-                                                                                    _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon) ||
-                                                                                   (c1.IsLowerThan(i, _trump) &&    //vitezna X
-                                                                                    (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 ||
-                                                                                     _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) >= 1 - _epsilon ||
-                                                                                     _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
-                                                                                    (_probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon ||
-                                                                                     Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                                         .Where(h => h != Hodnota.Desitka)
-                                                                                         .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) <= _epsilon)))));
-                    }
+                    return null;
                 }
             };
 
             yield return new AiRule
             {
                 Order = 3,
+                Description = "bodovat nebo vytlačit trumf",
+                SkipSimulations = true,
+                ChooseCard2 = (Card c1) =>
+                {
+                    if (TeamMateIndex == player1)
+                    {
+                        return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
+                                                                                  i.Suit != _trump &&
+                                                                                  c1.IsLowerThan(i, _trump) &&
+                                                                                  (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 1 - RiskFactor ||
+                                                                                   _probabilities.SuitProbability(player3, _trump, RoundNumber) < RiskFactor));
+                    }
+                    return null;
+                }
+            };
+
+            yield return new AiRule
+            {
+                Order = 4,
                 Description = "vytlačit A",
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
@@ -2051,7 +2050,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule
             {
-                Order = 4,
+                Order = 5,
                 Description = "namazat",
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
@@ -2086,7 +2085,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule
             {
-                Order = 5,
+                Order = 6,
                 Description = "odmazat si barvu",
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
@@ -2160,7 +2159,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule
             {
-                Order = 6,
+                Order = 7,
                 Description = "zkusit uhrát trumfovou X",
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
@@ -2203,7 +2202,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule
             {
-                Order = 7,
+                Order = 8,
                 Description = "hrát vysokou kartu mimo A,X",
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
@@ -2227,7 +2226,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule
             {
-                Order = 8,
+                Order = 9,
                 Description = "hrát nízkou kartu mimo A,X",
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
@@ -2288,7 +2287,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule
             {
-                Order = 9,
+                Order = 10,
                 Description = "hrát nízkou kartu",
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
