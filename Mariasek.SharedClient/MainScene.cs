@@ -2933,6 +2933,7 @@ namespace Mariasek.SharedClient
 
         public void ReplayGame(string gamePath)
         {
+            CancelRunningTask(_gameTask);
             CleanUpOldGame();
             _testGame = true;
             Task.Run(() =>
