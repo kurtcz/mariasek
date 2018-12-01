@@ -2012,14 +2012,25 @@ namespace Mariasek.Engine.New
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
                 {
-                    if (TeamMateIndex == player1)
+                    if (TeamMateIndex == player1 &&
+                        (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                             .All(b => hands[MyIndex].HasSuit(b)) ||
+                         hands[MyIndex].HasSuit(_trump)))
                     {
                         return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                   i.Suit != _trump &&
                                                                                   c1.IsLowerThan(i, _trump) &&
-                                                                                  (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 1 - RiskFactor ||
-                                                                                   _probabilities.SuitProbability(player3, _trump, RoundNumber) < RiskFactor));
+                                                                                  (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 ||
+                                                                                   _probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor));
                     }
+                    //if (TeamMateIndex == player1)
+                    //{
+                        //return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
+                                                                                  //i.Suit != _trump &&
+                                                                                  //c1.IsLowerThan(i, _trump) &&
+                                                                                  //(_probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor ||
+                                                                                  //_probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor));
+                    //}
                     return null;
                 }
             };
