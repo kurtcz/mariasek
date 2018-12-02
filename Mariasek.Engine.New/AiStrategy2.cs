@@ -2012,10 +2012,13 @@ namespace Mariasek.Engine.New
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
                 {
+                    var suitCount = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                        .Count(b => hands[MyIndex].HasSuit(b));
+
                     if (TeamMateIndex == player1 &&
-                        (Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                             .All(b => hands[MyIndex].HasSuit(b)) ||
-                         hands[MyIndex].HasSuit(_trump)))
+                        (suitCount == 4 ||
+                         suitCount == 1) ||
+                         hands[MyIndex].HasSuit(_trump))
                     {
                         return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                   i.Suit != _trump &&

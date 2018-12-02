@@ -2462,17 +2462,24 @@ namespace Mariasek.SharedClient
         {
             _state = GameState.GameFinished;
 
+            EnsureBubblesHidden();
             g.ThrowIfCancellationRequested();
-            results.SimulatedSuccessRate = SimulatedSuccessRate;
 
+            results.SimulatedSuccessRate = SimulatedSuccessRate;
             if (!_testGame)
             {
+                if (Game.Settings.MaxHistoryLength > 0 &&
+                    Game.Money.Count() >= Game.Settings.MaxHistoryLength)
+                {
+                    Game.Money.Clear();
+                }
+                Game.Money.Add(results);
+                PopulateResults(results);
                 Task.Run(() =>
                 {
                     if (Game.Settings.MaxHistoryLength > 0 &&
                         Game.Money.Count() >= Game.Settings.MaxHistoryLength)
                     {
-                        Game.Money.Clear();
                         DeleteArchiveFolder();
                     }
                     _deck = g.GetDeckFromLastGame();
@@ -2508,9 +2515,6 @@ namespace Mariasek.SharedClient
                     catch
                     {
                     }
-                    Game.Money.Add(results);
-                    EnsureBubblesHidden();
-                    PopulateResults(results);
                     try
                     {
                         SaveHistory();
@@ -2523,7 +2527,6 @@ namespace Mariasek.SharedClient
             }
             else
             {
-                EnsureBubblesHidden();
                 PopulateResults(results);
             }
         }
@@ -2597,27 +2600,24 @@ namespace Mariasek.SharedClient
                 //_aiConfig["SimulationsPerRoundPerSecond"].Value = Game.Settings.RoundSimulationsPerSecond.ToString();
                 Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
                 //tohle zpusobi prekresleni nekterych ui prvku, je treba volat z UI threadu
-                RunOnUiThread(() =>
-                {
-                    Game.UpdateSettings();
+                Game.UpdateSettings();
 
-                    if (results.GamePlayed && results.MoneyWon[0] > 0)
-                    {
-                        Game.ClapSound?.PlaySafely();
-                    }
-                    else if (results.GamePlayed && results.MoneyWon[0] < 0)
-                    {
-                        Game.BooSound?.PlaySafely();
-                    }
-                    else
-                    {
-                        Game.CoughSound?.PlaySafely();
-                    }
-                    _newGameBtn.Show();
-                    _repeatGameBtn.Show();
-                    _reviewGameBtn.Text = "Průběh hry";
-                    _reviewGameBtn.Show();
-                });
+                if (results.GamePlayed && results.MoneyWon[0] > 0)
+                {
+                    Game.ClapSound?.PlaySafely();
+                }
+                else if (results.GamePlayed && results.MoneyWon[0] < 0)
+                {
+                    Game.BooSound?.PlaySafely();
+                }
+                else
+                {
+                    Game.CoughSound?.PlaySafely();
+                }
+                _newGameBtn.Show();
+                _repeatGameBtn.Show();
+                _reviewGameBtn.Text = "Průběh hry";
+                _reviewGameBtn.Show();
             });
         }
 
