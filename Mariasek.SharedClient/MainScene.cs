@@ -877,15 +877,16 @@ namespace Mariasek.SharedClient
             }
         }
 
-        public void SaveDeck()
+        public void SaveDeck(Deck deck = null)
         {
             try
             {
+                deck = deck ?? _deck;
 				Game.StorageAccessor.GetStorageAccess();
                 CreateDirectoryForFilePath(_deckFilePath);
                 using (var fs = File.Open(_deckFilePath, FileMode.Create))
                 {
-                    _deck.SaveDeck(fs);
+                    deck.SaveDeck(fs);
                 }
             }
             catch (Exception e)
@@ -2468,6 +2469,7 @@ namespace Mariasek.SharedClient
             results.SimulatedSuccessRate = SimulatedSuccessRate;
             if (!_testGame)
             {
+                var deck = g.GetDeckFromLastGame();
                 if (Game.Settings.MaxHistoryLength > 0 &&
                     Game.Money.Count() >= Game.Settings.MaxHistoryLength)
                 {
@@ -2482,8 +2484,7 @@ namespace Mariasek.SharedClient
                     {
                         DeleteArchiveFolder();
                     }
-                    _deck = g.GetDeckFromLastGame();
-                    SaveDeck();
+                    SaveDeck(deck);
                     if (g.rounds[0] != null)
                     {
                         results.GameId = ArchiveGame();

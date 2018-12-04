@@ -328,47 +328,55 @@ namespace Mariasek.SharedClient
                 _moneyDataFixupStarted = true;
                 Task.Run(() =>
                 {
-                    var k = 0;
-                    for (var i = 0; i < Game.Money.Count(); i++)
+                    try
                     {
-                        if (Game.Money[i].IsArchived)
-                        {
-                            var n = Game.Money[i].GameId == 0 ? k + 1 : Game.Money[i].GameId;
-                            var files = Directory.GetFiles(_archivePath, string.Format("{0:0000}-{1}*.hra", n, Game.Money[i].GameTypeString.Trim().ToLower()));
 
-                            if (files.Length == 2)
+                        var k = 0;
+                        for (var i = 0; i < Game.Money.Count(); i++)
+                        {
+                            if (Game.Money[i].IsArchived)
                             {
-                                if (Game.Money[i].GameId == 0)
+                                var n = Game.Money[i].GameId == 0 ? k + 1 : Game.Money[i].GameId;
+                                var files = Directory.GetFiles(_archivePath, string.Format("{0:0000}-{1}*.hra", n, Game.Money[i].GameTypeString.Trim().ToLower()));
+
+                                if (files.Length == 2)
                                 {
-                                    Game.Money[i].GameId = n;
-                                    k = n;
+                                    if (Game.Money[i].GameId == 0)
+                                    {
+                                        Game.Money[i].GameId = n;
+                                        k = n;
+                                    }
+                                }
+                                else
+                                {
+                                    Game.Money[i].GameId = 0;
                                 }
                             }
-                            else
-                            {
-                                Game.Money[i].GameId = 0;
-                            }
                         }
-                    }
-                    //chci ziskat ostre rostouci posloupnost (nuly ignoruju)
-                    //vyhodime duplikaty, nechavam si vzdy posledni vyskyt, ostatni mazu
-                    //zbavime se zaroven i pripadnych nesetridenych prvku
-                    var minimum = int.MaxValue;
-                    for (var i = Game.Money.Count() - 1; i >= 0; i--)
-                    {
-                        if (Game.Money[i].GameId > 0)
+                        //chci ziskat ostre rostouci posloupnost (nuly ignoruju)
+                        //vyhodime duplikaty, nechavam si vzdy posledni vyskyt, ostatni mazu
+                        //zbavime se zaroven i pripadnych nesetridenych prvku
+                        var minimum = int.MaxValue;
+                        for (var i = Game.Money.Count() - 1; i >= 0; i--)
                         {
-                            if (Game.Money[i].GameId < minimum)
+                            if (Game.Money[i].GameId > 0)
                             {
-                                minimum = Game.Money[i].GameId;
-                            }
-                            else
-                            {
-                                Game.Money[i].GameId = 0;
+                                if (Game.Money[i].GameId < minimum)
+                                {
+                                    minimum = Game.Money[i].GameId;
+                                }
+                                else
+                                {
+                                    Game.Money[i].GameId = 0;
+                                }
                             }
                         }
+                        Game.MainScene.SaveHistory();
                     }
-                    Game.MainScene.SaveHistory();
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(string.Format("Cannot fixup history\n{0}", ex.Message));
+                    }
                 });
             }
         }
