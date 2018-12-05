@@ -1231,7 +1231,8 @@ namespace Mariasek.Engine.New
                             }
                         }
                     }
-                    if (TeamMateIndex != -1 && (_gameType & Hra.SedmaProti) == 0)
+                    if (TeamMateIndex != -1 && 
+                        (_gameType & Hra.SedmaProti) == 0)
                     {
                         //odmazat si barvu pokud nemam trumfy abych mohl mazat
                         var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
@@ -1242,7 +1243,11 @@ namespace Mariasek.Engine.New
                                                                                 hands[MyIndex].Any(j => j.Value == Hodnota.Eso ||
                                                                                                         j.Value == Hodnota.Desitka) &&
                                                                                 hands[MyIndex].CardCount(i.Suit) == 1);
-                        if (!cardsToPlay.Any())
+                        if (!cardsToPlay.Any() &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => b != _trump)
+                                .Any(b => hands[MyIndex].HasA(b) ||
+                                          hands[MyIndex].HasX(b)))
                         {
                             var opponentIndex = Enumerable.Range(0, Game.NumPlayers).First(i => i != MyIndex && i != TeamMateIndex);
                             var opponentTrumps = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
