@@ -1656,8 +1656,12 @@ namespace Mariasek.Engine.New
                     var c1 = AbstractPlayer.ValidCards(players[player1].Hand, trump, GameType, players[player1].TeamMateIndex)
                                            .Sort(false, (GameType & (Hra.Betl | Hra.Durch)) != 0, firstSuit, lastSuit)
                                            .First();
-                    var c2 = AbstractPlayer.ValidCards(players[player2].Hand, trump, GameType, players[player2].TeamMateIndex, c1).RandomOne();
-                    var c3 = AbstractPlayer.ValidCards(players[player3].Hand, trump, GameType, players[player3].TeamMateIndex, c1, c2).RandomOne();
+                    var c2 = AbstractPlayer.ValidCards(players[player2].Hand, trump, GameType, players[player2].TeamMateIndex, c1)
+                                           .OrderBy(j => j.Value)
+                                           .First();
+                    var c3 = AbstractPlayer.ValidCards(players[player3].Hand, trump, GameType, players[player3].TeamMateIndex, c1, c2)
+                                           .OrderBy(j => j.Value)
+                                           .First();
 
                     rounds[i] = new Round(this, lastRoundWinner, c1, c2, c3, i+1);
                 }
