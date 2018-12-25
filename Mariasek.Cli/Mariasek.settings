@@ -1,36 +1,36 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <GameSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Default>true</Default>
-  <DoLog>true</DoLog>
-  <HintEnabled>true</HintEnabled>
+  <Default>false</Default>
+  <DoLog>false</DoLog>
+  <HintEnabled>false</HintEnabled>
   <SoundEnabled>false</SoundEnabled>
   <BgSoundEnabled>false</BgSoundEnabled>
   <PlayerNames>
-    <string>Já</string>
+    <string>Lukáš</string>
     <string>Karel</string>
     <string>Pepa</string>
   </PlayerNames>
   <SortMode>Descending</SortMode>
-  <BaseBet>1</BaseBet>
+  <BaseBet>0.1</BaseBet>
   <MaxWin>500</MaxWin>
   <GameValue>1</GameValue>
   <QuietSevenValue>1</QuietSevenValue>
   <SevenValue>2</SevenValue>
   <QuietHundredValue>2</QuietHundredValue>
   <HundredValue>4</HundredValue>
-  <BetlValue>5</BetlValue>
-  <DurchValue>10</DurchValue>
+  <BetlValue>15</BetlValue>
+  <DurchValue>30</DurchValue>
   <AllowAXTalon>false</AllowAXTalon>
   <AllowTrumpTalon>true</AllowTrumpTalon>
   <AllowAIAutoFinish>true</AllowAIAutoFinish>
   <AllowPlayerAutoFinish>true</AllowPlayerAutoFinish>
   <ThinkingTimeMs>1500</ThinkingTimeMs>
-  <BubbleTimeMs>1000</BubbleTimeMs>
+  <BubbleTimeMs>500</BubbleTimeMs>
   <MaxHistoryLength>0</MaxHistoryLength>
-  <AiMayGiveUp>true</AiMayGiveUp>
+  <AiMayGiveUp>false</AiMayGiveUp>
   <KeepScreenOn>true</KeepScreenOn>
   <CalculationStyle>Adding</CalculationStyle>
-  <GameTypeSimulationsPerSecond>26</GameTypeSimulationsPerSecond>
+  <GameTypeSimulationsPerSecond>14</GameTypeSimulationsPerSecond>
   <RoundSimulationsPerSecond>0</RoundSimulationsPerSecond>
   <CurrentStartingPlayerIndex>2</CurrentStartingPlayerIndex>
   <CardDesign>Single</CardDesign>
@@ -40,13 +40,13 @@
       <GameType>Hra</GameType>
       <Use>true</Use>
       <MaxBidCount>3</MaxBidCount>
-      <Thresholds>5|15|45|65</Thresholds>
+      <Thresholds>5|15|45|85</Thresholds>
     </BidThresholdSettings>
     <BidThresholdSettings>
       <GameType>Sedma</GameType>
       <Use>true</Use>
       <MaxBidCount>2</MaxBidCount>
-      <Thresholds>30|50|85|100</Thresholds>
+      <Thresholds>40|50|85|95</Thresholds>
     </BidThresholdSettings>
     <BidThresholdSettings>
       <GameType>Kilo</GameType>
@@ -79,17 +79,17 @@
       <Thresholds>80|85|100|100</Thresholds>
     </BidThresholdSettings>
   </Thresholds>
-  <RiskFactor>0.2</RiskFactor>
+  <RiskFactor>0.28</RiskFactor>
   <SolitaryXThreshold>0.13</SolitaryXThreshold>
   <RoundFinishedWaitTimeMs>1000</RoundFinishedWaitTimeMs>
   <AutoFinishRounds>true</AutoFinishRounds>
   <AutoFinish>true</AutoFinish>
   <MinimalBidsForGame>1</MinimalBidsForGame>
-  <MinimalBidsForSeven>0</MinimalBidsForSeven>
+  <MinimalBidsForSeven>1</MinimalBidsForSeven>
   <Top107>false</Top107>
   <ShowStatusBar>false</ShowStatusBar>
   <ShowScoreDuringGame>true</ShowScoreDuringGame>
-  <AutoDisable100Against>true</AutoDisable100Against>
+  <AutoDisable100Against>false</AutoDisable100Against>
   <CardScaleFactor>0.6</CardScaleFactor>
   <BackgroundImage>Default</BackgroundImage>
 </GameSettings>

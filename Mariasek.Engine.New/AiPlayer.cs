@@ -1243,8 +1243,8 @@ namespace Mariasek.Engine.New
             _maxBasicPointsLost = moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0)
                                                    .DefaultIfEmpty()
                                                    .Max(i => (float)(i?.BasicPointsLost ?? 0));
-            _hundredOverBetl = _avgWinForHundred >= _g.BetlValue;
-            _hundredOverDurch = _avgWinForHundred >= _g.DurchValue;
+            _hundredOverBetl = _avgWinForHundred >= 2 * _g.BetlValue;
+            _hundredOverDurch = _avgWinForHundred >= 2 * _g.DurchValue;
             _gamesBalance = PlayerIndex == gameStartingPlayerIndex
                             ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => i.GameWon)
                             : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.GameWon);
@@ -1347,10 +1347,10 @@ namespace Mariasek.Engine.New
             switch (_g.CalculationStyle)
             {
                 case CalculationStyle.Multiplying:
-                    return new MultiplyingMoneyCalculator(gameType, trump, gameStartingPlayerIndex, bidding, result);
+                    return new MultiplyingMoneyCalculator(gameType, trump, gameStartingPlayerIndex, bidding, _g, result);
                 case CalculationStyle.Adding:
                 default:
-                    return new AddingMoneyCalculator(gameType, trump, gameStartingPlayerIndex, bidding, result);
+                    return new AddingMoneyCalculator(gameType, trump, gameStartingPlayerIndex, bidding, _g, result);
             }
         }
 
@@ -1630,11 +1630,16 @@ namespace Mariasek.Engine.New
         {
             return Hand.CardCount(_trump.Value) < 4 ||
                    (Hand.CardCount(_trump.Value) == 4 &&
-                    (Hand.Count(i => i.Value >= Hodnota.Svrsek) < 4 ||
-                     Hand.Count(i => i.Value == Hodnota.Eso) < 2 ||
+                    (Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||
+                     Hand.Count(i => i.Value == Hodnota.Eso) +
+                     Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                         .Count(b => (Hand.HasX(b) &&
+                                      (Hand.HasK(b) ||
+                                       (Hand.HasQ(b) && 
+                                        Hand.CardCount(b) > 2)))) < 2 ||
                      Hand.Select(i => i.Suit).Distinct().Count() < 4)) ||
                    (Hand.CardCount(_trump.Value) == 5 &&
-                    Hand.Count(i => i.Value >= Hodnota.Svrsek) < 4);
+                    Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3);
         }
 
         public bool IsHundredTooRisky()
@@ -1812,7 +1817,6 @@ namespace Mariasek.Engine.New
                 }
                 return TestGameType.Value;
             }
-            //TODO: urcit typ hry podle zisku ne podle pradepodobnosti
             Hra gameType = 0;
 
             if ((validGameTypes & (Hra.Betl | Hra.Durch)) != 0)

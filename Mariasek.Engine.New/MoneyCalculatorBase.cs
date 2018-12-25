@@ -306,12 +306,12 @@ namespace Mariasek.Engine.New
         }
 
         protected MoneyCalculatorBase(Game g, Bidding bidding, GameComputationResult res)
-            : this(g.GameType, g.trump, g.GameStartingPlayerIndex, bidding, res)
+            : this(g.GameType, g.trump, g.GameStartingPlayerIndex, bidding, g, res)
         {
         }
 
         //vola se na konci simulace
-        protected MoneyCalculatorBase(Hra gameType, Barva? trump, int gameStartingPlayerIndex, Bidding bidding, GameComputationResult res)
+        protected MoneyCalculatorBase(Hra gameType, Barva? trump, int gameStartingPlayerIndex, Bidding bidding, IGameTypeValues values, GameComputationResult res)
             : this()
         {
             _gameType = gameType;
@@ -320,6 +320,13 @@ namespace Mariasek.Engine.New
             _bidding = bidding;
             _gameStartingPlayerIndex = gameStartingPlayerIndex;
             SimulatedSuccessRate = -1;
+            GameValue = values.GameValue;
+            QuietSevenValue = values.QuietSevenValue;
+            SevenValue = values.SevenValue;
+            QuietHundredValue = values.QuietHundredValue;
+            HundredValue = values.HundredValue;
+            BetlValue = values.BetlValue;
+            DurchValue = values.DurchValue;
 
             if (GoodGame)
             {

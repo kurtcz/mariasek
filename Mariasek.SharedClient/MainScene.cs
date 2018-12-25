@@ -68,8 +68,8 @@ namespace Mariasek.SharedClient
         private ToggleButton sedmaBtn;
         private ToggleButton kiloBtn;
         private Button _hintBtn;
-        private Label _trumpLabel1, _trumpLabel2, _trumpLabel3;
-        private Label[] _trumpLabels;
+        private TextBox _trumpLabel1, _trumpLabel2, _trumpLabel3;
+        private TextBox[] _trumpLabels;
         private Label _msgLabel;
         private Label _msgLabelSmall;
         private Label _msgLabelLeft;
@@ -527,7 +527,7 @@ namespace Mariasek.SharedClient
             gfSpatnaButton.Click += GfButtonClicked;
             gfSpatnaButton.Hide();
             gfButtons = new[] { gfDobraButton, gfSpatnaButton };
-            _trumpLabel1 = new Label(this)
+            _trumpLabel1 = new TextBox(this)
             {
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Top,
@@ -536,10 +536,11 @@ namespace Mariasek.SharedClient
                 Height = 60,
                 ZIndex = 100,
                 Anchor = AnchorType.Top,
-                FontScaleFactor = 0.85f
+                FontScaleFactor = 0.85f,
+                HighlightedLine = 1
             };
             _trumpLabel1.Hide();
-            _trumpLabel2 = new Label(this)
+            _trumpLabel2 = new TextBox(this)
             {
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
@@ -548,10 +549,11 @@ namespace Mariasek.SharedClient
                 Height = 60,
                 ZIndex = 100,
                 Anchor = AnchorType.Top,
-                FontScaleFactor = 0.85f
+                FontScaleFactor = 0.85f,
+                HighlightedLine = 1
             };
             _trumpLabel2.Hide();
-            _trumpLabel3 = new Label(this)
+            _trumpLabel3 = new TextBox(this)
             {
                 HorizontalAlign = HorizontalAlignment.Right,
                 VerticalAlign = VerticalAlignment.Top,
@@ -560,7 +562,8 @@ namespace Mariasek.SharedClient
                 Height = 60,
                 ZIndex = 100,
                 Anchor = AnchorType.Top,
-                FontScaleFactor = 0.85f
+                FontScaleFactor = 0.85f,
+                HighlightedLine = 1
             };
             _trumpLabel3.Hide();
             _trumpLabels = new[] { _trumpLabel1, _trumpLabel2, _trumpLabel3 };
@@ -1344,13 +1347,19 @@ namespace Mariasek.SharedClient
                      }
                      for (var i = 0; i < _trumpLabels.Count(); i++)
                      {
+                         var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
                          //_trumpLabels[i].Text = g.players[i].Name;
                          _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                                   GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
                                                   Game.Settings.ShowScoreDuringGame
-                                                  ? (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ"))
+                                                  ? sum.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ"))
                                                   : string.Empty);
                          _trumpLabels[i].Height = 60;
+                         _trumpLabels[i].HighlightColor = sum > 0
+                                                            ? Color.Green
+                                                            : sum < 0
+                                                                ? Color.Red
+                                                                : Color.White;
                          _trumpLabels[i].Show();
                      }
                      _hlasy[0][0].Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f + 20);
@@ -2094,6 +2103,11 @@ namespace Mariasek.SharedClient
                         if (g.GameType == 0)
                         {
                             ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, "Barva?");
+                            _trumpLabels[_gameFlavourChosenEventArgs.Player.PlayerIndex].Text = string.Format("{0}: Barva?\n{1}",
+                                                     g.players[_gameFlavourChosenEventArgs.Player.PlayerIndex].Name,
+                                                     Game.Settings.ShowScoreDuringGame
+                                                     ? (Game.Money.Sum(j => j.MoneyWon[_gameFlavourChosenEventArgs.Player.PlayerIndex]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ"))
+                                                     : string.Empty);
                         }
                         if (g.GameStartingPlayerIndex != 2)
                         {
@@ -2575,9 +2589,16 @@ namespace Mariasek.SharedClient
                 _totalBalance.Text = string.Format("Celkem jsem {0}: {1}", totalWon >= 0 ? "vyhrál" : "prohrál", totalWon.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
                 for (var i = 0; i < _trumpLabels.Count(); i++)
                 {
+                    var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
+
                     _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                              GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
-                                             (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+                                             sum.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+                    _trumpLabels[i].HighlightColor = sum > 0
+                                                       ? Color.Green
+                                                       : sum < 0
+                                                           ? Color.Red
+                                                           : Color.White;
                 }
                 if (!results.GamePlayed || results.MoneyWon[0] == 0)
                 {
@@ -2851,11 +2872,17 @@ namespace Mariasek.SharedClient
                         }
                         for (var i = 0; i < _trumpLabels.Count(); i++)
                         {
+                            var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
                             //_trumpLabels[i].Text = g.players[i].Name;
                             _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                                      GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
-                                                     (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+                                                     sum.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
                             _trumpLabels[i].Height = 60;
+                            _trumpLabels[i].HighlightColor = sum > 0
+                                                               ? Color.Green
+                                                               : sum < 0
+                                                                   ? Color.Red
+                                                                   : Color.White;
                             _trumpLabels[i].Show();
                         }
                         if (!_testGame)

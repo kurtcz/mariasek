@@ -18,7 +18,18 @@ using Mariasek.Engine.New.Schema;
 
 namespace Mariasek.Engine.New
 {
-    public class Game //: MarshalByRefObject
+    public interface IGameTypeValues
+    {
+        int GameValue { get; set; }
+        int SevenValue { get; set; }
+        int QuietSevenValue { get; set; }
+        int HundredValue { get; set; }
+        int QuietHundredValue { get; set; }
+        int BetlValue { get; set; }
+        int DurchValue { get; set; }
+    }
+
+    public class Game : IGameTypeValues//: MarshalByRefObject
     {
 #if !PORTABLE
         private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -51,7 +62,6 @@ namespace Mariasek.Engine.New
         public int GameValue { get; set; }
         public int SevenValue { get; set; }
         public int QuietSevenValue { get; set; }
-        //public int KilledSevenValue {get;set; }
         public int HundredValue { get; set; }
         public int QuietHundredValue { get; set; }
         public int BetlValue { get; set; }
