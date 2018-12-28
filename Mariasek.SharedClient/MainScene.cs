@@ -2559,8 +2559,11 @@ namespace Mariasek.SharedClient
                 var leftMessage = new StringBuilder();
                 var rightMessage = new StringBuilder();
                 var firstWord = string.Empty;
+                var numLines = 0;
+                var summary = g.Results.ToString();
 
-                foreach (var line in g.Results.ToString().Split('\n'))
+                summary = summary.Replace("\nzabit", " zabit");
+                foreach (var line in summary.Split('\n'))
                 {
                     var tokens = line.Split('\t');
                     if (tokens.Length > 0)
@@ -2579,6 +2582,12 @@ namespace Mariasek.SharedClient
 
                     leftMessage.Append("\n");
                     rightMessage.Append("\n");
+                    numLines++;
+                }
+                if (numLines > 10)
+                {
+                    leftMessage = leftMessage.Replace("\n\n", "\n");
+                    rightMessage = rightMessage.Replace("\n\n", "\n");
                 }
                 giveUpButton.Hide();
                 //_reviewGameToggleBtn.Hide();
