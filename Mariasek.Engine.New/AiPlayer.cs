@@ -2102,9 +2102,11 @@ namespace Mariasek.Engine.New
                 (bidding._sevenAgainstFlek < 3 ||                      //ai nedava tutti pokud neflekoval i clovek
                  PlayerIndex == 0 ||
                  (bidding.PlayerBids[0] & Hra.SedmaProti) != 0) &&
-                (Hand.CardCount(_g.trump.Value) >= 4 ||
-                 (Hand.CardCount(_g.trump.Value) >= 3 &&
-                  Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => Hand.HasSuit(b)))) &&
+                (!IsSevenTooRisky() ||                                  //nez poprve zahlasime sedmu proti zjistime jestli to neni riskantni
+                 bidding._sevenAgainstFlek > 0) &&
+                //(Hand.CardCount(_g.trump.Value) >= 4 ||
+                // (Hand.CardCount(_g.trump.Value) >= 3 &&
+                //  Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => Hand.HasSuit(b)))) &&
                 _gameSimulations > 0 && _sevensAgainstBalance / (float)_gameSimulations >= sevenAgainstThreshold)
             {
                 bid |= bidding.Bids & Hra.SedmaProti;
