@@ -80,7 +80,7 @@
     <MtouchFloat32>true</MtouchFloat32>
     <MtouchDebug>true</MtouchDebug>
     <DeviceSpecificBuild>true</DeviceSpecificBuild>
-    <CodesignKey>iPhone Developer: Tomas Nemec (9TS4RT5F7W)</CodesignKey>
+    <CodesignKey>iPhone Distribution: Tomas Nemec (9C7QRTBTDQ)</CodesignKey>
     <MtouchExtraArgs>-v -v -v</MtouchExtraArgs>
     <IpaPackageName>
     </IpaPackageName>

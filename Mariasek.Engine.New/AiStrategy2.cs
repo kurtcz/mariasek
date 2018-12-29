@@ -1647,103 +1647,79 @@ namespace Mariasek.Engine.New
 																			i.Suit != _trump &&
 																			!_bannedSuits.Contains(i.Suit)).ToList();
 
-                    if (TeamMateIndex == -1)
-                    {
-                        if ((_gameType & Hra.Kilo) == 0)
-                        {
-                            return cardsToPlay.OrderBy(i => i.Value)
-                                              .FirstOrDefault();
-                        }
-                        return null;
-					}
-                    if (cardsToPlay.Any(i => _teamMatesSuits.Contains(i.Suit)))
-                    {
-                        cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
-                    }
-
-                    return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
-									  .ThenBy(i => i.Value)
-									  .FirstOrDefault();
-				}
-			};
-
-			//if ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 || 
-                //((_gameType & Hra.Kilo) != 0 && TeamMateIndex == -1) ||
-                //((_gameType & Hra.KiloProti) != 0 && TeamMateIndex != -1) ||
-                //!hands[MyIndex].Has7(_trump))
-            {
-                //yield return new AiRule()
-                //{
-                //    Order = 15,
-                //    Description = "hrát cokoli mimo A,X",
-                //    SkipSimulations = true,
-                //    ChooseCard1 = () =>
-                //    {
-                //        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
-                //                                                                i.Value != Hodnota.Desitka &&
-                //                                                                !_bannedSuits.Contains(i.Suit)).ToList();
-                //        if (!cardsToPlay.Any())
-                //        {
-                //            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
-                //                                                                i.Value != Hodnota.Desitka).ToList();
-                //        }
-                //        if (TeamMateIndex == -1)
-                //        {
-                //            return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
-                //        }
-
-                //        return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
-                //                          .ThenBy(i => i.Value)
-                //                          .FirstOrDefault();
-                //    }
-                //};
-            }
-            //else
-            {
-                yield return new AiRule()
-                {
-                    Order = 18,
-                    Description = "hrát cokoli mimo trumf",
-                    SkipSimulations = true,
-                    ChooseCard1 = () =>
-                    {
-                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
-                                                                                !_bannedSuits.Contains(i.Suit) &&
-                                                                                i.Value != Hodnota.Eso &&
-                                                                                i.Value != Hodnota.Desitka).ToList();
-                        if (!cardsToPlay.Any())
-                        {
-                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
-                                                                                i.Value != Hodnota.Eso &&
-                                                                                i.Value != Hodnota.Desitka).ToList();
-                        }
-                        if (!cardsToPlay.Any())
-                        {
-                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
-                                                                                !_bannedSuits.Contains(i.Suit)).ToList();
-                        }
-                        if (!cardsToPlay.Any())
-                        {
-                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump).ToList();
-                        }
                         if (TeamMateIndex == -1)
                         {
-                            return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
-                        }
-
+                            if ((_gameType & Hra.Kilo) == 0)
+                            {
+                                return cardsToPlay.OrderBy(i => i.Value)
+                                                  .FirstOrDefault();
+                            }
+                            return null;
+    					}
                         if (cardsToPlay.Any(i => _teamMatesSuits.Contains(i.Suit)))
                         {
                             cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
                         }
+                        var teamMatesLikelyAXPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                           .ToDictionary(b => b,
+                                                                         b => _probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) > 0
+                                                                                ? (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Eso)) > _epsilon ? 1 : 0) +
+                                                                                  (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Desitka)) > _epsilon ? 1 : 0)
+                                                                                : int.MaxValue);
+                        return cardsToPlay.OrderBy(i => teamMatesLikelyAXPerSuit[i.Suit])
+                                          .ThenByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+                                          .ThenBy(i => i.Value)
+                                          .FirstOrDefault();
+				}
+			};
 
-                        cardsToPlay = cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
-                                                 .ThenBy(i => i.Value)
-                                                 .ToList();
-
-                        return cardsToPlay.FirstOrDefault();
+            yield return new AiRule()
+            {
+                Order = 18,
+                Description = "hrát cokoli mimo trumf",
+                SkipSimulations = true,
+                ChooseCard1 = () =>
+                {
+                    var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                            !_bannedSuits.Contains(i.Suit) &&
+                                                                            i.Value != Hodnota.Eso &&
+                                                                            i.Value != Hodnota.Desitka).ToList();
+                    if (!cardsToPlay.Any())
+                    {
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                            i.Value != Hodnota.Eso &&
+                                                                            i.Value != Hodnota.Desitka).ToList();
                     }
-                };
-            }
+                    if (!cardsToPlay.Any())
+                    {
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                            !_bannedSuits.Contains(i.Suit)).ToList();
+                    }
+                    if (!cardsToPlay.Any())
+                    {
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump).ToList();
+                    }
+                    if (TeamMateIndex == -1)
+                    {
+                        return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                    }
+
+                    if (cardsToPlay.Any(i => _teamMatesSuits.Contains(i.Suit)))
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
+                    }
+                    var teamMatesLikelyAXPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                       .ToDictionary(b => b,
+                                                                     b => _probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) > 0
+                                                                            ? (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Eso)) > _epsilon ? 1 : 0) +
+                                                                              (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Desitka)) > _epsilon ? 1 : 0)
+                                                                            : int.MaxValue);
+                    return cardsToPlay.OrderBy(i => teamMatesLikelyAXPerSuit[i.Suit])
+                                      .ThenByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+                                      .ThenBy(i => i.Value)
+                                      .FirstOrDefault();
+                }
+            };
 
             yield return new AiRule()
             {
@@ -1768,8 +1744,14 @@ namespace Mariasek.Engine.New
                     {
                         cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
                     }
-
-                    return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+                    var teamMatesLikelyAXPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                       .ToDictionary(b => b,
+                                                                     b => _probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) > 0
+                                                                            ? (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Eso)) > _epsilon ? 1 : 0) +
+                                                                              (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Desitka)) > _epsilon ? 1 : 0)
+                                                                            : int.MaxValue);
+                    return cardsToPlay.OrderBy(i => teamMatesLikelyAXPerSuit[i.Suit])
+                                      .ThenByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
                                       .ThenBy(i => i.Value)
                                       .FirstOrDefault();
                 }
