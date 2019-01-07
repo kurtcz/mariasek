@@ -1262,6 +1262,8 @@ namespace Mariasek.Engine.New
 							//odmazat si trumf abych pozdeji mohl mazat 
 							//(musi existovat barva, kterou neznam a muj spoluhrac v ni doufejme ma vyssi karty nez akter)
                             if (hands[MyIndex].CardCount(_trump) == 1 &&
+                                ((_gameType & Hra.Kilo) != 0 ||
+                                 _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) <= RiskFactor) &&
                                 opponentTrumps > 0 &&
                                 opponentTrumps <= 6 &&  //abych nehral trumfem hned ale az pozdeji
                                 Enum.GetValues(typeof(Barva)).Cast<Barva>()

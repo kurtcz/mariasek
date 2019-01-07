@@ -57,6 +57,17 @@ namespace Mariasek.SharedClient.GameComponents
             } 
         }
 
+        public override AnchorType Anchor
+        {
+            get { return base.Anchor; }
+            set
+            {
+                base.Anchor = value;
+                _backgroundShape.Anchor = value;
+                _highlightShape.Anchor = value;
+            }
+        }
+
         public override string Text
         {
             get { return base.Text; }

@@ -1355,11 +1355,11 @@ namespace Mariasek.SharedClient
                                                   ? sum.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ"))
                                                   : string.Empty);
                          _trumpLabels[i].Height = 60;
-                         _trumpLabels[i].HighlightColor = sum > 0
-                                                            ? Color.Green
-                                                            : sum < 0
-                                                                ? Color.Red
-                                                                : Color.White;
+                         //_trumpLabels[i].HighlightColor = sum > 0
+                                                            //? Color.Green
+                                                            //: sum < 0
+                                                                //? Color.Red
+                                                                //: Color.White;
                          _trumpLabels[i].Show();
                      }
                      _hlasy[0][0].Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f + 20);
