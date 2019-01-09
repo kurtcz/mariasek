@@ -1355,11 +1355,18 @@ namespace Mariasek.SharedClient
                                                   ? sum.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ"))
                                                   : string.Empty);
                          _trumpLabels[i].Height = 60;
-                         //_trumpLabels[i].HighlightColor = sum > 0
-                                                            //? Color.Green
-                                                            //: sum < 0
-                                                                //? Color.Red
-                                                                //: Color.White;
+                         if (Game.Settings.WhiteScore)
+                         {
+                             _trumpLabels[i].HighlightColor = Color.White;
+                         }
+                         else
+                         {
+                             _trumpLabels[i].HighlightColor = sum > 0
+                             ? Color.Green
+                             : sum < 0
+                             ? Color.Red
+                             : Color.White;
+                         }
                          _trumpLabels[i].Show();
                      }
                      _hlasy[0][0].Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f + 20);
@@ -2603,11 +2610,18 @@ namespace Mariasek.SharedClient
                     _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                              GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
                                              sum.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
-                    _trumpLabels[i].HighlightColor = sum > 0
-                                                       ? Color.Green
-                                                       : sum < 0
-                                                           ? Color.Red
-                                                           : Color.White;
+                    if (Game.Settings.WhiteScore)
+                    {
+                        _trumpLabels[i].HighlightColor = Color.White;
+                    }
+                    else
+                    {
+                        _trumpLabels[i].HighlightColor = sum > 0
+                                                           ? Color.Green
+                                                           : sum < 0
+                                                               ? Color.Red
+                                                               : Color.White;
+                    }
                 }
                 if (!results.GamePlayed || results.MoneyWon[0] == 0)
                 {
