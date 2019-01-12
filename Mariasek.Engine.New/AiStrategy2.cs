@@ -1291,7 +1291,6 @@ namespace Mariasek.Engine.New
                 }
             };
 
-            //TODO: Hrat spoluhracovu barvu
             yield return new AiRule()
             {
                 Order = 10,
@@ -1578,11 +1577,24 @@ namespace Mariasek.Engine.New
                         (_probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 ||
                          _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0))
                     {
+                        if (RoundNumber <= 4 &&                                 //na pocatku hry
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()         //pokud mas nejakeho plonka, tak pravidlo nehraj
+                                .Where(b => b != _trump)
+                                .Any(b => hands[MyIndex].HasSuit(b) &&
+                                          !hands[MyIndex].HasA(b) &&
+                                          !hands[MyIndex].HasX(b) &&
+                                          (_probabilities.CardProbability(player2, new Card(b, Hodnota.Eso)) > _epsilon ||
+                                           _probabilities.CardProbability(player3, new Card(b, Hodnota.Eso)) > _epsilon ||
+                                           _probabilities.CardProbability(player2, new Card(b, Hodnota.Desitka)) > _epsilon ||
+                                           _probabilities.CardProbability(player3, new Card(b, Hodnota.Desitka)) > _epsilon)))
+                        {
+                            return null;
+                        }
                         var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&
-                                                                                ((_probabilities.CardProbability(player2, new Card(_trump, Hodnota.Eso)) == 0 &&                                                                                    
+                                                                                ((_probabilities.CardProbability(player2, new Card(_trump, Hodnota.Eso)) == 0 &&
                                                                                   _probabilities.CardProbability(player3, new Card(_trump, Hodnota.Eso)) == 0) ||
                                                                                  i.Value < Hodnota.Desitka));
-
+                                                                                  
                         return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
                     }
                     return null;
@@ -1626,7 +1638,7 @@ namespace Mariasek.Engine.New
                                               .OrderBy(i => i.Value)
                                               .FirstOrDefault();
                         }
-                        if ((_gameType & Hra.Kilo) == 0)
+                        //if ((_gameType & Hra.Kilo) == 0)
                         {
                             return cardsToPlay.OrderBy(i => hands[MyIndex].CardCount(i.Suit))
                                               .ThenBy(i => i.Value)

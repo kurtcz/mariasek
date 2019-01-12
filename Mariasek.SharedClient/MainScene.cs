@@ -2214,7 +2214,9 @@ namespace Mariasek.SharedClient
                     for (var i = 0; i < _trumpLabels.Count(); i++)
                     {
                         _trumpLabels[i].Text = string.Format("{0}\n{1}", GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
-                                                                         (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+                                                                         Game.Settings.ShowScoreDuringGame
+                                                                         ? (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ"))
+                                                                         : string.Empty);
                     }
                 });
 
@@ -2899,7 +2901,9 @@ namespace Mariasek.SharedClient
                             //_trumpLabels[i].Text = g.players[i].Name;
                             _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                                      GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
-                                                     sum.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+                                                     Game.Settings.ShowScoreDuringGame
+                                                     ? sum.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ"))
+                                                     : string.Empty);
                             _trumpLabels[i].Height = 60;
                             _trumpLabels[i].HighlightColor = sum > 0
                                                                ? Color.Green

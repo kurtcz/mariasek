@@ -528,9 +528,10 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 130),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Stále", true }, { "Na konci hry", false } }
+                Items = new SelectorItems() { { "Stále", 3 }, { "Stále, barevně", 1 }, { "Na konci hry", 0 } }
             };
-            _showScoreDuringGameSelector.SelectedIndex = _showScoreDuringGameSelector.Items.FindIndex(Game.Settings.ShowScoreDuringGame);
+            var val = (Game.Settings.ShowScoreDuringGame ? 1 : 0) + (Game.Settings.WhiteScore ? 1 : 0) * 2;
+            _showScoreDuringGameSelector.SelectedIndex = _showScoreDuringGameSelector.Items.FindIndex(val);
             _showScoreDuringGameSelector.SelectionChanged += ShowScoreDuringGameChanged;
             if (_showScoreDuringGameSelector.SelectedIndex < 0)
             {
@@ -1051,7 +1052,8 @@ namespace Mariasek.SharedClient
         {
             var selector = sender as LeftRightSelector;
 
-            Game.Settings.ShowScoreDuringGame = (bool)selector.SelectedValue;
+            Game.Settings.ShowScoreDuringGame = (((int)selector.SelectedValue) & 1) > 0;
+            Game.Settings.WhiteScore = (((int)selector.SelectedValue) & 2) > 0;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
