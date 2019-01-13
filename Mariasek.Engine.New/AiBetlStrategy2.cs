@@ -209,13 +209,18 @@ namespace Mariasek.Engine.New
                     SkipSimulations = true,
                     ChooseCard1 = () =>
                     {
+                        if (RoundNumber == 2 && preferredSuits.Any())
+                        {
+                            //ve 2. pokud muzu soupere chytit v nasl. pravidle, tak toto pravidlo nehraj
+                            return null;
+                        }
                         //pokud mam A, K, S, X tak hraj X (souper muze mit spodka)
                         var topCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                         .Select(h => new Card(i.Suit, h))
-                                                                         .Where(j => j.BadValue > i.BadValue)
-                                                                         .All(j => _probabilities.CardProbability(player2, j) == 0 &&
-                                                                                   _probabilities.CardProbability(player3, j) == 0))
-                                                         .Distinct();
+                                                                     .Select(h => new Card(i.Suit, h))
+                                                                     .Where(j => j.BadValue > i.BadValue)
+                                                                     .All(j => _probabilities.CardProbability(player2, j) == 0 &&
+                                                                               _probabilities.CardProbability(player3, j) == 0))
+                                                     .Distinct();
                         var cardsToPlay = hands[MyIndex].Where(i => (!bannedSuit.HasValue || bannedSuit.Value != i.Suit) &&
                                                                     topCards.Count(j => j.Suit == i.Suit) > 2 &&
                                                                     !topCards.Contains(i));
