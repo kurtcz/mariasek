@@ -2018,9 +2018,11 @@ namespace Mariasek.Engine.New
                 //nebo ho netrham a mam aspon dva hlasy
                 ((TeamMateIndex == -1 && 
                   (Hand.HasK(_g.trump.Value) ||
-                   Hand.HasQ(_g.trump.Value) ||
-                   Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b))) &&
-                  !Is100AgainstPossible()) ||
+                   Hand.HasQ(_g.trump.Value)) &&
+                  ((kqScore >= 20 &&
+                    !Is100AgainstPossible()) ||
+                   (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
+                    estimatedOpponentFinalBasicScore + 40 < 100))) ||
                  //nebo jsem nevolil a:
                  // - (flek) mam aspon dva trumfy a trham trumfovou hlasku
                  // nebo mam potencialne vic bodu nez souper bez hlasu a souper nema na to uhrat kilo ani s trumfovou hlaskou
