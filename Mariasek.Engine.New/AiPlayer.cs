@@ -1660,6 +1660,25 @@ namespace Mariasek.Engine.New
             {
                 return true;
             }
+            //Pokud vic nez v jedne barve nemas eso nebo mas vetsi diru tak kilo nehraj. Souperi by si mohli uhrat desitky
+            var dict = new Dictionary<Barva, Tuple<int, Hodnota>>();
+
+            foreach(var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            {
+                var topCard = Hand.Where(i => i.Suit == b).OrderByDescending(i => i.Value).FirstOrDefault();
+                var secondCard = Hand.Where(i => i.Suit == b).OrderByDescending(i => i.Value).Skip(1).FirstOrDefault();
+                var holeSize = topCard == null || secondCard == null
+                                ? 0
+                                : topCard.Value - secondCard.Value - 1;
+
+                dict.Add(b, new Tuple<int, Hodnota>(holeSize, topCard?.Value ?? 0));
+            }
+            if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                    .Count(b => dict[b].Item1 > 2 ||
+                                dict[b].Item2 != Hodnota.Eso) > 1)
+            {
+                return true;
+            }
             foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
             {
                 var hiCards = Hand.Count(i => i.Suit == b &&

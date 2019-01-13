@@ -3096,6 +3096,28 @@ namespace Mariasek.SharedClient
                 g.HundredValue = Game.Settings.HundredValue;
                 g.BetlValue = Game.Settings.BetlValue;
                 g.DurchValue = Game.Settings.DurchValue;
+                for (var i = 0; i < _trumpLabels.Count(); i++)
+                {
+                    var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
+
+                    _trumpLabels[i].Text = string.Format("{0}\n{1}",
+                                             GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
+                                             Game.Settings.ShowScoreDuringGame
+                                             ? sum.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ"))
+                                             : string.Empty);
+                    if (Game.Settings.WhiteScore)
+                    {
+                        _trumpLabels[i].HighlightColor = Color.White;
+                    }
+                    else
+                    {
+                        _trumpLabels[i].HighlightColor = sum > 0
+                                                           ? Color.Green
+                                                           : sum < 0
+                                                               ? Color.Red
+                                                               : Color.White;
+                    }
+                }
             }
             if (_progress1 != null)
             {
