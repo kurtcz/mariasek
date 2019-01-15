@@ -1362,9 +1362,9 @@ namespace Mariasek.SharedClient
                          else
                          {
                              _trumpLabels[i].HighlightColor = sum > 0
-                             ? Color.Green
+                             ? Color.LimeGreen
                              : sum < 0
-                             ? Color.Red
+                             ? new Color(0xff, 0x40, 0x40)//Color.Red
                              : Color.White;
                          }
                          _trumpLabels[i].Show();
@@ -2619,9 +2619,9 @@ namespace Mariasek.SharedClient
                     else
                     {
                         _trumpLabels[i].HighlightColor = sum > 0
-                                                           ? Color.Green
+                                                           ? Color.LimeGreen
                                                            : sum < 0
-                                                               ? Color.Red
+                                                               ? new Color(0xff, 0x40, 0x40)//Color.Red
                                                                : Color.White;
                     }
                 }
@@ -2906,9 +2906,9 @@ namespace Mariasek.SharedClient
                                                      : string.Empty);
                             _trumpLabels[i].Height = 60;
                             _trumpLabels[i].HighlightColor = sum > 0
-                                                               ? Color.Green
+                                                               ? Color.LimeGreen
                                                                : sum < 0
-                                                                   ? Color.Red
+                                                                   ? new Color(0xff, 0x40, 0x40)//Color.Red
                                                                    : Color.White;
                             _trumpLabels[i].Show();
                         }
@@ -3112,9 +3112,9 @@ namespace Mariasek.SharedClient
                     else
                     {
                         _trumpLabels[i].HighlightColor = sum > 0
-                                                           ? Color.Green
+                                                           ? Color.LimeGreen
                                                            : sum < 0
-                                                               ? Color.Red
+                                                               ? new Color(0xff, 0x40, 0x40)//Color.Red
                                                                : Color.White;
                     }
                 }
