@@ -2210,48 +2210,55 @@ namespace Mariasek.Engine.New
                 }
             };
 
-            yield return new AiRule
-            {
-                Order = 7,
-                Description = "zkusit uhrát trumfovou X",
-                SkipSimulations = true,
-                ChooseCard2 = (Card c1) =>
-                {
-                    if (TeamMateIndex == -1)
-                    {
-                        var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == _trump &&
-                                                                                    i.Value == Hodnota.Desitka &&
-                                                                                    i.IsHigherThan(c1, _trump) &&
-                                                                                    (_probabilities.CardProbability(player1, new Card(_trump, Hodnota.Eso)) > 0 ||
-                                                                                     (_probabilities.CardProbability(player3, new Card(_trump, Hodnota.Eso)) > 0 &&
-                                                                                      _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor)) &&                                                                                    
-                                                                                    (((_gameType & Hra.Sedma) != 0 && hands[MyIndex].CardCount(_trump) == 3) ||
-                                                                                     hands[MyIndex].CardCount(_trump) == 2)).ToList();
-                        return cardsToPlay.FirstOrDefault();
-                    }
-                    else if (TeamMateIndex == player1)
-                    {
-                        var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == _trump &&
-                                                                                    i.Value == Hodnota.Desitka &&
-                                                                                    i.IsHigherThan(c1, _trump) &&
-                                                                                    _probabilities.CardProbability(player3, new Card(_trump, Hodnota.Eso)) > 0 &&
-                                                                                    _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor &&
-                                                                                    (((_gameType & Hra.Sedma) != 0 && hands[MyIndex].CardCount(_trump) == 3) ||
-                                                                                     hands[MyIndex].CardCount(_trump) == 2)).ToList();
-                        return cardsToPlay.FirstOrDefault();
-                    }
-                    else
-                    {
-                        var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == _trump &&
-                                                                                    i.Value == Hodnota.Desitka &&
-                                                                                    i.IsHigherThan(c1, _trump) &&
-                                                                                    _probabilities.CardProbability(player1, new Card(_trump, Hodnota.Eso)) > 0 &&
-                                                                                    (((_gameType & Hra.Sedma) != 0 && hands[MyIndex].CardCount(_trump) == 3) ||
-                                                                                     hands[MyIndex].CardCount(_trump) == 2)).ToList();
-                        return cardsToPlay.FirstOrDefault();
-                    }
-                }
-            };
+            //yield return new AiRule
+            //{
+            //    Order = 7,
+            //    Description = "zkusit uhrát trumfovou X",
+            //    SkipSimulations = true,
+            //    ChooseCard2 = (Card c1) =>
+            //    {
+            //        if (TeamMateIndex == -1)
+            //        {
+            //            //-c-
+            //            var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == _trump &&
+            //                                                                        i.Value == Hodnota.Desitka &&
+            //                                                                        i.IsHigherThan(c1, _trump) &&
+            //                                                                        c1.Suit != _trump &&
+            //                                                                        _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor);
+            //                                                                        //(_probabilities.CardProbability(player1, new Card(_trump, Hodnota.Eso)) > 0 ||
+            //                                                                        // (_probabilities.CardProbability(player3, new Card(_trump, Hodnota.Eso)) > 0 &&
+            //                                                                        //  _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor)) &&                                                                                    
+            //                                                                        //(((_gameType & Hra.Sedma) != 0 && hands[MyIndex].CardCount(_trump) == 3) ||
+            //                                                                        // hands[MyIndex].CardCount(_trump) == 2)).ToList();
+            //            return cardsToPlay.FirstOrDefault();
+            //        }
+            //        else if (TeamMateIndex == player1)
+            //        {
+            //            //oc-
+            //            var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == _trump &&
+            //                                                                        i.Value == Hodnota.Desitka &&
+            //                                                                        i.IsHigherThan(c1, _trump) &&
+            //                                                                        c1.Suit != _trump &&
+            //                                                                        _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor);// &&
+            //                                                                        //(((_gameType & Hra.Sedma) != 0 && hands[MyIndex].CardCount(_trump) == 3) ||
+            //                                                                        //   hands[MyIndex].CardCount(_trump) == 2)).ToList();
+            //            return cardsToPlay.FirstOrDefault();
+            //        }
+            //        else
+            //        {
+            //            //-co
+            //            //nemelo by nastat, uplatnit se melo drivejsi pravidlo "hraj vítěznou X"
+            //            return null;
+            //            //var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == _trump &&
+            //            //                                                            i.Value == Hodnota.Desitka &&
+            //            //                                                            i.IsHigherThan(c1, _trump) &&
+            //            //                                                            //_probabilities.CardProbability(player1, new Card(_trump, Hodnota.Eso)) > 0 &&
+            //            //                                                            //(((_gameType & Hra.Sedma) != 0 && hands[MyIndex].CardCount(_trump) == 3) ||
+            //            //                                                            // hands[MyIndex].CardCount(_trump) == 2)).ToList();
+            //            //return cardsToPlay.FirstOrDefault();
+            //        }
+            //    }
+            //};
 
             yield return new AiRule
             {
@@ -2260,10 +2267,9 @@ namespace Mariasek.Engine.New
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
                 {
-					if (TeamMateIndex == -1 || 
-					    (TeamMateIndex == player1 &&
-					     ValidCards(c1, hands[MyIndex]).Any(i => i.Suit == c1.Suit &&
-					                                             i.Value > c1.Value)))
+					if (TeamMateIndex != player3 &&
+					    ValidCards(c1, hands[MyIndex]).Any(i => i.Suit == c1.Suit &&
+					                                            i.Value > c1.Value))
                     {
                         //-c-
                         //oc-

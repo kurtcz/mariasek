@@ -1671,7 +1671,7 @@ namespace Mariasek.Engine.New
                                 ? 0
                                 : topCard.Value - secondCard.Value - 1;
 
-                dict.Add(b, new Tuple<int, Hodnota>(holeSize, topCard?.Value ?? 0));
+                dict.Add(b, new Tuple<int, Hodnota>(holeSize, topCard?.Value ?? Hodnota.Eso));
             }
             if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
                     .Count(b => dict[b].Item1 > 2 ||
