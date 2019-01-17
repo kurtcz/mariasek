@@ -259,6 +259,12 @@ namespace Mariasek.Engine.New
 
         private List<Card> ChooseBetlTalon(List<Card> hand, Card trumpCard)
         {
+            var hh = new List<Card>(hand);
+            return ChooseBetlTalonImpl(hh, trumpCard);
+        }
+
+        private List<Card> ChooseBetlTalonImpl(List<Card> hand, Card trumpCard)
+        { 
             //nedavej do talonu karty v barve kde mam 7 karet vcetne esa a sedmy
             var bannedSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                   .Where(b => hand.CardCount(b) == 7 &&
@@ -274,8 +280,8 @@ namespace Mariasek.Engine.New
                 var higherCards = 0;
 
 				foreach (var h in Enum.GetValues(typeof(Hodnota))
-									 .Cast<Hodnota>()
-                                     .Where(h => i.BadValue > Card.GetBadValue(h)))
+									  .Cast<Hodnota>()
+                                      .Where(h => i.BadValue > Card.GetBadValue(h)))
 				{
 					if (!hand.Any(j => j.Suit == i.Suit && j.Value == h))
 					{
@@ -361,6 +367,12 @@ namespace Mariasek.Engine.New
 
         private List<Card> ChooseDurchTalon(List<Card> hand, Card trumpCard)
         {
+            var hh = new List<Card>(hand);
+            return ChooseDurchTalonImpl(hh, trumpCard);
+        }
+
+        private List<Card> ChooseDurchTalonImpl(List<Card> hand, Card trumpCard)
+        {
             var talon = hand.Where(i => hand.CardCount(i.Suit) <= 2 && //nejdriv zkus odmazat kratkou barvu ve ktere nemam eso
                                         !hand.HasA(i.Suit))
                             .Take(2)
@@ -408,6 +420,12 @@ namespace Mariasek.Engine.New
         }
 
         private List<Card> ChooseNormalTalon(List<Card> hand, Card trumpCard)
+        {
+            var hh = new List<Card>(hand);
+            return ChooseNormalTalonImpl(hand, trumpCard);
+        }
+
+        private List<Card> ChooseNormalTalonImpl(List<Card> hand, Card trumpCard)
         {
             var talon = new List<Card>();
 
