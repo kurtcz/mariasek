@@ -434,9 +434,9 @@ namespace Mariasek.SharedClient
                 IsEnabled = false,
                 Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 30),
                 Width = 50,
-                TextColor = new Color(0x60, 0x30, 0x10),//Color.SaddleBrown,
-                BackgroundColor = Color.White,
-                BorderColor = new Color(0x60, 0x30, 0x10),//Color.SaddleBrown,
+                TextColor = Game.Settings.ButtonColor,
+                BackgroundColor = Game.Settings.DefaultTextColor,
+                BorderColor = Game.Settings.ButtonColor,
                 ZIndex = 100,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main
             };
@@ -574,7 +574,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(10, 60),
                 Width = (int)Game.VirtualScreenWidth - 20,
                 Height = (int)Game.VirtualScreenHeight - 120,
-                TextColor = Color.Yellow,
+                TextColor = Game.Settings.HighlightedTextColor,
                 TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
                 ZIndex = 100
             };
@@ -585,7 +585,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(10, 60),
                 Width = (int)Game.VirtualScreenWidth - 20,
                 Height = (int)Game.VirtualScreenHeight - 120,
-                TextColor = Color.Yellow,
+                TextColor = Game.Settings.HighlightedTextColor,
                 ZIndex = 100,
                 FontScaleFactor = 0.9f
             };
@@ -596,7 +596,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(165, 140),
                 Width = (int)Game.VirtualScreenWidth - 280,
                 Height = (int)Game.VirtualScreenHeight - 210,
-                TextColor = Color.Yellow,
+                TextColor = Game.Settings.HighlightedTextColor,
                 ZIndex = 100,
                 FontScaleFactor = 0.9f
             };
@@ -609,7 +609,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(165, 140),
                 Width = (int)Game.VirtualScreenWidth - 280,
                 Height = (int)Game.VirtualScreenHeight - 210,
-                TextColor = Color.Yellow,
+                TextColor = Game.Settings.HighlightedTextColor,
                 ZIndex = 100,
                 FontScaleFactor = 0.9f
             };
@@ -622,7 +622,7 @@ namespace Mariasek.SharedClient
             //    Position = new Vector2(120, 80),
             //    Width = (int)Game.VirtualScreenWidth - 240,
             //    Height = 40,
-            //    TextColor = Color.Yellow,
+            //    TextColor = Game.Settings.HighlightedTextColor,
             //    TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
             //    ZIndex = 100
             //};
@@ -634,7 +634,7 @@ namespace Mariasek.SharedClient
                 Width = 250,
                 Height = 50,
                 BackgroundColor = new Color(0x40, 0x40, 0x40),
-                TextColor = Color.Yellow,
+                TextColor = Game.Settings.HighlightedTextColor,
                 Opacity = 0.8f,
                 VerticalAlign = VerticalAlignment.Middle,
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -667,8 +667,8 @@ namespace Mariasek.SharedClient
                 Width = 250,
                 Height = 50,
                 BackgroundColor = new Color(0x40, 0x40, 0x40),
-                TextColor = Color.Yellow,
-                BorderColor = Color.Red,
+                TextColor = Game.Settings.HighlightedTextColor,
+                BorderColor = Game.Settings.Player1Color,
                 Opacity = 0.8f,
                 VerticalAlign = VerticalAlignment.Middle,
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -681,8 +681,8 @@ namespace Mariasek.SharedClient
                 Width = 250,
                 Height = 50,
                 BackgroundColor = new Color(0x40, 0x40, 0x40),
-                TextColor = Color.Yellow,
-                BorderColor = Color.Green,
+                TextColor = Game.Settings.HighlightedTextColor,
+                BorderColor = Game.Settings.Player2Color,
                 Opacity = 0.8f,
                 VerticalAlign = VerticalAlignment.Middle,
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -695,8 +695,8 @@ namespace Mariasek.SharedClient
                 Width = 250,
                 Height = 50,
                 BackgroundColor = new Color(0x40, 0x40, 0x40),
-                TextColor = Color.Yellow,
-                BorderColor = Color.Blue,
+                TextColor = Game.Settings.HighlightedTextColor,
+                BorderColor = Game.Settings.Player3Color,
                 Opacity = 0.8f,
                 VerticalAlign = VerticalAlignment.Middle,
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -745,7 +745,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 75, 0),
                 Width = 150,
                 Height = 8,
-                Color = Color.Red,
+                Color = Game.Settings.Player1Color,
                 ZIndex = 100,
                 Anchor = AnchorType.Top
             };
@@ -758,7 +758,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(5, 0),
                 Width = 150,
                 Height = 8,
-                Color = Color.Green,
+                Color = Game.Settings.Player2Color,
                 ZIndex = 100,
                 Anchor = AnchorType.Top
             };
@@ -767,7 +767,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth - 155, 0),
                 Width = 150,
                 Height = 8,
-                Color = Color.Blue,
+                Color = Game.Settings.Player3Color,
                 ZIndex = 100,
                 Anchor = AnchorType.Top
             };
@@ -1296,18 +1296,18 @@ namespace Mariasek.SharedClient
                      }
                      foreach (var btn in gtButtons)
                      {
-                         btn.BorderColor = Color.White;
+                         btn.BorderColor = Game.Settings.DefaultTextColor;
                          btn.Hide();
                      }
                      giveUpButton.Hide();
                      foreach (var btn in gfButtons)
                      {
-                         btn.BorderColor = Color.White;
+                         btn.BorderColor = Game.Settings.DefaultTextColor;
                          btn.Hide();
                      }
                      foreach (var btn in bidButtons)
                      {
-                         btn.BorderColor = Color.White;
+                         btn.BorderColor = Game.Settings.DefaultTextColor;
                          btn.Hide();
                      }
                      foreach (var bubble in _bubbles)
@@ -1357,15 +1357,15 @@ namespace Mariasek.SharedClient
                          _trumpLabels[i].Height = 60;
                          if (Game.Settings.WhiteScore)
                          {
-                             _trumpLabels[i].HighlightColor = Color.White;
+                             _trumpLabels[i].HighlightColor = Game.Settings.DefaultTextColor;
                          }
                          else
                          {
                              _trumpLabels[i].HighlightColor = sum > 0
-                             ? Color.LimeGreen
+                             ? Game.Settings.PositiveScoreColor
                              : sum < 0
-                             ? new Color(0xff, 0x40, 0x40)//Color.Red
-                             : Color.White;
+                             ? Game.Settings.NegativeScoreColor
+                             : Game.Settings.DefaultTextColor;
                          }
                          _trumpLabels[i].Show();
                      }
@@ -1938,7 +1938,7 @@ namespace Mariasek.SharedClient
                 {
                     if ((validGameTypes & (Hra)gtButton.Tag) == 0)
                     {
-                        gtButton.BorderColor = Color.White;
+                        gtButton.BorderColor = Game.Settings.DefaultTextColor;
                     }
                     gtButton.IsEnabled = ((Hra)gtButton.Tag & validGameTypes) == (Hra)gtButton.Tag;
                     gtButton.Show();
@@ -2614,28 +2614,28 @@ namespace Mariasek.SharedClient
                                              sum.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
                     if (Game.Settings.WhiteScore)
                     {
-                        _trumpLabels[i].HighlightColor = Color.White;
+                        _trumpLabels[i].HighlightColor = Game.Settings.DefaultTextColor;
                     }
                     else
                     {
                         _trumpLabels[i].HighlightColor = sum > 0
-                                                           ? Color.LimeGreen
+                                                           ? Game.Settings.PositiveScoreColor
                                                            : sum < 0
-                                                               ? new Color(0xff, 0x40, 0x40)//Color.Red
-                                                               : Color.White;
+                                                               ? Game.Settings.NegativeScoreColor
+                                                               : Game.Settings.DefaultTextColor;
                     }
                 }
                 if (!results.GamePlayed || results.MoneyWon[0] == 0)
                 {
-                    _gameResult.BorderColor = Color.Blue;
+                    _gameResult.BorderColor = Game.Settings.TieColor;
                 }
                 else if (results.MoneyWon[0] > 0)
                 {
-                    _gameResult.BorderColor = Color.Green;
+                    _gameResult.BorderColor = Game.Settings.WinColor;
                 }
                 else //(results.MoneyWon[0] < 0)
                 {
-                    _gameResult.BorderColor = Color.Red;
+                    _gameResult.BorderColor = Game.Settings.LossColor;
                 }
                 _gameResult.Text = firstWord;
                 _msgLabelLeft.Text = leftMessage.ToString();
@@ -2814,18 +2814,18 @@ namespace Mariasek.SharedClient
                         }
                         foreach (var btn in gtButtons)
                         {
-                            btn.BorderColor = Color.White;
+                            btn.BorderColor = Game.Settings.DefaultTextColor;
                             btn.Hide();
                         }
                         giveUpButton.Hide();
                         foreach (var btn in gfButtons)
                         {
-                            btn.BorderColor = Color.White;
+                            btn.BorderColor = Game.Settings.DefaultTextColor;
                             btn.Hide();
                         }
                         foreach (var btn in bidButtons)
                         {
-                            btn.BorderColor = Color.White;
+                            btn.BorderColor = Game.Settings.DefaultTextColor;
                             btn.Hide();
                         }
                         foreach (var bubble in _bubbles)
@@ -2906,10 +2906,10 @@ namespace Mariasek.SharedClient
                                                      : string.Empty);
                             _trumpLabels[i].Height = 60;
                             _trumpLabels[i].HighlightColor = sum > 0
-                                                               ? Color.LimeGreen
+                                                               ? Game.Settings.PositiveScoreColor
                                                                : sum < 0
-                                                                   ? new Color(0xff, 0x40, 0x40)//Color.Red
-                                                                   : Color.White;
+                                                                   ? Game.Settings.NegativeScoreColor
+                                                                   : Game.Settings.DefaultTextColor;
                             _trumpLabels[i].Show();
                         }
                         if (!_testGame)
@@ -3107,15 +3107,15 @@ namespace Mariasek.SharedClient
                                              : string.Empty);
                     if (Game.Settings.WhiteScore)
                     {
-                        _trumpLabels[i].HighlightColor = Color.White;
+                        _trumpLabels[i].HighlightColor = Game.Settings.DefaultTextColor;
                     }
                     else
                     {
                         _trumpLabels[i].HighlightColor = sum > 0
-                                                           ? Color.LimeGreen
+                                                           ? Game.Settings.PositiveScoreColor
                                                            : sum < 0
-                                                               ? new Color(0xff, 0x40, 0x40)//Color.Red
-                                                               : Color.White;
+                                                               ? Game.Settings.NegativeScoreColor
+                                                               : Game.Settings.DefaultTextColor;
                     }
                 }
             }
@@ -3241,14 +3241,14 @@ namespace Mariasek.SharedClient
             {
                 if (gameType == (Hra)gtButton.Tag)
                 {
-                    gtButton.BorderColor = Color.Green;
+                    gtButton.BorderColor = Game.Settings.HintColor;
                 }
                 else
                 {
-                    gtButton.BorderColor = Color.White;
+                    gtButton.BorderColor = Game.Settings.DefaultTextColor;
                 }
             }
-            giveUpButton.BorderColor = gameType == 0 ? Color.Green : Color.White;
+            giveUpButton.BorderColor = gameType == 0 ? Game.Settings.HintColor : Game.Settings.DefaultTextColor;
         }
 
         public void SuggestGameFlavourNew(Hra gameType)
@@ -3260,8 +3260,8 @@ namespace Mariasek.SharedClient
 
         public void SuggestGameFlavourNew(GameFlavour flavour)
         {
-            gfDobraButton.BorderColor = flavour == GameFlavour.Good ? Color.Green : Color.White;
-            gfSpatnaButton.BorderColor = flavour == GameFlavour.Bad ? Color.Green : Color.White;
+            gfDobraButton.BorderColor = flavour == GameFlavour.Good ? Game.Settings.HintColor : Game.Settings.DefaultTextColor;
+            gfSpatnaButton.BorderColor = flavour == GameFlavour.Bad ? Game.Settings.HintColor : Game.Settings.DefaultTextColor;
         }
 
         public void SuggestBidsAndDoubles(string bid, int? t = null)
@@ -3280,11 +3280,11 @@ namespace Mariasek.SharedClient
 			{
 				if ((bid & (Hra)btn.Tag) != 0)
 				{
-					btn.BorderColor = Color.Green;
+					btn.BorderColor = Game.Settings.HintColor;
 				}
 				else
 				{
-					btn.BorderColor = Color.White;
+					btn.BorderColor = Game.Settings.DefaultTextColor;
 				}
 			}
 		}

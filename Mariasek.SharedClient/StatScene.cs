@@ -98,7 +98,8 @@ namespace Mariasek.SharedClient
                 Height = 200,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
                 MinValue = -0.1f,
-                MaxValue = 1.1f
+                MaxValue = 1.1f,
+                Colors = new[] { Game.Settings.Player1Color, Game.Settings.Player2Color, Game.Settings.Player3Color }
             };
             _summary = new TextBox(this)
             {

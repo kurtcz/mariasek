@@ -1,5 +1,7 @@
 ﻿using System;
+using Microsoft.Xna.Framework;
 using Mariasek.Engine.New;
+using System.Xml.Serialization;
 
 namespace Mariasek.SharedClient
 {
@@ -40,6 +42,31 @@ namespace Mariasek.SharedClient
 
     public class GameSettings
     {
+        [XmlIgnore]
+        public readonly Color DefaultTextColor = Color.White;
+        [XmlIgnore]
+        public readonly Color HighlightedTextColor = new Color(0xe7, 0xd3, 0x38);
+        [XmlIgnore]
+        public readonly Color Player1Color = new Color(0xd0, 2, 0x1b);
+        [XmlIgnore]
+        public readonly Color Player2Color = new Color(0x7e, 0xd3, 0x21);
+        [XmlIgnore]
+        public readonly Color Player3Color = new Color(0x4a, 0x90, 0xe2);
+        [XmlIgnore]
+        public readonly Color NegativeScoreColor = new Color(255, 64, 64);
+        [XmlIgnore]
+        public readonly Color PositiveScoreColor = new Color(0x7e, 0xd3, 0x21);
+        [XmlIgnore]
+        public readonly Color HintColor = new Color(0x7e, 0xd3, 0x21);
+        [XmlIgnore]
+        public readonly Color WinColor = new Color(0x7e, 0xd3, 0x21);
+        [XmlIgnore]
+        public readonly Color LossColor = new Color(0xd0, 2, 0x1b);
+        [XmlIgnore]
+        public readonly Color TieColor = new Color(0x7e, 0xd3, 0x21);
+        [XmlIgnore]
+        public readonly Color ButtonColor = new Color(0x60, 0x30, 0x10);
+
         public bool? Default { get; set; }
         public bool? TestMode { get; set; }
         public bool DoLog { get; set; }

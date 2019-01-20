@@ -63,6 +63,7 @@ namespace Mariasek.SharedClient
                 Position = _origPosition,
                 Width = (int)Game.VirtualScreenWidth - 230,
                 Height = (int)Game.VirtualScreenHeight - 120,
+                Colors = new [] { Game.Settings.Player1Color, Game.Settings.Player2Color, Game.Settings.Player3Color },
                 LineThickness = 3f,
                 DataMarkerSize = 9f,
                 TickMarkLength = 5f,
