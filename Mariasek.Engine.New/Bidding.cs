@@ -83,26 +83,18 @@ namespace Mariasek.Engine.New
             SetLastBidder(_g.GameStartingPlayer, _g.GameType);
         }
 
-        public Bidding(Bidding b)
+        public Bidding Clone()
         {
-            _g = b._g;
+            var clone = (Bidding)MemberwiseClone();
 
-            _gameFlek = b._gameFlek;
-            _sevenFlek = b._sevenFlek;
-            _sevenAgainstFlek = b._sevenAgainstFlek;
-            _hundredAgainstFlek = b._hundredAgainstFlek;
-            _betlDurchFlek = b._betlDurchFlek;
-            Bids = (Hra)((int)b.Bids);
-            PlayerBids = new Hra[Game.NumPlayers];
+            clone.Bids = (Hra)((int)Bids);
+            clone.PlayerBids = new Hra[Game.NumPlayers];
             for (var i = 0; i < Game.NumPlayers; i++)
             {
-                PlayerBids[i] = (Hra)((int)b.PlayerBids[i]);
+                clone.PlayerBids[i] = (Hra)((int)PlayerBids[i]);
             }
-            GameLastBidder = b.GameLastBidder;
-            SevenLastBidder = b.SevenLastBidder;
-            SevenAgainstLastBidder = b.SevenAgainstLastBidder;
-            HundredAgainstLastBidder = b.HundredAgainstLastBidder;
-            BetlDurchLastBidder = b.BetlDurchLastBidder;
+
+            return clone;
         }
 
         public void Die()

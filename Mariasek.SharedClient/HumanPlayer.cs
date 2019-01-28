@@ -398,13 +398,13 @@ namespace Mariasek.SharedClient
             if (_aiPlayer != null)
             {
                 _t0 = Environment.TickCount;
-                var temp = new Bidding(bidding);                                    //vyrobit kopii objektu
+                var temp = bidding.Clone();                                         //vyrobit kopii objektu
                 _aiTask = Task.Run(() =>
                 { 
                     try
                     {
 					_t1 = Environment.TickCount;
-                        var bid = _aiPlayer.GetBidsAndDoubles(bidding);
+                        var bid = _aiPlayer.GetBidsAndDoubles(temp);
                         temp.SetLastBidder(_aiPlayer, bid);                         //nasimulovat reakci (tato operace manipuluje s vnitrnim stavem - proto pracujeme s kopii)
                         var e = temp.GetEventArgs(_aiPlayer, bid, _previousBid);    //a zformatovat ji do stringu
 
