@@ -56,7 +56,7 @@ namespace Mariasek.SharedClient
             _trumpCard = null;
             firstTimeChoosingFlavour = true;
             Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, 
-                                            _g.AllowAXTalon, _g.AllowTrumpTalon, _stringLoggerFactory, _g.talon);
+                                            _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, _g.talon);
             _cancellationTokenSource = new CancellationTokenSource();
             if (_aiPlayer != null)
             {
@@ -116,7 +116,7 @@ namespace Mariasek.SharedClient
             _g.ThrowIfCancellationRequested();
             if (_aiPlayer != null)
             {
-				_t0 = Environment.TickCount;
+                _t0 = Environment.TickCount;
                 _aiTask = Task.Run(() =>
                 {
                     try
@@ -150,8 +150,8 @@ namespace Mariasek.SharedClient
         {
             if (_aiPlayer != null)
             {
-				_t0 = Environment.TickCount;
-				_aiTask = Task.Run(() =>
+                _t0 = Environment.TickCount;
+                _aiTask = Task.Run(() =>
                 {
                     try
                     {
@@ -178,12 +178,12 @@ namespace Mariasek.SharedClient
             if (_aiPlayer != null)
             {
                 _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump,
-                                                          _g.AllowAXTalon, _g.AllowTrumpTalon, _stringLoggerFactory, _talon)
+                                                          _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, _talon)
                 {
                     ExternalDebugString = _aiPlayer._debugString
                 };
                 _aiPlayer._talon = new List<Card>(_talon);
-                _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
+                _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _aiPlayer._talon);
             }
             return _talon;
         }
@@ -258,7 +258,7 @@ namespace Mariasek.SharedClient
                                 if (_talon != null)
                                 {
                                     _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, 
-                                                                              _g.AllowAXTalon, _g.AllowTrumpTalon, _stringLoggerFactory, _talon)
+                                                                              _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, _talon)
 									{
 										ExternalDebugString = _aiPlayer._debugString
 									};
@@ -311,7 +311,7 @@ namespace Mariasek.SharedClient
                         if (_talon != null)
                         {
                             _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, 
-                                                                      _g.AllowAXTalon, _g.AllowTrumpTalon, _stringLoggerFactory, _talon)
+                                                                      _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, _talon)
                             {
                                 ExternalDebugString = _aiPlayer._debugString
                             };
@@ -397,14 +397,14 @@ namespace Mariasek.SharedClient
             }
             if (_aiPlayer != null)
             {
-				_t0 = Environment.TickCount;
+                _t0 = Environment.TickCount;
+                var temp = new Bidding(bidding);                                    //vyrobit kopii objektu
                 _aiTask = Task.Run(() =>
                 { 
                     try
                     {
-						_t1 = Environment.TickCount;
+					_t1 = Environment.TickCount;
                         var bid = _aiPlayer.GetBidsAndDoubles(bidding);
-                        var temp = new Bidding(bidding);                            //vyrobit kopii objektu
                         temp.SetLastBidder(_aiPlayer, bid);                         //nasimulovat reakci (tato operace manipuluje s vnitrnim stavem - proto pracujeme s kopii)
                         var e = temp.GetEventArgs(_aiPlayer, bid, _previousBid);    //a zformatovat ji do stringu
 
@@ -522,7 +522,7 @@ namespace Mariasek.SharedClient
             {
                 _aiPlayer.Probabilities = new Probability(PlayerIndex, e.GameStartingPlayerIndex, new Hand(Hand), 
                                                           e.TrumpCard != null ? e.TrumpCard.Suit : (Barva?)null, 
-                                                          _g.AllowAXTalon, _g.AllowTrumpTalon, _stringLoggerFactory, _talon)
+                                                          _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, _talon)
                 {
                     ExternalDebugString = _aiPlayer._debugString
                 };

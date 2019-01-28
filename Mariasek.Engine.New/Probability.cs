@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using Mariasek.Engine.New.Logger;
 using MersenneTwister;
 //using Newtonsoft.Json;
@@ -31,6 +32,7 @@ namespace Mariasek.Engine.New
         private bool _allowTrumpTalon;
         public const int talonIndex = Game.NumPlayers;
         public bool UseDebugString { get; set; }
+        private CancellationToken _cancellationToken;
 
         //for debug purposes onlys
         private Hand _myHand;
@@ -49,7 +51,7 @@ namespace Mariasek.Engine.New
         //private Dictionary<Hra, float> _initialExpectedTrumpsPerGameType = new Dictionary<Hra, float>() { { Hra.Hra, 3f }, { Hra.Sedma, 5f }, { Hra.Kilo, 7f}};
         private float _gameStarterCurrentExpectedTrumps = 3f;
 
-        public Probability(int myIndex, int gameStarterIndex, Hand myHand, Barva? trump, bool allowAXTalon, bool allowTrumpTalon, Func<IStringLogger> stringLoggerFactory, List<Card> talon = null)
+        public Probability(int myIndex, int gameStarterIndex, Hand myHand, Barva? trump, bool allowAXTalon, bool allowTrumpTalon, CancellationToken cancellationToken, Func<IStringLogger> stringLoggerFactory, List<Card> talon = null)
         {
             _myIndex = myIndex;
 			_gameIndex = -1;
@@ -66,6 +68,7 @@ namespace Mariasek.Engine.New
             _myHand = myHand;
             _talon = talon != null ? new List<Card>(talon) : null;
             _myTalon = talon != null ? new List<Card>(talon) : null;
+            _cancellationToken = cancellationToken;
             _debugString = stringLoggerFactory();
             _verboseString = stringLoggerFactory();
             ExternalDebugString = stringLoggerFactory();
@@ -669,7 +672,7 @@ namespace Mariasek.Engine.New
         public IEnumerable<Hand[]> GenerateHands(int roundNumber, int roundStarterIndex, int maxGenerations)
         {
             generatedHands = new List<Hand[]>();
-            for(var i = 0; i < maxGenerations; i++)
+            for(var i = 0; i < maxGenerations && !_cancellationToken.IsCancellationRequested; i++)
             {
                 var hands = GenerateHands(roundNumber, roundStarterIndex);
 

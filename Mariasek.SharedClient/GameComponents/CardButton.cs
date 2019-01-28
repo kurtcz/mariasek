@@ -153,7 +153,7 @@ namespace Mariasek.SharedClient.GameComponents
                     .ScaleTo(Game.CardScaleFactor.X, speed)
                     .Invoke(() =>
                             {
-                                _reverseSprite.Scale = Game.CardScaleFactor;//Vector2.One;
+                                _reverseSprite.Scale = Game.CardScaleFactor;
                                 _doneFlipping = true;
                             });
                 })
@@ -188,7 +188,7 @@ namespace Mariasek.SharedClient.GameComponents
                                 .ScaleTo(Game.CardScaleFactor.X, speed)
                                 .Invoke(() =>
                                 {
-                                    Sprite.Scale = Game.CardScaleFactor;//Vector2.One;
+                                    Sprite.Scale = Game.CardScaleFactor;
                                     _doneFlipping = true;
                                 });
                         });

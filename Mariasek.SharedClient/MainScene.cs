@@ -1314,6 +1314,7 @@ namespace Mariasek.SharedClient
                      {
                          bubble.Hide();
                      }
+                     AmendCardScaleFactor();
                      RunOnUiThread(() =>
                      {
                          _hand.ClearOperations();
@@ -2832,6 +2833,7 @@ namespace Mariasek.SharedClient
                         {
                             bubble.Hide();
                         }
+                        AmendCardScaleFactor();
                         RunOnUiThread(() =>
                         {
                             _hand.ClearOperations();
@@ -2942,7 +2944,7 @@ namespace Mariasek.SharedClient
                     CreateDirectoryForFilePath(_savedGameFilePath);
                     if (g.GameType != 0)
                     {
-						Game.StorageAccessor.GetStorageAccess();
+					Game.StorageAccessor.GetStorageAccess();
                         using (var fs = File.Open(_savedGameFilePath, FileMode.Create))
                         {
                             g.SaveGame(fs, saveDebugInfo: true);

@@ -49,7 +49,7 @@ namespace Mariasek.SharedClient
         [XmlIgnore]
         public readonly Color Player1Color = new Color(0xd0, 2, 0x1b);
         [XmlIgnore]
-        public readonly Color Player2Color = new Color(0x7e, 0xd3, 0x21);
+        public readonly Color Player2Color = new Color(0x5e, 0xd3, 0x11);
         [XmlIgnore]
         public readonly Color Player3Color = new Color(0x4a, 0x90, 0xe2);
         [XmlIgnore]

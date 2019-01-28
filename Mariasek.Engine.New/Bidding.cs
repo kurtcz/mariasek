@@ -92,10 +92,11 @@ namespace Mariasek.Engine.New
             _sevenAgainstFlek = b._sevenAgainstFlek;
             _hundredAgainstFlek = b._hundredAgainstFlek;
             _betlDurchFlek = b._betlDurchFlek;
+            Bids = (Hra)((int)b.Bids);
             PlayerBids = new Hra[Game.NumPlayers];
             for (var i = 0; i < Game.NumPlayers; i++)
             {
-                PlayerBids[i] = b.PlayerBids[i];
+                PlayerBids[i] = (Hra)((int)b.PlayerBids[i]);
             }
             GameLastBidder = b.GameLastBidder;
             SevenLastBidder = b.SevenLastBidder;
