@@ -196,7 +196,7 @@ namespace Mariasek.SharedClient
                     }
                 },
                 FontScaleFactor = 0.9f,
-                HighlightColor = Color.Yellow,
+                HighlightColor = Game.Settings.HighlightedTextColor,
                 TapToHighlight = true
             };
             _historyBox.Hide();
@@ -215,7 +215,7 @@ namespace Mariasek.SharedClient
 				Position = new Vector2(220, Game.VirtualScreenHeight - 50),
 				Width = (int)Game.VirtualScreenWidth - 230,
 				Height = 50,
-				TextColor = Color.Yellow,
+				TextColor = Game.Settings.HighlightedTextColor,
                 Tabs = new[]
                 {
                     new Tab

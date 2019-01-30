@@ -34,11 +34,13 @@ namespace Mariasek.Engine.New
 
         public bool GamePlayed { get; private set; }
         public bool GivenUp { get; private set; }
+        [XmlIgnore]
         public float BaseBet { get; set; }
+        [XmlIgnore]
 		public int MaxWin { get; set; }
         public Hra GameType { get { return _gameType; } }
         public string GameTypeString { get; set; }
-        public float GameTypeConfidence { get; set; }
+        public float GameTypeConfidence { get; set; }   //GameStartingPlayer confidence at the beginning of the game
         public int PointsWon { get; private set; }
         public int PointsLost { get; private set; }
         public int BasicPointsWon { get; private set; }
@@ -62,16 +64,27 @@ namespace Mariasek.Engine.New
         public bool BetlWon { get; private set; }
         public bool DurchWon { get; private set; }
 
+        [XmlIgnore]
         public int GameMoneyWon { get; protected set; }
+        [XmlIgnore]
         public int SevenMoneyWon { get; protected set; }
+        [XmlIgnore]
         public int QuietSevenMoneyWon { get; protected set; }
+        [XmlIgnore]
         public int SevenAgainstMoneyWon { get; protected set; }
+        [XmlIgnore]
         public int QuietSevenAgainstMoneyWon { get; protected set; }
+        [XmlIgnore]
         public int HundredMoneyWon { get; protected set; }
+        [XmlIgnore]
         public int QuietHundredMoneyWon { get; protected set; }
+        [XmlIgnore]
         public int HundredAgainstMoneyWon { get; protected set; }
+        [XmlIgnore]
         public int QuietHundredAgainstMoneyWon { get; protected set; }
+        [XmlIgnore]
         public int BetlMoneyWon { get; protected set; }
+        [XmlIgnore]
         public int DurchMoneyWon { get; protected set; }
 
         public int GameValue { get; private set; }
@@ -84,8 +97,8 @@ namespace Mariasek.Engine.New
 
         [XmlArray]
         public int[] MoneyWon { get; protected set; }
-        [XmlElement]
-        public float SimulatedSuccessRate { get; set; } //set from MainScene
+        [XmlIgnore]
+        public float SimulatedSuccessRate { get; set; } //HumanPlayer confidence at the beginning of the game. Set from MainScene
 
         public int GameId { get; set; }
         [XmlIgnore]

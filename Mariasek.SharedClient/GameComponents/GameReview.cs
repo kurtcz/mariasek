@@ -9,7 +9,6 @@ namespace Mariasek.SharedClient.GameComponents
 {
     public class GameReview : ScrollBox
     {
-        private static readonly Color Pink = new Color(0xff, 0x90, 0xa0);
         private RectangleShape _background;
         private List<Mariasek.Engine.New.Card>[] _initialHands;
         public Sprite[][] Hands;
@@ -276,7 +275,7 @@ namespace Mariasek.SharedClient.GameComponents
                     Position = new Vector2(200 - 0.5f * Hand.CardWidth * reviewCardScaleFactor.X, 100 + (i - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 20),
                     Width = 200,
                     Height = 40,
-                    TextColor = Color.Yellow,
+                    TextColor = Game.Settings.HighlightedTextColor,
                     ZIndex = 200,
                     UseCommonScissorRect = true
                 };
@@ -297,7 +296,7 @@ namespace Mariasek.SharedClient.GameComponents
                     Width = 200,
                     Height = 40,
                     Text = string.Format("{0}. kolo:", i + 1),
-                    TextColor = Color.Yellow,
+                    TextColor = Game.Settings.HighlightedTextColor,
                     ZIndex = 200,
                     UseCommonScissorRect = true
                 };
@@ -586,11 +585,11 @@ namespace Mariasek.SharedClient.GameComponents
                     {
                         if (game.GameStartingPlayer.PlayerIndex == 0)
                         {
-                            Hands[3][i].Tint = Pink;
+                            Hands[3][i].Tint = Game.Settings.ReviewPtsLostColor;
                         }
                         else
                         {
-                            Hands[3][i].Tint = Color.LightGreen;
+                            Hands[3][i].Tint = Game.Settings.ReviewPtsWonColor;
                         }
                     }
                     else
@@ -628,11 +627,11 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
                     {
-                        Rounds[i][0].Tint = Color.LightGreen;
+                        Rounds[i][0].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
                     }
                     else
                     {
-                        Rounds[i][0].Tint = Pink;
+                        Rounds[i][0].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
                     }
                 }
                 else
@@ -640,18 +639,20 @@ namespace Mariasek.SharedClient.GameComponents
                     Rounds[i][0].Tint = Color.White;
                 }
                 Labels[i][0].Text = string.Format("{0}: {1}", game.rounds[i].player1.Name, game.rounds[i].player1.PlayerIndex == 0 ? "-" : debugNote1 != null ? debugNote1.Split('\n')[0] : "-");
-                Labels[i][0].TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player1.PlayerIndex ? Color.Yellow : Color.White;
+                Labels[i][0].TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player1.PlayerIndex 
+                                            ? Game.Settings.HighlightedTextColor
+                                            : Game.Settings.DefaultTextColor;
 
                 Rounds[i][1].SpriteRectangle = game.rounds[i].c2.ToTextureRect();
                 if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka))
                 {
                     if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
                     {
-                        Rounds[i][1].Tint = Color.LightGreen;
+                        Rounds[i][1].Tint = Game.Settings.ReviewPtsWonColor;
                     }
                     else
                     {
-                        Rounds[i][1].Tint = Pink;
+                        Rounds[i][1].Tint = Game.Settings.ReviewPtsLostColor;
                     }
                 }
                 else
@@ -659,18 +660,20 @@ namespace Mariasek.SharedClient.GameComponents
                     Rounds[i][1].Tint = Color.White;
                 }
                 Labels[i][1].Text = string.Format("{0}: {1}", game.rounds[i].player2.Name, game.rounds[i].player2.PlayerIndex == 0 ? "-" : debugNote2 != null ? debugNote2.Split('\n')[0] : "-");
-                Labels[i][1].TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player2.PlayerIndex ? Color.Yellow : Color.White;
+                Labels[i][1].TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player2.PlayerIndex 
+                                            ? Game.Settings.HighlightedTextColor
+                                            : Game.Settings.DefaultTextColor;
 
                 Rounds[i][2].SpriteRectangle = game.rounds[i].c3.ToTextureRect();
                 if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))
                 {
                     if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
                     {
-                        Rounds[i][2].Tint = Color.LightGreen;
+                        Rounds[i][2].Tint = Game.Settings.ReviewPtsWonColor;
                     }
                     else
                     {
-                        Rounds[i][2].Tint = Pink;
+                        Rounds[i][2].Tint = Game.Settings.ReviewPtsLostColor;
                     }
                 }
                 else
@@ -678,7 +681,9 @@ namespace Mariasek.SharedClient.GameComponents
                     Rounds[i][2].Tint = Color.White;
                 }
                 Labels[i][2].Text = string.Format("{0}: {1}", game.rounds[i].player3.Name, game.rounds[i].player3.PlayerIndex == 0 ? "-" : debugNote3 != null ? debugNote3.Split('\n')[0] : "-");
-                Labels[i][2].TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player3.PlayerIndex ? Color.Yellow : Color.White;
+                Labels[i][2].TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player3.PlayerIndex 
+                                            ? Game.Settings.HighlightedTextColor
+                                            : Game.Settings.DefaultTextColor;
                 for (var j = 0; j < Mariasek.Engine.New.Game.NumPlayers; j++)
                 {
                     Labels[i][j].Show();
@@ -793,11 +798,11 @@ namespace Mariasek.SharedClient.GameComponents
                                                                               k.c3 == hand[j])).roundWinner;
                         if (roundWinner.PlayerIndex == 0 || roundWinner.TeamMateIndex == 0)
                         {
-                            Hands[i][j].Tint = Color.LightGreen;
+                            Hands[i][j].Tint = Game.Settings.ReviewPtsWonColor;
                         }
                         else
                         {
-                            Hands[i][j].Tint = Pink;
+                            Hands[i][j].Tint = Game.Settings.ReviewPtsLostColor;
                         }
                     }
                     else
@@ -808,11 +813,11 @@ namespace Mariasek.SharedClient.GameComponents
                     {
                         if (game.players[ii].PlayerIndex == 0 || game.players[ii].TeamMateIndex == 0)
                         {
-                            Hands[i][j].Tint = Color.LightGreen;
+                            Hands[i][j].Tint = Game.Settings.ReviewPtsWonColor;
                         }
                         else
                         {
-                            Hands[i][j].Tint = Pink;
+                            Hands[i][j].Tint = Game.Settings.ReviewPtsLostColor;
                         }
                     }
                 }

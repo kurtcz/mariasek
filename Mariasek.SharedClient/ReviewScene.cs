@@ -54,7 +54,7 @@ namespace Mariasek.SharedClient
                 Height = (int)Game.VirtualScreenHeight - 190,
                 FontScaleFactor = 0.82f,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
-                HighlightColor = Color.Yellow,
+                HighlightColor = Game.Settings.HighlightedTextColor,
                 HighlightedLine = 2,
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,

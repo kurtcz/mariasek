@@ -11,9 +11,9 @@ namespace Mariasek.SharedClient.GameComponents
 {
     public class Button : TouchControlBase
     {
-        private Color _highlightColor = new Color(0x99, 0x4d, 0x1a);
-        private Color _origButtonColor = new Color(0x60, 0x30, 0x10);//Color.SaddleBrown;
-        private Color _origTextColor = Color.White;
+        private Color _highlightColor;
+        private Color _origButtonColor;
+        private Color _origTextColor;
         private RectangleShape _buttonShape;
         protected Label _buttonText;
 
@@ -142,10 +142,13 @@ namespace Mariasek.SharedClient.GameComponents
         public Button(GameComponent parent)
             : base(parent)
         {
+            _origTextColor = Game.Settings.DefaultTextColor;
+            _origButtonColor = Game.Settings.ButtonColor;
+            _highlightColor = Game.Settings.PressedButtonColor;
             _buttonShape = new RectangleShape(this)
             {
-                BackgroundColors = { _origButtonColor },//Color.SaddleBrown },
-                BorderColors = { Color.White },
+                BackgroundColors = { _origButtonColor },
+                BorderColors = { Game.Settings.DefaultTextColor },
                 BorderRadius = 3,
                 BorderThickness = 3,
                 Opacity = 0.7f
@@ -153,7 +156,7 @@ namespace Mariasek.SharedClient.GameComponents
             _buttonText = new Label(this)
             {
                 Text = Name,
-                TextColor = Color.White,
+                TextColor = Game.Settings.DefaultTextColor,
                 VerticalAlign = VerticalAlignment.Middle,
                 HorizontalAlign = HorizontalAlignment.Center,
                 Width = _buttonShape.Width,

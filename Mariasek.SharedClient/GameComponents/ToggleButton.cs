@@ -25,7 +25,7 @@ namespace Mariasek.SharedClient.GameComponents
                         _origBorderColor = BorderColor;
                         if (_origBackgroundColor != Color.Transparent)
                         {
-                            BackgroundColor = Color.DarkGreen;
+                            BackgroundColor = Game.Settings.SelectedButtonColor;//Color.DarkGreen;
                             TextColor = Color.White;
                         }
                         else

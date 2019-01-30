@@ -114,8 +114,16 @@ namespace Mariasek.SharedClient
         public Color LossColor { get { return FromRgbaString(LossRgba); } }
         public string TieRgba { get; set; }
         public Color TieColor { get { return FromRgbaString(TieRgba); } }
-        [XmlIgnore]
-        public readonly Color ButtonColor = new Color(0x60, 0x30, 0x10);
+        public string ButtonRgba { get; set; }
+        public Color ButtonColor { get { return FromRgbaString(ButtonRgba); } }
+        public string PressedButtonRgba { get; set; }
+        public Color PressedButtonColor { get { return FromRgbaString(PressedButtonRgba); } }
+        public string SelectedButtonRgba { get; set; }
+        public Color SelectedButtonColor { get { return FromRgbaString(SelectedButtonRgba); } }
+        public string ReviewPtsWonRgba { get; set; }
+        public Color ReviewPtsWonColor { get { return FromRgbaString(ReviewPtsWonRgba); } }
+        public string ReviewPtsLostRgba { get; set; }
+        public Color ReviewPtsLostColor { get { return FromRgbaString(ReviewPtsLostRgba); } }
         [Preserve]
         public GameSettings()
         {
@@ -173,6 +181,11 @@ namespace Mariasek.SharedClient
             WinRgba = "34bf49";
             LossRgba = "ff4c4c";
             TieRgba = "0399e5";
+            ButtonRgba = "603010";
+            PressedButtonRgba = "994d1a";
+            SelectedButtonRgba = "006400";
+            ReviewPtsWonRgba = "90ee90";
+            ReviewPtsLostRgba = "ff90a0";
             ResetThresholds();
         }
 
