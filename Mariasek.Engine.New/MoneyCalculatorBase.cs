@@ -67,8 +67,6 @@ namespace Mariasek.Engine.New
         public int QuietSevenMoneyWon { get; protected set; }
         public int SevenAgainstMoneyWon { get; protected set; }
         public int QuietSevenAgainstMoneyWon { get; protected set; }
-        //public int KilledSevenMoneyWon { get; protected set; }
-        //public int KilledSevenAgainstMoneyWon { get; protected set; }
         public int HundredMoneyWon { get; protected set; }
         public int QuietHundredMoneyWon { get; protected set; }
         public int HundredAgainstMoneyWon { get; protected set; }
@@ -79,7 +77,6 @@ namespace Mariasek.Engine.New
         public int GameValue { get; private set; }
         public int SevenValue { get; private set; }
         public int QuietSevenValue { get; private set; }
-        //public int KilledSevenValue {get; private set; }
         public int HundredValue { get; private set; }
         public int QuietHundredValue { get; private set; }
         public int BetlValue { get; private set; }

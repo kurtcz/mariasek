@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework;
 using Mariasek.Engine.New;
 using System.Xml.Serialization;
+using System.Linq;
+using System.Globalization;
 
 namespace Mariasek.SharedClient
 {
@@ -41,32 +43,7 @@ namespace Mariasek.SharedClient
     }
 
     public class GameSettings
-    {
-        [XmlIgnore]
-        public readonly Color DefaultTextColor = Color.White;
-        [XmlIgnore]
-        public readonly Color HighlightedTextColor = new Color(0xe7, 0xd3, 0x38);
-        [XmlIgnore]
-        public readonly Color Player1Color = new Color(0xd0, 2, 0x1b);
-        [XmlIgnore]
-        public readonly Color Player2Color = new Color(0x5e, 0xd3, 0x11);
-        [XmlIgnore]
-        public readonly Color Player3Color = new Color(0x4a, 0x90, 0xe2);
-        [XmlIgnore]
-        public readonly Color NegativeScoreColor = new Color(255, 64, 64);
-        [XmlIgnore]
-        public readonly Color PositiveScoreColor = new Color(0x7e, 0xd3, 0x21);
-        [XmlIgnore]
-        public readonly Color HintColor = new Color(0x7e, 0xd3, 0x21);
-        [XmlIgnore]
-        public readonly Color WinColor = new Color(0x7e, 0xd3, 0x21);
-        [XmlIgnore]
-        public readonly Color LossColor = new Color(0xd0, 2, 0x1b);
-        [XmlIgnore]
-        public readonly Color TieColor = new Color(0x7e, 0xd3, 0x21);
-        [XmlIgnore]
-        public readonly Color ButtonColor = new Color(0x60, 0x30, 0x10);
-
+    {    
         public bool? Default { get; set; }
         public bool? TestMode { get; set; }
         public bool DoLog { get; set; }
@@ -115,7 +92,30 @@ namespace Mariasek.SharedClient
         public bool AutoDisable100Against { get; set; }
         public float CardScaleFactor { get; set; }
         public BackgroundImage BackgroundImage { get; set; }
-
+        public string DefaultTextRgba { get; set; }
+        public Color DefaultTextColor { get { return FromRgbaString(DefaultTextRgba); } }
+        public string HighlightedTextRgba { get; set; }
+        public Color HighlightedTextColor { get { return FromRgbaString(HighlightedTextRgba); } }
+        public string Player1Rgba { get; set; }
+        public Color Player1Color { get { return FromRgbaString(Player1Rgba); } }
+        public string Player2Rgba { get; set; }
+        public Color Player2Color { get { return FromRgbaString(Player2Rgba); } }
+        public string Player3Rgba { get; set; }
+        public Color Player3Color { get { return FromRgbaString(Player3Rgba); } }
+        public string NegativeScoreRgba { get; set; }
+        public Color NegativeScoreColor { get { return FromRgbaString(NegativeScoreRgba); } }
+        public string PositiveScoreRgba { get; set; }
+        public Color PositiveScoreColor { get { return FromRgbaString(PositiveScoreRgba); } }
+        public string HintRgba { get; set; }
+        public Color HintColor { get { return FromRgbaString(HintRgba); } }
+        public string WinRgba { get; set; }
+        public Color WinColor { get { return FromRgbaString(WinRgba); } }
+        public string LossRgba { get; set; }
+        public Color LossColor { get { return FromRgbaString(LossRgba); } }
+        public string TieRgba { get; set; }
+        public Color TieColor { get { return FromRgbaString(TieRgba); } }
+        [XmlIgnore]
+        public readonly Color ButtonColor = new Color(0x60, 0x30, 0x10);
         [Preserve]
         public GameSettings()
         {
@@ -162,7 +162,18 @@ namespace Mariasek.SharedClient
             HundredValue = 4;
             BetlValue = 5;
             DurchValue = 10;
-			ResetThresholds();
+            DefaultTextRgba = "ffffff";
+            HighlightedTextRgba = "ffdd00";
+            Player1Rgba = "ff4c4c";
+            Player2Rgba = "34bf49";
+            Player3Rgba = "0399e5";
+            NegativeScoreRgba = "ff4c4c";
+            PositiveScoreRgba = "34bf49";
+            HintRgba = "34bf49";
+            WinRgba = "34bf49";
+            LossRgba = "ff4c4c";
+            TieRgba = "0399e5";
+            ResetThresholds();
         }
 
         public void ResetThresholds()
@@ -226,7 +237,25 @@ namespace Mariasek.SharedClient
                     Thresholds = "80|85|100|100"
                 }
             };
-		}
+        }
+
+        private static Color FromRgbaString(string str)
+        {
+            if (str == null ||
+                (str.Length != 6 &&
+                 str.Length != 8) ||
+                !str.All(i => (i >= '0' && i <= '9') || (i >= 'a' && i <= 'f') || (i >= 'A' && i <= 'F')))
+            {
+                return default(Color);
+            }
+            var rgba = uint.Parse(str, NumberStyles.HexNumber);
+            var r = rgba >> (str.Length == 8 ? 24 : 16);
+            var g = (rgba >> (str.Length == 8 ? 16 : 8)) & 0xff;
+            var b = (rgba >> (str.Length == 8 ? 8 : 0)) & 0xff;
+            var a = str.Length == 8 ? rgba & 0xff : 0xff;
+
+            return new Color((int)r, (int)g, (int)b, (int)a);
+        }
     }
 }
 
