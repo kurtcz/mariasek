@@ -952,6 +952,7 @@ namespace Mariasek.Engine.New
                             }
                             if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                             {
+                                Probabilities.StopGeneratingHands();
                                 loopState.Stop();
                             }
                             else
@@ -1005,6 +1006,7 @@ namespace Mariasek.Engine.New
                             }
                             if ((DateTime.Now - start7).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                             {
+                                Probabilities.StopGeneratingHands();
                                 loopState.Stop();
                             }
                             else
@@ -1107,6 +1109,7 @@ namespace Mariasek.Engine.New
                             }
                             if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                             {
+                                Probabilities.StopGeneratingHands();
                                 loopState.Stop();
                             }
 
@@ -1184,6 +1187,7 @@ namespace Mariasek.Engine.New
                             }
                             if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                             {
+                                Probabilities.StopGeneratingHands();
                                 loopState.Stop();
                             }
 
@@ -1194,6 +1198,7 @@ namespace Mariasek.Engine.New
                             if (NoChanceToWinDurch(PlayerIndex, hands))
                             {
                                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = initialProgress + Settings.SimulationsPerGameType, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Neuhratelnej durch" });
+                                Probabilities.StopGeneratingHands();
                                 loopState.Stop();
                             }
                         });
@@ -2461,6 +2466,7 @@ namespace Mariasek.Engine.New
                     ThrowIfCancellationRequested();
                     if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                     {
+                        Probabilities.StopGeneratingHands();
                         loopState.Stop();
                     }
                     else
@@ -2480,6 +2486,7 @@ namespace Mariasek.Engine.New
                             canSkipSimulations)    //We have only one card to play, so there is really no need to compute anything
                         {
                             OnGameComputationProgress(new GameComputationProgressEventArgs { Current = simulations, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0 });
+                            Probabilities.StopGeneratingHands(); 
                             loopState.Stop();
                         }
                     }

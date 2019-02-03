@@ -691,9 +691,9 @@ namespace Mariasek.SharedClient
 		{
             try
             {
+                GraphicsDevice.Clear(Color.Black);
                 if (!Assets.ContentLoaded)
                 {
-                    GraphicsDevice.Clear(Color.Black);
                     if (DefaultBackground != null)
                     {
                         SpriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, null);
@@ -703,7 +703,6 @@ namespace Mariasek.SharedClient
                     }
                     return;
                 }
-                GraphicsDevice.Clear(Color.ForestGreen);
 
                 if (SpriteBatch == null || SpriteBatch.IsDisposed)
                 {

@@ -669,10 +669,17 @@ namespace Mariasek.Engine.New
             }
         }
 
+        private bool _stopGenerating;
+        public void StopGeneratingHands()
+        {
+            _stopGenerating = true;
+        }
+
         public IEnumerable<Hand[]> GenerateHands(int roundNumber, int roundStarterIndex, int maxGenerations)
         {
             generatedHands = new List<Hand[]>();
-            for(var i = 0; i < maxGenerations && !_cancellationToken.IsCancellationRequested; i++)
+            _stopGenerating = false;
+            for (var i = 0; i < maxGenerations && !_cancellationToken.IsCancellationRequested && !_stopGenerating; i++)
             {
                 var hands = GenerateHands(roundNumber, roundStarterIndex);
 
