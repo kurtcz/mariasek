@@ -158,6 +158,11 @@ namespace Mariasek.Engine.New
         {
             return hand.Count(i => i.Suit == suit);
         }
+
+        public static int CardCount(this List<Card> hand, Hodnota value)
+        {
+            return hand.Count(i => i.Value == value);
+        }
     }
 
     public class Hand

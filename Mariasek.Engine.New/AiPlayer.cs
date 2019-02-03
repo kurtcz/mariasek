@@ -1699,8 +1699,12 @@ namespace Mariasek.Engine.New
             {
                 return false;
             }
-            if (!Hand.HasA(_trump.Value) &&
-                Hand.CardCount(_trump.Value) < 4)
+            if ((!Hand.HasA(_trump.Value) &&
+                 Hand.CardCount(_trump.Value) < 4) ||
+                (!Hand.HasA(_trump.Value) &&
+                 !Hand.HasX(_trump.Value) &&
+                 Hand.CardCount(Hodnota.Eso) < 3 &&
+                 Hand.CardCount(_trump.Value) == 4))
             {
                 return true;
             }
