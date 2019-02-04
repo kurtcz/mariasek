@@ -774,7 +774,7 @@ namespace Mariasek.SharedClient
             _progressBars = new[] { _progress1, _progress2, _progress3 };
             //Children.Sort((a, b) => a.ZIndex - b.ZIndex);
 
-            _review = new GameReview(this)
+            _review = new GameReview(this, 200)
             {
                 Position = new Vector2(160, 45),
                 Width = (int)Game.VirtualScreenWidth - 160,
@@ -2487,6 +2487,9 @@ namespace Mariasek.SharedClient
         {
             _state = GameState.GameFinished;
 
+            //novou hru pujde spustit az pote, co se ulozi balicek
+            //aby se nestalo, ze budu hrat novou hru s balickem z predchozi hry
+            _newGameBtn.Enabled = false;
             EnsureBubblesHidden();
             g.ThrowIfCancellationRequested();
 
@@ -2509,6 +2512,7 @@ namespace Mariasek.SharedClient
                         DeleteArchiveFolder();
                     }
                     SaveDeck(deck);
+                    _newGameBtn.Enabled = true;
                     if (g.rounds[0] != null)
                     {
                         results.GameId = ArchiveGame();

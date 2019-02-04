@@ -44,7 +44,7 @@ namespace Mariasek.SharedClient
             Background = Game.Assets.GetTexture("wood2");
             BackgroundTint = Color.DimGray;
 
-            _origPosition = new Vector2(160, 45);
+            _origPosition = new Vector2(220, 45);
             _hiddenPosition = new Vector2(Game.VirtualScreenWidth, 45);
 
             _description = new TextBox(this)
@@ -88,10 +88,10 @@ namespace Mariasek.SharedClient
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _replayButton.Click += ReplayButtonClicked;
-            _review = new GameReview(this)
+            _review = new GameReview(this, (int)_origPosition.X + 40)
             {
                 Position = _origPosition,
-                Width = (int)Game.VirtualScreenWidth - 160,
+                Width = (int)Game.VirtualScreenWidth - 220,
                 Height = (int)Game.VirtualScreenHeight - 65,
                 BackgroundColor = Color.Transparent,
                 ZIndex = 100
@@ -113,7 +113,7 @@ namespace Mariasek.SharedClient
             {
                 Text = "@",
                 Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 25),
-                ZIndex = 100,
+                ZIndex = 200,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main,
                 Width = 50
             };
