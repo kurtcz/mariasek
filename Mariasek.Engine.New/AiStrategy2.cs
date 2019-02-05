@@ -2538,8 +2538,20 @@ namespace Mariasek.Engine.New
                     }
                     else
                     {
+                        //Pokud akter vyjel hlasem a muj spoluhrac bere stych esem
+                        //a pokud mam krome desitky jeste jinou kartu v barve
+                        //tak si desitku setri na pozdeji aby prebijela akterova zbyvajiciho krale
+                        if (c1.Value == Hodnota.Svrsek &&
+                            _probabilities.CardProbability(player1, new Card(c1.Suit, Hodnota.Kral)) == 1 &&
+                            c2.Value == Hodnota.Eso &&
+                            c2.Suit == c1.Suit &&
+                            hands[MyIndex].HasX(c1.Suit) &&
+                            hands[MyIndex].CardCount(c1.Suit) > 1)
+                        {
+                            return null;
+                        }
                         //pocet souperovych trumfu vyssi nez muj nejvyssi trumf mensi nez X
-						var opHiTrumps = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                        var opHiTrumps = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
 											 .Where(h => h > myHighestTrumpAfterX)
 											 .Count(h => _probabilities.CardProbability(player1, new Card(_trump, h)) > _epsilon);
 						return ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Desitka &&
