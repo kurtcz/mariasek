@@ -91,7 +91,7 @@ namespace Mariasek.SharedClient
             _review = new GameReview(this, (int)_origPosition.X + 40)
             {
                 Position = _origPosition,
-                Width = (int)Game.VirtualScreenWidth - 220,
+                Width = (int)Game.VirtualScreenWidth,
                 Height = (int)Game.VirtualScreenHeight - 65,
                 BackgroundColor = Color.Transparent,
                 ZIndex = 100
@@ -99,7 +99,7 @@ namespace Mariasek.SharedClient
             _rawData = new TextBox(this)
             {
                 Position = _hiddenPosition,
-                Width = (int)Game.VirtualScreenWidth - 160,
+                Width = (int)Game.VirtualScreenWidth - (int)_origPosition.X,
                 Height = (int)Game.VirtualScreenHeight - 65,
                 ZIndex = 100,
                 BackgroundColor = Color.TransparentBlack,
