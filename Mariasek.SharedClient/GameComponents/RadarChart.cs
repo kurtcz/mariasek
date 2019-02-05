@@ -71,42 +71,43 @@ namespace Mariasek.SharedClient.GameComponents
                 var points = new Vector2[Series.Length][];
                 var radius = Math.Min(Width, Height) / 2;
                 var centre = new Vector2(Width, Height) / 2;
+                var angle = Math.PI * 2 / Data[0].Length;
 
-                for (var i = 0; i < Series.Length; i++)
+                if (ShowAxis && Data.Length > 0)
                 {
-                    if (i == 0 && ShowAxis)
+                    for (var j = 0; j < Data[0].Length; j++)
                     {
-                        for (var j = 0; j < Data[i].Length; j++)
-                        {
-                            var angle = Math.PI * 2 / Data[i].Length;
-                            var angleVector = - new Vector2((float)Math.Cos(j * angle), (float)Math.Sin(j * angle));
+                        var angleVector = -new Vector2((float)Math.Cos(j * angle), (float)Math.Sin(j * angle));
 
-                            Primitives2D.DrawLine(Game.SpriteBatch, centre, centre + radius * angleVector, AxisColor, AxisThickness, Opacity);
-                        }
+                        Primitives2D.DrawLine(Game.SpriteBatch, centre, centre + radius * angleVector, AxisColor, AxisThickness, Opacity);
                     }
-                    if (i == 0 && ShowGridLines)
+                }
+                if (ShowGridLines && Data.Length > 0)
+                {
+                    for (var j = 0f; j <= 1; j += GridInterval)
                     {
-                        for (var j = 0f; j <= 1; j += GridInterval)
+                        if (j * GridInterval >= MinValue && j * GridInterval <= MaxValue)
                         {
-                            if (j * GridInterval >= MinValue && j * GridInterval <= MaxValue)
-                            {
-                                for (var k = 0; k < Data[i].Length; k++)
-                                {
-                                    var l = k == Data[i].Length - 1 ? 0 : k + 1;
-                                    var angle = Math.PI * 2 / Data[i].Length;
-                                    var distance = (j - MinValue) * radius / (MaxValue - MinValue);
-                                    var angleVector1 = -new Vector2((float)Math.Cos(k * angle), (float)Math.Sin(k * angle));
-                                    var angleVector2 = -new Vector2((float)Math.Cos(l * angle), (float)Math.Sin(l * angle));
+                            var distance = (j - MinValue) * radius / (MaxValue - MinValue);
 
-                                    if (distance < 0 || distance > radius)
-                                    {
-                                        break;
-                                    }
-                                    Primitives2D.DrawLine(Game.SpriteBatch, centre + distance * angleVector1, centre + distance * angleVector2, AxisColor, AxisThickness, Opacity * 0.5f);
+                            for (var k = 0; k < Data[0].Length; k++)
+                            {
+                                var l = k == Data[0].Length - 1 ? 0 : k + 1;
+                                var angleVector1 = -new Vector2((float)Math.Cos(k * angle), (float)Math.Sin(k * angle));
+                                var angleVector2 = -new Vector2((float)Math.Cos(l * angle), (float)Math.Sin(l * angle));
+
+                                if (distance < 0 || distance > radius)
+                                {
+                                    break;
                                 }
+                                Primitives2D.DrawLine(Game.SpriteBatch, centre + distance * angleVector1, centre + distance * angleVector2, AxisColor, AxisThickness, Opacity * 0.5f);
                             }
                         }
                     }
+                }
+                //for (var i = 0; i < Series.Length; i++)
+                for (var i = Series.Length - 1;  i >= 0; i--)
+                {
                     if (Series.Length > 0 && Data[i].Length > 0)
                     {
                         var outOfBounds = false;
@@ -114,7 +115,7 @@ namespace Mariasek.SharedClient.GameComponents
                         for (var j = 0; j < Data[i].Length; j++)
                         {
                             var distance = (Data[i][j] - MinValue) * radius / (MaxValue - MinValue);
-                            var angle = Math.PI * 2 / Data[i].Length;
+                            //var angle = Math.PI * 2 / Data[i].Length;
                             var angleVector = -new Vector2((float)Math.Cos(j * angle), (float)Math.Sin(j * angle));
 
                             if (distance < 0 || distance > radius)

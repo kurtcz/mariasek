@@ -214,15 +214,15 @@ namespace Mariasek.SharedClient
 						//_scene.SuggestGameTypeNew(gt2);
 						//_scene.SuggestGameFlavourNew(gt2);
 
-						_t0 = Environment.TickCount;
+					_t0 = Environment.TickCount;
                         _aiTask = Task.Run(() =>
                         {
                             try
                             {
-								_t1 = Environment.TickCount;
-								//dej 2 karty z ruky do talonu aby byl _aiPlayer v aktualnim stavu
+                                _t1 = Environment.TickCount;
+						   //dej 2 karty z ruky do talonu aby byl _aiPlayer v aktualnim stavu
                                 _aiPlayer._talon = new List<Card>(_talon);
-                                _aiPlayer.Hand = Hand;
+                                _aiPlayer.Hand = new Hand(Hand);
                                 var flavour = _scene.TrumpCardTakenBack ? GameFlavour.Bad : _aiPlayer.ChooseGameFlavour(); //uvnitr se zvoli talon, ale clovek muze ve skutecnosti volit jinak nez ai!!!
                                 if (flavour == GameFlavour.Good ||
                                     flavour == GameFlavour.Good107)
@@ -258,11 +258,11 @@ namespace Mariasek.SharedClient
                                 if (_talon != null)
                                 {
                                     _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, 
-                                                                              _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, _talon)
-									{
-										ExternalDebugString = _aiPlayer._debugString
-									};
-									_aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
+                                                                              _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, _aiPlayer._talon)
+							  {
+								  ExternalDebugString = _aiPlayer._debugString
+							  };
+							  _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _aiPlayer._talon);
                                 }
                             }
                             catch (Exception ex)
