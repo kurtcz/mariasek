@@ -536,6 +536,10 @@ namespace Mariasek.SharedClient
                     {
                         Settings.AllowTrumpTalon = true;
                     }
+                    if (Settings.RiskFactor > 0.5f)
+                    {
+                        Settings.RiskFactor = 0.5f;
+                    }
 				}
 			}
 			catch (Exception e)

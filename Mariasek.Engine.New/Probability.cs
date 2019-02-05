@@ -74,7 +74,7 @@ namespace Mariasek.Engine.New
             ExternalDebugString = stringLoggerFactory();
 			_debugString.AppendFormat("ctor\nhand:\n{0}\ntalon:\n{1}", 
 				_myHand, _talon != null ? _talon.Any() ? string.Format("{0} {1}", _talon[0], _talon[1]) : "empty" : "null");
-            var GenerateTalonProbabilities = talon == null;
+            var GenerateTalonProbabilities = _talon == null;
 
             _gameBidders.Add(gameStarterIndex);
             _cardProbabilityForPlayer = new Dictionary<Barva, Dictionary<Hodnota, float>>[Game.NumPlayers + 1];
@@ -104,7 +104,7 @@ namespace Mariasek.Engine.New
                                 //karty co nemohou byt v talonu
                                 _cardProbabilityForPlayer[i][b].Add(h, 0f);
                             }
-                            else if(talon != null)
+                            else if(_talon != null)
                             {
                                 //ten kdo voli vi co je v talonu (pokud tam uz neco je)
                                 _cardProbabilityForPlayer[i][b].Add(h, _talon.Any(k => k.Suit == b && k.Value == h) ? 1f : 0f);
@@ -966,7 +966,7 @@ namespace Mariasek.Engine.New
                 }
                 _cardProbabilityForPlayer[_myIndex][card.Suit][card.Value] = 1f;
             }
-            foreach (var card in talon)
+            foreach (var card in _myTalon)
             {
                 for (var i = 0; i < Game.NumPlayers + 1; i++)
                 {

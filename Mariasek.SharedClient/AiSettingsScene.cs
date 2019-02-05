@@ -317,7 +317,7 @@ namespace Mariasek.SharedClient
 				Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 235),
 				Width = (int)Game.VirtualScreenWidth / 2 - 200,
                 Items = new SelectorItems(
-                    Enumerable.Range(0, 100)
+                    Enumerable.Range(0, 50)
                               .Select(i => new KeyValuePair<string, object>(string.Format("{0}%", i), i / 100f))
                               .ToList()
                 )

@@ -1066,6 +1066,10 @@ namespace Mariasek.Engine.New
                 {
                     var cardsToPlay = new List<Card>();
 
+                    //toto pravidlo by melo ze soupere vytlacit bodovanou kartu kterou muj spoluhrac sebere trumfem
+                    //prilis prisne podminky budou znamenat, ze se pravidlo skoro nikdy neuplatni
+                    //prilis benevolentni podminky zase, ze se pravidlo zahraje i kdyz by nemelo
+                    //(napr. hraju X, souper prebije A, a kolegovi zbyde jedna barva na ruce, takze nemuze prebit trumfem)
                     if ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0)
                     {
                         if (TeamMateIndex == player2)
@@ -1083,6 +1087,11 @@ namespace Mariasek.Engine.New
                                                                                 (_probabilities.SuitProbability(player2, _trump, RoundNumber) >= 1 - RiskFactor ||
                                                                                  (_probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 &&
                                                                                   _probabilities.SuitProbability(player2, i.Suit, RoundNumber) <= RiskFactor))).ToList();
+                            //cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                //(_probabilities.HasAOrXAndNothingElse(player3, i.Suit, RoundNumber) >= 1 - RiskFactor ||
+                                                                                // _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
+                                                                                //_probabilities.SuitProbability(player2, _trump, RoundNumber) >= 1 - RiskFactor &&
+                                                                                //_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0).ToList();
                         }
                         else if (TeamMateIndex == player3)
                         {
@@ -1096,9 +1105,13 @@ namespace Mariasek.Engine.New
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                 (_probabilities.HasAOrXAndNothingElse(player2, i.Suit, RoundNumber) >= 1 - RiskFactor ||
                                                                                  _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&
-                                                                                (_probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 - RiskFactor ||
-                                                                                 (_probabilities.SuitProbability(player3, _trump, RoundNumber) > 0 &&
-                                                                                  _probabilities.SuitProbability(player3, i.Suit, RoundNumber) <= RiskFactor))).ToList();
+                                                                                _probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 - RiskFactor &&
+                                                                                _probabilities.SuitProbability(player3, i.Suit, RoundNumber) <= RiskFactor).ToList();
+                            //cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                //(_probabilities.HasAOrXAndNothingElse(player2, i.Suit, RoundNumber) >= 1 - RiskFactor ||
+                                                                                // _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&
+                                                                                //_probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 - RiskFactor &&
+                                                                                //_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0).ToList();
                         }
                     }
                     return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
@@ -2538,13 +2551,15 @@ namespace Mariasek.Engine.New
                     }
                     else
                     {
-                        //Pokud akter vyjel hlasem a muj spoluhrac bere stych esem
+                        //Pokud akter ma jeste dalsi kartu od barvy, kterou hral (ukazal hlas)
+                        //a muj spoluhrac bere stych esem
                         //a pokud mam krome desitky jeste jinou kartu v barve
                         //tak si desitku setri na pozdeji aby prebijela akterova zbyvajiciho krale
-                        if (c1.Value == Hodnota.Svrsek &&
-                            _probabilities.CardProbability(player1, new Card(c1.Suit, Hodnota.Kral)) == 1 &&
-                            c2.Value == Hodnota.Eso &&
+                        if (c2.Value == Hodnota.Eso &&
                             c2.Suit == c1.Suit &&
+                            Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                .Where(h => h != c1.Value)
+                                .Any(h => _probabilities.CardProbability(player1, new Card(c1.Suit, h)) >= 1 - _epsilon) &&
                             hands[MyIndex].HasX(c1.Suit) &&
                             hands[MyIndex].CardCount(c1.Suit) > 1)
                         {

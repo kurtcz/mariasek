@@ -508,6 +508,7 @@ namespace Mariasek.SharedClient
             if (e.Flavour == GameFlavour.Bad && e.Player.PlayerIndex != PlayerIndex)
             {
                 _talon = null;
+                _givenUp = false;
                 if (_aiPlayer != null && _aiPlayer.Probabilities != null)
                 {
                     _aiPlayer.Probabilities.UpdateProbabilitiesAfterGameFlavourChosen(e);
