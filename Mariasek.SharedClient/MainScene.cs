@@ -266,6 +266,11 @@ namespace Mariasek.SharedClient
                 Name = "SolitaryXThreshold",
                 Value = Game.Settings.SolitaryXThreshold.ToString(CultureInfo.InvariantCulture)
             });
+            _aiConfig.Add("SolitaryXThresholdDefense", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "SolitaryXThresholdDefense",
+                Value = Game.Settings.SolitaryXThresholdDefense.ToString(CultureInfo.InvariantCulture)
+            });
         }
 
         /// <summary>

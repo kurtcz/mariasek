@@ -434,6 +434,11 @@ namespace Mariasek.Cli
                 Name = "SolitaryXThreshold",
                 Value = Settings.SolitaryXThreshold.ToString(CultureInfo.InvariantCulture)
             });
+            _aiConfig.Add("SolitaryXThresholdDefense", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "SolitaryXThresholdDefense",
+                Value = Settings.SolitaryXThresholdDefense.ToString(CultureInfo.InvariantCulture)
+            });
         }
 
         private static Stream GetFileStream(string filename)

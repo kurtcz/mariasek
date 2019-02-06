@@ -25,6 +25,7 @@ namespace Mariasek.Engine.New
         private List<Barva> _preferredSuits = new List<Barva>();
         public float RiskFactor { get; set; }
         public float SolitaryXThreshold { get; set; }
+        public float SolitaryXThresholdDefense { get; set; }
         private const float _epsilon = 0.01f;
 
         public AiStrategy2(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities)
@@ -36,7 +37,8 @@ namespace Mariasek.Engine.New
             }
             RiskFactor = 0.275f; //0.2727f ~ (9 nad 5) / (11 nad 5)
             SolitaryXThreshold = 0.13f;
-		}
+            SolitaryXThresholdDefense = 0.5f;
+        }
 
         private void BeforeGetRules()
         {
@@ -822,26 +824,26 @@ namespace Mariasek.Engine.New
                                                                             (_probabilities.HasSolitaryX(player2, i.Suit, RoundNumber) >= SolitaryXThreshold ||
                                                                              _probabilities.HasSolitaryX(player3, i.Suit, RoundNumber) >= SolitaryXThreshold)).ToList();
                     }
-                   // else if (TeamMateIndex == player2)
-                   // {
-                   //     //co-
-                   //     cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
-																			////_probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Kral)) > _epsilon &&
-																			//(i.Suit == _trump ||
-                   //                                                          (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor ||
-                   //                                                           _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0)) &&
-                   //                                                         _probabilities.HasSolitaryX(player3, i.Suit, RoundNumber) >= SolitaryXThreshold).ToList();
-                   // }
-                   // else
-                   // {
-                   //     //c-o
-                   //     cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
-																			////_probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Kral)) > _epsilon &&
-																			//(i.Suit == _trump ||
-                    //                                                         (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor||
-                    //                                                          _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0)) &&
-                    //                                                        _probabilities.HasSolitaryX(player2, i.Suit, RoundNumber) >= SolitaryXThreshold).ToList();
-                    //}
+                    else if (TeamMateIndex == player2)
+                    {
+                        //co-
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
+																			//_probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Kral)) > _epsilon &&
+																			(i.Suit == _trump ||
+                                                                             (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor ||
+                                                                              _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0)) &&
+                                                                            _probabilities.HasSolitaryX(player3, i.Suit, RoundNumber) >= SolitaryXThresholdDefense).ToList();
+                    }
+                    else
+                    {
+                        //c-o
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
+																			//_probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Kral)) > _epsilon &&
+																			(i.Suit == _trump ||
+                                                                             (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor||
+                                                                              _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0)) &&
+                                                                            _probabilities.HasSolitaryX(player2, i.Suit, RoundNumber) >= SolitaryXThresholdDefense).ToList();
+                    }
 
                     return cardsToPlay.RandomOneOrDefault();
                 }

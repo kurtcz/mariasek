@@ -46,6 +46,7 @@ namespace Mariasek.Engine.New
 		public GameFlavourSelectionStrategy GameFlavourSelectionStrategy { get; set; }
         public float RiskFactor { get; set; }
         public float SolitaryXThreshold { get; set; }
+        public float SolitaryXThresholdDefense { get; set; }
 
 #if !PORTABLE
         public override string ToString()
