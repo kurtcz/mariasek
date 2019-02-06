@@ -2484,7 +2484,8 @@ namespace Mariasek.Engine.New
                         OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Simuluju hru" });
 
                         if (computationResult.Rule == AiRule.PlayTheOnlyValidCard ||
-                            computationResult.Rule.SkipSimulations ||
+                            (computationResult.Rule.SkipSimulations &&
+                             r.number != 9) ||     //in round no. 9 we want to run simulations every time to mitigate a chance of bad ending
                             canSkipSimulations)    //We have only one card to play, so there is really no need to compute anything
                         {
                             OnGameComputationProgress(new GameComputationProgressEventArgs { Current = simulations, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0 });
@@ -2562,6 +2563,26 @@ namespace Mariasek.Engine.New
                                              .Where(i => i != null)
                                              .ToList();
                 cardRules.Add(card, rules);
+            }
+            if (cardRules.Any(i => i.Value.Any(j => j.SkipSimulations == true)) &&
+                cardRules.Any(i => i.Value.Any(j => j.SkipSimulations == false)))
+            {
+                _log.InfoFormat("Rules have conflicting SkipSimulations flags");
+                foreach (var key in cardRules.Keys)
+                {
+                    //nechame si jen karty s pravidly ktera maji SkipSimulations == true, takova pravidla jsou jistejsi
+                    var temp = cardRules[key].Where(i => i.SkipSimulations == true);
+
+                    if (temp.Any())
+                    {
+                        cardRules[key] = temp.ToList();
+                    }
+                    else
+                    {
+                        cardRules.Remove(key);
+                    }
+                }
+                _log.InfoFormat("Rule count after cleanup: {0}", cardRules.Count);
             }
             cardScores.ToDictionary(k => k.Key, v => cardScores.Values.SelectMany(i => 
                                                             i.Select(j => 
