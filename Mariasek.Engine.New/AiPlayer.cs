@@ -1681,6 +1681,44 @@ namespace Mariasek.Engine.New
             return estimatedBasicPointsLost + estimatedKQPointsLost >= 100;
         }
 
+        private int GetTotalHoles()
+        {
+            //neodstranitelne diry jsou takove, ktere zbydou pokud zahraju nejvyssi karty od dane barvy
+            //kdyz jich je moc, tak hrozi, ze se nedostanu do stychu a souperi ze me budou tahat trumfy
+            //proto v takovem pripade sedmu nehraj
+            var totalHoles = 0;
+            foreach(var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            {
+                var topCards = Hand.Where(i => i.Suit == b &&
+                                               Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                   .Where(h => h > i.Value)
+                                                   .Select(h => new Card(b, h))
+                                                   .All(j => Probabilities.CardProbability((PlayerIndex + 1) % Game.NumPlayers, j) == 0 &&
+                                                             Probabilities.CardProbability((PlayerIndex + 2) % Game.NumPlayers, j) == 0)).ToList();
+                var nonTopCards = Hand.CardCount(b) - topCards.Count;
+                var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                .Select(h => new Card(b, h))
+                                .Where(i => !Hand.Contains(i) &&
+                                            Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                .Where(h => h < i.Value)
+                                                .Select(h => new Card(b, h))
+                                                .Any(j => Hand.Contains(j))).ToList();
+                var n = holes.Count - topCards.Count;
+
+                if (n > 0)
+                {
+                    if (n > nonTopCards)
+                    {
+                        n = nonTopCards;
+                    }
+                    totalHoles += n;
+                }
+            }
+            _debugString.AppendFormat("TotalHoles: {0}\n", totalHoles);
+
+            return totalHoles;
+        }
+
         public bool IsSevenTooRisky()
         {
             return Hand.CardCount(_trump.Value) < 4 ||
@@ -1690,7 +1728,7 @@ namespace Mariasek.Engine.New
                      Enum.GetValues(typeof(Barva)).Cast<Barva>()
                          .Count(b => (Hand.HasX(b) &&
                                       (Hand.HasK(b) ||
-                                       (Hand.HasQ(b) && 
+                                       (Hand.HasQ(b) &&
                                         Hand.CardCount(b) > 2)))) < 2 ||
                      Hand.Select(i => i.Suit).Distinct().Count() < 4)) ||
                    (Hand.CardCount(_trump.Value) == 5 &&
@@ -2148,9 +2186,11 @@ namespace Mariasek.Engine.New
                  (bidding.PlayerBids[0] & Hra.Sedma) != 0) &&
                 _sevenSimulations > 0 && 
                 bidding._sevenFlek <= Settings.MaxDoubleCountForGameType[Hra.Sedma] &&
-                (Hand.CardCount(_g.trump.Value) >= 4 ||
-                 (Hand.CardCount(_g.trump.Value) >= 3 && 
-                  Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => Hand.HasSuit(b)))) &&
+                ((TeamMateIndex != -1 &&
+                  (Hand.CardCount(_g.trump.Value) >= 4 ||
+                   (Hand.CardCount(_g.trump.Value) >= 3 && 
+                    Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => Hand.HasSuit(b))))) ||
+                 (TeamMateIndex == -1 && GetTotalHoles() <= 5)) &&
                 _sevensBalance / (float)_sevenSimulations >= sevenThreshold)
             {
                 bid |= bidding.Bids & Hra.Sedma;

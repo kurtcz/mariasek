@@ -1181,8 +1181,13 @@ namespace Mariasek.Engine.New
             }
 			try
 			{
-				return new Deck(deck.Distinct().ToList());
-			}
+				var newDeck = new Deck(deck.Distinct().ToList());
+                if (!Results.GamePlayed)
+                {
+                    newDeck.Cut();
+                }
+                return newDeck;
+            }
 			catch (InvalidDataException e)
 			{
 				throw new InvalidDataException(sb.ToString(), e);

@@ -2501,7 +2501,8 @@ namespace Mariasek.SharedClient
             results.SimulatedSuccessRate = SimulatedSuccessRate;
             if (!_testGame)
             {
-                var deck = g.GetDeckFromLastGame();
+                _deck = g.GetDeckFromLastGame();
+                var deck = _deck;
                 if (Game.Settings.MaxHistoryLength > 0 &&
                     Game.Money.Count() >= Game.Settings.MaxHistoryLength)
                 {
