@@ -20,9 +20,7 @@ namespace Mariasek.Engine.New
         {
             var player2 = (MyIndex + 1) % Game.NumPlayers;
             var player3 = (MyIndex + 2) % Game.NumPlayers;
-            var opponent = TeamMateIndex == (MyIndex + 1) % Game.NumPlayers
-                            ? (MyIndex + 2) % Game.NumPlayers 
-                            : (MyIndex + 1) % Game.NumPlayers;
+            var opponent = TeamMateIndex == player2 ? player3 : player2;
 
             Barva? bannedSuit = null;
             var preferredSuits = new List<Barva>();
@@ -33,22 +31,34 @@ namespace Mariasek.Engine.New
                 if (RoundNumber == 2)
                 {
                     //pokud v 1.kole vsichni priznali barvu ale spoluhrac nesel vejs (a bylo kam jit vejs)
+                    //a zaroven souper muze mit vyssi kartu v barve nez mam ja sam
                     if (_rounds[0].c1.Suit == _rounds[0].c2.Suit &&
-                        (_rounds[0].player2.PlayerIndex == TeamMateIndex &&
-                         _rounds[0].c1.BadValue > _rounds[0].c2.BadValue) ||
-                        (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
-                         _rounds[0].c2.BadValue > _rounds[0].c3.BadValue &&
-                         _rounds[0].c2.Value != Hodnota.Eso))
+                        ((_rounds[0].player2.PlayerIndex == TeamMateIndex &&
+                          _rounds[0].c1.BadValue > _rounds[0].c2.BadValue) ||
+                         (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
+                          _rounds[0].c2.BadValue > _rounds[0].c3.BadValue &&
+                          _rounds[0].c2.Value != Hodnota.Eso)) &&
+                        hands[MyIndex].Any(i => i.Suit == _rounds[0].c1.Suit &&
+                                                          Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                              .Select(h => new Card(_rounds[0].c1.Suit, h))
+                                                              .Where(j => j.BadValue > i.BadValue)
+                                                              .Any(j => _probabilities.CardProbability(opponent, j) > 0)))
                     {
                         preferredSuits.Add(_rounds[0].c1.Suit);
                     }
                     //pokud v 2.kole spoluhrac nepriznal barvu a jeste nejake karty v barve zbyvaji
+                    //a zaroven souper muze mit vyssi kartu v barve nez mam ja sam
                     if (hands[MyIndex].HasSuit(_rounds[0].c1.Suit) &&
                         hands[MyIndex].CardCount(_rounds[0].c1.Suit) < 6 &&
                         ((_rounds[0].player2.PlayerIndex == TeamMateIndex &&
                           _rounds[0].c1.Suit != _rounds[0].c2.Suit) ||
                          (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
-                          _rounds[0].c1.Suit != _rounds[0].c3.Suit)))
+                          _rounds[0].c1.Suit != _rounds[0].c3.Suit)) &&
+                        hands[MyIndex].Any(i => i.Suit == _rounds[0].c1.Suit &&
+                                                          Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                              .Select(h => new Card(_rounds[0].c1.Suit, h))
+                                                              .Where(j => j.BadValue > i.BadValue)
+                                                              .Any(j => _probabilities.CardProbability(opponent, j) > 0)))
                     {
                         preferredSuits.Add(_rounds[0].c1.Suit);
                     }
