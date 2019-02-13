@@ -1182,7 +1182,7 @@ namespace Mariasek.Engine.New
 			try
 			{
 				var newDeck = new Deck(deck.Distinct().ToList());
-                if (!Results.GamePlayed)
+                if (Results != null && !Results.GamePlayed)
                 {
                     newDeck.Cut();
                 }
