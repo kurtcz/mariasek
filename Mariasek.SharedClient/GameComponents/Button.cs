@@ -12,8 +12,8 @@ namespace Mariasek.SharedClient.GameComponents
     public class Button : TouchControlBase
     {
         private Color _highlightColor;
-        private Color _origButtonColor;
-        private Color _origTextColor;
+        protected Color _origButtonColor;
+        protected Color _origTextColor;
         private RectangleShape _buttonShape;
         protected Label _buttonText;
 

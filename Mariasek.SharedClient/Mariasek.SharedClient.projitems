@@ -40,7 +40,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\FluentExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HistoryScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameSettings.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)SettingsScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SettingsChangedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ProgressIndicator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Primitives2D.cs" />
@@ -59,6 +58,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)OrientationChangedEventArgs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AssetLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReviewScene.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\SettingsScene.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)SavedGame\SavedGame.hra">

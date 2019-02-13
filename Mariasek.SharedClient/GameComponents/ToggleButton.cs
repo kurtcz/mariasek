@@ -6,7 +6,6 @@ namespace Mariasek.SharedClient.GameComponents
 {
     public class ToggleButton : Button
     {
-        private Color _origBackgroundColor;
         private Color _origTextColor;
         private Color _origBorderColor;
         private bool _isSelected;
@@ -20,10 +19,10 @@ namespace Mariasek.SharedClient.GameComponents
                     _isSelected = value;
                     if (_isSelected)
                     {
-                        _origBackgroundColor = BackgroundColor;
+                        _origButtonColor = BackgroundColor;
                         _origTextColor = TextColor;
                         _origBorderColor = BorderColor;
-                        if (_origBackgroundColor != Color.Transparent)
+                        if (_origButtonColor != Color.Transparent)
                         {
                             BackgroundColor = Game.Settings.SelectedButtonColor;//Color.DarkGreen;
                             TextColor = Color.White;
@@ -40,7 +39,7 @@ namespace Mariasek.SharedClient.GameComponents
                     }
                     else
                     {
-                        BackgroundColor = _origBackgroundColor;
+                        BackgroundColor = _origButtonColor;
                         TextColor = _origTextColor;
                         BorderColor = _origBorderColor;
                         ClickSound = Game.OffSound;
@@ -52,7 +51,6 @@ namespace Mariasek.SharedClient.GameComponents
         public ToggleButton(GameComponent parent)
             : base(parent)
         {
-            _origBackgroundColor = BackgroundColor;
         }
             
         protected override void OnTouchDown(TouchLocation tl)
