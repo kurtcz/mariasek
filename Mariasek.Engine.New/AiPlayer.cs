@@ -734,9 +734,11 @@ namespace Mariasek.Engine.New
                         DebugInfo.TotalRuleCount = _durchSimulations;
                     }
                     else if (Settings.CanPlayGameType[Hra.Betl] && 
-                             _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && 
-                             _betlSimulations > 0 &&
-                             !_hundredOverBetl)
+                             ((_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && 
+                               _betlSimulations > 0 &&
+                               !_hundredOverBetl) || 
+                              (Is100AgainstPossible() &&               //utec na betla pokud nemas na ruce nic a hrozi kilo proti
+                               EstimateFinalBasicScore() == 0)))
                     {
                         if (_talon == null || !_talon.Any())
                         {
