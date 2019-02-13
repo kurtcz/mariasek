@@ -738,7 +738,7 @@ namespace Mariasek.Engine.New
                                _betlSimulations > 0 &&
                                !_hundredOverBetl) || 
                               (Is100AgainstPossible() &&               //utec na betla pokud nemas na ruce nic a hrozi kilo proti
-                               EstimateFinalBasicScore() == 0)))
+                               EstimateFinalBasicScore() <= 10)))
                     {
                         if (_talon == null || !_talon.Any())
                         {
