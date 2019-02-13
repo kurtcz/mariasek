@@ -1893,34 +1893,6 @@ namespace Mariasek.Engine.New
 			                (numTrumps >= 5));
 		}
 
-		public Hra ChooseGameTypeNew(Hra validGameTypes)
-		{
-			var gameType = Hra.Hra;
-
-			//pokud volim trumfy tak je znam a volim ze vsech her, jinak je neznam a muzu jen volit z betla nebo durcha
-			if (_trump.HasValue && ShouldChooseHundred())
-			{
-				gameType = Hra.Kilo;
-			}
-			else if (ShouldChooseDurch())
-			{
-				gameType = Hra.Durch;
-			}
-			else if (ShouldChooseBetl())
-			{
-				gameType = Hra.Betl;
-			}
-			if ((gameType & (Hra.Betl | Hra.Durch)) == 0)
-			{
-				if (_trump.HasValue && ShouldChooseSeven())
-				{
-					gameType |= Hra.Sedma;
-				}
-			}
-
-			return gameType;
-		}
-
         public override Hra ChooseGameType(Hra validGameTypes)
         {
             if (TestGameType.HasValue)
