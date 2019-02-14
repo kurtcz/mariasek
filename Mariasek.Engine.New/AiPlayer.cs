@@ -737,8 +737,7 @@ namespace Mariasek.Engine.New
                              ((_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && 
                                _betlSimulations > 0 &&
                                !_hundredOverBetl) || 
-                              (Is100AgainstPossible() &&               //utec na betla pokud nemas na ruce nic a hrozi kilo proti
-                               EstimateFinalBasicScore() <= 10)))
+                              Is100AgainstPossible(120)))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
                     {
                         if (_talon == null || !_talon.Any())
                         {
@@ -1671,7 +1670,7 @@ namespace Mariasek.Engine.New
             return n;
         }
 
-        public bool Is100AgainstPossible()
+        public bool Is100AgainstPossible(int scoreToQuery = 100)
         {
             var trump = _trump ?? _g.trump;
             var noKQSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -1680,7 +1679,7 @@ namespace Mariasek.Engine.New
             var estimatedKQPointsLost = noKQSuits.Sum(b => b == _trump ? 40 : 20);
             var estimatedBasicPointsLost = 90 - EstimateFinalBasicScore();
 
-            return estimatedBasicPointsLost + estimatedKQPointsLost >= 100;
+            return estimatedBasicPointsLost + estimatedKQPointsLost >= scoreToQuery;
         }
 
         private int GetTotalHoles()
