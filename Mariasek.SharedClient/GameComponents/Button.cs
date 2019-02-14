@@ -11,10 +11,10 @@ namespace Mariasek.SharedClient.GameComponents
 {
     public class Button : TouchControlBase
     {
-        private Color _highlightColor;
+        protected Color _highlightColor;
         protected Color _origButtonColor;
         protected Color _origTextColor;
-        private RectangleShape _buttonShape;
+        protected RectangleShape _buttonShape;
         protected Label _buttonText;
 
         public override Vector2 Position
@@ -175,15 +175,21 @@ namespace Mariasek.SharedClient.GameComponents
 
         protected override void OnTouchDown(TouchLocation tl)
         {
-            _buttonShape.BackgroundColors[0] = _highlightColor;
-            _buttonShape.UpdateTexture();
+            if (_origButtonColor != Color.Transparent)
+            {
+                _buttonShape.BackgroundColors[0] = _highlightColor;
+                _buttonShape.UpdateTexture();
+            }
             base.OnTouchDown(tl);
         }
 
         protected override void OnTouchUp(TouchLocation tl)
         {
-            _buttonShape.BackgroundColors[0] = _origButtonColor;
-            _buttonShape.UpdateTexture();
+            if (_origButtonColor != Color.Transparent)
+            {
+                _buttonShape.BackgroundColors[0] = _origButtonColor;
+                _buttonShape.UpdateTexture();
+            }
             base.OnTouchUp(tl);
         }
 
