@@ -47,6 +47,7 @@ namespace Mariasek.Engine.New
         public float RiskFactor { get; set; }
         public float SolitaryXThreshold { get; set; }
         public float SolitaryXThresholdDefense { get; set; }
+        public float SafetyBetlFactor { get; set; }
 
 #if !PORTABLE
         public override string ToString()

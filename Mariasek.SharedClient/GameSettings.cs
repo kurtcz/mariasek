@@ -81,6 +81,7 @@ namespace Mariasek.SharedClient
         public float RiskFactor { get; set; }
         public float SolitaryXThreshold { get; set; }
         public float SolitaryXThresholdDefense { get; set; }
+        public float SafetyBetlFactor { get; set; }
         public int RoundFinishedWaitTimeMs { get; set; }
         public bool AutoFinishRounds { get; set; }
         public bool AutoFinish { get; set; }
@@ -200,7 +201,8 @@ namespace Mariasek.SharedClient
 			RiskFactor = 0.28f; //0.2727f ~ (9 nad 5) / (11 nad 5)
             SolitaryXThreshold = 0.13f; //pokud mam na zacatku 5 karet, tak P(souper ma plonkovou X) ~ 0.131
             SolitaryXThresholdDefense = 0.5f; //v obrane musi mit prah vyssi hodnotu aby tahali jen kdyz je to skoro jiste
-			Thresholds = new []
+            SafetyBetlFactor = 4.8f;
+            Thresholds = new []
             {
                 new BidThresholdSettings
                 {

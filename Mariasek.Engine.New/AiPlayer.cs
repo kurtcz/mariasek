@@ -113,10 +113,11 @@ namespace Mariasek.Engine.New
                                                 { Hra.Durch,      true }
                                             },
                 SigmaMultiplier = 0,
-			  GameFlavourSelectionStrategy = GameFlavourSelectionStrategy.Standard,
+			    GameFlavourSelectionStrategy = GameFlavourSelectionStrategy.Standard,
                 RiskFactor = 0.275f,
                 SolitaryXThreshold = 0.13f,
-                SolitaryXThresholdDefense = 0.5f
+                SolitaryXThresholdDefense = 0.5f,
+                SafetyBetlFactor = 4.8f
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
@@ -174,6 +175,7 @@ namespace Mariasek.Engine.New
             Settings.RiskFactor = float.Parse(parameters["RiskFactor"].Value, CultureInfo.InvariantCulture);
             Settings.SolitaryXThreshold = float.Parse(parameters["SolitaryXThreshold"].Value, CultureInfo.InvariantCulture);
             Settings.SolitaryXThresholdDefense = float.Parse(parameters["SolitaryXThresholdDefense"].Value, CultureInfo.InvariantCulture);
+            Settings.SafetyBetlFactor = float.Parse(parameters["SafetyBetlFactor"].Value, CultureInfo.InvariantCulture);
             Settings.MaxDoubleCountForGameType = new Dictionary<Hra, int>();
             Settings.MaxDoubleCountForGameType[Hra.Hra] = int.Parse(parameters["MaxDoubleCount.Hra"].Value);
             Settings.MaxDoubleCountForGameType[Hra.Sedma] = int.Parse(parameters["MaxDoubleCount.Sedma"].Value);
@@ -716,6 +718,19 @@ namespace Mariasek.Engine.New
 
                 if (PlayerIndex == _g.OriginalGameStartingPlayerIndex && bidding.BetlDurchMultiplier == 0)
                 {
+                    var lossPerPointsLost = Enumerable.Range(0, 10)
+                                                      .ToDictionary(k => 100 + k * 10,
+                                                                    v => _g.CalculationStyle == CalculationStyle.Adding
+                                                                         ? (v + 1) * _g.HundredValue
+                                                                         : _g.HundredValue * (1 << v));
+                    //pokud v odhadu mohu prohrat minLostPointsForSafetyBetl bodu nebo vice, tak utecu na betla
+                    var minLostPointsForSafetyBetl = lossPerPointsLost.FirstOrDefault(i => _g.BetlValue * Settings.SafetyBetlFactor <= i.Value).Key;
+
+                    if (minLostPointsForSafetyBetl == default(int) ||    //pokud jsme prah nenasli nebo je SafetyBetlFactor nesmyslny
+                        Settings.SafetyBetlFactor <= 0)                  //uprav hodnotu tak, aby Is100AgainstPossible() vratilo vzdy false
+                    {
+                        minLostPointsForSafetyBetl = 200; //Is100AgainstPossible(200) vrati vzdy false, protoze ve hre je maximalne 190 bodu
+                    }
                     //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
                     //Zapamatujeme si vysledek a pouzijeme ho i v ChooseGameFlavour() a ChooseGameType()
                     RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, true);
@@ -737,7 +752,7 @@ namespace Mariasek.Engine.New
                              ((_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && 
                                _betlSimulations > 0 &&
                                !_hundredOverBetl) || 
-                              Is100AgainstPossible(120)))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
+                              Is100AgainstPossible(minLostPointsForSafetyBetl)))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
                     {
                         if (_talon == null || !_talon.Any())
                         {

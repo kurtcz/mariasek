@@ -271,6 +271,11 @@ namespace Mariasek.SharedClient
                 Name = "SolitaryXThresholdDefense",
                 Value = Game.Settings.SolitaryXThresholdDefense.ToString(CultureInfo.InvariantCulture)
             });
+            _aiConfig.Add("SafetyBetlFactor", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "SafetyBetlFactor",
+                Value = Game.Settings.SafetyBetlFactor.ToString(CultureInfo.InvariantCulture)
+            });
         }
 
         /// <summary>
@@ -1213,7 +1218,7 @@ namespace Mariasek.SharedClient
                      g = new Mariasek.Engine.New.Game()
                      {
                          BaseBet = Game.Settings.BaseBet,
-						 MaxWin = Game.Settings.MaxWin,
+					 MaxWin = Game.Settings.MaxWin,
                          SkipBidding = false,
                          MinimalBidsForGame = Game.Settings.MinimalBidsForGame,
                          MinimalBidsForSeven = Game.Settings.MinimalBidsForSeven,
