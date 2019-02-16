@@ -271,10 +271,10 @@ namespace Mariasek.SharedClient
                 Name = "SolitaryXThresholdDefense",
                 Value = Game.Settings.SolitaryXThresholdDefense.ToString(CultureInfo.InvariantCulture)
             });
-            _aiConfig.Add("SafetyBetlFactor", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("SafetyBetlThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
-                Name = "SafetyBetlFactor",
-                Value = Game.Settings.SafetyBetlFactor.ToString(CultureInfo.InvariantCulture)
+                Name = "SafetyBetlThreshold",
+                Value = Game.Settings.SafetyBetlThreshold.ToString(CultureInfo.InvariantCulture)
             });
         }
 

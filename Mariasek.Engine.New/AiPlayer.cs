@@ -117,7 +117,7 @@ namespace Mariasek.Engine.New
                 RiskFactor = 0.275f,
                 SolitaryXThreshold = 0.13f,
                 SolitaryXThresholdDefense = 0.5f,
-                SafetyBetlFactor = 4.8f
+                SafetyBetlThreshold = 24
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
@@ -175,7 +175,7 @@ namespace Mariasek.Engine.New
             Settings.RiskFactor = float.Parse(parameters["RiskFactor"].Value, CultureInfo.InvariantCulture);
             Settings.SolitaryXThreshold = float.Parse(parameters["SolitaryXThreshold"].Value, CultureInfo.InvariantCulture);
             Settings.SolitaryXThresholdDefense = float.Parse(parameters["SolitaryXThresholdDefense"].Value, CultureInfo.InvariantCulture);
-            Settings.SafetyBetlFactor = float.Parse(parameters["SafetyBetlFactor"].Value, CultureInfo.InvariantCulture);
+            Settings.SafetyBetlThreshold = int.Parse(parameters["SafetyBetlThreshold"].Value, CultureInfo.InvariantCulture);
             Settings.MaxDoubleCountForGameType = new Dictionary<Hra, int>();
             Settings.MaxDoubleCountForGameType[Hra.Hra] = int.Parse(parameters["MaxDoubleCount.Hra"].Value);
             Settings.MaxDoubleCountForGameType[Hra.Sedma] = int.Parse(parameters["MaxDoubleCount.Sedma"].Value);
@@ -718,19 +718,14 @@ namespace Mariasek.Engine.New
 
                 if (PlayerIndex == _g.OriginalGameStartingPlayerIndex && bidding.BetlDurchMultiplier == 0)
                 {
+                    //zpocitej ztraty v pripade kila proti
                     var lossPerPointsLost = Enumerable.Range(0, 10)
                                                       .ToDictionary(k => 100 + k * 10,
                                                                     v => _g.CalculationStyle == CalculationStyle.Adding
                                                                          ? (v + 1) * _g.HundredValue
                                                                          : _g.HundredValue * (1 << v));
-                    //pokud v odhadu mohu prohrat minLostPointsForSafetyBetl bodu nebo vice, tak utecu na betla
-                    var minLostPointsForSafetyBetl = lossPerPointsLost.FirstOrDefault(i => _g.BetlValue * Settings.SafetyBetlFactor <= i.Value).Key;
+                    var estimatedPointsLost = EstimateTotalPointsLost();
 
-                    if (minLostPointsForSafetyBetl == default(int) ||    //pokud jsme prah nenasli nebo je SafetyBetlFactor nesmyslny
-                        Settings.SafetyBetlFactor <= 0)                  //uprav hodnotu tak, aby Is100AgainstPossible() vratilo vzdy false
-                    {
-                        minLostPointsForSafetyBetl = 200; //Is100AgainstPossible(200) vrati vzdy false, protoze ve hre je maximalne 190 bodu
-                    }
                     //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
                     //Zapamatujeme si vysledek a pouzijeme ho i v ChooseGameFlavour() a ChooseGameType()
                     RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, true);
@@ -751,8 +746,9 @@ namespace Mariasek.Engine.New
                     else if (Settings.CanPlayGameType[Hra.Betl] && 
                              ((_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && 
                                _betlSimulations > 0 &&
-                               !_hundredOverBetl) || 
-                              Is100AgainstPossible(minLostPointsForSafetyBetl)))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
+                               !_hundredOverBetl) ||
+                              (lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
+                               lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold)))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
                     {
                         if (_talon == null || !_talon.Any())
                         {
@@ -1687,14 +1683,23 @@ namespace Mariasek.Engine.New
 
         public bool Is100AgainstPossible(int scoreToQuery = 100)
         {
+            return EstimateTotalPointsLost() >= scoreToQuery;
+        }
+
+        public int EstimateTotalPointsLost()
+        {
             var trump = _trump ?? _g.trump;
             var noKQSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => !Hand.HasK(b) &&
                                             !Hand.HasQ(b));
             var estimatedKQPointsLost = noKQSuits.Sum(b => b == _trump ? 40 : 20);
             var estimatedBasicPointsLost = 90 - EstimateFinalBasicScore();
+            var estimatedPointsLost = estimatedBasicPointsLost + estimatedKQPointsLost;
 
-            return estimatedBasicPointsLost + estimatedKQPointsLost >= scoreToQuery;
+            DebugInfo.MaxEstimatedLoss = estimatedPointsLost;
+            _debugString.AppendFormat("MaxEstimatedLoss: {0} pts\n", estimatedPointsLost);
+
+            return estimatedPointsLost;
         }
 
         private int GetTotalHoles()

@@ -70,7 +70,7 @@ namespace Mariasek.SharedClient
         public int BubbleTimeMs { get; set; }
         public int MaxHistoryLength { get; set; }
         public bool AiMayGiveUp { get; set; }
-        public bool KeepScreenOn { get; set; }
+        public bool KeepScreenOn { get; set; }                  //xml-only
         public CalculationStyle CalculationStyle { get; set; }
         public int GameTypeSimulationsPerSecond { get; set; }
         public int RoundSimulationsPerSecond { get; set; }
@@ -79,52 +79,52 @@ namespace Mariasek.SharedClient
         public CardBackSide CardBackSide { get; set; }
         public BidThresholdSettings[] Thresholds { get; set; }
         public float RiskFactor { get; set; }
-        public float SolitaryXThreshold { get; set; }
-        public float SolitaryXThresholdDefense { get; set; }
-        public float SafetyBetlFactor { get; set; }
+        public float SolitaryXThreshold { get; set; }           //xml-only
+        public float SolitaryXThresholdDefense { get; set; }    //xml-only
+        public int SafetyBetlThreshold { get; set; }            //xml-only
         public int RoundFinishedWaitTimeMs { get; set; }
         public bool AutoFinishRounds { get; set; }
         public bool AutoFinish { get; set; }
         public int MinimalBidsForGame { get; set; }
         public int MinimalBidsForSeven { get; set; }
         public bool Top107 { get; set; }
-        public bool ShowStatusBar { get; set; }
+        public bool ShowStatusBar { get; set; }                 //xml-only
         public bool ShowScoreDuringGame { get; set; }
         public bool WhiteScore { get; set; }
         public bool AutoDisable100Against { get; set; }
         public float CardScaleFactor { get; set; }
         public BackgroundImage BackgroundImage { get; set; }
-        public string DefaultTextRgba { get; set; }
+        public string DefaultTextRgba { get; set; }             //xml-only
         public Color DefaultTextColor { get { return FromRgbaString(DefaultTextRgba); } }
-        public string HighlightedTextRgba { get; set; }
+        public string HighlightedTextRgba { get; set; }         //xml-only
         public Color HighlightedTextColor { get { return FromRgbaString(HighlightedTextRgba); } }
-        public string Player1Rgba { get; set; }
+        public string Player1Rgba { get; set; }                 //xml-only
         public Color Player1Color { get { return FromRgbaString(Player1Rgba); } }
-        public string Player2Rgba { get; set; }
+        public string Player2Rgba { get; set; }                 //xml-only
         public Color Player2Color { get { return FromRgbaString(Player2Rgba); } }
-        public string Player3Rgba { get; set; }
+        public string Player3Rgba { get; set; }                 //xml-only
         public Color Player3Color { get { return FromRgbaString(Player3Rgba); } }
-        public string NegativeScoreRgba { get; set; }
+        public string NegativeScoreRgba { get; set; }           //xml-only
         public Color NegativeScoreColor { get { return FromRgbaString(NegativeScoreRgba); } }
-        public string PositiveScoreRgba { get; set; }
+        public string PositiveScoreRgba { get; set; }           //xml-only
         public Color PositiveScoreColor { get { return FromRgbaString(PositiveScoreRgba); } }
-        public string HintRgba { get; set; }
+        public string HintRgba { get; set; }                    //xml-only
         public Color HintColor { get { return FromRgbaString(HintRgba); } }
-        public string WinRgba { get; set; }
+        public string WinRgba { get; set; }                     //xml-only
         public Color WinColor { get { return FromRgbaString(WinRgba); } }
-        public string LossRgba { get; set; }
+        public string LossRgba { get; set; }                    //xml-only
         public Color LossColor { get { return FromRgbaString(LossRgba); } }
-        public string TieRgba { get; set; }
+        public string TieRgba { get; set; }                     //xml-only
         public Color TieColor { get { return FromRgbaString(TieRgba); } }
-        public string ButtonRgba { get; set; }
+        public string ButtonRgba { get; set; }                  //xml-only
         public Color ButtonColor { get { return FromRgbaString(ButtonRgba); } }
-        public string PressedButtonRgba { get; set; }
+        public string PressedButtonRgba { get; set; }           //xml-only
         public Color PressedButtonColor { get { return FromRgbaString(PressedButtonRgba); } }
-        public string SelectedButtonRgba { get; set; }
+        public string SelectedButtonRgba { get; set; }          //xml-only
         public Color SelectedButtonColor { get { return FromRgbaString(SelectedButtonRgba); } }
-        public string ReviewPtsWonRgba { get; set; }
+        public string ReviewPtsWonRgba { get; set; }            //xml-only
         public Color ReviewPtsWonColor { get { return FromRgbaString(ReviewPtsWonRgba); } }
-        public string ReviewPtsLostRgba { get; set; }
+        public string ReviewPtsLostRgba { get; set; }           //xml-only
         public Color ReviewPtsLostColor { get { return FromRgbaString(ReviewPtsLostRgba); } }
         [Preserve]
         public GameSettings()
@@ -201,7 +201,7 @@ namespace Mariasek.SharedClient
 			RiskFactor = 0.28f; //0.2727f ~ (9 nad 5) / (11 nad 5)
             SolitaryXThreshold = 0.13f; //pokud mam na zacatku 5 karet, tak P(souper ma plonkovou X) ~ 0.131
             SolitaryXThresholdDefense = 0.5f; //v obrane musi mit prah vyssi hodnotu aby tahali jen kdyz je to skoro jiste
-            SafetyBetlFactor = 4.8f;
+            SafetyBetlThreshold = 24;
             Thresholds = new []
             {
                 new BidThresholdSettings
