@@ -20,6 +20,9 @@ namespace Mariasek.SharedClient
         private Label _threshold2;
         private Label _threshold3;
         private Label _riskFactor;
+        private Label _solitaryXThreshold;
+        private Label _solitaryXThresholdDefense;
+        private Label _safetyBetlThreshold;
         private RectangleShape _hline;
         //private RectangleShape _shadow;
         private LeftRightSelector _gameTypeSelector;
@@ -30,15 +33,21 @@ namespace Mariasek.SharedClient
         private LeftRightSelector _threshold2Selector;
         private LeftRightSelector _threshold3Selector;
         private LeftRightSelector _riskFactorSelector;
+        private LeftRightSelector _solitaryXSelector;
+        private LeftRightSelector _solitaryXDefenseSelector;
+        private LeftRightSelector _safetyBetlSelector;
         private LineChart _chart;
         private Label _0Percent;
         private Label _50Percent;
         private Label _100Percent;
         private Label _note;
-        private const string _defaultNote = "Prahy udávají jistotu, kterou AI potřebuje aby si dal flek.\nRisk faktor udává ochotu AI mazat a hrát ostrou kartu.";
+        private Label _note2;
+        private LeftRightSelector _pageSelector;
+        private const string _defaultNote = "Prahy udávají jistotu, kterou AI potřebuje aby si dal flek.";
+        private const string _defaultNote2 = "Risk faktor udává ochotu AI mazat a hrát ostrou kartu.";
         private static readonly Dictionary<Hra, string> _notes = new Dictionary<Hra, string>
         {
-            { Hra.Betl, "AI používá práh pro Flek když nevolil a hlásí\nšpatnou barvu. Pokud AI nevolil, neflekuje." },
+            { Hra.Betl, "AI používá práh pro Flek když nevolil a hlásí špatnou\nbarvu. AI hraje utíkáčka pokud hrozí zobrazená prohra." },
             { Hra.Durch, "AI používá práh pro Flek když nevolil a hlásí\nšpatnou barvu. AI durch flekuje jen když nejde uhrát." },
         };
 #endregion
@@ -63,6 +72,7 @@ namespace Mariasek.SharedClient
 
             //PopulateAiConfig();
 
+            ///// BIDDING CONTROLS /////
             _resetButton = new Button(this)
             {
                 Text = "Výchozí",
@@ -80,6 +90,20 @@ namespace Mariasek.SharedClient
                 Width = 200
             };
             _backButton.Click += BackButtonClicked;
+
+            _pageSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(200, 10),
+                Items = new SelectorItems() { { "Nastavení pro volbu a fleky", 0 }, { "Nastavení pro hru", 1 } },
+                Width = (int)Game.VirtualScreenWidth - 200,
+                TextRenderer = Game.FontRenderers["SegoeUI40Outl"]
+            };
+            _pageSelector.SelectedIndex = 0;
+            _pageSelector.SelectionChanged += PageChanged;
+            if (_pageSelector.SelectedIndex < 0)
+            {
+                _pageSelector.SelectedIndex = 0;
+            }
 
             _chart = new LineChart(this)
             {
@@ -164,7 +188,7 @@ namespace Mariasek.SharedClient
 
             _play = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 - 175),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 - 175),
                 Width = 300,
                 Height = 50,
                 Text = "Hrát",
@@ -173,8 +197,8 @@ namespace Mariasek.SharedClient
             };
             _playSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 175),
-                Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 - 175),
+                Width = (int)Game.VirtualScreenWidth / 2 - 190,
                 Items = new SelectorItems() { { "Ano", true }, { "Ne", false } }
             };
             _playSelector.SelectionChanged += MaxBidCountChanged;
@@ -183,7 +207,7 @@ namespace Mariasek.SharedClient
 
             _maxBidCount = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 - 115),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 - 115),
                 Width = 300,
                 Height = 50,
                 Text = "Flekovat max.",
@@ -192,8 +216,8 @@ namespace Mariasek.SharedClient
             };
             _maxBidCountSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 115),
-                Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 - 115),
+                Width = (int)Game.VirtualScreenWidth / 2 - 190,
                 IsCyclicSelector = false,
                 Items = new SelectorItems() { { "0x", 0 }, { "1x", 1 }, { "2x", 2 }, { "3x", 3 } }
             };
@@ -201,7 +225,7 @@ namespace Mariasek.SharedClient
 
             _threshold0 = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 - 55),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 - 55),
                 Width = 300,
                 Height = 50,
                 Text = "Volba",
@@ -210,8 +234,8 @@ namespace Mariasek.SharedClient
             };
             _threshold0Selector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 55),
-                Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 - 55),
+                Width = (int)Game.VirtualScreenWidth / 2 - 190,
                 IsCyclicSelector = false,
                 Items = new SelectorItems() { { "0%", 0 }, { "5%", 5 }, { "10%", 10 }, { "15%", 15 },
                                               { "20%", 20 }, { "25%", 25 }, { "30%", 30 }, { "35%", 35 },
@@ -224,7 +248,7 @@ namespace Mariasek.SharedClient
 
             _threshold1 = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 + 5),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 + 5),
                 Width = 300,
                 Height = 50,
                 Text = "Flek",
@@ -233,8 +257,8 @@ namespace Mariasek.SharedClient
             };
             _threshold1Selector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 + 5),
-                Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 + 5),
+                Width = (int)Game.VirtualScreenWidth / 2 - 190,
                 IsCyclicSelector = false,
                 Items = new SelectorItems() { { "0%", 0 }, { "5%", 5 }, { "10%", 10 }, { "15%", 15 },
                                               { "20%", 20 }, { "25%", 25 }, { "30%", 30 }, { "35%", 35 },
@@ -247,7 +271,7 @@ namespace Mariasek.SharedClient
 
             _threshold2 = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 + 65),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 + 65),
                 Width = 300,
                 Height = 50,
                 Text = "Re",
@@ -256,8 +280,8 @@ namespace Mariasek.SharedClient
             };
             _threshold2Selector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 + 65),
-                Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 + 65),
+                Width = (int)Game.VirtualScreenWidth / 2 - 190,
                 IsCyclicSelector = false,
                 Items = new SelectorItems() { { "0%", 0 }, { "5%", 5 }, { "10%", 10 }, { "15%", 15 },
                                               { "20%", 20 }, { "25%", 25 }, { "30%", 30 }, { "35%", 35 },
@@ -270,7 +294,7 @@ namespace Mariasek.SharedClient
 
             _threshold3 = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 + 125),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 + 125),
                 Width = 300,
                 Height = 50,
                 Text = "Tutti",
@@ -279,8 +303,8 @@ namespace Mariasek.SharedClient
             };
             _threshold3Selector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 + 125),
-                Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 + 125),
+                Width = (int)Game.VirtualScreenWidth / 2 - 190,
                 IsCyclicSelector = false,
                 Items = new SelectorItems() { { "0%", 0 }, { "5%", 5 }, { "10%", 10 }, { "15%", 15 },
                                               { "20%", 20 }, { "25%", 25 }, { "30%", 30 }, { "35%", 35 },
@@ -303,33 +327,237 @@ namespace Mariasek.SharedClient
                 FontScaleFactor = 0.9f
 			};
 
-			_riskFactor = new Label(this)
+            _note2 = new Label(this)
+            {
+                Position = new Vector2(200, Game.VirtualScreenHeight - 70),
+                Width = (int)Game.VirtualScreenWidth - 200,
+                Height = 60,
+                //Text = "",
+                Text = _defaultNote2,
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Top,
+                FontScaleFactor = 0.9f
+            };
+
+            _safetyBetlThreshold = new Label(this)
 			{
-				Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 - 235),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 - 175),
+                //Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 - 235),
 				Width = 300,
 				Height = 50,
-				Text = "Risk faktor",
+				Text = "Práh pro utíkáček",
 				HorizontalAlign = HorizontalAlignment.Center,
 				VerticalAlign = VerticalAlignment.Middle
 			};
-			_riskFactorSelector = new LeftRightSelector(this)
+			_safetyBetlSelector = new LeftRightSelector(this)
 			{
-				Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 235),
-				Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 - 175),
+                //Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 235),
+				Width = (int)Game.VirtualScreenWidth / 2 - 190,
+                Items = new SelectorItems() { { "Žádný", 0 }, { "16x základ", 16 }, { "20x základ", 20 }, 
+                                              { "24x základ", 24 }, { "28x základ", 28 }, { "32x základ", 32 } }
+			};
+            _safetyBetlSelector.SelectedIndex = 0;
+            _safetyBetlSelector.SelectionChanged += SafetyBetlChanged;
+            if (_safetyBetlSelector.SelectedIndex < 0)
+            {
+                _safetyBetlSelector.SelectedIndex = 0;
+            }
+
+            ///// Game Play Controls /////
+            _riskFactor = new Label(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 - 115),
+                //Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 - 235),
+                Width = 300,
+                Height = 50,
+                Text = "Risk faktor",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _riskFactorSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 115),
+                //Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 235),
+                Width = (int)Game.VirtualScreenWidth / 2 - 200,
                 Items = new SelectorItems(
-                    Enumerable.Range(0, 50)
+                    Enumerable.Range(0, 51)
                               .Select(i => new KeyValuePair<string, object>(string.Format("{0}%", i), i / 100f))
                               .ToList()
                 )
-			};
-			_riskFactorSelector.SelectionChanged += RiskFactorChanged;
+            };
+            _riskFactorSelector.SelectedIndex = 0;
+            _riskFactorSelector.SelectionChanged += RiskFactorChanged;
+            if (_riskFactorSelector.SelectedIndex < 0)
+            {
+                _riskFactorSelector.SelectedIndex = 0;
+            }
+
+            _solitaryXThreshold = new Label(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 - 30),
+                Width = 300,
+                Height = 60,
+                Text = "Risk při chytání\nplonkové X pro aktéra",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _solitaryXSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 25),
+                Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                Items = new SelectorItems(
+                    Enumerable.Range(0, 51)
+                              .Select(i => new KeyValuePair<string, object>(string.Format("{0}%", i), i / 100f))
+                              .ToList()
+                )
+            };
+            _solitaryXSelector.SelectedIndex = 0;
+            _solitaryXSelector.SelectionChanged += SolitaryXChanged;
+            if (_solitaryXSelector.SelectedIndex < 0)
+            {
+                _solitaryXSelector.SelectedIndex = 0;
+            }
+
+            _solitaryXThresholdDefense = new Label(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 + 65),
+                Width = 300,
+                Height = 60,
+                Text = "Risk při chytání\nplonkové X pro obranu",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _solitaryXDefenseSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 + 65),
+                Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                Items = new SelectorItems(
+                    Enumerable.Range(0, 51)
+                              .Select(i => new KeyValuePair<string, object>(string.Format("{0}%", i), i / 100f))
+                              .ToList()
+                )
+            };
+            _solitaryXDefenseSelector.SelectedIndex = 0;
+            _solitaryXDefenseSelector.SelectionChanged += SolitaryXDefenseChanged;
+            if (_solitaryXDefenseSelector.SelectedIndex < 0)
+            {
+                _solitaryXDefenseSelector.SelectedIndex = 0;
+            }
 
             Background = Game.Assets.GetTexture("wood2");
             BackgroundTint = Color.DimGray;
 
+            ShowPage(0);
+
             _settingsChanged = false;
 			GameTypeChanged(this);
 		}
+
+        private void PageChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            ShowPage((int)selector.SelectedValue);
+        }
+
+        private void ShowPage(int page)
+        {
+            switch(page)
+            {
+                case 1:
+                    HideBiddingControls();
+                    ShowGamePlayControls();
+                    break;
+                case 0:
+                default:
+                    HideGamePlayControls();
+                    ShowBiddingControls();
+                    if ((Hra)_gameTypeSelector.SelectedValue == Hra.Betl)
+                    {
+                        _safetyBetlSelector.Show();
+                        _safetyBetlThreshold.Show();
+                    }
+                    else
+                    {
+                        _safetyBetlSelector.Hide();
+                        _safetyBetlThreshold.Hide();
+                    }
+                    break;
+            }
+        }
+
+        private void ShowGamePlayControls()
+        {
+            _solitaryXThreshold.Show();
+            _solitaryXSelector.Show();
+            _solitaryXThresholdDefense.Show();
+            _solitaryXDefenseSelector.Show();
+            _riskFactor.Show();
+            _riskFactorSelector.Show();
+            _note2.Show();
+        }
+
+        private void HideGamePlayControls()
+        {
+            _solitaryXThreshold.Hide();
+            _solitaryXSelector.Hide();
+            _solitaryXThresholdDefense.Hide();
+            _solitaryXDefenseSelector.Hide();
+            _riskFactor.Hide();
+            _riskFactorSelector.Hide();
+            _note2.Hide();
+        }
+
+        private void ShowBiddingControls()
+        {
+            //_play.Show();
+            _maxBidCount.Show();
+            _threshold0.Show();
+            _threshold1.Show();
+            _threshold2.Show();
+            _threshold3.Show();
+            _safetyBetlThreshold.Show();
+            _safetyBetlSelector.Show();
+            _gameTypeSelector.Show();
+            //_playSelector.Show();
+            _maxBidCountSelector.Show();
+            _threshold0Selector.Show();
+            _threshold1Selector.Show();
+            _threshold2Selector.Show();
+            _threshold3Selector.Show();
+            _safetyBetlSelector.Show();
+            _chart.Show();
+            _0Percent.Show();
+            _50Percent.Show();
+            _100Percent.Show();
+            _note.Show();
+        }
+
+        private void HideBiddingControls()
+        {
+            //_play.Hide();
+            _maxBidCount.Hide();
+            _threshold0.Hide();
+            _threshold1.Hide();
+            _threshold2.Hide();
+            _threshold3.Hide();
+            _safetyBetlThreshold.Hide();
+            _safetyBetlSelector.Hide();
+            _gameTypeSelector.Hide();
+            //_playSelector.Hide();
+            _maxBidCountSelector.Hide();
+            _threshold0Selector.Hide();
+            _threshold1Selector.Hide();
+            _threshold2Selector.Hide();
+            _threshold3Selector.Hide();
+            _safetyBetlSelector.Hide();
+            _chart.Hide();
+            _0Percent.Hide();
+            _50Percent.Hide();
+            _100Percent.Hide();
+            _note.Hide();
+        }
 
         private void SettingsChanged(object sender, SettingsChangedEventArgs e)
         {
@@ -356,7 +584,10 @@ namespace Mariasek.SharedClient
                 _threshold1Selector.SelectedIndex = _threshold1Selector.Items.FindIndex(thresholds[1]);
                 _threshold2Selector.SelectedIndex = _threshold2Selector.Items.FindIndex(thresholds[2]);
                 _threshold3Selector.SelectedIndex = _threshold3Selector.Items.FindIndex(thresholds[3]);
+                _safetyBetlSelector.SelectedIndex = _safetyBetlSelector.Items.FindIndex(Game.Settings.SafetyBetlThreshold);
                 _riskFactorSelector.SelectedIndex = _riskFactorSelector.Items.FindIndex(Game.Settings.RiskFactor);
+                _solitaryXSelector.SelectedIndex = _solitaryXSelector.Items.FindIndex(Game.Settings.SolitaryXThreshold);
+                _solitaryXDefenseSelector.SelectedIndex = _solitaryXDefenseSelector.Items.FindIndex(Game.Settings.SolitaryXThresholdDefense);
                 _updating = false;
             }
 
@@ -375,6 +606,16 @@ namespace Mariasek.SharedClient
 
             var gt = (Hra)_gameTypeSelector.SelectedValue;
             _note.Text = _notes.ContainsKey(gt) ? _notes[gt] : _defaultNote;
+            if ((Hra)_gameTypeSelector.SelectedValue == Hra.Betl)
+            {
+                _safetyBetlThreshold.Show();
+                _safetyBetlSelector.Show();
+            }
+            else
+            {
+                _safetyBetlThreshold.Hide();
+                _safetyBetlSelector.Hide();
+            }
         }
 
         private void UpdateAiSettings()
@@ -385,7 +626,10 @@ namespace Mariasek.SharedClient
                 _threshold3Selector.SelectedIndex == -1 ||
                 _maxBidCountSelector.SelectedIndex == -1 ||
                 _playSelector.SelectedIndex == -1 ||
-                _riskFactorSelector.SelectedIndex == -1)
+                _riskFactorSelector.SelectedIndex == -1 ||
+                _safetyBetlSelector.SelectedIndex == -1 ||
+                _solitaryXSelector.SelectedIndex == -1 ||
+                _solitaryXDefenseSelector.SelectedIndex == -1)
             {
                 return;
             }
@@ -398,6 +642,9 @@ namespace Mariasek.SharedClient
             thresholdSettings.MaxBidCount = (int)_maxBidCountSelector.SelectedValue;
             thresholdSettings.Use = (bool)_playSelector.SelectedValue;
             Game.Settings.RiskFactor = (float)_riskFactorSelector.SelectedValue;
+            Game.Settings.SolitaryXThreshold = (float)_solitaryXSelector.SelectedValue;
+            Game.Settings.SolitaryXThresholdDefense = (float)_solitaryXDefenseSelector.SelectedValue;
+            Game.Settings.SafetyBetlThreshold = (int)_safetyBetlSelector.SelectedValue;
         }
 
         public void BackButtonClicked(object sender)
@@ -495,8 +742,38 @@ namespace Mariasek.SharedClient
 		
         public void RiskFactorChanged(object sender)
         {
-			_settingsChanged = true;
-			UpdateAiSettings();
+            if (!_updating)
+            {
+                _settingsChanged = true;
+                UpdateAiSettings();
+            }
 		}
-	}
+
+        public void SafetyBetlChanged(object sender)
+        {
+            if (!_updating)
+            {
+                _settingsChanged = true;
+                UpdateAiSettings();
+            }
+        }
+
+        public void SolitaryXChanged(object sender)
+        {
+            if (!_updating)
+            {
+                _settingsChanged = true;
+                UpdateAiSettings();
+            }
+        }
+
+        public void SolitaryXDefenseChanged(object sender)
+        {
+            if (!_updating)
+            {
+                _settingsChanged = true;
+                UpdateAiSettings();
+            }
+        }
+    }
 }
