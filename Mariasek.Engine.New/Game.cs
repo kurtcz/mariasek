@@ -1129,17 +1129,17 @@ namespace Mariasek.Engine.New
                     //dodame karty ve stychu vyjma hlasu
                     foreach (var r in rounds.Where(r => r != null))
                     {
-                        if (r.roundWinner == player && !r.hlas3)
+                        if (r.roundWinner.PlayerIndex == player.PlayerIndex && !r.hlas3)
                         {
                             deck.Add(r.c3);
                             sb.AppendFormat("Round {0} card 3: Adding {1}\n", r.number, r.c3);
                         }
-                        if (r.roundWinner == player && !r.hlas2)
+                        if (r.roundWinner.PlayerIndex == player.PlayerIndex && !r.hlas2)
                         {
                             deck.Add(r.c2);
                             sb.AppendFormat("Round {0} card 2: Adding {1}\n", r.number, r.c2);
                         }
-						if (r.roundWinner == player && !r.hlas1)
+						if (r.roundWinner.PlayerIndex == player.PlayerIndex && !r.hlas1)
                         {
                             deck.Add(r.c1);
 							sb.AppendFormat("Round {0} card 1: Adding {1}\n", r.number, r.c1);
@@ -1198,11 +1198,22 @@ namespace Mariasek.Engine.New
                         }
                     }
                 }
-                var newDeck = new Deck();
+                Deck newDeck;
+
+                if (temp.Count != 32)
+                {
+                    newDeck = new Deck();
+                    newDeck.Shuffle();
+                }
+                else
+                {
+                    newDeck = new Deck(temp);
+                }
                 if (Results != null && !Results.GamePlayed)
                 {
                     newDeck.Cut();
                 }
+
                 return newDeck;
             }
 			catch (InvalidDataException e)

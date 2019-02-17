@@ -1169,20 +1169,21 @@ namespace Mariasek.SharedClient
 
         public void ShuffleDeck()
         {
-            if (_deck == null)
-            {
-                LoadDeck();
-            }
-            else if (_deck.IsEmpty())
-            {
-                _deck = g.GetDeckFromLastGame();
-                if (_deck.IsEmpty())
-                {
-                    LoadDeck();
-                }
-            }
+            //if (_deck == null)
+            //{
+            //    LoadDeck();
+            //}
+            //else if (_deck.IsEmpty())
+            //{
+            //    _deck = g.GetDeckFromLastGame();
+            //    if (_deck.IsEmpty())
+            //    {
+            //        LoadDeck();
+            //    }
+            //}
+            _deck = new Deck();
             _deck.Shuffle();
-            SaveDeck();
+            Task.Run(() => SaveDeck());
         }
 
         public void NewGameBtnClicked(object sender)
@@ -2511,6 +2512,9 @@ namespace Mariasek.SharedClient
             {
                 _deck = g.GetDeckFromLastGame();
                 var deck = _deck;
+
+                Task.Run(() => SaveDeck(deck));
+
                 if (Game.Settings.MaxHistoryLength > 0 &&
                     Game.Money.Count() >= Game.Settings.MaxHistoryLength)
                 {
@@ -2525,7 +2529,6 @@ namespace Mariasek.SharedClient
                     {
                         DeleteArchiveFolder();
                     }
-                    SaveDeck(deck);
                     _newGameBtn.Enabled = true;
                     if (g.rounds[0] != null)
                     {
