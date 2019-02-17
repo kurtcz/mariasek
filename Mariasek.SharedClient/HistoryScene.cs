@@ -394,6 +394,7 @@ namespace Mariasek.SharedClient
                                  _historyBox.MoveTo(_origPosition, 5000);
                                  _tableButton.IsSelected = true;
                                  _chartButton.IsSelected = false;
+                                 _viewGameButton.Show();
                              });
             }
             else
@@ -406,6 +407,7 @@ namespace Mariasek.SharedClient
                                 _historyChart.MoveTo(_origPosition, 5000);
                                 _chartButton.IsSelected = true;
                                 _tableButton.IsSelected = false;
+                                _viewGameButton.Hide();
                             });
             }
         }
@@ -486,11 +488,13 @@ namespace Mariasek.SharedClient
             {
                 //_viewGameButton.Position = new Vector2(753, _historyBox.HighlightedLineBoundsRect.Top);
                 //_viewGameButton.Height = _historyBox.HighlightedLineBoundsRect.Height;
-                _viewGameButton.Show();
+                //_viewGameButton.Show();
+                _viewGameButton.IsEnabled = true;
             }
             else
             {
-                _viewGameButton.Hide();
+                //_viewGameButton.Hide();
+                _viewGameButton.IsEnabled = false;
             }
         }
     }
