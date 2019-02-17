@@ -1181,7 +1181,24 @@ namespace Mariasek.Engine.New
             }
 			try
 			{
-				var newDeck = new Deck(deck.Distinct().ToList());
+                //obcas se nepodari balicek rekonstuovat - napr. protoze zmizel talon
+                //neni jasne jak tato chyba vznika. Pokud karet nechybi moc,
+                //tak se pokus rozbity balicek opravit dodanim chybejicich karet
+                var temp = deck.Distinct().ToList();
+                if (temp.Count < 32 && temp.Count > 24)
+                {
+                    foreach(var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                    {
+                        foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+                        {
+                            if (!temp.Any(i => i.Suit == b && i.Value == h))
+                            {
+                                temp.Add(new Card(b, h));
+                            }
+                        }
+                    }
+                }
+                var newDeck = new Deck();
                 if (Results != null && !Results.GamePlayed)
                 {
                     newDeck.Cut();
@@ -1190,7 +1207,14 @@ namespace Mariasek.Engine.New
             }
 			catch (InvalidDataException e)
 			{
-				throw new InvalidDataException(sb.ToString(), e);
+                //pokud se balicek nepodarilo dat dohromady, tak vyrob uplne novy
+                //throw new InvalidDataException(sb.ToString(), e);
+                var newDeck = new Deck();
+
+                newDeck.Init();
+                newDeck.Shuffle();
+
+                return newDeck;
 			}
         }
 
