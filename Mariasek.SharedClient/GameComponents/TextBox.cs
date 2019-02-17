@@ -93,6 +93,8 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
+        public bool ShowVerticalScrollbar { get; set; }
+
         public Color BackgroundColor
         { 
             get { return _backgroundShape.BackgroundColors[0]; }
@@ -208,6 +210,7 @@ namespace Mariasek.SharedClient.GameComponents
             Width = _backgroundShape.Width;
             Height = _backgroundShape.Height;
             HighlightedLine = -1;
+            ShowVerticalScrollbar = true;
             Game.Activated += (sender, e) => ScheduleTextureUpdate();
         }
 
@@ -291,13 +294,24 @@ namespace Mariasek.SharedClient.GameComponents
 						break;
 				}
             }
-            else if(_scrollBarTexture != null)
+            else
             {
-                if (!_scrollBarTexture.IsDisposed)
+                if (_scrollBarTexture != null)
                 {
-                    _scrollBarTexture.Dispose();
+                    if (!_scrollBarTexture.IsDisposed)
+                    {
+                        _scrollBarTexture.Dispose();
+                    }
+                    _scrollBarTexture = null;
                 }
-                _scrollBarTexture = null;
+                if (_scrollBarBgTexture != null)
+                {
+                    if (!_scrollBarBgTexture.IsDisposed)
+                    {
+                        _scrollBarBgTexture.Dispose();
+                    }
+                    _scrollBarBgTexture = null;
+                }
             }
         }
 
@@ -438,7 +452,9 @@ namespace Mariasek.SharedClient.GameComponents
                 _backgroundShape.Draw(gameTime);
                 DrawTextAtPosition(textPosition);
 
-                if (_scrollBarTexture != null)
+                if (ShowVerticalScrollbar &&
+                    _scrollBarTexture != null &&
+                    _scrollBarBgTexture != null)
                 {
                     Game.SpriteBatch.Draw(_scrollBarBgTexture, new Vector2(_scrollBarPosition.X, Position.Y), TextColor * 0.5f);
                     Game.SpriteBatch.Draw(_scrollBarTexture, _scrollBarPosition, TextColor * 0.8f);

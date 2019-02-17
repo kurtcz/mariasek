@@ -93,9 +93,9 @@ namespace Mariasek.SharedClient
 
             _pageSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(200, 10),
+                Position = new Vector2(210, 10),
                 Items = new SelectorItems() { { "Nastavení pro volbu a fleky", 0 }, { "Nastavení pro hru", 1 } },
-                Width = (int)Game.VirtualScreenWidth - 200,
+                Width = (int)Game.VirtualScreenWidth - 210,
                 TextRenderer = Game.FontRenderers["SegoeUI40Outl"]
             };
             _pageSelector.SelectedIndex = 0;
@@ -342,9 +342,8 @@ namespace Mariasek.SharedClient
             _safetyBetlThreshold = new Label(this)
 			{
                 Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 - 175),
-                //Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 - 235),
-				Width = 300,
-				Height = 50,
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
 				Text = "Práh pro utíkáček",
 				HorizontalAlign = HorizontalAlignment.Center,
 				VerticalAlign = VerticalAlignment.Middle
@@ -352,8 +351,7 @@ namespace Mariasek.SharedClient
 			_safetyBetlSelector = new LeftRightSelector(this)
 			{
                 Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 - 175),
-                //Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 235),
-				Width = (int)Game.VirtualScreenWidth / 2 - 190,
+                Width = (int)Game.VirtualScreenWidth / 2 - 190,
                 Items = new SelectorItems() { { "Žádný", 0 }, { "16x základ", 16 }, { "20x základ", 20 }, 
                                               { "24x základ", 24 }, { "28x základ", 28 }, { "32x základ", 32 } }
 			};
@@ -367,9 +365,8 @@ namespace Mariasek.SharedClient
             ///// Game Play Controls /////
             _riskFactor = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 - 115),
-                //Position = new Vector2(Game.VirtualScreenWidth / 2 - 100, Game.VirtualScreenHeight / 2 - 235),
-                Width = 300,
+                Position = new Vector2(200, Game.VirtualScreenHeight / 2 - 115),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Risk faktor",
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -377,9 +374,8 @@ namespace Mariasek.SharedClient
             };
             _riskFactorSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 115),
-                //Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 235),
-                Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                Position = new Vector2(Game.VirtualScreenWidth - 300, Game.VirtualScreenHeight / 2 - 115),
+                Width = 270,
                 Items = new SelectorItems(
                     Enumerable.Range(0, 51)
                               .Select(i => new KeyValuePair<string, object>(string.Format("{0}%", i), i / 100f))
@@ -395,8 +391,8 @@ namespace Mariasek.SharedClient
 
             _solitaryXThreshold = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 - 30),
-                Width = 300,
+                Position = new Vector2(200, Game.VirtualScreenHeight / 2 - 30),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 60,
                 Text = "Risk při chytání\nplonkové X pro aktéra",
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -404,8 +400,8 @@ namespace Mariasek.SharedClient
             };
             _solitaryXSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 - 25),
-                Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                Position = new Vector2(Game.VirtualScreenWidth - 300, Game.VirtualScreenHeight / 2 - 25),
+                Width = 270,
                 Items = new SelectorItems(
                     Enumerable.Range(0, 51)
                               .Select(i => new KeyValuePair<string, object>(string.Format("{0}%", i), i / 100f))
@@ -421,8 +417,8 @@ namespace Mariasek.SharedClient
 
             _solitaryXThresholdDefense = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 + 65),
-                Width = 300,
+                Position = new Vector2(200, Game.VirtualScreenHeight / 2 + 65),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 60,
                 Text = "Risk při chytání\nplonkové X pro obranu",
                 HorizontalAlign = HorizontalAlignment.Center,
@@ -430,8 +426,8 @@ namespace Mariasek.SharedClient
             };
             _solitaryXDefenseSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 200, Game.VirtualScreenHeight / 2 + 65),
-                Width = (int)Game.VirtualScreenWidth / 2 - 200,
+                Position = new Vector2(Game.VirtualScreenWidth - 300, Game.VirtualScreenHeight / 2 + 65),
+                Width = 270,
                 Items = new SelectorItems(
                     Enumerable.Range(0, 51)
                               .Select(i => new KeyValuePair<string, object>(string.Format("{0}%", i), i / 100f))

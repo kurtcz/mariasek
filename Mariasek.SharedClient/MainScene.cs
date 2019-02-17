@@ -547,7 +547,8 @@ namespace Mariasek.SharedClient
                 ZIndex = 100,
                 Anchor = AnchorType.Top,
                 FontScaleFactor = 0.85f,
-                HighlightedLine = 1
+                HighlightedLine = 1,
+                ShowVerticalScrollbar = false
             };
             _trumpLabel1.Hide();
             _trumpLabel2 = new TextBox(this)
@@ -560,7 +561,8 @@ namespace Mariasek.SharedClient
                 ZIndex = 100,
                 Anchor = AnchorType.Top,
                 FontScaleFactor = 0.85f,
-                HighlightedLine = 1
+                HighlightedLine = 1,
+                ShowVerticalScrollbar = false
             };
             _trumpLabel2.Hide();
             _trumpLabel3 = new TextBox(this)
@@ -573,7 +575,8 @@ namespace Mariasek.SharedClient
                 ZIndex = 100,
                 Anchor = AnchorType.Top,
                 FontScaleFactor = 0.85f,
-                HighlightedLine = 1
+                HighlightedLine = 1,
+                ShowVerticalScrollbar = false
             };
             _trumpLabel3.Hide();
             _trumpLabels = new[] { _trumpLabel1, _trumpLabel2, _trumpLabel3 };

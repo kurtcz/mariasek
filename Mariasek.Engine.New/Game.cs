@@ -1691,10 +1691,6 @@ namespace Mariasek.Engine.New
                 BiddingDebugInfo.Append("DebugInfo == null");
                 return;
             }
-            if (players[playerIndex].TeamMateIndex == -1)
-            {
-                BiddingDebugInfo.AppendFormat("Odhad maximální ztráty: {0}", players[playerIndex].DebugInfo.MaxEstimatedLoss);
-            }
             if (trump.HasValue)
             {
                 BiddingDebugInfo.AppendFormat("Odhad skóre: {0}", players[playerIndex].DebugInfo.EstimatedFinalBasicScore);
@@ -1704,6 +1700,10 @@ namespace Mariasek.Engine.New
                 if (kqScore > 0)
                 {
                     BiddingDebugInfo.AppendFormat("+{0}", kqScore);
+                }
+                if (players[playerIndex].TeamMateIndex == -1)
+                {
+                    BiddingDebugInfo.AppendFormat("\nMaximální bodová ztráta: {0}", players[playerIndex].DebugInfo.MaxEstimatedLoss);
                 }
             }
             BiddingDebugInfo.Append("\nVšechny simulace:");
