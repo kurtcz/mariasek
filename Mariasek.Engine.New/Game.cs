@@ -386,7 +386,7 @@ namespace Mariasek.Engine.New
         }
 #endif
 
-        public void LoadGame(Stream fileStream, bool calculateMoney = false)
+        public void LoadGame(Stream fileStream, bool calculateMoney = false, int impersonationPlayerIndex = 0)
         {
             _log.Init();
             _log.Info("********");
@@ -411,9 +411,9 @@ namespace Mariasek.Engine.New
             var roundComments = new List<Queue<string>>();
             string[] tmpcomments = null;
             var comment = 0;
-            while(xmlrdr.Read())
+            while (xmlrdr.Read())
             {
-                switch(xmlrdr.NodeType)
+                switch (xmlrdr.NodeType)
                 {
                     case XmlNodeType.Element:
                         if (!xmlrdr.IsEmptyElement)
@@ -421,7 +421,7 @@ namespace Mariasek.Engine.New
                             parentNodes.Push(xmlrdr.Name);
                             if (xmlrdr.Name == "Stych")
                             {
-                                tmpcomments = new [] {"-", "-", "-"};
+                                tmpcomments = new[] { "-", "-", "-" };
                                 comment = 0;
                             }
                         }
@@ -433,7 +433,7 @@ namespace Mariasek.Engine.New
                             BiddingDebugInfo.Clear();
                             BiddingDebugInfo.Append(xmlrdr.Value.Trim());
                         }
-                        else if (parentNodes.Any() && 
+                        else if (parentNodes.Any() &&
                             parentNodes.Peek() == "Stych" &&
                             tmpcomments != null)
                         {
@@ -450,7 +450,7 @@ namespace Mariasek.Engine.New
                         break;
                 }
             }
-                  
+
             RoundNumber = 0;
             if (gameData.Typ.HasValue)
             {
@@ -460,9 +460,16 @@ namespace Mariasek.Engine.New
             {
                 trump = gameData.Trumf;
             }
-            GameStartingPlayerIndex = (int) gameData.Voli;
+
+            //pouze novou hru lze sehrat za jineho hrace
+            if (gameData.Kolo > 0 || impersonationPlayerIndex < 0 || impersonationPlayerIndex >= Game.NumPlayers)
+            {
+                impersonationPlayerIndex = 0;
+            }
+            var shift = Game.NumPlayers - impersonationPlayerIndex;
+            GameStartingPlayerIndex = (int)(gameData.Voli + shift) % Game.NumPlayers;
             OriginalGameStartingPlayerIndex = GameStartingPlayerIndex;
-            _roundStartingPlayer = players[(int)gameData.Zacina];
+            _roundStartingPlayer = players[(int)(gameData.Zacina + shift) % Game.NumPlayers];
 
             Author = gameData.Autor;
             Comment = gameData.Komentar;
@@ -486,9 +493,6 @@ namespace Mariasek.Engine.New
                 }
             }
             //Bidding.PlayerBids je ztracene, ale pro hrani ho nepotrebujeme
-            players[0].Hand.AddRange(gameData.Hrac1.Select(i => new Card(i.Barva, i.Hodnota)));
-            players[1].Hand.AddRange(gameData.Hrac2.Select(i => new Card(i.Barva, i.Hodnota)));
-            players[2].Hand.AddRange(gameData.Hrac3.Select(i => new Card(i.Barva, i.Hodnota)));
 
             if (gameData.Talon == null)
             {
@@ -499,6 +503,26 @@ namespace Mariasek.Engine.New
             if (gameData.Stychy == null)
             {
                 gameData.Stychy = new Stych[0];
+            }
+
+            switch (impersonationPlayerIndex)
+            {
+                case 1:
+                    players[0].Hand.AddRange(gameData.Hrac2.Select(i => new Card(i.Barva, i.Hodnota)));
+                    players[1].Hand.AddRange(gameData.Hrac3.Select(i => new Card(i.Barva, i.Hodnota)));
+                    players[2].Hand.AddRange(gameData.Hrac1.Select(i => new Card(i.Barva, i.Hodnota)));
+                    break;
+                case 2:
+                    players[0].Hand.AddRange(gameData.Hrac3.Select(i => new Card(i.Barva, i.Hodnota)));
+                    players[1].Hand.AddRange(gameData.Hrac1.Select(i => new Card(i.Barva, i.Hodnota)));
+                    players[2].Hand.AddRange(gameData.Hrac2.Select(i => new Card(i.Barva, i.Hodnota)));
+                    break;
+                case 0:
+                default:
+                    players[0].Hand.AddRange(gameData.Hrac1.Select(i => new Card(i.Barva, i.Hodnota)));
+                    players[1].Hand.AddRange(gameData.Hrac2.Select(i => new Card(i.Barva, i.Hodnota)));
+                    players[2].Hand.AddRange(gameData.Hrac3.Select(i => new Card(i.Barva, i.Hodnota)));
+                    break;
             }
 
             players[0].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
@@ -628,6 +652,13 @@ namespace Mariasek.Engine.New
             //{
             //    SaveGame(fs);
             //}
+            if (impersonationPlayerIndex != 0)
+            {
+                using (var fs = GetFileStream("_def.hra"))
+                {
+                    SaveGame(fs);
+                }
+            }
 #endif        
         }
 

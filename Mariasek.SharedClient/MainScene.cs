@@ -51,6 +51,9 @@ namespace Mariasek.SharedClient
         private Button _sendBtn;
         private Button _newGameBtn;
         private Button _repeatGameBtn;
+        private Button _repeatGameOptionBtn;
+        private Button _repeatGameAsPlayer2Btn;
+        private Button _repeatGameAsPlayer3Btn;
         private Button _reviewGameBtn;
         private ToggleButton _reviewGameToggleBtn;
         private Button _okBtn;
@@ -138,6 +141,7 @@ namespace Mariasek.SharedClient
         private Vector2 _totalBalanceOrigPosition;
         private Vector2 _totalBalanceHiddenPosition;
         private bool _testGame;
+        private bool _lastGameWasLoaded;
 
         public MainScene(MariasekMonoGame game)
             : base(game)
@@ -385,6 +389,40 @@ namespace Mariasek.SharedClient
             };
             _repeatGameBtn.Click += RepeatGameBtnClicked;
             _repeatGameBtn.Hide();
+            _repeatGameOptionBtn = new Button(this)
+            {
+                Text = "»",
+                Position = new Vector2(160, Game.VirtualScreenHeight / 2f - 95),
+                ZIndex = 99,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                Width = 40,
+                BackgroundColor = Color.Transparent,
+                BorderColor = Color.Transparent,
+                TextRenderer = Game.FontRenderers["SegoeUI40Outl"]
+            };
+            //_repeatGameOptionBtn.Click += RepeatGameOptionBtnClicked;
+            _repeatGameOptionBtn.TouchUp += RepeatGameOptionBtnTouchUp;
+            _repeatGameOptionBtn.Hide();
+            _repeatGameAsPlayer2Btn = new Button(this)
+            {
+                Text = "Jako 2",
+                Position = new Vector2(170, Game.VirtualScreenHeight / 2f - 90),
+                ZIndex = 100,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                Width = 200
+            };
+            _repeatGameAsPlayer2Btn.Click += RepeatGameAsPlayer2BtnClicked;
+            _repeatGameAsPlayer2Btn.Hide();
+            _repeatGameAsPlayer3Btn = new Button(this)
+            {
+                Text = "Jako 3",
+                Position = new Vector2(380, Game.VirtualScreenHeight / 2f - 90),
+                ZIndex = 100,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                Width = 200
+            };
+            _repeatGameAsPlayer3Btn.Click += RepeatGameAsPlayer3BtnClicked;
+            _repeatGameAsPlayer3Btn.Hide();
             _menuBtn = new Button(this)
             {
                 Text = "Menu",
@@ -606,15 +644,15 @@ namespace Mariasek.SharedClient
             {
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
-                Position = new Vector2(165, 140),
-                Width = (int)Game.VirtualScreenWidth - 280,
+                Position = new Vector2(200, 140),
+                Width = (int)Game.VirtualScreenWidth - 245,
                 Height = (int)Game.VirtualScreenHeight - 210,
                 TextColor = Game.Settings.HighlightedTextColor,
-                ZIndex = 100,
+                ZIndex = 98,
                 FontScaleFactor = 0.9f
             };
-            _msgLabelLeftOrigPosition = new Vector2(160, 140);
-            _msgLabelLeftHiddenPosition = new Vector2(160, 140 - Game.VirtualScreenHeight);
+            _msgLabelLeftOrigPosition = new Vector2(200, 140);
+            _msgLabelLeftHiddenPosition = new Vector2(200, 140 - Game.VirtualScreenHeight);
             _msgLabelRight = new Label(this)
             {
                 HorizontalAlign = HorizontalAlignment.Right,
@@ -1167,6 +1205,34 @@ namespace Mariasek.SharedClient
             ReplayGame(_newGameFilePath);
         }
 
+        //public void RepeatGameOptionBtnClicked(object sender)
+        public void RepeatGameOptionBtnTouchUp(object sender, TouchLocation tl)
+        {
+            _repeatGameAsPlayer2Btn.Show();
+            _repeatGameAsPlayer3Btn.Show();
+            _repeatGameOptionBtn.Hide();
+            _repeatGameBtn.Wait(2000)
+                          .Invoke(() =>
+                {
+                    _repeatGameAsPlayer2Btn.Hide();
+                    _repeatGameAsPlayer3Btn.Hide();
+                    if (_repeatGameBtn.IsVisible)
+                    {
+                        _repeatGameOptionBtn.Show();
+                    }
+                });
+        }
+
+        public void RepeatGameAsPlayer2BtnClicked(object sender)
+        {
+            ReplayGame(_newGameFilePath, 1);
+        }
+
+        public void RepeatGameAsPlayer3BtnClicked(object sender)
+        {
+            ReplayGame(_newGameFilePath, 2);
+        }
+
         public void ShuffleDeck()
         {
             //if (_deck == null)
@@ -1187,7 +1253,7 @@ namespace Mariasek.SharedClient
         }
 
         public void NewGameBtnClicked(object sender)
-        {            
+        {
             if (!_gameSemaphore.Wait(0))
             {
                 return;
@@ -1198,7 +1264,11 @@ namespace Mariasek.SharedClient
             _trumpLabel2.Hide();
             _trumpLabel3.Hide();
             _newGameBtn.Hide();
+            _repeatGameBtn.ClearOperations();
             _repeatGameBtn.Hide();
+            _repeatGameOptionBtn.Hide();
+            _repeatGameAsPlayer2Btn.Hide();
+            _repeatGameAsPlayer3Btn.Hide();
             _testGame = false;
             var cancellationTokenSource = new CancellationTokenSource();
             _gameTask = Task.Run(() => CancelRunningTask(gameTask))
@@ -1404,6 +1474,7 @@ namespace Mariasek.SharedClient
                          _gameSemaphore.Release();
                      }
                  }
+                 _lastGameWasLoaded = false;
                  g.PlayGame(_cancellationTokenSource.Token);
              }, cancellationTokenSource.Token);
         }
@@ -2685,6 +2756,11 @@ namespace Mariasek.SharedClient
                 }
                 _newGameBtn.Show();
                 _repeatGameBtn.Show();
+                _repeatGameOptionBtn.Show();
+                //_repeatGameAsPlayer2Btn.Show();
+                //_repeatGameAsPlayer3Btn.Show();
+                _repeatGameAsPlayer2Btn.Text = string.Format("Jako {0}", Game.Settings.PlayerNames[1]);
+                _repeatGameAsPlayer3Btn.Text = string.Format("Jako {0}", Game.Settings.PlayerNames[2]);
                 _reviewGameBtn.Text = "Průběh hry";
                 _reviewGameBtn.Show();
             });
@@ -2726,7 +2802,7 @@ namespace Mariasek.SharedClient
             return false;
         }
 
-        public void LoadGame(bool testGame = false)
+        public void LoadGame(bool testGame = false, int impersonationPlayerIndex = 0)
         {
             if (g == null)
             {
@@ -2737,11 +2813,14 @@ namespace Mariasek.SharedClient
                 var gameTask = _gameTask;
 
                 _trumpLabel1.Hide();
-				_trumpLabel2.Hide();
-				_trumpLabel3.Hide();
-				_newGameBtn.Hide();
-				_repeatGameBtn.Hide();
-				SetActive();
+                _trumpLabel2.Hide();
+                _trumpLabel3.Hide();
+                _newGameBtn.Hide();
+                _repeatGameBtn.Hide();
+                _repeatGameOptionBtn.Hide();
+                _repeatGameAsPlayer2Btn.Hide();
+                _repeatGameAsPlayer3Btn.Hide();
+                SetActive();
                 var cancellationTokenSource = new CancellationTokenSource();
                 _gameTask = Task.Run(() => CancelRunningTask(gameTask))
                                 .ContinueWith(cancellationTask =>
@@ -2782,10 +2861,10 @@ namespace Mariasek.SharedClient
                         try
                         {
                             g.DoSort = Game.Settings.SortMode != SortMode.None;
-							Game.StorageAccessor.GetStorageAccess();
+                            Game.StorageAccessor.GetStorageAccess();
                             using (var fs = File.Open(testGame ? _testGameFilePath : _savedGameFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                             {
-                                g.LoadGame(fs);
+                                g.LoadGame(fs, impersonationPlayerIndex: impersonationPlayerIndex);
                             }
                         }
                         catch (Exception ex)
@@ -2947,6 +3026,7 @@ namespace Mariasek.SharedClient
                             _gameSemaphore.Release();
                         }
                     }
+                    _lastGameWasLoaded = true;
                     g.PlayGame(_cancellationTokenSource.Token);
                 }, cancellationTokenSource.Token);
             }
@@ -3009,7 +3089,7 @@ namespace Mariasek.SharedClient
             }
         }
 
-        public void ReplayGame(string gamePath)
+        public void ReplayGame(string gamePath, int impersonationPlayerIndex = 0)
         {
             CancelRunningTask(_gameTask);
             CleanUpOldGame();
@@ -3018,8 +3098,13 @@ namespace Mariasek.SharedClient
             {
                 try
                 {
+                    Game.StorageAccessor.GetStorageAccess();
+                    if (gamePath != _newGameFilePath)
+                    {
+                        File.Copy(gamePath, _newGameFilePath, true);
+                    }
                     File.Copy(gamePath, _savedGameFilePath, true);
-                    LoadGame();
+                    LoadGame(impersonationPlayerIndex: impersonationPlayerIndex);
                 }
                 catch (Exception ex)
                 {

@@ -21,6 +21,9 @@ namespace Mariasek.SharedClient
 
         Button _backButton;
         Button _replayButton;
+        Button _replayOptionButton;
+        Button _replayAsPlayer2Button;
+        Button _replayAsPlayer3Button;
         ToggleButton _rawButton;
         Button _sendButton;
         GameReview _review;
@@ -88,20 +91,50 @@ namespace Mariasek.SharedClient
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _replayButton.Click += ReplayButtonClicked;
+            _replayOptionButton = new Button(this)
+            {
+                Position = new Vector2(210, (int)Game.VirtualScreenHeight - 185),
+                Width = 40,
+                Height = 50,
+                Text = "»",
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                BackgroundColor = Color.Transparent,
+                BorderColor = Color.Transparent,
+                TextRenderer = Game.FontRenderers["SegoeUI40Outl"]
+            };
+            _replayOptionButton.Click += ReplayOptionButtonClicked;
+            _replayAsPlayer2Button = new Button(this)
+            {
+                Position = new Vector2(220, (int)Game.VirtualScreenHeight - 180),
+                Width = 200,
+                Height = 50,
+                Text = "Jako 2",
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
+            };
+            _replayAsPlayer2Button.Click += ReplayAsPlayer2ButtonClicked;
+            _replayAsPlayer3Button = new Button(this)
+            {
+                Position = new Vector2(430, (int)Game.VirtualScreenHeight - 180),
+                Width = 200,
+                Height = 50,
+                Text = "Jako 3",
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
+            };
+            _replayAsPlayer3Button.Click += ReplayAsPlayer3ButtonClicked;
             _review = new GameReview(this, (int)_origPosition.X + 40)
             {
                 Position = _origPosition,
                 Width = (int)Game.VirtualScreenWidth,
                 Height = (int)Game.VirtualScreenHeight - 65,
                 BackgroundColor = Color.Transparent,
-                ZIndex = 100
+                ZIndex = 98
             };
             _rawData = new TextBox(this)
             {
                 Position = _hiddenPosition,
                 Width = (int)Game.VirtualScreenWidth - (int)_origPosition.X,
                 Height = (int)Game.VirtualScreenHeight - 65,
-                ZIndex = 100,
+                ZIndex = 98,
                 BackgroundColor = Color.TransparentBlack,
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
@@ -129,6 +162,8 @@ namespace Mariasek.SharedClient
             _rawData.Text = "";
             _rawData.Position = _hiddenPosition;
             _review.Position = _origPosition;
+            _replayAsPlayer2Button.Hide();
+            _replayAsPlayer3Button.Hide();
             Task.Run(() =>
             {
                 var g = new Mariasek.Engine.New.Game()
@@ -235,6 +270,32 @@ namespace Mariasek.SharedClient
         void ReplayButtonClicked(object sender)
         {
             Game.MainScene.ReplayGame(_newGamePath);
+        }
+
+        void ReplayOptionButtonClicked(object sender)
+        {
+            _replayAsPlayer2Button.Text = string.Format("Jako {0}", Game.Settings.PlayerNames[1]);
+            _replayAsPlayer3Button.Text = string.Format("Jako {0}", Game.Settings.PlayerNames[2]);
+            _replayOptionButton.Hide();
+            _replayAsPlayer2Button.Show();
+            _replayAsPlayer3Button.Show();
+            _replayButton.Wait(2000)
+                         .Invoke(() =>
+                         {
+                             _replayAsPlayer2Button.Hide();
+                             _replayAsPlayer3Button.Hide();
+                             _replayOptionButton.Show();
+                         });
+        }
+
+        void ReplayAsPlayer2ButtonClicked(object sender)
+        {
+            Game.MainScene.ReplayGame(_newGamePath, 1);
+        }
+
+        void ReplayAsPlayer3ButtonClicked(object sender)
+        {
+            Game.MainScene.ReplayGame(_newGamePath, 2);
         }
 
         void RawButtonClicked(object sender)

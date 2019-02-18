@@ -179,9 +179,9 @@ namespace Mariasek.SharedClient
                 Height = 50,
                 Group = 1,
                 Text = Game.Settings.SoundEnabled ? "Zapnutý" : "Vypnutý",
-                IsSelected = Game.Settings.SoundEnabled,
-				BorderColor = Color.Transparent,
-				BackgroundColor = Color.Transparent
+                BorderColor = Color.Transparent,
+                BackgroundColor = Color.Transparent,
+                IsSelected = Game.Settings.SoundEnabled
             };
             _soundBtn.Click += SoundBtnClick;
             _bgsoundBtn = new ToggleButton(this)
@@ -191,9 +191,9 @@ namespace Mariasek.SharedClient
                 Height = 50,
                 Group = 1,
                 Text = Game.Settings.BgSoundEnabled ? "Zapnutý" : "Vypnutý",
-                IsSelected = Game.Settings.BgSoundEnabled,
                 BorderColor = Color.Transparent,
-                BackgroundColor = Color.Transparent
+                BackgroundColor = Color.Transparent,
+                IsSelected = Game.Settings.BgSoundEnabled
             };
             _bgsoundBtn.Click += BgSoundBtnClick;
             _hint = new Label(this)
@@ -213,9 +213,9 @@ namespace Mariasek.SharedClient
                 Height = 50,
                 Group = 1,
                 Text = Game.Settings.HintEnabled ? "Zapnutá" : "Vypnutá",
-                IsSelected = Game.Settings.HintEnabled,
-				BorderColor = Color.Transparent,
-				BackgroundColor = Color.Transparent
+                BorderColor = Color.Transparent,
+				BackgroundColor = Color.Transparent,
+                IsSelected = Game.Settings.HintEnabled
             };
             _hintBtn.Click += HintBtnClick;
             _cardFace = new Label(this)

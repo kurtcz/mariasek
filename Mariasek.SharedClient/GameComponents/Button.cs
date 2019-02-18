@@ -99,7 +99,7 @@ namespace Mariasek.SharedClient.GameComponents
                 }
             }
         }
-        public Color BackgroundColor
+        public virtual Color BackgroundColor
         { 
             get { return _buttonShape.BackgroundColors[0]; }
             set
@@ -109,7 +109,7 @@ namespace Mariasek.SharedClient.GameComponents
                 _buttonShape.UpdateTexture();
             } 
         }
-        public Color BorderColor
+        public virtual Color BorderColor
         { 
             get { return _buttonShape.BorderColors[0]; }
             set 
@@ -123,7 +123,7 @@ namespace Mariasek.SharedClient.GameComponents
             get { return _buttonText != null ? _buttonText.Text : "(null)"; } 
             set { _buttonText.Text = value; }
         }
-        public Color TextColor
+        public virtual Color TextColor
         { 
             get { return _buttonText.TextColor; } 
             set 

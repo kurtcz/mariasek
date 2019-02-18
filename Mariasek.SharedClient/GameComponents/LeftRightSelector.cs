@@ -68,7 +68,7 @@ namespace Mariasek.SharedClient.GameComponents
 
 			Width = 50;
 			Height = 50;
-			TextColor = Color.Yellow;
+			TextColor = Game.Settings.HighlightedTextColor;
 			BackgroundColor = Color.TransparentBlack;
 			BorderColor = Color.TransparentBlack;
 		}

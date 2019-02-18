@@ -94,7 +94,7 @@ namespace Mariasek.SharedClient
             _pageSelector = new LeftRightSelector(this)
             {
                 Position = new Vector2(210, 10),
-                Items = new SelectorItems() { { "Nastavení pro volbu a fleky", 0 }, { "Nastavení pro hru", 1 } },
+                Items = new SelectorItems() { { "Nastavení volby a flekování", 0 }, { "Nastavení herního projevu", 1 } },
                 Width = (int)Game.VirtualScreenWidth - 210,
                 TextRenderer = Game.FontRenderers["SegoeUI40Outl"]
             };
@@ -342,7 +342,7 @@ namespace Mariasek.SharedClient
             _safetyBetlThreshold = new Label(this)
 			{
                 Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 - 175),
-                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Width = 300,
                 Height = 50,
 				Text = "Práh pro utíkáček",
 				HorizontalAlign = HorizontalAlignment.Center,
