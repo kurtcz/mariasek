@@ -1208,19 +1208,38 @@ namespace Mariasek.SharedClient
         //public void RepeatGameOptionBtnClicked(object sender)
         public void RepeatGameOptionBtnTouchUp(object sender, TouchLocation tl)
         {
+            var origPosition2 = _repeatGameAsPlayer2Btn.Position;
+            var hiddenPosition2 = _repeatGameBtn.Position;
+            var origPosition3 = _repeatGameAsPlayer3Btn.Position;
+            var hiddenPosition3 = _repeatGameBtn.Position;
+
+            _repeatGameAsPlayer2Btn.Text = string.Format("Jako {0}", Game.Settings.PlayerNames[1]);
+            _repeatGameAsPlayer3Btn.Text = string.Format("Jako {0}", Game.Settings.PlayerNames[2]);
+            _repeatGameOptionBtn.Hide();
+            _repeatGameAsPlayer2Btn.Position = hiddenPosition2;
+            _repeatGameAsPlayer3Btn.Position = hiddenPosition3;
             _repeatGameAsPlayer2Btn.Show();
             _repeatGameAsPlayer3Btn.Show();
-            _repeatGameOptionBtn.Hide();
-            _repeatGameBtn.Wait(2000)
-                          .Invoke(() =>
-                {
-                    _repeatGameAsPlayer2Btn.Hide();
-                    _repeatGameAsPlayer3Btn.Hide();
-                    if (_repeatGameBtn.IsVisible)
-                    {
-                        _repeatGameOptionBtn.Show();
-                    }
-                });
+            _repeatGameAsPlayer2Btn.MoveTo(origPosition2, 2000)
+                                  .Wait(2000)
+                                  .MoveTo(hiddenPosition2, 2000)
+                                  .Invoke(() =>
+                                  {
+                                      _repeatGameAsPlayer2Btn.Hide();
+                                      _repeatGameAsPlayer2Btn.Position = origPosition2;
+                                  });
+            _repeatGameAsPlayer3Btn.MoveTo(origPosition3, 2000)
+                                  .Wait(2000)
+                                  .MoveTo(hiddenPosition3, 2000)
+                                  .Invoke(() =>
+                                  {
+                                      _repeatGameAsPlayer3Btn.Hide();
+                                      _repeatGameAsPlayer3Btn.Position = origPosition3;
+                                      if (_repeatGameBtn.IsVisible)
+                                      {
+                                          _repeatGameOptionBtn.Show();
+                                      }
+                                  });
         }
 
         public void RepeatGameAsPlayer2BtnClicked(object sender)
@@ -2738,7 +2757,10 @@ namespace Mariasek.SharedClient
                 _shouldShuffle = results.GameWon && results.GamePlayed && g.RoundNumber == 1;
                 //_aiConfig["SimulationsPerGameTypePerSecond"].Value = Game.Settings.GameTypeSimulationsPerSecond.ToString();
                 //_aiConfig["SimulationsPerRoundPerSecond"].Value = Game.Settings.RoundSimulationsPerSecond.ToString();
-                Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
+                if (!_lastGameWasLoaded)
+                {
+                    Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
+                }
                 //tohle zpusobi prekresleni nekterych ui prvku, je treba volat z UI threadu
                 Game.UpdateSettings();
 
@@ -2759,8 +2781,6 @@ namespace Mariasek.SharedClient
                 _repeatGameOptionBtn.Show();
                 //_repeatGameAsPlayer2Btn.Show();
                 //_repeatGameAsPlayer3Btn.Show();
-                _repeatGameAsPlayer2Btn.Text = string.Format("Jako {0}", Game.Settings.PlayerNames[1]);
-                _repeatGameAsPlayer3Btn.Text = string.Format("Jako {0}", Game.Settings.PlayerNames[2]);
                 _reviewGameBtn.Text = "Průběh hry";
                 _reviewGameBtn.Show();
             });
@@ -2896,9 +2916,12 @@ namespace Mariasek.SharedClient
                         _state = GameState.NotPlaying;
                         _talon = g.GameStartingPlayerIndex == 0 && g.talon != null && g.talon.Any() ? new List<Card>(g.talon) : new List<Card>();
 
-                        CurrentStartingPlayerIndex = g.GameStartingPlayerIndex;
-                        Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
-                        Game.SaveGameSettings();
+                        if (g.RoundNumber >= 1 && g.RoundNumber <= Mariasek.Engine.New.Game.NumRounds)
+                        {
+                            CurrentStartingPlayerIndex = g.GameStartingPlayerIndex;
+                            Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
+                            Game.SaveGameSettings();
+                        }
                         _canSort = CurrentStartingPlayerIndex != 0;
 
                         ClearTable(true);
@@ -2906,8 +2929,9 @@ namespace Mariasek.SharedClient
                         _reviewGameBtn.Hide();
                         _reviewGameToggleBtn.Show();
                         _reviewGameToggleBtn.IsSelected = false;
-                        _reviewGameToggleBtn.IsEnabled = (Game.Settings.TestMode.HasValue && Game.Settings.TestMode.Value) || 
-                            (g.CurrentRound != null && g.RoundNumber > 1);
+                        _reviewGameToggleBtn.IsEnabled = (Game.Settings.TestMode.HasValue && 
+                                                          Game.Settings.TestMode.Value) || 
+                                                         (g.CurrentRound != null && g.RoundNumber > 1);
 
                         if (_review != null)
                         {

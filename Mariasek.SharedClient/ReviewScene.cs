@@ -88,6 +88,7 @@ namespace Mariasek.SharedClient
                 Width = 200,
                 Height = 50,
                 Text = "Hrát znovu",
+                ZIndex = 100,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _replayButton.Click += ReplayButtonClicked;
@@ -97,6 +98,7 @@ namespace Mariasek.SharedClient
                 Width = 40,
                 Height = 50,
                 Text = "»",
+                ZIndex = 90,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
                 BackgroundColor = Color.Transparent,
                 BorderColor = Color.Transparent,
@@ -109,6 +111,7 @@ namespace Mariasek.SharedClient
                 Width = 200,
                 Height = 50,
                 Text = "Jako 2",
+                ZIndex = 95,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _replayAsPlayer2Button.Click += ReplayAsPlayer2ButtonClicked;
@@ -118,6 +121,7 @@ namespace Mariasek.SharedClient
                 Width = 200,
                 Height = 50,
                 Text = "Jako 3",
+                ZIndex = 95,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _replayAsPlayer3Button.Click += ReplayAsPlayer3ButtonClicked;
@@ -127,14 +131,14 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth,
                 Height = (int)Game.VirtualScreenHeight - 65,
                 BackgroundColor = Color.Transparent,
-                ZIndex = 98
+                ZIndex = 80
             };
             _rawData = new TextBox(this)
             {
                 Position = _hiddenPosition,
                 Width = (int)Game.VirtualScreenWidth - (int)_origPosition.X,
                 Height = (int)Game.VirtualScreenHeight - 65,
-                ZIndex = 98,
+                ZIndex = 80,
                 BackgroundColor = Color.TransparentBlack,
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
@@ -274,18 +278,35 @@ namespace Mariasek.SharedClient
 
         void ReplayOptionButtonClicked(object sender)
         {
+            var origPosition2 = _replayAsPlayer2Button.Position;
+            var hiddenPosition2 = _replayButton.Position;
+            var origPosition3 = _replayAsPlayer3Button.Position;
+            var hiddenPosition3 = _replayButton.Position;
+
             _replayAsPlayer2Button.Text = string.Format("Jako {0}", Game.Settings.PlayerNames[1]);
             _replayAsPlayer3Button.Text = string.Format("Jako {0}", Game.Settings.PlayerNames[2]);
             _replayOptionButton.Hide();
+            _replayAsPlayer2Button.Position = hiddenPosition2;
+            _replayAsPlayer3Button.Position = hiddenPosition3;
             _replayAsPlayer2Button.Show();
             _replayAsPlayer3Button.Show();
-            _replayButton.Wait(2000)
-                         .Invoke(() =>
-                         {
-                             _replayAsPlayer2Button.Hide();
-                             _replayAsPlayer3Button.Hide();
-                             _replayOptionButton.Show();
-                         });
+            _replayAsPlayer2Button.MoveTo(origPosition2, 2000)
+                                  .Wait(2000)
+                                  .MoveTo(hiddenPosition2, 2000)
+                                  .Invoke(() =>
+                                  {
+                                      _replayAsPlayer2Button.Hide();
+                                      _replayAsPlayer2Button.Position = origPosition2;
+                                  });
+            _replayAsPlayer3Button.MoveTo(origPosition3, 2000)
+                                  .Wait(2000)
+                                  .MoveTo(hiddenPosition3, 2000)
+                                  .Invoke(() =>
+                                  {
+                                      _replayAsPlayer3Button.Hide();
+                                      _replayAsPlayer3Button.Position = origPosition3;
+                                      _replayOptionButton.Show();
+                                  });
         }
 
         void ReplayAsPlayer2ButtonClicked(object sender)
