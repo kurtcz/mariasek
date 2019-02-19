@@ -219,7 +219,7 @@ namespace Mariasek.SharedClient
                 var numFormat = (NumberFormatInfo)CultureInfo.GetCultureInfo("cs-CZ").NumberFormat.Clone();
                 var gameDate = new FileInfo(endGamePath).CreationTime;
 
-                _description.Text = string.Format("{0}\n{1} {2}\n{3}\n{4}\t{5}\n{6}\t{7}\n{8}\t{9}",
+                var description = string.Format("{0}\n{1} {2}\n{3}\n{4}\t{5}\n{6}\t{7}\n{8}\t{9}",
                                                   gameDate.ToString("dd.MM.yyyy HH:mm"),
                                                   Path.GetFileName(endGamePath).Split('-')[0],
                                                   g.GameType.ToDescription(g.trump),
@@ -234,6 +234,11 @@ namespace Mariasek.SharedClient
                                                   (results.MoneyWon[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", numFormat),
                                                   Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers],
                                                   (results.MoneyWon[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", numFormat));
+                if (description.Split('\n').Length > 12)
+                {
+                    description = description.Replace("\n\n", "\n");
+                }
+                _description.Text = description;
                 _review.UpdateReview(g);
 
                 var biddingInfo = new string[Mariasek.Engine.New.Game.NumPlayers];

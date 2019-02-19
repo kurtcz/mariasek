@@ -1758,7 +1758,7 @@ namespace Mariasek.Engine.New
                 return;
             }
 
-            if (trump.HasValue || (players[playerIndex].TeamMateIndex == -1 && GameType != Hra.Durch))
+            if (trump.HasValue)
             {
                 BiddingDebugInfo.AppendFormat("Odhad skóre: {0}", players[playerIndex].DebugInfo.EstimatedFinalBasicScore);
                 var kqScore = Enum.GetValues(typeof(Barva)).Cast<Barva>()
