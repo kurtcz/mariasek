@@ -699,6 +699,13 @@ namespace Mariasek.Engine.New
 
                 return flavour;
             }
+            //zpocitej ztraty v pripade kila proti
+            var lossPerPointsLost = Enumerable.Range(0, 10)
+                                              .ToDictionary(k => 100 + k * 10,
+                                                            v => _g.CalculationStyle == CalculationStyle.Adding
+                                                                 ? (v + 1) * _g.HundredValue
+                                                                 : _g.HundredValue * (1 << v));
+            var estimatedPointsLost = _trump != null ? EstimateTotalPointsLost() : 0;
             if (_initialSimulation || AdvisorMode)
             {
                 var bidding = new Bidding(_g);
@@ -718,13 +725,6 @@ namespace Mariasek.Engine.New
 
                 if (PlayerIndex == _g.OriginalGameStartingPlayerIndex && bidding.BetlDurchMultiplier == 0)
                 {
-                    //zpocitej ztraty v pripade kila proti
-                    var lossPerPointsLost = Enumerable.Range(0, 10)
-                                                      .ToDictionary(k => 100 + k * 10,
-                                                                    v => _g.CalculationStyle == CalculationStyle.Adding
-                                                                         ? (v + 1) * _g.HundredValue
-                                                                         : _g.HundredValue * (1 << v));
-                    var estimatedPointsLost = EstimateTotalPointsLost();
 
                     //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
                     //Zapamatujeme si vysledek a pouzijeme ho i v ChooseGameFlavour() a ChooseGameType()
@@ -824,18 +824,25 @@ namespace Mariasek.Engine.New
             {
                 var betlThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Betl].Length - 1, 1);     //85%
                 var durchThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 1);    //85%
-                if ((Settings.CanPlayGameType[Hra.Durch] && 
-                     _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][durchThresholdIndex] * _durchSimulations && 
+                if ((Settings.CanPlayGameType[Hra.Durch] &&
+                     _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][durchThresholdIndex] * _durchSimulations &&
                      _durchSimulations > 0 &&
                      (TeamMateIndex != -1 ||
                       !_hundredOverDurch)) ||
                     (Settings.CanPlayGameType[Hra.Betl] && 
-                     _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][betlThresholdIndex] * _betlSimulations &&
-                     _betlSimulations > 0 &&
-                     (TeamMateIndex != -1 ||
-                      !_hundredOverBetl)))
+                     (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][betlThresholdIndex] * _betlSimulations &&
+                      _betlSimulations > 0 &&
+                      (TeamMateIndex != -1 ||
+                       !_hundredOverBetl)) ||
+                       (lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
+                        lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold)))
                 {
-                    if (_betlSimulations > 0 && (_durchSimulations == 0 || (float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations))
+                    if ((_betlSimulations > 0 && 
+                         (!Settings.CanPlayGameType[Hra.Durch] ||
+                          _durchSimulations == 0 || 
+                          (float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations)) ||
+                        (lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
+                         lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold))
                     {
                         DebugInfo.RuleCount = _betlBalance;
                         DebugInfo.TotalRuleCount = _betlSimulations;
@@ -847,6 +854,7 @@ namespace Mariasek.Engine.New
                     }
                     return GameFlavour.Bad;
                 }
+                //GameFlovour.Good, GameFlovour.Good107
                 if (_betlSimulations > 0 && 
                     (_durchSimulations == 0 || (float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations))
                 {
@@ -1650,8 +1658,14 @@ namespace Mariasek.Engine.New
                                               Hand.CardCount(i.Suit) > 3))));
             var trumpCount = Hand.CardCount(trump.Value);
             var cardsPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>().ToDictionary(b => b, b => Hand.CardCount(b));
-            var aceOnlySuits = cardsPerSuit.Count(i => i.Value == 1 && Hand.HasA(i.Key)); //zapocitame desitku pokud mame od barvy jen eso
-            var emptySuits = cardsPerSuit.Count(i => i.Value == 0);
+            var aceOnlySuits = cardsPerSuit.Count(i => i.Value == 1 && 
+                                                       Hand.HasA(i.Key) &&
+                                                       (_talon == null ||
+                                                        !_talon.HasX(i.Key))); //zapocitame desitku pokud mame od barvy jen eso a desitka neni v talonu
+            var emptySuits = cardsPerSuit.Count(i => i.Value == 0 &&
+                                                     (_talon == null ||
+                                                      (!_talon.HasA(i.Key)) &&
+                                                       !_talon.HasX(i.Key)));
             var n = axCount * 10 +
                     Math.Min(2 * emptySuits + aceOnlySuits, Hand.CardCount(trump.Value) / 2) * 10;  // ne kazdym trumfem prebiju a nebo x
 
@@ -1691,7 +1705,10 @@ namespace Mariasek.Engine.New
             var trump = _trump ?? _g.trump;
             var noKQSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => !Hand.HasK(b) &&
-                                            !Hand.HasQ(b));
+                                            !Hand.HasQ(b) &&
+                                            (_talon == null ||
+                                             (!_talon.HasK(b) &&
+                                              !_talon.HasQ(b))));
             var estimatedKQPointsLost = noKQSuits.Sum(b => b == _trump ? 40 : 20);
             var estimatedBasicPointsLost = 90 - EstimateFinalBasicScore();
             var estimatedPointsLost = estimatedBasicPointsLost + estimatedKQPointsLost;

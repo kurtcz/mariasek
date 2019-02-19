@@ -1757,7 +1757,8 @@ namespace Mariasek.Engine.New
                 BiddingDebugInfo.Append("DebugInfo == null");
                 return;
             }
-            if (trump.HasValue)
+
+            if (trump.HasValue || (players[playerIndex].TeamMateIndex == -1 && GameType != Hra.Durch))
             {
                 BiddingDebugInfo.AppendFormat("Odhad skóre: {0}", players[playerIndex].DebugInfo.EstimatedFinalBasicScore);
                 var kqScore = Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -1767,10 +1768,10 @@ namespace Mariasek.Engine.New
                 {
                     BiddingDebugInfo.AppendFormat("+{0}", kqScore);
                 }
-                if (players[playerIndex].TeamMateIndex == -1)
-                {
-                    BiddingDebugInfo.AppendFormat("\nMaximální bodová ztráta: {0}", players[playerIndex].DebugInfo.MaxEstimatedLoss);
-                }
+            }
+            if (players[playerIndex].TeamMateIndex == -1 && GameType != Hra.Durch)
+            {
+                BiddingDebugInfo.AppendFormat("\nMaximální bodová ztráta: {0}", players[playerIndex].DebugInfo.MaxEstimatedLoss);
             }
             BiddingDebugInfo.Append("\nVšechny simulace:");
 			if (players[playerIndex].DebugInfo.AllChoices == null)
