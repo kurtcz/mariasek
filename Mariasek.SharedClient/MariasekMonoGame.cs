@@ -517,39 +517,41 @@ namespace Mariasek.SharedClient
 			}
 
 			var xml = new XmlSerializer(typeof(GameSettings));
+            var currentStartingPlayerIndex = Settings?.CurrentStartingPlayerIndex ?? 0;
 			try
 			{
 				StorageAccessor.GetStorageAccess();
 				using (var fs = File.Open(_settingsFilePath, FileMode.Open))
 				{
 					Settings = (GameSettings)xml.Deserialize(fs);
-					if (!Settings.Default.HasValue ||
-						Settings.Default.Value ||
-						Settings.Thresholds == null ||
-						!Settings.Thresholds.Any() ||
-						Settings.Thresholds.Count() != Enum.GetValues(typeof(Hra)).Cast<Hra>().Count())
-					{
-						Settings.ResetThresholds();
-					}
-                    //obe nastaveni nemuzou byt false protoze by nemuselo zbyt dost karet ktere jdou dat do talonu
-                    if (!Settings.AllowAXTalon && !Settings.AllowTrumpTalon)
-                    {
-                        Settings.AllowTrumpTalon = true;
-                    }
-                    if (Settings.RiskFactor > 0.5f)
-                    {
-                        Settings.RiskFactor = 0.5f;
-                    }
 				}
 			}
 			catch (Exception e)
 			{
 				System.Diagnostics.Debug.WriteLine(string.Format("Cannot load settings\n{0}", e.Message));
-				Settings = new GameSettings();
+                if (Settings == null)
+                {
+                    Settings = new GameSettings();
+                }
 			}
+            if (!Settings.Default.HasValue ||
+                Settings.Default.Value ||
+                Settings.Thresholds == null ||
+                !Settings.Thresholds.Any() ||
+                Settings.Thresholds.Count() != Enum.GetValues(typeof(Hra)).Cast<Hra>().Count())
+            {
+                Settings.ResetThresholds();
+            }
+            //obe nastaveni nemuzou byt false protoze by nemuselo zbyt dost karet ktere jdou dat do talonu
+            if (!Settings.AllowAXTalon && !Settings.AllowTrumpTalon)
+            {
+                Settings.AllowTrumpTalon = true;
+            }
+            if (Settings.RiskFactor > 0.5f)
+            {
+                Settings.RiskFactor = 0.5f;
+            }
             CardScaleFactor = new Vector2(Settings.CardScaleFactor, Settings.CardScaleFactor);
-//			_performance.Text = string.Format("Výkon simulace: {0} her/s",
-//				Settings.GameTypeSimulationsPerSecond > 0 ? Settings.GameTypeSimulationsPerSecond.ToString() : "?");
 		}
 
 		public delegate void SettingsChangedEventHandler(object sender, SettingsChangedEventArgs e);
