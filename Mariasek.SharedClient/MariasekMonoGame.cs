@@ -529,11 +529,9 @@ namespace Mariasek.SharedClient
 			catch (Exception e)
 			{
 				System.Diagnostics.Debug.WriteLine(string.Format("Cannot load settings\n{0}", e.Message));
-                if (Settings == null)
-                {
-                    Settings = new GameSettings();
-                }
-			}
+                Settings = new GameSettings();
+                Settings.CurrentStartingPlayerIndex = currentStartingPlayerIndex;
+            }
             if (!Settings.Default.HasValue ||
                 Settings.Default.Value ||
                 Settings.Thresholds == null ||
