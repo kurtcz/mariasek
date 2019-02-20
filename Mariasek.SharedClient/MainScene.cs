@@ -1402,6 +1402,7 @@ namespace Mariasek.SharedClient
                          btn.BorderColor = Game.Settings.DefaultTextColor;
                          btn.Hide();
                      }
+                     giveUpButton.BorderColor = Game.Settings.DefaultTextColor;
                      giveUpButton.Hide();
                      foreach (var btn in gfButtons)
                      {
@@ -2942,6 +2943,7 @@ namespace Mariasek.SharedClient
                             btn.BorderColor = Game.Settings.DefaultTextColor;
                             btn.Hide();
                         }
+                        giveUpButton.BorderColor = Game.Settings.DefaultTextColor;
                         giveUpButton.Hide();
                         foreach (var btn in gfButtons)
                         {
