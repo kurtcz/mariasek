@@ -9,6 +9,7 @@
     <AssemblyName>Mariasek.Cli</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <ReleaseVersion>1.1</ReleaseVersion>
+    <Description>load -filename=/Users/kurt/Downloads/mariasek/kilo-cli/0001-kilo.def.hra</Description>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

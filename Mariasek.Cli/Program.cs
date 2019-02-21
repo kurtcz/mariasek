@@ -409,6 +409,11 @@ namespace Mariasek.Cli
                 Name = "SigmaMultiplier",
                 Value = "0"
             });
+            _aiConfig.Add("SafetyBetlThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "SafetyBetlThreshold",
+                Value = Settings.SafetyBetlThreshold.ToString(CultureInfo.InvariantCulture)
+            });
             _aiConfig.Add("AiMayGiveUp", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "AiMayGiveUp",

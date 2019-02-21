@@ -1858,7 +1858,7 @@ namespace Mariasek.Engine.New
                 n += Math.Min(holes, loCards);
             }
 
-            return n > 3 ||                         //u vice nez 3 neodstranitelnych der kilo urcite neuhraju
+            return n > 4 ||                         //u vice nez 4 neodstranitelnych der kilo urcite neuhraju
                    (n > 1 &&                        //pokud mam vic nez 1 neodstranitelnou diru
                     !(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
                       Hand.HasQ(_trump.Value)));
