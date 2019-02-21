@@ -230,7 +230,7 @@ namespace Mariasek.SharedClient
             Content.RootDirectory = "Content";
             IsFixedTimeStep = false;
 			StorageAccessor = storageAccessor;
-            LoadGameSettings();
+            LoadGameSettings(true);
             Graphics.IsFullScreen = !Settings.ShowStatusBar;
             //make sure SupportedOrientations is set accordingly to ActivityAttribute.ScreenOrientation
             Graphics.SupportedOrientations = DisplayOrientation.LandscapeRight |
@@ -482,10 +482,7 @@ namespace Mariasek.SharedClient
         {
             try
             {
-                if (Settings == null)
-                {
-                    LoadGameSettings(true);
-                }
+                LoadGameSettings(false);
                 //Assets are handled by the ContentManager
             }
             catch (Exception ex)
@@ -509,7 +506,7 @@ namespace Mariasek.SharedClient
             //Microsoft.Xna.Framework.Media.MediaPlayer.Stop();
         }
 
-		public void LoadGameSettings(bool forceLoad = true)
+		public void LoadGameSettings(bool forceLoad)
 		{
 			if (!forceLoad && Settings != null)
 			{
@@ -601,7 +598,7 @@ namespace Mariasek.SharedClient
 			{
 				System.Diagnostics.Debug.WriteLine(string.Format("Cannot save settings\n{0}", e.Message));
 			}
-			LoadGameSettings();
+			LoadGameSettings(false);
 		}
 
         bool _contentLoaded = false;

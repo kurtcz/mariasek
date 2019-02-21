@@ -151,7 +151,7 @@ namespace Mariasek.SharedClient
 				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Bottom,
                 FontScaleFactor = 0.75f
             };
-            Game.LoadGameSettings();
+            Game.LoadGameSettings(false);
             _sounds = new Label(this)
             {
                 Position = new Vector2(200, 10),
