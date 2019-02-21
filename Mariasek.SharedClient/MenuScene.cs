@@ -23,6 +23,8 @@ namespace Mariasek.SharedClient
         private SpriteButton _rateApp;
         private Vector2 _originalLogoScale;
         private Vector2 _originalRatingScale;
+        private TextBox _warning;
+        private Button _permissionsButton;
 
         public MenuScene(MariasekMonoGame game)
             : base(game)
@@ -77,6 +79,32 @@ namespace Mariasek.SharedClient
                 Text = "Historie"
             };
             _historyBtn.Click += HistoryClicked;
+            _warning = new TextBox(this)
+            {
+                Position = new Vector2(0, Game.VirtualScreenHeight / 2f + 160),
+                Width = (int)Game.VirtualScreenWidth,
+                Height = 80,
+                Text = "!UPOZORNĚNÍ! Mariášek potřebuje přístup k souborům kvůli ukládání\nhistorie a nastavení. Bez něho nebude hra správně fungovat!",
+                FontScaleFactor = 0.85f,
+                BorderColor = Game.Settings.LossColor,
+                BackgroundColor = new Color(0x20, 0x20, 0x20),
+                TextColor = Game.Settings.HighlightedTextColor,
+                Opacity = 0.8f,
+                VerticalAlign = VerticalAlignment.Middle,
+                HorizontalAlign = HorizontalAlignment.Center,
+                ZIndex = 100
+            };
+            _warning.Hide();
+            _permissionsButton = new Button(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 200, Game.VirtualScreenHeight / 2f + 100),
+                Width = 200,
+                Height = 50,
+                Text = "Povolit přístup",
+                BorderColor = Game.Settings.HintColor
+            };
+            _permissionsButton.Click += PermissionsButtonClicked;
+            _permissionsButton.Hide();
             _cards = new Sprite[3];
             var backSideRect = Game.Settings.CardBackSide.ToTextureRect();
             for (var i = 0; i < _cards.Length; i++)
@@ -142,6 +170,7 @@ namespace Mariasek.SharedClient
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Bottom,
                 FontScaleFactor = Game.RealScreenGeometry == ScreenGeometry.Wide ? 0.9f : 0.75f
             };
+            ShowWarningIfNeeded();
             try
             {
                 SoundEffect.MasterVolume = Game.Settings.SoundEnabled ? 1f : 0f;
@@ -157,6 +186,28 @@ namespace Mariasek.SharedClient
             {
                 System.Diagnostics.Debug.WriteLine($"{ex.Message}\n{ex.StackTrace}");
             }
+        }
+
+        void ShowWarningIfNeeded()
+        {
+            if (Game.StorageAccessor.CheckStorageAccess())
+            {
+                _warning.Hide();
+                _permissionsButton.Hide();
+            }
+            else
+            {
+                _warning.Show();
+                _permissionsButton.Show();
+            }
+            _settingsButton.ClearOperations();
+            _settingsButton.Wait(3000)
+                           .Invoke(() => ShowWarningIfNeeded());
+        }
+
+        void PermissionsButtonClicked(object sender)
+        {
+            Game.StorageAccessor.GetStorageAccess();
         }
 
         void LogoClicked(object sender)

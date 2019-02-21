@@ -72,10 +72,18 @@ namespace Mariasek.AndroidClient
             }
 		}
 
+        public bool CheckStorageAccess()
+        {
+            var permission = Manifest.Permission.WriteExternalStorage;
+
+            return ContextCompat.CheckSelfPermission(this, permission) == Permission.Granted;
+        }
+
         public void GetStorageAccess()
 		{
             var permission = Manifest.Permission.WriteExternalStorage;
-            if (ContextCompat.CheckSelfPermission(this, permission) != Permission.Granted)
+
+            if (!CheckStorageAccess())
             {
                 ActivityCompat.RequestPermissions(this, new[] { permission }, ++storageAccessRequestCode);
             }
