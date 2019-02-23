@@ -55,7 +55,6 @@ namespace Mariasek.SharedClient
         private int _progressRenderWidth;
         private int _maxRenderWidth;
 
-        //Texture2D logoTexture;
         public GraphicsDeviceManager Graphics { get; private set; }
         public TouchCollection TouchCollection { get; private set; }
         public SpriteBatch SpriteBatch { get; private set; }
@@ -403,15 +402,6 @@ namespace Mariasek.SharedClient
             System.Diagnostics.Debug.WriteLine("LoadContent finished sw {0}", sw.ElapsedMilliseconds);
         }
 
-        //protected override void Dispose(bool disposing)
-        //{
-        //    if (MainScene != null)
-        //    {
-        //        MainScene.CancelRunningTask();
-        //    }
-        //    base.Dispose(disposing);
-        //}
-
         public delegate void ResumedEventHandler();
         public event ResumedEventHandler Resumed;
 
@@ -499,11 +489,6 @@ namespace Mariasek.SharedClient
 
         private void GamePaused()
         {
-            //if (AmbientSound != null && !AmbientSound.IsDisposed)
-            //{
-            //    AmbientSound.Stop();
-            //}
-            //Microsoft.Xna.Framework.Media.MediaPlayer.Stop();
         }
 
 		public void LoadGameSettings(bool forceLoad)

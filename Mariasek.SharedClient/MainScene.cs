@@ -2791,6 +2791,8 @@ namespace Mariasek.SharedClient
                     Game.CoughSound?.PlaySafely();
                 }
                 _newGameBtn.Show();
+                _repeatGameBtn.IsEnabled = Game.StorageAccessor.CheckStorageAccess();
+                _repeatGameOptionBtn.IsEnabled = _repeatGameBtn.IsEnabled;
                 _repeatGameBtn.Show();
                 _repeatGameOptionBtn.Show();
                 //_repeatGameAsPlayer2Btn.Show();

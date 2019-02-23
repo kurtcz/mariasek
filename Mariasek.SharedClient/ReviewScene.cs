@@ -166,6 +166,8 @@ namespace Mariasek.SharedClient
             _rawData.Text = "";
             _rawData.Position = _hiddenPosition;
             _review.Position = _origPosition;
+            _replayButton.IsEnabled = Game.StorageAccessor.CheckStorageAccess();
+            _replayOptionButton.IsEnabled = _replayButton.IsEnabled;
             _replayAsPlayer2Button.Hide();
             _replayAsPlayer3Button.Hide();
             Task.Run(() =>
