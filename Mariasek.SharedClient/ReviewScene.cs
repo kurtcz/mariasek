@@ -181,6 +181,8 @@ namespace Mariasek.SharedClient
                     MinimalBidsForSeven = Game.Settings.MinimalBidsForSeven,
                     CalculationStyle = Game.Settings.CalculationStyle,
                     Top107 = Game.Settings.Top107,
+                    Calculate107Separately = Game.Settings.Calculate107Separately,
+                    HlasConsidered = Game.Settings.HlasConsidered,
                     AutoDisable100Against = Game.Settings.AutoDisable100Against,
                     //GetFileStream = GetFileStream,
                     //GetVersion = () => MariasekMonoGame.Version,

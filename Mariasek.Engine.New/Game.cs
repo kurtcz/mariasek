@@ -77,6 +77,8 @@ namespace Mariasek.Engine.New
         public int MinimalBidsForGame { get; set; }
         public int MinimalBidsForSeven { get; set; }
         public bool Top107 { get; set; }
+        public bool Calculate107Separately { get; set; }
+        public HlasConsidered HlasConsidered { get; set; }
         public CalculationStyle CalculationStyle { get; set; }
         public bool IsRunning { get; private set; }
         public Hra GameType { get; private set; }
@@ -225,6 +227,8 @@ namespace Mariasek.Engine.New
             AllowTrumpTalon = true;
             AllowAIAutoFinish = true;
             AllowPlayerAutoFinish = true;
+            Calculate107Separately = true;
+            HlasConsidered = HlasConsidered.Highest;
             GetStringLogger = stringLoggerFactory;
             if (GetStringLogger == null)
             {

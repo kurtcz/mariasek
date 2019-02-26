@@ -88,6 +88,8 @@ namespace Mariasek.SharedClient
         public int MinimalBidsForGame { get; set; }
         public int MinimalBidsForSeven { get; set; }
         public bool Top107 { get; set; }
+        public bool Calculate107Separately { get; set; }
+        public HlasConsidered HlasConsidered { get; set; }
         public bool ShowStatusBar { get; set; }                 //xml-only
         public bool ShowScoreDuringGame { get; set; }
         public bool WhiteScore { get; set; }
@@ -154,6 +156,8 @@ namespace Mariasek.SharedClient
             MinimalBidsForGame = 1;
             MinimalBidsForSeven = 0;
             Top107 = false;
+            Calculate107Separately = true;
+            HlasConsidered = HlasConsidered.Highest;
             AllowAXTalon = false;
             AllowTrumpTalon = true;
             AllowAIAutoFinish = true;

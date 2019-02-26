@@ -15,6 +15,13 @@ namespace Mariasek.Engine.New
         Multiplying
     }
 
+    public enum HlasConsidered
+    {
+        Highest,
+        First,
+        Each
+    }
+
     [XmlInclude(typeof(AddingMoneyCalculator))]
     [XmlInclude(typeof(MultiplyingMoneyCalculator))]
     [XmlRoot(ElementName = "Money")]
@@ -31,6 +38,9 @@ namespace Mariasek.Engine.New
         {
             get { return (_gameType & Hra.Betl) == 0 && (_gameType & Hra.Durch) == 0; }
         }
+
+        public HlasConsidered HlasConsidered { get; private set; }
+        public bool Calculate107Separately { get; private set; }
 
         public bool GamePlayed { get; private set; }
         public bool GivenUp { get; private set; }
@@ -157,6 +167,8 @@ namespace Mariasek.Engine.New
             HundredValue = 4;
             BetlValue = 5;
             DurchValue = 10;
+            Calculate107Separately = true;
+            HlasConsidered = HlasConsidered.Highest;
         }
 
         //vola se na konci hry
@@ -181,6 +193,8 @@ namespace Mariasek.Engine.New
             HundredValue = g.HundredValue;
             BetlValue = g.BetlValue;
             DurchValue = g.DurchValue;
+            Calculate107Separately = g.Calculate107Separately;
+            HlasConsidered = g.HlasConsidered;
 
             if (ci == null)
             {
@@ -206,7 +220,10 @@ namespace Mariasek.Engine.New
                     if (r.hlas1)
                     {
                         totalHlasScore[r.player1.PlayerIndex] += r.hlasPoints1;
-                        if (r.hlasPoints1 > maxHlasScore[r.player1.PlayerIndex])
+                        if ((HlasConsidered == HlasConsidered.Highest &&
+                             r.hlasPoints1 > maxHlasScore[r.player1.PlayerIndex]) ||
+                            (HlasConsidered == HlasConsidered.First && 
+                             maxHlasScore[r.player1.PlayerIndex] == 0))
                         {
                             maxHlasScore[r.player1.PlayerIndex] = r.hlasPoints1;
                         }
@@ -214,7 +231,10 @@ namespace Mariasek.Engine.New
                     if (r.hlas2)
                     {
                         totalHlasScore[r.player2.PlayerIndex] += r.hlasPoints2;
-                        if (r.hlasPoints2 > maxHlasScore[r.player2.PlayerIndex])
+                        if ((HlasConsidered == HlasConsidered.Highest &&
+                             r.hlasPoints2 > maxHlasScore[r.player2.PlayerIndex]) ||
+                            (HlasConsidered == HlasConsidered.First && 
+                             maxHlasScore[r.player2.PlayerIndex] == 0))
                         {
                             maxHlasScore[r.player2.PlayerIndex] = r.hlasPoints2;
                         }
@@ -222,10 +242,20 @@ namespace Mariasek.Engine.New
                     if (r.hlas3)
                     {
                         totalHlasScore[r.player3.PlayerIndex] += r.hlasPoints3;
-                        if (r.hlasPoints3 > maxHlasScore[r.player3.PlayerIndex])
+                        if ((HlasConsidered == HlasConsidered.Highest &&
+                             r.hlasPoints3 > maxHlasScore[r.player3.PlayerIndex]) ||
+                            (HlasConsidered == HlasConsidered.First && 
+                             maxHlasScore[r.player3.PlayerIndex] == 0))
                         {
                             maxHlasScore[r.player3.PlayerIndex] = r.hlasPoints3;
                         }
+                    }
+                }
+                if (HlasConsidered == HlasConsidered.Each)
+                {
+                    for (var i = 0; i < Game.NumPlayers; i++)
+                    {
+                        maxHlasScore[i] = totalHlasScore[i];
                     }
                 }
                 var talonPoints = GamePlayed
@@ -300,7 +330,23 @@ namespace Mariasek.Engine.New
                                        Math.Max(maxHlasScore[(_gameStartingPlayerIndex + 1) % Game.NumPlayers],
                                                 maxHlasScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers]);
 				}
-			}
+                if (!Calculate107Separately)
+                {
+                    if (_gameType == (Hra.Kilo | Hra.Sedma) &&
+                        (!HundredWon || !SevenWon))
+                    {
+                        HundredWon = false;
+                        SevenWon = false;
+                    }
+                    if ((_gameType & Hra.KiloProti) != 0 &&
+                        (_gameType & Hra.SedmaProti) != 0 &&
+                        (!HundredAgainstWon || !SevenAgainstWon))
+                    {
+                        HundredWon = false;
+                        SevenWon = false;
+                    }
+                }
+            }
             else //bad game
             {
                 if (g.GameType == Hra.Betl)
@@ -316,12 +362,13 @@ namespace Mariasek.Engine.New
         }
 
         protected MoneyCalculatorBase(Game g, Bidding bidding, GameComputationResult res)
-            : this(g.GameType, g.trump, g.GameStartingPlayerIndex, bidding, g, res)
+            : this(g.GameType, g.trump, g.GameStartingPlayerIndex, bidding, g, g.Calculate107Separately, g.HlasConsidered, res)
         {
         }
 
         //vola se na konci simulace
-        protected MoneyCalculatorBase(Hra gameType, Barva? trump, int gameStartingPlayerIndex, Bidding bidding, IGameTypeValues values, GameComputationResult res)
+        protected MoneyCalculatorBase(Hra gameType, Barva? trump, int gameStartingPlayerIndex, Bidding bidding, IGameTypeValues values, 
+        bool calculate107Separately, HlasConsidered hlasConsidered, GameComputationResult res)
             : this()
         {
             _gameType = gameType;
@@ -337,6 +384,8 @@ namespace Mariasek.Engine.New
             HundredValue = values.HundredValue;
             BetlValue = values.BetlValue;
             DurchValue = values.DurchValue;
+            Calculate107Separately = calculate107Separately;
+            HlasConsidered = hlasConsidered;
 
             if (GoodGame)
             {
@@ -375,6 +424,23 @@ namespace Mariasek.Engine.New
                                        res.TotalHlasScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers] -
                                        Math.Max(res.MaxHlasScore[(_gameStartingPlayerIndex + 1) % Game.NumPlayers],
                                                 res.MaxHlasScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers]);
+                }
+
+                if (!Calculate107Separately)
+                {
+                    if (_gameType == (Hra.Kilo | Hra.Sedma) &&
+                        (!HundredWon || !SevenWon))
+                    {
+                        HundredWon = false;
+                        SevenWon = false;
+                    }
+                    if ((_gameType & Hra.KiloProti) != 0 &&
+                        (_gameType & Hra.SedmaProti) != 0 &&
+                        (!HundredAgainstWon || !SevenAgainstWon))
+                    {
+                        HundredWon = false;
+                        SevenWon = false;
+                    }
                 }
             }
             else
@@ -416,6 +482,38 @@ namespace Mariasek.Engine.New
                 {
                     sb.Append("Plichta\t»»»»»»\n");
                 }
+            }
+            var items = 0;
+            if (!Calculate107Separately &&
+                _gameType == (Hra.Kilo | Hra.Sedma))
+            {
+                var won = HundredWon;
+                var multiplier = _bidding.GameMultiplier;
+                var money = HundredMoneyWon + SevenMoneyWon;
+                var status = won ? "Vyhranejch" : "Prohranejch";
+                var other = string.Empty;
+                var score = string.Empty;
+                var gtString = "stosedm";
+                score = string.Format("Skóre: {0}:{1}{2}\n",
+                                      PointsWon,
+                                      PointsLost,
+                                      won
+                                      ? string.Empty
+                                      : string.Format("\nDo kila schází: {0} bodů{1}{2}", 100 - (BasicPointsWon + MaxHlasWon),
+                                                      HlasPointsWasted == 0
+                                                      ? string.Empty
+                                                      : string.Format("\nPropadlé hlasy: {0} bodů", HlasPointsWasted),
+                                                      PointsLost == BasicPointsLost
+                                                      ? string.Empty
+                                                      : string.Format("\nHlasy proti: {0} bodů", PointsLost - BasicPointsLost)));
+                sb.AppendFormat("{0} {1}{2}{3}\t{4}\n{5}",
+                    status,
+                    gtString,
+                    multiplier > 1 ? string.Format(" ({0}x flek)", MultiplierToDoubleCount(multiplier)) : string.Empty,
+                    other,
+                    (money * BaseBet).ToString("C", _ci),
+                    score);
+                items++;
             }
             foreach (var gt in Enum.GetValues(typeof(Hra)).Cast<Hra>().Where(i => (_gameType & i) != 0))
             {
@@ -517,6 +615,15 @@ namespace Mariasek.Engine.New
                         break;
                 }
 
+                if (!Calculate107Separately &&
+                    ((_gameType == (Hra.Kilo | Hra.Sedma) &&
+                    (gt == Hra.Kilo ||
+                     gt == Hra.Sedma)) ||
+                    ((_gameType & Hra.KiloProti) != 0 &&
+                     (_gameType & Hra.SedmaProti) != 0)))
+                {
+                    continue;
+                }
                 if (gt == Hra.SedmaProti)
                 {
                     if (_bidding.PlayerBids.Any(i => (i & Hra.SedmaProti) != 0))
@@ -550,28 +657,66 @@ namespace Mariasek.Engine.New
                     other,
                     (money * BaseBet).ToString("C", _ci),
                     score);
+                items++;
+            }
+            if ((_gameType & Hra.KiloProti) != 0 &&
+                (_gameType & Hra.SedmaProti) != 0)
+            {
+                var won = HundredAgainstWon;
+                var multiplier = _bidding.HundredAgainstMultiplier;
+                var money = HundredAgainstMoneyWon + SevenAgainstMoneyWon;
+                var status = won ? "Vyhranejch" : "Prohranejch";
+                var other = string.Empty;
+                var score = string.Empty;
+                var gtString = "stosedm proti";
+                score = won
+                        ? string.Empty
+                        : string.Format("Do kila schází: {0} bodů{1}{2}\n", 100 - (BasicPointsLost + MaxHlasLost),
+                                          HlasPointsWasted == 0
+                                          ? string.Empty
+                                          : string.Format("\nPropadlé hlasy: {0} bodů", HlasPointsWasted),
+                                          PointsWon == BasicPointsWon
+                                          ? string.Empty
+                                          : string.Format("\nHlasy proti: {0} bodů", PointsWon - BasicPointsWon));
+                sb.AppendFormat("{0} {1}{2}{3}\t{4}\n{5}",
+                    status,
+                    gtString,
+                    multiplier > 1 ? string.Format(" ({0}x flek)", MultiplierToDoubleCount(multiplier)) : string.Empty,
+                    other,
+                    (money * BaseBet).ToString("C", _ci),
+                    score);
+                items++;
             }
             if (QuietSevenWon)
             {
                 sb.AppendFormat("Tichá sedma\t{0}\n", (QuietSevenMoneyWon * BaseBet).ToString("C", _ci));
+                items++;
             }
             if (KilledSeven && (_gameType & Hra.Sedma) == 0)
             {
-                //sb.AppendFormat("Tichá sedma zabitá\t{0}\n", (KilledSevenMoneyWon * BaseBet).ToString("C", _ci));
                 sb.AppendFormat("Tichá sedma zabitá\t{0}\n", (QuietSevenMoneyWon * BaseBet).ToString("C", _ci));
+                items++;
             }
             if (QuietSevenAgainstWon)
             {
                 sb.AppendFormat("Tichá sedma proti\t{0}\n", (QuietSevenAgainstMoneyWon * BaseBet).ToString("C", _ci));
+                items++;
             }
             if (KilledSevenAgainst && (_gameType & Hra.SedmaProti) == 0)
             {
-                //sb.AppendFormat("Tichá sedma proti zabitá\t{0}\n", (KilledSevenAgainstMoneyWon * BaseBet).ToString("C", _ci));
                 sb.AppendFormat("Tichá sedma proti zabitá\t{0}\n", (QuietSevenAgainstMoneyWon * BaseBet).ToString("C", _ci));
+                items++;
             }
-            if (_trump.HasValue && _trump.Value == Barva.Cerveny)
+            if (_trump.HasValue)
             {
-                sb.AppendFormat("V červenejch:\t{0}\n", (MoneyWon[_gameStartingPlayerIndex] / 2 * BaseBet).ToString("C", _ci));
+                if (_trump.Value == Barva.Cerveny)
+                {
+                    sb.AppendFormat("V červenejch:\t{0}\n", (MoneyWon[_gameStartingPlayerIndex] / 2 * BaseBet).ToString("C", _ci));
+                }
+                if (items > 1)
+                {
+                    sb.AppendFormat("Celkem:\t{0}\n", (MoneyWon[_gameStartingPlayerIndex] / 2 * BaseBet).ToString("C", _ci));
+                }
             }
             for (var i = 0; i < Game.NumPlayers; i++)
             {

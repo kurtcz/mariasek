@@ -175,6 +175,23 @@ namespace Mariasek.Engine.New
                 _g.DebugString.AppendFormat("Player{0} GetBidsAndDoubles()\n", i + 1);
             
                 var bid = _g.players[i].GetBidsAndDoubles(this);
+
+                //pokud se 107 pocita dohromady, tak fleky na sedmu uprav podle fleku na hru / kilo proti
+                if (!_g.Calculate107Separately)
+                {
+                    if (gameType == (Hra.Kilo | Hra.Sedma) &&
+                        (bid & Hra.Hra) != 0)
+                    {
+                        bid |= Hra.Sedma;
+                    }
+                    if ((gameType & Hra.KiloProti) != 0 &&
+                         (gameType & Hra.SedmaProti) != 0 &&
+                         (bid & Hra.KiloProti) != 0)
+                    {
+                        bid |= Hra.SedmaProti;
+                    }
+                }
+
                 //nastav priznak co hrac hlasil a flekoval
                 SetLastBidder(_g.players[i], bid);
                 gameType |= bid;
@@ -204,6 +221,22 @@ namespace Mariasek.Engine.New
 
             _g.DebugString.AppendFormat("Player{0} GetBidsAndDoubles()\n", player.PlayerIndex + 1);
             var bid = player.GetBidsAndDoubles(this);
+
+            //pokud se 107 pocita dohromady, tak fleky na sedmu uprav podle fleku na hru / kilo proti
+            if (!_g.Calculate107Separately)
+            {
+                if (gameType == (Hra.Kilo | Hra.Sedma) &&
+                    (bid & Hra.Hra) != 0)
+                {
+                    bid |= Hra.Sedma;
+                }
+                if ((gameType & Hra.KiloProti) != 0 &&
+                     (gameType & Hra.SedmaProti) != 0 &&
+                     (bid & Hra.KiloProti) != 0)
+                {
+                    bid |= Hra.SedmaProti;
+                }
+            }
 
             //nastav priznak co hrac hlasil a flekoval
             SetLastBidder(player, bid);

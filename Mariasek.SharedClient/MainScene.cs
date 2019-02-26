@@ -1060,6 +1060,14 @@ namespace Mariasek.SharedClient
                                  (((bids & Hra.SedmaProti) != 0) &&
                                   (bidding.SevenAgainstLastBidder == null ||
                                    bidding.SevenAgainstLastBidder.PlayerIndex != g.players[0].TeamMateIndex));
+            if (!Game.Settings.Calculate107Separately &&
+                (((bids & Hra.Kilo) != 0 &&
+                  (bids & Hra.Sedma) != 0) ||
+                ((bids & Hra.KiloProti) != 0 &&
+                  (bids & Hra.SedmaProti) != 0)))
+            {
+                sedmaBtn.IsEnabled = false;
+            }
             kiloBtn.IsEnabled = (bids & Hra.KiloProti) != 0 &&
                                 (bidding.HundredAgainstLastBidder == null ||
                                  bidding.HundredAgainstLastBidder.PlayerIndex != g.players[0].TeamMateIndex);
@@ -1317,6 +1325,8 @@ namespace Mariasek.SharedClient
                          MinimalBidsForSeven = Game.Settings.MinimalBidsForSeven,
                          CalculationStyle = Game.Settings.CalculationStyle,
                          Top107 = Game.Settings.Top107,
+                         Calculate107Separately = Game.Settings.Calculate107Separately,
+                         HlasConsidered = Game.Settings.HlasConsidered,
                          AutoDisable100Against = Game.Settings.AutoDisable100Against,
                          GetFileStream = GetFileStream,
                          GetVersion = () => MariasekMonoGame.Version,
@@ -2873,6 +2883,8 @@ namespace Mariasek.SharedClient
                             MinimalBidsForSeven = Game.Settings.MinimalBidsForSeven,
                             CalculationStyle = Game.Settings.CalculationStyle,
                             Top107 = Game.Settings.Top107,
+                            Calculate107Separately = Game.Settings.Calculate107Separately,
+                            HlasConsidered = Game.Settings.HlasConsidered,
                             AutoDisable100Against = Game.Settings.AutoDisable100Against,
                             GetFileStream = GetFileStream,
                             GetVersion = () => MariasekMonoGame.Version,

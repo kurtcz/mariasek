@@ -1422,10 +1422,10 @@ namespace Mariasek.Engine.New
             switch (_g.CalculationStyle)
             {
                 case CalculationStyle.Multiplying:
-                    return new MultiplyingMoneyCalculator(gameType, trump, gameStartingPlayerIndex, bidding, _g, result);
+                    return new MultiplyingMoneyCalculator(gameType, trump, gameStartingPlayerIndex, bidding, _g, _g.Calculate107Separately, _g.HlasConsidered, result);
                 case CalculationStyle.Adding:
                 default:
-                    return new AddingMoneyCalculator(gameType, trump, gameStartingPlayerIndex, bidding, _g, result);
+                    return new AddingMoneyCalculator(gameType, trump, gameStartingPlayerIndex, bidding, _g, _g.Calculate107Separately, _g.HlasConsidered, result);
             }
         }
 

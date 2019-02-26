@@ -25,8 +25,9 @@ namespace Mariasek.Engine.New
         {            
         }
 
-        public MultiplyingMoneyCalculator(Hra gameType, Barva? trump, int gameStartingPlayerIndex, Bidding bidding, IGameTypeValues values, GameComputationResult res)
-            :base(gameType, trump, gameStartingPlayerIndex, bidding, values, res)
+        public MultiplyingMoneyCalculator(Hra gameType, Barva? trump, int gameStartingPlayerIndex, Bidding bidding, IGameTypeValues values,
+            bool calculate107Separately, HlasConsidered hlasConsidered, GameComputationResult res)
+            :base(gameType, trump, gameStartingPlayerIndex, bidding, values, calculate107Separately, hlasConsidered, res)
         {
         }
 
