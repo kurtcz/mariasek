@@ -237,12 +237,14 @@ namespace Mariasek.SharedClient
                                                   Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers],
                                                   (results.MoneyWon[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", numFormat),
                                                   Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers],
-                                                  (results.MoneyWon[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", numFormat));
-                if (description.Split('\n').Length > 12)
+                                                  (results.MoneyWon[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", numFormat))
+                                        .Split("\n");
+                if (description.Length > 12)
                 {
-                    description = description.Replace("\n\n", "\n");
+                    description = description.Where(i => !string.IsNullOrWhiteSpace(i)).ToArray();
                 }
-                _description.Text = description;
+                description = description.Where(i => !i.StartsWith("Celkem:")).ToArray();
+                _description.Text = string.Join("\n", description).Replace("V červenejch:", "V červenejch");
                 _review.UpdateReview(g);
 
                 var biddingInfo = new string[Mariasek.Engine.New.Game.NumPlayers];

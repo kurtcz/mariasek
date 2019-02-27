@@ -308,6 +308,7 @@ namespace Mariasek.SharedClient
             }
             var ratio = total != 0 ? (wins * 100f / total) : 0f;
 
+            sb.AppendLine();
             _historyBox.Text = sb.ToString();
             _historyChart.ScrollToEnd();
 			_historyBox.ScrollToBottom();

@@ -50,11 +50,12 @@ namespace Mariasek.Engine.New
         private float[] _initialExpectedTrumps;
         //private Dictionary<Hra, float> _initialExpectedTrumpsPerGameType = new Dictionary<Hra, float>() { { Hra.Hra, 3f }, { Hra.Sedma, 5f }, { Hra.Kilo, 7f}};
         private float _gameStarterCurrentExpectedTrumps = 3f;
+        private Hra _gameType;
 
         public Probability(int myIndex, int gameStarterIndex, Hand myHand, Barva? trump, bool allowAXTalon, bool allowTrumpTalon, CancellationToken cancellationToken, Func<IStringLogger> stringLoggerFactory, List<Card> talon = null)
         {
             _myIndex = myIndex;
-			_gameIndex = -1;
+        	_gameIndex = -1;
             _sevenIndex = -1;
             _sevenAgainstIndex = -1;
 			_hundredIndex = -1;
@@ -264,6 +265,46 @@ namespace Mariasek.Engine.New
                             }
                         }
                         _cardProbabilityForPlayer[ii][b][h] = ratio;
+                    }
+                    if ((_gameType & Hra.Kilo) != 0 &&
+                        _myIndex != _hundredIndex &&
+                        ((b == _trump.Value &&
+                          _cardProbabilityForPlayer[_hundredIndex][_trump.Value][Hodnota.Kral] > 0 &&
+                          _cardProbabilityForPlayer[_hundredIndex][_trump.Value][Hodnota.Svrsek] > 0) || 
+                         (b != _trump.Value &&
+                          (_cardProbabilityForPlayer[_hundredIndex][_trump.Value][Hodnota.Kral] == 0 ||
+                           _cardProbabilityForPlayer[_hundredIndex][_trump.Value][Hodnota.Svrsek] == 0))))
+                    {
+                        if (_cardProbabilityForPlayer[ii][b][Hodnota.Kral] > 0 &&
+                            _cardProbabilityForPlayer[ii][b][Hodnota.Kral] < 1)
+                        {
+                            _cardProbabilityForPlayer[ii][b][Hodnota.Kral] = ii == _hundredIndex ? 0.9f : 0.05f;
+                        }
+                        if (_cardProbabilityForPlayer[ii][b][Hodnota.Svrsek] > 0 &&
+                            _cardProbabilityForPlayer[ii][b][Hodnota.Svrsek] < 1)
+                        {
+                            _cardProbabilityForPlayer[ii][b][Hodnota.Svrsek] = ii == _hundredIndex ? 0.9f : 0.05f;
+                        }
+                    }
+                    if ((_gameType & Hra.KiloProti) != 0 &&
+                        _myIndex != _hundredAgainstIndex &&
+                        ((b == _trump.Value &&
+                          _cardProbabilityForPlayer[_hundredAgainstIndex][_trump.Value][Hodnota.Kral] > 0 &&
+                          _cardProbabilityForPlayer[_hundredAgainstIndex][_trump.Value][Hodnota.Svrsek] > 0) ||
+                         (b != _trump.Value &&
+                          (_cardProbabilityForPlayer[_hundredAgainstIndex][_trump.Value][Hodnota.Kral] == 0 ||
+                           _cardProbabilityForPlayer[_hundredAgainstIndex][_trump.Value][Hodnota.Svrsek] == 0))))
+                    {
+                        if (_cardProbabilityForPlayer[ii][b][Hodnota.Kral] > 0 &&
+                            _cardProbabilityForPlayer[ii][b][Hodnota.Kral] < 1)
+                        {
+                            _cardProbabilityForPlayer[ii][b][Hodnota.Kral] = ii == _hundredAgainstIndex ? 0.9f : 0.05f;
+                        }
+                        if (_cardProbabilityForPlayer[ii][b][Hodnota.Svrsek] > 0 &&
+                            _cardProbabilityForPlayer[ii][b][Hodnota.Svrsek] < 1)
+                        {
+                            _cardProbabilityForPlayer[ii][b][Hodnota.Svrsek] = ii == _hundredAgainstIndex ? 0.9f : 0.05f;
+                        }
                     }
                 }
             }
@@ -1028,6 +1069,7 @@ namespace Mariasek.Engine.New
                 _debugString.Append(FriendlyString(0));
                 _debugString.Append("===");
             }
+            _gameType = e.GameType;
             if (e.TrumpCard == null)
             {
                 return;

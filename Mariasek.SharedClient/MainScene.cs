@@ -559,8 +559,9 @@ namespace Mariasek.SharedClient
             gfDobraButton = new Button(this)
             {
                 Text = "Dobrá",
-                Position = new Vector2(Game.VirtualScreenWidth / 2f - 105, Game.VirtualScreenHeight / 2f - 100),
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 155, Game.VirtualScreenHeight / 2f - 100),
                 Tag = GameFlavour.Good,
+                Width = 150,
                 ZIndex = 100
             };
             gfDobraButton.Click += GfButtonClicked;
@@ -570,6 +571,7 @@ namespace Mariasek.SharedClient
                 Text = "Špatná",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f + 5, Game.VirtualScreenHeight / 2f - 100),
                 Tag = GameFlavour.Bad,
+                Width = 150,
                 ZIndex = 100
             };
             gfSpatnaButton.Click += GfButtonClicked;
@@ -1391,6 +1393,8 @@ namespace Mariasek.SharedClient
                      _firstTimeGameFlavourChosen = true;
                      _trumpCardChosen = null;
                      _cardClicked = null;
+                     _gameTypeChosen = 0;
+                     _gameFlavourChosen = 0;
                      _bid = 0;
                      TrumpCardTakenBack = false;
                      _state = GameState.NotPlaying;
@@ -2011,7 +2015,17 @@ namespace Mariasek.SharedClient
                 this.Invoke(() =>
                 {
 					_state = GameState.ChooseGameFlavour;
-					foreach (var gfButton in gfButtons)
+                    if (g.GameType == Hra.Betl)
+                    {
+                        gfDobraButton.Text = "Dobrý";
+                        gfSpatnaButton.Text = "Špatný";
+                    }
+                    else
+                    {
+                        gfDobraButton.Text = "Dobrá";
+                        gfSpatnaButton.Text = "Špatná";
+                    }
+                    foreach (var gfButton in gfButtons)
                     {
                         gfButton.Show();
                     }
@@ -2268,7 +2282,14 @@ namespace Mariasek.SharedClient
             }
             else if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Bad || g.GameType == 0)
             {
-                ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, _gameFlavourChosenEventArgs.Flavour.Description());
+                var description = _gameFlavourChosenEventArgs.Flavour.Description();
+                if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Bad && g.GameType != 0)
+                {
+                    //pokud odpovidame na betl, tak zmen koncovku
+                    //dobra, spatna -> dobry, spatny
+                    description = description.Replace("á", "ý");
+                }
+                ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, description);
                 if (e.Player.PlayerIndex != 2 && _gameFlavourChosenEventArgs.Flavour == GameFlavour.Good)
                 {
                     ShowThinkingMessage((e.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
@@ -2940,6 +2961,8 @@ namespace Mariasek.SharedClient
                         _trumpCardChosen = null;
                         _cardClicked = null;
                         _bid = 0;
+                        _gameTypeChosen = 0;
+                        _gameFlavourChosen = 0;
                         TrumpCardTakenBack = false;
                         _state = GameState.NotPlaying;
                         _talon = g.GameStartingPlayerIndex == 0 && g.talon != null && g.talon.Any() ? new List<Card>(g.talon) : new List<Card>();
@@ -3485,7 +3508,7 @@ namespace Mariasek.SharedClient
 
                 if (Game.Settings.SortMode != SortMode.None)
                 {
-                    var badGameSorting = _gameFlavourChosen == GameFlavour.Bad || (g.GameType & (Hra.Betl | Hra.Durch)) != 0;
+                    var badGameSorting = (g.GameType == 0 && _gameFlavourChosen == GameFlavour.Bad) || ((g.GameType & (Hra.Betl | Hra.Durch)) != 0);
 
                     if (numberOfCardsToSort == 12)
                     {

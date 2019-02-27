@@ -42,7 +42,7 @@ namespace Mariasek.Engine.New
                 var fieldInfo = value.GetType().GetField(entries[i].Trim());
                 var attributes = (DescriptionAttribute[])fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
 #endif
-				description[i] = (attributes.Length > 0) ? attributes[0].Description : entries[i].Trim();
+                description[i] = (attributes.Length > 0) ? attributes[0].Description : entries[i].Trim();
 			}
             return String.Join(", ", description);
         }

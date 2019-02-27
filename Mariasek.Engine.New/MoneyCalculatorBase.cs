@@ -713,7 +713,7 @@ namespace Mariasek.Engine.New
                 {
                     sb.AppendFormat("V červenejch:\t{0}\n", (MoneyWon[_gameStartingPlayerIndex] / 2 * BaseBet).ToString("C", _ci));
                 }
-                if (items > 1)
+                else if (items > 1)
                 {
                     sb.AppendFormat("Celkem:\t{0}\n", (MoneyWon[_gameStartingPlayerIndex] / 2 * BaseBet).ToString("C", _ci));
                 }
