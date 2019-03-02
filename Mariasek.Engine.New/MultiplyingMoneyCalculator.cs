@@ -50,19 +50,28 @@ namespace Mariasek.Engine.New
                             var bodyProti = BasicPointsLost + MaxHlasLost;
                             var mojeHlasy = PointsWon - BasicPointsWon;
 
-                            HundredAgainstMoneyWon = HundredValue * _bidding.HundredAgainstMultiplier * (1 << (90 + mojeHlasy - bodyProti) / 10);
+                            //pokud se pocita stosedm dohromady a neuhral jsem sedmu, ale uhral kilo, tak pocitej kilo jako tesne prohrane
+                            if (90 + mojeHlasy - bodyProti < 0 &&
+                                !Calculate107Separately)
+                            {
+                                HundredAgainstMoneyWon = HundredValue * _bidding.HundredAgainstMultiplier;
+                            }
+                            else
+                            {
+                                HundredAgainstMoneyWon = HundredValue * _bidding.HundredAgainstMultiplier * (1 << (90 + mojeHlasy - bodyProti) / 10);
+                            }
                         }
                         money += HundredAgainstMoneyWon;
                     }
                     else
                     {
-                        if (GameWon)
+                       if (GameWon)
                         {
                             GameMoneyWon = GameValue * _bidding.GameMultiplier;
                             if (QuietHundredWon)
                             {
                                 GameMoneyWon = QuietHundredValue * _bidding.GameMultiplier * (1 <<  (PointsWon - 100) / 10);
-                            }
+                           }
                         }
                         else
                         {
@@ -158,7 +167,17 @@ namespace Mariasek.Engine.New
                         var mojeBody = BasicPointsWon + MaxHlasWon;
                         var hlasyProti = PointsLost - BasicPointsLost;
 
-                        HundredMoneyWon = - HundredValue * _bidding.GameMultiplier * (1 << (90 + hlasyProti - mojeBody) / 10);
+                        //pokud se pocita stosedm dohromady a neuhral jsem sedmu, ale uhral kilo, tak pocitej kilo jako tesne prohrane
+                        if (90 + hlasyProti  - mojeBody < 0 &&
+                            !SevenWon &&
+                            !Calculate107Separately)
+                        {
+                            HundredMoneyWon = -HundredValue * _bidding.GameMultiplier;
+                        }
+                        else
+                        {
+                            HundredMoneyWon = - HundredValue * _bidding.GameMultiplier * (1 << (90 + hlasyProti - mojeBody) / 10);
+                        }
                     }
                     money += HundredMoneyWon;
                 }

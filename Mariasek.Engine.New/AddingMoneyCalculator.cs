@@ -51,6 +51,11 @@ namespace Mariasek.Engine.New
                             var mojeHlasy = PointsWon - BasicPointsWon;
 
                             HundredAgainstMoneyWon = HundredValue * _bidding.HundredAgainstMultiplier * (100 + mojeHlasy - bodyProti) / 10;
+                            if (HundredAgainstMoneyWon <= 0 &&
+                                !Calculate107Separately)
+                            {
+                                HundredAgainstMoneyWon = -HundredValue * _bidding.HundredAgainstMultiplier;
+                            }
                         }
                         money += HundredAgainstMoneyWon;
                     }
@@ -159,6 +164,11 @@ namespace Mariasek.Engine.New
                         var hlasyProti = PointsLost - BasicPointsLost;
 
                         HundredMoneyWon = -HundredValue * _bidding.GameMultiplier * (100 + hlasyProti - mojeBody) / 10;
+                        if (HundredMoneyWon <= 0 &&
+                            !Calculate107Separately)
+                        {
+                            HundredMoneyWon = -HundredValue * _bidding.GameMultiplier;
+                        }
                     }
                     money += HundredMoneyWon;
                 }

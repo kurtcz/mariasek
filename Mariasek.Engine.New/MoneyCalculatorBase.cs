@@ -497,7 +497,7 @@ namespace Mariasek.Engine.New
                 score = string.Format("Skóre: {0}:{1}{2}\n",
                                       PointsWon,
                                       PointsLost,
-                                      won
+                                      won || 100 - (BasicPointsWon + MaxHlasWon) <= 0
                                       ? string.Empty
                                       : string.Format("\nDo kila schází: {0} bodů{1}{2}", 100 - (BasicPointsWon + MaxHlasWon),
                                                       HlasPointsWasted == 0
@@ -506,7 +506,8 @@ namespace Mariasek.Engine.New
                                                       PointsLost == BasicPointsLost
                                                       ? string.Empty
                                                       : string.Format("\nHlasy proti: {0} bodů", PointsLost - BasicPointsLost)));
-                sb.AppendFormat("{0} {1}{2}{3}\t{4}\n{5}",
+                sb.AppendFormat("{0}: {1} {2}{3}{4}\t{5}\n{6}",
+                    PlayerNames[_gameStartingPlayerIndex],
                     status,
                     gtString,
                     multiplier > 1 ? string.Format(" ({0}x flek)", MultiplierToDoubleCount(multiplier)) : string.Empty,
@@ -555,7 +556,7 @@ namespace Mariasek.Engine.New
                         score = string.Format("Skóre: {0}:{1}{2}\n", 
                                               PointsWon, 
                                               PointsLost, 
-                                              won 
+                                              won || 100 - (BasicPointsWon + MaxHlasWon) <= 0
                                               ? string.Empty 
                                               : string.Format("\nDo kila schází: {0} bodů{1}{2}", 100 - (BasicPointsWon + MaxHlasWon),
                                                               HlasPointsWasted == 0
@@ -579,7 +580,7 @@ namespace Mariasek.Engine.New
                         gtString = "kilo proti";
                         multiplier = _bidding.HundredAgainstMultiplier;
                         money = HundredAgainstMoneyWon;
-                        score = won
+                        score = won || 100 - (BasicPointsLost + MaxHlasLost) <= 0
                                 ? string.Empty
                                 : string.Format("Do kila schází: {0} bodů{1}{2}\n", 100 - (BasicPointsLost + MaxHlasLost),
                                                   HlasPointsWasted == 0
@@ -669,7 +670,7 @@ namespace Mariasek.Engine.New
                 var other = string.Empty;
                 var score = string.Empty;
                 var gtString = "stosedm proti";
-                score = won
+                score = won || 100 - (BasicPointsLost + MaxHlasLost) <= 0
                         ? string.Empty
                         : string.Format("Do kila schází: {0} bodů{1}{2}\n", 100 - (BasicPointsLost + MaxHlasLost),
                                           HlasPointsWasted == 0
