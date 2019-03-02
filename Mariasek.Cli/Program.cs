@@ -152,6 +152,7 @@ namespace Mariasek.Cli
                         System.Console.WriteLine("{0}: {1}", player.Name, new Hand(player.Hand));
                     }
                     PlayGame();
+                    System.Console.WriteLine("Game over");
                 }
             }
             else

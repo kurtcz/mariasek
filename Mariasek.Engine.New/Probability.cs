@@ -1309,7 +1309,11 @@ namespace Mariasek.Engine.New
             }
 			const float epsilon = 0.01f;
 
-			if (_trump.HasValue &&
+            //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
+            //druhy hrac priznal barvu, sel vejs, ale nehral desitku ani eso, tak
+            //pokud jsem zacinal ja, ma desitku pravdepodobne treti hrac
+            //pokud jsem nezacinal ja, ma desitku pravdepodobne akter
+            if (_trump.HasValue &&
                 c1.Suit != _trump &&
                 c1.Suit == c2.Suit &&
                 c2.Value > c1.Value &&
@@ -1329,7 +1333,12 @@ namespace Mariasek.Engine.New
 					_cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] = 1 - epsilon;
 				}
             }
-			if (_trump.HasValue &&
+            //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
+            //druhy hrac priznal barvu, sel vejs, ale nehral eso a
+            //vim, ze nikdo nema desitku, tak
+            //pokud jsem zacinal ja, ma eso pravdepodobne treti hrac
+            //pokud jsem nezacinal ja, ma eso pravdepodobne akter
+            if (_trump.HasValue &&
 				c1.Suit != _trump &&
 				c1.Suit == c2.Suit &&
 				c2.Value > c1.Value &&
@@ -1351,7 +1360,17 @@ namespace Mariasek.Engine.New
 					_cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Eso] = 1 - epsilon;
 				}
 			}
-			_cardsPlayedByPlayer[(roundStarterIndex + 1) % Game.NumPlayers].Add(c2);
+            //pokud hrajeme v barve, zacinal akter a
+            //druhy hrac nesel vejs, ale hral desitkou nebo esem
+            //tak pravdepodobne uz v dane barve nema zadne nizke karty
+            if (_trump.HasValue &&
+                roundStarterIndex == _gameStarterIndex &&
+                (c2.Value == Hodnota.Eso || c2.Value == Hodnota.Desitka) &&
+                c1.IsHigherThan(c2, _trump))
+            {
+                SetCardProbabilitiesLowerThanCardToEpsilon((roundStarterIndex + 1) % Game.NumPlayers, c2);
+            }
+            _cardsPlayedByPlayer[(roundStarterIndex + 1) % Game.NumPlayers].Add(c2);
             ReduceUcertainCardSet();
             if (c2.Suit != c1.Suit || c2.IsLowerThan(c1, _trump))
             {
@@ -1415,7 +1434,11 @@ namespace Mariasek.Engine.New
             }
 			const float epsilon = 0.01f;
 
-			if (_trump.HasValue &&
+            //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
+            //treti hrac priznal barvu, sel vejs, ale nehral desitku ani eso, tak
+            //pokud jsem zacinal ja, ma desitku pravdepodobne druhy hrac
+            //pokud jsem nezacinal ja, ma desitku pravdepodobne akter
+            if (_trump.HasValue &&
                 c1.Suit != _trump &&
                 c1.Suit == c3.Suit &&
                 c3.Value > c1.Value &&
@@ -1434,7 +1457,12 @@ namespace Mariasek.Engine.New
 					_cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] = 1 - epsilon;
 				}
             }
-			if (_trump.HasValue &&
+            //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
+            //treti hrac priznal barvu, sel vejs, ale nehral eso a
+            //vim, ze nikdo nema desitku, tak
+            //pokud jsem zacinal ja, ma eso pravdepodobne druhy hrac
+            //pokud jsem nezacinal ja, ma eso pravdepodobne akter
+            if (_trump.HasValue &&
 				c1.Suit != _trump &&
 				c1.Suit == c3.Suit &&
 				c3.Value > c1.Value &&
@@ -1455,7 +1483,29 @@ namespace Mariasek.Engine.New
 					_cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Eso] = 1 - epsilon;
 				}
 			}
-			_cardsPlayedByPlayer[(roundStarterIndex + 2) % Game.NumPlayers].Add(c3);
+            //pokud hrajeme v barve, zacinal akter a
+            //druhy hrac nesel vejs, ale hral desitkou nebo esem
+            //tak pravdepodobne uz v dane barve nema zadne nizke karty
+            if (_trump.HasValue &&
+                roundStarterIndex == _gameStarterIndex &&
+                (c3.Value == Hodnota.Eso || c3.Value == Hodnota.Desitka) &&
+                c1.IsHigherThan(c2, _trump) &&
+                c1.IsHigherThan(c3, _trump))
+            {
+                SetCardProbabilitiesLowerThanCardToEpsilon((roundStarterIndex + 2) % Game.NumPlayers, c3);
+            }
+            //pokud hrajeme v barve, akter hral na druhe pozici a hral vejs
+            //treti hrac nesel vejs, ale hral desitkou nebo esem
+            //tak pravdepodobne uz v dane barve nema zadne nizke karty
+            if (_trump.HasValue &&
+                (roundStarterIndex + 1) % Game.NumPlayers == _gameStarterIndex &&
+                (c3.Value == Hodnota.Eso || c3.Value == Hodnota.Desitka) &&
+                c1.IsLowerThan(c2, _trump) &&
+                c2.IsHigherThan(c3, _trump))
+            {
+                SetCardProbabilitiesLowerThanCardToEpsilon((roundStarterIndex + 2) % Game.NumPlayers, c3);
+            }
+            _cardsPlayedByPlayer[(roundStarterIndex + 2) % Game.NumPlayers].Add(c3);
             ReduceUcertainCardSet();
             if (c2.Suit != c1.Suit || c2.IsLowerThan(c1, _trump))
             {
@@ -1542,7 +1592,7 @@ namespace Mariasek.Engine.New
             {
                 var c2 = new Card(c.Suit, h);
 
-                if (!c.IsHigherThan(c2, _trump))
+                if (c.IsLowerThan(c2, _trump))
                 {
                     _cardProbabilityForPlayer[playerIndex][c2.Suit][h] = 0f;
                     //pokud uz nikdo jiny kartu mit nemuze, tak upravim pravdepodobnosti
@@ -1564,7 +1614,57 @@ namespace Mariasek.Engine.New
             }
         }
 
-		public string FriendlyString(int roundNumber)
+        private void SetCardProbabilitiesLowerThanCardToEpsilon(int playerIndex, Card c)
+        {
+            const float epsilon = 0.01f;
+            var otherPlayerIndex = -1;
+
+            if (playerIndex == _myIndex)
+            {
+                //no need to update my own probabilities (i know what cards i have)
+                return;
+            }
+
+            for (var i = 0; i < Game.NumPlayers; i++)
+            {
+                if (i != _myIndex && i != playerIndex)
+                {
+                    otherPlayerIndex = i;
+                    break;
+                }
+            }
+
+            foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+            {
+                var c2 = new Card(c.Suit, h);
+
+                if (c.IsHigherThan(c2, _trump))
+                {
+                    if (_cardProbabilityForPlayer[playerIndex][c2.Suit][h] > 0f &&
+                        _cardProbabilityForPlayer[playerIndex][c2.Suit][h] < 1f)
+                    {
+                        _cardProbabilityForPlayer[playerIndex][c2.Suit][h] = epsilon;
+                        //pokud uz nikdo jiny kartu mit nemuze, tak upravim pravdepodobnosti
+                        if (_cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] > 0f &&
+                            _cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] < 1f &&
+                            _cardProbabilityForPlayer[_myIndex][c2.Suit][h] == 0f &&
+                            _cardProbabilityForPlayer[talonIndex][c2.Suit][h] == 0f)
+                        {
+                            _cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] = 1 - epsilon;
+                        }
+                        else if (_cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] == 0f &&
+                            _cardProbabilityForPlayer[_myIndex][c2.Suit][h] == 0f &&
+                            _cardProbabilityForPlayer[talonIndex][c2.Suit][h] > 0f &&
+                            _cardProbabilityForPlayer[talonIndex][c2.Suit][h] < 1f)
+                        {
+                            _cardProbabilityForPlayer[talonIndex][c2.Suit][h] = 1 - epsilon;
+                        }
+                    }
+                }
+            }
+        }
+
+        public string FriendlyString(int roundNumber)
 		{
 			var friendlyString = new StringBuilder();
 
