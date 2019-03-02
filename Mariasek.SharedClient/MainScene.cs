@@ -2239,9 +2239,13 @@ namespace Mariasek.SharedClient
                     {
                         if (g.GameType == 0)
                         {
-                            ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, "Barva?");
-                            _trumpLabels[_gameFlavourChosenEventArgs.Player.PlayerIndex].Text = string.Format("{0}: Barva?\n{1}",
+                            var str = string.Format("Barva?{0}", _gameFlavourChosenEventArgs.AXTalon ? "\nOstrá v talonu" : string.Empty);
+
+                            _bubbles[_gameFlavourChosenEventArgs.Player.PlayerIndex].Height = _gameFlavourChosenEventArgs.AXTalon ? 80 : 50;
+                            ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, str);
+                            _trumpLabels[_gameFlavourChosenEventArgs.Player.PlayerIndex].Text = string.Format("{0}: Barva?{1}\n{2}",
                                                      g.players[_gameFlavourChosenEventArgs.Player.PlayerIndex].Name,
+                                                     _gameFlavourChosenEventArgs.AXTalon ? " Ostrá v talonu" : string.Empty,
                                                      Game.Settings.ShowScoreDuringGame
                                                      ? (Game.Money.Sum(j => j.MoneyWon[_gameFlavourChosenEventArgs.Player.PlayerIndex]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ"))
                                                      : string.Empty);
@@ -2267,7 +2271,16 @@ namespace Mariasek.SharedClient
                     {
                         if (g.GameType == 0)
                         {
-                            ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, "Barva?");
+                            var str = string.Format("Barva?{0}", _gameFlavourChosenEventArgs.AXTalon ? "\nOstrá v talonu" : string.Empty);
+
+                            _bubbles[_gameFlavourChosenEventArgs.Player.PlayerIndex].Height = _gameFlavourChosenEventArgs.AXTalon ? 80 : 50;
+                            ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, str);
+                            _trumpLabels[_gameFlavourChosenEventArgs.Player.PlayerIndex].Text = string.Format("{0}: Barva?{1}\n{2}",
+                                                                                 g.players[_gameFlavourChosenEventArgs.Player.PlayerIndex].Name,
+                                                                                 _gameFlavourChosenEventArgs.AXTalon ? " Ostrá v talonu" : string.Empty,
+                                                                                 Game.Settings.ShowScoreDuringGame
+                                                                                 ? (Game.Money.Sum(j => j.MoneyWon[_gameFlavourChosenEventArgs.Player.PlayerIndex]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ"))
+                                                                                 : string.Empty);
                         }
                         ShowThinkingMessage((_gameFlavourChosenEventArgs.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
                     }

@@ -10,5 +10,6 @@ namespace Mariasek.Engine.New
     {
         public AbstractPlayer Player;
         public GameFlavour Flavour;
+        public bool AXTalon;
     }
 }

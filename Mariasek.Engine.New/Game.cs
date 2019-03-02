@@ -1529,7 +1529,8 @@ namespace Mariasek.Engine.New
                     OnGameFlavourChosen(new GameFlavourChosenEventArgs
                     {
                         Player = nextPlayer,
-                        Flavour = gameFlavour
+                        Flavour = gameFlavour,
+                        AXTalon = gameFlavour != GameFlavour.Bad && talon.Any(i => i.Value == Hodnota.Desitka || i.Value == Hodnota.Eso)
                     });
                 }
                 else
