@@ -76,6 +76,7 @@ namespace Mariasek.Engine.New
 		public int MaxWin { get; set; }
         public int MinimalBidsForGame { get; set; }
         public int MinimalBidsForSeven { get; set; }
+        public bool PlayZeroSumGames { get; set; }
         public bool Top107 { get; set; }
         public bool Calculate107Separately { get; set; }
         public HlasConsidered HlasConsidered { get; set; }
@@ -1326,9 +1327,10 @@ namespace Mariasek.Engine.New
             if (GameType == (Hra.Hra | Hra.Sedma) && 
                 Bidding.SevenMultiplier == 1 &&
                 Bidding.GameMultiplier == 2 &&
-                SevenValue == GameValue * 2)
+                //SevenValue == GameValue * 2 &&
+                !PlayZeroSumGames)
             {
-                return false; //sedma a flek na hru se nehraje nikdy (pri standardnich hodnotach her)
+                return false; //sedma a flek na hru se nehraje v zavislosti na nastaveni
             }
             return true;
         }

@@ -27,6 +27,7 @@ namespace Mariasek.SharedClient
         private Label _handSorting;
         private Label _baseBet;
         private Label _kiloCounting;
+        private Label _playZeroSumGames;
         private Label _top107;
         private Label _calculate107Separately;
         private Label _hlasConsidered;
@@ -66,6 +67,7 @@ namespace Mariasek.SharedClient
 		private LeftRightSelector _handSortingSelector;
 		private LeftRightSelector _baseBetSelector;
 		private LeftRightSelector _kiloCountingSelector;
+        private LeftRightSelector _playZeroSumGamesSelector;
         private LeftRightSelector _top107Selector;
         private LeftRightSelector _calculate107Selector;
         private LeftRightSelector _hlasSelector;
@@ -269,25 +271,29 @@ namespace Mariasek.SharedClient
 			{
 				_cardBackSelector.SelectedIndex = 0;
 			}
-            _handSorting = new Label(this)
+            _thinkingTime = new Label(this)
             {
                 Position = new Vector2(200, 310),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
-                Text = "Řadit karty",
+                Text = "Jak dlouho AI přemýšlí",
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
-            _handSortingSelector = new LeftRightSelector(this)
-			{
-				Position = new Vector2(Game.VirtualScreenWidth - 300, 310),
-				Width = 270,
+            _thinkingTimeSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 310),
+                Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Vzestupně", SortMode.Ascending }, { "Sestupně", SortMode.Descending }, { "Vůbec", SortMode.None } }
-			};
-			_handSortingSelector.SelectedIndex = _handSortingSelector.Items.FindIndex(Game.Settings.SortMode);
-			_handSortingSelector.SelectionChanged += SortModeChanged;
+                Items = new SelectorItems() { { "Krátce", 750 }, { "Středně", 1500 }, { "Dlouho", 2500 } }
+            };
+            _thinkingTimeSelector.SelectedIndex = _thinkingTimeSelector.Items.FindIndex(Game.Settings.ThinkingTimeMs);
+            _thinkingTimeSelector.SelectionChanged += ThinkingTimeChanged;
+            if (_thinkingTimeSelector.SelectedIndex < 0)
+            {
+                _thinkingTimeSelector.SelectedIndex = 1;
+            }
             _baseBet = new Label(this)
             {
                 Position = new Vector2(200, 370),
@@ -448,28 +454,28 @@ namespace Mariasek.SharedClient
             {
                 _hlasSelector.SelectedIndex = 0;
             }
-            _autoDisable100Against = new Label(this)
+            _playZeroSumGames = new Label(this)
             {
                 Position = new Vector2(200, pageOffset + 370),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
-                Text = "Hlásit kilo proti lze",
                 Group = 1,
+                Text = "Sedma + flek na hru se",
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
-            _autoDisable100AgainstSelector = new LeftRightSelector(this)
+            _playZeroSumGamesSelector = new LeftRightSelector(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 300, pageOffset + 370),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Jen s hlasem", true }, { "Vždy", false } }
+                Items = new SelectorItems() { { "Nehraje", false }, { "Hraje", true } }
             };
-            _autoDisable100AgainstSelector.SelectedIndex = _autoDisable100AgainstSelector.Items.FindIndex(Game.Settings.AutoDisable100Against);
-            _autoDisable100AgainstSelector.SelectionChanged += AutoDisable100AgainstChanged;
-            if (_autoDisable100AgainstSelector.SelectedIndex < 0)
+            _playZeroSumGamesSelector.SelectedIndex = _playZeroSumGamesSelector.Items.FindIndex(Game.Settings.PlayZeroSumGames);
+            _playZeroSumGamesSelector.SelectionChanged += PlayZeroSumGamesChanged;
+            if (_playZeroSumGamesSelector.SelectedIndex < 0)
             {
-                _autoDisable100AgainstSelector.SelectedIndex = 0;
+                _playZeroSumGamesSelector.SelectedIndex = 0;
             }
             #endregion
             #region Page 3
@@ -519,28 +525,28 @@ namespace Mariasek.SharedClient
             {
                 _allowTrumpTalonSelector.SelectedIndex = 0;
             }
-            _thinkingTime = new Label(this)
+            _autoDisable100Against = new Label(this)
             {
                 Position = new Vector2(200, 2 * pageOffset + 130),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
+                Text = "Hlásit kilo proti lze",
                 Group = 1,
-                Text = "Jak dlouho AI přemýšlí",
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
-            _thinkingTimeSelector = new LeftRightSelector(this)
+            _autoDisable100AgainstSelector = new LeftRightSelector(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 130),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Krátce", 750 }, { "Středně", 1500 }, { "Dlouho", 2500 } }
+                Items = new SelectorItems() { { "Jen s hlasem", true }, { "Vždy", false } }
             };
-            _thinkingTimeSelector.SelectedIndex = _thinkingTimeSelector.Items.FindIndex(Game.Settings.ThinkingTimeMs);
-            _thinkingTimeSelector.SelectionChanged += ThinkingTimeChanged;
-            if (_thinkingTimeSelector.SelectedIndex < 0)
+            _autoDisable100AgainstSelector.SelectedIndex = _autoDisable100AgainstSelector.Items.FindIndex(Game.Settings.AutoDisable100Against);
+            _autoDisable100AgainstSelector.SelectionChanged += AutoDisable100AgainstChanged;
+            if (_autoDisable100AgainstSelector.SelectedIndex < 0)
             {
-                _thinkingTimeSelector.SelectedIndex = 1;
+                _autoDisable100AgainstSelector.SelectedIndex = 0;
             }
             _aiMayGiveUp = new Label(this)
             {
@@ -659,9 +665,28 @@ namespace Mariasek.SharedClient
             {
                 _cardSizeSelector.SelectedIndex = 0;
             }
-            _autoFinishRounds = new Label(this)
+            _handSorting = new Label(this)
             {
                 Position = new Vector2(200, 3 * pageOffset + 130),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Řadit karty",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _handSortingSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 130),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Vzestupně", SortMode.Ascending }, { "Sestupně", SortMode.Descending }, { "Vůbec", SortMode.None } }
+            };
+            _handSortingSelector.SelectedIndex = _handSortingSelector.Items.FindIndex(Game.Settings.SortMode);
+            _handSortingSelector.SelectionChanged += SortModeChanged;
+            _autoFinishRounds = new Label(this)
+            {
+                Position = new Vector2(200, 3 * pageOffset + 190),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -671,7 +696,7 @@ namespace Mariasek.SharedClient
             };
             _autoFinishRoundsSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 130),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 190),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Automaticky", true }, { "Dotykem", false } }
@@ -684,7 +709,7 @@ namespace Mariasek.SharedClient
             }
             _roundFinishedWaitTime = new Label(this)
             {
-                Position = new Vector2(200, 3 * pageOffset + 190),
+                Position = new Vector2(200, 3 * pageOffset + 250),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -694,7 +719,7 @@ namespace Mariasek.SharedClient
             };
             _roundFinishedWaitTimeSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 190),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 250),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Krátká", 1000 }, { "Dlouhá", 2000 } }
@@ -707,7 +732,7 @@ namespace Mariasek.SharedClient
             }
             _autoFinishLastRound = new Label(this)
             {
-                Position = new Vector2(200, 3 * pageOffset + 250),
+                Position = new Vector2(200, 3 * pageOffset + 310),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -717,7 +742,7 @@ namespace Mariasek.SharedClient
             };
             _autoFinishLastRoundSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 250),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 3 * pageOffset + 310),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Automaticky", true }, { "Ručně", false } }
@@ -1218,6 +1243,15 @@ namespace Mariasek.SharedClient
             var selector = sender as LeftRightSelector;
 
             Game.Settings.RoundFinishedWaitTimeMs = (int)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        void PlayZeroSumGamesChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.PlayZeroSumGames = (bool)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
