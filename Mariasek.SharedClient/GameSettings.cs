@@ -53,6 +53,7 @@ namespace Mariasek.SharedClient
         public bool BgSoundEnabled { get; set; }
         public string[] PlayerNames { get; set; }
         public SortMode SortMode { get; set; }
+        public bool AutoSort { get; set; }
         public float BaseBet { get; set; }
 		public int MaxWin { get; set; }
         public int GameValue { get; set; }
@@ -140,6 +141,7 @@ namespace Mariasek.SharedClient
             SoundEnabled = true;
             BgSoundEnabled = true;
             SortMode = SortMode.Descending;
+            AutoSort = true;
             BaseBet = 1f;
 			MaxWin = 500;
             CalculationStyle = CalculationStyle.Adding;

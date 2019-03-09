@@ -887,7 +887,10 @@ namespace Mariasek.Engine.New
                     RoundNumber++;
                 }
 
-                if(ShouldPlayGame())
+                players[0].Hand.Sort();
+                players[1].Hand.Sort();
+                players[2].Hand.Sort();
+                if (ShouldPlayGame())
                 {
                     //vlastni hra
                     var roundWinner = _roundStartingPlayer;

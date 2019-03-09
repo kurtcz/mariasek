@@ -1377,7 +1377,7 @@ namespace Mariasek.SharedClient
                      {
                          _deck.Shuffle();
                      }
-                     _canSort = CurrentStartingPlayerIndex != 0;
+                     _canSort = Game.Settings.AutoSort && CurrentStartingPlayerIndex != 0;
 
                      g.NewGame(CurrentStartingPlayerIndex, _deck);
                      g.GameFlavourChosen += GameFlavourChosen;
@@ -1822,6 +1822,11 @@ namespace Mariasek.SharedClient
                     NewGameBtnClicked(this);
                     return;
                 default:
+                    if (CurrentStartingPlayerIndex != 0)
+                    {
+                        _canSort = true;
+                        SortHand();
+                    }
                     return;
             }
 		}
@@ -1938,7 +1943,7 @@ namespace Mariasek.SharedClient
 			EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
 			_state = GameState.ChooseTrump;
-            _hand.IsEnabled = false;
+            //_hand.IsEnabled = false;
 			_cardClicked = null;
 			_evt.Reset();
             RunOnUiThread(() =>
@@ -1955,7 +1960,7 @@ namespace Mariasek.SharedClient
 			RunOnUiThread(() =>
             {
                 _hintBtn.IsEnabled = false;
-                _hand.IsEnabled = false;
+                //_hand.IsEnabled = false;
                 _hand.ForbidDragging();
             });
 
@@ -1966,7 +1971,7 @@ namespace Mariasek.SharedClient
         {
 			EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
-			_hand.IsEnabled = false;
+			//_hand.IsEnabled = false;
 			_cardClicked = null;
             _talon = new List<Card>();
 			_evt.Reset();
@@ -1996,7 +2001,7 @@ namespace Mariasek.SharedClient
 			RunOnUiThread(() =>
             {
                 _hintBtn.IsEnabled = false;
-                _hand.IsEnabled = false;
+                //_hand.IsEnabled = false;
                 _okBtn.Hide();
             });
 
@@ -2007,7 +2012,7 @@ namespace Mariasek.SharedClient
         {
 			EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
-			_hand.IsEnabled = false;
+			//_hand.IsEnabled = false;
 			_gameFlavourChosen = (GameFlavour)(-1);
 			_evt.Reset();
 			RunOnUiThread(() =>
@@ -2089,7 +2094,7 @@ namespace Mariasek.SharedClient
         {
 			EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
-			_hand.IsEnabled = false;
+			//_hand.IsEnabled = false;
 			_evt.Reset();
 			RunOnUiThread(() =>
             {
@@ -2118,7 +2123,7 @@ namespace Mariasek.SharedClient
 			g.ThrowIfCancellationRequested();
 			_evt.Reset();
 			_state = GameState.Bid;
-			_hand.IsEnabled = false;
+			//_hand.IsEnabled = false;
 			_hand.AnimationEvent.Wait();
 			_bid = 0;
             if (bidding.Bids != 0)
@@ -2568,6 +2573,11 @@ namespace Mariasek.SharedClient
             {
                 ShowThinkingMessage(r.player1.PlayerIndex);
             }
+            if (r.number == 1 && !Game.Settings.AutoSort && _canSort == false)
+            {
+                _canSort = true;
+                SortHand();
+            }
             // 3 * (r-1) + i
             _cardsPlayed[r.player1.PlayerIndex].ZIndex = (r.number - 1) * 3 + 1;
             _cardsPlayed[r.player2.PlayerIndex].ZIndex = (r.number - 1) * 3 + 2;
@@ -2988,7 +2998,7 @@ namespace Mariasek.SharedClient
                             Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
                             Game.SaveGameSettings();
                         }
-                        _canSort = CurrentStartingPlayerIndex != 0;
+                        _canSort = Game.Settings.AutoSort && CurrentStartingPlayerIndex != 0;
 
                         ClearTable(true);
                         HideMsgLabel();
@@ -3231,7 +3241,7 @@ namespace Mariasek.SharedClient
 			    _hand.WaitUntil(() => !_hand.SpritesBusy)
 			         .Invoke(() =>
 			            {
-			                _canSort = true;
+			                _canSort = Game.Settings.AutoSort;
 			                SortHand(null, 7);
 			            });
 			}
@@ -3240,11 +3250,11 @@ namespace Mariasek.SharedClient
 			    _hand.WaitUntil(() => !_hand.SpritesBusy)
 			         .Invoke(() =>
 			            {
-			                _canSort = true;
+			                _canSort = Game.Settings.AutoSort;
 			                SortHand(cardToHide);
 			            });
 			}
-		}
+        }
 
         private void UpdateCardTextures(GameComponent parent, Texture2D oldTexture, Texture2D newTexture)
         {
