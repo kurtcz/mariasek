@@ -1156,94 +1156,109 @@ namespace Mariasek.Engine.New
 
             if (rounds != null)
             {
-                //slozime stychy v nahodnem poradi
-                var randomPlayers = players.Shuffle<AbstractPlayer>();
+                //slozime karty v nahodnem poradi
+                sb.AppendFormat("Adding hand of player 1\nAdding hand of player 2\nAdding hand of player 3\nAdding talon");
+                var hand1 = players[0].Hand;
+                var hand2 = players[1].Hand;
+                var hand3 = players[2].Hand;
 
-                foreach (var player in randomPlayers)
+                hand1.Reverse();
+                hand2.Reverse();
+                hand3.Reverse();
+
+                var all = new List<IEnumerable<Card>>()
                 {
-					sb.AppendFormat("Adding hand of player {0}\n", player.PlayerIndex + 1);
+                    hand1,
+                    hand2,
+                    hand3,
+                    talon
+                };
+
+                foreach (var player in players)
+                {
+                    var temp = new List<Card>();
+
                     //dodame karty ve stychu vyjma hlasu
                     foreach (var r in rounds.Where(r => r != null))
                     {
-                        if (r.roundWinner.PlayerIndex == player.PlayerIndex && !r.hlas3)
+                        if (r.roundWinner.PlayerIndex == player.PlayerIndex)
                         {
-                            deck.Add(r.c3);
-                            sb.AppendFormat("Round {0} card 3: Adding {1}\n", r.number, r.c3);
-                        }
-                        if (r.roundWinner.PlayerIndex == player.PlayerIndex && !r.hlas2)
-                        {
-                            deck.Add(r.c2);
-                            sb.AppendFormat("Round {0} card 2: Adding {1}\n", r.number, r.c2);
-                        }
-						if (r.roundWinner.PlayerIndex == player.PlayerIndex && !r.hlas1)
-                        {
-                            deck.Add(r.c1);
-							sb.AppendFormat("Round {0} card 1: Adding {1}\n", r.number, r.c1);
+                            if (r.hlas3)
+                            {
+                                all.Add(new[] { r.c3 });
+                                sb.AppendFormat("Round {0} card 3: Hlas {1}\n", r.number, r.c1);
+                            }
+                            else
+                            {
+                                temp.Add(r.c3);
+                                sb.AppendFormat("Round {0} card 3: Adding {1}\n", r.number, r.c3);
+                            }
+                            if (r.hlas2)
+                            {
+                                all.Add(new[] { r.c2 });
+                                sb.AppendFormat("Round {0} card 2: Hlas {1}\n", r.number, r.c2);
+                            }
+                            else
+                            {
+                                temp.Add(r.c2);
+                                sb.AppendFormat("Round {0} card 2: Adding {1}\n", r.number, r.c3);
+                            }
+                            if (r.hlas1)
+                            {
+                                all.Add(new[] { r.c1 });
+                                sb.AppendFormat("Round {0} card 1: Hlas {1}\n", r.number, r.c1);
+                            }
+                            else
+                            {
+                                temp.Add(r.c1);
+                                sb.AppendFormat("Round {0} card 1: Adding {1}\n", r.number, r.c3);
+                            }
                         }
                     }
-					sb.Append("Hlasy\n");
-                    foreach (var r in rounds.Where(r => r != null).OrderByDescending(r => r.number))
+                    if (temp.Any())
                     {
-                        //dodame hlasy
-                        if (r.hlas1 && r.player1 == player)
-                        {
-                            deck.Add(r.c1);
-							sb.AppendFormat("Round {0} card 1: Hlas {1}\n", r.number, r.c1);
-                        }
-                        if (r.hlas2 && r.player2 == player)
-                        {
-                            deck.Add(r.c2);
-							sb.AppendFormat("Round {0} card 2: Hlas {1}\n", r.number, r.c2);
-                        }
-                        if (r.hlas3 && r.player3 == player)
-                        {
-                            deck.Add(r.c3);
-							sb.AppendFormat("Round {0} card 3: Hlas {1}\n", r.number, r.c3);
-                        }
+                        all.Add(temp);
                     }
-					sb.AppendFormat("Adding hand of player {0}\n", player.PlayerIndex + 1);
-					foreach (var c in player.Hand)
-					{
-						sb.AppendFormat("{0}\n", c);
-					}
-                    deck.AddRange(player.Hand);
                 }
-				sb.Append("Adding talon\n");
-				foreach (var c in talon)
-				{
-					sb.AppendFormat("{0}\n", c);
-				}
-				deck.AddRange(talon);
+                sb.AppendFormat("Randomly collecting stacks\n");
+                deck = all.Shuffle()
+                          .SelectMany(i => i)
+                          .Where(i => i != null)
+                          .Distinct()
+                          .ToList();
             }
 			try
 			{
                 //obcas se nepodari balicek rekonstuovat - napr. protoze zmizel talon
                 //neni jasne jak tato chyba vznika. Pokud karet nechybi moc,
                 //tak se pokus rozbity balicek opravit dodanim chybejicich karet
-                var temp = deck.Distinct().ToList();
-                if (temp.Count < 32 && temp.Count > 24)
+                if (deck.Count < 32 && deck.Count > 24)
                 {
-                    foreach(var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                    sb.AppendFormat("Wrong deck count, adding missing cards\n");
+                    foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
                     {
                         foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
                         {
-                            if (!temp.Any(i => i.Suit == b && i.Value == h))
+                            if (!deck.Any(i => i.Suit == b && i.Value == h))
                             {
-                                temp.Add(new Card(b, h));
+                                var c = new Card(b, h);
+
+                                sb.AppendFormat("{0}\n", c);
+                                deck.Add(c);
                             }
                         }
                     }
                 }
                 Deck newDeck;
 
-                if (temp.Count != 32)
+                if (deck.Count != 32)
                 {
                     newDeck = new Deck();
                     newDeck.Shuffle();
                 }
                 else
                 {
-                    newDeck = new Deck(temp);
+                    newDeck = new Deck(deck);
                 }
                 if (Results != null && !Results.GamePlayed)
                 {

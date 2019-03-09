@@ -598,7 +598,8 @@ namespace Mariasek.Engine.New
                     var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => teamMatesCatchingCards.Any(j => i.Suit == j.Suit &&
                                                                                                                     i.BadValue < j.BadValue));
 
-                    return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+                    return cardsToPlay.OrderBy(i => i.Suit)
+                                      .ThenByDescending(i => i.BadValue).FirstOrDefault();
                 }
             };
 
