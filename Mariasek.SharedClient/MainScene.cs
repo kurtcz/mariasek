@@ -1321,7 +1321,7 @@ namespace Mariasek.SharedClient
                      g = new Mariasek.Engine.New.Game()
                      {
                          BaseBet = Game.Settings.BaseBet,
-					 MaxWin = Game.Settings.MaxWin,
+					     MaxWin = Game.Settings.MaxWin,
                          SkipBidding = false,
                          MinimalBidsForGame = Game.Settings.MinimalBidsForGame,
                          MinimalBidsForSeven = Game.Settings.MinimalBidsForSeven,

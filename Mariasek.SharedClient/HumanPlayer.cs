@@ -409,10 +409,25 @@ namespace Mariasek.SharedClient
                         var e = temp.GetEventArgs(_aiPlayer, bid, _previousBid);    //a zformatovat ji do stringu
 
                         BidConfidence = _aiPlayer.DebugInfo.TotalRuleCount > 0 ? (float)_aiPlayer.DebugInfo.RuleCount / (float)_aiPlayer.DebugInfo.TotalRuleCount : -1;
+                        var msg = new StringBuilder();
+#if DEBUG
+                        var k = 0;
+                        foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(i => i.RuleCount > 0))
+                        {
+                            if (debugInfo.TotalRuleCount > 0)
+                            {
+                                msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (k++) % 2 == 1 ? "\n" : "\t"));
+                            }
+                            else
+                            {
+                                msg.AppendFormat(string.Format("{0}{1}", debugInfo.Rule, (k++) % 2 == 1 ? "\n" : "\t"));
+                            }
+                        }
+#endif
                         if (_aiPlayer.DebugInfo.TotalRuleCount > 0)
                         {
                             _scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount),
-                                                       string.Empty, _t1 - _t0);
+                                                       msg.ToString(), _t1 - _t0);
                         }
                         else
                         {

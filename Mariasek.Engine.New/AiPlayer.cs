@@ -1111,13 +1111,13 @@ namespace Mariasek.Engine.New
                                 for (var i = 0; i < hh.Length; i++)
                                 {
                                     hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
-                            }
+                                }
                                 if (PlayerIndex != _g.GameStartingPlayerIndex) //pokud nevolim tak nasimuluju shoz do talonu
-                            {
+                                {
                                     UpdateGeneratedHandsByChoosingTrumpAndTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
                                 }
                                 else if (!_rerunSimulations) //pokud volim (poprve, tak v UpdateGeneratedHandsByChoosingTalon() beru v potaz trumfovou kartu kterou jsem zvolil
-                            {
+                                {
                                     UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
                                 }
                                 UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, gameStartingPlayerIndex);
@@ -1703,12 +1703,14 @@ namespace Mariasek.Engine.New
                 }
                 else if (hand.HasX(b) &&
                          hand.HasQ(b) &&
+                         hand.CardCount(b) >= 3 &&
                          hand.CardCount(_trump.Value) >= 3)
                 {
                     score += 10;
                 }
                 else if (hand.HasX(b) &&
                          hand.HasJ(b) &&
+                         hand.CardCount(b) >= 4 &&
                          hand.CardCount(_trump.Value) >= 4)
                 {
                     score += 10;
@@ -1735,6 +1737,10 @@ namespace Mariasek.Engine.New
                 Hand.Average(i => (float)i.Value) >= (float)Hodnota.Kral)
             {
                 score += 10;
+            }
+            if (PlayerIndex == _g.GameStartingPlayerIndex && !Hand.HasA(_trump.Value))
+            {
+                score -= 10;
             }
             if (score + kqMax >= 100)
             {
@@ -2189,11 +2195,60 @@ namespace Mariasek.Engine.New
                 RuleCount = DebugInfo.EstimatedFinalBasicScore2,
                 TotalRuleCount = 100
             });
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = "Tygrovo",
+                RuleCount = DebugInfo.Tigrovo,
+                TotalRuleCount = 100
+            });
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = "Silná",
+                RuleCount = DebugInfo.Strong * 100,
+                TotalRuleCount = 100
+            });
 #endif
             DebugInfo.AllChoices = allChoices.OrderByDescending(i => i.RuleCount).ToArray();
             _log.DebugFormat("Selected game type: {0}", gameType);
 
             return gameType;
+        }
+
+        private int EstimateLowBetlCardCount()
+        {
+            var betlLowCards = 0;
+
+            if (PlayerIndex != _g.GameStartingPlayerIndex)
+            {
+                foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                {
+                    if (Hand.CardCount(b) == 1 &&
+                        !Hand.Has7(b))
+                    {
+                        betlLowCards += 7;
+                    }
+                    else
+                    {
+                        if (Hand.HasSuit(b))
+                        {
+                            var loCards = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                              .Select(h => new Card(b, h))
+                                              .Count(i => Probabilities.CardProbability(_g.GameStartingPlayerIndex, i) > 0 &&
+                                                          Hand.Where(j => j.Suit == b)
+                                                              .All(j => j.BadValue > i.BadValue));
+                            betlLowCards += loCards;
+                        }
+                        else
+                        {
+                            betlLowCards += Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                              .Select(h => new Card(b, h))
+                                              .Count(i => Probabilities.CardProbability(_g.GameStartingPlayerIndex, i) > 0);
+                        }
+                    }
+                }
+            }
+
+            return betlLowCards;
         }
 
         //V tehle funkci muzeme dat flek nebo hlasit protihru
@@ -2294,7 +2349,10 @@ namespace Mariasek.Engine.New
                        Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&
                       estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
-                      estimatedOpponentFinalBasicScore + Math.Min(60, kqMaxOpponentScore) < 100)))))))// ||
+                      estimatedOpponentFinalBasicScore + Math.Min(60, kqMaxOpponentScore) < 100) ||
+                      ((Hand.HasK(_g.trump.Value) ||
+                        Hand.HasQ(_g.trump.Value)) &&
+                       DebugInfo.Tigrovo >= 15)))))))// ||
             {
                 bid |= bidding.Bids & Hra.Hra;
                 //minRuleCount = Math.Min(minRuleCount, _gamesBalance);
@@ -2404,6 +2462,19 @@ namespace Mariasek.Engine.New
                 DebugInfo.RuleCount = _betlBalance;
                 DebugInfo.TotalRuleCount = _betlSimulations;
             }
+#if DEBUG
+            var opponentLowCards = EstimateLowBetlCardCount();
+            if ((bidding.Bids & Hra.Betl) != 0 &&
+                Settings.CanPlayGameType[Hra.Betl] &&
+                PlayerIndex != _g.GameStartingPlayerIndex &&
+                opponentLowCards <= 6)
+            {
+                bid |= bidding.Bids & Hra.Betl;
+                //minRuleCount = Math.Min(minRuleCount, _betlBalance);
+                DebugInfo.RuleCount = _betlBalance;
+                DebugInfo.TotalRuleCount = _betlSimulations;
+            }
+#endif
             if (DebugInfo.RuleCount == -1)
             {
                 DebugInfo.RuleCount = _gameType == Hra.Betl
@@ -2428,6 +2499,26 @@ namespace Mariasek.Engine.New
             DebugInfo.Rule = bid.ToString();
             BidConfidence = DebugInfo.TotalRuleCount > 0 ? (float)DebugInfo.RuleCount / (float)DebugInfo.TotalRuleCount : -1;
             var allChoices = new List<RuleDebugInfo>();
+#if DEBUG
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = "Skóre2",
+                RuleCount = DebugInfo.EstimatedFinalBasicScore2,
+                TotalRuleCount = 100
+            });
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = "Tygrovo",
+                RuleCount = DebugInfo.Tigrovo,
+                TotalRuleCount = 100
+            });
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = "Silná",
+                RuleCount = DebugInfo.Strong,
+                TotalRuleCount = 100
+            });
+#else
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = Hra.Hra.ToString(),
@@ -2470,6 +2561,7 @@ namespace Mariasek.Engine.New
                 RuleCount = _durchBalance,
                 TotalRuleCount = _durchSimulations
             });
+#endif
             DebugInfo.AllChoices = allChoices.OrderByDescending(i => i.RuleCount).ToArray();
 
             return bid;
