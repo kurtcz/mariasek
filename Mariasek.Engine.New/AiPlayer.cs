@@ -1645,6 +1645,113 @@ namespace Mariasek.Engine.New
 			return false;
 		}
 
+        public int EstimateFinalBasicScore2()
+        {
+            var score = 0;
+            var tigrovo1 = 0;
+            var tigrovo2 = 0;
+            var oneCardSuit = new List<Barva>();
+            var noSuit = new List<Barva>();
+            var kqSuit = new List<Barva>();
+            var talon = Hand.Count == 12 ? ChooseNormalTalon(Hand, _trumpCard) : new List<Card>();
+            var hand = Hand.Where(i => !talon.Contains(i)).ToList();
+
+            if (Hand.CardCount(_trump.Value) >= 3 &&
+                Hand.CardCount(_trump.Value) + Hand.CardCount(Hodnota.Eso) >= 6)
+            {
+                tigrovo2 = 1;
+            }
+            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            {
+                if (Hand.HasA(b))
+                {
+                    tigrovo1 += 5;
+                }
+                if (Hand.HasK(b))
+                {
+                    tigrovo1 += 3;
+                }
+                if (Hand.HasX(b))
+                {
+                    tigrovo1 += 1;
+                }
+                if (!Hand.HasSuit(b))
+                {
+                    tigrovo1 += 3;
+                }
+                if (hand.HasA(b) && hand.HasX(b))
+                {
+                    if (b != _trump.Value && Hand.CardCount(b) >= 5)
+                    {
+                        score += 10;
+                    }
+                    else
+                    {
+                        score += 20;
+                    }
+                }
+                else if (hand.HasA(b))
+                {
+                    score += 10;
+                }
+                else if (hand.HasX(b) && 
+                         hand.HasK(b) && 
+                         (hand.CardCount(b) <= 5 ||
+                          b == _trump.Value))
+                {
+                    score += 10;
+                }
+                else if (hand.HasX(b) &&
+                         hand.HasQ(b) &&
+                         hand.CardCount(_trump.Value) >= 3)
+                {
+                    score += 10;
+                }
+                else if (hand.HasX(b) &&
+                         hand.HasJ(b) &&
+                         hand.CardCount(_trump.Value) >= 4)
+                {
+                    score += 10;
+                }
+                if (hand.CardCount(b) == 1 &&
+                    b != _trump.Value)
+                {
+                    oneCardSuit.Add(b);
+                }
+                if (b != _trump.Value &&
+                    !hand.HasSuit(b))
+                {
+                    noSuit.Add(b);
+                }
+                if (Hand.HasK(b) &&
+                    Hand.HasQ(b))
+                {
+                    kqSuit.Add(b);
+                }
+            }
+            var kqMax = kqSuit.Any(b => b == _trump.Value) ? 40 : kqSuit.Any() ? 20 : 0;
+            score += 10 * Math.Min(Hand.CardCount(_trump.Value) / 2, noSuit.Count * 2 + oneCardSuit.Count);
+            if (Hand.CardCount(_trump.Value) >= 4 ||
+                Hand.Average(i => (float)i.Value) >= (float)Hodnota.Kral)
+            {
+                score += 10;
+            }
+            if (score + kqMax >= 100)
+            {
+                score += kqSuit.Sum(b => b == _trump.Value ? 40 : 20);
+            }
+            else
+            {
+                score += kqMax;
+            }
+            DebugInfo.EstimatedFinalBasicScore2 = score;
+            DebugInfo.Tigrovo = tigrovo1;
+            DebugInfo.Strong = tigrovo2;
+            _debugString.AppendFormat("EstimatedFinalBasicScore2: {0}\n", score);
+
+            return score;
+        }
+
         public int EstimateFinalBasicScore()
         {
             var trump = _trump ?? _g.trump;
@@ -1691,6 +1798,7 @@ namespace Mariasek.Engine.New
             }
             _debugString.AppendFormat("EstimatedFinalBasicScore: {0}\n", n);
             DebugInfo.EstimatedFinalBasicScore = n;
+            EstimateFinalBasicScore2();
 
             return n;
         }
@@ -2074,6 +2182,14 @@ namespace Mariasek.Engine.New
                 RuleCount = _durchBalance,
                 TotalRuleCount = _durchSimulations
             });
+#if DEBUG
+            allChoices.Add(new RuleDebugInfo
+            {
+                Rule = "Skóre2",
+                RuleCount = DebugInfo.EstimatedFinalBasicScore2,
+                TotalRuleCount = 100
+            });
+#endif
             DebugInfo.AllChoices = allChoices.OrderByDescending(i => i.RuleCount).ToArray();
             _log.DebugFormat("Selected game type: {0}", gameType);
 

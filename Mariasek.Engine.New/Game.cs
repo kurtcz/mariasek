@@ -93,7 +93,7 @@ namespace Mariasek.Engine.New
 		public int RoundNumber { get; private set; }
         public Bidding Bidding { get; private set; }
         public string Author { get; set; }
-        public bool DoSort { get; set; }
+        //public bool DoSort { get; set; }
         public bool AutoDisable100Against { get; set; }
 #if !PORTABLE
         public static Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
@@ -629,15 +629,15 @@ namespace Mariasek.Engine.New
             {
                 throw new InvalidDataException("Game check failed");
             }
-            if (DoSort)
-            {
-                if (RoundNumber > 0)
-                {
-                    players[GameStartingPlayerIndex].Hand.Sort();   //voliciho hrace utridime pokud uz zvolil trumf
-                }
-                players[(GameStartingPlayerIndex + 1) % NumPlayers].Hand.Sort();
-                players[(GameStartingPlayerIndex + 2) % NumPlayers].Hand.Sort();
-            }
+            //if (DoSort)
+            //{
+            //    if (RoundNumber > 0)
+            //    {
+            //        players[GameStartingPlayerIndex].Hand.Sort();   //voliciho hrace utridime pokud uz zvolil trumf
+            //    }
+            //    players[(GameStartingPlayerIndex + 1) % NumPlayers].Hand.Sort();
+            //    players[(GameStartingPlayerIndex + 2) % NumPlayers].Hand.Sort();
+            //}
 			RoundSanityCheck();
 			if(RoundNumber == 0)
             {
@@ -1793,6 +1793,9 @@ namespace Mariasek.Engine.New
                 {
                     BiddingDebugInfo.AppendFormat("+{0}", kqScore);
                 }
+                BiddingDebugInfo.AppendFormat("\nSkóre2: {0}", players[playerIndex].DebugInfo.EstimatedFinalBasicScore2);
+                BiddingDebugInfo.AppendFormat("\nTygrovo: {0}", players[playerIndex].DebugInfo.Tigrovo);
+                BiddingDebugInfo.AppendFormat("\nSilná: {0}", players[playerIndex].DebugInfo.Strong);
             }
             if (players[playerIndex].TeamMateIndex == -1 && GameType != Hra.Durch)
             {

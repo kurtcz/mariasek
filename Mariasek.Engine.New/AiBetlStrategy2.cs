@@ -855,12 +855,12 @@ namespace Mariasek.Engine.New
                         if (ValidCards(c1, c2, hands[MyIndex]).All(i => i.Suit != c1.Suit))
                         {
                             var hiCards = ValidCards(c1, c2, hands[MyIndex]).Select(i => new Tuple<Card, int>(i,
-                                                                           Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                               .Select(h => new Card(i.Suit, h))
-                                                                               .Where(j => j.BadValue < i.BadValue)
-                                                                               .Count(j => _probabilities.CardProbability(player1, j) > 0 ||
-                                                                                           _probabilities.CardProbability(player2, j) > 0)))
-                                                                        .Where(i => i.Item2 > 0);
+                                                                               Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                   .Select(h => new Card(i.Suit, h))
+                                                                                   .Where(j => j.BadValue < i.BadValue)
+                                                                                   .Count(j => _probabilities.CardProbability(player1, j) > 0 ||
+                                                                                               _probabilities.CardProbability(player2, j) > 0)))
+                                                                            .Where(i => i.Item2 > 0);
                             cardsToPlay = hiCards.OrderByDescending(i => i.Item2)
                                                  .ThenByDescending(i => i.Item1.BadValue)
                                                  .Select(i => i.Item1);
@@ -869,11 +869,11 @@ namespace Mariasek.Engine.New
                     else //o-c
                     {
                         var hiCards = ValidCards(c1, c2, hands[MyIndex]).Select(i => new Tuple<Card, int>(i,
-                                                                       Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                           .Select(h => new Card(i.Suit, h))
-                                                                           .Where(j => j.BadValue < i.BadValue)
-                                                                           .Count(j => _probabilities.CardProbability(opponent, j) > 0)))
-                                                                    .Where(i => i.Item2 > 0);
+                                                                           Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                               .Select(h => new Card(i.Suit, h))
+                                                                               .Where(j => j.BadValue < i.BadValue)
+                                                                               .Count(j => _probabilities.CardProbability(opponent, j) > 0)))
+                                                                        .Where(i => i.Item2 > 0);
                         var prefCards = hiCards.Where(i => preferredSuits.Any(j => j == i.Item1.Suit))
                                                .Select(i => i.Item1);
 

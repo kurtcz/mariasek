@@ -1378,6 +1378,7 @@ namespace Mariasek.SharedClient
                          _deck.Shuffle();
                      }
                      _canSort = Game.Settings.AutoSort && CurrentStartingPlayerIndex != 0;
+                     //g.DoSort = Game.Settings.SortMode != SortMode.None;
 
                      g.NewGame(CurrentStartingPlayerIndex, _deck);
                      g.GameFlavourChosen += GameFlavourChosen;
@@ -1822,11 +1823,8 @@ namespace Mariasek.SharedClient
                     NewGameBtnClicked(this);
                     return;
                 default:
-                    if (CurrentStartingPlayerIndex != 0)
-                    {
-                        _canSort = true;
-                        SortHand();
-                    }
+                    _canSort = true;
+                    SortHand();
                     return;
             }
 		}
@@ -2769,6 +2767,11 @@ namespace Mariasek.SharedClient
                     {
                         rightMessage.Append(tokens[1]);
                     }
+                    else if (tokens.Length == 1 && 
+                             !string.IsNullOrWhiteSpace(tokens[0]))
+                    {
+                        rightMessage.Append(" ");
+                    }
 
                     leftMessage.Append("\n");
                     rightMessage.Append("\n");
@@ -2954,7 +2957,7 @@ namespace Mariasek.SharedClient
 
                         try
                         {
-                            g.DoSort = Game.Settings.SortMode != SortMode.None;
+                            //g.DoSort = Game.Settings.SortMode != SortMode.None;
                             Game.StorageAccessor.GetStorageAccess();
                             using (var fs = File.Open(testGame ? _testGameFilePath : _savedGameFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                             {
