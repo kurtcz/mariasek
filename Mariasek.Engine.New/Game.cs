@@ -739,6 +739,18 @@ namespace Mariasek.Engine.New
                 {
                     fleky = new Flek[0];
                 }
+                var hands = new[]
+                {
+                    new List<Card>(players[0].Hand),
+                    new List<Card>(players[1].Hand),
+                    new List<Card>(players[2].Hand)
+                };
+                if (RoundNumber > 0)
+                {
+                    hands[GameStartingPlayerIndex].Sort();
+                }
+                hands[(GameStartingPlayerIndex + 1) % NumPlayers].Sort();
+                hands[(GameStartingPlayerIndex + 2) % NumPlayers].Sort();
                 var gameDto = new GameDto
                 {
                     Kolo = roundNumber,
@@ -750,19 +762,19 @@ namespace Mariasek.Engine.New
                     Verze = Version.ToString(),
                     BiddingNotes = BiddingDebugInfo?.ToString(),
                     Komentar = Comment,
-                    Hrac1 = players[0].Hand
+                    Hrac1 = hands[0]
                         ?.Select(i => new Karta
                         {
                             Barva = i.Suit,
                             Hodnota = i.Value
                         }).ToArray(),
-                    Hrac2 = players[1].Hand
+                    Hrac2 = hands[1]
                         ?.Select(i => new Karta
                         {
                             Barva = i.Suit,
                             Hodnota = i.Value
                         }).ToArray(),
-                    Hrac3 = players[2].Hand
+                    Hrac3 = hands[2]
                         ?.Select(i => new Karta
                         {
                             Barva = i.Suit,
@@ -887,9 +899,6 @@ namespace Mariasek.Engine.New
                     RoundNumber++;
                 }
 
-                players[0].Hand.Sort();
-                players[1].Hand.Sort();
-                players[2].Hand.Sort();
                 if (ShouldPlayGame())
                 {
                     //vlastni hra
@@ -931,7 +940,6 @@ namespace Mariasek.Engine.New
                         }
                     }
                 }
-
                 //zakonceni hry
                 IsRunning = false;
                 Results = GetMoneyCalculator();

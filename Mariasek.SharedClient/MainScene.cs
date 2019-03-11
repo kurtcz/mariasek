@@ -3228,6 +3228,10 @@ namespace Mariasek.SharedClient
         {
             RunOnUiThread(() =>
             {
+                if (_canSort)
+                {
+                    SortHand(cardToHide, cardsNotRevealed > 0 ? 7 : g.players[0].Hand.Count);
+                }
                 _hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide);
             });
             _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
