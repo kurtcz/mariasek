@@ -1823,7 +1823,7 @@ namespace Mariasek.SharedClient
                     NewGameBtnClicked(this);
                     return;
                 default:
-                    _canSort = true;
+                    _canSort = !Game.Settings.AutoSort && g.RoundNumber == 0;
                     SortHand();
                     return;
             }
@@ -2408,8 +2408,11 @@ namespace Mariasek.SharedClient
                         UpdateHand();
                     });
                     _skipBidBubble = true;  //abychom nezobrazovali bublinu znovu v BidMade()
-                    SortHand(null); //preusporadame karty
-                    UpdateHand(cardToHide: e.TrumpCard);
+                    if (e.GameStartingPlayerIndex == 0)
+                    {
+                        SortHand(null); //preusporadame karty
+                        UpdateHand(cardToHide: e.TrumpCard);
+                    }
                 }
                 else if (e.GameStartingPlayerIndex == 0)
                 {
@@ -2571,7 +2574,11 @@ namespace Mariasek.SharedClient
             {
                 ShowThinkingMessage(r.player1.PlayerIndex);
             }
-            if (r.number == 1 && !Game.Settings.AutoSort && _canSort == false)
+            //pokud az do ted nebyly karty serazeny, tak je serad
+            if (r.number == 1 && 
+                !Game.Settings.AutoSort && 
+                _canSort == false &&
+                Game.Settings.SortMode != SortMode.None)
             {
                 _canSort = true;
                 SortHand();
@@ -3228,11 +3235,15 @@ namespace Mariasek.SharedClient
         {
             RunOnUiThread(() =>
             {
-                if (_canSort)
+                if (cardsNotRevealed > 0)
                 {
-                    SortHand(cardToHide, cardsNotRevealed > 0 ? 7 : g.players[0].Hand.Count);
+                    SortHand(cardToHide, 7);
                 }
-                _hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide);
+                else
+                {
+                    SortHand(cardToHide);
+                }
+                //_hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide);
             });
             _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
             if (flipCardsUp)
