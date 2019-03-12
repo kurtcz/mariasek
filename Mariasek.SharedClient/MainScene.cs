@@ -3160,10 +3160,15 @@ namespace Mariasek.SharedClient
                 }
                 try
                 {
+                    Game.StorageAccessor.GetStorageAccess();
+                    if (_testGame && File.Exists(_savedGameFilePath))
+                    {
+                        File.Delete(_savedGameFilePath);
+                        return;
+                    }
                     CreateDirectoryForFilePath(_savedGameFilePath);
                     if (g.GameType != 0)
                     {
-					Game.StorageAccessor.GetStorageAccess();
                         using (var fs = File.Open(_savedGameFilePath, FileMode.Create))
                         {
                             g.SaveGame(fs, saveDebugInfo: true);
