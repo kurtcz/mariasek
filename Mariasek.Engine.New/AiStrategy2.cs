@@ -60,6 +60,21 @@ namespace Mariasek.Engine.New
                     _bannedSuits.Add(b);
                 }
 
+                //pokud se nehraje sedma (proti), tak nehraj barvu
+                //ve ktere na spoluhrac A nebo X a souper barvu nezna a ma trumfy
+                if ((_gameType & Hra.Hra) != 0 &&
+                    (_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 &&
+                    _probabilities.SuitProbability(opponent, _trump, RoundNumber) > 0)
+                {
+                    foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                          .Where(b => _probabilities.SuitProbability(opponent, b, RoundNumber) == 0 &&
+                                                      (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Eso)) >= 1 - _epsilon ||
+                                                       _probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Desitka)) >= 1 - _epsilon)))
+                    {
+                        _bannedSuits.Add(b);
+                    }
+                }
+
                 foreach (var r in _rounds.Where(i => i != null && i.c3 != null))
                 {
                     if (r.player2.PlayerIndex == TeamMateIndex &&
@@ -1706,29 +1721,29 @@ namespace Mariasek.Engine.New
 																			i.Suit != _trump &&
 																			!_bannedSuits.Contains(i.Suit)).ToList();
 
-                        if (TeamMateIndex == -1)
+                    if (TeamMateIndex == -1)
+                    {
+                        if ((_gameType & Hra.Kilo) == 0)
                         {
-                            if ((_gameType & Hra.Kilo) == 0)
-                            {
-                                return cardsToPlay.OrderBy(i => i.Value)
-                                                  .FirstOrDefault();
-                            }
-                            return null;
-    					}
-                        if (cardsToPlay.Any(i => _teamMatesSuits.Contains(i.Suit)))
-                        {
-                            cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
+                            return cardsToPlay.OrderBy(i => i.Value)
+                                              .FirstOrDefault();
                         }
-                        var teamMatesLikelyAXPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                                           .ToDictionary(b => b,
-                                                                         b => _probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) > 0
-                                                                                ? (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Eso)) > _epsilon ? 1 : 0) +
-                                                                                  (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Desitka)) > _epsilon ? 1 : 0)
-                                                                                : int.MaxValue);
-                        return cardsToPlay.OrderBy(i => teamMatesLikelyAXPerSuit[i.Suit])
-                                          .ThenByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
-                                          .ThenBy(i => i.Value)
-                                          .FirstOrDefault();
+                        return null;
+					}
+                    if (cardsToPlay.Any(i => _teamMatesSuits.Contains(i.Suit)))
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
+                    }
+                    var teamMatesLikelyAXPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                       .ToDictionary(b => b,
+                                                                     b => _probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) > 0
+                                                                            ? (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Eso)) > _epsilon ? 1 : 0) +
+                                                                              (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Desitka)) > _epsilon ? 1 : 0)
+                                                                            : int.MaxValue);
+                    return cardsToPlay.OrderBy(i => teamMatesLikelyAXPerSuit[i.Suit])
+                                      .ThenByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+                                      .ThenBy(i => i.Value)
+                                      .FirstOrDefault();
 				}
 			};
 
