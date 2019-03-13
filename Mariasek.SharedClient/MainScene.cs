@@ -99,6 +99,7 @@ namespace Mariasek.SharedClient
         private CancellationTokenSource _cancellationTokenSource;
         private readonly AutoResetEvent _evt = new AutoResetEvent(false);
         private bool _canSort;
+        private bool _canSortTrump;
         private int _aiMessageIndex;
         public int CurrentStartingPlayerIndex = -1;
         private Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
@@ -1378,6 +1379,7 @@ namespace Mariasek.SharedClient
                          _deck.Shuffle();
                      }
                      _canSort = Game.Settings.AutoSort && CurrentStartingPlayerIndex != 0;
+                     _canSortTrump = false;
                      //g.DoSort = Game.Settings.SortMode != SortMode.None;
 
                      g.NewGame(CurrentStartingPlayerIndex, _deck);
@@ -1824,7 +1826,7 @@ namespace Mariasek.SharedClient
                     return;
                 default:
                     _canSort = !Game.Settings.AutoSort && g.RoundNumber == 0;
-                    SortHand();
+                    SortHand(null);
                     return;
             }
 		}
@@ -2094,7 +2096,8 @@ namespace Mariasek.SharedClient
 			g.ThrowIfCancellationRequested();
 			//_hand.IsEnabled = false;
 			_evt.Reset();
-			RunOnUiThread(() =>
+            _canSortTrump = true;
+            RunOnUiThread(() =>
             {
                 ChooseGameTypeInternal(validGameTypes, showGiveUpButton);
             });
@@ -2351,6 +2354,7 @@ namespace Mariasek.SharedClient
                 return;
             }
             g.ThrowIfCancellationRequested();
+            _canSortTrump = e.TrumpCard != null;
             //trumfovou kartu otocime az zmizi vsechny bubliny
             RunOnUiThread(() =>
             {
@@ -2382,6 +2386,15 @@ namespace Mariasek.SharedClient
                         imgs[e.GameStartingPlayerIndex].Sprite.SpriteRectangle = e.TrumpCard.ToTextureRect();
                         imgs[e.GameStartingPlayerIndex].ShowBackSide();
                         imgs[e.GameStartingPlayerIndex].FlipToFront();
+                        SortHand(null); //preusporadame karty
+                        if (e.GameStartingPlayerIndex == 0)
+                        {
+                            UpdateHand(cardToHide: e.TrumpCard);
+                        }
+                        else
+                        {
+                            UpdateHand(); //trumfy dame doleva
+                        }
                     })
                     .Wait(500)
                     .Invoke(() =>
@@ -2408,11 +2421,11 @@ namespace Mariasek.SharedClient
                         UpdateHand();
                     });
                     _skipBidBubble = true;  //abychom nezobrazovali bublinu znovu v BidMade()
-                    if (e.GameStartingPlayerIndex == 0)
-                    {
-                        SortHand(null); //preusporadame karty
-                        UpdateHand(cardToHide: e.TrumpCard);
-                    }
+                    //if (e.GameStartingPlayerIndex == 0)
+                    //{
+                    //    SortHand(null); //preusporadame karty
+                    //    UpdateHand(cardToHide: e.TrumpCard);
+                    //}
                 }
                 else if (e.GameStartingPlayerIndex == 0)
                 {
@@ -3009,6 +3022,7 @@ namespace Mariasek.SharedClient
                             Game.SaveGameSettings();
                         }
                         _canSort = Game.Settings.AutoSort && CurrentStartingPlayerIndex != 0;
+                        _canSortTrump = g.RoundNumber > 0;
 
                         ClearTable(true);
                         HideMsgLabel();
@@ -3240,15 +3254,7 @@ namespace Mariasek.SharedClient
         {
             RunOnUiThread(() =>
             {
-                if (cardsNotRevealed > 0)
-                {
-                    SortHand(cardToHide, 7);
-                }
-                else
-                {
-                    SortHand(cardToHide);
-                }
-                //_hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide);
+                _hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide);
             });
             _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
             if (flipCardsUp)
@@ -3560,7 +3566,7 @@ namespace Mariasek.SharedClient
 
                     if (numberOfCardsToSort == 12)
                     {
-                        g.players[0].Hand.Sort(Game.Settings.SortMode == SortMode.Ascending, badGameSorting, g.trump);
+                        g.players[0].Hand.Sort(Game.Settings.SortMode == SortMode.Ascending, badGameSorting, _canSortTrump ? g.trump : null);
                     }
                     else
                     {
