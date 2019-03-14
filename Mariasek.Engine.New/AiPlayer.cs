@@ -1602,48 +1602,49 @@ namespace Mariasek.Engine.New
 		public bool ShouldChooseBetl()
 		{
             var talon = ChooseBetlTalon(Hand, null);                //nasimuluj talon
-			var hh = Hand.Where(i => !talon.Contains(i)).ToList();
-			var holesPerSuit = new Dictionary<Barva, int>();
-			var hiCardsPerSuit = new Dictionary<Barva, int>();
-			foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
-			{
-				var holes = 0;		//pocet der v barve
-				var hiCards = 0;	//pocet karet ktere maji pod sebou diru v barve
+            var hh = Hand.Where(i => !talon.Contains(i)).ToList();
+            var holesPerSuit = new Dictionary<Barva, int>();
+            var hiCardsPerSuit = new Dictionary<Barva, int>();
 
-				foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
-				{
-					var c = new Card(b, h);
-                    var n = hh.Count(i => i.Suit == b && 
-                                          i.BadValue > c.BadValue && 
-                                          !hh.Contains(c) && 
+            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            {
+                var holes = 0;      //pocet der v barve
+                var hiCards = 0;    //pocet karet ktere maji pod sebou diru v barve
+
+                foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+                {
+                    var c = new Card(b, h);
+                    var n = hh.Count(i => i.Suit == b &&
+                                          i.BadValue > c.BadValue &&
+                                          !hh.Contains(c) &&
                                           !talon.Contains(c));
 
-					if (n > 0)
-					{
-						holes++;
-						hiCards = Math.Max(hiCards, n);
-					}
-				}
-				holesPerSuit.Add(b, holes);
-				hiCardsPerSuit.Add(b, hiCards);
-			}
+                    if (n > 0)
+                    {
+                        holes++;
+                        hiCards = Math.Max(hiCards, n);
+                    }
+                }
+                holesPerSuit.Add(b, holes);
+                hiCardsPerSuit.Add(b, hiCards);
+            }
 
             var spodek = new Card(Barva.Cerveny, Hodnota.Spodek);
             //max 3 vysoke karty s dirama celkove a max 2 v jedne barve => jednou kartou zacnu hrat, dalsi diry risknu
             //simulace ukazou. pokud jsem puvodne nevolil, je sance, ze nekterou diru zalepi talon ...
             //nebo max jedna barva s hodne vysokymi kartami ale prave jednou dirou (musim mit sedmu v dane barve)
-            //nebo pokud mam max 3 vysoke karty
-            if (hh.Count(i => i.BadValue >= spodek.BadValue) <= 3 ||
+            //nebo pokud mam max 2 vysoke karty
+            if (hh.Count(i => i.BadValue >= spodek.BadValue) <= 2 ||
                 (hiCardsPerSuit.Sum(i => i.Value) <= 3 && hiCardsPerSuit.All(i => i.Value <= 2)) ||
                 (hiCardsPerSuit.Count(i => i.Value > 2 &&
                                            holesPerSuit[i.Key] <= 2 &&
                                            (hh.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key) ||
                                            talon.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key))) == 1))
-			{
-				return true;
-			}
-			return false;
-		}
+            {
+                return true;
+            }
+            return false;
+		}   
 
         public int EstimateFinalBasicScore2()
         {
@@ -2142,7 +2143,9 @@ namespace Mariasek.Engine.New
                 }
                 if (Settings.CanPlayGameType[Hra.Sedma] && 
                     _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0 &&
-                    !IsSevenTooRisky())
+                    (!IsSevenTooRisky() ||                  //sedmu hlas pokud neni riskantni nebo pokud nelze uhrat hru (doufej ve flek na hru a konec)
+                     (!_g.PlayZeroSumGames &&
+                      _gamesBalance < Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0)))
                 {
                     if (gameType == 0)
                     {
@@ -2349,7 +2352,8 @@ namespace Mariasek.Engine.New
                        Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&
                       estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
-                      estimatedOpponentFinalBasicScore + Math.Min(60, kqMaxOpponentScore) < 100) ||
+                      //estimatedOpponentFinalBasicScore + Math.Min(60, kqMaxOpponentScore) < 100) ||
+                      estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100) ||
                       ((Hand.HasK(_g.trump.Value) ||
                         Hand.HasQ(_g.trump.Value)) &&
                        DebugInfo.Tigrovo >= 15)))))))// ||
