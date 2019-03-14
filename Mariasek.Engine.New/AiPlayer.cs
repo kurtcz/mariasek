@@ -2145,7 +2145,8 @@ namespace Mariasek.Engine.New
                     _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0 &&
                     (!IsSevenTooRisky() ||                  //sedmu hlas pokud neni riskantni nebo pokud nelze uhrat hru (doufej ve flek na hru a konec)
                      (!_g.PlayZeroSumGames &&
-                      _gamesBalance < Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0)))
+                      _gamesBalance < Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && 
+                      _gameSimulations > 0)))
                 {
                     if (gameType == 0)
                     {

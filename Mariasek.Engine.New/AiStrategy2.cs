@@ -647,16 +647,22 @@ namespace Mariasek.Engine.New
                                                                                 i.Suit == _trump);
                         }
 
-                        if (!cardsToPlay.Any() && 
-                            opponentTrumps  == 1 && 
-                            hands[MyIndex].CardCount(_trump) >= 3 &&
-                            hands[MyIndex].Any(i => i.Suit != _trump &&
-                                                    (i.Value == Hodnota.Eso ||
-                                                     i.Value == Hodnota.Desitka)))
-                        {
-                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
-                                                                                i.Suit == _trump);
-                        }
+                        //var lowcards = hands[MyIndex].Where(i => i.Suit != _trump &&
+                        //                                         Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                        //                                             .Any(h => i.Value < h &&
+                        //                                                       (_probabilities.CardProbability(player2, new Card(i.Suit, h)) > _epsilon ||
+                        //                                                        _probabilities.CardProbability(player3, new Card(i.Suit, h)) > _epsilon)));
+                        //if (!cardsToPlay.Any() && 
+                        //    opponentTrumps  == 1 &&
+                        //    //hands[MyIndex].CardCount(_trump) >= 3 &&
+                        //    lowcards.Count() < hands[MyIndex].CardCount(_trump) &&
+                        //    hands[MyIndex].Any(i => i.Suit != _trump &&
+                        //                            (i.Value == Hodnota.Eso ||
+                        //                             i.Value == Hodnota.Desitka)))
+                        //{
+                        //    cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
+                        //                                                        i.Suit == _trump);
+                        //}
 
                         //zkus vytlacit trumf trumfem pokud jich mam dost a je velka sance, 
                         //ze na mou plivu (kterou bych zahral v nasl. pravidlech) jeden souper namaze a druhej ji prebije
