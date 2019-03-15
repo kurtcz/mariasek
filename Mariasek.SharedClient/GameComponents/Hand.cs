@@ -354,7 +354,7 @@ namespace Mariasek.SharedClient.GameComponents
                 var targetAngle = 0f;
                 targetPosition = new Vector2(Centre.X + x_offset, Centre.Y + y_offset);
 
-                hh[i].Slerp(targetPosition, targetAngle, Game.CardScaleFactor.X, 400, 2f, 1f);
+                hh[i].Slerp(targetPosition, targetAngle, Game.CardScaleFactor.X, 300, 2f, 1f);
             }
             var hiddenCards = _cardButtons.Where(i => i != null && !i.IsVisible).ToList();
             //for (var i = 0; i < hiddenCards.Count; i++)
@@ -398,16 +398,22 @@ namespace Mariasek.SharedClient.GameComponents
 
         public void SortHand(List<Card> unsorted)
         {
-            foreach (var sprite in _cardButtons.Where(i => i != null))
+            var positions = _cardButtons.Where(i => i != null)
+                                        .Select(i => i.Position)
+                                        .ToList();
+
+            //dat karty na puvodni misto. Indexy jsou setridene, ale pozice ne
+            foreach (var cardButton in _cardButtons.Where(i => i != null))
             {
-                var n = unsorted.IndexOf(sprite.Tag as Card);
+                var n = unsorted.IndexOf(cardButton.Tag as Card);
 
                 if (n < 0)
                 {
                     continue;
                 }
-                sprite.Position = _cardButtons[n].Position;
+                cardButton.Position = positions[n];
             }
+            //zde se v animaci karty setridi na sva mista podle svych indexu
             ShowStraight((int)Game.VirtualScreenWidth - 20);
         }
 

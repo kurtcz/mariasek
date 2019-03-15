@@ -68,7 +68,6 @@ namespace Mariasek.SharedClient
             }
             if (_g.GameStartingPlayerIndex != 0)
             {
-                _scene.SortHand();
                 _scene.UpdateHand(flipCardsUp: true);
             }
         }
@@ -157,7 +156,7 @@ namespace Mariasek.SharedClient
                     {
     					_t1 = Environment.TickCount;
                         _aiPlayer._talon = null;
-                        _aiPlayer.Hand = Hand;
+                        _aiPlayer.Hand = new List<Card>(Hand);
                         var talon = _aiPlayer.ChooseTalon();
 
     					_scene.SuggestTalon(talon, _t1 - _t0);
@@ -222,7 +221,7 @@ namespace Mariasek.SharedClient
                                 _t1 = Environment.TickCount;
 						   //dej 2 karty z ruky do talonu aby byl _aiPlayer v aktualnim stavu
                                 _aiPlayer._talon = new List<Card>(_talon);
-                                _aiPlayer.Hand = new Hand(Hand);
+                                _aiPlayer.Hand = new List<Card>(Hand);
                                 var flavour = _scene.TrumpCardTakenBack ? GameFlavour.Bad : _aiPlayer.ChooseGameFlavour(); //uvnitr se zvoli talon, ale clovek muze ve skutecnosti volit jinak nez ai!!!
                                 if (flavour == GameFlavour.Good ||
                                     flavour == GameFlavour.Good107)

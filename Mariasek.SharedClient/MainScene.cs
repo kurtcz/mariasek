@@ -100,6 +100,7 @@ namespace Mariasek.SharedClient
         private readonly AutoResetEvent _evt = new AutoResetEvent(false);
         private bool _canSort;
         private bool _canSortTrump;
+        private bool _firstTimeTalonCardClick;
         private int _aiMessageIndex;
         public int CurrentStartingPlayerIndex = -1;
         private Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
@@ -1378,10 +1379,9 @@ namespace Mariasek.SharedClient
                      {
                          _deck.Shuffle();
                      }
-                     _canSort = Game.Settings.AutoSort && CurrentStartingPlayerIndex != 0;
+                     _canSort = Game.Settings.AutoSort;
                      _canSortTrump = false;
-                     //g.DoSort = Game.Settings.SortMode != SortMode.None;
-
+                     _firstTimeTalonCardClick = true;
                      g.NewGame(CurrentStartingPlayerIndex, _deck);
                      g.GameFlavourChosen += GameFlavourChosen;
                      g.GameTypeChosen += GameTypeChosen;
@@ -1444,28 +1444,17 @@ namespace Mariasek.SharedClient
                      });
                      _hintBtn.IsEnabled = false;
                      _hintBtn.Show();
-                     //if (Game.Settings.HintEnabled)
-                     //{
-                     //    _hintBtn.Show();
-                     //}
-                     //else
-                     //{
-                     //    _hintBtn.Hide();
-                     //}
                      if (g.GameStartingPlayerIndex != 0)
                      {
-                         //if (Game.Settings.SortMode != SortMode.None)
-                         //{
-                         //    g.players[0].Hand.Sort(Game.Settings.SortMode == SortMode.Ascending, false);
-                         //}
                          SortHand();
                          ShowThinkingMessage(g.GameStartingPlayerIndex);
                          _hand.Show();
-                         UpdateHand();
+                         UpdateHand(true);
                          _hand.AnimationEvent.Wait();
                      }
                      else
                      {
+                         SortHand(null, 7);
                          _hand.Hide();
                      }
                      for (var i = 0; i < _trumpLabels.Count(); i++)
@@ -1717,6 +1706,17 @@ namespace Mariasek.SharedClient
                         //do talonu nemuzu pridat kdyz je plnej
                         return;
                     }
+                    if (_firstTimeTalonCardClick)
+                    {
+                        _firstTimeTalonCardClick = false;
+                        _canSort = !Game.Settings.AutoSort;
+                        _canSortTrump = true;
+                        if (_canSort && Game.Settings.SortMode != SortMode.None)
+                        {
+                            SortHand(_trumpCardChosen);
+                            return;
+                        }
+                    }
                     if (button.IsFaceUp)
                     {
                         //selected
@@ -1825,8 +1825,12 @@ namespace Mariasek.SharedClient
                     NewGameBtnClicked(this);
                     return;
                 default:
-                    _canSort = !Game.Settings.AutoSort && g.RoundNumber == 0;
-                    SortHand(null);
+                    if (g.GameStartingPlayerIndex != 0 && 
+                        g.RoundNumber == 0)
+                    {
+                        _canSort = !Game.Settings.AutoSort;
+                        SortHand();
+                    }
                     return;
             }
 		}
@@ -2262,15 +2266,6 @@ namespace Mariasek.SharedClient
                             ShowThinkingMessage((g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
                         }
                     }
-                    else
-                    {
-                        //protihrac z ruky zavolil betl nebo durch
-                        //var str = _gameFlavourChosenEventArgs.Flavour == GameFlavour.Good ? "Dobrá" : "Špatná";
-                        //ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, str);
-                        _trumpCardChosen = null;
-                        SortHand(null); //preusporadame karty
-                        UpdateHand();
-                    }
                 }
                 else
                 {
@@ -2291,12 +2286,6 @@ namespace Mariasek.SharedClient
                         }
                         ShowThinkingMessage((_gameFlavourChosenEventArgs.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
                     }
-                    else
-                    {
-                        _trumpCardChosen = null;
-                        SortHand(null); //preusporadame karty
-                        UpdateHand();
-                    }
                 }
                 //UpdateHand(cardToHide: _trumpCardChosen);
             }
@@ -2314,10 +2303,12 @@ namespace Mariasek.SharedClient
                 {
                     ShowThinkingMessage((e.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
                 }
-                if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Bad)
+                if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Bad && g.GameType == 0)
                 {
                     _trumpCardChosen = null;
-                    SortHand(null); //preusporadame karty
+                    _canSort = Game.Settings.AutoSort;
+                    _canSortTrump = false;
+                    SortHand(); //preusporadame karty
                     if (e.Player.PlayerIndex != 0 && g.OriginalGameStartingPlayerIndex == 0)
                     {
                         _hlasy[0][0].IsEnabled = false;
@@ -2645,6 +2636,8 @@ namespace Mariasek.SharedClient
                                 {
                                     Game.LaughSound?.PlaySafely();
                                 }
+                                //pokud g.RoundNumber tak mezitim uzivatel zacal hrat novou hru
+                                //a tohle je jeste event 
                                 ClearTableAfterRoundFinished();
                             });
                     });
@@ -3005,6 +2998,19 @@ namespace Mariasek.SharedClient
                         g.GameException += GameException;
                         g.players[1].GameComputationProgress += GameComputationProgress;
                         g.players[2].GameComputationProgress += GameComputationProgress;
+
+                        _canSort = Game.Settings.AutoSort || g.RoundNumber > 0;
+                        _canSortTrump = g.RoundNumber > 0;
+                        _firstTimeTalonCardClick = true;
+                        if (g.GameStartingPlayerIndex == 0 && g.RoundNumber == 0)
+                        {
+                            SortHand(null, 7);
+                        }
+                        else
+                        {
+                            SortHand();
+                        }
+
                         _firstTimeGameFlavourChosen = true;
                         _trumpCardChosen = null;
                         _cardClicked = null;
@@ -3021,9 +3027,6 @@ namespace Mariasek.SharedClient
                             Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
                             Game.SaveGameSettings();
                         }
-                        _canSort = Game.Settings.AutoSort && CurrentStartingPlayerIndex != 0;
-                        _canSortTrump = g.RoundNumber > 0;
-
                         ClearTable(true);
                         HideMsgLabel();
                         _reviewGameBtn.Hide();
@@ -3066,27 +3069,22 @@ namespace Mariasek.SharedClient
                         });
                         _hintBtn.IsEnabled = false;
                         _hintBtn.Show();
-                        //if (Game.Settings.HintEnabled)
-                        //{
-                        //    _hintBtn.Show();
-                        //}
-                        //else
-                        //{
-                        //    _hintBtn.Hide();
-                        //}
                         if (g.GameStartingPlayerIndex != 0 || g.GameType != 0)
                         {
-                            //if (Game.Settings.SortMode != SortMode.None)
-                            //{
-                            //    g.players[0].Hand.Sort(Game.Settings.SortMode == SortMode.Ascending, false);
-                            //}
                             SortHand();
                             if (g.GameType == 0)
                             {
                                 ShowThinkingMessage(g.GameStartingPlayerIndex);
                             }
                             _hand.Show();
-                            UpdateHand();
+                            if (g.GameStartingPlayerIndex == 0 && g.RoundNumber == 0)
+                            {
+                                UpdateHand(true, 7);
+                            }
+                            else
+                            {
+                                UpdateHand(true);
+                            }
                         }
                         else
                         {
@@ -3255,31 +3253,32 @@ namespace Mariasek.SharedClient
             RunOnUiThread(() =>
             {
                 _hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide);
+                _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
+                if (flipCardsUp)
+                {
+                    _hand.WaitUntil(() => !_hand.SpritesBusy)
+                         .Invoke(() =>
+                         {
+                             _hand.UpdateHand(g.players[0].Hand.ToArray(), cardsNotRevealed, cardToHide);
+                         });
+                }
             });
-            _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
-            if (flipCardsUp)
-            {
-                _hand.WaitUntil(() => !_hand.SpritesBusy)
-                     .Invoke(() =>
-                       {
-                           _hand.UpdateHand(g.players[0].Hand.ToArray(), cardsNotRevealed, cardToHide);
-                       });
-            }
-			if (_state == GameState.ChooseTrump)
+			//if (_state == GameState.ChooseTrump)
+			//{
+			//    _hand.WaitUntil(() => !_hand.SpritesBusy)
+			//         .Invoke(() =>
+			//            {
+			//                _canSort = Game.Settings.AutoSort;
+			//                SortHand(null, 7);
+			//            });
+			//}
+			if (_state == GameState.ChooseTalon && Game.Settings.AutoSort)
 			{
 			    _hand.WaitUntil(() => !_hand.SpritesBusy)
 			         .Invoke(() =>
 			            {
-			                _canSort = Game.Settings.AutoSort;
-			                SortHand(null, 7);
-			            });
-			}
-			if (_state == GameState.ChooseTalon)
-			{
-			    _hand.WaitUntil(() => !_hand.SpritesBusy)
-			         .Invoke(() =>
-			            {
-			                _canSort = Game.Settings.AutoSort;
+			                _canSort = true;
+                            _canSortTrump = true;
 			                SortHand(cardToHide);
 			            });
 			}
@@ -3805,8 +3804,8 @@ namespace Mariasek.SharedClient
                 _evt.Set();
                 return;
             }
-
-            var stych = _stychy[g.CurrentRound.roundWinner.PlayerIndex];
+            var roundWinnerPlayerIndex = g.CurrentRound.roundWinner.PlayerIndex;
+            var stych = _stychy[roundWinnerPlayerIndex];
             var origPositions = _cardsPlayed.Select(i => i.Position).ToArray();
 
             foreach (var cardPlayed in _cardsPlayed)
@@ -3822,14 +3821,14 @@ namespace Mariasek.SharedClient
                         cardPlayed.Hide();
                         cardPlayed.Position = origPositions[i++];
                     }
-                    stych.Sprite.SpriteRectangle = _cardsPlayed[g.CurrentRound.roundWinner.PlayerIndex].SpriteRectangle;
+                    stych.Sprite.SpriteRectangle = _cardsPlayed[roundWinnerPlayerIndex].SpriteRectangle;
                     stych.Show();
                 })
                 .FlipToBack()
                 .Invoke(() =>
                 {
-                    _stareStychy[g.CurrentRound.roundWinner.PlayerIndex].ZIndex = (g.CurrentRound.number - 1) * 3;
-                    _stareStychy[g.CurrentRound.roundWinner.PlayerIndex].Show();
+                    _stareStychy[roundWinnerPlayerIndex].ZIndex = (g.RoundNumber - 1) * 3;
+                    _stareStychy[roundWinnerPlayerIndex].Show();
                     stych.Hide();
                     _evt.Set();
                 });

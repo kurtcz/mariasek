@@ -243,7 +243,7 @@ namespace Mariasek.SharedClient.GameComponents
 			return position.IsPointInPolygon(polygon);
 		}
 
-		public override bool IsBusy { get { return Sprite.IsBusy; } }
+		public override bool IsBusy { get { return Sprite.IsBusy || _reverseSprite.IsBusy; } }
 
         protected override void OnTouchDown(TouchLocation tl)
         {
