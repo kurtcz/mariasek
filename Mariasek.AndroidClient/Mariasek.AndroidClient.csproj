@@ -15,7 +15,7 @@
     <AndroidApplication>True</AndroidApplication>
     <AssemblyName>Mariasek</AssemblyName>
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
-    <TargetFrameworkVersion>v4.4</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v9.0</TargetFrameworkVersion>
     <ReleaseVersion>1.1</ReleaseVersion>
     <MonoGamePlatform>Android</MonoGamePlatform>
     <AndroidTlsProvider></AndroidTlsProvider>

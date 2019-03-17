@@ -33,7 +33,8 @@ namespace Mariasek.AndroidClient
                                       ConfigChanges.ScreenSize |
         		                      ConfigChanges.KeyboardHidden |
         		                      ConfigChanges.Keyboard)]
-	public class MariasekActivity : AndroidGameActivity, IEmailSender, IWebNavigate, IScreenManager, IStorageAccessor
+	public class MariasekActivity :
+        AndroidGameActivity, View.IOnApplyWindowInsetsListener, IEmailSender, IWebNavigate, IScreenManager, IStorageAccessor
 	{
         MariasekMonoGame g;
 		int storageAccessRequestCode;
@@ -56,12 +57,17 @@ namespace Mariasek.AndroidClient
             try
             {
                 base.OnCreate(bundle);
+
                 // Create our OpenGL view, and display it
                 g = new MariasekMonoGame(this, this, this, this);
-                SetContentView(g.Services.GetService<View>());
-                //if (Build.VERSION.SdkInt >= Build.VERSION_CODES.P) {
-                //  DisplayCutout displayCutout = Window.DecorView.RootWindowInsets.DisplayCutout;
-                //}
+                var view = g.Services.GetService<View>();
+                view.SetOnApplyWindowInsetsListener(this);
+                if (Android.OS.Build.VERSION.SdkInt >= (Android.OS.BuildVersionCodes)28)
+                {
+                    Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
+                    Window.AddFlags(WindowManagerFlags.TranslucentStatus);
+                }
+                SetContentView(view);
                 sw.Stop();
                 System.Diagnostics.Debug.WriteLine("OnCreate sw {0}", sw.ElapsedMilliseconds);
                 g.Run();
@@ -359,6 +365,22 @@ namespace Mariasek.AndroidClient
             var view = g.Services.GetService<View>();
 
             view.KeepScreenOn = flag;
+        }
+
+        public WindowInsets OnApplyWindowInsets(View v, WindowInsets insets)
+        {
+            var cutout = insets.DisplayCutout;
+
+            if (cutout != null)
+            {
+                Padding = new Rectangle(cutout.SafeInsetLeft, cutout.SafeInsetTop, cutout.SafeInsetRight, cutout.SafeInsetBottom);
+
+                if (g.GraphicsDevice != null)
+                {
+                    g.OnOrientationChanged();
+                }
+            }
+            return insets;
         }
     }
 }
