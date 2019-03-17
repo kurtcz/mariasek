@@ -16,8 +16,8 @@ using Android.Support.V4.Content;
 using Microsoft.Xna.Framework;
 using Mariasek.SharedClient;
 using Android;
-using Android.Support.V4.App;
 using System.Diagnostics;
+using Android.Support.V4.App;
 
 namespace Mariasek.AndroidClient
 {

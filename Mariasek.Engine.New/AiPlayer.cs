@@ -2373,9 +2373,15 @@ namespace Mariasek.Engine.New
                 _sevenSimulations > 0 && 
                 bidding._sevenFlek <= Settings.MaxDoubleCountForGameType[Hra.Sedma] &&
                 ((TeamMateIndex != -1 &&
-                  (Hand.CardCount(_g.trump.Value) >= 4 ||
-                   (Hand.CardCount(_g.trump.Value) >= 3 && 
-                    Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => Hand.HasSuit(b))))) ||
+                  (Hand.CardCount(_g.trump.Value) >= 4 ||           //ctyri a vice trumfu nebo
+                   (Hand.CardCount(_g.trump.Value) >= 3 &&          //tri trumfy
+                    (Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => Hand.HasSuit(b)) ||
+                     (Hand.HasA(_trump.Value) &&                    //trumfove eso a desitka
+                      Hand.HasX(_trump.Value) &&
+                      Hand.CardCount(Hodnota.Eso) >= 2 &&           //aspon dve esa a
+                      Enum.GetValues(typeof(Barva)).Cast<Barva>()   //jedna dlouha barva
+                          .Where(b => b != _trump.Value)
+                          .Any(b => Hand.CardCount(b) >= 5)))))) ||
                  (TeamMateIndex == -1 && GetTotalHoles() <= 5)) &&
                 _sevensBalance / (float)_sevenSimulations >= sevenThreshold)
             {

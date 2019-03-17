@@ -2355,11 +2355,6 @@ namespace Mariasek.SharedClient
                 };
                 this.Invoke(() =>
                 {
-                    //for (var i = 0; i < _trumpLabels.Count(); i++)
-                    //{
-                    //    _trumpLabels[i].Text = g.players[i].Name;
-                    //}
-                    //_trumpLabels[e.GameStartingPlayerIndex].Text = string.Format("{0}: {1}", g.players[e.GameStartingPlayerIndex].Name, g.GameType.ToDescription(g.trump));
                     for (var i = 0; i < _trumpLabels.Count(); i++)
                     {
                         _trumpLabels[i].Text = string.Format("{0}\n{1}", GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
@@ -2412,18 +2407,26 @@ namespace Mariasek.SharedClient
                         UpdateHand();
                     });
                     _skipBidBubble = true;  //abychom nezobrazovali bublinu znovu v BidMade()
-                    //if (e.GameStartingPlayerIndex == 0)
-                    //{
-                    //    SortHand(null); //preusporadame karty
-                    //    UpdateHand(cardToHide: e.TrumpCard);
-                    //}
                 }
-                else if (e.GameStartingPlayerIndex == 0)
+                else 
                 {
-                    this.Invoke(() =>
+                    if (e.GameStartingPlayerIndex == 0)
                     {
-                        imgs[e.GameStartingPlayerIndex].Hide();
-                    });
+                        this.Invoke(() =>
+                        {
+                            imgs[0].Hide();
+                        });
+                    }
+                    //preusporadame karty
+                    if ((e.GameType & (Hra.Betl | Hra.Durch)) != 0 && Game.Settings.AutoSort)
+                    {
+                        _canSort = true;
+                        _canSortTrump = false;
+                        this.Invoke(() =>
+                        {
+                            SortHand();
+                        });
+                    }
                 }
                 this.Invoke(() =>
                 {
