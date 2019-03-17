@@ -1000,7 +1000,7 @@ namespace Mariasek.Engine.New
                                                                           )
                                                                     .ToList();
                         return cardsToPlay.OrderByDescending(i => myInitialHand.CardCount(i.Suit))
-                                          .ThenBy(i => i.Value)
+                                          .ThenByDescending(i => i.Value)
                                           .FirstOrDefault();
                     }
                     else if (TeamMateIndex == player2)
@@ -1047,7 +1047,7 @@ namespace Mariasek.Engine.New
                                                                           )
                                                                     .ToList();
                         return cardsToPlay.OrderByDescending(i => myInitialHand.CardCount(i.Suit))
-                                          .ThenBy(i => i.Value)
+                                          .ThenByDescending(i => i.Value)
                                           .FirstOrDefault();
                     }
                     else if (TeamMateIndex == player3)
@@ -1094,7 +1094,7 @@ namespace Mariasek.Engine.New
                                                                           )
                                                                     .ToList();
                         return cardsToPlay.OrderByDescending(i => myInitialHand.CardCount(i.Suit))
-                                          .ThenBy(i => i.Value)
+                                          .ThenByDescending(i => i.Value)
                                           .FirstOrDefault();
                     }
                     return null;

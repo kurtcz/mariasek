@@ -1634,7 +1634,7 @@ namespace Mariasek.Engine.New
             //simulace ukazou. pokud jsem puvodne nevolil, je sance, ze nekterou diru zalepi talon ...
             //nebo max jedna barva s hodne vysokymi kartami ale prave jednou dirou (musim mit sedmu v dane barve)
             //nebo pokud mam max 2 vysoke karty
-            if (hh.Count(i => i.BadValue >= spodek.BadValue) <= 2 ||
+            if (//hh.Count(i => i.BadValue >= spodek.BadValue) <= 2 ||
                 (hiCardsPerSuit.Sum(i => i.Value) <= 3 && hiCardsPerSuit.All(i => i.Value <= 2)) ||
                 (hiCardsPerSuit.Count(i => i.Value > 2 &&
                                            holesPerSuit[i.Key] <= 2 &&
@@ -2333,12 +2333,14 @@ namespace Mariasek.Engine.New
                  //nebo jsem nevolil a:
                  (TeamMateIndex != -1 &&                  
                   ((bidding.GameMultiplier > 2 &&               //Tutti:
-                    Hand.CardCount(_g.trump.Value) >= 2 &&      //mam aspon 2 trumfy a k tomu aspon jednu hlasku nebo trham aspon 2 hlasky
-                    (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b)) ||
-                     Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) || Hand.HasQ(b)) >= 2 ||
-                     (_teamMateDoubledGame &&                   //nebo kolega flekoval a jsem si jisty aspon na prah pro Re
-                      _gamesBalance / (float)_gameSimulations >= gameThresholdPrevious &&
-                      kqScore >= 40))) ||                       //a mam aspon 40 bodu v hlasech
+                    (Hand.CardCount(_g.trump.Value) >= 2 &&      //mam aspon 2 trumfy a k tomu aspon jednu hlasku nebo trham aspon 2 hlasky
+                     (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b)) ||
+                      Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) || Hand.HasQ(b)) >= 2 ||
+                      (_teamMateDoubledGame &&                   //nebo kolega flekoval a jsem si jisty aspon na prah pro Re
+                       _gamesBalance / (float)_gameSimulations >= gameThresholdPrevious &&
+                       kqScore >= 40)) ||                       //a mam aspon 40 bodu v hlasech
+                     (Hand.CardCount(_g.trump.Value) >= 4 &&    //nebo mam aspon 4 trumfy
+                      DebugInfo.Tigrovo >= 20))) ||             //a k tomu silne karty
                    (bidding.GameMultiplier < 2 &&               //Flek:
                     ((Hand.CardCount(_g.trump.Value) >= 2 &&    //aspon 2 trumfy
                       (Hand.HasK(_g.trump.Value) ||             //a k tomu trhak
@@ -2473,7 +2475,7 @@ namespace Mariasek.Engine.New
                 DebugInfo.RuleCount = _betlBalance;
                 DebugInfo.TotalRuleCount = _betlSimulations;
             }
-#if DEBUG
+//#if DEBUG
             var opponentLowCards = EstimateLowBetlCardCount();
             if ((bidding.Bids & Hra.Betl) != 0 &&
                 Settings.CanPlayGameType[Hra.Betl] &&
@@ -2485,7 +2487,7 @@ namespace Mariasek.Engine.New
                 DebugInfo.RuleCount = _betlBalance;
                 DebugInfo.TotalRuleCount = _betlSimulations;
             }
-#endif
+//#endif
             if (DebugInfo.RuleCount == -1)
             {
                 DebugInfo.RuleCount = _gameType == Hra.Betl

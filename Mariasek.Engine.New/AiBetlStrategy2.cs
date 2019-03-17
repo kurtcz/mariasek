@@ -225,11 +225,13 @@ namespace Mariasek.Engine.New
                             return null;
                         }
                         //pokud mam A, K, S, X tak hraj X (souper muze mit spodka)
+
                         var topCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                      .Select(h => new Card(i.Suit, h))
                                                                      .Where(j => j.BadValue > i.BadValue)
                                                                      .All(j => _probabilities.CardProbability(player2, j) == 0 &&
-                                                                               _probabilities.CardProbability(player3, j) == 0))
+                                                                               _probabilities.CardProbability(player3, j) == 0 &&
+                                                                               _probabilities.SuitProbability(opponent, i.Suit, RoundNumber) > 0))
                                                      .Distinct();
                         var cardsToPlay = hands[MyIndex].Where(i => (!bannedSuit.HasValue || bannedSuit.Value != i.Suit) &&
                                                                     topCards.Count(j => j.Suit == i.Suit) > 2 &&
