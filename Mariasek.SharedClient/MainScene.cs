@@ -2207,7 +2207,9 @@ namespace Mariasek.SharedClient
                         _cardsPlayed[0].Hide();
                         if (validationState != Renonc.Ok)
                         {
-                            UpdateHand();
+                            _canSort = true;
+                            _canSortTrump = g.trump != null;
+                            SortHand();
                         }
                         if (Game.Settings.HintEnabled)
                         {

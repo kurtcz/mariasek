@@ -355,15 +355,27 @@ namespace Mariasek.Engine.New
             _log.InfoFormat("**Starting game**\n");
 
             Comment = null;
-            for (int i = 0; i < 12; i++)
+            for (int i = 0; i < 7; i++)
             {
                 GameStartingPlayer.Hand.Add(deck.TakeOne());
             }
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 5; i++)
             {
                 players[(GameStartingPlayer.PlayerIndex + 1) % NumPlayers].Hand.Add(deck.TakeOne());
             }
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 5; i++)
+            {
+                players[(GameStartingPlayer.PlayerIndex + 2) % NumPlayers].Hand.Add(deck.TakeOne());
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                GameStartingPlayer.Hand.Add(deck.TakeOne());
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                players[(GameStartingPlayer.PlayerIndex + 1) % NumPlayers].Hand.Add(deck.TakeOne());
+            }
+            for (int i = 0; i < 5; i++)
             {
                 players[(GameStartingPlayer.PlayerIndex + 2) % NumPlayers].Hand.Add(deck.TakeOne());
             }

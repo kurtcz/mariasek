@@ -47,7 +47,7 @@ namespace Mariasek.Engine.New
 
         public void Cut()
         {
-            const int minimalCut = 5;
+            const int minimalCut = 3;
             var temp = new List<Card>();
             int r = _rand.Next() % (_cards.Count - 2 * minimalCut) + minimalCut;
 
