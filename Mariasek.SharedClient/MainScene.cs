@@ -2584,10 +2584,7 @@ namespace Mariasek.SharedClient
                 ShowThinkingMessage(r.player1.PlayerIndex);
             }
             //pokud az do ted nebyly karty serazeny, tak je serad
-            if (r.number == 1 && 
-                !Game.Settings.AutoSort && 
-                _canSort == false &&
-                Game.Settings.SortMode != SortMode.None)
+            if (r.number == 1)
             {
                 _canSort = true;
                 SortHand();

@@ -128,7 +128,7 @@ namespace Mariasek.SharedClient
                                      })
             {
                 //Position = new Vector2(70, 75),
-                Position = new Vector2(55, 58),
+                Position = new Vector2(65, 58),
                 Name = "LogoButton",
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top
             };
@@ -143,7 +143,7 @@ namespace Mariasek.SharedClient
                                             Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Top
                                         })
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 55, 58),
+                Position = new Vector2(Game.VirtualScreenWidth - 65, 58),
                 Name = "RateApp",
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Top
             };
@@ -153,7 +153,7 @@ namespace Mariasek.SharedClient
 
             _version = new Label(this)
             {
-                Position = new Vector2(5, Game.VirtualScreenHeight - 30),
+                Position = new Vector2(15, Game.VirtualScreenHeight - 30),
                 Width = 200,
                 Height = 30,
                 Text = string.Format("v{0}", MariasekMonoGame.Version),
@@ -162,7 +162,7 @@ namespace Mariasek.SharedClient
             };
             _author = new Label(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 405, Game.VirtualScreenHeight - 30),
+                Position = new Vector2(Game.VirtualScreenWidth - 415, Game.VirtualScreenHeight - 30),
                 Width = 400,
                 Height = 30,
                 HorizontalAlign = HorizontalAlignment.Right,
