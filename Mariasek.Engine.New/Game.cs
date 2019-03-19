@@ -1424,7 +1424,8 @@ namespace Mariasek.Engine.New
                                                                        ((GameType & (Hra.Betl | Hra.Durch)) != 0 && Card.GetBadValue(h) > i.BadValue))
                                                           .All(h => players[player2].Hand.All(j => j.Suit != i.Suit || j.Value != h) &&
                                                                     players[player3].Hand.All(j => j.Suit != i.Suit || j.Value != h)))
-				                          .GroupBy(g => g.Suit);
+				                          .GroupBy(g => g.Suit)
+                                          .ToList();
                 var topTrumps = trump.HasValue 
                                      ? topCards.Where(i => i.Key == trump.Value)
                                                .SelectMany(i => i)
