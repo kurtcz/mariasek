@@ -2481,6 +2481,7 @@ namespace Mariasek.Engine.New
             var opponentLowCards = EstimateLowBetlCardCount();
             if ((bidding.Bids & Hra.Betl) != 0 &&
                 Settings.CanPlayGameType[Hra.Betl] &&
+                bidding._betlDurchFlek <= 1 &&
                 PlayerIndex != _g.GameStartingPlayerIndex &&
                 opponentLowCards <= 6)
             {
