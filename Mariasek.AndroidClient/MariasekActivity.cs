@@ -18,6 +18,7 @@ using Mariasek.SharedClient;
 using Android;
 using System.Diagnostics;
 using Android.Support.V4.App;
+using Android.Support.V4.View;
 
 namespace Mariasek.AndroidClient
 {
@@ -34,7 +35,11 @@ namespace Mariasek.AndroidClient
         		                      ConfigChanges.KeyboardHidden |
         		                      ConfigChanges.Keyboard)]
 	public class MariasekActivity :
-        AndroidGameActivity, View.IOnApplyWindowInsetsListener, IEmailSender, IWebNavigate, IScreenManager, IStorageAccessor
+//Xamarin.Android.Support.v4 29+
+//        AndroidGameActivity, Android.Support.V4.View.IOnApplyWindowInsetsListener, IEmailSender, IWebNavigate, IScreenManager, IStorageAccessor
+//Minimal API 20
+//        AndroidGameActivity, View.IOnApplyWindowInsetsListener, IEmailSender, IWebNavigate, IScreenManager, IStorageAccessor
+        AndroidGameActivity, IEmailSender, IWebNavigate, IScreenManager, IStorageAccessor
 	{
         MariasekMonoGame g;
 		int storageAccessRequestCode;
@@ -53,7 +58,6 @@ namespace Mariasek.AndroidClient
             AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
             //handle unhandled exceptions from background threads
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-
             try
             {
                 base.OnCreate(bundle);
@@ -61,12 +65,15 @@ namespace Mariasek.AndroidClient
                 // Create our OpenGL view, and display it
                 g = new MariasekMonoGame(this, this, this, this);
                 var view = g.Services.GetService<View>();
-                view.SetOnApplyWindowInsetsListener(this);
-                if (Android.OS.Build.VERSION.SdkInt >= (Android.OS.BuildVersionCodes)28)
-                {
-                    Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
-                    Window.AddFlags(WindowManagerFlags.TranslucentStatus);
-                }
+                //Minimal API 20
+                //view.SetOnApplyWindowInsetsListener(this);
+                //if ((int)Android.OS.Build.VERSION.SdkInt >= 28)
+                //{
+                //    //Xamarin.Android.Support.v4 29+
+                //    //ViewCompat.SetOnApplyWindowInsetsListener(view, this);
+                //    Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
+                //    Window.AddFlags(WindowManagerFlags.TranslucentStatus);
+                //}
                 SetContentView(view);
                 sw.Stop();
                 System.Diagnostics.Debug.WriteLine("OnCreate sw {0}", sw.ElapsedMilliseconds);
@@ -367,22 +374,41 @@ namespace Mariasek.AndroidClient
             view.KeepScreenOn = flag;
         }
 
-        public WindowInsets OnApplyWindowInsets(View v, WindowInsets insets)
-        {
-            var cutout = insets.DisplayCutout;
+        //    tento kod bude fungovat pokud budeme mit minimalni verzi API 20 (Android 5.0)
+        //    public WindowInsetsCompat OnApplyWindowInsets(View v, WindowInsetsCompat insets)
+        //    {
+        //        var cutout = insets.DisplayCutout;
 
-            if (cutout != null)
-            {
-                Padding = new Rectangle(cutout.SafeInsetLeft, cutout.SafeInsetTop, cutout.SafeInsetRight, cutout.SafeInsetBottom);
+        //        if (cutout != null)
+        //        {
+        //            Padding = new Rectangle(cutout.SafeInsetLeft, cutout.SafeInsetTop, cutout.SafeInsetRight, cutout.SafeInsetBottom);
 
-                if (g.GraphicsDevice != null)
-                {
-                    g.OnOrientationChanged();
-                }
-            }
-            return insets;
+        //            if (g.GraphicsDevice != null)
+        //            {
+        //                g.OnOrientationChanged();
+        //            }
+        //        }
+        //        return insets;
+        //    }
+        //}
+
+        //    tento kod bude fungovat s Xamarin.Android.Support.v4 v29.0.0.0+
+        //    public WindowInsetsCompat OnApplyWindowInsets(View v, WindowInsetsCompat insets)
+        //    {
+        //        var cutout = insets.DisplayCutout;
+
+        //        if (cutout != null)
+        //        {
+        //            Padding = new Rectangle(cutout.SafeInsetLeft, cutout.SafeInsetTop, cutout.SafeInsetRight, cutout.SafeInsetBottom);
+
+        //            if (g.GraphicsDevice != null)
+        //            {
+        //                g.OnOrientationChanged();
+        //            }
+        //        }
+        //        return insets;
+        //    }
         }
     }
-}
 
 
