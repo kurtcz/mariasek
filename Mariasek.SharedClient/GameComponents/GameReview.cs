@@ -704,7 +704,7 @@ namespace Mariasek.SharedClient.GameComponents
             for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
             {
                 var ii = (game.GameStartingPlayerIndex + i) % Mariasek.Engine.New.Game.NumPlayers;
-                var hand = new List<Card>(_initialHands[ii].Sort(false, game.trump.HasValue ? false : true, game.trump));
+                var hand = new List<Card>(_initialHands[ii].Sort(SortMode.Descending, game.trump.HasValue ? false : true, game.trump));
 
                 Names[i].Text = i == 0 ? string.Format("{0}: {1}",
                                                        game.players[ii].Name,

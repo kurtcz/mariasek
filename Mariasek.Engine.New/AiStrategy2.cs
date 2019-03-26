@@ -1420,36 +1420,55 @@ namespace Mariasek.Engine.New
                         //co-
                         if (_probabilities.SuitProbability(player3, _trump, RoundNumber) > 0)
                         {
-                            var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                            .Where(b => !_bannedSuits.Contains(b) &&
-                                                        _probabilities.SuitProbability(player2, b, RoundNumber) >=
-                                                        _probabilities.SuitProbability(player3, b, RoundNumber) &&
-                                                        _probabilities.SuitProbability(player2, b, RoundNumber) > 0 &&
-                                                        _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0)
-                                            .OrderBy(b => _probabilities.SuitProbability(player3, b, RoundNumber))
-                                            .Where(b => b != _trump &&
-                                                        ValidCards(hands[MyIndex]).Any(i => i.Suit == b &&
-                                                                                            i.Value != Hodnota.Eso &&
-                                                                                            i.Value != Hodnota.Desitka &&
-                                                                                            Enum.GetValues(typeof(Hodnota))                 //musi byt sance, ze spoluhrac ma
-                                                                                                .Cast<Hodnota>().Count(h => h > i.Value &&    //v barve i neco jineho nez A nebo X
-                                                                                                                            h != Hodnota.Eso &&
-                                                                                                                            h != Hodnota.Desitka &&
-                                                                                                                            _probabilities.CardProbability(player2, new Card(i.Suit, h)) > 0) > 2));
-                            if (suits.Any())
+                            //var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            //                .Where(b => !_bannedSuits.Contains(b) &&
+                            //                            _probabilities.SuitProbability(player2, b, RoundNumber) >=
+                            //                            _probabilities.SuitProbability(player3, b, RoundNumber) &&
+                            //                            _probabilities.SuitProbability(player2, b, RoundNumber) > 0 &&
+                            //                            _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0)
+                            //                .OrderBy(b => _probabilities.SuitProbability(player3, b, RoundNumber))
+                            //                .Where(b => b != _trump &&
+                            //                            ValidCards(hands[MyIndex]).Any(i => i.Suit == b &&
+                            //                                                                i.Value != Hodnota.Eso &&
+                            //                                                                i.Value != Hodnota.Desitka &&
+                            //                                                                Enum.GetValues(typeof(Hodnota))                 //musi byt sance, ze spoluhrac ma
+                            //                                                                    .Cast<Hodnota>().Count(h => h > i.Value &&    //v barve i neco jineho nez A nebo X
+                            //                                                                                                h != Hodnota.Eso &&
+                            //                                                                                                h != Hodnota.Desitka &&
+                            //                                                                                                _probabilities.CardProbability(player2, new Card(i.Suit, h)) > 0) > 2));
+                            //if (suits.Any())
+                            //{
+                            //    var preferredSuits = suits.Where(b => _teamMatesSuits.Contains(b)).ToList();
+
+                            //    if (preferredSuits.Any())
+                            //    {
+                            //        suits = preferredSuits;
+                            //    }
+                            //    var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == suits.First() &&
+                            //                                                            i.Value != Hodnota.Desitka &&
+                            //                                                            i.Value != Hodnota.Eso);
+
+                            //    return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                            //}
+                            var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                    !_bannedSuits.Contains(i.Suit) &&
+                                                                                    i.Value != Hodnota.Eso &&
+                                                                                    i.Value != Hodnota.Desitka)
+                                                                        .ToList();
+                            if (cardsToPlay.Any(i => _teamMatesSuits.Contains(i.Suit)))
                             {
-                                var preferredSuits = suits.Where(b => _teamMatesSuits.Contains(b)).ToList();
-
-                                if (preferredSuits.Any())
-                                {
-                                    suits = preferredSuits;
-                                }
-                                var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == suits.First() &&
-                                                                                        i.Value != Hodnota.Desitka &&
-                                                                                        i.Value != Hodnota.Eso);
-
-                                return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                                cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
                             }
+                            var teamMatesLikelyAXPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                               .ToDictionary(b => b,
+                                                                             b => _probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) > 0
+                                                                                    ? (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Eso)) > _epsilon ? 1 : 0) +
+                                                                                      (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Desitka)) > _epsilon ? 1 : 0)
+                                                                                    : int.MaxValue);
+                            return cardsToPlay.OrderBy(i => teamMatesLikelyAXPerSuit[i.Suit])
+                                              .ThenByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+                                              .ThenBy(i => i.Value)
+                                              .FirstOrDefault();
                         }
                     }
                     else
@@ -1457,36 +1476,55 @@ namespace Mariasek.Engine.New
                         //c-o
                         if (_probabilities.SuitProbability(player2, _trump, RoundNumber) > 0)
                         {
-                            var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                            .Where(b => !_bannedSuits.Contains(b) &&
-                                                        _probabilities.SuitProbability(player3, b, RoundNumber) >=
-                                                        _probabilities.SuitProbability(player2, b, RoundNumber) &&
-                                                        _probabilities.SuitProbability(player3, b, RoundNumber) > 0 &&
-                                                        _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0)
-                                            .OrderBy(b => _probabilities.SuitProbability(player2, b, RoundNumber))
-                                            .Where(b => b != _trump &&
-                                                        ValidCards(hands[MyIndex]).Any(i => i.Suit == b &&
-                                                                                            i.Value != Hodnota.Eso &&
-                                                                                            i.Value != Hodnota.Desitka &&
-                                                                                            Enum.GetValues(typeof(Hodnota))                 //musi byt sance, ze spoluhrac ma
-                                                                                                .Cast<Hodnota>().Count(h => h > i.Value &&    //v barve i neco jineho nez A nebo X
-                                                                                                                            h != Hodnota.Eso &&
-                                                                                                                            h != Hodnota.Desitka &&
-                                                                                                                            _probabilities.CardProbability(player3, new Card(i.Suit, h)) > 0) > 2));
-                            if (suits.Any())
+                            //var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            //                .Where(b => !_bannedSuits.Contains(b) &&
+                            //                            _probabilities.SuitProbability(player3, b, RoundNumber) >=
+                            //                            _probabilities.SuitProbability(player2, b, RoundNumber) &&
+                            //                            _probabilities.SuitProbability(player3, b, RoundNumber) > 0 &&
+                            //                            _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0)
+                            //                .OrderBy(b => _probabilities.SuitProbability(player2, b, RoundNumber))
+                            //                .Where(b => b != _trump &&
+                            //                            ValidCards(hands[MyIndex]).Any(i => i.Suit == b &&
+                            //                                                                i.Value != Hodnota.Eso &&
+                            //                                                                i.Value != Hodnota.Desitka &&
+                            //                                                                Enum.GetValues(typeof(Hodnota))                 //musi byt sance, ze spoluhrac ma
+                            //                                                                    .Cast<Hodnota>().Count(h => h > i.Value &&    //v barve i neco jineho nez A nebo X
+                            //                                                                                                h != Hodnota.Eso &&
+                            //                                                                                                h != Hodnota.Desitka &&
+                            //                                                                                                _probabilities.CardProbability(player3, new Card(i.Suit, h)) > 0) > 2));
+                            //if (suits.Any())
+                            //{
+                            //    var preferredSuits = suits.Where(b => _teamMatesSuits.Contains(b)).ToList();
+
+                            //    if (preferredSuits.Any())
+                            //    {
+                            //        suits = preferredSuits;
+                            //    }
+                            //    var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == suits.First() &&
+                            //                                                            i.Value != Hodnota.Desitka &&
+                            //                                                            i.Value != Hodnota.Eso);
+
+                            //    return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
+                            //}
+                            var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                    !_bannedSuits.Contains(i.Suit) &&
+                                                                                    i.Value != Hodnota.Eso &&
+                                                                                    i.Value != Hodnota.Desitka)
+                                                                        .ToList();
+                            if (cardsToPlay.Any(i => _teamMatesSuits.Contains(i.Suit)))
                             {
-                                var preferredSuits = suits.Where(b => _teamMatesSuits.Contains(b)).ToList();
-
-                                if (preferredSuits.Any())
-                                {
-                                    suits = preferredSuits;
-                                }
-                                var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == suits.First() &&
-                                                                                        i.Value != Hodnota.Desitka &&
-                                                                                        i.Value != Hodnota.Eso);
-
-                                return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
+                                cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
                             }
+                            var teamMatesLikelyAXPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                               .ToDictionary(b => b,
+                                                                             b => _probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) > 0
+                                                                                    ? (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Eso)) > _epsilon ? 1 : 0) +
+                                                                                      (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Desitka)) > _epsilon ? 1 : 0)
+                                                                                    : int.MaxValue);
+                            return cardsToPlay.OrderBy(i => teamMatesLikelyAXPerSuit[i.Suit])
+                                              .ThenByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+                                              .ThenBy(i => i.Value)
+                                              .FirstOrDefault();
                         }
                     }
 
@@ -2359,7 +2397,8 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex == player3)
                     {
                         //-co
-                        //preferuj barvu kde soupere nechytam
+                        //preferuj barvu kde nemam a,x a kde soupere nechytam
+                        var axPerSuit = new Dictionary<Barva, int>(); 
                         var holesPerSuit = new Dictionary<Barva, int>();
                         var hiCardsPerSuit = new Dictionary<Barva, int>();
                         var catchCardsPerSuit = new Dictionary<Barva, int>();
@@ -2367,6 +2406,9 @@ namespace Mariasek.Engine.New
                         {
                             var holes = 0;      //pocet der v barve
                             var hiCards = 0;    //pocet karet ktere maji pod sebou diru v barve
+                            var axCount = ValidCards(c1, hands[MyIndex]).Count(i => i.Suit == b &&
+                                                                                    (i.Value == Hodnota.Desitka ||
+                                                                                     i.Value == Hodnota.Eso));
 
                             foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
                             {
@@ -2381,6 +2423,7 @@ namespace Mariasek.Engine.New
                                     hiCards = Math.Max(hiCards, n);
                                 }
                             }
+                            axPerSuit.Add(b, axCount);
                             holesPerSuit.Add(b, holes);
                             hiCardsPerSuit.Add(b, hiCards);
                             catchCardsPerSuit.Add(b, Math.Min(hiCards, holes));
@@ -2392,8 +2435,8 @@ namespace Mariasek.Engine.New
                                                                                                          j.Value != Hodnota.Desitka));
                         if (catchCardsPerSuitNoAX.Any())
                         {
-                            var preferredSuit = catchCardsPerSuitNoAX.Where(i => validSuits.Contains(i.Key))
-                                                                     .OrderBy(i => i.Value)
+                            var preferredSuit = catchCardsPerSuitNoAX.OrderBy(i => axPerSuit[i.Key])
+                                                                     .ThenBy(i => i.Value)
                                                                      .Select(i => i.Key)
                                                                      .First();
 
@@ -2711,9 +2754,107 @@ namespace Mariasek.Engine.New
 				}
 			};
 
-			yield return new AiRule
+            yield return new AiRule
             {
                 Order = 4,
+                Description = "hrát nízkou kartu mimo A,X",
+                SkipSimulations = true,
+                ChooseCard3 = (Card c1, Card c2) =>
+                {
+                    //preferuj barvu kde nemam A,X a kde soupere nechytam
+                    var axPerSuit = new Dictionary<Barva, int>();
+                    var holesPerSuit = new Dictionary<Barva, int>();
+                    var hiCardsPerSuit = new Dictionary<Barva, int>();
+                    var catchCardsPerSuit = new Dictionary<Barva, int>();
+
+                    if (TeamMateIndex == -1)
+                    {
+                        //--c
+                        foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                        {
+                            var holes = 0;      //pocet der v barve
+                            var hiCards = 0;    //pocet karet ktere maji pod sebou diru v barve
+                            var axCount = ValidCards(c1, c2, hands[MyIndex]).Count(i => i.Suit == b &&
+                                                                                        (i.Value == Hodnota.Desitka ||
+                                                                                         i.Value == Hodnota.Eso));
+                            foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+                            {
+                                var c = new Card(b, h);
+                                var n = ValidCards(c1, c2, hands[MyIndex]).Count(i => i.Suit == b &&
+                                                                                  i.Value > c.Value &&
+                                                                                  (_probabilities.CardProbability(player1, c) > _epsilon ||
+                                                                                   _probabilities.CardProbability(player2, c) > _epsilon));
+
+                                if (n > 0)
+                                {
+                                    holes++;
+                                    hiCards = Math.Max(hiCards, n);
+                                }
+                            }
+                            axPerSuit.Add(b, axCount);
+                            holesPerSuit.Add(b, holes);
+                            hiCardsPerSuit.Add(b, hiCards);
+                            catchCardsPerSuit.Add(b, Math.Min(hiCards, holes));
+                        }
+                    }
+                    else
+                    {
+                        //-oc
+                        //o-c
+                        var opponent = TeamMateIndex == player1 ? player2 : player1;
+                        foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                        {
+                            var holes = 0;      //pocet der v barve
+                            var hiCards = 0;    //pocet karet ktere maji pod sebou diru v barve
+                            var axCount = ValidCards(c1, c2, hands[MyIndex]).Count(i => i.Suit == b &&
+                                                                                        (i.Value == Hodnota.Desitka ||
+                                                                                         i.Value == Hodnota.Eso));
+
+                            foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+                            {
+                                var c = new Card(b, h);
+                                var n = ValidCards(c1, c2, hands[MyIndex]).Count(i => i.Suit == b &&
+                                                                                  i.Value > c.Value &&
+                                                                                  _probabilities.CardProbability(opponent, c) > _epsilon);
+
+                                if (n > 0)
+                                {
+                                    holes++;
+                                    hiCards = Math.Max(hiCards, n);
+                                }
+                            }
+                            axPerSuit.Add(b, axCount);
+                            holesPerSuit.Add(b, holes);
+                            hiCardsPerSuit.Add(b, hiCards);
+                            catchCardsPerSuit.Add(b, Math.Min(hiCards, holes));
+                        }
+                    }
+                    var validSuits = ValidCards(c1, c2, hands[MyIndex]).Select(i => i.Suit).Distinct();
+                    var catchCardsPerSuitNoAX = catchCardsPerSuit.Where(i => validSuits.Contains(i.Key) &&
+                                                                             hands[MyIndex].Any(j => j.Suit == i.Key &&
+                                                                                                     j.Value != Hodnota.Eso &&
+                                                                                                     j.Value != Hodnota.Desitka));
+                    if (catchCardsPerSuitNoAX.Any())
+                    {
+                        var preferredSuit = catchCardsPerSuitNoAX.OrderBy(i => axPerSuit[i.Key])
+                                                                 .ThenBy(i => i.Value)
+                                                                 .Select(i => i.Key)
+                                                                 .First();
+
+                        return ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == preferredSuit)
+                                                             .OrderBy(i => i.Value)
+                                                             .FirstOrDefault();
+                    }
+                    return ValidCards(c1, hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
+                                                                     i.Value != Hodnota.Desitka)
+                                                         .OrderBy(i => i.Value)
+                                                         .FirstOrDefault();
+                }
+            }; 
+
+            yield return new AiRule
+            {
+                Order = 5,
                 Description = "hrát nízkou kartu",
                 SkipSimulations = true,
                 ChooseCard3 = (Card c1, Card c2) =>

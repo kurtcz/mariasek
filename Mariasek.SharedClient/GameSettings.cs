@@ -7,13 +7,6 @@ using System.Globalization;
 
 namespace Mariasek.SharedClient
 {
-    public enum SortMode
-    {
-        Ascending,
-        Descending,
-        None
-    }
-
     public enum CardFace
     {
         Single,

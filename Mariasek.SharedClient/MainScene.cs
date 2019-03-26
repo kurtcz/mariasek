@@ -1577,7 +1577,7 @@ namespace Mariasek.SharedClient
                     }
                     if ((g.GameType & (Hra.Betl | Hra.Durch)) != 0)
                     {
-                        winningCards = winningCards.Sort(false, true).ToList();
+                        winningCards = winningCards.Sort(SortMode.Descending, true).ToList();
                     }
                     _winningHand = new GameComponents.Hand(this, winningCards.ToArray());
                     _winningHand.ShowWinningHand(e.winner.PlayerIndex);
@@ -2584,7 +2584,8 @@ namespace Mariasek.SharedClient
                 ShowThinkingMessage(r.player1.PlayerIndex);
             }
             //pokud az do ted nebyly karty serazeny, tak je serad
-            if (r.number == 1)
+            if (r.number == 1 &&
+                !Game.Settings.AutoSort)
             {
                 _canSort = true;
                 SortHand();
@@ -2683,6 +2684,7 @@ namespace Mariasek.SharedClient
             if (!_testGame)
             {
                 _deck = g.GetDeckFromLastGame();
+                System.Diagnostics.Debug.WriteLine(_deck);
                 var deck = _deck;
 
                 Task.Run(() => SaveDeck(deck));
@@ -3567,13 +3569,13 @@ namespace Mariasek.SharedClient
 
                     if (numberOfCardsToSort == 12)
                     {
-                        g.players[0].Hand.Sort(Game.Settings.SortMode == SortMode.Ascending, badGameSorting, _canSortTrump ? g.trump : null);
+                        g.players[0].Hand.Sort(Game.Settings.SortMode, badGameSorting, _canSortTrump ? g.trump : null);
                     }
                     else
                     {
                         var sortedList = g.players[0].Hand.Take(numberOfCardsToSort).ToList();
 
-                        sortedList.Sort(Game.Settings.SortMode == SortMode.Ascending, badGameSorting, g.trump);
+                        sortedList.Sort(Game.Settings.SortMode, badGameSorting, g.trump);
                         g.players[0].Hand = sortedList.Concat(g.players[0].Hand.Skip(numberOfCardsToSort).Take(12)).ToList();
                     }
                 }

@@ -66,7 +66,7 @@ namespace Mariasek.Engine.New
         public int QuietHundredValue { get; set; }
         public int BetlValue { get; set; }
         public int DurchValue { get; set; }
-
+        public SortMode SortMode { get; set; }
         public bool AllowAXTalon { get; set; }
         public bool AllowTrumpTalon { get; set; }
         public bool AllowAIAutoFinish { get; set; }
@@ -91,6 +91,7 @@ namespace Mariasek.Engine.New
         public Round[] rounds { get; private set; }
         public Round CurrentRound { get { return rounds != null && RoundNumber > 0  && RoundNumber <= rounds.Length ? rounds[RoundNumber - 1] : null; } }
 		public int RoundNumber { get; private set; }
+        public int LastRoundNumber { get; private set; }
         public Bidding Bidding { get; private set; }
         public string Author { get; set; }
         //public bool DoSort { get; set; }
@@ -937,6 +938,7 @@ namespace Mariasek.Engine.New
 						}
 						var r = new Round(this, roundWinner);
 
+                        LastRoundNumber = RoundNumber;
 						DebugString.AppendFormat("Starting round {0}\n", RoundNumber);
                         RoundSanityCheck();
 						OnRoundStarted(r);
@@ -1185,6 +1187,12 @@ namespace Mariasek.Engine.New
                 var hand2 = players[1].Hand;
                 var hand3 = players[2].Hand;
 
+                //setridime zbyle karty hracu v ruce, aby se barvy slozily k sobe
+                hand1.Sort(SortMode == SortMode.None ? SortMode.SuitsOnly : SortMode, trump == null, trump);
+                hand2.Sort(SortMode == SortMode.None ? SortMode.SuitsOnly : SortMode, trump == null, trump);
+                hand3.Sort(SortMode == SortMode.None ? SortMode.SuitsOnly : SortMode, trump == null, trump);
+
+                //do balicku budeme karty pridavat odzadu
                 hand1.Reverse();
                 hand2.Reverse();
                 hand3.Reverse();
@@ -1202,7 +1210,7 @@ namespace Mariasek.Engine.New
                     var temp = new List<Card>();
 
                     //dodame karty ve stychu vyjma hlasu
-                    foreach (var r in rounds.Where(r => r != null))
+                    foreach (var r in rounds.Where(r => r != null && r.number <= LastRoundNumber))
                     {
                         if (r.roundWinner.PlayerIndex == player.PlayerIndex)
                         {
@@ -1283,10 +1291,10 @@ namespace Mariasek.Engine.New
                 {
                     newDeck = new Deck(deck);
                 }
-                if (Results != null && !Results.GamePlayed)
-                {
-                    newDeck.Cut();
-                }
+                //if (Results != null && !Results.GamePlayed)
+                //{
+                //    newDeck.Cut();
+                //}
 
                 return newDeck;
             }
@@ -1386,10 +1394,14 @@ namespace Mariasek.Engine.New
 
         private bool PlayerWinsGame(AbstractPlayer player)
         {
-            if(GameType == Hra.Betl)
+            var player2 = (GameStartingPlayerIndex + 1) % Game.NumPlayers;
+            var player3 = (GameStartingPlayerIndex + 2) % Game.NumPlayers;
+            var hand1 = new List<Card>(player.Hand);
+            var hand2 = new List<Card>(players[player2].Hand);
+            var hand3 = new List<Card>(players[player3].Hand);
+
+            if (GameType == Hra.Betl)
             {
-                var player2 = (GameStartingPlayerIndex + 1) % Game.NumPlayers;
-                var player3 = (GameStartingPlayerIndex + 2) % Game.NumPlayers;
 
                 player = GameStartingPlayer;
 
@@ -1397,48 +1409,45 @@ namespace Mariasek.Engine.New
             }
             else
             {
-                var player2 = (player.PlayerIndex + 1) % Game.NumPlayers;
-                var player3 = (player.PlayerIndex + 2) % Game.NumPlayers;
-
                 //pokud nema hrac trumfy ale nekdo jiny je ma, tak nelze koncit
                 if (trump.HasValue && 
-                    player.Hand.All(i => i.Suit != trump.Value) &&
-                    (players[player2].Hand.Any(i => i.Suit == trump.Value) ||
-                     players[player3].Hand.Any(i => i.Suit == trump.Value)))
+                    hand1.All(i => i.Suit != trump.Value) &&
+                    (hand2.Any(i => i.Suit == trump.Value) ||
+                     hand3.Any(i => i.Suit == trump.Value)))
                 {
                     return false;
                 }
 				//return player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => Round.WinningCard(i, j, k, trump) == i)));
 				var holesPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                       .Where(b => player.Hand.Any(i => i.Suit == b))
+                                       .Where(b => hand1.Any(i => i.Suit == b))
                                        .ToDictionary(b => b,
                                                      b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                              .Count(h => (players[player2].Hand.Any(i => i.Suit == b && i.Value == h) ||
-                                                                           players[player3].Hand.Any(i => i.Suit == b && i.Value == h)) &&
+                                                              .Count(h => (hand2.Any(i => i.Suit == b && i.Value == h) ||
+                                                                           hand3.Any(i => i.Suit == b && i.Value == h)) &&
                                                                           (((GameType & (Hra.Betl | Hra.Durch)) != 0 &&
-                                                                            player.Hand.Any(i => i.Suit == b && i.BadValue < Card.GetBadValue(h))) ||
+                                                                            hand1.Any(i => i.Suit == b && i.BadValue < Card.GetBadValue(h))) ||
 																		   ((GameType & (Hra.Betl | Hra.Durch)) == 0 &&
-																		    player.Hand.Any(i => i.Suit == b && i.Value < h)))));
-				var topCards = player.Hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-				                                          .Where(h => ((GameType & (Hra.Betl | Hra.Durch)) == 0 && h > i.Value) ||
-                                                                       ((GameType & (Hra.Betl | Hra.Durch)) != 0 && Card.GetBadValue(h) > i.BadValue))
-                                                          .All(h => players[player2].Hand.All(j => j.Suit != i.Suit || j.Value != h) &&
-                                                                    players[player3].Hand.All(j => j.Suit != i.Suit || j.Value != h)))
-				                          .GroupBy(g => g.Suit)
-                                          .ToList();
+																		    hand1.Any(i => i.Suit == b && i.Value < h)))));
+				var topCards = hand1.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+			                                        .Where(h => ((GameType & (Hra.Betl | Hra.Durch)) == 0 && h > i.Value) ||
+                                                                 ((GameType & (Hra.Betl | Hra.Durch)) != 0 && Card.GetBadValue(h) > i.BadValue))
+                                                    .All(h => hand2.All(j => j.Suit != i.Suit || j.Value != h) &&
+                                                              hand3.All(j => j.Suit != i.Suit || j.Value != h)))
+		                            .GroupBy(g => g.Suit)
+                                    .ToList();
                 var topTrumps = trump.HasValue 
                                      ? topCards.Where(i => i.Key == trump.Value)
                                                .SelectMany(i => i)
                                                .ToList() 
                                      : new List<Card>();
 
-                return topCards.All(g => holesPerSuit[g.Key] == 0 ||                            //pokud mam v barve diru, musim mit vic
-                                         g.Count() >= players[player2].Hand.CardCount(g.Key) +  //nejvyssich karet nez maji ostatni hraci
-                                                      players[player3].Hand.CardCount(g.Key)) &&//dohromady karet v dane barve    
-                       player.Hand.All(i => topCards.Any(g => i.Suit == g.Key)) &&              //a nesmi existovat barva kde nemam nejvyssi karty
+                return topCards.All(g => holesPerSuit[g.Key] == 0 ||                //pokud mam v barve diru, musim mit vic
+                                         g.Count() >= hand2.CardCount(g.Key) +      //nejvyssich karet nez maji ostatni hraci
+                                                      hand3.CardCount(g.Key)) &&    //dohromady karet v dane barve    
+                       hand1.All(i => topCards.Any(g => i.Suit == g.Key)) &&        //a nesmi existovat barva kde nemam nejvyssi karty
                        (!trump.HasValue ||
-                        topTrumps.Count() >= players[player2].Hand.CardCount(trump.Value) +
-                                             players[player3].Hand.CardCount(trump.Value));
+                        topTrumps.Count() >= hand2.CardCount(trump.Value) +
+                                             hand3.CardCount(trump.Value));
             }
         }
         
@@ -1740,6 +1749,10 @@ namespace Mariasek.Engine.New
         private void CompleteUnfinishedRounds()
         {
             var lastRoundWinner = rounds[0] == null ? GameStartingPlayer : rounds[0].roundWinner;
+            //ulozime si momentalni karty hracu, protoze se v konstruktoru Round() z ruky postupne odebiraji
+            var temp1 = new List<Card>(players[0].Hand);
+            var temp2 = new List<Card>(players[1].Hand);
+            var temp3 = new List<Card>(players[2].Hand);
 
             DebugString.AppendLine("CompleteUnfinishedRounds()");
             RoundSanityCheck();
@@ -1781,7 +1794,7 @@ namespace Mariasek.Engine.New
                         lastSuit = null;
                     }
                     var c1 = AbstractPlayer.ValidCards(players[player1].Hand, trump, GameType, players[player1].TeamMateIndex)
-                                           .Sort(false, (GameType & (Hra.Betl | Hra.Durch)) != 0, firstSuit, lastSuit)
+                                           .Sort(SortMode.Descending, (GameType & (Hra.Betl | Hra.Durch)) != 0, firstSuit, lastSuit)
                                            .First();
                     var c2 = AbstractPlayer.ValidCards(players[player2].Hand, trump, GameType, players[player2].TeamMateIndex, c1)
                                            .OrderBy(j => j.Value)
@@ -1794,6 +1807,12 @@ namespace Mariasek.Engine.New
                 }
                 lastRoundWinner = rounds[i].roundWinner;
             }
+
+            //obnovime puvodni karty hracu, aby neodehrane karty zustaly u sebe
+            //a mohly se tudiz spravne slozit do balicku
+            players[0].Hand = temp1;
+            players[1].Hand = temp2;
+            players[2].Hand = temp3;
         }
 
         public void AddBiddingDebugInfo(int playerIndex)

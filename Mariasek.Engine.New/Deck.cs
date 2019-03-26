@@ -122,5 +122,19 @@ namespace Mariasek.Engine.New
 				};
 			}
 		}
+
+        public override string ToString()
+        {
+            if (_cards == null || !_cards.Any())
+            {
+                return "Empty deck";
+            }
+            var sb = new StringBuilder();
+            for(var i = _cards.Count - 1; i >= 0; i--)
+            {
+                sb.AppendFormat("{0:##}. {1}\n", _cards.Count - i, _cards[i]);
+            }
+            return sb.ToString();
+        }
     }
 }

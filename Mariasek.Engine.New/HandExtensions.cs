@@ -42,11 +42,16 @@ namespace Mariasek.Engine.New
 			return list;
 		}
 
-        public static IEnumerable<Card> Sort(this List<Card>hand, bool ascending, bool badGameSorting = false, Barva? firstSuit = null, Barva? lastSuit = null)
+        public static IEnumerable<Card> Sort(this List<Card> hand, SortMode sortMode, bool badGameSorting = false, Barva? firstSuit = null, Barva? lastSuit = null)
         {
+            if (sortMode == SortMode.None)
+            {
+                return hand;
+            }
+
             hand.Sort((c1, c2) =>
                 {
-                    var sign = ascending ? -1 : 1;
+                    var sign = sortMode == SortMode.Ascending ? -1 : sortMode == SortMode.Descending ? 1 : 0;
                     int s1 = Convert.ToInt16(c1.Suit);
                     int s2 = Convert.ToInt16(c2.Suit);
 
@@ -367,9 +372,9 @@ namespace Mariasek.Engine.New
             return _hand.Where(i => i != null).Count(i => i.Suit == suit);
         }
 
-        public void Sort(bool ascending = false, bool badGameSorting = false)
+        public void Sort(SortMode sortMode = SortMode.Descending, bool badGameSorting = false)
         {
-            _hand.Sort(ascending, badGameSorting);
+            _hand.Sort(sortMode, badGameSorting);
         }
 
         public override string ToString()
