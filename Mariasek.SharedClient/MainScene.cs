@@ -1446,9 +1446,9 @@ namespace Mariasek.SharedClient
                      _hintBtn.Show();
                      if (g.GameStartingPlayerIndex != 0)
                      {
-                         SortHand();
                          ShowThinkingMessage(g.GameStartingPlayerIndex);
-                         _hand.Show();
+                         SortHand();
+                         _hand.Hide();
                          UpdateHand(true);
                          _hand.AnimationEvent.Wait();
                      }
@@ -1996,7 +1996,7 @@ namespace Mariasek.SharedClient
                 _okBtn.Show();
                 _okBtn.IsEnabled = false;
                 _state = GameState.ChooseTalon;
-                UpdateHand(cardToHide: _trumpCardChosen); //abych si otocil zbyvajicich 5 karet
+                UpdateHand(true, cardToHide: _trumpCardChosen); //abych si otocil zbyvajicich 5 karet
                 _hand.IsEnabled = true;
             });
             WaitForUIThread();
@@ -3075,12 +3075,10 @@ namespace Mariasek.SharedClient
                         _hintBtn.Show();
                         if (g.GameStartingPlayerIndex != 0 || g.GameType != 0)
                         {
-                            SortHand();
                             if (g.GameType == 0)
                             {
                                 ShowThinkingMessage(g.GameStartingPlayerIndex);
                             }
-                            _hand.Show();
                             if (g.GameStartingPlayerIndex == 0 && g.RoundNumber == 0)
                             {
                                 UpdateHand(true, 7);
@@ -3254,38 +3252,62 @@ namespace Mariasek.SharedClient
 
         public void UpdateHand(bool flipCardsUp = false, int cardsNotRevealed = 0, Card cardToHide = null)
         {
+            if (_hand.IsVisible &&
+                _hand.CardsVisible == g.players[0].Hand.Count &&
+                cardsNotRevealed == _hand.CardsNotRevealed &&
+                cardToHide == _hand.CardToHide)
+            {
+                return;
+            }
             RunOnUiThread(() =>
             {
-                _hand.UpdateHand(g.players[0].Hand.ToArray(), flipCardsUp ? g.players[0].Hand.Count : 0, cardToHide);
+                if (flipCardsUp)
+                {
+                    if (_state == GameState.ChooseTalon)
+                    {
+                        _hand.UpdateHand(g.players[0].Hand.ToArray(), 5, cardToHide);
+                    }
+                    else
+                    {
+                        _hand.UpdateHand(g.players[0].Hand.ToArray(), g.players[0].Hand.Count, cardToHide);
+                    }
+                }
+                else
+                {
+                    _hand.UpdateHand(g.players[0].Hand.ToArray(), 0, cardToHide);
+                }
+                //nyni by mely vsechny karty byt videt (predek nebo zadek)
+                //nasledujici radek by mel karty posunout na sva mista
                 _hand.ShowStraight((int)Game.VirtualScreenWidth - 20);
                 if (flipCardsUp)
                 {
-                    _hand.WaitUntil(() => !_hand.SpritesBusy)
+                    _hand.WaitUntil(() =>
+                    { 
+                        if (!_hand.SpritesBusy && !_hand.IsMoving)
+                        {
+
+                        }
+                        return !_hand.SpritesBusy && !_hand.IsMoving; 
+                    })
                          .Invoke(() =>
                          {
                              _hand.UpdateHand(g.players[0].Hand.ToArray(), cardsNotRevealed, cardToHide);
                          });
                 }
             });
-			//if (_state == GameState.ChooseTrump)
-			//{
-			//    _hand.WaitUntil(() => !_hand.SpritesBusy)
-			//         .Invoke(() =>
-			//            {
-			//                _canSort = Game.Settings.AutoSort;
-			//                SortHand(null, 7);
-			//            });
-			//}
-			if (_state == GameState.ChooseTalon && Game.Settings.AutoSort)
-			{
-			    _hand.WaitUntil(() => !_hand.SpritesBusy)
-			         .Invoke(() =>
-			            {
-			                _canSort = true;
-                            _canSortTrump = true;
-			                SortHand(cardToHide);
-			            });
-			}
+		  if (_state == GameState.ChooseTalon && Game.Settings.AutoSort)
+            {
+                RunOnUiThread(() =>
+                {
+                    _hand.WaitUntil(() => _hand.AllCardsFaceUp)
+                         .Invoke(() =>
+                         {
+                             _canSort = true;
+                             _canSortTrump = true;
+                             SortHand(cardToHide, flipCardsIfNeeded: false);
+                         });
+                });
+            }
         }
 
         private void UpdateCardTextures(GameComponent parent, Texture2D oldTexture, Texture2D newTexture)
@@ -3412,7 +3434,7 @@ namespace Mariasek.SharedClient
             {
                 SortHand(_trumpCardChosen);
             }
-            else
+            else if (_state != GameState.GameFinished && g != null)
             {
                 SortHand(null);
             }
@@ -3557,7 +3579,8 @@ namespace Mariasek.SharedClient
             }
         }
 
-        public void SortHand(Card cardToHide = null, int numberOfCardsToSort = 12)
+        //Pozor: tato funkce nove karty zobrazi, pokud zobrazene zatim nebyly
+        public void SortHand(Card cardToHide = null, int numberOfCardsToSort = 12, bool flipCardsIfNeeded = true)
         {
             if (_canSort)
             {
@@ -3579,8 +3602,11 @@ namespace Mariasek.SharedClient
                         g.players[0].Hand = sortedList.Concat(g.players[0].Hand.Skip(numberOfCardsToSort).Take(12)).ToList();
                     }
                 }
-                _hand.UpdateHand(g.players[0].Hand.ToArray(), 12 - numberOfCardsToSort, cardToHide);
+                //nyni mame setridene karty ve hre, aktualizujeme karty na displeji
+                _hand.UpdateHand(g.players[0].Hand.ToArray(), 12 - numberOfCardsToSort, cardToHide, flipCardsIfNeeded);
+                //a setridime je na spravne misto
                 _hand.SortHand(unsorted);
+                //_hand.SortHand(g.players[0].Hand);
             }
         }
 

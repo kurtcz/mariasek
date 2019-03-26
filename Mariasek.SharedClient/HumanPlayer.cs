@@ -66,10 +66,10 @@ namespace Mariasek.SharedClient
                 _aiPlayer.Hand.AddRange(Hand);
                 _aiPlayer.GameComputationProgress += _scene.GameComputationProgress;
             }
-            if (_g.GameStartingPlayerIndex != 0)
-            {
-                _scene.UpdateHand(flipCardsUp: true);
-            }
+            //if (_g.GameStartingPlayerIndex != 0)
+            //{
+            //    _scene.UpdateHand(flipCardsUp: true);
+            //}
         }
 
 		public override void Die()

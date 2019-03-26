@@ -1397,7 +1397,10 @@ namespace Mariasek.Engine.New
                              (hands[MyIndex].CardCount(_trump) > 0)))   //to same pokud jsem volil, sedmu nehraju a uz nemam zadny trumf v ruce
                         {
                             var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                            .OrderBy(b => Math.Min(_probabilities.SuitProbability(player2, b, RoundNumber),
+                                            .OrderBy(b => hands[MyIndex].Count(i => i.Suit == b &&
+                                                                                    (i.Value == Hodnota.Eso ||
+                                                                                     i.Value == Hodnota.Desitka)))
+                                            .ThenBy(b => Math.Min(_probabilities.SuitProbability(player2, b, RoundNumber),
                                                                    _probabilities.SuitProbability(player3, b, RoundNumber)))
                                             .ThenBy(b => hands[MyIndex].CardCount(b))
                                             .Where(b => b != _trump &&
@@ -1523,7 +1526,7 @@ namespace Mariasek.Engine.New
                                                                                     : int.MaxValue);
                             return cardsToPlay.OrderBy(i => teamMatesLikelyAXPerSuit[i.Suit])
                                               .ThenByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
-                                              .ThenBy(i => i.Value)
+                                              .ThenByDescending(i => i.Value)
                                               .FirstOrDefault();
                         }
                     }

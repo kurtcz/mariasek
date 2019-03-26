@@ -17,15 +17,16 @@ namespace Mariasek.SharedClient.GameComponents
             set
             {
                 _centre = value;
-                foreach (var sprite in _cardButtons)
+                foreach (var cardButton in _cardButtons)
                 {
-                    if (sprite != null)
+                    if (cardButton != null)
                     {
-                        sprite.Position = _centre;
+                        cardButton.Position = _centre;
                     }
                 }
             }
         }
+
         public Rectangle BoundsRect
         {
             get
@@ -35,23 +36,23 @@ namespace Mariasek.SharedClient.GameComponents
                 var right = int.MinValue;
                 var bottom = int.MinValue;
 
-                foreach(var sprite in _cardButtons.Where(i => i != null && i.IsVisible))
+                foreach(var cardButton in _cardButtons.Where(i => i != null && i.IsVisible))
                 {
-                    if (sprite.Sprite.Position.X - CardWidth * Game.CardScaleFactor.X / 2f < left)
+                    if (cardButton.Sprite.Position.X - CardWidth * Game.CardScaleFactor.X / 2f < left)
                     {
-                        left = (int)(sprite.Sprite.Position.X - CardWidth * Game.CardScaleFactor.X / 2f);
+                        left = (int)(cardButton.Sprite.Position.X - CardWidth * Game.CardScaleFactor.X / 2f);
                     }
-					if (sprite.Sprite.Position.Y - CardHeight * Game.CardScaleFactor.Y / 2f < top)
+					if (cardButton.Sprite.Position.Y - CardHeight * Game.CardScaleFactor.Y / 2f < top)
 					{
-                        top = (int)(sprite.Sprite.Position.Y - CardHeight * Game.CardScaleFactor.Y / 2f);
+                        top = (int)(cardButton.Sprite.Position.Y - CardHeight * Game.CardScaleFactor.Y / 2f);
 					}
-                    if (sprite.Sprite.Position.X + CardWidth * Game.CardScaleFactor.X / 2f > right)
+                    if (cardButton.Sprite.Position.X + CardWidth * Game.CardScaleFactor.X / 2f > right)
 					{
-                        right = (int)(sprite.Sprite.Position.X + CardWidth * Game.CardScaleFactor.X / 2f);
+                        right = (int)(cardButton.Sprite.Position.X + CardWidth * Game.CardScaleFactor.X / 2f);
 					}
-					if (sprite.Sprite.Position.Y + CardHeight * Game.CardScaleFactor.Y / 2f > bottom)
+					if (cardButton.Sprite.Position.Y + CardHeight * Game.CardScaleFactor.Y / 2f > bottom)
 					{
-                        bottom = (int)(sprite.Sprite.Position.Y + CardHeight * Game.CardScaleFactor.Y / 2f);
+                        bottom = (int)(cardButton.Sprite.Position.Y + CardHeight * Game.CardScaleFactor.Y / 2f);
 					}
 				}
 
@@ -94,12 +95,16 @@ namespace Mariasek.SharedClient.GameComponents
 		/// </summary>
 		public ManualResetEventSlim AnimationEvent { get; private set; }
         public Card Card { get; set; }
-		public bool IsStraight { get; private set; }
-        public override bool IsMoving { get { return _cardButtons.Any(i => i != null && i.IsVisible && i.IsMoving); }  }
-        public bool SpritesBusy { get { return _cardButtons.Any(i => i != null && i.IsBusy); } }
+        public bool IsStraight { get; private set; }
+        public override bool IsMoving { get { return _cardButtons.Where(i => i != null).Any(i => i.IsVisible && i.IsMoving); }  }
+        public bool SpritesBusy { get { return _cardButtons.Where(i => i != null).Any(i => i.IsBusy || i.IsMoving); } }
+        public bool AllCardsFaceUp { get { return _cardButtons.Where(i => i != null && i.IsVisible).All(i => i.IsFaceUp); } }
 
         private Vector2 _centre;
-
+        public Card CardToHide { get; private set; }
+        public int CardsVisible { get { return _cardButtons.Count(i => i != null && i.IsVisible); } }
+        public int CardsNotRevealed { get; private set; }
+        private bool _handChanged;
         private CardButton[] _cardButtons = new CardButton[12];
         public CardButton CardButtonForCard(Card card)
         {
@@ -111,23 +116,6 @@ namespace Mariasek.SharedClient.GameComponents
         public const int CardHeight = 272;
         public delegate void ClickEventHandler(object sender);
         public event ClickEventHandler Click;
-
-        //public Hand(GameComponent parent, ContentManager content)
-        //    : base(parent)
-        //{
-        //    for(var i = 0; i < _cardButtons.Length; i++)
-        //    {
-        //        var rect = new Rectangle(1 + (i % 8) * (CardWidth + 1), 2 + (i / 8) * (CardHeight + 1), CardWidth, CardHeight);
-
-        //        _cardButtons[i] = new CardButton(this, new Sprite(this, Game.CardTextures, rect) { Name = string.Format("HandSprite{0}", i+1), Scale = Game.CardScaleFactor })
-        //        { Name = string.Format("HandButton{0}", i + 1), ReverseSpriteRectangle = Game.BackSideRect, ZIndex = ZIndexBase + i };
-        //        _cardButtons[i].Click += CardClicked;
-        //        _cardButtons[i].DragEnd += CardDragged;
-        //        _cardButtons[i].Name = string.Format("HandButton{0}", i + 1);
-        //        _cardButtons[i].Position = Centre;
-        //    }
-        //    AnimationEvent = new ManualResetEventSlim(true);
-        //}
 
         public Hand(GameComponent parent, Card[] hand)
             : base(parent)
@@ -158,8 +146,23 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
-        public void UpdateHand(IList<Card> hand, int cardsNotRevealed = 0, Card cardToHide = null)
+        public void UpdateHand(IList<Card> hand, int cardsNotRevealed = 0, Card cardToHide = null, bool flipCardsIfNeeded = true)
         {
+            if (hand == null || !hand.Any())
+            {
+                base.Hide();
+                for (var i = 0; i < _cardButtons.Length; i++)
+                {
+                    if (_cardButtons[i] != null)
+                    {
+                        _cardButtons[i].Position = Centre;
+                    }
+                }
+                CardsNotRevealed = 0;
+                CardToHide = null;
+                return;
+            }
+            base.Show();
             var cardStrings = new StringBuilder();
 
             foreach (var c in hand)
@@ -167,12 +170,22 @@ namespace Mariasek.SharedClient.GameComponents
                 cardStrings.AppendFormat("{0} ", c);
             }
             System.Diagnostics.Debug.WriteLine(string.Format("UpdateHand() {0}", cardStrings.ToString()));
+            if (cardToHide != CardToHide || cardsNotRevealed != CardsNotRevealed)
+            {
+                _handChanged = true;
+                CardsNotRevealed = cardsNotRevealed;
+                CardToHide = cardToHide;
+            }
             for (var i = 0; i < _cardButtons.Length; i++)
             {
                 if (i >= hand.Count())
                 {
                     if (_cardButtons[i] != null)
                     {
+                        if (!_cardButtons[i].IsVisible)
+                        {
+                            _handChanged = true;
+                        }
                         _cardButtons[i].Hide();
                     }
                     continue;
@@ -182,13 +195,18 @@ namespace Mariasek.SharedClient.GameComponents
                 var refreshSprites = _cardButtons[i] == null;
                 if (refreshSprites)
                 {
+                    _handChanged = true;
                     _cardButtons[i] = new CardButton(this, new Sprite(this, Game.CardTextures, rect) { Name = string.Format("HandSprite{0}", i + 1), Scale = Game.CardScaleFactor })
                     { Name = string.Format("HandButton{0}", i + 1), ReverseSpriteRectangle = Game.BackSideRect, ZIndex = 50 + i };
                     _cardButtons[i].Click += CardClicked;
                     _cardButtons[i].DragEnd += CardDragged;
                     _cardButtons[i].Position = Centre;
                 }
-                ZIndex = ZIndexBase + i;
+                if ((Card)_cardButtons[i].Tag != hand[i])
+                {
+                    _handChanged = true;
+                }
+                _cardButtons[i].ZIndex = ZIndexBase + i;
                 _cardButtons[i].Sprite.SpriteRectangle = rect;  //ReverseSpriteRect is updated for all CardButtons from MainScene.UpdateCardBackSides()
                 _cardButtons[i].Tag = hand[i];
                 _cardButtons[i].Sprite.Tag = hand[i];
@@ -202,16 +220,19 @@ namespace Mariasek.SharedClient.GameComponents
                     {
                         _cardButtons[i].Show();
                     }
-                    if (i < hand.Count() - cardsNotRevealed)
+                    if (flipCardsIfNeeded)
                     {
-                        if (!_cardButtons[i].IsFaceUp)
+                        if (i < hand.Count() - cardsNotRevealed)
                         {
-                            _cardButtons[i].FlipToFront();
+                            if (!_cardButtons[i].IsFaceUp)
+                            {
+                                _cardButtons[i].FlipToFront();
+                            }
                         }
-                    }
-                    else
-                    {
-                        _cardButtons[i].ShowBackSide();
+                        else
+                        {
+                            _cardButtons[i].ShowBackSide();
+                        }
                     }
                     _cardButtons[i].IsSelected = false;
                 }
@@ -221,19 +242,21 @@ namespace Mariasek.SharedClient.GameComponents
         public override void Show()
         {
             base.Show();
-            foreach (var sprite in _cardButtons.Where(i => i != null))
+            foreach (var cardButton in _cardButtons.Where(i => i != null))
             {
-                sprite.Show();
+                cardButton.Show();
             }
         }
 
         public override void Hide()
         {
             base.Hide();
-            foreach (var sprite in _cardButtons.Where(i => i != null))
+            foreach (var cardButton in _cardButtons.Where(i => i != null))
             {
-                sprite.Hide();
+                cardButton.Hide();
             }
+            CardsNotRevealed = 0;
+            CardToHide = null;
         }
 
         public override bool IsEnabled
@@ -242,16 +265,16 @@ namespace Mariasek.SharedClient.GameComponents
             set
             {
                 base.IsEnabled = value;
-                foreach (var sprite in _cardButtons.Where(i => i != null))
+                foreach (var cardButton in _cardButtons.Where(i => i != null))
                 {
-                    sprite.IsEnabled = value;
+                    cardButton.IsEnabled = value;
                 }
             }
         }
 
 		private void CardClicked(object sender)
         {
-            Card = (Card)(sender as SpriteButton).Tag;
+            Card = (Card)(sender as CardButton).Tag;
             if (Click != null)
             {
                 Click(sender);
@@ -272,36 +295,36 @@ namespace Mariasek.SharedClient.GameComponents
 
 		public void SelectCard(Card card)
 		{
-			var s = _cardButtons.FirstOrDefault(i => ((Card)i.Tag == card));
+			var cardButton = _cardButtons.FirstOrDefault(i => ((Card)i.Tag == card));
 
-			if (s != null)
+			if (cardButton != null)
 			{
-				s.IsSelected = true;
+				cardButton.IsSelected = true;
 			}
 		}
 
 
         public void DeselectAllCards()
         {
-            foreach(var sprite in _cardButtons.Where(i => i != null))
+            foreach(var cardButton in _cardButtons.Where(i => i != null))
             {
-                sprite.IsSelected = false;
+                cardButton.IsSelected = false;
             }
         }
 
 		public void AllowDragging()
 		{
-			foreach (var sprite in _cardButtons.Where(i => i != null))
+			foreach (var cardButton in _cardButtons.Where(i => i != null))
 			{
-				sprite.CanDrag = true;
+				cardButton.CanDrag = true;
 			}
 		}
 
 		public void ForbidDragging()
 		{
-			foreach (var sprite in _cardButtons.Where(i => i != null))
+			foreach (var cardButton in _cardButtons.Where(i => i != null))
 			{
-				sprite.CanDrag = false;
+				cardButton.CanDrag = false;
 			}
 		}
 

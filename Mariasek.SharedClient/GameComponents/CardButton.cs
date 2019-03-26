@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Mariasek.Engine.New;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input.Touch;
 
 namespace Mariasek.SharedClient.GameComponents
@@ -244,6 +245,7 @@ namespace Mariasek.SharedClient.GameComponents
 		}
 
 		public override bool IsBusy { get { return Sprite.IsBusy || _reverseSprite.IsBusy; } }
+        public override bool IsMoving { get { return Sprite.IsMoving || _reverseSprite.IsMoving; } }
 
         protected override void OnTouchDown(TouchLocation tl)
         {
@@ -291,16 +293,15 @@ namespace Mariasek.SharedClient.GameComponents
             OnTouchUp(tl);
         }
 
-        /// <summary>
-        /// Allows the game component to update itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        //public override void Update(GameTime gameTime)
-        //{
-        //    // TODO: Add your update code here
-        //    _reverseSprite.Update(gameTime);
-        //    base.Update(gameTime);
-        //}
+        public override string ToString()
+        {
+            if (Tag == null)
+            {
+                return base.ToString();
+            }
+
+            return string.Format("CardButton: {0} @ {1}:{2}", Tag, Position.X, Position.Y);
+        }
     }
 }
 
