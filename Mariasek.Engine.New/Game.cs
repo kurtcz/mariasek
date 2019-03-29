@@ -1531,7 +1531,7 @@ namespace Mariasek.Engine.New
                         throw new InvalidOperationException($"Invalid card count during ChooseGame(): {GameStartingPlayer.Hand.Count()}");
                     }
                     DebugString.AppendFormat("Player {0} ChooseTalon()\n", GameStartingPlayer.PlayerIndex + 1);
-                    talon = GameStartingPlayer.ChooseTalon();
+                    talon = new List<Card>(GameStartingPlayer.ChooseTalon());
                     GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
                     if (talon == null || talon.Count() != 2)
                     {
@@ -1632,7 +1632,7 @@ namespace Mariasek.Engine.New
                             throw new InvalidOperationException($"Invalid card count after taking old talon: {GameStartingPlayer.Hand.Count()}");
                         }
                         DebugString.AppendFormat("Player {0} ChooseTalon()\n", GameStartingPlayer.PlayerIndex + 1);
-						talon = GameStartingPlayer.ChooseTalon();
+						talon = new List<Card>(GameStartingPlayer.ChooseTalon());
                         GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
 						if (talon == null || talon.Count() != 2)
                         {

@@ -57,8 +57,9 @@ namespace Mariasek.SharedClient
         private Label _allowPlayerAutoFinish;
         private Label _minBidsForGame;
         private Label _minBidsForSeven;
-        //private Label _maxHistoryLength;
+        private Label _maxHistoryLength;
         private Label _bubbleTime;
+        private Label _maxWin;
         //private Label _showStatusBar;
         private Label _bgImage;
         private Label _aiMayGiveUp;
@@ -83,6 +84,7 @@ namespace Mariasek.SharedClient
         private LeftRightSelector _showScoreDuringGameSelector;
         private LeftRightSelector _cardSizeSelector;
         private LeftRightSelector _bubbleTimeSelector;
+        private LeftRightSelector _maxWinSelector;
         //private LeftRightSelector _showStatusBarSelector;
         private LeftRightSelector _bgImageSelector;
         private LeftRightSelector _aiMayGiveUpSelector;
@@ -102,7 +104,7 @@ namespace Mariasek.SharedClient
         private LeftRightSelector _allowPlayerAutoFinishSelector;
         private LeftRightSelector _minBidsForGameSelector;
         private LeftRightSelector _minBidsForSevenSelector;
-        //private LeftRightSelector _maxHistoryLengthSelector;
+        private LeftRightSelector _maxHistoryLengthSelector;
         private RectangleShape _hline;
         private Label _performance;
         private Button _menuBtn;
@@ -619,6 +621,29 @@ namespace Mariasek.SharedClient
             {
                 _allowPlayerAutoFinishSelector.SelectedIndex = 0;
             }
+            _maxWin = new Label(this)
+            {
+                Position = new Vector2(200, 2 * pageOffset + 310),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Text = "Maximální výhra",
+                Group = 1,
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _maxWinSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 310),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "500x základ", 500 }, { "Neomezená", 0 } }
+            };
+            _maxWinSelector.SelectedIndex = _maxWinSelector.Items.FindIndex(Game.Settings.MaxWin);
+            _maxWinSelector.SelectionChanged += MaxWinChanged;
+            if (_maxWinSelector.SelectedIndex < 0)
+            {
+                _maxWinSelector.SelectedIndex = 1;
+            }
             #endregion
             #region Page 4
             _bgImage = new Label(this)
@@ -897,29 +922,29 @@ namespace Mariasek.SharedClient
             {
                 _bubbleTimeSelector.SelectedIndex = 1;
             }
-            //_maxHistoryLength = new Label(this)
-            //{
-            //    Position = new Vector2(200, 2 * pageOffset + 370),
-            //    Width = (int)Game.VirtualScreenWidth / 2 - 150,
-            //    Height = 50,
-            //    Text = "Max. délka historie",
-            //    Group = 1,
-            //    HorizontalAlign = HorizontalAlignment.Center,
-            //    VerticalAlign = VerticalAlignment.Middle
-            //};
-            //_maxHistoryLengthSelector = new LeftRightSelector(this)
-            //{
-            //    Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 370),
-            //    Width = 270,
-            //    Group = 1,
-            //    Items = new SelectorItems() { { "Neomezená", 0 }, { "1000 her", 1000 }, { "2000 her", 2000 }, { "5000 her", 5000 }, { "10000 her", 10000 } }
-            //};
-            //_maxHistoryLengthSelector.SelectedIndex = _maxHistoryLengthSelector.Items.FindIndex(Game.Settings.MaxHistoryLength);
-            //_maxHistoryLengthSelector.SelectionChanged += MaxHistoryLengthChanged;
-            //if (_maxHistoryLengthSelector.SelectedIndex < 0)
-            //{
-            //    _maxHistoryLengthSelector.SelectedIndex = 0;
-            //}
+            _maxHistoryLength = new Label(this)
+            {
+                Position = new Vector2(200, 4 * pageOffset + 310),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Text = "Historii mazat",
+                Group = 1,
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _maxHistoryLengthSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 4 * pageOffset + 310),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Ručně", 0 }, { "Po 1000 hrách", 1000 }, { "Po 2000 hrách", 2000 }, { "Po 5000 hrách", 5000 }, { "Po 10000 hrách", 10000 } }
+            };
+            _maxHistoryLengthSelector.SelectedIndex = _maxHistoryLengthSelector.Items.FindIndex(Game.Settings.MaxHistoryLength);
+            _maxHistoryLengthSelector.SelectionChanged += MaxHistoryLengthChanged;
+            if (_maxHistoryLengthSelector.SelectedIndex < 0)
+            {
+                _maxHistoryLengthSelector.SelectedIndex = 0;
+            }
             #endregion
             #region Page 6
             _gameValue = new Label(this)
@@ -1344,6 +1369,15 @@ namespace Mariasek.SharedClient
             var selector = sender as LeftRightSelector;
 
             Game.Settings.BubbleTimeMs = (int)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        void MaxWinChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.MaxWin = (int)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }

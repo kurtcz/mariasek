@@ -169,7 +169,7 @@ namespace Mariasek.SharedClient
             }
             do
             {
-                _talon = _scene.ChooseTalon();
+                _talon = new List<Card>(_scene.ChooseTalon());
             } while (_talon == null || _talon.Count() != 2);
 
             CancelAiTask();
