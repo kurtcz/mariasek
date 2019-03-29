@@ -163,8 +163,8 @@ namespace Mariasek.SharedClient
         //public GeneratorScene GenerateScene { get; private set; }
 
         public GameSettings Settings { get; private set; }
-
-		public Rectangle BackSideRect { get; set; }
+        public bool SettingsLoaded { get; private set; }
+        public Rectangle BackSideRect { get; set; }
         public Texture2D CardTextures { get; set; }
         public Texture2D CardTextures1 => Assets.GetTexture("marias");
         public Texture2D CardTextures2 => Assets.GetTexture("marias2");
@@ -532,6 +532,7 @@ namespace Mariasek.SharedClient
                 Settings.RiskFactor = 0.5f;
             }
             CardScaleFactor = new Vector2(Settings.CardScaleFactor, Settings.CardScaleFactor);
+            SettingsLoaded = true;
 		}
 
 		public delegate void SettingsChangedEventHandler(object sender, SettingsChangedEventArgs e);
@@ -612,6 +613,10 @@ namespace Mariasek.SharedClient
             }
             System.Diagnostics.Debug.WriteLine("update sw {0}", sw.ElapsedMilliseconds);
 
+            if (!SettingsLoaded)
+            {
+                LoadGameSettings(true);
+            }
             MenuScene.SetActive();
             MainScene.ResumeGame();
         }

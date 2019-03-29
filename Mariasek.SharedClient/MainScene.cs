@@ -670,19 +670,6 @@ namespace Mariasek.SharedClient
             };
             _msgLabelRightOrigPosition = new Vector2(160, 140);
             _msgLabelRightHiddenPosition = new Vector2(160, 140 - Game.VirtualScreenHeight);
-            //_gameResult = new Label(this)
-            //{
-            //    HorizontalAlign = HorizontalAlignment.Center,
-            //    VerticalAlign = VerticalAlignment.Middle,
-            //    Position = new Vector2(120, 80),
-            //    Width = (int)Game.VirtualScreenWidth - 240,
-            //    Height = 40,
-            //    TextColor = Game.Settings.HighlightedTextColor,
-            //    TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
-            //    ZIndex = 100
-            //};
-            //_gameResultOrigPosition = new Vector2(120, 80);
-            //_gameResultHiddenPosition = Vector2(120, 80 - Game.VirtualScreenHeight);
             _gameResult = new TextBox(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2 - 125, 80),
@@ -827,7 +814,6 @@ namespace Mariasek.SharedClient
                 Anchor = AnchorType.Top
             };
             _progressBars = new[] { _progress1, _progress2, _progress3 };
-            //Children.Sort((a, b) => a.ZIndex - b.ZIndex);
 
             _review = new GameReview(this, 200)
             {
@@ -853,7 +839,7 @@ namespace Mariasek.SharedClient
         {
             var path = Path.Combine(_path, filename);
 
-			Game.StorageAccessor.GetStorageAccess();
+            Game.StorageAccessor.GetStorageAccess();
             CreateDirectoryForFilePath(path);
 
             try
