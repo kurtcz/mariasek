@@ -27,6 +27,19 @@ namespace Mariasek.SharedClient
         Dark
     }
 
+    public enum ShuffleTrigger
+    {
+        Never,
+        AfterAutomaticVictory,
+        Always
+    }
+
+    public enum DirectionOfPlay
+    {
+        Clockwise,
+        Counterclockwise
+    }
+
     public class BidThresholdSettings
     {
         public Hra GameType { get; set; }
@@ -46,6 +59,7 @@ namespace Mariasek.SharedClient
         public bool BgSoundEnabled { get; set; }
         public string[] PlayerNames { get; set; }
         public SortMode SortMode { get; set; }
+        public ShuffleTrigger WhenToShuffle { get; set; }
         public bool AutoSort { get; set; }
         public float BaseBet { get; set; }
 		public int MaxWin { get; set; }
@@ -63,6 +77,7 @@ namespace Mariasek.SharedClient
         public int ThinkingTimeMs { get; set; }
         public int BubbleTimeMs { get; set; }
         public int MaxHistoryLength { get; set; }
+        public DirectionOfPlay DirectionOfPlay { get; set; }
         public bool AiMayGiveUp { get; set; }
         public bool KeepScreenOn { get; set; }                  //xml-only
         public CalculationStyle CalculationStyle { get; set; }
@@ -134,6 +149,7 @@ namespace Mariasek.SharedClient
             SoundEnabled = true;
             BgSoundEnabled = true;
             SortMode = SortMode.Descending;
+            WhenToShuffle = ShuffleTrigger.AfterAutomaticVictory;
             AutoSort = true;
             BaseBet = 1f;
 			MaxWin = 500;
@@ -142,6 +158,7 @@ namespace Mariasek.SharedClient
             BubbleTimeMs = 1000;
             ThinkingTimeMs = 1500;
             MaxHistoryLength = 0;
+            DirectionOfPlay = DirectionOfPlay.Clockwise;
             KeepScreenOn = true;
             RoundFinishedWaitTimeMs = 1000;
             AutoFinishRounds = true;

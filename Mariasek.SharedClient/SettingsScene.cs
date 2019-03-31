@@ -57,7 +57,9 @@ namespace Mariasek.SharedClient
         private Label _allowPlayerAutoFinish;
         private Label _minBidsForGame;
         private Label _minBidsForSeven;
-        private Label _maxHistoryLength;
+        private Label _whenToShuffle;
+        //private Label _maxHistoryLength;
+        private Label _directionOfPlay;
         private Label _bubbleTime;
         private Label _maxWin;
         //private Label _showStatusBar;
@@ -104,7 +106,9 @@ namespace Mariasek.SharedClient
         private LeftRightSelector _allowPlayerAutoFinishSelector;
         private LeftRightSelector _minBidsForGameSelector;
         private LeftRightSelector _minBidsForSevenSelector;
-        private LeftRightSelector _maxHistoryLengthSelector;
+        private LeftRightSelector _whenToShuffleSelector;
+        //private LeftRightSelector _maxHistoryLengthSelector;
+        private LeftRightSelector _directionOfPlaySelector;
         private RectangleShape _hline;
         private Label _performance;
         private Button _menuBtn;
@@ -623,17 +627,17 @@ namespace Mariasek.SharedClient
             }
             _maxWin = new Label(this)
             {
-                Position = new Vector2(200, 2 * pageOffset + 310),
+                Position = new Vector2(200, 2 * pageOffset + 370),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
-                Text = "Maximální výhra",
+                Text = "Maximální sazba za hru",
                 Group = 1,
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
             _maxWinSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 310),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 2 * pageOffset + 370),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "500x základ", 500 }, { "Neomezená", 0 } }
@@ -922,29 +926,75 @@ namespace Mariasek.SharedClient
             {
                 _bubbleTimeSelector.SelectedIndex = 1;
             }
-            _maxHistoryLength = new Label(this)
+            _whenToShuffle = new Label(this)
             {
                 Position = new Vector2(200, 4 * pageOffset + 310),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
-                Text = "Historii mazat",
+                Text = "Karty míchat",
                 Group = 1,
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
-            _maxHistoryLengthSelector = new LeftRightSelector(this)
+            _whenToShuffleSelector = new LeftRightSelector(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 4 * pageOffset + 310),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Ručně", 0 }, { "Po 1000 hrách", 1000 }, { "Po 2000 hrách", 2000 }, { "Po 5000 hrách", 5000 }, { "Po 10000 hrách", 10000 } }
+                Items = new SelectorItems() { { "Nikdy", ShuffleTrigger.Never }, { "Po ložené hrře", ShuffleTrigger.AfterAutomaticVictory }, { "Po každé hře", ShuffleTrigger.Always } }
             };
-            _maxHistoryLengthSelector.SelectedIndex = _maxHistoryLengthSelector.Items.FindIndex(Game.Settings.MaxHistoryLength);
-            _maxHistoryLengthSelector.SelectionChanged += MaxHistoryLengthChanged;
-            if (_maxHistoryLengthSelector.SelectedIndex < 0)
+            _whenToShuffleSelector.SelectedIndex = _whenToShuffleSelector.Items.FindIndex(Game.Settings.WhenToShuffle);
+            _whenToShuffleSelector.SelectionChanged += WhenToShuffleChanged;
+            if (_whenToShuffleSelector.SelectedIndex < 0)
             {
-                _maxHistoryLengthSelector.SelectedIndex = 0;
+                _whenToShuffleSelector.SelectedIndex = 0;
             }
+            _directionOfPlay = new Label(this)
+            {
+                Position = new Vector2(200, 4 * pageOffset + 370),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Text = "Směr hraní",
+                Group = 1,
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _directionOfPlaySelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 4 * pageOffset + 370),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Po směru hodin", DirectionOfPlay.Clockwise }, { "Proti směru hod", DirectionOfPlay.Counterclockwise } }
+            };
+            _directionOfPlaySelector.SelectedIndex = _directionOfPlaySelector.Items.FindIndex(Game.Settings.DirectionOfPlay);
+            _directionOfPlaySelector.SelectionChanged += DirectionOfPlayChanged;
+            if (_directionOfPlaySelector.SelectedIndex < 0)
+            {
+                _directionOfPlaySelector.SelectedIndex = 0;
+            }
+            //_maxHistoryLength = new Label(this)
+            //{
+            //    Position = new Vector2(200, 4 * pageOffset + 370),
+            //    Width = (int)Game.VirtualScreenWidth / 2 - 150,
+            //    Height = 50,
+            //    Text = "Historii mazat",
+            //    Group = 1,
+            //    HorizontalAlign = HorizontalAlignment.Center,
+            //    VerticalAlign = VerticalAlignment.Middle
+            //};
+            //_maxHistoryLengthSelector = new LeftRightSelector(this)
+            //{
+            //    Position = new Vector2(Game.VirtualScreenWidth - 300, 4 * pageOffset + 370),
+            //    Width = 270,
+            //    Group = 1,
+            //    Items = new SelectorItems() { { "Ručně", 0 }, { "Po 1000 hrách", 1000 }, { "Po 5000 hrách", 5000 }, { "Po 10000 hrách", 10000 } }
+            //};
+            //_maxHistoryLengthSelector.SelectedIndex = _maxHistoryLengthSelector.Items.FindIndex(Game.Settings.MaxHistoryLength);
+            //_maxHistoryLengthSelector.SelectionChanged += MaxHistoryLengthChanged;
+            //if (_maxHistoryLengthSelector.SelectedIndex < 0)
+            //{
+            //    _maxHistoryLengthSelector.SelectedIndex = 0;
+            //}
             #endregion
             #region Page 6
             _gameValue = new Label(this)
@@ -1342,6 +1392,24 @@ namespace Mariasek.SharedClient
             var selector = sender as LeftRightSelector;
 
             Game.Settings.HlasConsidered = (HlasConsidered)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        void WhenToShuffleChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.WhenToShuffle = (ShuffleTrigger)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        void DirectionOfPlayChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.DirectionOfPlay = (DirectionOfPlay)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }

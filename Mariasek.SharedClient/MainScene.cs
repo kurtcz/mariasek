@@ -595,9 +595,9 @@ namespace Mariasek.SharedClient
             _trumpLabel1.Hide();
             _trumpLabel2 = new TextBox(this)
             {
-                HorizontalAlign = HorizontalAlignment.Left,
+                HorizontalAlign = Game.Settings.DirectionOfPlay == DirectionOfPlay.Clockwise ? HorizontalAlignment.Left : HorizontalAlignment.Right,
                 VerticalAlign = VerticalAlignment.Top,
-                Position = new Vector2(10, 5),
+                Position = Game.Settings.DirectionOfPlay == DirectionOfPlay.Clockwise ? new Vector2(10, 5) : new Vector2(Game.VirtualScreenWidth - 410, 5),
                 Width = 400,
                 Height = 60,
                 ZIndex = 100,
@@ -609,9 +609,9 @@ namespace Mariasek.SharedClient
             _trumpLabel2.Hide();
             _trumpLabel3 = new TextBox(this)
             {
-                HorizontalAlign = HorizontalAlignment.Right,
+                HorizontalAlign = Game.Settings.DirectionOfPlay == DirectionOfPlay.Clockwise ? HorizontalAlignment.Right : HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
-                Position = new Vector2(Game.VirtualScreenWidth - 410, 5),
+                Position = Game.Settings.DirectionOfPlay == DirectionOfPlay.Clockwise ? new Vector2(Game.VirtualScreenWidth - 410, 5) : new Vector2(10, 5),
                 Width = 400,
                 Height = 60,
                 ZIndex = 100,
@@ -719,7 +719,7 @@ namespace Mariasek.SharedClient
             _bubble1.Hide();
             _bubble2 = new TextBox(this)
             {
-                Position = new Vector2(10, 80),
+                Position = Game.Settings.DirectionOfPlay == DirectionOfPlay.Clockwise ? new Vector2(10, 80) : new Vector2(Game.VirtualScreenWidth - 260, 80),
                 Width = 250,
                 Height = 50,
                 BackgroundColor = new Color(0x40, 0x40, 0x40),
@@ -733,7 +733,7 @@ namespace Mariasek.SharedClient
             _bubble2.Hide();
             _bubble3 = new TextBox(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 260, 80),
+                Position = Game.Settings.DirectionOfPlay == DirectionOfPlay.Clockwise ? new Vector2(Game.VirtualScreenWidth - 260, 80) : new Vector2(10, 80),
                 Width = 250,
                 Height = 50,
                 BackgroundColor = new Color(0x40, 0x40, 0x40),
@@ -797,7 +797,7 @@ namespace Mariasek.SharedClient
             }
             _progress2 = new ProgressIndicator(this)
             {
-                Position = new Vector2(5, 0),
+                Position = Game.Settings.DirectionOfPlay == DirectionOfPlay.Clockwise ? new Vector2(5, 0) : new Vector2(Game.VirtualScreenWidth - 155, 0),
                 Width = 150,
                 Height = 8,
                 Color = Game.Settings.Player2Color,
@@ -806,7 +806,7 @@ namespace Mariasek.SharedClient
             };
             _progress3 = new ProgressIndicator(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 155, 0),
+                Position = Game.Settings.DirectionOfPlay == DirectionOfPlay.Clockwise ? new Vector2(Game.VirtualScreenWidth - 155, 0) : new Vector2(5, 0),
                 Width = 150,
                 Height = 8,
                 Color = Game.Settings.Player3Color,
@@ -824,6 +824,7 @@ namespace Mariasek.SharedClient
                 ZIndex = 200
             };
             _review.Hide();
+            UpdateControlsPositions();
 
             LoadHistory();
             Game.LoadGameSettings(false);
@@ -2829,7 +2830,11 @@ namespace Mariasek.SharedClient
                 _msgLabelRight.Text = rightMessage.ToString();
                 ShowGameScore();
                 //});
-                _shouldShuffle = results.GameWon && results.GamePlayed && g.RoundNumber == 1;
+                _shouldShuffle = (Game.Settings.WhenToShuffle == ShuffleTrigger.AfterAutomaticVictory && 
+                                  results.GameWon && 
+                                  results.GamePlayed && 
+                                  g.RoundNumber == 1) ||
+                                 Game.Settings.WhenToShuffle == ShuffleTrigger.Always;
                 //_aiConfig["SimulationsPerGameTypePerSecond"].Value = Game.Settings.GameTypeSimulationsPerSecond.ToString();
                 //_aiConfig["SimulationsPerRoundPerSecond"].Value = Game.Settings.RoundSimulationsPerSecond.ToString();
                 if (!_lastGameWasLoaded)
@@ -3433,7 +3438,80 @@ namespace Mariasek.SharedClient
                 UpdateCardTextures(this, oldTextures, newTextures);
                 Game.CardTextures = newTextures;
             }
-		}
+
+            UpdateControlsPositions();
+        }
+
+        public void UpdateControlsPositions()
+        {
+            if (_trumpLabel2 == null)
+            {
+                //controls not initialized yet
+                return;
+            }
+            if (Game.Settings.DirectionOfPlay == DirectionOfPlay.Clockwise)
+            {
+                _trumpLabel2.Position = new Vector2(10, 5);
+                _trumpLabel2.HorizontalAlign = HorizontalAlignment.Left;
+                _trumpLabel3.Position = new Vector2(Game.VirtualScreenWidth - 410, 5);
+                _trumpLabel3.HorizontalAlign = HorizontalAlignment.Right;
+                _progress2.Position = new Vector2(5, 0);
+                _progress3.Position = new Vector2(Game.VirtualScreenWidth - 155, 0);
+                _bubble2.Position = new Vector2(10, 80);
+                _bubble3.Position = new Vector2(Game.VirtualScreenWidth - 260, 80);
+                _cardsPlayed[1].Position = new Vector2(Game.VirtualScreenWidth / 2f - 50, Game.VirtualScreenHeight / 2f - 95);
+                _cardsPlayed[2].Position = new Vector2(Game.VirtualScreenWidth / 2f + 50, Game.VirtualScreenHeight / 2f - 105);
+                _hlasy[1][0].Position = new Vector2(100, 130);
+                _hlasy[1][1].Position = new Vector2(150, 130);
+                _hlasy[1][2].Position = new Vector2(200, 130);
+                _hlasy[1][3].Position = new Vector2(250, 130);
+                _hlasy[2][0].Position = new Vector2(Game.VirtualScreenWidth - 100, 130);
+                _hlasy[2][1].Position = new Vector2(Game.VirtualScreenWidth - 150, 130);
+                _hlasy[2][2].Position = new Vector2(Game.VirtualScreenWidth - 200, 130);
+                _hlasy[2][3].Position = new Vector2(Game.VirtualScreenWidth - 250, 130);
+                _stychy[1].Position = new Vector2(60, 90);
+                _stychy[2].Position = new Vector2(Game.VirtualScreenWidth - 60, 90);
+                _stareStychy[1].Position = new Vector2(60, 90);
+                _stareStychy[2].Position = new Vector2(Game.VirtualScreenWidth - 60, 90);
+                _poslStych[1][0].Position = new Vector2(200, 90);
+                _poslStych[1][1].Position = new Vector2(250, 90);
+                _poslStych[1][2].Position = new Vector2(300, 90);
+                _poslStych[2][0].Position = new Vector2(Game.VirtualScreenWidth - 200, 90);
+                _poslStych[2][1].Position = new Vector2(Game.VirtualScreenWidth - 250, 90);
+                _poslStych[2][2].Position = new Vector2(Game.VirtualScreenWidth - 300, 90);
+            }
+            else
+            {
+                _trumpLabel3.Position = new Vector2(10, 5);
+                _trumpLabel3.HorizontalAlign = HorizontalAlignment.Left;
+                _trumpLabel2.Position = new Vector2(Game.VirtualScreenWidth - 410, 5);
+                _trumpLabel2.HorizontalAlign = HorizontalAlignment.Right;
+                _progress3.Position = new Vector2(5, 0);
+                _progress2.Position = new Vector2(Game.VirtualScreenWidth - 155, 0);
+                _bubble3.Position = new Vector2(10, 80);
+                _bubble2.Position = new Vector2(Game.VirtualScreenWidth - 260, 80);
+                _cardsPlayed[2].Position = new Vector2(Game.VirtualScreenWidth / 2f - 50, Game.VirtualScreenHeight / 2f - 95);
+                _cardsPlayed[1].Position = new Vector2(Game.VirtualScreenWidth / 2f + 50, Game.VirtualScreenHeight / 2f - 105);
+                _hlasy[2][0].Position = new Vector2(100, 130);
+                _hlasy[2][1].Position = new Vector2(150, 130);
+                _hlasy[2][2].Position = new Vector2(200, 130);
+                _hlasy[2][3].Position = new Vector2(250, 130);
+                _hlasy[1][0].Position = new Vector2(Game.VirtualScreenWidth - 100, 130);
+                _hlasy[1][1].Position = new Vector2(Game.VirtualScreenWidth - 150, 130);
+                _hlasy[1][2].Position = new Vector2(Game.VirtualScreenWidth - 200, 130);
+                _hlasy[1][3].Position = new Vector2(Game.VirtualScreenWidth - 250, 130);
+                _stychy[2].Position = new Vector2(60, 90);
+                _stychy[1].Position = new Vector2(Game.VirtualScreenWidth - 60, 90);
+                _stareStychy[2].Position = new Vector2(60, 90);
+                _stareStychy[1].Position = new Vector2(Game.VirtualScreenWidth - 60, 90);
+                _poslStych[2][0].Position = new Vector2(200, 90);
+                _poslStych[2][1].Position = new Vector2(250, 90);
+                _poslStych[2][2].Position = new Vector2(300, 90);
+                _poslStych[1][0].Position = new Vector2(Game.VirtualScreenWidth - 200, 90);
+                _poslStych[1][1].Position = new Vector2(Game.VirtualScreenWidth - 250, 90);
+                _poslStych[1][2].Position = new Vector2(Game.VirtualScreenWidth - 300, 90);
+            }
+        }
 
         public void SuggestTrump(Card trumpCard, int? t = null)
         {

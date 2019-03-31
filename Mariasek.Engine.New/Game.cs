@@ -718,7 +718,6 @@ namespace Mariasek.Engine.New
                         startingPlayerIndex = CurrentRound.roundWinner.PlayerIndex;
                         roundNumber++;
                     }
-                    RoundSanityCheck();
                 }
                 var fleky = Enum.GetValues(typeof(Hra))
                                 .Cast<Hra>()
@@ -962,7 +961,6 @@ namespace Mariasek.Engine.New
                 using (var fs = GetFileStream("_end.hra"))
                 {
                     SaveGame(fs, saveDebugInfo: true);
-
 				}
 #endif
                 Bidding.Die();

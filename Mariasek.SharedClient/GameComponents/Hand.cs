@@ -394,6 +394,17 @@ namespace Mariasek.SharedClient.GameComponents
             var initialPosition = Centre;
             var delta = Vector2.Zero;
 
+            if (Game.Settings.DirectionOfPlay == DirectionOfPlay.Counterclockwise)
+            {
+                if (playerIndex == 1)
+                {
+                    playerIndex = 2;
+                }
+                else if (playerIndex == 2)
+                {
+                    playerIndex = 1;
+                }
+            }
             switch (playerIndex)
             {
                 case 0:
