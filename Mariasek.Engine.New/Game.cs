@@ -1832,7 +1832,7 @@ namespace Mariasek.Engine.New
                     BiddingDebugInfo.AppendFormat("+{0}", kqScore);
                 }
                 BiddingDebugInfo.AppendFormat("\nSkóre2: {0}", players[playerIndex].DebugInfo.EstimatedFinalBasicScore2);
-                BiddingDebugInfo.AppendFormat("\nTygrovo: {0}", players[playerIndex].DebugInfo.Tigrovo);
+                BiddingDebugInfo.AppendFormat("\nTygrovo: {0}", players[playerIndex].DebugInfo.Tygrovo);
                 BiddingDebugInfo.AppendFormat("\nSilná: {0}", players[playerIndex].DebugInfo.Strong);
             }
             if (players[playerIndex].TeamMateIndex == -1 && GameType != Hra.Durch)

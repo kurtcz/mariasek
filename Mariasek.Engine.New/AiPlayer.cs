@@ -1752,7 +1752,7 @@ namespace Mariasek.Engine.New
                 score += kqMax;
             }
             DebugInfo.EstimatedFinalBasicScore2 = score;
-            DebugInfo.Tigrovo = tigrovo1;
+            DebugInfo.Tygrovo = tigrovo1;
             DebugInfo.Strong = tigrovo2;
             _debugString.AppendFormat("EstimatedFinalBasicScore2: {0}\n", score);
 
@@ -2204,7 +2204,7 @@ namespace Mariasek.Engine.New
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = "Tygrovo",
-                RuleCount = DebugInfo.Tigrovo,
+                RuleCount = DebugInfo.Tygrovo,
                 TotalRuleCount = 100
             });
             allChoices.Add(new RuleDebugInfo
@@ -2342,7 +2342,7 @@ namespace Mariasek.Engine.New
                        _gamesBalance / (float)_gameSimulations >= gameThresholdPrevious &&
                        kqScore >= 40)) ||                       //a mam aspon 40 bodu v hlasech
                      (Hand.CardCount(_g.trump.Value) >= 4 &&    //nebo mam aspon 4 trumfy
-                      DebugInfo.Tigrovo >= 20))) ||             //a k tomu silne karty
+                      DebugInfo.Tygrovo >= 20))) ||             //a k tomu silne karty
                    (bidding.GameMultiplier < 2 &&               //Flek:
                     ((Hand.CardCount(_g.trump.Value) >= 2 &&    //aspon 2 trumfy
                       (Hand.HasK(_g.trump.Value) ||             //a k tomu trhak
@@ -2359,9 +2359,10 @@ namespace Mariasek.Engine.New
                       estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
                       //estimatedOpponentFinalBasicScore + Math.Min(60, kqMaxOpponentScore) < 100) ||
                       estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100) ||
-                      ((Hand.HasK(_g.trump.Value) ||
+                      ((Hand.CardCount(_g.trump.Value) >= 2 || 
+                        Hand.HasK(_g.trump.Value) ||
                         Hand.HasQ(_g.trump.Value)) &&
-                       DebugInfo.Tigrovo >= 15)))))))// ||
+                       DebugInfo.Tygrovo >= 15)))))))// ||
             {
                 bid |= bidding.Bids & Hra.Hra;
                 //minRuleCount = Math.Min(minRuleCount, _gamesBalance);
@@ -2525,7 +2526,7 @@ namespace Mariasek.Engine.New
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = "Tygrovo",
-                RuleCount = DebugInfo.Tigrovo,
+                RuleCount = DebugInfo.Tygrovo,
                 TotalRuleCount = 100
             });
             allChoices.Add(new RuleDebugInfo
@@ -2534,7 +2535,7 @@ namespace Mariasek.Engine.New
                 RuleCount = DebugInfo.Strong,
                 TotalRuleCount = 100
             });
-#else
+#endif
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = Hra.Hra.ToString(),
@@ -2577,7 +2578,6 @@ namespace Mariasek.Engine.New
                 RuleCount = _durchBalance,
                 TotalRuleCount = _durchSimulations
             });
-#endif
             DebugInfo.AllChoices = allChoices.OrderByDescending(i => i.RuleCount).ToArray();
 
             return bid;
