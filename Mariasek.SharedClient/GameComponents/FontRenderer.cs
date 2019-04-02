@@ -195,10 +195,9 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     dx -= lineRect.Width / 2f;
                 }
-                //vyska radku bude da nezavisle na textu
                 if (_characterMap.TryGetValue('X', out fc))
                 {
-                    lineHeight = (int)((fc.YOffset + fc.Height) * scaleFactor);
+                    lineHeight = fc.Height + fc.YOffset;
                 }
                 var wordNumber = 0;
                 var tabNumber = 0;
@@ -267,7 +266,7 @@ namespace Mariasek.SharedClient.GameComponents
                     }
                 }
                 dx = position.X;
-                dy += lineHeight + _lineSpacing;
+                dy += (lineHeight + _lineSpacing) * scaleFactor;
                 lineNumber++;
             }
 

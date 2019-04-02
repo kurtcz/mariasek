@@ -552,6 +552,9 @@ namespace Mariasek.Engine.New
             players[2].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
                                                                 i.Hrac2 != null &&
                                                                 i.Hrac3 != null).Select(i => new Card(i.Hrac3.Barva, i.Hrac3.Hodnota)));
+            players[0].Hand = players[0].Hand.Distinct().ToList();
+            players[1].Hand = players[1].Hand.Distinct().ToList(); 
+            players[2].Hand = players[2].Hand.Distinct().ToList();
             var temp = new List<Card>();
             for (int i = 0; i < 3; i++)
             {
@@ -757,6 +760,12 @@ namespace Mariasek.Engine.New
                     new List<Card>(players[1].Hand),
                     new List<Card>(players[2].Hand)
                 };
+                if (!IsRunning)
+                {
+                    players[0].Hand.Clear();
+                    players[1].Hand.Clear();
+                    players[2].Hand.Clear();
+                }
                 if (RoundNumber > 0)
                 {
                     hands[GameStartingPlayerIndex].Sort();

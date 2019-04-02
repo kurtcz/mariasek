@@ -308,8 +308,7 @@ namespace Mariasek.SharedClient
             }
             var ratio = total != 0 ? (wins * 100f / total) : 0f;
 
-            sb.AppendLine();
-            _historyBox.Text = sb.ToString();
+            _historyBox.Text = sb.ToString().TrimEnd();
             _historyChart.ScrollToEnd();
 			_historyBox.ScrollToBottom();
             _stat.Text = string.Format("Odehráno her:\n{0}\nZ toho výher:\n{1}\nPoměr: {2:N0}%\nPříště začíná:\n{3}", 
