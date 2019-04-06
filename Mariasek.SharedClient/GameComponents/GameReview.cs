@@ -248,7 +248,7 @@ namespace Mariasek.SharedClient.GameComponents
             var roundsLength = Game.MainScene?.g?.CurrentRound?.number ?? 0;
             var reviewCardScaleFactor = new Vector2(0.42f, 0.42f);//Game.CardScaleFactor * 0.7f; //default card scale factor = 0.6f
 
-			_background = new RectangleShape(this)
+            _background = new RectangleShape(this)
             {
                 BackgroundColors = new List<Color> { BackgroundColor },
                 BorderColors = new List<Color> { BackgroundColor },
@@ -324,8 +324,8 @@ namespace Mariasek.SharedClient.GameComponents
                 Rounds[i][0] = new Sprite(this, Game.CardTextures)//, rect)
                 {
                     Position = new Vector2(leftOffset, 100 + (i + headLength) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 30),
-					ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 1,
-					Scale = reviewCardScaleFactor
+                    ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 1,
+                    Scale = reviewCardScaleFactor
                 };
                 //if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka))
                 //{
@@ -353,8 +353,8 @@ namespace Mariasek.SharedClient.GameComponents
                 Rounds[i][1] = new Sprite(this, Game.CardTextures)//, rect)
                 {
                     Position = new Vector2(leftOffset + Hand.CardWidth * reviewCardScaleFactor.X - 10, 100 + (i + headLength) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 40),
-					ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 2,
-					Scale = reviewCardScaleFactor
+                    ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 2,
+                    Scale = reviewCardScaleFactor
                 };
                 //if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka))
                 //{
@@ -382,8 +382,8 @@ namespace Mariasek.SharedClient.GameComponents
                 Rounds[i][2] = new Sprite(this, Game.CardTextures)//, rect)
                 {
                     Position = new Vector2(leftOffset + 2 * (Hand.CardWidth * reviewCardScaleFactor.X - 10), 100 + (i + headLength) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 50),
-					ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 3,
-					Scale = reviewCardScaleFactor
+                    ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 3,
+                    Scale = reviewCardScaleFactor
                 };
                 //if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))
                 //{
@@ -414,11 +414,11 @@ namespace Mariasek.SharedClient.GameComponents
                                        (int)Position.Y);
             ScrollBarColor = Color.Transparent;
 
-			//var maxHlasKMarked = false;
+            //var maxHlasKMarked = false;
    //         var maxHlasQMarked = false;
-			//var maxHlasKAgainstMarked = false;
+            //var maxHlasKAgainstMarked = false;
             //var maxHlasQAgainstMarked = false;
-			for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
+            for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
             {
                 //var ii = (game.GameStartingPlayerIndex + i) % Mariasek.Engine.New.Game.NumPlayers;
                 //var hand = new List<Card>(_initialHands[ii].Sort(false, game.trump.HasValue ? false : true, game.trump));
@@ -459,11 +459,11 @@ namespace Mariasek.SharedClient.GameComponents
      //               {
      //                   if (maxHlasKMarked && maxHlasQMarked)
      //                   {
-					//		hlas = false;
-					//	}
+                    //        hlas = false;
+                    //    }
      //                   else if ((game.Results.MaxHlasWon == 40 &&
      //                             hand[j].Suit == game.trump) ||
-					//			 (game.Results.MaxHlasWon == 20 &&
+                    //             (game.Results.MaxHlasWon == 20 &&
      //                             hand[j].Suit != game.trump))
      //                   {
      //                       if (hand[j].Value == Hodnota.Kral)
@@ -476,21 +476,21 @@ namespace Mariasek.SharedClient.GameComponents
      //                       }
      //                   }
      //               }
-					//else if (hlas &&
-					//	     game.Results != null &&
-					//	     i != 0 &&
-					//	     (game.GameType & Hra.KiloProti) != 0 &&
-					//	     !game.Results.HundredAgainstWon)
-					//{
-					//	if (maxHlasKAgainstMarked && maxHlasQAgainstMarked)
-					//	{
-					//		hlas = false;
-					//	}
-					//	else if ((game.Results.MaxHlasLost == 40 &&
-					//			  hand[j].Suit == game.trump) ||
-					//			 (game.Results.MaxHlasLost == 20 &&
-					//			  hand[j].Suit != game.trump))
-					//	{
+                    //else if (hlas &&
+                    //         game.Results != null &&
+                    //         i != 0 &&
+                    //         (game.GameType & Hra.KiloProti) != 0 &&
+                    //         !game.Results.HundredAgainstWon)
+                    //{
+                    //    if (maxHlasKAgainstMarked && maxHlasQAgainstMarked)
+                    //    {
+                    //        hlas = false;
+                    //    }
+                    //    else if ((game.Results.MaxHlasLost == 40 &&
+                    //              hand[j].Suit == game.trump) ||
+                    //             (game.Results.MaxHlasLost == 20 &&
+                    //              hand[j].Suit != game.trump))
+                    //    {
      //                       if (hand[j].Value == Hodnota.Kral)
      //                       {
      //                           maxHlasKAgainstMarked = true;
@@ -499,13 +499,13 @@ namespace Mariasek.SharedClient.GameComponents
      //                       {
      //                           maxHlasQAgainstMarked = true;
      //                       }
-					//	}
-					//}
+                    //    }
+                    //}
                     Hands[i][j] = new Sprite(this, Game.CardTextures)//, rect)
                     {
                         Position = new Vector2(leftOffset + j * (Hand.CardWidth * reviewCardScaleFactor.X - 10), 100 + i * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 30),
-						ZIndex = i * Mariasek.Engine.New.Game.NumRounds + j + 1,
-						Scale = reviewCardScaleFactor
+                        ZIndex = i * Mariasek.Engine.New.Game.NumRounds + j + 1,
+                        Scale = reviewCardScaleFactor
                     };
      //               if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
      //                   (hand[j].Value == Hodnota.Eso ||
@@ -515,7 +515,7 @@ namespace Mariasek.SharedClient.GameComponents
      //                                                     k.c2 == hand[j] ||
      //                                                     k.c3 == hand[j])))
      //               {
-					//	var roundWinner = game.rounds.First(k => k != null &&
+                    //    var roundWinner = game.rounds.First(k => k != null &&
      //                                                                        (k.c1 == hand[j] ||
      //                                                                         k.c2 == hand[j] ||
      //                                                                         k.c3 == hand[j])).roundWinner;
@@ -527,7 +527,7 @@ namespace Mariasek.SharedClient.GameComponents
      //                   {
      //                       Hands[i][j].Tint = Color.LightPink;
      //                   }
-					//}
+                    //}
                     //if (hlas)
                     //{
                     //    if (game.players[ii].PlayerIndex == 0 || game.players[ii].TeamMateIndex == 0)
@@ -550,7 +550,7 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     Position = new Vector2(leftOffset + j * (Hand.CardWidth * reviewCardScaleFactor.X - 10), 100 + 3 * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 30),
                     ZIndex = Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + j + 1,
-					Scale = reviewCardScaleFactor,
+                    Scale = reviewCardScaleFactor,
                     SpriteRectangle = Rectangle.Empty
                 };
             }
@@ -690,6 +690,9 @@ namespace Mariasek.SharedClient.GameComponents
                     Rounds[i][j].Show();
                 }
             }
+            _initialHands[0] = _initialHands[0].Distinct().ToList();
+            _initialHands[1] = _initialHands[1].Distinct().ToList();
+            _initialHands[2] = _initialHands[2].Distinct().ToList();
             _initialHands[3] = game.talon;
             BoundsRect = new Rectangle(0, 0, (int)Game.VirtualScreenWidth - (int)Position.X,
                                        130 + 
@@ -848,5 +851,5 @@ namespace Mariasek.SharedClient.GameComponents
             }
             return debugNote.Substring(0, pos);
         }
-	}
+    }
 }

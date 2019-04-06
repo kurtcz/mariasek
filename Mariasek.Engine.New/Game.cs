@@ -760,14 +760,14 @@ namespace Mariasek.Engine.New
                     new List<Card>(players[1].Hand),
                     new List<Card>(players[2].Hand)
                 };
-                if (!IsRunning && 
-                    trump.HasValue &&
-                    rounds[0] != null)
-                {
-                    players[0].Hand.Clear();
-                    players[1].Hand.Clear();
-                    players[2].Hand.Clear();
-                }
+                //if (!IsRunning && 
+                //    trump.HasValue &&
+                //    rounds[0] != null)
+                //{
+                //    players[0].Hand.Clear();
+                //    players[1].Hand.Clear();
+                //    players[2].Hand.Clear();
+                //}
                 if (RoundNumber > 0)
                 {
                     hands[GameStartingPlayerIndex].Sort();
