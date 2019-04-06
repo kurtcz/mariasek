@@ -503,7 +503,7 @@ namespace Mariasek.SharedClient
 			try
 			{
 				StorageAccessor.GetStorageAccess();
-				using (var fs = File.Open(_settingsFilePath, FileMode.Open))
+    				using (var fs = File.Open(_settingsFilePath, FileMode.Open))
 				{
 					Settings = (GameSettings)xml.Deserialize(fs);
 				}

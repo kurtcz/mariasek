@@ -440,7 +440,7 @@ namespace Mariasek.SharedClient
                     }
                 }, _cancellationTokenSource.Token);
             }
-            var bd = _scene.GetBidsAndDoubles(bidding);
+            var bd = _scene.GetBidsAndDoubles(bidding.Clone());
 
             CancelAiTask();
             _g.ThrowIfCancellationRequested();

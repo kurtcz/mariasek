@@ -1885,7 +1885,11 @@ namespace Mariasek.Engine.New
                                         Hand.CardCount(b) > 2)))) < 2 ||
                      Hand.Select(i => i.Suit).Distinct().Count() < 4)) ||
                    (Hand.CardCount(_trump.Value) == 5 &&
-                    Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3);
+                    ((TeamMateIndex == -1 &&
+                      Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3) ||
+                     (TeamMateIndex != -1 &&
+                      Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 &&
+                      Hand.Count(i => i.Value >= Hodnota.Spodek) < 4)));
         }
 
         public bool IsHundredTooRisky()

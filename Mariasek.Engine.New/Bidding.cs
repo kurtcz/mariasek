@@ -287,7 +287,7 @@ namespace Mariasek.Engine.New
                 bidNumber < Game.NumPlayers && 
                 _g.players[playerIndex].TeamMateIndex != -1)
             {
-                if (_g.players[playerIndex].Hand.Contains(new Card(_g.trump.Value, Hodnota.Sedma)))
+                if (_g.players[playerIndex].Hand.Has7(_g.trump.Value))
                 {
                     Bids |= Hra.SedmaProti;
                 }
