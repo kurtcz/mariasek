@@ -2844,14 +2844,16 @@ namespace Mariasek.Engine.New
                                                                  .Select(i => i.Key)
                                                                  .First();
 
-                        return ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit == preferredSuit)
-                                                             .OrderBy(i => i.Value)
-                                                             .FirstOrDefault();
+                        return ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit == preferredSuit &&
+                                                                             i.Value != Hodnota.Eso &&
+                                                                             i.Value != Hodnota.Desitka)
+                                                                 .OrderBy(i => i.Value)
+                                                                 .FirstOrDefault();
                     }
                     return ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Value != Hodnota.Eso &&
-                                                                     i.Value != Hodnota.Desitka)
-                                                         .OrderBy(i => i.Value)
-                                                         .FirstOrDefault();
+                                                                         i.Value != Hodnota.Desitka)
+                                                             .OrderBy(i => i.Value)
+                                                             .FirstOrDefault();
                 }
             }; 
 
