@@ -760,14 +760,15 @@ namespace Mariasek.Engine.New
                     new List<Card>(players[1].Hand),
                     new List<Card>(players[2].Hand)
                 };
-                //if (!IsRunning && 
-                //    trump.HasValue &&
-                //    rounds[0] != null)
-                //{
-                //    players[0].Hand.Clear();
-                //    players[1].Hand.Clear();
-                //    players[2].Hand.Clear();
-                //}
+                if (!IsRunning &&
+                    rounds[0] != null &&
+                    ((GameType & (Hra.Betl | Hra.Durch)) == 0 ||
+                     Results.MoneyWon[GameStartingPlayerIndex] > 0))
+                {
+                    hands[0].Clear();
+                    hands[1].Clear();
+                    hands[2].Clear();
+                }
                 if (RoundNumber > 0)
                 {
                     hands[GameStartingPlayerIndex].Sort();
@@ -1403,8 +1404,8 @@ namespace Mariasek.Engine.New
 
         private bool PlayerWinsGame(AbstractPlayer player)
         {
-            var player2 = (GameStartingPlayerIndex + 1) % Game.NumPlayers;
-            var player3 = (GameStartingPlayerIndex + 2) % Game.NumPlayers;
+            var player2 = (player.PlayerIndex + 1) % Game.NumPlayers;
+            var player3 = (player.PlayerIndex + 2) % Game.NumPlayers;
             var hand1 = new List<Card>(player.Hand);
             var hand2 = new List<Card>(players[player2].Hand);
             var hand3 = new List<Card>(players[player3].Hand);
@@ -1437,7 +1438,8 @@ namespace Mariasek.Engine.New
                                                                             hand1.Any(i => i.Suit == b && i.BadValue < Card.GetBadValue(h))) ||
 																		   ((GameType & (Hra.Betl | Hra.Durch)) == 0 &&
 																		    hand1.Any(i => i.Suit == b && i.Value < h)))));
-				var topCards = hand1.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+
+                var topCards = hand1.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
 			                                        .Where(h => ((GameType & (Hra.Betl | Hra.Durch)) == 0 && h > i.Value) ||
                                                                  ((GameType & (Hra.Betl | Hra.Durch)) != 0 && Card.GetBadValue(h) > i.BadValue))
                                                     .All(h => hand2.All(j => j.Suit != i.Suit || j.Value != h) &&

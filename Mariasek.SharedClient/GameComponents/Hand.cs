@@ -111,7 +111,7 @@ namespace Mariasek.SharedClient.GameComponents
             return _cardButtons.FirstOrDefault(i => (Card)i.Tag == card);
         }
         //private RectangleShape rs;
-        private const int ZIndexBase = 50;
+        private const int ZIndexBase = 80;
         public const int CardWidth = 164;
         public const int CardHeight = 272;
         public delegate void ClickEventHandler(object sender);
@@ -201,6 +201,8 @@ namespace Mariasek.SharedClient.GameComponents
                     _cardButtons[i].Click += CardClicked;
                     _cardButtons[i].DragEnd += CardDragged;
                     _cardButtons[i].Position = Centre;
+                    _cardButtons[i].Show();
+                    _cardButtons[i].ShowBackSide();
                 }
                 if ((Card)_cardButtons[i].Tag != hand[i])
                 {
@@ -424,6 +426,7 @@ namespace Mariasek.SharedClient.GameComponents
             var targetPosition = initialPosition;
             for (var i = 0; i < _cardButtons.Length && _cardButtons[i] != null; i++, targetPosition += delta)
             {
+                _cardButtons[i].ClearOperations();
                 _cardButtons[i].Position = initialPosition;
                 _cardButtons[i].MoveTo(targetPosition, 200f);
             }
