@@ -1968,6 +1968,13 @@ namespace Mariasek.Engine.New
                             loCards--;
                             opA++;
                         }
+                        else if (hiCards == 1 &&        //mame aspon X+S+1 - eso vytlacime svrskem a jeste jednou, cili pocitame, ze mame o diru mene
+                                 Hand.HasQ(b) &&
+                                 Hand.CardCount(b) > 2)
+                        {
+                            loCards -= 2;
+                            opA++;
+                        }
                     }
                 }
                 else
@@ -2357,16 +2364,14 @@ namespace Mariasek.Engine.New
                      ((Hand.HasK(_g.trump.Value) ||             //pouze trhak a 40 bodu v hlasech na ruce
                        Hand.HasQ(_g.trump.Value)) &&
                         kqScore >= 40) ||                       //nebo
-                     ((Hand.CardCount(_g.trump.Value) >= 2 ||   //dva trumfy nebo trhak a vetsina bodu
-                       Hand.HasK(_g.trump.Value) ||
+                     ((Hand.HasK(_g.trump.Value) ||             //trhak a vetsina bodu
                        Hand.HasQ(_g.trump.Value)) &&
                       estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
                       //estimatedOpponentFinalBasicScore + Math.Min(60, kqMaxOpponentScore) < 100) ||
                       estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100) ||
-                      ((Hand.CardCount(_g.trump.Value) >= 2 || 
-                        Hand.HasK(_g.trump.Value) ||
+                      ((Hand.HasK(_g.trump.Value) ||
                         Hand.HasQ(_g.trump.Value)) &&
-                       DebugInfo.Tygrovo >= 15)))))))// ||
+                       DebugInfo.Tygrovo >= 15)))))))
             {
                 bid |= bidding.Bids & Hra.Hra;
                 //minRuleCount = Math.Min(minRuleCount, _gamesBalance);
