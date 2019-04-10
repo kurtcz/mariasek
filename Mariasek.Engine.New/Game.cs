@@ -1414,6 +1414,8 @@ namespace Mariasek.Engine.New
             {
 
                 player = GameStartingPlayer;
+                player2 = (player.PlayerIndex + 1) % Game.NumPlayers;
+                player3 = (player.PlayerIndex + 2) % Game.NumPlayers;
 
                 return player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => j.IsHigherThan(i, trump) && k.IsHigherThan(i, trump))));
             }
