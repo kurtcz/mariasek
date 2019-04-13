@@ -426,7 +426,7 @@ namespace Mariasek.Engine.New
         private List<Card> ChooseNormalTalon(List<Card> hand, Card trumpCard)
         {
             var hh = new List<Card>(hand);
-            return ChooseNormalTalonImpl(hand, trumpCard);
+            return ChooseNormalTalonImpl(hh, trumpCard);
         }
 
         private List<Card> ChooseNormalTalonImpl(List<Card> hand, Card trumpCard)
@@ -456,8 +456,17 @@ namespace Mariasek.Engine.New
                                .ThenBy(i => hand.Count(j => j.Suit == i.Suit &&    //v pripade stejne delky barev
                                             j.Value == Hodnota.Eso)));             //dej prednost barve s esem
 
+            //potom zkus vzit plivy od barvy kde mam A + X + plivu
+            talon.AddRange(hand.Where(i => i.Suit != trumpCard.Suit &&
+                                           i.Value != Hodnota.Eso &&
+                                           i.Value != Hodnota.Desitka &&
+                                           hand.HasA(i.Suit) &&
+                                           hand.HasX(i.Suit) &&
+                                           hand.CardCount(i.Suit) == 3)
+                               .OrderBy(i => hand.Count(j => j.Suit == i.Suit)));  //vybirej od nejkratsich barev
+
             //potom zkus vzit karty v barve kde krom esa mam 3 plivy (a nemam hlasku)
-			talon.AddRange(hand.Where(i => i.Suit != trumpCard.Suit &&             //nevybirej trumfy
+            talon.AddRange(hand.Where(i => i.Suit != trumpCard.Suit &&             //nevybirej trumfy
                                            !hand.HasA(i.Suit) &&                   //v barve kde neznam A, X ani nemam hlas
                                            !hand.HasX(i.Suit) &&
                                            !(hand.HasK(i.Suit) && hand.HasQ(i.Suit)))
@@ -2367,7 +2376,6 @@ namespace Mariasek.Engine.New
                      ((Hand.HasK(_g.trump.Value) ||             //trhak a vetsina bodu
                        Hand.HasQ(_g.trump.Value)) &&
                       estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
-                      //estimatedOpponentFinalBasicScore + Math.Min(60, kqMaxOpponentScore) < 100) ||
                       estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100) ||
                       ((Hand.HasK(_g.trump.Value) ||
                         Hand.HasQ(_g.trump.Value)) &&

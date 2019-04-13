@@ -37,12 +37,12 @@ namespace Mariasek.Engine.New
             {
 #if PORTABLE
                 var fieldInfo = value.GetType().GetRuntimeField(entries[i].Trim());
-                var attributes = fieldInfo.GetCustomAttributes<DescriptionAttribute>(false).ToArray();
+                var attributes = fieldInfo != null ? fieldInfo.GetCustomAttributes<DescriptionAttribute>(false).ToArray() : null;
 #else
                 var fieldInfo = value.GetType().GetField(entries[i].Trim());
                 var attributes = (DescriptionAttribute[])fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false);
 #endif
-                description[i] = (attributes.Length > 0) ? attributes[0].Description : entries[i].Trim();
+                description[i] = (attributes != null && attributes.Length > 0) ? attributes[0].Description : entries[i].Trim();
 			}
             return String.Join(", ", description);
         }
