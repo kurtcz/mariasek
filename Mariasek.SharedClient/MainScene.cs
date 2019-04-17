@@ -1052,10 +1052,13 @@ namespace Mariasek.SharedClient
                                   (bidding.SevenAgainstLastBidder == null ||
                                    bidding.SevenAgainstLastBidder.PlayerIndex != g.players[0].TeamMateIndex));
             if (!Game.Settings.Calculate107Separately &&
-                (((bids & Hra.Kilo) != 0 &&
+                ((g.GameType == (Hra.Kilo | Hra.Sedma) &&
+                  (bids & Hra.Kilo) != 0 &&
                   (bids & Hra.Sedma) != 0) ||
-                ((bids & Hra.KiloProti) != 0 &&
-                  (bids & Hra.SedmaProti) != 0)))
+                ((g.GameType & Hra.KiloProti) != 0 &&
+                 (g.GameType & Hra.SedmaProti) != 0 &&
+                 (bids & Hra.KiloProti) != 0 &&
+                 (bids & Hra.SedmaProti) != 0)))
             {
                 sedmaBtn.IsEnabled = false;
             }
@@ -1528,7 +1531,14 @@ namespace Mariasek.SharedClient
                     {
                         if (e.roundNumber > 1)
                         {
-                            ShowMsgLabel("Už mě nechytíte", false);
+                            if (e.winner.PlayerIndex != g.GameStartingPlayerIndex)
+                            {
+                                ShowMsgLabel("Zbytek jde za mnou", false);
+                            }
+                            else
+                            {
+                                ShowMsgLabel("Už mě nechytíte", false);
+                            }
                         }
                         else
                         {

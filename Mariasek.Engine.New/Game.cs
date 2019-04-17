@@ -930,15 +930,17 @@ namespace Mariasek.Engine.New
 
                     for (; RoundNumber <= NumRounds; RoundNumber++)
                     {
+                        var catchCardsMayExist = false;
+
                         //predcasne vitezstvi ukazuju jen do sedmeho kola, pro posledni 2 karty to nema smysl
                         //(kontrola je po sedmem kole)
 						if (RoundNumber <= 8 && 
                             ((AllowPlayerAutoFinish && roundWinner.PlayerIndex == 0) || 
                              (AllowAIAutoFinish && roundWinner.PlayerIndex != 0)) &&
-                            PlayerWinsGame(roundWinner))
+                            PlayerWinsGame(roundWinner, out catchCardsMayExist))
 						{
 							IsRunning = false;
-							if (GameType == Hra.Betl)
+							if (GameType == Hra.Betl && !catchCardsMayExist)
 							{
 								roundWinner = GameStartingPlayer;
 							}
@@ -1402,7 +1404,7 @@ namespace Mariasek.Engine.New
             return false;
         }
 
-        private bool PlayerWinsGame(AbstractPlayer player)
+        private bool PlayerWinsGame(AbstractPlayer player, out bool catchCardsMayExist)
         {
             var player2 = (player.PlayerIndex + 1) % Game.NumPlayers;
             var player3 = (player.PlayerIndex + 2) % Game.NumPlayers;
@@ -1410,9 +1412,15 @@ namespace Mariasek.Engine.New
             var hand2 = new List<Card>(players[player2].Hand);
             var hand3 = new List<Card>(players[player3].Hand);
 
+            catchCardsMayExist = false;
             if (GameType == Hra.Betl)
             {
-
+                //hrac ktery vynasi ma vsechny nejvyssi karty a spoluhrac se nema jak dostat do stychu i kdyby aktera chytal
+                if (player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => i.IsHigherThan(j, trump) && i.IsHigherThan(k, trump)))))
+                {
+                    catchCardsMayExist = true;
+                    return true;
+                }
                 player = GameStartingPlayer;
                 player2 = (player.PlayerIndex + 1) % Game.NumPlayers;
                 player3 = (player.PlayerIndex + 2) % Game.NumPlayers;
