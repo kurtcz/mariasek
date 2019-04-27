@@ -1576,7 +1576,10 @@ namespace Mariasek.SharedClient
                     {
                         winningCards = winningCards.Sort(SortMode.Descending, true).ToList();
                     }
-                    _winningHand = new GameComponents.Hand(this, winningCards.ToArray());
+                    _winningHand = new GameComponents.Hand(this, winningCards.ToArray())
+                    {
+                        ZIndex = 50
+                    };
                     _winningHand.ShowWinningHand(e.winner.PlayerIndex);
                     _winningHand.Show();
                     _state = GameState.RoundFinished;

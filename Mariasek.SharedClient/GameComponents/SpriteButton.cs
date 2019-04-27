@@ -73,7 +73,17 @@ namespace Mariasek.SharedClient.GameComponents
                 //if sprite is moving its position will be adjusted inside Update()
             }
         }
-            
+
+        public override int ZIndex
+        {
+            get { return base.ZIndex; }
+            set
+            {
+                base.ZIndex = value;
+                Sprite.ZIndex = value;
+            }
+        }
+
         public override void Show()
         {
             base.Show();
