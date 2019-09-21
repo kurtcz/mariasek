@@ -51,7 +51,8 @@ namespace Mariasek.Engine.New
                             var mojeHlasy = PointsWon - BasicPointsWon;
 
                             //pokud se pocita stosedm dohromady a neuhral jsem sedmu, ale uhral kilo, tak pocitej kilo jako tesne prohrane
-                            if (90 + mojeHlasy - bodyProti < 0 &&
+                            if (bodyProti >= 100 &&
+                                !SevenAgainstWon &&
                                 !Calculate107Separately)
                             {
                                 HundredAgainstMoneyWon = HundredValue * _bidding.HundredAgainstMultiplier;
@@ -168,7 +169,7 @@ namespace Mariasek.Engine.New
                         var hlasyProti = PointsLost - BasicPointsLost;
 
                         //pokud se pocita stosedm dohromady a neuhral jsem sedmu, ale uhral kilo, tak pocitej kilo jako tesne prohrane
-                        if (90 + hlasyProti  - mojeBody < 0 &&
+                        if (mojeBody >= 100 &&
                             !SevenWon &&
                             !Calculate107Separately)
                         {

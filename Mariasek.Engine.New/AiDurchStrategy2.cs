@@ -289,7 +289,6 @@ namespace Mariasek.Engine.New
             {
                 Order = 3,
                 Description = "hrát největší kartu, kterou nechytám",
-                //Description = "hrát nejmenší kartu, kterou nechytám",
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
                 {
@@ -297,6 +296,10 @@ namespace Mariasek.Engine.New
                     {
                         var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => cardsToKeep.SelectMany(j => j.Value)
                                                                                                .All(j => i != j));
+                        if (cardsToPlay.Any(i => !cardsToKeep.ContainsKey(i.Suit)))
+                        {
+                            cardsToPlay = cardsToPlay.Where(i => !cardsToKeep.ContainsKey(i.Suit));
+                        }
 
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
@@ -581,6 +584,10 @@ namespace Mariasek.Engine.New
                     {
                         var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => cardsToKeep.SelectMany(j => j.Value)
                                                                                                    .All(j => i != j));
+                        if (cardsToPlay.Any(i => !cardsToKeep.ContainsKey(i.Suit)))
+                        {
+                            cardsToPlay = cardsToPlay.Where(i => !cardsToKeep.ContainsKey(i.Suit));
+                        }
 
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }

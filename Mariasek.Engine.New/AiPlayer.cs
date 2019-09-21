@@ -1903,103 +1903,111 @@ namespace Mariasek.Engine.New
 
         public bool IsHundredTooRisky()
         {
-            var n = 0;
-            var axCount = Hand.Count(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka);
+			var n = 0;
+			var axCount = Hand.Count(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka);
 
-            if (axCount >= 6)
-            {
-                return false;
-            }
-            if ((!Hand.HasA(_trump.Value) &&
-                 Hand.CardCount(_trump.Value) < 4) ||
-                (!Hand.HasA(_trump.Value) &&
-                 !Hand.HasX(_trump.Value) &&
-                 Hand.CardCount(Hodnota.Eso) < 3 &&
-                 Hand.CardCount(_trump.Value) == 4))
-            {
-                return true;
-            }
-            if (Hand.Count(i => i.Suit == _trump.Value && i.Value >= Hodnota.Spodek) < 3)
-            {
-                return true;
-            }
-            //Pokud vic nez v jedne barve nemas eso nebo mas vetsi diru tak kilo nehraj. Souperi by si mohli uhrat desitky
-            var dict = new Dictionary<Barva, Tuple<int, Hodnota, Hodnota>>();
+			if (axCount >= 6)
+			{
+				return false;
+			}
+			if (!((Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value)) || //abych nehral kilo pokud aspon netrham a nemam aspon 2 hlasky
+					 Enum.GetValues(typeof(Barva)).Cast<Barva>()
+						 .Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2))
+			{
+				return true;
+			}
+			if ((!Hand.HasA(_trump.Value) &&
+				 Hand.CardCount(_trump.Value) < 4) ||
+				((!Hand.HasA(_trump.Value) ||
+				  !Hand.HasX(_trump.Value)) &&
+				 Enum.GetValues(typeof(Barva)).Cast<Barva>()
+					 .Where(b => b != _trump && Hand.HasSuit(b))
+					 .Any(b => !Hand.HasA(b)) &&
+				 Hand.CardCount(_trump.Value) == 4))
+			{
+				return true;
+			}
+			if (Hand.Count(i => i.Suit == _trump.Value && i.Value >= Hodnota.Spodek) < 3)
+			{
+				return true;
+			}
+			//Pokud vic nez v jedne barve nemas eso nebo mas vetsi diru tak kilo nehraj. Souperi by si mohli uhrat desitky
+			var dict = new Dictionary<Barva, Tuple<int, Hodnota, Hodnota>>();
 
-            foreach(var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
-            {
-                var topCard = Hand.Where(i => i.Suit == b).OrderByDescending(i => i.Value).FirstOrDefault();
-                var secondCard = Hand.Where(i => i.Suit == b).OrderByDescending(i => i.Value).Skip(1).FirstOrDefault();
-                var holeSize = topCard == null || secondCard == null
-                                ? 0
-                                : topCard.Value - secondCard.Value - 1;
+			foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+			{
+				var topCard = Hand.Where(i => i.Suit == b).OrderByDescending(i => i.Value).FirstOrDefault();
+				var secondCard = Hand.Where(i => i.Suit == b).OrderByDescending(i => i.Value).Skip(1).FirstOrDefault();
+				var holeSize = topCard == null || secondCard == null
+								? 0
+								: topCard.Value - secondCard.Value - 1;
 
-                dict.Add(b, new Tuple<int, Hodnota, Hodnota>(holeSize, topCard?.Value ?? Hodnota.Eso, secondCard?.Value ?? Hodnota.Eso));
-            }
-            if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                    .Count(b => dict[b].Item1 > 2 ||
-                                (dict[b].Item2 != Hodnota.Eso &&
-                                 (dict[b].Item2 != Hodnota.Desitka ||
-                                  dict[b].Item3 < Hodnota.Kral))) > 1)
-            {
-                return true;
-            }
-            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
-            {
-                var hiCards = Hand.Count(i => i.Suit == b &&
-                                              Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                  .Select(h => new Card(b, h))
-                                                  .All(j => j.Value < i.Value ||
-                                                            Hand.Contains(j))); //pocet nejvyssich karet v barve
-                var loCards = Hand.CardCount(b) - hiCards;                      //pocet karet ktere maji nad sebou diru v barve
-                var opCards = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()   //vsechny hodnoty ktere v dane barve neznam
-                                .Where(h => !Hand.Any(i => i.Suit == b &&
-                                                           i.Value == h))
-                                .ToList();
-                var opA = 0;
-                if (opCards.Count() >= hiCards)                                 //odstran tolik nejmensich hodnot kolik mam nejvyssich karet
-                {
-                    opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
-                    if (hiCards == 0)
-                    {
-                        //Korekce: -XKS--8- by podle tohoto vyslo jako 3, ale ve skutecnosti vytlacim eso (1) kralem
-                        //zbyvajici 2 nejvyssi trumfy pokryjou 2 diry a zbyde jedna dira. Cili spravny vysledek ma byt 2
+				dict.Add(b, new Tuple<int, Hodnota, Hodnota>(holeSize, topCard?.Value ?? Hodnota.Eso, secondCard?.Value ?? Hodnota.Eso));
+			}
+			if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+					.Count(b => dict[b].Item1 > 2 ||
+								(dict[b].Item2 != Hodnota.Eso &&
+								 (dict[b].Item2 != Hodnota.Desitka ||
+								  dict[b].Item3 < Hodnota.Kral))) > 1)
+			{
+				return true;
+			}
+			foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+			{
+				var hiCards = Hand.Count(i => i.Suit == b &&
+											  Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+												  .Select(h => new Card(b, h))
+												  .All(j => j.Value < i.Value ||
+															Hand.Contains(j))); //pocet nejvyssich karet v barve
+				var loCards = Hand.CardCount(b) - hiCards;                      //pocet karet ktere maji nad sebou diru v barve
+				var opCards = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()   //vsechny hodnoty ktere v dane barve neznam
+								.Where(h => !Hand.Any(i => i.Suit == b &&
+														   i.Value == h))
+								.ToList();
+				var opA = 0;
+				if (opCards.Count() >= hiCards)                                 //odstran tolik nejmensich hodnot kolik mam nejvyssich karet
+				{
+					opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
+					if (hiCards == 0)
+					{
+						//Korekce: -XKS--8- by podle tohoto vyslo jako 3, ale ve skutecnosti vytlacim eso (1) kralem
+						//zbyvajici 2 nejvyssi trumfy pokryjou 2 diry a zbyde jedna dira. Cili spravny vysledek ma byt 2
 
-                        //spocitej nevyssi karty bez esa
-                        hiCards = Hand.Count(i => i.Suit == b &&
-                                              Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()                                                   
-                                                  .Where(h => h < Hodnota.Eso)
-                                                  .Select(h => new Card(b, h))
-                                                  .All(j => j.Value < i.Value ||
-                                                            Hand.Contains(j)));
-                        if (hiCards > 1) //mame aspon X a K - eso vytlacime kralem, cili pocitame, ze mame o trumf mene a o diru mene (nize)
-                        {
-                            loCards--;
-                            opA++;
-                        }
-                        else if (hiCards == 1 &&        //mame aspon X+S+1 - eso vytlacime svrskem a jeste jednou, cili pocitame, ze mame o diru mene
-                                 Hand.HasQ(b) &&
-                                 Hand.CardCount(b) > 2)
-                        {
-                            loCards -= 2;
-                            opA++;
-                        }
-                    }
-                }
-                else
-                {
-                    opCards.Clear();
-                }
-                var holes = opCards.Count(h => Hand.Any(i => i.Suit == b &&     //pocet zbylych der vyssich nez moje nejnizsi karta
-                                                             i.Value < h)) - opA;
-                n += Math.Min(holes, loCards);
-            }
+						//spocitej nevyssi karty bez esa
+						hiCards = Hand.Count(i => i.Suit == b &&
+											  Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+												  .Where(h => h < Hodnota.Eso)
+												  .Select(h => new Card(b, h))
+												  .All(j => j.Value < i.Value ||
+															Hand.Contains(j)));
+						if (hiCards > 1) //mame aspon X a K - eso vytlacime kralem, cili pocitame, ze mame o trumf mene a o diru mene (nize)
+						{
+							loCards--;
+							opA++;
+						}
+						else if (hiCards == 1 &&        //mame aspon X+S+1 - eso vytlacime svrskem a jeste jednou, cili pocitame, ze mame o diru mene
+								 Hand.HasQ(b) &&
+								 Hand.CardCount(b) > 2)
+						{
+							loCards -= 2;
+							opA++;
+						}
+					}
+				}
+				else
+				{
+					opCards.Clear();
+				}
+				var holes = opCards.Count(h => Hand.Any(i => i.Suit == b &&     //pocet zbylych der vyssich nez moje nejnizsi karta
+															 i.Value < h)) - opA;
+				n += Math.Min(holes, loCards);
+			}
 
-            return n > 4 ||                         //u vice nez 4 neodstranitelnych der kilo urcite neuhraju
-                   (n > 1 &&                        //pokud mam vic nez 1 neodstranitelnou diru
-                    !(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
-                      Hand.HasQ(_trump.Value)));
-        }
+			return n > 4 ||                         //u vice nez 4 neodstranitelnych der kilo urcite neuhraju
+				   (n > 1 &&                        //pokud mam vic nez 1 neodstranitelnou diru
+					!(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
+					  Hand.HasQ(_trump.Value)));
+		}
 
         public bool ShouldChooseHundred()
 		{
@@ -2134,9 +2142,6 @@ namespace Mariasek.Engine.New
 
                 if (Settings.CanPlayGameType[Hra.Kilo] && 
                     _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations && _hundredSimulations > 0 &&
-                    ((Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value)) || //abych nehral kilo pokud aspon netrham a nemam aspon 2 hlasky
-                     Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                         .Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2) &&
                     !IsHundredTooRisky())
                 {
                     gameType = Hra.Kilo;

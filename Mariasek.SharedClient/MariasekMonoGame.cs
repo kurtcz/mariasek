@@ -507,6 +507,7 @@ namespace Mariasek.SharedClient
 				{
 					Settings = (GameSettings)xml.Deserialize(fs);
 				}
+				SettingsLoaded = true;
 			}
 			catch (Exception e)
 			{
@@ -532,7 +533,6 @@ namespace Mariasek.SharedClient
                 Settings.RiskFactor = 0.5f;
             }
             CardScaleFactor = new Vector2(Settings.CardScaleFactor, Settings.CardScaleFactor);
-            SettingsLoaded = true;
 		}
 
 		public delegate void SettingsChangedEventHandler(object sender, SettingsChangedEventArgs e);
