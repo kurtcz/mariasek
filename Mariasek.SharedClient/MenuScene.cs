@@ -177,9 +177,9 @@ namespace Mariasek.SharedClient
                 if (Game.AmbientSound != null && !Game.AmbientSound.IsDisposed)
                 {
                     Game.AmbientSound.Volume = Game.Settings.BgSoundEnabled ? 0.2f : 0f;
-                    Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Game.Settings.BgSoundEnabled ? 0.1f : 0f;
-                    Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
-                    Microsoft.Xna.Framework.Media.MediaPlayer.Play(Game.NaPankraciSong);
+                    //Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Game.Settings.BgSoundEnabled ? 0.1f : 0f;
+                    //Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
+                    //Microsoft.Xna.Framework.Media.MediaPlayer.Play(Game.NaPankraciSong);
                 }
             }
             catch (Exception ex)

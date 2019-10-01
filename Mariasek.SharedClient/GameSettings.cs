@@ -57,6 +57,8 @@ namespace Mariasek.SharedClient
         public bool HintEnabled { get; set; }
         public bool SoundEnabled { get; set; }
         public bool BgSoundEnabled { get; set; }
+        public int BgMusicMinDelayMs { get; set; }
+        public int BgMusicMaxDelayMs { get; set; }
         public string[] PlayerNames { get; set; }
         public SortMode SortMode { get; set; }
         public ShuffleTrigger WhenToShuffle { get; set; }
@@ -148,6 +150,8 @@ namespace Mariasek.SharedClient
             HintEnabled = true;
             SoundEnabled = true;
             BgSoundEnabled = true;
+            BgMusicMinDelayMs = 60000;
+            BgMusicMaxDelayMs = 120000;
             SortMode = SortMode.Descending;
             WhenToShuffle = ShuffleTrigger.AfterAutomaticVictory;
             AutoSort = true;

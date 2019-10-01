@@ -12,6 +12,7 @@ using Mariasek.SharedClient.GameComponents;
 using System.Xml.Serialization;
 using Mariasek.Engine.New;
 using System.Diagnostics;
+using System.Threading.Tasks;
 #if __IOS__
 using Foundation;
 #endif
@@ -54,6 +55,7 @@ namespace Mariasek.SharedClient
         private Texture2D _progressBar;
         private int _progressRenderWidth;
         private int _maxRenderWidth;
+        private Random _random = new Random();
 
         public GraphicsDeviceManager Graphics { get; private set; }
         public TouchCollection TouchCollection { get; private set; }
@@ -532,6 +534,14 @@ namespace Mariasek.SharedClient
             {
                 Settings.RiskFactor = 0.5f;
             }
+            if (Settings.BgMusicMinDelayMs <= 0)
+            {
+                Settings.BgMusicMinDelayMs = 60000;
+            }
+            if (Settings.BgMusicMaxDelayMs <= Settings.BgMusicMinDelayMs)
+            {
+                Settings.BgMusicMaxDelayMs = Settings.BgMusicMinDelayMs;
+            }
             CardScaleFactor = new Vector2(Settings.CardScaleFactor, Settings.CardScaleFactor);
 		}
 
@@ -605,12 +615,11 @@ namespace Mariasek.SharedClient
                 AmbientSound.Volume = 0;
                 AmbientSound.PlaySafely();
             }
-            if (NaPankraciSong != null && !NaPankraciSong.IsDisposed)
+            Task.Run(async () =>
             {
-                Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
-                Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Settings.BgSoundEnabled ? 0.1f : 0f;
-                Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
-            }
+                await Task.Delay(_random.Next(Settings.BgMusicMinDelayMs) / 2);
+                PlayBackgroundMusic();
+            });
             System.Diagnostics.Debug.WriteLine("update sw {0}", sw.ElapsedMilliseconds);
 
             if (!SettingsLoaded)
@@ -621,12 +630,29 @@ namespace Mariasek.SharedClient
             MainScene.ResumeGame();
         }
 
-		/// <summary>
-		/// Allows the game to run logic such as updating the world,
-		/// checking for collisions, gathering input, and playing audio.
-		/// </summary>
-		/// <param name="gameTime">Provides a snapshot of timing values.</param>
-		protected override void Update (GameTime gameTime)
+        public async void PlayBackgroundMusic()
+        {
+            if (NaPankraciSong != null && !NaPankraciSong.IsDisposed)
+            {
+                await Task.Run(() =>
+                {
+                    //Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
+                    if (Microsoft.Xna.Framework.Media.MediaPlayer.State == MediaState.Stopped)
+                    {
+                        Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Settings.BgSoundEnabled ? 0.1f : 0f;
+                        Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
+                    }
+                });
+                await Task.Delay(_random.Next(Settings.BgMusicMinDelayMs, Settings.BgMusicMaxDelayMs));
+                PlayBackgroundMusic();
+            }
+        }
+        /// <summary>
+        /// Allows the game to run logic such as updating the world,
+        /// checking for collisions, gathering input, and playing audio.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        protected override void Update (GameTime gameTime)
 		{
             try
             {
