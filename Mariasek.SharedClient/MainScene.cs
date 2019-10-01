@@ -1007,8 +1007,8 @@ namespace Mariasek.SharedClient
                 var endGameArchivePath = Path.Combine(_archivePath, string.Format("{0}.end.hra", baseFileName));
 
                 CreateDirectoryForFilePath(newGameArchivePath);
-                File.Copy(_newGameFilePath, newGameArchivePath);
-                File.Copy(_endGameFilePath, endGameArchivePath);
+                FileCopy(_newGameFilePath, newGameArchivePath);
+                FileCopy(_endGameFilePath, endGameArchivePath);
 
                 return counter;
             }
@@ -3194,7 +3194,7 @@ namespace Mariasek.SharedClient
                     }
                     else
                     {
-                        File.Copy(_newGameFilePath, _savedGameFilePath, true);
+                        FileCopy(_newGameFilePath, _savedGameFilePath, true);
                     }
                 }
                 catch (Exception e)
@@ -3220,7 +3220,7 @@ namespace Mariasek.SharedClient
                 else if (CanLoadTestGame())
                 {
                     _testGame = true;
-                    File.Copy(_testGameFilePath, _newGameFilePath, true);
+                    FileCopy(_testGameFilePath, _newGameFilePath, true);
                     LoadGame(true);
                 }
             }
@@ -3242,9 +3242,9 @@ namespace Mariasek.SharedClient
                     Game.StorageAccessor.GetStorageAccess();
                     if (gamePath != _newGameFilePath)
                     {
-                        File.Copy(gamePath, _newGameFilePath, true);
+                        FileCopy(gamePath, _newGameFilePath, true);
                     }
-                    File.Copy(gamePath, _savedGameFilePath, true);
+                    FileCopy(gamePath, _savedGameFilePath, true);
                     LoadGame(impersonationPlayerIndex: impersonationPlayerIndex);
                 }
                 catch (Exception ex)
@@ -4003,6 +4003,22 @@ namespace Mariasek.SharedClient
             if (g != null)
             {
                 AmendCardScaleFactor();
+            }
+        }
+
+        //Addresses bug File.Copy throwing UnauthorizedAccessException in Xamarin.Android 9.4+
+        //See https://forums.xamarin.com/discussion/163424/file-copy-throws-system-unauthorizedaccessexception-but-file-is-copied-successful
+        //See https://github.com/xamarin/xamarin-android/issues/3426
+        //See https://github.com/mono/mono/issues/16032
+        private void FileCopy(string source, string destination, bool overwrite = true)
+        {
+            try
+            {
+                File.Copy(source, destination, overwrite);
+            }
+            catch (Exception ex)
+            {
+                File.WriteAllText(destination, File.ReadAllText(source));
             }
         }
     }
