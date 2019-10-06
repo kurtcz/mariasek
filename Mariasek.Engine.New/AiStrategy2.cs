@@ -747,11 +747,12 @@ namespace Mariasek.Engine.New
                                                                  _preferredSuits.Contains(i.Suit)) &&
                                                                 _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0f &&
                                                                 _probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0f &&
-                                                                Enum.GetValues(typeof(Hodnota))                                         //musi byt sance, ze spoluhrac ma
-                                                                    .Cast<Hodnota>().Any(h => h > i.Value &&                            //v barve i neco jineho nez A nebo X
-                                                                                              h != Hodnota.Eso &&
-                                                                                              h != Hodnota.Desitka &&
-                                                                                              _probabilities.CardProbability(player2, new Card(i.Suit, h)) > _epsilon));
+                                                                Enum.GetValues(typeof(Hodnota))                             //musi byt sance, ze spoluhrac ma
+                                                                    .Cast<Hodnota>()                                        //v barve i neco jineho nez A nebo X
+                                                                    .Count(h => h > i.Value &&
+                                                                                h != Hodnota.Eso &&
+                                                                                h != Hodnota.Desitka &&
+                                                                                _probabilities.CardProbability(player2, new Card(i.Suit, h)) > _epsilon) > 1);
 
 						//zkus vytlacit trumf svou nebo spoluhracovou desitkou nebo esem pokud hraje souper sedmu
                         if (!cardsToPlay.Any() && _gameType == (Hra.Hra | Hra.Sedma))// && _rounds[0] != null)
@@ -815,11 +816,12 @@ namespace Mariasek.Engine.New
                                                                  _preferredSuits.Contains(i.Suit)) &&
                                                                 _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0f &&
                                                                 _probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0f &&
-                                                                Enum.GetValues(typeof(Hodnota))                                         //musi byt sance, ze spoluhrac ma
-                                                                    .Cast<Hodnota>().Any(h => h > i.Value &&                            //v barve i neco jineho nez A nebo X
-                                                                                              h != Hodnota.Eso &&
-                                                                                              h != Hodnota.Desitka &&
-                                                                                              _probabilities.CardProbability(player3, new Card(i.Suit, h)) > _epsilon));
+                                                                Enum.GetValues(typeof(Hodnota))                             //musi byt sance, ze spoluhrac ma
+                                                                    .Cast<Hodnota>()                                        //v barve i neco jineho nez A nebo X
+                                                                    .Count(h => h > i.Value &&
+                                                                                h != Hodnota.Eso &&
+                                                                                h != Hodnota.Desitka &&
+                                                                                _probabilities.CardProbability(player3, new Card(i.Suit, h)) > _epsilon) > 1);
 						//zkus vytlacit trumf svou nebo spoluhracovou desitkou nebo esem pokud hraje souper sedmu
                         if (!cardsToPlay.Any() && _gameType == (Hra.Hra | Hra.Sedma))// && _rounds[0] != null)
 						{

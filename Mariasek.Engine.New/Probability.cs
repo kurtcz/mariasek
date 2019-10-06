@@ -969,7 +969,7 @@ namespace Mariasek.Engine.New
                 var probs = new StringBuilder();
                 for (var i = 0; i < Game.NumPlayers; i++)
                 {
-                    probs.AppendFormat("probabilities for player{0}:\n", i + 1, FriendlyString(i, 1));
+                    probs.AppendFormat("probabilities for player{0}:\n{1}\n", i + 1, FriendlyString(i, 1));
                 }
 
                 var msg = string.Format("Bad certain card probabilities\n{3}Generovani:{0}\nHistorie:{1}\nExterni:{2}\n",

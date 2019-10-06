@@ -2361,11 +2361,14 @@ namespace Mariasek.Engine.New
                  (TeamMateIndex != -1 &&                  
                   ((bidding.GameMultiplier > 2 &&               //Tutti:
                     ((Hand.CardCount(_g.trump.Value) >= 2 &&    //mam aspon 2 trumfy a k tomu aspon jednu hlasku nebo trham aspon 2 hlasky
+                      estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
                       (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b)) ||
                        Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) || Hand.HasQ(b)) >= 2)) ||
                      (_teamMateDoubledGame &&                   //nebo kolega flekoval a jsem si jisty aspon na prah pro Re
                       _gamesBalance / (float)_gameSimulations >= gameThresholdPrevious &&
-                      kqScore >= 40) ||                       //a mam aspon 40 bodu v hlasech
+                      (kqScore >= 40 ||                         //a mam aspon 40 bodu v hlasech
+                       (kqScore >= 20 &&                        //nebo aspon 20 bodu v hlasech a celkem vic bodu nez souper
+                        estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore))) ||
                      (Hand.CardCount(_g.trump.Value) >= 4 &&    //nebo mam aspon 4 trumfy
                       DebugInfo.Tygrovo >= 20))) ||             //a k tomu silne karty
                    (bidding.GameMultiplier < 2 &&               //Flek:
