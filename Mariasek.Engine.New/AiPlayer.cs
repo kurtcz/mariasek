@@ -1891,7 +1891,7 @@ namespace Mariasek.Engine.New
                          .Count(b => (Hand.HasX(b) &&
                                       (Hand.HasK(b) ||
                                        (Hand.HasQ(b) &&
-                                        Hand.CardCount(b) > 2)))) < 2 ||
+                                        Hand.CardCount(b) > 2)))) < (TeamMateIndex == -1 ? 2 : 3) ||
                      Hand.Select(i => i.Suit).Distinct().Count() < 4)) ||
                    (Hand.CardCount(_trump.Value) == 5 &&
                     ((TeamMateIndex == -1 &&
@@ -2336,6 +2336,12 @@ namespace Mariasek.Engine.New
                                         : 0;
             var estimatedFinalBasicScore = _g.trump.HasValue ? EstimateFinalBasicScore() : 0;
             var estimatedOpponentFinalBasicScore = 90 - estimatedFinalBasicScore;
+            var bestCaseNonTrumpScore = _g.trump.HasValue
+                                        ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                              .Where(b => b != _g.trump.Value)
+                                              .Sum(b => (Hand.HasA(b) ? 10 : 0) +
+                                                        ((Hand.HasX(b) && Hand.CardCount(b) >= 2) ? 10 : 0))
+                                        : 0;
 
             //Flekovani u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) 
             if ((bidding.Bids & Hra.Hra) != 0 &&                //pokud byla zvolena hra (nebo hra a sedma]
@@ -2387,7 +2393,17 @@ namespace Mariasek.Engine.New
                       estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100) ||
                       ((Hand.HasK(_g.trump.Value) ||
                         Hand.HasQ(_g.trump.Value)) &&
-                       DebugInfo.Tygrovo >= 15)))))))
+                       DebugInfo.Tygrovo >= 15) ||
+                      ((Hand.HasA(_g.trump.Value) ||            //nebo mam trumfove eso
+                        Hand.HasX(_g.trump.Value)) &&           //popr. desitku
+                       (Hand.HasK(_g.trump.Value) ||            //a k tomu trhak
+                       Hand.HasQ(_g.trump.Value)) &&
+                       bestCaseNonTrumpScore >= 20) ||          //a aspon 2 netrumfove desitky
+                      ((Hand.HasK(_g.trump.Value) ||            //nebo mam trhak
+                        Hand.HasQ(_g.trump.Value) &&             
+                       Hand.CardCount(_g.trump.Value) >= 2 &&   //a aspon dva trumfy
+                       bestCaseNonTrumpScore >= 10 &&           //a aspon 1 netrumfovou desitku
+                       kqMaxOpponentScore <= 20))))))))         //a vidim aspon do tri hlasu
             {
                 bid |= bidding.Bids & Hra.Hra;
                 //minRuleCount = Math.Min(minRuleCount, _gamesBalance);

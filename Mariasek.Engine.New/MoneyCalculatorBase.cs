@@ -633,6 +633,10 @@ namespace Mariasek.Engine.New
                                                              .Where(i => (i.value & Hra.SedmaProti) != 0)
                                                              .Select(i => i.idx)
                                                              .FirstOrDefault();
+                        if (playerIndex == _gameStartingPlayerIndex)
+                        {
+                            playerIndex = (playerIndex + 1) % Game.NumPlayers;  //sedmu proti nemohl hlasit akter
+                        }
                         sb.AppendFormat("{0}: ", PlayerNames[playerIndex]);
                     }
                 }
@@ -644,6 +648,10 @@ namespace Mariasek.Engine.New
                                                              .Where(i => (i.value & Hra.KiloProti) != 0)
                                                              .Select(i => i.idx)
                                                              .FirstOrDefault();
+                        if (playerIndex == _gameStartingPlayerIndex)
+                        {
+                            playerIndex = (playerIndex + 1) % Game.NumPlayers;  //kilo proti nemohl hlasit akter
+                        }
                         sb.AppendFormat("{0}: ", PlayerNames[playerIndex]);
                     }
                 }

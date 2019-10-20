@@ -537,17 +537,21 @@ namespace Mariasek.Engine.New
 
                         if (holes.Count > 0 &&
                             topTrumps.Count > 0 &&
-                            (topTrumps.Count >= holes.Count ||
+                            ((topTrumps.Count >= holes.Count &&
+                              _gameType != (Hra.Hra | Hra.Sedma)) ||
                              (hands[MyIndex].CardCount(_trump) >= holes.Count &&
                               _probabilities.SuitProbability(player2, _trump, RoundNumber) >= 1 - RiskFactor &&
                               _probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 - RiskFactor &&
                               //pokud ve vsech netrumfovych barvach mam nejvyssi kartu
-                              hands[MyIndex].Any(i => i.Suit != _trump &&
-                                                      Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                          .Where(h => h > i.Value)
-                                                          .Any(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) <= _epsilon &&
-                                                                    _probabilities.CardProbability(player3, new Card(i.Suit, h)) <= _epsilon)) &&
-                             lowCards.Count() < hands[MyIndex].CardCount(_trump))))
+                              Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                  .Where(b => b != _trump &&
+                                              hands[MyIndex].HasSuit(b))
+                                  .All(b => hands[MyIndex].Any(i => i.Suit == b &&
+                                                                    Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                        .Where(h => h > i.Value)
+                                                                        .Any(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) <= _epsilon &&
+                                                                                  _probabilities.CardProbability(player3, new Card(i.Suit, h)) <= _epsilon)) &&
+                             lowCards.Count() < hands[MyIndex].CardCount(_trump)))))
                         {
                             cardsToPlay = topTrumps;
                         }
@@ -571,12 +575,16 @@ namespace Mariasek.Engine.New
                              (hands[MyIndex].CardCount(_trump) >= holes.Count &&
                               _probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 - RiskFactor &&
                               //pokud ve vsech netrumfovych barvach mam nejvyssi kartu
-                              hands[MyIndex].Any(i => i.Suit != _trump &&
-                                                      Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                          .Where(h => h > i.Value)
-                                                          .Any(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) <= _epsilon &&
-                                                                    _probabilities.CardProbability(player3, new Card(i.Suit, h)) <= _epsilon)) &&
-                             lowCards.Count() < hands[MyIndex].CardCount(_trump))))
+                              Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                  .Where(b => b != _trump &&
+                                              hands[MyIndex].HasSuit(b))
+                                  .All(b => hands[MyIndex].Any(i => i.Suit == b &&
+                                                                    hands[MyIndex].Any(j => j.Suit != _trump &&
+                                                                                            Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                                .Where(h => h > j.Value)
+                                                                                                .Any(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) <= _epsilon &&
+                                                                                                          _probabilities.CardProbability(player3, new Card(i.Suit, h)) <= _epsilon)) &&
+                             lowCards.Count() < hands[MyIndex].CardCount(_trump))))))
                         {
                             cardsToPlay = topTrumps;
                         }
@@ -600,12 +608,16 @@ namespace Mariasek.Engine.New
                              (hands[MyIndex].CardCount(_trump) >= holes.Count &&
                               _probabilities.SuitProbability(player2, _trump, RoundNumber) >= 1 - RiskFactor &&
                               //pokud ve vsech netrumfovych barvach mam nejvyssi kartu
-                              hands[MyIndex].Any(i => i.Suit != _trump &&
-                                                      Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                          .Where(h => h > i.Value)
-                                                          .Any(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) <= _epsilon &&
-                                                                    _probabilities.CardProbability(player3, new Card(i.Suit, h)) <= _epsilon)) &&
-                             lowCards.Count() < hands[MyIndex].CardCount(_trump))))
+                              Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                  .Where(b => b != _trump &&
+                                              hands[MyIndex].HasSuit(b))
+                                  .All(b => hands[MyIndex].Any(i => i.Suit == b &&
+                                                                    hands[MyIndex].Any(j => j.Suit != _trump &&
+                                                                                            Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                                .Where(h => h > j.Value)
+                                                                                                .Any(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) <= _epsilon &&
+                                                                                                          _probabilities.CardProbability(player3, new Card(i.Suit, h)) <= _epsilon)) &&
+                             lowCards.Count() < hands[MyIndex].CardCount(_trump))))))
                         {
                             cardsToPlay = topTrumps;
                         }
@@ -2230,6 +2242,7 @@ namespace Mariasek.Engine.New
                                         .Count(b => hands[MyIndex].HasSuit(b));
 
                     if (TeamMateIndex == player1 &&
+                        (_gameType & Hra.Sedma) != 0 &&
                         ((suitCount == 4 ||
                           suitCount == 1) ||
                          hands[MyIndex].HasSuit(_trump)))
