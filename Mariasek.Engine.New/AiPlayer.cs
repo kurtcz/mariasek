@@ -13,6 +13,7 @@ using System.Collections.Concurrent;
 using Mariasek.Engine.New.Schema;
 using System.IO;
 using System.Globalization;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Mariasek.Engine.New
 {
@@ -537,6 +538,27 @@ namespace Mariasek.Engine.New
                                              !hand.HasA(i.Suit) &&
                                              hand.CardCount(i.Suit) == 3)));
 
+            //potom pokud mam ve vsech barvach same nejvyssi karty a v jedne barve jen K,S
+            //tak obetuj samotne K,S v netrumfove barve
+            if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                    .All(b => (hand.HasK(b) && hand.HasQ(b) && hand.CardCount(b) == 2) ||                              
+                              hand.Where(i => !(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
+                                                i.Suit == trumpCard.Suit) &&
+                                              i.Suit == b)
+                                  .All(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                .Where(h => h > i.Value)
+                                                .All(h => hand.Any(j => !(j.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
+                                                                          j.Suit == trumpCard.Suit) &&
+                                                                        j.Value == h &&
+                                                                        j.Suit == b)))))
+            {
+                talon.AddRange(hand.Where(i => i.Suit != trumpCard.Suit &&
+                                               hand.HasK(i.Suit) &&
+                                               hand.HasQ(i.Suit) &&
+                                               hand.CardCount(i.Suit) == 2)
+                                    .OrderBy(i => i.Suit)
+                                    .Take(2));
+            }
             //nakonec cokoli co je podle pravidel
             talon.AddRange(hand.Where(i => !(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
                                              i.Suit == trumpCard.Suit) &&

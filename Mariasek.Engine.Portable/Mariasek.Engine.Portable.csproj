@@ -50,9 +50,6 @@
     <Compile Include="..\Mariasek.Engine.New\AiDurchStrategy.cs">
       <Link>AiDurchStrategy.cs</Link>
     </Compile>
-    <Compile Include="..\Mariasek.Engine.New\AiPlayer.cs">
-      <Link>AiPlayer.cs</Link>
-    </Compile>
     <Compile Include="..\Mariasek.Engine.New\AiPlayerSettings.cs">
       <Link>AiPlayerSettings.cs</Link>
     </Compile>
@@ -200,6 +197,9 @@
     </Compile>
     <Compile Include="..\Mariasek.Engine.New\SortMode.cs">
       <Link>SortMode.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\AiPlayer.cs">
+      <Link>AiPlayer.cs</Link>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
