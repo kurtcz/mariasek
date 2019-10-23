@@ -539,8 +539,7 @@ namespace Mariasek.Engine.New
                             topTrumps.Count > 0 &&
                             ((topTrumps.Count >= holes.Count &&
                               _gameType != (Hra.Hra | Hra.Sedma)) ||
-                             (hands[MyIndex].CardCount(_trump) >= holes.Count &&
-                              _probabilities.SuitProbability(player2, _trump, RoundNumber) >= 1 - RiskFactor &&
+                             (_probabilities.SuitProbability(player2, _trump, RoundNumber) >= 1 - RiskFactor &&
                               _probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 - RiskFactor &&
                               //pokud ve vsech netrumfovych barvach mam nejvyssi kartu
                               Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -683,8 +682,14 @@ namespace Mariasek.Engine.New
                             hands[MyIndex].CardCount(_trump) > opponentTrumps && 
                             opponentTrumps > 0)
                         {
-                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
-                                                                                i.Suit == _trump);
+                            //nehraj pokud souperi maji 2 trumfy a ja ma, trumfove eso
+                            if (!(opponentTrumps == 2 &&
+                                  hands[MyIndex].HasA(_trump) &&
+                                  hands[MyIndex].CardCount(_trump) > 1))
+                            {
+                                cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
+                                                                                    i.Suit == _trump);
+                            }
                         }
 
                         //var lowcards = hands[MyIndex].Where(i => i.Suit != _trump &&
@@ -786,8 +791,8 @@ namespace Mariasek.Engine.New
                             hands[MyIndex].CardCount(_trump) > opponentTrumps && 
                             opponentTrumps > 0)
 						{
-							cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
-																				i.Suit == _trump);
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
+                                                                                i.Suit == _trump);
 						}
 
                         //zkus vytlacit trumf trumfem pokud si trumfy odmazu a pozdeji budu moct mazat A nebo X
@@ -814,8 +819,8 @@ namespace Mariasek.Engine.New
                         //: c-o
                         if (RoundNumber == 8 &&
                             (_gameType & Hra.SedmaProti) != 0 &&
-                            hands[MyIndex].Has7(_trump) &&
-                            hands[MyIndex].CardCount(_trump) == 2)
+                             hands[MyIndex].Has7(_trump) &&
+                             hands[MyIndex].CardCount(_trump) == 2)
                         {
                             //v osmem kole pokud hraju sedmu proti a mam posl. dva trumfy setri trumfy nakonec
                             return null;
@@ -854,8 +859,8 @@ namespace Mariasek.Engine.New
                             hands[MyIndex].CardCount(_trump) > opponentTrumps && 
                             opponentTrumps > 0)
 						{
-							cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
-																				i.Suit == _trump);
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
+                                                                                i.Suit == _trump);
 						}
 
                         // zkus vytlacit trumf trumfem pokud si trumfy odmazu a pozdeji budu moct mazat A nebo X
