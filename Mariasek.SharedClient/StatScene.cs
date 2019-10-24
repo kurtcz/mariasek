@@ -176,7 +176,7 @@ namespace Mariasek.SharedClient
                 Height = 30,
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
-                Text = "Betl",
+                Text = "Hra",
                 TextRenderer = Game.FontRenderers["BMFont"],
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
                 ZIndex = 100
@@ -188,7 +188,7 @@ namespace Mariasek.SharedClient
                 Height = 30,
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
-                Text = "Durch",
+                Text = "Sedma",
                 TextRenderer = Game.FontRenderers["BMFont"],
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
                 ZIndex = 100
@@ -200,7 +200,7 @@ namespace Mariasek.SharedClient
                 Height = 30,
                 HorizontalAlign = HorizontalAlignment.Right,
                 VerticalAlign = VerticalAlignment.Top,
-                Text = "Hra",
+                Text = "Stosedm",
                 TextRenderer = Game.FontRenderers["BMFont"],
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
                 ZIndex = 100
@@ -224,7 +224,7 @@ namespace Mariasek.SharedClient
                 Height = 30,
                 HorizontalAlign = HorizontalAlignment.Right,
                 VerticalAlign = VerticalAlignment.Top,
-                Text = "Sedma",
+                Text = "Durch",
                 TextRenderer = Game.FontRenderers["BMFont"],
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
                 ZIndex = 100
@@ -236,7 +236,7 @@ namespace Mariasek.SharedClient
                 Height = 30,
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
-                Text = "Stosedm",
+                Text = "Betl",
                 TextRenderer = Game.FontRenderers["BMFont"],
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
                 ZIndex = 100
@@ -286,19 +286,7 @@ namespace Mariasek.SharedClient
             {
                 new MyGrouping<string, MoneyCalculatorBase>()
                 {
-                    Key = "Betl"
-                },
-                new MyGrouping<string, MoneyCalculatorBase>()
-                {
-                    Key = "Durch"
-                },
-                new MyGrouping<string, MoneyCalculatorBase>()
-                {
                     Key = "Hra"
-                },
-                new MyGrouping<string, MoneyCalculatorBase>()
-                {
-                    Key = "Kilo"
                 },
                 new MyGrouping<string, MoneyCalculatorBase>()
                 {
@@ -307,10 +295,22 @@ namespace Mariasek.SharedClient
                 new MyGrouping<string, MoneyCalculatorBase>()
                 {
                     Key = "Stosedm"
+                },
+                new MyGrouping<string, MoneyCalculatorBase>()
+                {
+                    Key = "Kilo"
+                },
+                new MyGrouping<string, MoneyCalculatorBase>()
+                {
+                    Key = "Durch"
+                },
+                new MyGrouping<string, MoneyCalculatorBase>()
+                {
+                    Key = "Betl"
                 }
             };
             stats.AddRange(allStats.Where(i => stats.All(j => i.Key != j.Key)));
-            stats = stats.OrderBy(i => i.Key).ToList();
+            stats = stats.OrderBy(i => Array.IndexOf(allStats.Select(g => g.Key).ToArray(), i.Key)).ToList();
             for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
             {
                 _points[i] = new float[stats.Count()];
