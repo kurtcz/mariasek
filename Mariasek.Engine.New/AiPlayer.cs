@@ -2379,12 +2379,14 @@ namespace Mariasek.Engine.New
                 //nebo ho netrham a mam aspon hlas a nehrozi kilo proti
                 //nebo to vypada, ze muzu uhrajat vic nez souperi a nehrozi kilo proti
                 ((TeamMateIndex == -1 && 
-                  (Hand.HasK(_g.trump.Value) ||
-                   Hand.HasQ(_g.trump.Value)) &&
-                  ((kqScore >= 20 &&
-                    !Is100AgainstPossible()) ||
-                   (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
-                    estimatedOpponentFinalBasicScore + 40 < 100))) ||
+                  (((Hand.HasK(_g.trump.Value) ||
+                     Hand.HasQ(_g.trump.Value)) &&
+                    ((kqScore >= 20 &&
+                      !Is100AgainstPossible()) ||
+                     (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
+                      estimatedOpponentFinalBasicScore + 40 < 100))) ||
+                   (estimatedFinalBasicScore > 60 &&    //pokud si davam re a nethram, musim mit velkou jistotu
+                    !Is100AgainstPossible()))) ||       //ze uhraju vic bodu i bez trhaka a ze souper neuhraje kilo
                  //nebo jsem nevolil a:
                  (TeamMateIndex != -1 &&                  
                   ((bidding.GameMultiplier > 2 &&               //Tutti:
