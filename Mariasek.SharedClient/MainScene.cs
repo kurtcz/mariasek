@@ -2698,50 +2698,57 @@ namespace Mariasek.SharedClient
                 PopulateResults(results);
                 Task.Run(() =>
                 {
-                    if (Game.Settings.MaxHistoryLength > 0 &&
-                        Game.Money.Count() >= Game.Settings.MaxHistoryLength)
-                    {
-                        DeleteArchiveFolder();
-                    }
-                    _newGameBtn.Enabled = true;
-                    if (g.rounds[0] != null)
-                    {
-                        results.GameId = ArchiveGame();
-                    }
                     try
                     {
-                        if (File.Exists(_savedGameFilePath))
+                        if (Game.Settings.MaxHistoryLength > 0 &&
+                            Game.Money.Count() >= Game.Settings.MaxHistoryLength)
                         {
-                            File.Delete(_savedGameFilePath);
+                            DeleteArchiveFolder();
+                        }
+                        _newGameBtn.Enabled = true;
+                        if (g.rounds[0] != null)
+                        {
+                            results.GameId = ArchiveGame();
+                        }
+                        try
+                        {
+                            if (File.Exists(_savedGameFilePath))
+                            {
+                                File.Delete(_savedGameFilePath);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
+                        }
+                        try
+                        {
+                            var value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
+                            if (value > 0)
+                            {
+                                Game.Settings.GameTypeSimulationsPerSecond = value;
+                            }
+                            value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
+                            if (value > 0)
+                            {
+                                Game.Settings.RoundSimulationsPerSecond = value;
+                            }
+                        }
+                        catch
+                        {
+                        }
+                        try
+                        {
+                            SaveHistory();
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine(string.Format("Cannot save history\n{0}", ex.Message));
                         }
                     }
-                    catch (Exception e)
+                    catch(Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
-                    }
-                    try
-                    {
-                        var value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerGameTypePerSecond);
-                        if (value > 0)
-                        {
-                            Game.Settings.GameTypeSimulationsPerSecond = value;
-                        }
-                        value = (int)g.players.Where(i => i is AiPlayer).Average(i => (i as AiPlayer).Settings.SimulationsPerRoundPerSecond);
-                        if (value > 0)
-                        {
-                            Game.Settings.RoundSimulationsPerSecond = value;
-                        }
-                    }
-                    catch
-                    {
-                    }
-                    try
-                    {
-                        SaveHistory();
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine(string.Format("Cannot save history\n{0}", ex.Message));
+                        System.Diagnostics.Debug.WriteLine(string.Format("Unexpected error in GameFinished: {0}\n{1}", ex.Message, ex.StackTrace));
                     }
                 });
             }

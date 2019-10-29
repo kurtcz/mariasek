@@ -172,109 +172,116 @@ namespace Mariasek.SharedClient
             _replayAsPlayer3Button.Hide();
             Task.Run(() =>
             {
-                var g = new Mariasek.Engine.New.Game()
+                try
                 {
-                    BaseBet = Game.Settings.BaseBet,
-                    MaxWin = Game.Settings.MaxWin,
-                    SkipBidding = false,
-                    MinimalBidsForGame = Game.Settings.MinimalBidsForGame,
-                    MinimalBidsForSeven = Game.Settings.MinimalBidsForSeven,
-                    CalculationStyle = Game.Settings.CalculationStyle,
-                    PlayZeroSumGames = Game.Settings.PlayZeroSumGames,
-                    Top107 = Game.Settings.Top107,
-                    Calculate107Separately = Game.Settings.Calculate107Separately,
-                    HlasConsidered = Game.Settings.HlasConsidered,
-                    AutoDisable100Against = Game.Settings.AutoDisable100Against,
-                    //GetFileStream = GetFileStream,
-                    //GetVersion = () => MariasekMonoGame.Version,
-                    GameValue = Game.Settings.GameValue,
-                    QuietSevenValue = Game.Settings.QuietSevenValue,
-                    SevenValue = Game.Settings.SevenValue,
-                    QuietHundredValue = Game.Settings.QuietHundredValue,
-                    HundredValue = Game.Settings.HundredValue,
-                    BetlValue = Game.Settings.BetlValue,
-                    DurchValue = Game.Settings.DurchValue,
-                    AllowAXTalon = Game.Settings.AllowAXTalon,
-                    AllowTrumpTalon = Game.Settings.AllowTrumpTalon,
-                    AllowAIAutoFinish = Game.Settings.AllowAIAutoFinish,
-                    AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish
-                };
-                g.RegisterPlayers(new Engine.New.AbstractPlayer[]
-                                  {
+                    var g = new Mariasek.Engine.New.Game()
+                    {
+                        BaseBet = Game.Settings.BaseBet,
+                        MaxWin = Game.Settings.MaxWin,
+                        SkipBidding = false,
+                        MinimalBidsForGame = Game.Settings.MinimalBidsForGame,
+                        MinimalBidsForSeven = Game.Settings.MinimalBidsForSeven,
+                        CalculationStyle = Game.Settings.CalculationStyle,
+                        PlayZeroSumGames = Game.Settings.PlayZeroSumGames,
+                        Top107 = Game.Settings.Top107,
+                        Calculate107Separately = Game.Settings.Calculate107Separately,
+                        HlasConsidered = Game.Settings.HlasConsidered,
+                        AutoDisable100Against = Game.Settings.AutoDisable100Against,
+                        //GetFileStream = GetFileStream,
+                        //GetVersion = () => MariasekMonoGame.Version,
+                        GameValue = Game.Settings.GameValue,
+                        QuietSevenValue = Game.Settings.QuietSevenValue,
+                        SevenValue = Game.Settings.SevenValue,
+                        QuietHundredValue = Game.Settings.QuietHundredValue,
+                        HundredValue = Game.Settings.HundredValue,
+                        BetlValue = Game.Settings.BetlValue,
+                        DurchValue = Game.Settings.DurchValue,
+                        AllowAXTalon = Game.Settings.AllowAXTalon,
+                        AllowTrumpTalon = Game.Settings.AllowTrumpTalon,
+                        AllowAIAutoFinish = Game.Settings.AllowAIAutoFinish,
+                        AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish
+                    };
+                    g.RegisterPlayers(new Engine.New.AbstractPlayer[]
+                                      {
                                      new DummyPlayer(g) { Name = Game.Settings.PlayerNames[0] },
                                      new DummyPlayer(g) { Name = Game.Settings.PlayerNames[1] },
                                      new DummyPlayer(g) { Name = Game.Settings.PlayerNames[2] }
-                                  });
-                try
-                {
-                    Game.StorageAccessor.GetStorageAccess();
-                    using (var fs = File.Open(endGamePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                                      });
+                    try
                     {
-                        g.LoadGame(fs, true);
+                        Game.StorageAccessor.GetStorageAccess();
+                        using (var fs = File.Open(endGamePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        {
+                            g.LoadGame(fs, true);
+                        }
+                        _rawData.Text = string.Format("{0}\n\n", File.ReadAllText(endGamePath));
                     }
-                    _rawData.Text = string.Format("{0}\n\n", File.ReadAllText(endGamePath));
-                }
-                catch (Exception ex)
-                {
-                    //ShowMsgLabel(string.Format("Error loading game:\n{0}", ex.Message), false);
-                    return;
-                }
-                //Vysledky beru z g.Results ale penize a procenta u aktera beru z historie
-                var resultStr = g.Results.ToString().Split('\n');
-                var numFormat = (NumberFormatInfo)CultureInfo.GetCultureInfo("cs-CZ").NumberFormat.Clone();
-                var gameDate = new FileInfo(endGamePath).CreationTime;
+                    catch (Exception ex)
+                    {
+                        //ShowMsgLabel(string.Format("Error loading game:\n{0}", ex.Message), false);
+                        return;
+                    }
+                    //Vysledky beru z g.Results ale penize a procenta u aktera beru z historie
+                    var resultStr = g.Results.ToString().Split('\n');
+                    var numFormat = (NumberFormatInfo)CultureInfo.GetCultureInfo("cs-CZ").NumberFormat.Clone();
+                    var gameDate = new FileInfo(endGamePath).CreationTime;
 
-                var description = string.Format("{0}\n{1} {2}\n{3}\n{4}\t{5}\n{6}\t{7}\n{8}\t{9}",
-                                                  gameDate.ToString("dd.MM.yyyy HH:mm"),
-                                                  Path.GetFileName(endGamePath).Split('-')[0],
-                                                  g.GameType.ToDescription(g.trump),
-                                                  string.Join("\n", resultStr.Take(resultStr.Length - 3)
-                                                                             .Select(i => i.Split('\t')[0]
-                                                                                           .Replace(" (", "\n(")
-                                                                                           .Replace(", ", "\n"))
-                                                                             .ToArray()),
-                                                  Game.Settings.PlayerNames[g.GameStartingPlayerIndex],
-                                                  (results.MoneyWon[g.GameStartingPlayerIndex] * Game.Settings.BaseBet).ToString("C", numFormat),
-                                                  Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers],
-                                                  (results.MoneyWon[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", numFormat),
-                                                  Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers],
-                                                  (results.MoneyWon[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", numFormat))
-                                        .Split("\n");
-                if (description.Length > 12)
-                {
-                    description = description.Where(i => !string.IsNullOrWhiteSpace(i)).ToArray();
-                }
-                description = description.Where(i => !i.StartsWith("Celkem:")).ToArray();
-                _description.Text = string.Join("\n", description).Replace("V červenejch:", "V červenejch");
-                _review.UpdateReview(g);
+                    var description = string.Format("{0}\n{1} {2}\n{3}\n{4}\t{5}\n{6}\t{7}\n{8}\t{9}",
+                                                      gameDate.ToString("dd.MM.yyyy HH:mm"),
+                                                      Path.GetFileName(endGamePath).Split('-')[0],
+                                                      g.GameType.ToDescription(g.trump),
+                                                      string.Join("\n", resultStr.Take(resultStr.Length - 3)
+                                                                                 .Select(i => i.Split('\t')[0]
+                                                                                               .Replace(" (", "\n(")
+                                                                                               .Replace(", ", "\n"))
+                                                                                 .ToArray()),
+                                                      Game.Settings.PlayerNames[g.GameStartingPlayerIndex],
+                                                      (results.MoneyWon[g.GameStartingPlayerIndex] * Game.Settings.BaseBet).ToString("C", numFormat),
+                                                      Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers],
+                                                      (results.MoneyWon[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", numFormat),
+                                                      Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers],
+                                                      (results.MoneyWon[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", numFormat))
+                                            .Split("\n");
+                    if (description.Length > 12)
+                    {
+                        description = description.Where(i => !string.IsNullOrWhiteSpace(i)).ToArray();
+                    }
+                    description = description.Where(i => !i.StartsWith("Celkem:")).ToArray();
+                    _description.Text = string.Join("\n", description).Replace("V červenejch:", "V červenejch");
+                    _review.UpdateReview(g);
 
-                var biddingInfo = new string[Mariasek.Engine.New.Game.NumPlayers];
-                for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
-                {
-                    var playerName = string.Format("Player {0}", i + 1);
-                    biddingInfo[i] = string.Join(" ", g.BiddingDebugInfo.ToString()
-                                                       .Split('\n')
-                                                       .Select(j => j.Split(':')
-                                                                     .Select(k => k.Trim())
-                                                                     .ToArray())
-                                                       .Where(j => j.Length == 2 &&
-                                                                   j[0] == playerName &&
-                                                                   !j[1].StartsWith("Dobr") &&
-                                                                   !j[1].StartsWith("Špatn"))
-                                                       .Select(j => j[1]));
+                    var biddingInfo = new string[Mariasek.Engine.New.Game.NumPlayers];
+                    for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
+                    {
+                        var playerName = string.Format("Player {0}", i + 1);
+                        biddingInfo[i] = string.Join(" ", g.BiddingDebugInfo.ToString()
+                                                           .Split('\n')
+                                                           .Select(j => j.Split(':')
+                                                                         .Select(k => k.Trim())
+                                                                         .ToArray())
+                                                           .Where(j => j.Length == 2 &&
+                                                                       j[0] == playerName &&
+                                                                       !j[1].StartsWith("Dobr") &&
+                                                                       !j[1].StartsWith("Špatn"))
+                                                           .Select(j => j[1]));
+                    }
+                    _review.Names[0].Text = string.Format("{0}: {1}{2}", Game.Settings.PlayerNames[g.GameStartingPlayerIndex],
+                                                                         biddingInfo[g.GameStartingPlayerIndex],
+                                                                         results.GameTypeConfidence < 0
+                                                                            ? ""
+                                                                            : string.Format(" ({0:0}%)", results.GameTypeConfidence * 100));
+                    _review.Names[1].Text = string.Format("{0}: {1}", Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers],
+                                                                      biddingInfo[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers]);
+                    _review.Names[2].Text = string.Format("{0}: {1}", Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers],
+                                                                      biddingInfo[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers]);
+                    _review.Show();
+                    _newGamePath = newGamePath;
+                    _endGamePath = endGamePath;
                 }
-                _review.Names[0].Text = string.Format("{0}: {1}{2}", Game.Settings.PlayerNames[g.GameStartingPlayerIndex], 
-                                                                     biddingInfo[g.GameStartingPlayerIndex], 
-                                                                     results.GameTypeConfidence < 0
-                                                                        ? ""
-                                                                        : string.Format(" ({0:0}%)", results.GameTypeConfidence * 100));
-                _review.Names[1].Text = string.Format("{0}: {1}", Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers],
-                                                                  biddingInfo[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers]);
-                _review.Names[2].Text = string.Format("{0}: {1}", Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers],
-                                                                  biddingInfo[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers]);
-                _review.Show();
-                _newGamePath = newGamePath;
-                _endGamePath = endGamePath;
+                catch(Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Unexpected error in ShowGame: {0}\n{1}", ex.Message, ex.StackTrace);
+                }
             });
         }
 

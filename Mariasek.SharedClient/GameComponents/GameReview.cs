@@ -791,14 +791,14 @@ namespace Mariasek.SharedClient.GameComponents
                         (hand[j].Value == Hodnota.Eso ||
                          hand[j].Value == Hodnota.Desitka) &&
                         game.rounds.Any(k => k != null &&
-                                                         (k.c1 == hand[j] ||
-                                                          k.c2 == hand[j] ||
-                                                          k.c3 == hand[j])))
+                                             (k.c1 == hand[j] ||
+                                              k.c2 == hand[j] ||
+                                              k.c3 == hand[j])))
                     {
                         var roundWinner = game.rounds.First(k => k != null &&
-                                                                             (k.c1 == hand[j] ||
-                                                                              k.c2 == hand[j] ||
-                                                                              k.c3 == hand[j])).roundWinner;
+                                                                 (k.c1 == hand[j] ||
+                                                                  k.c2 == hand[j] ||
+                                                                  k.c3 == hand[j])).roundWinner;
                         if (roundWinner.PlayerIndex == 0 || roundWinner.TeamMateIndex == 0)
                         {
                             Hands[i][j].Tint = Game.Settings.ReviewPtsWonColor;

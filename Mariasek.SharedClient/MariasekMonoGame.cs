@@ -636,11 +636,17 @@ namespace Mariasek.SharedClient
             {
                 await Task.Run(() =>
                 {
-                    //Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
-                    if (Microsoft.Xna.Framework.Media.MediaPlayer.State == MediaState.Stopped)
+                    try
                     {
-                        Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Settings.BgSoundEnabled ? 0.1f : 0f;
-                        Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
+                        //Microsoft.Xna.Framework.Media.MediaPlayer.IsRepeating = true;
+                        if (Microsoft.Xna.Framework.Media.MediaPlayer.State == MediaState.Stopped)
+                        {
+                            Microsoft.Xna.Framework.Media.MediaPlayer.Volume = Settings.BgSoundEnabled ? 0.1f : 0f;
+                            Microsoft.Xna.Framework.Media.MediaPlayer.Play(NaPankraciSong);
+                        }
+                    }
+                    catch(Exception ex)
+                    {
                     }
                 });
                 await Task.Delay(_random.Next(Settings.BgMusicMinDelayMs, Settings.BgMusicMaxDelayMs));

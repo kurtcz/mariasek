@@ -1050,36 +1050,49 @@ namespace Mariasek.Engine.New
                     else
                     {
                         _debugString.Append("Simulating hundreds and sevens\n");
+                        var exceptions = new ConcurrentQueue<Exception>();
                         Parallel.ForEach(source, options, (hh, loopState) =>
                         {
-                            ThrowIfCancellationRequested();
-                            if (source == null)
+                            try
                             {
-                                tempSource.Enqueue(hh);
-                            }
-                            if ((DateTime.Now - start7).TotalMilliseconds > Settings.MaxSimulationTimeMs)
-                            {
-                                Probabilities.StopGeneratingHands();
-                                loopState.Stop();
-                            }
-                            else
-                            {
-                                Interlocked.Increment(ref actualSimulations7);
-                                var hands = new Hand[Game.NumPlayers + 1];
-                                for (var i = 0; i < hands.Length; i++)
+                                ThrowIfCancellationRequested();
+                                if (source == null)
                                 {
-                                    hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
+                                    tempSource.Enqueue(hh);
+                                }
+                                if ((DateTime.Now - start7).TotalMilliseconds > Settings.MaxSimulationTimeMs)
+                                {
+                                    Probabilities.StopGeneratingHands();
+                                    loopState.Stop();
+                                }
+                                else
+                                {
+                                    Interlocked.Increment(ref actualSimulations7);
+                                    var hands = new Hand[Game.NumPlayers + 1];
+                                    for (var i = 0; i < hands.Length; i++)
+                                    {
+                                        hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
+                                    }
+
+                                    UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
+
+                                    var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType ?? (Hra.Kilo | Hra.Sedma), 10, 1);
+                                    gameComputationResults.Enqueue(gameComputationResult);
+                                }
+                                var val = Interlocked.Increment(ref progress);
+
+                                OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju kilo a sedmu" });
                             }
-
-                                UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
-
-                                var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType ?? (Hra.Kilo | Hra.Sedma), 10, 1);
-                                gameComputationResults.Enqueue(gameComputationResult);
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine(ex.Message + "\n" + ex.StackTrace);
+                                exceptions.Enqueue(ex);
                             }
-                            var val = Interlocked.Increment(ref progress);
-
-                            OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju kilo a sedmu" });
                         });
+                        //if (exceptions.Count > 0)
+                        //{
+                        //    throw new AggregateException(exceptions);
+                        //}
                     }
                     _sevenSimulations = actualSimulations7;
                     _hundredSimulations = actualSimulations7;
@@ -1127,6 +1140,7 @@ namespace Mariasek.Engine.New
                     else
                     {
                         _debugString.AppendFormat("Simulating betl. Fast guess: {0}\n", ShouldChooseBetl());
+                        var exceptions = new ConcurrentQueue<Exception>();
                         Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, Settings.SimulationsPerGameType), options, (hh, loopState) =>
                         {
                             try
@@ -1159,6 +1173,7 @@ namespace Mariasek.Engine.New
                             catch (Exception ex)
                             {
                                 System.Diagnostics.Debug.WriteLine(ex.Message + "\n" + ex.StackTrace);
+                                exceptions.Enqueue(ex);
                             }
                             if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                             {
@@ -2793,43 +2808,56 @@ namespace Mariasek.Engine.New
                         MaxDegreeOfParallelism = 1
                     };
                 }
+                var exceptions = new ConcurrentQueue<Exception>();
                 Parallel.ForEach(source, options, (hands, loopState) =>
                 {
-                    System.Diagnostics.Debug.WriteLine($"PlayCard (player{PlayerIndex+1} r {r.number} c1 {r.c1} c2 {r.c2})");
-                    System.Diagnostics.Debug.WriteLine(hands[0]);
-                    System.Diagnostics.Debug.WriteLine(hands[1]);
-                    System.Diagnostics.Debug.WriteLine(hands[2]);
-                    System.Diagnostics.Debug.WriteLine(hands[3]);
-                    Check(hands);
-                    ThrowIfCancellationRequested();
-                    if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
+                    try
                     {
-                        Probabilities.StopGeneratingHands();
-                        loopState.Stop();
-                    }
-                    else
-                    {
-                        var computationResult = ComputeGame(hands, r.c1, r.c2);
-
-                        if (!cardScores.TryAdd(computationResult.CardToPlay, new ConcurrentQueue<GameComputationResult>(new[] { computationResult })))
+                        System.Diagnostics.Debug.WriteLine($"PlayCard (player{PlayerIndex + 1} r {r.number} c1 {r.c1} c2 {r.c2})");
+                        System.Diagnostics.Debug.WriteLine(hands[0]);
+                        System.Diagnostics.Debug.WriteLine(hands[1]);
+                        System.Diagnostics.Debug.WriteLine(hands[2]);
+                        System.Diagnostics.Debug.WriteLine(hands[3]);
+                        Check(hands);
+                        ThrowIfCancellationRequested();
+                        if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                         {
-                            cardScores[computationResult.CardToPlay].Enqueue(computationResult);
-                        }
-                    
-                        var val = Interlocked.Increment(ref progress);
-                        OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Simuluju hru" });
-
-                        if (computationResult.Rule == AiRule.PlayTheOnlyValidCard ||
-                            (computationResult.Rule.SkipSimulations &&
-                             r.number != 9) ||     //in round no. 9 we want to run simulations every time to mitigate a chance of bad ending
-                            canSkipSimulations)    //We have only one card to play, so there is really no need to compute anything
-                        {
-                            OnGameComputationProgress(new GameComputationProgressEventArgs { Current = simulations, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0 });
-                            Probabilities.StopGeneratingHands(); 
+                            Probabilities.StopGeneratingHands();
                             loopState.Stop();
                         }
+                        else
+                        {
+                            var computationResult = ComputeGame(hands, r.c1, r.c2);
+
+                            if (!cardScores.TryAdd(computationResult.CardToPlay, new ConcurrentQueue<GameComputationResult>(new[] { computationResult })))
+                            {
+                                cardScores[computationResult.CardToPlay].Enqueue(computationResult);
+                            }
+
+                            var val = Interlocked.Increment(ref progress);
+                            OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Simuluju hru" });
+
+                            if (computationResult.Rule == AiRule.PlayTheOnlyValidCard ||
+                                (computationResult.Rule.SkipSimulations &&
+                                 r.number != 9) ||     //in round no. 9 we want to run simulations every time to mitigate a chance of bad ending
+                                canSkipSimulations)    //We have only one card to play, so there is really no need to compute anything
+                            {
+                                OnGameComputationProgress(new GameComputationProgressEventArgs { Current = simulations, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0 });
+                                Probabilities.StopGeneratingHands();
+                                loopState.Stop();
+                            }
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(ex.Message + "\n" + ex.StackTrace);
+                        exceptions.Enqueue(ex);
                     }
                 });
+                //if (exceptions.Count > 0)
+                //{
+                //    throw new AggregateException(exceptions);
+                //}
                 if (_shouldMeasureThroughput) // only do this 1st time when we calculate most to get a more realistic benchmark
                 {
                     var end = DateTime.Now;
