@@ -1989,7 +1989,15 @@ namespace Mariasek.Engine.New
 			{
 				return true;
 			}
-			foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            //Pokud ve vice nez jedne barve nemas desitku tak kilo nehraj. Souperi by si mohli uhrat desitky
+            if (axCount < 5 &&
+                Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                    .Count(b => Hand.HasSuit(b) &&
+                                !Hand.HasX(b)) > 1)
+            {
+                return true;
+            }
+            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
 			{
 				var hiCards = Hand.Count(i => i.Suit == b &&
 											  Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()

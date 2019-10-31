@@ -186,14 +186,15 @@ namespace Mariasek.Engine.New
 
         public Hand(IEnumerable<Card> hand)
         {
-            _hand = hand != null ? new List<Card>(hand.Where(i => i != null)) : new List<Card>();
+            _hand = hand != null ? new List<Card>(hand) : new List<Card>();
+            _hand = _hand.Where(i => i != null).ToList();   //call Where() on a copy to try to prevent a collection was modified error
             Sort();
             Update();
         }
 
         public void AddRange(List<Card> list)
         {
-            _hand.AddRange(list.Where(i => i != null));
+            _hand.AddRange(list);
             Update();
         }
 

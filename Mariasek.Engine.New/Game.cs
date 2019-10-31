@@ -1114,7 +1114,11 @@ namespace Mariasek.Engine.New
 
             for (var i = 0; i < NumPlayers; i++)
             {
-                players[i].Hand = players[i].Hand.Distinct().ToList();
+                var distinctHand = players[i].Hand.Distinct().ToList();
+                if (distinctHand.Count != players[i].Hand.Count)
+                {
+                    players[i].Hand = distinctHand;
+                }
                 foreach (var c in cardsPlayed)
                 {
                     players[i].Hand.Remove(c);
@@ -1137,7 +1141,11 @@ namespace Mariasek.Engine.New
 			}
 			if (talon != null)
 			{
-                talon = talon.Distinct().ToList();
+                var distinctHand = talon.Distinct().ToList();
+                if (distinctHand.Count != talon.Count)
+                {
+                    talon = distinctHand;
+                }
                 for (var i = 0; i < NumPlayers; i++)
                 {
                     foreach (var c in talon)
