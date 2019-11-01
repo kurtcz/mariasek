@@ -2343,17 +2343,17 @@ namespace Mariasek.Engine.New
                         {
                             return cardsToPlay.RandomOneOrDefault();
                         }
-                        cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
-                                                                                c1.IsLowerThan(i, _trump) &&            //moje karta prebiji prvni kartu
-                                                                                i.Suit != _trump &&                    //a pokud moje A neni trumfove
-                                                                                (_probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor ||
-                                                                                 _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor))
-                                                                    .ToList();
+                        //cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
+                        //                                                        c1.IsLowerThan(i, _trump) &&            //moje karta prebiji prvni kartu
+                        //                                                        i.Suit != _trump &&                    //a pokud moje A neni trumfove
+                        //                                                        (_probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor ||
+                        //                                                         _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor))
+                        //                                            .ToList();
 
-                        if (cardsToPlay.Any())
-                        {
-                            return cardsToPlay.RandomOneOrDefault();
-                        }
+                        //if (cardsToPlay.Any())
+                        //{
+                        //    return cardsToPlay.RandomOneOrDefault();
+                        //}
                         cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&               //1. karta je nejvetsi
                                                                                 i.Suit != _trump &&                     //a pokud moje A neni trumfove
                                                                                 _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon &&
