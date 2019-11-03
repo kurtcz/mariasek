@@ -1419,21 +1419,22 @@ namespace Mariasek.Engine.New
             var hand1 = new List<Card>(player.Hand);
             var hand2 = new List<Card>(players[player2].Hand);
             var hand3 = new List<Card>(players[player3].Hand);
+            var hands = new[] { hand1, hand2, hand3 };
 
             catchCardsMayExist = false;
             if (GameType == Hra.Betl)
             {
                 //hrac ktery vynasi ma vsechny nejvyssi karty a spoluhrac se nema jak dostat do stychu i kdyby aktera chytal
-                if (player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => i.IsHigherThan(j, trump) && i.IsHigherThan(k, trump)))))
+                if (hand1.All(i => hand2.All(j => hand3.All(k => i.IsHigherThan(j, trump) && i.IsHigherThan(k, trump)))))
                 {
                     catchCardsMayExist = true;
                     return true;
                 }
-                player = GameStartingPlayer;
-                player2 = (player.PlayerIndex + 1) % Game.NumPlayers;
-                player3 = (player.PlayerIndex + 2) % Game.NumPlayers;
+                var player1 = (Game.NumPlayers - player.PlayerIndex + GameStartingPlayerIndex) % Game.NumPlayers;
+                player2 = (player1 + 1) % Game.NumPlayers;
+                player3 = (player1 + 2) % Game.NumPlayers;
 
-                return player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => j.IsHigherThan(i, trump) && k.IsHigherThan(i, trump))));
+                return hands[player1].All(i => hands[player2].All(j => hands[player3].All(k => j.IsHigherThan(i, trump) && k.IsHigherThan(i, trump))));
             }
             else
             {
