@@ -1989,11 +1989,14 @@ namespace Mariasek.Engine.New
 			{
 				return true;
 			}
-            //Pokud ve vice nez jedne barve nemas desitku tak kilo nehraj. Souperi by si mohli uhrat desitky
+            //Pokud ve vice nez jedne barve mas nizke karty a nemas desitku (ani ji nemuzes vytahnout) tak kilo nehraj. Souperi by si mohli uhrat desitky
             if (axCount < 5 &&
                 Enum.GetValues(typeof(Barva)).Cast<Barva>()
                     .Count(b => Hand.HasSuit(b) &&
-                                !Hand.HasX(b)) > 1)
+                                !Hand.HasX(b) &&
+                                Hand.CardCount(b) < 6 &&
+                                !(Hand.CardCount(b) == 1 &&
+                                  Hand.HasA(b))) > 1)
             {
                 return true;
             }
