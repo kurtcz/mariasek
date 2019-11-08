@@ -2006,7 +2006,7 @@ namespace Mariasek.Engine.New
                 Enum.GetValues(typeof(Barva)).Cast<Barva>()
                     .Count(b => Hand.HasSuit(b) &&
                                 !Hand.HasX(b) &&
-                                Hand.CardCount(b) < 6 &&
+                                Hand.CardCount(b) < 5 &&
                                 !(Hand.CardCount(b) == 1 &&
                                   Hand.HasA(b))) > 1)
             {
