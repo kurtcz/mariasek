@@ -322,12 +322,24 @@ namespace Mariasek.Engine.New
             }).Where(i => !bannedSuits.Contains(i.Item1.Suit) && i.Item4 > 0);
 
             //nejprve vem karty ktere jsou ve hre nejvyssi a tudiz nejvice rizikove (A, K)
-            var talon = holesByCard.Where(i => i.Item2 < 7 && i.Item5 == 0)// &&               
+            var talon = holesByCard.Where(i => i.Item2 < 6 && i.Item5 == 0)// &&               
                                    .OrderByDescending(i => i.Item1.BadValue)
                                    .Take(2)
                                    .Select(i => i.Item1)                    //Card
                                    .ToList();
 
+            if (talon.Count < 2)
+            {
+                //pak vezmi dve karty od barev kde mas 2-3 prostredni karty s 2 dirama
+                talon.AddRange(holesByCard.Where(i => !talon.Contains(i.Item1) &&
+                                                      i.Item2 >= 2 &&
+                                                      i.Item2 <= 3 &&
+                                                      i.Item4 >= 2)
+                                          .OrderByDescending(i => i.Item1.BadValue)
+                                          .Take(2 - talon.Count)
+                                          .Select(i => i.Item1)             //Card
+                                          .ToList());
+            }
             if (talon.Count < 2)
             {
                 //potom vezmi karty od nejkratsich barev a alespon stredni hodnoty (1 karta > devitka)
@@ -338,7 +350,7 @@ namespace Mariasek.Engine.New
                                           .ThenByDescending(i => i.Item4)           //holes
                                           .ThenByDescending(i => i.Item1.BadValue)
                                           .Take(2 - talon.Count)
-                                          .Select(i => i.Item1)					//Card
+                                          .Select(i => i.Item1)				//Card
                                           .ToList());
             }
             if (talon.Count < 2)
