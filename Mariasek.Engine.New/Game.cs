@@ -1787,7 +1787,12 @@ namespace Mariasek.Engine.New
             DebugString.AppendLine("CompleteUnfinishedRounds()");
             RoundSanityCheck();
             for (var i = 0; i < Game.NumRounds; i++)
-            {                
+            {
+                var hand1 = new List<Card>(players[0].Hand);
+                var hand2 = new List<Card>(players[1].Hand);
+                var hand3 = new List<Card>(players[2].Hand);
+                var hands = new[] { hand1, hand2, hand3 };
+
                 if (rounds[i] == null)
                 {
                     var player1 = lastRoundWinner.PlayerIndex;
@@ -1797,8 +1802,8 @@ namespace Mariasek.Engine.New
                     Barva? lastSuit;
 
                     if (trump.HasValue &&
-                        (players[player2].Hand.HasSuit(trump.Value) ||
-                         players[player3].Hand.HasSuit(trump.Value)))
+                        (hands[player2].HasSuit(trump.Value) ||
+                         hands[player3].HasSuit(trump.Value)))
                     {
                         firstSuit = trump;
                         lastSuit = null;
@@ -1811,25 +1816,25 @@ namespace Mariasek.Engine.New
                     else if (GameType == Hra.Betl)
                     {
                         firstSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                        .FirstOrDefault(b => players[player1].Hand.HasSuit(b) &&
-                                                        (players[player2].Hand.HasSuit(b) ||
-                                                         players[player3].Hand.HasSuit(b)));
+                                        .FirstOrDefault(b => hands[player1].HasSuit(b) &&
+                                                        (hands[player2].HasSuit(b) ||
+                                                         hands[player3].HasSuit(b)));
                         lastSuit = null;
                     }
                     else
                     {
                         firstSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                        .OrderByDescending(b => players[player1].Hand.CardCount(b))
+                                        .OrderByDescending(b => hands[player1].CardCount(b))
                                         .FirstOrDefault();
                         lastSuit = null;
                     }
-                    var c1 = AbstractPlayer.ValidCards(players[player1].Hand, trump, GameType, players[player1].TeamMateIndex)
+                    var c1 = AbstractPlayer.ValidCards(hands[player1], trump, GameType, players[player1].TeamMateIndex)
                                            .Sort(SortMode.Descending, (GameType & (Hra.Betl | Hra.Durch)) != 0, firstSuit, lastSuit)
                                            .First();
-                    var c2 = AbstractPlayer.ValidCards(players[player2].Hand, trump, GameType, players[player2].TeamMateIndex, c1)
+                    var c2 = AbstractPlayer.ValidCards(hands[player2], trump, GameType, players[player2].TeamMateIndex, c1)
                                            .OrderBy(j => j.Value)
                                            .First();
-                    var c3 = AbstractPlayer.ValidCards(players[player3].Hand, trump, GameType, players[player3].TeamMateIndex, c1, c2)
+                    var c3 = AbstractPlayer.ValidCards(hands[player3], trump, GameType, players[player3].TeamMateIndex, c1, c2)
                                            .OrderBy(j => j.Value)
                                            .First();
 
