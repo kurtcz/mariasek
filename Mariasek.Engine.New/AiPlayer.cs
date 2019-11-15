@@ -2424,7 +2424,7 @@ namespace Mariasek.Engine.New
                      (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
                       estimatedOpponentFinalBasicScore + 40 < 100))) ||
                    (estimatedFinalBasicScore > 60 &&    //pokud si davam re a nethram, musim mit velkou jistotu
-                    !Is100AgainstPossible()))) ||       //ze uhraju vic bodu i bez trhaka a ze souper neuhraje kilo
+                    !Is100AgainstPossible(110)))) ||    //ze uhraju vic bodu i bez trhaka a ze souper neuhraje kilo (110 - kilo jeste risknu)
                  //nebo jsem nevolil a:
                  (TeamMateIndex != -1 &&                  
                   ((bidding.GameMultiplier > 2 &&               //Tutti:
