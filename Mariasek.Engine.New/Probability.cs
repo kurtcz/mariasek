@@ -66,7 +66,7 @@ namespace Mariasek.Engine.New
             _trump = trump;
             _gameBidders = new List<int>();
 			_playerWeights = new List<int>();
-            _myHand = myHand;
+            _myHand = new Hand((List<Card>)myHand);
             _talon = talon != null ? new List<Card>(talon) : null;
             _myTalon = talon != null ? new List<Card>(talon) : null;
             _cancellationToken = cancellationToken;
@@ -179,9 +179,10 @@ namespace Mariasek.Engine.New
                     clone._myTalon.Add(c);
                 }
             }
-            clone.generatedHands = generatedHands;
-            clone._playerWeights = _playerWeights;
-            clone._gameBidders = _gameBidders;
+            clone._myHand = new Hand((List<Card>)_myHand);
+            clone.generatedHands = new List<Hand[]>(generatedHands);
+            clone._playerWeights = new List<int>(_playerWeights);
+            clone._gameBidders = new List<int>(_gameBidders);
 
             return clone; 
         }

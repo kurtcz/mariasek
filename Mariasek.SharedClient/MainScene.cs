@@ -2661,12 +2661,11 @@ namespace Mariasek.SharedClient
         {
             var evt = new AutoResetEvent(false);
 
-            //aby se bubliny predcasne neschovaly
-            //while (!this.ScheduledOperations.IsEmpty)
-            {                
-                this.Invoke(() => evt.Set());
-                //evt.WaitOne();
-                WaitHandle.WaitAny(new [] { evt, _evt });   //_evt bude nastaven pokud chci preusit hru (a zacit novou)
+            this.Invoke(() => evt.Set());
+            //_evt bude nastaven pokud chci preusit hru (a zacit novou)
+            if (WaitHandle.WaitAny(new [] { evt, _evt }, Game.Settings.BubbleTimeMs * 2) == WaitHandle.WaitTimeout)
+            {
+                HideThinkingMessage();
             }
         }
 

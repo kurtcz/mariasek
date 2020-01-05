@@ -1247,17 +1247,17 @@ namespace Mariasek.Engine.New
                 SkipSimulations = true,
                 ChooseCard1 = () =>
                 {
-                    if (TeamMateIndex == -1 && (_gameType & Hra.SedmaProti) != 0)
+                    if (TeamMateIndex == -1 && (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0)
                     {
                         //c--
 
-                        //u sedmy proti hraju od nejvyssi karty (A nebo X) v nejdelsi netrumfove barve
+                        //u sedmy (proti) hraju od nejvyssi karty (A nebo X) v nejdelsi netrumfove barve
                         //bud projde nebo ze soupere vytlacim trumf
                         var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                (_probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 ||
+                                                                                 _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0) &&
                                                                                 _probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0 &&                                                                                
-                                                                                _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 &&
                                                                                 _probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 &&                                                                                
-                                                                                _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0 &&
                                                                                 (i.Value == Hodnota.Eso ||
                                                                                 (i.Value == Hodnota.Desitka &&
                                                                                  _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0 &&
