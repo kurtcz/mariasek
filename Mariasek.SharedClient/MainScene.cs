@@ -2663,10 +2663,11 @@ namespace Mariasek.SharedClient
 
             this.Invoke(() => evt.Set());
             //_evt bude nastaven pokud chci preusit hru (a zacit novou)
-            if (WaitHandle.WaitAny(new [] { evt, _evt }, Game.Settings.BubbleTimeMs * 2) == WaitHandle.WaitTimeout)
-            {
-                HideThinkingMessage();
-            }
+            WaitHandle.WaitAny(new[] { evt, _evt });
+            //if (WaitHandle.WaitAny(new [] { evt, _evt }, Game.Settings.BubbleTimeMs * 2) == WaitHandle.WaitTimeout)
+            //{
+            //    HideThinkingMessage();
+            //}
         }
 
         public void GameFinished(object sender, MoneyCalculatorBase results)
