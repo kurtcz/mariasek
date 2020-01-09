@@ -48,6 +48,7 @@ namespace Mariasek.Engine.New
         private bool _runSimulations;
         private bool _rerunSimulations;
         private bool _teamMateDoubledGame;
+        private bool _teamMateDoubledSeven;
         private bool _shouldMeasureThroughput;
         private List<Barva> _teamMatesSuits;
 
@@ -1844,8 +1845,10 @@ namespace Mariasek.Engine.New
             var axCount = Hand.Count(i => i.Value == Hodnota.Eso ||         //pocitej vsechny esa
                                            (i.Value == Hodnota.Desitka &&   //desitky pocitej tehdy
                                             (i.Suit == trump.Value ||       //pokud je bud trumfova 
-                                            (Hand.CardCount(i.Suit) <= 3 && //nebo pokud mas 3 a mene karet v barve                                                                                    
-                                             (Hand.HasA(i.Suit) ||          //(pokud mam v barve hodne karet a malo trumfu, tak asi X neuhraju)
+                                            ((Hand.CardCount(i.Suit) <= 3 || //nebo pokud mas 3 a mene karet v barve (jen v pripade aktera)
+                                              Hand.CardCount(trump.Value) >= 5 || //nebo pokud mas 5 a vice trumfu (jen v pripade aktera)
+                                              TeamMateIndex != -1) &&
+                                             (Hand.HasA(i.Suit) ||          //(pokud jsem akter, mam v barve hodne karet a malo trumfu, tak asi X neuhraju)
                                               Hand.HasK(i.Suit) ||          //netrumfovou desitku pocitej jen pokud ma k sobe A, K nebo filka+1
                                               (Hand.HasQ(i.Suit) &&
                                                Hand.CardCount(i.Suit) > 2))))));
@@ -1859,7 +1862,7 @@ namespace Mariasek.Engine.New
                                                      (_talon == null ||
                                                       (!_talon.HasA(i.Key)) &&
                                                        !_talon.HasX(i.Key)));
-            var axWinPotential = Math.Min(2 * emptySuits + aceOnlySuits, Hand.CardCount(trump.Value) / 2); // ne kazdym trumfem prebiju a nebo x
+            var axWinPotential = Math.Min(2 * emptySuits + aceOnlySuits, (int)Math.Ceiling(Hand.CardCount(trump.Value) / 2f)); // ne kazdym trumfem prebiju a nebo x
             if (PlayerIndex == _g.GameStartingPlayerIndex &&    //mam-li malo trumfu, tak ze souperu moc A,X nedostanu
                 (trumpCount <= 3 ||
                  (trumpCount == 4 &&
@@ -2148,7 +2151,7 @@ namespace Mariasek.Engine.New
 			}
 
 			return n > 4 ||                         //u vice nez 4 neodstranitelnych der kilo urcite neuhraju
-				   (n > 1 &&                        //pokud mam vic nez 1 neodstranitelnou diru
+				   (n > 2 &&                        //pokud mam vic nez 1 neodstranitelnou diru
 					!(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
 					  Hand.HasQ(_trump.Value)));
 		}
@@ -2285,7 +2288,8 @@ namespace Mariasek.Engine.New
                 var estimatefOpponentFinalBasicScore = 90 - estimatedFinalBasicScore;
 
                 if (Settings.CanPlayGameType[Hra.Kilo] && 
-                    _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations && _hundredSimulations > 0 &&
+                    _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&
+                    _hundredSimulations > 0 &&
                     !IsHundredTooRisky())
                 {
                     gameType = Hra.Kilo;
@@ -2518,9 +2522,11 @@ namespace Mariasek.Engine.New
                        Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) || Hand.HasQ(b)) >= 2)) ||
                      (_teamMateDoubledGame &&                   //nebo kolega flekoval a jsem si jisty aspon na prah pro Re
                       _gamesBalance / (float)_gameSimulations >= gameThresholdPrevious &&
+                      //estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100 &&
                       (kqScore >= 40 ||                         //a mam aspon 40 bodu v hlasech
                        (kqScore >= 20 &&                        //nebo aspon 20 bodu v hlasech a celkem vic bodu nez souper
-                        estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore))) ||
+                        estimatedFinalBasicScore >= 20))) ||
+                        //estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore))) ||
                      (Hand.CardCount(_g.trump.Value) >= 4 &&    //nebo mam aspon 4 trumfy
                       DebugInfo.Tygrovo >= 20))) ||             //a k tomu silne karty
                    (bidding.GameMultiplier < 2 &&               //Flek:
@@ -2546,10 +2552,15 @@ namespace Mariasek.Engine.New
                       Hand.HasQ(_g.trump.Value)) &&
                       bestCaseNonTrumpScore >= 20) ||          //a aspon 2 netrumfove desitky
                      ((Hand.HasK(_g.trump.Value) ||            //nebo mam trhak
-                       Hand.HasQ(_g.trump.Value) &&             
+                       Hand.HasQ(_g.trump.Value)) &&             
                       Hand.CardCount(_g.trump.Value) >= 2 &&   //a aspon dva trumfy
                       bestCaseNonTrumpScore >= 10 &&           //a aspon 1 netrumfovou desitku
-                      kqMaxOpponentScore <= 20))))))))         //a vidim aspon do tri hlasu
+                      kqMaxOpponentScore <= 20) ||             //a vidim aspon do tri hlasu
+                      (_teamMateDoubledSeven &&
+                       estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100 &&
+                       (kqScore >= 40 ||
+                        (kqScore >= 20 &&
+                         estimatedFinalBasicScore >= 20)))))))))
             {
                 bid |= bidding.Bids & Hra.Hra;
                 //minRuleCount = Math.Min(minRuleCount, _gamesBalance);
@@ -2781,6 +2792,7 @@ namespace Mariasek.Engine.New
             Probabilities = null;
             _initialSimulation = true;
             _teamMateDoubledGame = false;
+            _teamMateDoubledSeven = false;
             _shouldMeasureThroughput = true;
             Settings.SimulationsPerRoundPerSecond = 0;
         }
@@ -2843,6 +2855,10 @@ namespace Mariasek.Engine.New
             if (e.Player.PlayerIndex == TeamMateIndex && (e.BidMade & (Hra.Hra | Hra.Kilo)) != 0)
             {
                 _teamMateDoubledGame = true;
+            }
+            if (e.Player.PlayerIndex == TeamMateIndex && (e.BidMade & Hra.Sedma) != 0)
+            {
+                _teamMateDoubledSeven = true;
             }
             Probabilities.UpdateProbabilitiesAfterBidMade(e, _g.Bidding);
         }
