@@ -2127,10 +2127,11 @@ namespace Mariasek.Engine.New
 												  .Select(h => new Card(b, h))
 												  .All(j => j.Value < i.Value ||
 															Hand.Contains(j)));
-						if (hiCards > 1) //mame aspon X a K - eso vytlacime kralem, cili pocitame, ze mame o trumf mene a o diru mene (nize)
+                        opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
+                        if (hiCards > 1) //mame aspon X a K - eso vytlacime kralem, cili pocitame, ze mame o trumf mene a o diru mene (nize)
 						{
-							loCards--;
-							opA++;
+                            loCards = Hand.CardCount(b) - hiCards;
+                            opA++;
 						}
 						else if (hiCards == 1 &&        //mame aspon X+S+1 - eso vytlacime svrskem a jeste jednou, cili pocitame, ze mame o diru mene
 								 Hand.HasQ(b) &&
@@ -2145,13 +2146,13 @@ namespace Mariasek.Engine.New
 				{
 					opCards.Clear();
 				}
-				var holes = opCards.Count(h => Hand.Any(i => i.Suit == b &&     //pocet zbylych der vyssich nez moje nejnizsi karta
-															 i.Value < h)) - opA;
+                var holes = opCards.Count(h => Hand.Any(i => i.Suit == b &&     //pocet zbylych der vyssich nez moje nejnizsi karta plus puvodni dira (eso)
+                                                             i.Value < h)) + opA;
 				n += Math.Min(holes, loCards);
 			}
 
 			return n > 4 ||                         //u vice nez 4 neodstranitelnych der kilo urcite neuhraju
-				   (n > 2 &&                        //pokud mam vic nez 1 neodstranitelnou diru
+				   (n > 1 &&                        //pokud mam vic nez 1 neodstranitelnou diru
 					!(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
 					  Hand.HasQ(_trump.Value)));
 		}
@@ -2556,11 +2557,15 @@ namespace Mariasek.Engine.New
                       Hand.CardCount(_g.trump.Value) >= 2 &&   //a aspon dva trumfy
                       bestCaseNonTrumpScore >= 10 &&           //a aspon 1 netrumfovou desitku
                       kqMaxOpponentScore <= 20) ||             //a vidim aspon do tri hlasu
-                      (_teamMateDoubledSeven &&
+                      (_teamMateDoubledSeven &&                //nebo spoluhrac dal flek na sedmu a ja mam aspon 40 bodu na ruce
                        estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100 &&
                        (kqScore >= 40 ||
                         (kqScore >= 20 &&
-                         estimatedFinalBasicScore >= 20)))))))))
+                         estimatedFinalBasicScore >= 20))) ||  //nebo mam aspon jeden hlas, dost trumfu a dost bodu na ruce a akter nemuze uhrat kilo
+                      (kqScore >= 20 &&
+                       Hand.CardCount(TrumpCard.Value) >= 4 &&
+                       estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
+                       estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100)))))))
             {
                 bid |= bidding.Bids & Hra.Hra;
                 //minRuleCount = Math.Min(minRuleCount, _gamesBalance);

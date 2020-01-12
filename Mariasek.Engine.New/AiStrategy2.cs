@@ -794,6 +794,17 @@ namespace Mariasek.Engine.New
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
                                                                                 i.Suit == _trump);
 						}
+                        //zkus vytlacit trumf trumfem pokud jic mam dost a hranim cehokoli jineho vytlacim ze spoluhrace A nebo X
+                        if (!cardsToPlay.Any() &&
+                            opponentTrumps > 0 &&
+                            hands[MyIndex].CardCount(_trump) > opponentTrumps &&
+                            hands[MyIndex].Where(i => i.Suit != _trump)
+                                          .All(i => _probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0 &&
+                                                    _probabilities.HasAOrXAndNothingElse(player2, i.Suit, RoundNumber) > 0.5))
+                        {
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
+                                                                                i.Suit == _trump);
+                        }
 
                         //zkus vytlacit trumf trumfem pokud si trumfy odmazu a pozdeji budu moct mazat A nebo X
                         //presunuto do "odmazat si barvu"
@@ -813,7 +824,7 @@ namespace Mariasek.Engine.New
                         //                                                   (i.Value != Hodnota.Desitka ||
                         //                                                    _probabilities.CardProbability(player3, new Card(_trump, Hodnota.Eso)) == 0));
                         //}
-					}
+                    }
                     else
                     {
                         //: c-o
@@ -862,6 +873,17 @@ namespace Mariasek.Engine.New
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
                                                                                 i.Suit == _trump);
 						}
+                        //zkus vytlacit trumf trumfem pokud jic mam dost a hranim cehokoli jineho vytlacim ze spoluhrace A nebo X
+                        if (!cardsToPlay.Any() &&
+                            opponentTrumps > 0 &&
+                            hands[MyIndex].CardCount(_trump) > opponentTrumps &&
+                            hands[MyIndex].Where(i => i.Suit != _trump)
+                                          .All(i => _probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0 &&
+                                                    _probabilities.HasAOrXAndNothingElse(player3, i.Suit, RoundNumber) > 0.5))
+                        {
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
+                                                                                i.Suit == _trump);
+                        }
 
                         // zkus vytlacit trumf trumfem pokud si trumfy odmazu a pozdeji budu moct mazat A nebo X
                         // presunuto do "odmazat si barvu"

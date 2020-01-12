@@ -61,6 +61,9 @@
     <AndroidPackageFormat>aab</AndroidPackageFormat>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <AndroidSigningKeyStore>/Users/kurt/Library/Developer/Xamarin/Keystore/kurt/kurt.keystore</AndroidSigningKeyStore>
+    <AndroidKeyStore>True</AndroidKeyStore>
+    <AndroidSigningStorePass>kensentme</AndroidSigningStorePass>
+    <AndroidSigningKeyAlias>kurt</AndroidSigningKeyAlias>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
