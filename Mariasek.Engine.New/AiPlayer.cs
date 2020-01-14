@@ -1936,62 +1936,26 @@ namespace Mariasek.Engine.New
             return estimatedPointsLost;
         }
 
-        private int GetTotalHoles()
-        {
-            //neodstranitelne diry jsou takove, ktere zbydou pokud zahraju nejvyssi karty od dane barvy
-            //kdyz jich je moc, tak hrozi, ze se nedostanu do stychu a souperi ze me budou tahat trumfy
-            //proto v takovem pripade sedmu nehraj
-            var totalHoles = 0;
-            foreach(var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
-            {
-                var topCards = Hand.Where(i => i.Suit == b &&
-                                               Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                   .Where(h => h > i.Value)
-                                                   .Select(h => new Card(b, h))
-                                                   .All(j => Probabilities.CardProbability((PlayerIndex + 1) % Game.NumPlayers, j) == 0 &&
-                                                             Probabilities.CardProbability((PlayerIndex + 2) % Game.NumPlayers, j) == 0)).ToList();
-                var nonTopCards = Hand.CardCount(b) - topCards.Count;
-                var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                .Select(h => new Card(b, h))
-                                .Where(i => !Hand.Contains(i) &&
-                                            Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                .Where(h => h < i.Value)
-                                                .Select(h => new Card(b, h))
-                                                .Any(j => Hand.Contains(j))).ToList();
-                var n = holes.Count - topCards.Count;
-
-                if (n > 0)
-                {
-                    if (n > nonTopCards)
-                    {
-                        n = nonTopCards;
-                    }
-                    totalHoles += n;
-                }
-            }
-            _debugString.AppendFormat("TotalHoles: {0}\n", totalHoles);
-
-            return totalHoles;
-        }
-
         public bool IsSevenTooRisky()
         {
-            return Hand.CardCount(_trump.Value) < 4 ||
-                   (Hand.CardCount(_trump.Value) == 4 &&
-                    (Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||
-                     Hand.Count(i => i.Value == Hodnota.Eso) +
+            return Hand.CardCount(_trump.Value) < 4 ||                      //1.  mene nez 4 trumfy
+                   (Hand.CardCount(_trump.Value) == 4 &&                    //2.  nebo 4 trumfy a jedno z
+                    (Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||      //2a. mene nez 3 vysoke karty celkem
+                     Hand.Count(i => i.Value == Hodnota.Eso) +              //2b. nebo mene nez 2 (resp. 3) uhratelne A, X
                      Enum.GetValues(typeof(Barva)).Cast<Barva>()
                          .Count(b => (Hand.HasX(b) &&
                                       (Hand.HasK(b) ||
+                                       Hand.HasA(b) ||
                                        (Hand.HasQ(b) &&
                                         Hand.CardCount(b) > 2)))) < (TeamMateIndex == -1 ? 2 : 3) ||
-                     Hand.Select(i => i.Suit).Distinct().Count() < 4)) ||
-                   (Hand.CardCount(_trump.Value) == 5 &&
-                    ((TeamMateIndex == -1 &&
-                      Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3) ||
-                     (TeamMateIndex != -1 &&
-                      Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 &&
-                      Hand.Count(i => i.Value >= Hodnota.Spodek) < 4)));
+                     (Hand.Select(i => i.Suit).Distinct().Count() < 4) &&   //2c. nebo nevidim do nejake barvy
+                      !(Hand.HasA(_trump.Value) &&                          //    (vyjma pripadu kdy mam trumfove eso a max. 2 neodstranitelne netrumfove diry)
+                        GetTotalHoles(false, false) <= 2))) ||
+                   (Hand.CardCount(_trump.Value) == 5 &&                    //3.  5 trumfu a
+                    ((Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 &&
+                      Hand.Count(i => i.Value >= Hodnota.Spodek) < 4) ||    //3a. mene nez 3 (resp. 4) vysoke karty celkem (plati pro aktera i protihrace)
+                     (Hand.Select(i => i.Suit).Distinct().Count() < 4 &&    //3b. nebo nevidim do nejake barvy a zaroven mam 3 a vice nterumfovych der
+                      GetTotalHoles(false, false) >= 3)));
         }
 
         public bool IsDurchCertain()
@@ -2099,63 +2063,138 @@ namespace Mariasek.Engine.New
             {
                 return true;
             }
-            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
-			{
-				var hiCards = Hand.Count(i => i.Suit == b &&
-											  Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-												  .Select(h => new Card(b, h))
-												  .All(j => j.Value < i.Value ||
-															Hand.Contains(j))); //pocet nejvyssich karet v barve
-				var loCards = Hand.CardCount(b) - hiCards;                      //pocet karet ktere maji nad sebou diru v barve
-				var opCards = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()   //vsechny hodnoty ktere v dane barve neznam
-								.Where(h => !Hand.Any(i => i.Suit == b &&
-														   i.Value == h))
-								.ToList();
-				var opA = 0;
-				if (opCards.Count() >= hiCards)                                 //odstran tolik nejmensich hodnot kolik mam nejvyssich karet
-				{
-					opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
-					if (hiCards == 0)
-					{
-						//Korekce: -XKS--8- by podle tohoto vyslo jako 3, ale ve skutecnosti vytlacim eso (1) kralem
-						//zbyvajici 2 nejvyssi trumfy pokryjou 2 diry a zbyde jedna dira. Cili spravny vysledek ma byt 2
-
-						//spocitej nevyssi karty bez esa
-						hiCards = Hand.Count(i => i.Suit == b &&
-											  Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-												  .Where(h => h < Hodnota.Eso)
-												  .Select(h => new Card(b, h))
-												  .All(j => j.Value < i.Value ||
-															Hand.Contains(j)));
-                        opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
-                        if (hiCards > 1) //mame aspon X a K - eso vytlacime kralem, cili pocitame, ze mame o trumf mene a o diru mene (nize)
-						{
-                            loCards = Hand.CardCount(b) - hiCards;
-                            opA++;
-						}
-						else if (hiCards == 1 &&        //mame aspon X+S+1 - eso vytlacime svrskem a jeste jednou, cili pocitame, ze mame o diru mene
-								 Hand.HasQ(b) &&
-								 Hand.CardCount(b) > 2)
-						{
-							loCards -= 2;
-							opA++;
-						}
-					}
-				}
-				else
-				{
-					opCards.Clear();
-				}
-                var holes = opCards.Count(h => Hand.Any(i => i.Suit == b &&     //pocet zbylych der vyssich nez moje nejnizsi karta plus puvodni dira (eso)
-                                                             i.Value < h)) + opA;
-				n += Math.Min(holes, loCards);
-			}
+            n = GetTotalHoles();
 
 			return n > 4 ||                         //u vice nez 4 neodstranitelnych der kilo urcite neuhraju
 				   (n > 1 &&                        //pokud mam vic nez 1 neodstranitelnou diru
 					!(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
 					  Hand.HasQ(_trump.Value)));
 		}
+
+        public int GetTotalHoles(bool includeTrumpSuit = true, bool includeAceSuits = true)
+        {
+            //neodstranitelne diry jsou takove, ktere zbydou pokud zahraju nejvyssi karty od dane barvy
+            //kdyz jich je moc, tak hrozi, ze se nedostanu do stychu a souperi ze me budou tahat trumfy
+            //proto v takovem pripade sedmu nehraj
+            var n = 0;
+
+            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            {
+                if (!includeTrumpSuit && _trump.HasValue && b == _trump.Value)
+                {
+                    continue;
+                }
+                if (!includeAceSuits && Hand.HasA(b))
+                {
+                    continue;
+                }
+                var hiCards = Hand.Count(i => i.Suit == b &&
+                                              Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                  .Select(h => new Card(b, h))
+                                                  .All(j => j.Value < i.Value ||
+                                                            Hand.Contains(j))); //pocet nejvyssich karet v barve
+                var loCards = Hand.CardCount(b) - hiCards;                      //pocet karet ktere maji nad sebou diru v barve
+                var opCards = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()   //vsechny hodnoty ktere v dane barve neznam
+                                .Where(h => !Hand.Any(i => i.Suit == b &&
+                                                           i.Value == h))
+                                .ToList();
+                var opA = 0;
+                if (opCards.Count() >= hiCards)                                 //odstran tolik nejmensich hodnot kolik mam nejvyssich karet
+                {
+                    opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
+                    if (hiCards == 0)
+                    {
+                        //Korekce: -XKS--8- by podle tohoto vyslo jako 3, ale ve skutecnosti vytlacim eso (1) kralem
+                        //zbyvajici 2 nejvyssi trumfy pokryjou 2 diry a zbyde jedna dira. Cili spravny vysledek ma byt 2
+
+                        //spocitej nevyssi karty bez esa
+                        hiCards = Hand.Count(i => i.Suit == b &&
+                                              Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                  .Where(h => h < Hodnota.Eso)
+                                                  .Select(h => new Card(b, h))
+                                                  .All(j => j.Value < i.Value ||
+                                                            Hand.Contains(j)));
+                        opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
+                        if (hiCards > 1) //mame aspon X a K - eso vytlacime kralem, cili pocitame, ze mame o trumf mene a o diru mene (nize)
+                        {
+                            loCards = Hand.CardCount(b) - hiCards;
+                            opA++;
+                        }
+                        else if (hiCards == 1 &&        //mame aspon X+S+1 - eso vytlacime svrskem a jeste jednou, cili pocitame, ze mame o diru mene
+                                 Hand.HasQ(b) &&
+                                 Hand.CardCount(b) > 2)
+                        {
+                            loCards -= 2;
+                            opA++;
+                        }
+                        else if (hiCards == 0)
+                        {
+                            //spocitej nevyssi karty bez esa
+                            hiCards = Hand.Count(i => i.Suit == b &&
+                                                  Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                      .Where(h => h < Hodnota.Desitka)
+                                                      .Select(h => new Card(b, h))
+                                                      .All(j => j.Value < i.Value ||
+                                                                Hand.Contains(j)));
+                            opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
+                            if (hiCards > 2)    //mame aspon 2 nejvyssi karty na vytlaceni desitky a esa
+                            {
+                                loCards = Hand.CardCount(b) - hiCards;
+                                opA += 2;       //zneuzijeme citac es i na desitku
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    opCards.Clear();
+                }
+                var holes = opCards.Count(h => Hand.Any(i => i.Suit == b &&     //pocet zbylych der vyssich nez moje nejnizsi karta plus puvodni dira (eso)
+                                                             i.Value < h)) + opA;
+                n += Math.Min(holes, loCards);
+            }
+            _debugString.AppendFormat("TotalHoles: {0}\n", n);
+
+            return n;
+        }
+
+        //private int GetTotalHoles()
+        //{
+        //    //neodstranitelne diry jsou takove, ktere zbydou pokud zahraju nejvyssi karty od dane barvy
+        //    //kdyz jich je moc, tak hrozi, ze se nedostanu do stychu a souperi ze me budou tahat trumfy
+        //    //proto v takovem pripade sedmu nehraj
+        //    var totalHoles = 0;
+        //    foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+        //    {
+        //        var topCards = Hand.Where(i => i.Suit == b &&
+        //                                       Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+        //                                           .Where(h => h > i.Value)
+        //                                           .Select(h => new Card(b, h))
+        //                                           .All(j => Probabilities.CardProbability((PlayerIndex + 1) % Game.NumPlayers, j) == 0 &&
+        //                                                     Probabilities.CardProbability((PlayerIndex + 2) % Game.NumPlayers, j) == 0)).ToList();
+        //        var nonTopCards = Hand.CardCount(b) - topCards.Count;
+        //        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+        //                        .Select(h => new Card(b, h))
+        //                        .Where(i => !Hand.Contains(i) &&
+        //                                    Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+        //                                        .Where(h => h < i.Value)
+        //                                        .Select(h => new Card(b, h))
+        //                                        .Any(j => Hand.Contains(j))).ToList();
+        //        var n = holes.Count - topCards.Count;
+
+        //        if (n > 0)
+        //        {
+        //            if (n > nonTopCards)
+        //            {
+        //                n = nonTopCards;
+        //            }
+        //            totalHoles += n;
+        //        }
+        //    }
+        //    _debugString.AppendFormat("TotalHoles: {0}\n", totalHoles);
+
+        //    return totalHoles;
+        //}
 
         public bool ShouldChooseHundred()
 		{
@@ -2317,7 +2356,8 @@ namespace Mariasek.Engine.New
                     DebugInfo.RuleCount = _gamesBalance;
                     DebugInfo.TotalRuleCount = _gameSimulations;
                 }
-                if (Settings.CanPlayGameType[Hra.Sedma] && 
+                if (Settings.CanPlayGameType[Hra.Sedma] &&
+                    Hand.Has7(_trump.Value) &&
                     _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0 &&
                     (!IsSevenTooRisky() ||                  //sedmu hlas pokud neni riskantni nebo pokud nelze uhrat hru (doufej ve flek na hru a konec)
                      (!_g.PlayZeroSumGames &&
@@ -2507,7 +2547,8 @@ namespace Mariasek.Engine.New
                 //nebo to vypada, ze muzu uhrajat vic nez souperi a nehrozi kilo proti
                 ((TeamMateIndex == -1 && 
                   (((Hand.HasK(_g.trump.Value) ||
-                     Hand.HasQ(_g.trump.Value)) &&
+                     Hand.HasQ(_g.trump.Value) ||
+                     kqScore >= 40) &&
                     ((kqScore >= 20 &&
                       !Is100AgainstPossible()) ||
                      (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + 10 &&

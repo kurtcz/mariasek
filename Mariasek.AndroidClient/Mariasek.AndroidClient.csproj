@@ -61,7 +61,6 @@
     <AndroidPackageFormat>aab</AndroidPackageFormat>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <AndroidSigningKeyStore>/Users/kurt/Library/Developer/Xamarin/Keystore/kurt/kurt.keystore</AndroidSigningKeyStore>
-    <AndroidKeyStore>True</AndroidKeyStore>
     <AndroidSigningStorePass>kensentme</AndroidSigningStorePass>
     <AndroidSigningKeyAlias>kurt</AndroidSigningKeyAlias>
   </PropertyGroup>
@@ -93,9 +92,6 @@
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MariasekActivity.cs" />
-    <Compile Include="..\Mariasek.Engine.New\AiPlayer.cs">
-      <Link>AiPlayer.cs</Link>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\Icon.png" />

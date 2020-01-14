@@ -86,7 +86,6 @@
     </IpaPackageName>
     <MtouchLink>Full</MtouchLink>
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
-    <MtouchProfiling>true</MtouchProfiling>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
