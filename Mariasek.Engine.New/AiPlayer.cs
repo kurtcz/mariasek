@@ -343,10 +343,12 @@ namespace Mariasek.Engine.New
             }
             if (talon.Count < 2)
             {
-                //potom vezmi karty od nejkratsich barev a alespon stredni hodnoty (1 karta > devitka)
+                //potom vezmi karty od nejkratsich barev a alespon stredni hodnoty (1 karta > osma)
                 //radime podle poctu poctu der ktere odstranime sestupne, poctu der celkem sestupne a hodnoty karty sestupne
-                talon.AddRange(holesByCard.Where(i => i.Item2 == 1 && i.Item5 > 0 && !talon.Contains(i.Item1))// &&			    //CardCount
-                                          //i.Item1.Value > Hodnota.Devitka)
+                talon.AddRange(holesByCard.Where(i => i.Item2 == 1 &&			    //CardCount
+                                                      i.Item5 > 0 &&                //HigherCards
+                                                      !talon.Contains(i.Item1) &&
+                                                      i.Item1.Value > Hodnota.Osma)
                                           .OrderByDescending(i => i.Item3)          //holesDelta
                                           .ThenByDescending(i => i.Item4)           //holes
                                           .ThenByDescending(i => i.Item1.BadValue)
@@ -356,9 +358,15 @@ namespace Mariasek.Engine.New
             }
             if (talon.Count < 2)
 			{
-				//dopln kartami od delsich barev
-				talon.AddRange(holesByCard.Where(i => i.Item2 < 7 &&  !talon.Contains(i.Item1))		//Card
-				               		   	  .OrderByDescending(i => i.Item3)			//holesDelta
+                //dopln kartami od delsich barev
+                var topHoleDeltaPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                              .ToDictionary(b => b, b => holesByCard.Where(i => i.Item1.Suit == b)
+                                                                                    .OrderByDescending(i => i.Item1.BadValue)
+                                                                                    .Select(i => i.Item3)
+                                                                                    .FirstOrDefault());
+
+                talon.AddRange(holesByCard.Where(i => i.Item2 < 7 &&  !talon.Contains(i.Item1))		//Card
+				               		   	  .OrderByDescending(i => topHoleDeltaPerSuit[i.Item1.Suit])//i.Item3)			//holesDelta
 				               			  .ThenByDescending(i => i.Item4)			//holes
 									   	  .ThenByDescending(i => i.Item1.BadValue)
 									   	  .Take(2 - talon.Count)
@@ -2727,11 +2735,28 @@ namespace Mariasek.Engine.New
             }
 //#if DEBUG
             var opponentLowCards = EstimateLowBetlCardCount();
+            var opponentMidCards = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                       .SelectMany(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                            .Select(h => new Card(b, h))
+                                                            .Where(i => i.BadValue <= Card.GetBadValue(Hodnota.Desitka) &&
+                                                                        !Hand.Contains(i) &&
+                                                                        Hand.Any(j => j.Suit == i.Suit &&
+                                                                                      j.BadValue < i.BadValue) &&
+                                                                        Hand.Any(j => j.Suit == i.Suit &&
+                                                                                      j.BadValue > i.BadValue)));
+            var opMidSuits = opponentMidCards.Select(i => i.Suit).Distinct().Count();
+            var handSuits = Hand.Select(i => i.Suit).Distinct().Count();
+
             if ((bidding.Bids & Hra.Betl) != 0 &&
                 Settings.CanPlayGameType[Hra.Betl] &&
                 bidding._betlDurchFlek <= 1 &&
                 PlayerIndex != _g.GameStartingPlayerIndex &&
-                opponentLowCards <= 6)
+                (opponentLowCards <= 6 ||                                   //1. flekuj pokud akter nemuze mit moc nizkych karet
+                 (TeamMateIndex == (PlayerIndex + 1) % Game.NumPlayers &&   //2. flekuj pokud jsi na druhe pozici
+                  opponentMidCards.Count() >= 5 &&                          //a vidis aspon 5 der
+                  opMidSuits >= 2 &&                                        //a mas nizsi karty nez diry aspon ve dvou barvach
+                  (handSuits < Game.NumSuits ||                             //nebo znas vsechny barvy a mas nizke karty ve trech barvach
+                   opMidSuits >= 3))))
             {
                 bid |= bidding.Bids & Hra.Betl;
                 //minRuleCount = Math.Min(minRuleCount, _betlBalance);

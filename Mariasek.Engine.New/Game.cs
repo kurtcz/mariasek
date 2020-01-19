@@ -1686,11 +1686,6 @@ namespace Mariasek.Engine.New
                     validGameTypes = GetValidGameTypesForPlayer(nextPlayer, gameFlavour, minimalBid);
                     DebugString.AppendFormat("Player {0} ChooseGameType()\n", GameStartingPlayer.PlayerIndex + 1);
                     GameType = GameStartingPlayer.ChooseGameType(validGameTypes);
-                    if ((GameType & validGameTypes) != GameType)
-                    {
-                        DebugString.AppendFormat("Illegal game type: {0} out of {1}\n", GameType, validGameTypes);
-                        GameType &= validGameTypes;
-                    }
                     GameTypeConfidence = GameStartingPlayer.DebugInfo.TotalRuleCount > 0 ? (float)GameStartingPlayer.DebugInfo.RuleCount / (float)GameStartingPlayer.DebugInfo.TotalRuleCount : -1f;
                     DebugString.AppendFormat("ChooseGameType: {0}\n", GameType);
                     if (GameType == 0)
