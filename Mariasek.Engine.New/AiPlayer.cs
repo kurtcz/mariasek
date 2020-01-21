@@ -1890,12 +1890,18 @@ namespace Mariasek.Engine.New
                 }
             }
             var n = 10 * (axCount + axWinPotential);
+            var hiTrumps = Hand.Count(i => i.Suit == trump.Value &&
+                                           i.Value >= Hodnota.Svrsek);
 
-            if (trumpCount >= 5 ||
+            if (trumpCount > 5 ||
+                (trumpCount <= 5 &&
+                 hiTrumps >= 2 &&
+                 (Hand.HasA(trump.Value) ||
+                  Hand.HasX(trump.Value) &&
                 (PlayerIndex == _g.GameStartingPlayerIndex &&
                  trumpCount >= 4 &&
                  cardsPerSuit.All(i => i.Value > 0)) ||
-                Hand.Average(i => (float)i.Value) >= (float)Hodnota.Kral)
+                Hand.Average(i => (float)i.Value) >= (float)Hodnota.Kral)))
             {
                 n += 10;
             }
@@ -2559,8 +2565,9 @@ namespace Mariasek.Engine.New
                      kqScore >= 40) &&
                     ((kqScore >= 20 &&
                       !Is100AgainstPossible()) ||
+                     estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqMaxOpponentScore ||
                      (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + 10 &&
-                      estimatedOpponentFinalBasicScore + 40 < 100))) ||
+                      !Is100AgainstPossible(110)))) ||
                    (estimatedFinalBasicScore > 60 &&    //pokud si davam re a nethram, musim mit velkou jistotu
                     !Is100AgainstPossible(110)))) ||    //ze uhraju vic bodu i bez trhaka a ze souper neuhraje kilo (110 - kilo jeste risknu)
                  //nebo jsem nevolil a:
@@ -2568,7 +2575,7 @@ namespace Mariasek.Engine.New
                   ((bidding.GameMultiplier > 2 &&               //Tutti:
                     ((Hand.CardCount(_g.trump.Value) >= 2 &&    //mam aspon 2 trumfy a k tomu aspon jednu hlasku nebo trham aspon 2 hlasky
                       estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
-                      (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b)) ||
+                      (kqScore >= 20 ||
                        Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) || Hand.HasQ(b)) >= 2)) ||
                      (_teamMateDoubledGame &&                   //nebo kolega flekoval a jsem si jisty aspon na prah pro Re
                       _gamesBalance / (float)_gameSimulations >= gameThresholdPrevious &&
@@ -2576,7 +2583,6 @@ namespace Mariasek.Engine.New
                       (kqScore >= 40 ||                         //a mam aspon 40 bodu v hlasech
                        (kqScore >= 20 &&                        //nebo aspon 20 bodu v hlasech a celkem vic bodu nez souper
                         estimatedFinalBasicScore >= 20))) ||
-                        //estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore))) ||
                      (Hand.CardCount(_g.trump.Value) >= 4 &&    //nebo mam aspon 4 trumfy
                       DebugInfo.Tygrovo >= 20))) ||             //a k tomu silne karty
                    (bidding.GameMultiplier < 2 &&               //Flek:
@@ -2592,7 +2598,7 @@ namespace Mariasek.Engine.New
                      ((Hand.HasK(_g.trump.Value) ||             //trhak a vetsina bodu
                        Hand.HasQ(_g.trump.Value)) &&
                       estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
-                      estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100) ||
+                      !Is100AgainstPossible()) ||
                      ((Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&
                       DebugInfo.Tygrovo >= 15) ||
@@ -2607,7 +2613,7 @@ namespace Mariasek.Engine.New
                       bestCaseNonTrumpScore >= 10 &&           //a aspon 1 netrumfovou desitku
                       kqMaxOpponentScore <= 20) ||             //a vidim aspon do tri hlasu
                       (_teamMateDoubledSeven &&                //nebo spoluhrac dal flek na sedmu a ja mam aspon 40 bodu na ruce
-                       estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100 &&
+                       !Is100AgainstPossible() &&
                        (kqScore >= 40 ||
                         (kqScore >= 20 &&
                          estimatedFinalBasicScore >= 20))) ||  //nebo mam aspon jeden hlas, dost trumfu a dost bodu na ruce a akter nemuze uhrat kilo
