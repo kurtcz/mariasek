@@ -1179,6 +1179,55 @@ namespace Mariasek.Engine.New
 
         public void UpdateProbabilitiesAfterBidMade(BidEventArgs e, Bidding bidding)
         {
+            if ((e.BidMade & Hra.Hra) != 0 &&
+                e.Player.PlayerIndex != _myIndex &&
+                _gameStarterIndex == _myIndex)
+            {
+                for (var i = 0; i < Game.NumPlayers + 1; i++)
+                {
+                    if (i == _myIndex ||
+                        i == talonIndex)
+                    {
+                        continue;
+                    }
+                    const float small = 0.1f;
+
+                    if (_cardProbabilityForPlayer[i][_trump.Value][Hodnota.Svrsek] > 0 &&
+                        _cardProbabilityForPlayer[i][_trump.Value][Hodnota.Svrsek] < 1)
+                    {
+                        _cardProbabilityForPlayer[i][_trump.Value][Hodnota.Svrsek] = i == e.Player.PlayerIndex ? 1 - small : small;
+                    }
+                    if (_cardProbabilityForPlayer[i][_trump.Value][Hodnota.Kral] > 0 &&
+                        _cardProbabilityForPlayer[i][_trump.Value][Hodnota.Kral] < 1)
+                    {
+                        _cardProbabilityForPlayer[i][_trump.Value][Hodnota.Kral] = i == e.Player.PlayerIndex ? 1 - small : small;
+                    }
+                }
+            }
+            if ((e.BidMade & Hra.Sedma) != 0 &&
+                e.Player.PlayerIndex != _myIndex &&
+                _gameStarterIndex == _myIndex)
+            {
+                for (var i = 0; i < Game.NumPlayers + 1; i++)
+                {
+                    if (i == _myIndex ||
+                        i == talonIndex)
+                    {
+                        continue;
+                    }
+                    foreach(var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+                    {
+                        if (_cardProbabilityForPlayer[i][_trump.Value][h] > 0 &&
+                            _cardProbabilityForPlayer[i][_trump.Value][h] < 1)
+                        {
+                            const float epsilon = 0.01f;
+
+                            _cardProbabilityForPlayer[i][_trump.Value][h] = i == e.Player.PlayerIndex ? 1 - epsilon : epsilon;
+                        }
+                    }
+                    _initialExpectedTrumps[i] = i == _sevenIndex ? 8 - _initialExpectedTrumps[_myIndex] : 0;
+                }
+            }
             if ((e.BidMade & Hra.SedmaProti) != 0 && bidding.SevenAgainstMultiplier == 1)
             {
                 _sevenAgainstIndex = e.Player.PlayerIndex;

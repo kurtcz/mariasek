@@ -2511,6 +2511,13 @@ namespace Mariasek.Engine.New
                     {
                         RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, false);
                         _initialSimulation = false;
+                        //po opakovane simulaci sedmy pri novem rozlozeni trumfu po fleku na sedmu aktualizuj statistiku
+                        if (TeamMateIndex == -1 &&
+                            (bidding.Bids & Hra.Sedma) != 0)
+                        {
+                            DebugInfo.RuleCount = _sevensBalance;
+                            DebugInfo.TotalRuleCount = _sevenSimulations;
+                        }
                     }
                 }
                 else
@@ -2936,6 +2943,10 @@ namespace Mariasek.Engine.New
             if (e.Player.PlayerIndex == TeamMateIndex && (e.BidMade & Hra.Sedma) != 0)
             {
                 _teamMateDoubledSeven = true;
+            }
+            if (e.Player.PlayerIndex != PlayerIndex && e.Player.PlayerIndex != _g.GameStartingPlayerIndex && (e.BidMade & Hra.Sedma) != 0)
+            {
+                _initialSimulation = true;
             }
             Probabilities.UpdateProbabilitiesAfterBidMade(e, _g.Bidding);
         }
