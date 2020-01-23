@@ -1064,7 +1064,7 @@ namespace Mariasek.Engine.New
                     source = tempSource.ToArray();
                 }
                 if (PlayerIndex == _g.GameStartingPlayerIndex && 
-                    _gameType == null && 
+//                    _gameType == null && 
                     (Hand.Has7(_trump ?? _g.trump.Value) ||
                      (Enum.GetValues(typeof(Barva)).Cast<Barva>()
                           .Any(b => Hand.HasK(b) && Hand.HasQ(b)))))
@@ -2653,7 +2653,19 @@ namespace Mariasek.Engine.New
                           .Where(b => b != _trump.Value)
                           .Any(b => Hand.CardCount(b) >= 5)))))) ||
                  (TeamMateIndex == -1 && GetTotalHoles() <= 2)) &&
-                _sevensBalance / (float)_sevenSimulations >= sevenThreshold)
+                (_sevensBalance / (float)_sevenSimulations >= sevenThreshold))
+            {
+                bid |= bidding.Bids & Hra.Sedma;
+                //minRuleCount = Math.Min(minRuleCount, _sevensBalance);
+                DebugInfo.RuleCount = _sevensBalance;
+                DebugInfo.TotalRuleCount = _sevenSimulations;
+            }
+            else if ((bidding.Bids & Hra.Sedma) != 0 &&
+                     Settings.CanPlayGameType[Hra.Sedma] &&
+                     TeamMateIndex != -1 &&
+                     bidding._sevenFlek == 1 &&                       //flekni krome hry i sedmu i kdyz v simulacich nevysla
+                     kqScore >= 40 &&                                 //pokud je sance uhrat tichych 110 proti
+                     estimatedFinalBasicScore + kqScore >= 90)        //90 bodu uhraju sam a zbytek snad bude mit kolega
             {
                 bid |= bidding.Bids & Hra.Sedma;
                 //minRuleCount = Math.Min(minRuleCount, _sevensBalance);
