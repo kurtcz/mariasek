@@ -164,7 +164,7 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("DoLog", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "DoLog",
-                Value = Game.Settings.DoLog.ToString()
+                Value = "false" //Game.Settings.DoLog.ToString()
             });
             _aiConfig.Add("AiCheating", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {

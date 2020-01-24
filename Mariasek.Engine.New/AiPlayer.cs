@@ -1419,7 +1419,10 @@ namespace Mariasek.Engine.New
                                         : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.HundredAgainstWon);
             _sevensBalance = PlayerIndex == gameStartingPlayerIndex
                                 ? moneyCalculations.Where(i => (i.GameType & Hra.Sedma) != 0).Count(i => i.SevenWon)
-                                : moneyCalculations.Where(i => (i.GameType & (i.GameType & (Hra.Betl | Hra.Durch))) == 0).Count(i => !i.SevenWon);
+                                : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.SevenWon);
+            _sevenSimulations = PlayerIndex == gameStartingPlayerIndex
+                                ? moneyCalculations.Count(i => (i.GameType & Hra.Sedma) != 0)
+                                : moneyCalculations.Count(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0);
             _sevensAgainstBalance = PlayerIndex == gameStartingPlayerIndex
                                         ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.SevenAgainstWon)
                                         : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.SevenAgainstWon);
@@ -3531,18 +3534,14 @@ namespace Mariasek.Engine.New
                 }
             }
 
-            var useGeneratedHandsForProbabilities = roundsToCompute > 1;        //initial game simulations
+            var useGeneratedHandsForProbabilities = false;// roundsToCompute > 1;        //initial game simulations
             var prob = Probabilities.Clone();
             if (useGeneratedHandsForProbabilities)                              //all probabilities are based on generated hands (either 0 or 1)
             {
                 prob.Set(hands);
             }
             prob.UseDebugString = false;    //otherwise we are being really slooow
-            var teamMatesSuits = new List<Barva>();
-            foreach (var suit in _teamMatesSuits)
-            {
-                teamMatesSuits.Add(suit);
-            }
+            var teamMatesSuits = new List<Barva>(_teamMatesSuits);
             var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.rounds, teamMatesSuits, prob, playerName, playerIndex, teamMateIndex, initialRoundNumber, Settings.RiskFactor, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense);
             
             _log.DebugFormat("Round {0}. Starting simulation for {1}", _g.RoundNumber, _g.players[PlayerIndex].Name);
@@ -3642,9 +3641,9 @@ namespace Mariasek.Engine.New
                 }
                 else
                 {
-                    UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, _teamMatesSuits, _teamMateDoubledGame);
-                    UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, _teamMatesSuits, _teamMateDoubledGame);
-                    UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, _teamMatesSuits, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
                 }
                 aiStrategy.MyIndex = roundWinnerIndex;
                 aiStrategy.TeamMateIndex = _g.players[roundWinnerIndex].TeamMateIndex;
