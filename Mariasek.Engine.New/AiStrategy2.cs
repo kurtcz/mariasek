@@ -1576,7 +1576,15 @@ namespace Mariasek.Engine.New
                                                                                     ? (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Eso)) > _epsilon ? 1 : 0) +
                                                                                       (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Desitka)) > _epsilon ? 1 : 0)
                                                                                     : int.MaxValue);
-                            return cardsToPlay.OrderBy(i => teamMatesLikelyAXPerSuit[i.Suit])
+                            var teamMatesLikelyHigherCards = cardsToPlay.ToDictionary(k => k, v =>
+                                                                Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()                                                                    
+                                                                    .Where(h => h > v.Value &&
+                                                                                h <= Hodnota.Kral)
+                                                                    .Select(h => new Card(v.Suit, h))
+                                                                    .Count(i => _probabilities.CardProbability(TeamMateIndex, i) > 0));
+                            return cardsToPlay.Where(i => teamMatesLikelyHigherCards[i] > 0)
+                                              .OrderByDescending(i => teamMatesLikelyHigherCards[i])
+                                              .ThenBy(i => teamMatesLikelyAXPerSuit[i.Suit])
                                               .ThenByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
                                               .ThenBy(i => i.Value)
                                               .FirstOrDefault();
@@ -1633,7 +1641,7 @@ namespace Mariasek.Engine.New
                                                                                       (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Desitka)) > _epsilon ? 1 : 0)
                                                                                     : int.MaxValue);
                             return cardsToPlay.OrderBy(i => teamMatesLikelyAXPerSuit[i.Suit])
-                                              .ThenByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
+                                              .ThenByDescending(i => hands[MyIndex].CardCount(i.Suit))//_probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
                                               .ThenByDescending(i => i.Value)
                                               .FirstOrDefault();
                         }
