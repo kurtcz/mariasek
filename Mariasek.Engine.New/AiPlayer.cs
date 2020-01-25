@@ -403,29 +403,37 @@ namespace Mariasek.Engine.New
                                         !hand.HasA(i.Suit))
                             .Take(2)
                             .ToList();
-            var holesByCard = hand.Where(i => !talon.Contains(i))
-                                  .Select(i =>
+            var holesPerSuit = new Dictionary<Barva, int>();
+
+            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
             {
-                //pro kazdou kartu spocitej diry (vetsi karty v barve ktere nemam)
-                var holes = 0;
-
-                foreach (var h in Enum.GetValues(typeof(Hodnota))
-                                      .Cast<Hodnota>()
-                                      .Where(h => i.BadValue < Card.GetBadValue(h)))
+                var hiCards = Hand.Count(i => i.Suit == b &&
+                                              Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                  .Select(h => new Card(i.Suit, h))
+                                                  .All(j => j.BadValue < i.BadValue ||
+                                                            Hand.Contains(j))); //pocet nejvyssich karet v barve
+                var loCards = Hand.CardCount(b) - hiCards;                      //pocet karet ktere maji nad sebou diru v barve
+                var opCards = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()   //vsechny hodnoty ktere v dane barve neznam
+                                .Where(h => !Hand.Any(i => i.Suit == b &&
+                                                           i.BadValue == Card.GetBadValue(h)))
+                                .ToList();
+                if (opCards.Count() >= hiCards)                                 //odstran tolik nejmensich hodnot kolik mam nejvyssich karet
                 {
-                    if (!hand.Any(j => j.Suit == i.Suit && j.Value == h))
-                    {
-                        holes++;
-                    }
+                    opCards = opCards.OrderBy(h => Card.GetBadValue(h)).Skip(hiCards).ToList();
                 }
+                else
+                {
+                    opCards.Clear();
+                }
+                var holes = opCards.Count(h => Hand.Any(i => i.Suit == b &&     //pocet zbylych der vyssich nez moje nejnizsi karta plus puvodni dira (eso)
+                                                             i.BadValue < Card.GetBadValue(h)));
+                var n = Math.Min(holes, loCards);
 
-                return new Tuple<Card, int>(i, holes);
-            }).Where(i => i.Item2 > 0);
-
-            talon.AddRange(holesByCard.OrderByDescending(i => i.Item2) //pak doplnime kartama v barvach s nejvice dirama
-                                      .ThenBy(i => hand.CardCount(i.Item1.Suit))    //prednostne ber kratsi barvy
-                                      .ThenBy(i => i.Item1.BadValue)                //a nizsi karty
-                                      .Select(i => i.Item1)
+                holesPerSuit.Add(b, n);
+            }
+            talon.AddRange(Hand.OrderByDescending(i => holesPerSuit[i.Suit])
+                                      .ThenBy(i => hand.CardCount(i.Suit))    //prednostne ber kratsi barvy
+                                      .ThenBy(i => i.BadValue)                //a nizsi karty
                                       .Take(2 - talon.Count()));
             var count = talon.Count();
 
@@ -1274,8 +1282,8 @@ namespace Mariasek.Engine.New
                                 {
                                     tempSource.Enqueue(hands);
                                 }
-                            //nasimuluj ze volici hrac vybral trumfy a/nebo talon
-                            if (PlayerIndex != _g.GameStartingPlayerIndex)
+                                //nasimuluj ze volici hrac vybral trumfy a/nebo talon
+                                if (PlayerIndex != _g.GameStartingPlayerIndex)
                                 {
                                     if (_g.GameType == Hra.Betl)
                                     {   //pokud jsem volil ja tak v UpdateGeneratedHandsByChoosingTalon() pouziju skutecne zvoleny trumf
@@ -1971,8 +1979,12 @@ namespace Mariasek.Engine.New
                    (Hand.CardCount(_trump.Value) == 5 &&                    //3.  5 trumfu a
                     ((Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 &&
                       Hand.Count(i => i.Value >= Hodnota.Spodek) < 4) ||    //3a. mene nez 3 (resp. 4) vysoke karty celkem (plati pro aktera i protihrace)
-                     (Hand.Select(i => i.Suit).Distinct().Count() < 4 &&    //3b. nebo nevidim do nejake barvy a zaroven mam 3 a vice nterumfovych der
-                      GetTotalHoles(false, false) >= 3)));
+                     (Hand.Select(i => i.Suit).Distinct().Count() < 4 &&    //3b. nebo nevidim do nejake barvy a zaroven mam 4 a vice netrumfovych der
+                      (GetTotalHoles(false, false) >= 4 ||                  //3c. nebo tri netrumfove diry ve vice nez jedne barve
+                       (GetTotalHoles(false, false) == 3 &&
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            .Where(b => b != _trump.Value)
+                            .Count(b => !Hand.HasA(b)) > 1)))));
         }
 
         public bool IsDurchCertain()
@@ -2088,6 +2100,75 @@ namespace Mariasek.Engine.New
 					  Hand.HasQ(_trump.Value)));
 		}
 
+        public int GetTotalHoles(Barva b)
+        {
+            var hiCards = Hand.Count(i => i.Suit == b &&
+                                          Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                              .Select(h => new Card(b, h))
+                                              .All(j => j.Value < i.Value ||
+                                                        Hand.Contains(j))); //pocet nejvyssich karet v barve
+            var loCards = Hand.CardCount(b) - hiCards;                      //pocet karet ktere maji nad sebou diru v barve
+            var opCards = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()   //vsechny hodnoty ktere v dane barve neznam
+                            .Where(h => !Hand.Any(i => i.Suit == b &&
+                                                       i.Value == h))
+                            .ToList();
+            var opA = 0;
+            if (opCards.Count() >= hiCards)                                 //odstran tolik nejmensich hodnot kolik mam nejvyssich karet
+            {
+                opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
+                if (hiCards == 0)
+                {
+                    //Korekce: -XKS--8- by podle tohoto vyslo jako 3, ale ve skutecnosti vytlacim eso (1) kralem
+                    //zbyvajici 2 nejvyssi trumfy pokryjou 2 diry a zbyde jedna dira. Cili spravny vysledek ma byt 2
+
+                    //spocitej nevyssi karty bez esa
+                    hiCards = Hand.Count(i => i.Suit == b &&
+                                          Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                              .Where(h => h < Hodnota.Eso)
+                                              .Select(h => new Card(b, h))
+                                              .All(j => j.Value < i.Value ||
+                                                        Hand.Contains(j)));
+                    opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
+                    if (hiCards > 1) //mame aspon X a K - eso vytlacime kralem, cili pocitame, ze mame o trumf mene a o diru mene (nize)
+                    {
+                        loCards = Hand.CardCount(b) - hiCards;
+                        opA++;
+                    }
+                    else if (hiCards == 1 &&        //mame aspon X+S+1 - eso vytlacime svrskem a jeste jednou, cili pocitame, ze mame o diru mene
+                             Hand.HasQ(b) &&
+                             Hand.CardCount(b) > 2)
+                    {
+                        loCards -= 2;
+                        opA++;
+                    }
+                    else if (hiCards == 0)
+                    {
+                        //spocitej nevyssi karty bez esa
+                        hiCards = Hand.Count(i => i.Suit == b &&
+                                              Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                  .Where(h => h < Hodnota.Desitka)
+                                                  .Select(h => new Card(b, h))
+                                                  .All(j => j.Value < i.Value ||
+                                                            Hand.Contains(j)));
+                        opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
+                        if (hiCards > 2)    //mame aspon 2 nejvyssi karty na vytlaceni desitky a esa
+                        {
+                            loCards = Hand.CardCount(b) - hiCards;
+                            opA += 2;       //zneuzijeme citac es i na desitku
+                        }
+                    }
+                }
+            }
+            else
+            {
+                opCards.Clear();
+            }
+            var holes = opCards.Count(h => Hand.Any(i => i.Suit == b &&     //pocet zbylych der vyssich nez moje nejnizsi karta plus puvodni dira (eso)
+                                                         i.Value < h)) + opA;
+
+            return Math.Min(holes, loCards);
+        }
+
         public int GetTotalHoles(bool includeTrumpSuit = true, bool includeAceSuits = true)
         {
             //neodstranitelne diry jsou takove, ktere zbydou pokud zahraju nejvyssi karty od dane barvy
@@ -2105,70 +2186,8 @@ namespace Mariasek.Engine.New
                 {
                     continue;
                 }
-                var hiCards = Hand.Count(i => i.Suit == b &&
-                                              Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                  .Select(h => new Card(b, h))
-                                                  .All(j => j.Value < i.Value ||
-                                                            Hand.Contains(j))); //pocet nejvyssich karet v barve
-                var loCards = Hand.CardCount(b) - hiCards;                      //pocet karet ktere maji nad sebou diru v barve
-                var opCards = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()   //vsechny hodnoty ktere v dane barve neznam
-                                .Where(h => !Hand.Any(i => i.Suit == b &&
-                                                           i.Value == h))
-                                .ToList();
-                var opA = 0;
-                if (opCards.Count() >= hiCards)                                 //odstran tolik nejmensich hodnot kolik mam nejvyssich karet
-                {
-                    opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
-                    if (hiCards == 0)
-                    {
-                        //Korekce: -XKS--8- by podle tohoto vyslo jako 3, ale ve skutecnosti vytlacim eso (1) kralem
-                        //zbyvajici 2 nejvyssi trumfy pokryjou 2 diry a zbyde jedna dira. Cili spravny vysledek ma byt 2
 
-                        //spocitej nevyssi karty bez esa
-                        hiCards = Hand.Count(i => i.Suit == b &&
-                                              Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                  .Where(h => h < Hodnota.Eso)
-                                                  .Select(h => new Card(b, h))
-                                                  .All(j => j.Value < i.Value ||
-                                                            Hand.Contains(j)));
-                        opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
-                        if (hiCards > 1) //mame aspon X a K - eso vytlacime kralem, cili pocitame, ze mame o trumf mene a o diru mene (nize)
-                        {
-                            loCards = Hand.CardCount(b) - hiCards;
-                            opA++;
-                        }
-                        else if (hiCards == 1 &&        //mame aspon X+S+1 - eso vytlacime svrskem a jeste jednou, cili pocitame, ze mame o diru mene
-                                 Hand.HasQ(b) &&
-                                 Hand.CardCount(b) > 2)
-                        {
-                            loCards -= 2;
-                            opA++;
-                        }
-                        else if (hiCards == 0)
-                        {
-                            //spocitej nevyssi karty bez esa
-                            hiCards = Hand.Count(i => i.Suit == b &&
-                                                  Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                      .Where(h => h < Hodnota.Desitka)
-                                                      .Select(h => new Card(b, h))
-                                                      .All(j => j.Value < i.Value ||
-                                                                Hand.Contains(j)));
-                            opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
-                            if (hiCards > 2)    //mame aspon 2 nejvyssi karty na vytlaceni desitky a esa
-                            {
-                                loCards = Hand.CardCount(b) - hiCards;
-                                opA += 2;       //zneuzijeme citac es i na desitku
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    opCards.Clear();
-                }
-                var holes = opCards.Count(h => Hand.Any(i => i.Suit == b &&     //pocet zbylych der vyssich nez moje nejnizsi karta plus puvodni dira (eso)
-                                                             i.Value < h)) + opA;
-                n += Math.Min(holes, loCards);
+                n += GetTotalHoles(b);
             }
             _debugString.AppendFormat("TotalHoles: {0}\n", n);
 
