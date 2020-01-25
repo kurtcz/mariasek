@@ -1980,11 +1980,17 @@ namespace Mariasek.Engine.New
                     ((Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 &&
                       Hand.Count(i => i.Value >= Hodnota.Spodek) < 4) ||    //3a. mene nez 3 (resp. 4) vysoke karty celkem (plati pro aktera i protihrace)
                      (Hand.Select(i => i.Suit).Distinct().Count() < 4 &&    //3b. nebo nevidim do nejake barvy a zaroven mam 4 a vice netrumfovych der
-                      (GetTotalHoles(false, false) >= 4 ||                  //3c. nebo tri netrumfove diry ve vice nez jedne barve
-                       (GetTotalHoles(false, false) == 3 &&
-                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                            .Where(b => b != _trump.Value)
-                            .Count(b => !Hand.HasA(b)) > 1)))));
+                      Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                          .Where(b => b != _trump.Value)
+                          .Any(b => Hand.Count(i => i.Suit == b &&
+                                                    i.Value >= Hodnota.Svrsek) <
+                                    Hand.Count(i => i.Suit == b &&
+                                                    i.Value <= Hodnota.Spodek)))));
+                      //(GetTotalHoles(false, false) >= 4 ||                  //3c. nebo tri netrumfove diry ve vice nez jedne barve
+                      // (GetTotalHoles(false, false) == 3 &&
+                      //  Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                      //      .Where(b => b != _trump.Value)
+                      //      .Count(b => !Hand.HasA(b)) > 1)))));
         }
 
         public bool IsDurchCertain()
@@ -2604,6 +2610,7 @@ namespace Mariasek.Engine.New
                   ((bidding.GameMultiplier > 2 &&               //Tutti:
                     ((Hand.CardCount(_g.trump.Value) >= 2 &&    //mam aspon 2 trumfy a k tomu aspon jednu hlasku nebo trham aspon 2 hlasky
                       estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
+                      (!Is100AgainstPossible() || _teamMateDoubledGame) &&
                       (kqScore >= 20 ||
                        Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) || Hand.HasQ(b)) >= 2)) ||
                      (_teamMateDoubledGame &&                   //nebo kolega flekoval a jsem si jisty aspon na prah pro Re
