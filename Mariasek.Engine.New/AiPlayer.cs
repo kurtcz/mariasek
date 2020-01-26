@@ -431,10 +431,11 @@ namespace Mariasek.Engine.New
 
                 holesPerSuit.Add(b, n);
             }
-            talon.AddRange(Hand.OrderByDescending(i => holesPerSuit[i.Suit])
-                                      .ThenBy(i => hand.CardCount(i.Suit))    //prednostne ber kratsi barvy
-                                      .ThenBy(i => i.BadValue)                //a nizsi karty
-                                      .Take(2 - talon.Count()));
+            talon.AddRange(Hand.Where(i => !talon.Contains(i))
+                               .OrderByDescending(i => holesPerSuit[i.Suit])
+                               .ThenBy(i => hand.CardCount(i.Suit))    //prednostne ber kratsi barvy
+                               .ThenBy(i => i.BadValue)                //a nizsi karty
+                               .Take(2 - talon.Count()));
             var count = talon.Count();
 
             //pokud je potreba, doplnime o nejake nizke karty
@@ -1982,9 +1983,10 @@ namespace Mariasek.Engine.New
                      (Hand.Select(i => i.Suit).Distinct().Count() < 4 &&    //3b. nebo nevidim do nejake barvy a zaroven mam 4 a vice netrumfovych der
                       Enum.GetValues(typeof(Barva)).Cast<Barva>()
                           .Where(b => b != _trump.Value)
-                          .Count(b => Hand.Count(i => i.Suit == b &&
+                          .Count(b => !Hand.HasA(b) &&
+                                      Hand.Count(i => i.Suit == b &&
                                                     i.Value >= Hodnota.Svrsek) <
-                                    Hand.Count(i => i.Suit == b &&
+                                      Hand.Count(i => i.Suit == b &&
                                                     i.Value <= Hodnota.Spodek)) > 1)));
                       //(GetTotalHoles(false, false) >= 4 ||                  //3c. nebo tri netrumfove diry ve vice nez jedne barve
                       // (GetTotalHoles(false, false) == 3 &&
