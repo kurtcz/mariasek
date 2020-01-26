@@ -2680,7 +2680,14 @@ namespace Mariasek.Engine.New
                       Hand.CardCount(Hodnota.Eso) >= 2 &&           //aspon dve esa a
                       Enum.GetValues(typeof(Barva)).Cast<Barva>()   //jedna dlouha barva
                           .Where(b => b != _trump.Value)
-                          .Any(b => Hand.CardCount(b) >= 5)))))) ||
+                          .Any(b => Hand.CardCount(b) >= 5))))) ||
+                   (_teamMateDoubledGame &&                          //nebo pokud kolega flekoval
+                    Hand.HasA(_trump.Value) &&                       //a ja mam aspon 3 trumfy a navic eso a neco velkeho a aspon 40 bodu
+                    (Hand.HasX(_trump.Value) ||
+                     Hand.HasK(_trump.Value) ||
+                     Hand.HasQ(_trump.Value)) &&
+                     Hand.CardCount(_trump.Value) >= 3 &&
+                     estimatedFinalBasicScore >= 40)) ||
                  (TeamMateIndex == -1 && GetTotalHoles() <= 2)) &&
                 (_sevensBalance / (float)_sevenSimulations >= sevenThreshold))
             {
@@ -2692,9 +2699,9 @@ namespace Mariasek.Engine.New
             else if ((bidding.Bids & Hra.Sedma) != 0 &&
                      Settings.CanPlayGameType[Hra.Sedma] &&
                      TeamMateIndex != -1 &&
-                     bidding._sevenFlek == 1 &&                       //flekni krome hry i sedmu i kdyz v simulacich nevysla
-                     kqScore >= 40 &&                                 //pokud je sance uhrat tichych 110 proti
-                     estimatedFinalBasicScore + kqScore >= 90)        //90 bodu uhraju sam a zbytek snad bude mit kolega
+                     bidding._sevenFlek == 1 &&                         //flekni krome hry i sedmu i kdyz v simulacich nevysla
+                     ((kqScore >= 40 &&                                 //pokud je sance uhrat tichych 110 proti
+                       estimatedFinalBasicScore + kqScore >= 90)))      //90 bodu uhraju sam a zbytek snad bude mit kolega
             {
                 bid |= bidding.Bids & Hra.Sedma;
                 //minRuleCount = Math.Min(minRuleCount, _sevensBalance);
