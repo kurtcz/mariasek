@@ -1982,10 +1982,10 @@ namespace Mariasek.Engine.New
                      (Hand.Select(i => i.Suit).Distinct().Count() < 4 &&    //3b. nebo nevidim do nejake barvy a zaroven mam 4 a vice netrumfovych der
                       Enum.GetValues(typeof(Barva)).Cast<Barva>()
                           .Where(b => b != _trump.Value)
-                          .Any(b => Hand.Count(i => i.Suit == b &&
+                          .Count(b => Hand.Count(i => i.Suit == b &&
                                                     i.Value >= Hodnota.Svrsek) <
                                     Hand.Count(i => i.Suit == b &&
-                                                    i.Value <= Hodnota.Spodek)))));
+                                                    i.Value <= Hodnota.Spodek)) > 1)));
                       //(GetTotalHoles(false, false) >= 4 ||                  //3c. nebo tri netrumfove diry ve vice nez jedne barve
                       // (GetTotalHoles(false, false) == 3 &&
                       //  Enum.GetValues(typeof(Barva)).Cast<Barva>()
