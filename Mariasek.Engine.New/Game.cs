@@ -1529,6 +1529,10 @@ namespace Mariasek.Engine.New
             var bidNumber = 0;
             var noMoreGameFlavourChoices = false;
 
+            if (GameStartingPlayerIndex != 0)
+            {
+                PreGameHook();
+            }
             gameTypeForPlayer[GameStartingPlayerIndex] = Hra.Hra;
             DebugString.AppendLine("ChooseGame()");
             DebugString.AppendFormat("Player {0} ChooseTrump()\n", GameStartingPlayer.PlayerIndex + 1);
@@ -1537,7 +1541,10 @@ namespace Mariasek.Engine.New
             trump = TrumpCard.Suit;
             GameType = 0;
             talon = new List<Card>();
-            PreGameHook();
+            if (GameStartingPlayerIndex == 0)
+            {
+                PreGameHook();
+            }
             //ptame se na barvu
             while (true)
             {

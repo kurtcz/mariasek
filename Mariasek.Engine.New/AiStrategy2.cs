@@ -905,7 +905,7 @@ namespace Mariasek.Engine.New
                         //}
                     }
 
-                    return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                    return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
                 }
             };
 

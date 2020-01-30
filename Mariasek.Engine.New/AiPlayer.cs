@@ -2089,6 +2089,16 @@ namespace Mariasek.Engine.New
 			{
 				return true;
 			}
+            //Pokud nvidis do vsech barev a mas barvu s vic nez jednou nizkou kartou bez A nebo X  tak kilo nehraj. Souperi by si mohli uhrat desitky
+            if (Hand.Select(i => i.Suit).Distinct().Count() < 4 &&
+                Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                    .Where(b => b != _trump.Value)
+                    .Any(b => Hand.CardCount(b) > 1 &&
+                              !Hand.HasA(b) &&
+                              !Hand.HasX(b)))
+            {
+                return true;
+            }
             //Pokud ve vice nez jedne barve mas nizke karty a nemas desitku (ani ji nemuzes vytahnout) tak kilo nehraj. Souperi by si mohli uhrat desitky
             if (axCount < 5 &&
                 Enum.GetValues(typeof(Barva)).Cast<Barva>()
