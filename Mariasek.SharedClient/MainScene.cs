@@ -98,6 +98,7 @@ namespace Mariasek.SharedClient
         private Task _gameTask;
         private CancellationTokenSource _cancellationTokenSource;
         private readonly AutoResetEvent _evt = new AutoResetEvent(false);
+        private readonly AutoResetEvent _preGameEvent = new AutoResetEvent(false);
         private bool _canSort;
         private bool _canSortTrump;
         private bool _firstTimeTalonCardClick;
@@ -1292,6 +1293,7 @@ namespace Mariasek.SharedClient
             _repeatGameAsPlayer3Btn.Hide();
             _testGame = false;
             var cancellationTokenSource = new CancellationTokenSource();
+            _preGameEvent.Reset();
             _gameTask = Task.Run(() => CancelRunningTask(gameTask))
                             .ContinueWith(cancellationTask =>
              {
@@ -1335,7 +1337,8 @@ namespace Mariasek.SharedClient
                          AllowAXTalon = Game.Settings.AllowAXTalon,
                          AllowTrumpTalon = Game.Settings.AllowTrumpTalon,
                          AllowAIAutoFinish = Game.Settings.AllowAIAutoFinish,
-                         AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish
+                         AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish,
+                         PreGameHook = () => _preGameEvent.WaitOne()
                      };
                      g.RegisterPlayers(
                          new HumanPlayer(g, _aiConfig, this, Game.Settings.HintEnabled) { Name = Game.Settings.PlayerNames[0] },
@@ -1440,7 +1443,6 @@ namespace Mariasek.SharedClient
                          SortHand();
                          _hand.Hide();
                          UpdateHand(true);
-                         _hand.AnimationEvent.Wait();
                      }
                      else
                      {
@@ -1492,6 +1494,14 @@ namespace Mariasek.SharedClient
                      }
                  }
                  _lastGameWasLoaded = false;
+                 if (g.GameStartingPlayerIndex != 0)
+                 {
+                     Task.Run(() =>
+                     {
+                         _hand.AnimationEvent.Wait();
+                         _preGameEvent.Set();
+                     });
+                 }
                  g.PlayGame(_cancellationTokenSource.Token);
              }, cancellationTokenSource.Token);
         }
@@ -1955,6 +1965,11 @@ namespace Mariasek.SharedClient
                 ShowMsgLabel("Vyber trumfovou kartu", false);
                 _hand.Show();
                 UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
+                Task.Run(() =>
+                {
+                    _hand.AnimationEvent.Wait();
+                    _preGameEvent.Set();
+                });
                 _hand.IsEnabled = true;
                 _hand.AllowDragging();
             });
@@ -2944,6 +2959,7 @@ namespace Mariasek.SharedClient
                 _repeatGameAsPlayer3Btn.Hide();
                 SetActive();
                 var cancellationTokenSource = new CancellationTokenSource();
+                _preGameEvent.Reset();
                 _gameTask = Task.Run(() => CancelRunningTask(gameTask))
                                 .ContinueWith(cancellationTask =>
                 {
@@ -3170,6 +3186,14 @@ namespace Mariasek.SharedClient
                         }
                     }
                     _lastGameWasLoaded = true;
+                    if (g.RoundNumber > 0)
+                    {
+                        Task.Run(() =>
+                        {
+                            _hand.AnimationEvent.Wait();
+                            _preGameEvent.Set();
+                        });
+                    }
                     g.PlayGame(_cancellationTokenSource.Token);
                 }, cancellationTokenSource.Token);
             }

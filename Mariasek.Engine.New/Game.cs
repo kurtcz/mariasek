@@ -14,6 +14,7 @@ using Mariasek.Engine.New.Logger;
 using Mariasek.Engine.New.Configuration;
 //#if !PORTABLE
 using Mariasek.Engine.New.Schema;
+using System.Runtime.CompilerServices;
 //#endif
 
 namespace Mariasek.Engine.New
@@ -105,6 +106,8 @@ namespace Mariasek.Engine.New
 #endif
         public string Comment { get; set; }
         public IStringLogger DebugString { get; private set; }
+
+        public Action PreGameHook = () => { };
 
         #endregion
 
@@ -922,7 +925,10 @@ namespace Mariasek.Engine.New
                     ChooseGame();
                     RoundNumber++;
                 }
-
+                else
+                {
+                    PreGameHook();
+                }
                 if (ShouldPlayGame())
                 {
                     //vlastni hra
@@ -1531,8 +1537,9 @@ namespace Mariasek.Engine.New
             trump = TrumpCard.Suit;
             GameType = 0;
             talon = new List<Card>();
-			//ptame se na barvu
-            while(true)
+            PreGameHook();
+            //ptame se na barvu
+            while (true)
             {
                 var canChooseFlavour = true;
 
