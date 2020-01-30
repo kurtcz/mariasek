@@ -165,6 +165,7 @@ namespace Mariasek.SharedClient.GameComponents
             base.Show();
             var cardStrings = new StringBuilder();
 
+            //AnimationEvent.Reset();
             foreach (var c in hand)
             {
                 cardStrings.AppendFormat("{0} ", c);
@@ -454,13 +455,13 @@ namespace Mariasek.SharedClient.GameComponents
             ShowStraight((int)Game.VirtualScreenWidth - 20);
         }
 
-        public override void Update(GameTime gameTime)
+        public override void Draw(GameTime gameTime)
         {
-            if (!IsMoving)
+            base.Draw(gameTime);
+            if (!IsMoving && !SpritesBusy && !AnimationEvent.IsSet)
             {
                 AnimationEvent.Set();
             }
-            base.Update(gameTime);
         }
     }
 }

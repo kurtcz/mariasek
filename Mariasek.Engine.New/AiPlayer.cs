@@ -2626,10 +2626,10 @@ namespace Mariasek.Engine.New
                       (kqScore >= 20 ||
                        Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) || Hand.HasQ(b)) >= 2)) ||
                      (_teamMateDoubledGame &&                   //nebo kolega flekoval a jsem si jisty aspon na prah pro Re
-                      _gamesBalance / (float)_gameSimulations >= gameThresholdPrevious &&
+                      //_gamesBalance / (float)_gameSimulations >= gameThresholdPrevious &&
                       //estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100 &&
                       (kqScore >= 40 ||                         //a mam aspon 40 bodu v hlasech
-                       (kqScore >= 20 &&                        //nebo aspon 20 bodu v hlasech a celkem vic bodu nez souper
+                       (kqScore >= 20 &&                        //nebo aspon 20 bodu v hlasech a 30 bodu odhadem k tomu
                         estimatedFinalBasicScore >= 20))) ||
                      (Hand.CardCount(_g.trump.Value) >= 4 &&    //nebo mam aspon 4 trumfy
                       DebugInfo.Tygrovo >= 20))) ||             //a k tomu silne karty

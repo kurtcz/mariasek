@@ -152,6 +152,7 @@ namespace Mariasek.SharedClient
                 _t0 = Environment.TickCount;
                 _aiTask = Task.Run(() =>
                 {
+                    _g.PreGameHook();
                     try
                     {
     					_t1 = Environment.TickCount;
@@ -213,9 +214,10 @@ namespace Mariasek.SharedClient
 						//_scene.SuggestGameTypeNew(gt2);
 						//_scene.SuggestGameFlavourNew(gt2);
 
-					_t0 = Environment.TickCount;
+					    _t0 = Environment.TickCount;
                         _aiTask = Task.Run(() =>
                         {
+                            _g.PreGameHook();
                             try
                             {
                                 _t1 = Environment.TickCount;

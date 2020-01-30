@@ -1030,6 +1030,7 @@ namespace Mariasek.SharedClient
                 {
                     (g.players[0] as HumanPlayer).CancelAiTask();
                     _cancellationTokenSource.Cancel();
+                    _preGameEvent.Set();
                     _evt.Set();
                     gameTask.Wait();
                 }
@@ -1293,10 +1294,10 @@ namespace Mariasek.SharedClient
             _repeatGameAsPlayer3Btn.Hide();
             _testGame = false;
             var cancellationTokenSource = new CancellationTokenSource();
-            _preGameEvent.Reset();
             _gameTask = Task.Run(() => CancelRunningTask(gameTask))
                             .ContinueWith(cancellationTask =>
              {
+                 _preGameEvent.Reset();
                  try
                  {
                      CleanUpOldGame();
@@ -1494,14 +1495,6 @@ namespace Mariasek.SharedClient
                      }
                  }
                  _lastGameWasLoaded = false;
-                 if (g.GameStartingPlayerIndex != 0)
-                 {
-                     Task.Run(() =>
-                     {
-                         _hand.AnimationEvent.Wait();
-                         _preGameEvent.Set();
-                     });
-                 }
                  g.PlayGame(_cancellationTokenSource.Token);
              }, cancellationTokenSource.Token);
         }
@@ -1965,11 +1958,6 @@ namespace Mariasek.SharedClient
                 ShowMsgLabel("Vyber trumfovou kartu", false);
                 _hand.Show();
                 UpdateHand(flipCardsUp: true, cardsNotRevealed: 5);
-                Task.Run(() =>
-                {
-                    _hand.AnimationEvent.Wait();
-                    _preGameEvent.Set();
-                });
                 _hand.IsEnabled = true;
                 _hand.AllowDragging();
             });
@@ -2959,10 +2947,10 @@ namespace Mariasek.SharedClient
                 _repeatGameAsPlayer3Btn.Hide();
                 SetActive();
                 var cancellationTokenSource = new CancellationTokenSource();
-                _preGameEvent.Reset();
                 _gameTask = Task.Run(() => CancelRunningTask(gameTask))
                                 .ContinueWith(cancellationTask =>
                 {
+                    _preGameEvent.Reset();
                     try
                     {
                         _cancellationTokenSource = cancellationTokenSource;
@@ -3186,14 +3174,6 @@ namespace Mariasek.SharedClient
                         }
                     }
                     _lastGameWasLoaded = true;
-                    if (g.RoundNumber > 0)
-                    {
-                        Task.Run(() =>
-                        {
-                            _hand.AnimationEvent.Wait();
-                            _preGameEvent.Set();
-                        });
-                    }
                     g.PlayGame(_cancellationTokenSource.Token);
                 }, cancellationTokenSource.Token);
             }
@@ -3294,6 +3274,7 @@ namespace Mariasek.SharedClient
             {
                 return;
             }
+            _hand.AnimationEvent.Reset();
             RunOnUiThread(() =>
             {
                 if (flipCardsUp)
@@ -3317,20 +3298,20 @@ namespace Mariasek.SharedClient
                 if (flipCardsUp)
                 {
                     _hand.WaitUntil(() =>
-                    { 
-                        if (!_hand.SpritesBusy && !_hand.IsMoving)
-                        {
+                         { 
+                             if (!_hand.SpritesBusy && !_hand.IsMoving)
+                             {
 
-                        }
-                        return !_hand.SpritesBusy && !_hand.IsMoving; 
-                    })
+                             }
+                             return !_hand.SpritesBusy && !_hand.IsMoving; 
+                         })
                          .Invoke(() =>
                          {
                              _hand.UpdateHand(g.players[0].Hand.ToArray(), cardsNotRevealed, cardToHide);
                          });
                 }
             });
-		  if (_state == GameState.ChooseTalon && Game.Settings.AutoSort)
+		    if (_state == GameState.ChooseTalon && Game.Settings.AutoSort)
             {
                 RunOnUiThread(() =>
                 {
@@ -3343,6 +3324,13 @@ namespace Mariasek.SharedClient
                          });
                 });
             }
+            RunOnUiThread(() =>
+            {
+                _hand.Invoke(() =>
+                {
+                    _preGameEvent.Set();
+                });
+            });
         }
 
         private void UpdateCardTextures(GameComponent parent, Texture2D oldTexture, Texture2D newTexture)
