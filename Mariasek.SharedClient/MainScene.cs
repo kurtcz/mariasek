@@ -1999,7 +1999,14 @@ namespace Mariasek.SharedClient
                 _okBtn.Show();
                 _okBtn.IsEnabled = false;
                 _state = GameState.ChooseTalon;
-                UpdateHand(true, cardToHide: _trumpCardChosen); //abych si otocil zbyvajicich 5 karet
+                if (_trumpCardChosen != null)
+                {
+                    UpdateHand(true, cardToHide: _trumpCardChosen); //abych si otocil zbyvajicich 5 karet
+                }
+                else
+                {
+                    UpdateHand(); //abych videl jaky talon mi prisel po zahlaseni spatne barvy
+                }
                 _hand.IsEnabled = true;
             });
             WaitForUIThread();
@@ -3326,7 +3333,14 @@ namespace Mariasek.SharedClient
             }
             RunOnUiThread(() =>
             {
-                _hand.Invoke(() =>
+                _hand.WaitUntil(() =>
+                {
+                    if (!_hand.SpritesBusy && !_hand.IsMoving)
+                    {
+
+                    }
+                    return !_hand.SpritesBusy && !_hand.IsMoving;
+                }).Invoke(() =>
                 {
                     _preGameEvent.Set();
                 });
