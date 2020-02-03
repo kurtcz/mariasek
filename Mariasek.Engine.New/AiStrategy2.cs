@@ -538,7 +538,10 @@ namespace Mariasek.Engine.New
                         if (holes.Count > 0 &&
                             topTrumps.Count > 0 &&
                             ((topTrumps.Count >= holes.Count &&
-                              _gameType != (Hra.Hra | Hra.Sedma)) ||
+                              (_gameType != (Hra.Hra | Hra.Sedma) ||
+                               hands[MyIndex].All(i => i.Suit == _trump ||
+                                                       i.Value == Hodnota.Eso ||
+                                                       i.Value == Hodnota.Desitka))) ||
                              (_probabilities.SuitProbability(player2, _trump, RoundNumber) >= 1 - RiskFactor &&
                               _probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 - RiskFactor &&
                               //pokud ve vsech netrumfovych barvach mam nejvyssi kartu

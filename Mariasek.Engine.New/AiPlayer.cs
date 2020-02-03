@@ -2081,14 +2081,6 @@ namespace Mariasek.Engine.New
 
 				dict.Add(b, new Tuple<int, Hodnota, Hodnota>(holeSize, topCard?.Value ?? Hodnota.Eso, secondCard?.Value ?? Hodnota.Eso));
 			}
-			if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
-					.Count(b => dict[b].Item1 > 2 ||
-								(dict[b].Item2 != Hodnota.Eso &&
-								 (dict[b].Item2 != Hodnota.Desitka ||
-								  dict[b].Item3 < Hodnota.Kral))) > 1)
-			{
-				return true;
-			}
             //Pokud nvidis do vsech barev a mas barvu s vic nez jednou nizkou kartou bez A nebo X  tak kilo nehraj. Souperi by si mohli uhrat desitky
             if (Hand.Select(i => i.Suit).Distinct().Count() < 4 &&
                 Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -2112,7 +2104,17 @@ namespace Mariasek.Engine.New
             }
             n = GetTotalHoles();
 
-			return n > 4 ||                         //u vice nez 4 neodstranitelnych der kilo urcite neuhraju
+            //Pokud ve vice nez jedne barve mas diru vetsi nez 2 a mas od ni A ani X+K 
+            //if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+            //        .Count(b => dict[b].Item1 > 2 ||
+            //                    (dict[b].Item2 != Hodnota.Eso &&
+            //                     (dict[b].Item2 != Hodnota.Desitka ||
+            //                      dict[b].Item3 < Hodnota.Kral))) > 1)
+            //{
+            //    return true;
+            //}
+
+            return n > 3 ||                         //u vice nez 3 neodstranitelnych der kilo urcite neuhraju
 				   (n > 1 &&                        //pokud mam vic nez 1 neodstranitelnou diru
 					!(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
 					  Hand.HasQ(_trump.Value)));
