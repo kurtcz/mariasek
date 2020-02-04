@@ -2047,12 +2047,12 @@ namespace Mariasek.Engine.New
 			{
 				return false;
 			}
-			if (!((Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value)) || //abych nehral kilo pokud aspon netrham a nemam aspon 2 hlasky
-					 Enum.GetValues(typeof(Barva)).Cast<Barva>()
-						 .Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2))
-			{
-				return true;
-			}
+			//if (!((Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value)) || //abych nehral kilo pokud aspon netrham a nemam aspon 2 hlasky
+			//		 Enum.GetValues(typeof(Barva)).Cast<Barva>()
+			//			 .Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2))
+			//{
+			//	return true;
+			//}
 			if ((!Hand.HasA(_trump.Value) &&
 				 Hand.CardCount(_trump.Value) < 4) ||
 				((!Hand.HasA(_trump.Value) ||
@@ -2087,7 +2087,8 @@ namespace Mariasek.Engine.New
                     .Where(b => b != _trump.Value)
                     .Any(b => Hand.CardCount(b) > 1 &&
                               !Hand.HasA(b) &&
-                              !Hand.HasX(b)))
+                              !Hand.HasX(b) &&
+                              !Hand.HasK(b)))
             {
                 return true;
             }
@@ -2096,9 +2097,11 @@ namespace Mariasek.Engine.New
                 Enum.GetValues(typeof(Barva)).Cast<Barva>()
                     .Count(b => Hand.HasSuit(b) &&
                                 !Hand.HasX(b) &&
-                                Hand.CardCount(b) < 5 &&
-                                !(Hand.CardCount(b) == 1 &&
-                                  Hand.HasA(b))) > 1)
+                                //Hand.CardCount(b) < 5) &&
+                                //!(Hand.CardCount(b) == 1 &&
+                                //  Hand.HasA(b))) > 1)
+                                Hand.CardCount(b) > 2 &&        //???
+                                Hand.CardCount(b) < 5) > 1)
             {
                 return true;
             }
@@ -2115,9 +2118,15 @@ namespace Mariasek.Engine.New
             //}
 
             return n > 3 ||                         //u vice nez 3 neodstranitelnych der kilo urcite neuhraju
+                   (n == 3 &&                       //nebo u 3 neodstranitelnych der pokud nemam trumfove eso
+                    !Hand.HasA(_trump.Value)) ||
 				   (n > 1 &&                        //pokud mam vic nez 1 neodstranitelnou diru
 					!(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
-					  Hand.HasQ(_trump.Value)));
+					  Hand.HasQ(_trump.Value))) ||
+                   (n == 1 &&                       //nebo pokud mam jednu diru
+                    !Hand.HasA(_trump.Value) &&     //nemam trumfove eso
+                    !(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
+                      Hand.HasQ(_trump.Value)));
 		}
 
         public int GetTotalHoles(Barva b)
@@ -2186,7 +2195,7 @@ namespace Mariasek.Engine.New
             var holes = opCards.Count(h => Hand.Any(i => i.Suit == b &&     //pocet zbylych der vyssich nez moje nejnizsi karta plus puvodni dira (eso)
                                                          i.Value < h)) + opA;
 
-            return Math.Min(holes, loCards);
+            return Math.Min(holes, loCards + opA);
         }
 
         public int GetTotalHoles(bool includeTrumpSuit = true, bool includeAceSuits = true)
