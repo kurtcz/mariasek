@@ -2821,6 +2821,22 @@ namespace Mariasek.Engine.New
                         {
                             return null;
                         }
+                        //Pokud akter ma dalsi karty v barve kterou vyjizdel (vyjma esa)
+                        //a pokud mam desitku a muj spoluhrac hral trumfem, tak desitku nehraj
+                        //Pokud by spoluhracovi pozdeji dosly trumfy udrzi me pak desitka ve stychu
+                        if(c1.Suit != _trump &&
+                           c2.Suit == _trump &&
+                           hands[MyIndex].HasX(c1.Suit) &&
+                           (_probabilities.CardProbability(player1, new Card(c1.Suit, Hodnota.Eso)) == 0 ||
+                            (c1.Value == Hodnota.Eso &&
+                             c1.IsLowerThan(c2, _trump))) &&
+                           Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                               .Where(h => h != c1.Value)
+                               .Select(h => new Card(c1.Suit, h))
+                               .Count(i => _probabilities.CardProbability(player1, i) > _epsilon) > 2) //protoze 2 karty muzou byt v talonu
+                        {
+                            return null;
+                        }
                         //pocet souperovych trumfu vyssi nez muj nejvyssi trumf mensi nez X
                         var opHiTrumps = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
 											 .Where(h => h > myHighestTrumpAfterX)
