@@ -2669,17 +2669,17 @@ namespace Mariasek.Engine.New
                      ((Hand.HasK(_g.trump.Value) ||            //nebo mam trhak
                        Hand.HasQ(_g.trump.Value)) &&             
                       Hand.CardCount(_g.trump.Value) >= 2 &&   //a aspon dva trumfy
-                      bestCaseNonTrumpScore >= 10 &&           //a aspon 1 netrumfovou desitku
+                      kqScore >= 20 &&                         //a aspon 1 netrumfovou desitku
                       kqMaxOpponentScore <= 20) ||             //a vidim aspon do tri hlasu
-                      (_teamMateDoubledSeven &&                //nebo spoluhrac dal flek na sedmu a ja mam aspon 40 bodu na ruce
-                       !Is100AgainstPossible() &&
-                       (kqScore >= 40 ||
-                        (kqScore >= 20 &&
-                         estimatedFinalBasicScore >= 20))) ||  //nebo mam aspon jeden hlas, dost trumfu a dost bodu na ruce a akter nemuze uhrat kilo
-                      (kqScore >= 20 &&
-                       Hand.CardCount(TrumpCard.Value) >= 4 &&
-                       estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
-                       estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100)))))))
+                     (_teamMateDoubledSeven &&                //nebo spoluhrac dal flek na sedmu a ja mam aspon 40 bodu na ruce
+                      !Is100AgainstPossible() &&
+                      (kqScore >= 40 ||
+                       (kqScore >= 20 &&
+                        estimatedFinalBasicScore >= 20))) ||  //nebo mam aspon jeden hlas, dost trumfu a dost bodu na ruce a akter nemuze uhrat kilo
+                     (kqScore >= 20 &&
+                      Hand.CardCount(TrumpCard.Value) >= 4 &&
+                      estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
+                      estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100)))))))
             {
                 bid |= bidding.Bids & Hra.Hra;
                 //minRuleCount = Math.Min(minRuleCount, _gamesBalance);
