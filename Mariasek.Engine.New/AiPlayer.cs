@@ -2081,11 +2081,11 @@ namespace Mariasek.Engine.New
 
 				dict.Add(b, new Tuple<int, Hodnota, Hodnota>(holeSize, topCard?.Value ?? Hodnota.Eso, secondCard?.Value ?? Hodnota.Eso));
 			}
-            //Pokud nvidis do vsech barev a mas barvu s vic nez jednou nizkou kartou bez A nebo X  tak kilo nehraj. Souperi by si mohli uhrat desitky
+            //Pokud nvidis do vsech barev a mas barvu s vic nez 2 nizkyma kartama bez A nebo X  tak kilo nehraj. Souperi by si mohli uhrat desitky
             if (Hand.Select(i => i.Suit).Distinct().Count() < 4 &&
                 Enum.GetValues(typeof(Barva)).Cast<Barva>()
                     .Where(b => b != _trump.Value)
-                    .Any(b => Hand.CardCount(b) > 1 &&
+                    .Any(b => Hand.CardCount(b) > 2 &&
                               !Hand.HasA(b) &&
                               !Hand.HasX(b) &&
                               !Hand.HasK(b)))

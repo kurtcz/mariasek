@@ -148,7 +148,7 @@ namespace Mariasek.SharedClient
             };
             _player1 = new Label(this)
             {
-                Position = new Vector2(350, 20),
+                Position = new Vector2(390, 20),
                 Width = 120,
                 Height = 50,
                 Text = Game.Settings.PlayerNames[0],
@@ -156,7 +156,7 @@ namespace Mariasek.SharedClient
             };
             _player2 = new Label(this)
             {
-                Position = new Vector2(510, 20),
+                Position = new Vector2(530, 20),
                 Width = 120,
                 Height = 50,
                 Text = Game.Settings.PlayerNames[1],
@@ -181,12 +181,17 @@ namespace Mariasek.SharedClient
                 {
                     new Tab
                     {
-                        TabPosition = 400,
+                        TabPosition = 280,
+                        TabAlignment = HorizontalAlignment.Left
+                    },
+                    new Tab
+                    {
+                        TabPosition = 440,
                         TabAlignment = HorizontalAlignment.Right
                     },
                     new Tab
                     {
-                        TabPosition = 560,
+                        TabPosition = 580,
                         TabAlignment = HorizontalAlignment.Right
                     },
                     new Tab
@@ -220,12 +225,12 @@ namespace Mariasek.SharedClient
                 {
                     new Tab
                     {
-                        TabPosition = 400,
+                        TabPosition = 440,
                         TabAlignment = HorizontalAlignment.Right
                     },
                     new Tab
                     {
-                        TabPosition = 560,
+                        TabPosition = 580,
                         TabAlignment = HorizontalAlignment.Right
                     },
                     new Tab
@@ -244,7 +249,7 @@ namespace Mariasek.SharedClient
         public void PopulateControls()
         {
             var sb = new StringBuilder();
-            int wins = 0, total = 0;
+            int played = 0, wins = 0, total = 0;
             var series = new Vector2[Mariasek.Engine.New.Game.NumPlayers][];
             var numFormat = (NumberFormatInfo)CultureInfo.GetCultureInfo("cs-CZ").NumberFormat.Clone();
 
@@ -295,14 +300,20 @@ namespace Mariasek.SharedClient
             //};
             foreach (var historyItem in Game.Money)
             {
-                sb.AppendFormat(" {0,-7}\t{1}\t{2}\t{3}\n",
-                                string.IsNullOrWhiteSpace(historyItem.GameTypeString) ? "?": historyItem.GameTypeString,
-                                (historyItem.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", numFormat), 
-                                (historyItem.MoneyWon[1] * Game.Settings.BaseBet).ToString("C", numFormat), 
+                sb.AppendFormat(" {0:D4}\t{1}\t{2}\t{3}\t{4}\n",
+                                (historyItem.GameIdSpecified ? historyItem.GameId.ToString("D4") : "-----"),
+                                (string.IsNullOrWhiteSpace(historyItem.GameTypeString) ? "?" : historyItem.GameTypeString),
+                                (historyItem.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", numFormat),
+                                (historyItem.MoneyWon[1] * Game.Settings.BaseBet).ToString("C", numFormat),
                                 (historyItem.MoneyWon[2] * Game.Settings.BaseBet).ToString("C", numFormat));
-                if (historyItem.MoneyWon[0] > 0)
+
+                if (historyItem.GameIdSpecified)
                 {
-                    wins++;
+                    if (historyItem.MoneyWon[0] > 0)
+                    {
+                        wins++;
+                    }
+                    played++;
                 }
                 total++;
             }
@@ -311,8 +322,8 @@ namespace Mariasek.SharedClient
             _historyBox.Text = sb.ToString().TrimEnd();
             _historyChart.ScrollToEnd();
 			_historyBox.ScrollToBottom();
-            _stat.Text = string.Format("Odehráno her:\n{0}\nZ toho výher:\n{1}\nPoměr: {2:N0}%\nPříště začíná:\n{3}", 
-                total, wins, ratio, 
+            _stat.Text = string.Format("Odehráno her:\n{0}\nZ toho výher:\n{1} ({2:N0}%)\nCelkem her: {3}\nPříště začíná:\n{4}",
+                played, wins, ratio, total,
                 Game.Settings.PlayerNames[(Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers]);
 
             var sum1 = Game.Money.Sum(i => i.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", numFormat);
