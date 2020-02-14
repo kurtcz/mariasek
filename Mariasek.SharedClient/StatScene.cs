@@ -404,20 +404,53 @@ namespace Mariasek.SharedClient
         {
             var gameTypeString = stat.Key;
             var games1 = stat.Where(i => (i.MoneyWon[0] > 0 && i.MoneyWon[1] < 0 && i.MoneyWon[2] < 0) ||
-                                         (i.MoneyWon[0] < 0 && i.MoneyWon[1] > 0 && i.MoneyWon[2] > 0));
+                                         (i.MoneyWon[0] < 0 && i.MoneyWon[1] > 0 && i.MoneyWon[2] > 0)).ToList();
             var games2 = stat.Where(i => (i.MoneyWon[0] < 0 && i.MoneyWon[1] > 0 && i.MoneyWon[2] < 0) ||
-                                         (i.MoneyWon[0] > 0 && i.MoneyWon[1] < 0 && i.MoneyWon[2] > 0));
+                                         (i.MoneyWon[0] > 0 && i.MoneyWon[1] < 0 && i.MoneyWon[2] > 0)).ToList();
             var games3 = stat.Where(i => (i.MoneyWon[0] < 0 && i.MoneyWon[1] < 0 && i.MoneyWon[2] > 0) ||
-                                         (i.MoneyWon[0] > 0 && i.MoneyWon[1] > 0 && i.MoneyWon[2] < 0));
+                                         (i.MoneyWon[0] > 0 && i.MoneyWon[1] > 0 && i.MoneyWon[2] < 0)).ToList();
+            var zeroMoneyGames = stat.Where(i => i.GameIdSpecified && i.MoneyWon[0] == 0);
+            foreach(var g in zeroMoneyGames)
+            {
+                var games = new[] { games1, games2, games3 };
+                var g0 = stat.LastOrDefault(i => i.GameIdSpecified &&
+                                                 i.GameId < g.GameId &&
+                                                 i.GoodGame &&
+                                                 i.MoneyWon[0] != 0) ??
+                         stat.FirstOrDefault(i => i.GameIdSpecified &&
+                                                  i.GameId > g.GameId &&
+                                                  i.GoodGame &&
+                                                  i.MoneyWon[0] != 0);
+                var diff = (g.GameId - g0.GameId) % games.Length;
+                if (diff < 0)
+                {
+                    diff += games.Length;
+                }
+                if (games1.Contains(g0))
+                {
+                    games[(0 + diff) % games.Length].Add(g);
+                }
+                else if (games2.Contains(g0))
+                {
+                    games[(1 + diff) % games.Length].Add(g);
+                }
+                else if (games3.Contains(g0))
+                {
+                    games[(2 + diff) % games.Length].Add(g);
+                }
+            }
             var gamesWon1 = games1.Count(i => i.MoneyWon[0] > 0);
             var gamesWon2 = games2.Count(i => i.MoneyWon[1] > 0);
             var gamesWon3 = games3.Count(i => i.MoneyWon[2] > 0);
             var gamesLost1 = games1.Count(i => i.MoneyWon[0] < 0);
             var gamesLost2 = games2.Count(i => i.MoneyWon[1] < 0);
             var gamesLost3 = games3.Count(i => i.MoneyWon[2] < 0);
-            var gamesPlayed1 = gamesWon1 + gamesLost1;
-            var gamesPlayed2 = gamesWon2 + gamesLost2;
-            var gamesPlayed3 = gamesWon3 + gamesLost3;
+            var gamesTied1 = games1.Count(i => i.MoneyWon[0] == 0);
+            var gamesTied2 = games2.Count(i => i.MoneyWon[1] == 0);
+            var gamesTied3 = games3.Count(i => i.MoneyWon[2] == 0);
+            var gamesPlayed1 = gamesWon1 + gamesLost1 + gamesTied1;
+            var gamesPlayed2 = gamesWon2 + gamesLost2 + gamesTied2;
+            var gamesPlayed3 = gamesWon3 + gamesLost3 + gamesTied3;
             var defencesPlayed1 = gamesPlayed2 + gamesPlayed3;
             var defencesPlayed2 = gamesPlayed1 + gamesPlayed3;
             var defencesPlayed3 = gamesPlayed1 + gamesPlayed2;
