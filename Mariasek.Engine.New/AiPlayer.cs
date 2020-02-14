@@ -2069,26 +2069,42 @@ namespace Mariasek.Engine.New
 				return true;
 			}
 			//Pokud vic nez v jedne barve nemas eso nebo mas vetsi diru tak kilo nehraj. Souperi by si mohli uhrat desitky
-			var dict = new Dictionary<Barva, Tuple<int, Hodnota, Hodnota>>();
+			//var dict = new Dictionary<Barva, Tuple<int, Hodnota, Hodnota>>();
 
-			foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
-			{
-				var topCard = Hand.Where(i => i.Suit == b).OrderByDescending(i => i.Value).FirstOrDefault();
-				var secondCard = Hand.Where(i => i.Suit == b).OrderByDescending(i => i.Value).Skip(1).FirstOrDefault();
-				var holeSize = topCard == null || secondCard == null
-								? 0
-								: topCard.Value - secondCard.Value - 1;
+			//foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+			//{
+			//	var topCard = Hand.Where(i => i.Suit == b).OrderByDescending(i => i.Value).FirstOrDefault();
+			//	var secondCard = Hand.Where(i => i.Suit == b).OrderByDescending(i => i.Value).Skip(1).FirstOrDefault();
+			//	var holeSize = topCard == null || secondCard == null
+			//					? 0
+			//					: topCard.Value - secondCard.Value - 1;
 
-				dict.Add(b, new Tuple<int, Hodnota, Hodnota>(holeSize, topCard?.Value ?? Hodnota.Eso, secondCard?.Value ?? Hodnota.Eso));
-			}
-            //Pokud nvidis do vsech barev a mas barvu s vic nez 2 nizkyma kartama bez A nebo X  tak kilo nehraj. Souperi by si mohli uhrat desitky
+			//	dict.Add(b, new Tuple<int, Hodnota, Hodnota>(holeSize, topCard?.Value ?? Hodnota.Eso, secondCard?.Value ?? Hodnota.Eso));
+			//}
+
+            //Pokud nevidis do vsech barev a mas barvu s vic nez 2 nizkyma kartama bez A nebo X tak kilo nehraj. Souperi by si mohli uhrat desitky
             if (Hand.Select(i => i.Suit).Distinct().Count() < 4 &&
                 Enum.GetValues(typeof(Barva)).Cast<Barva>()
                     .Where(b => b != _trump.Value)
                     .Any(b => Hand.CardCount(b) > 2 &&
-                              !Hand.HasA(b) &&
-                              !Hand.HasX(b) &&
-                              !Hand.HasK(b)))
+                              ((!Hand.HasA(b) &&
+                                !Hand.HasX(b)) ||
+                               (Hand.HasX(b) &&
+                                (!Hand.HasA(b) ||
+                                 !Hand.HasK(b))))))
+            {
+                return true;
+            }
+            //Pokud mas aspon 2 barvy bez A nebo X tak kilo nehraj. Souperi by si mohli uhrat desitky
+            if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                    .Where(b => Hand.HasSuit(b) &&
+                                !(Hand.HasA(b) && Hand.CardCount(b) == 1) &&
+                                b != _trump.Value)
+                    .Count(b => (!Hand.HasA(b) &&
+                                 !Hand.HasX(b)) ||
+                                (Hand.HasX(b) &&
+                                 (!Hand.HasA(b) ||
+                                  !Hand.HasK(b)))) > 1)
             {
                 return true;
             }

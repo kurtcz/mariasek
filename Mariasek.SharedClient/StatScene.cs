@@ -246,7 +246,9 @@ namespace Mariasek.SharedClient
 
         public void PopulateControls()
         {
-            var stats = Game.Money.GroupBy(g => g.GameTypeString.TrimEnd());
+            var stats = Game.Money
+                            .Where(i => i.GameIdSpecified)
+                            .GroupBy(g => g.GameTypeString.TrimEnd());
             var sbGames = new StringBuilder();
             var sbMoney = new StringBuilder();
             var sbGamesSummary = new StringBuilder();
@@ -258,7 +260,7 @@ namespace Mariasek.SharedClient
             var totalGroup = new MyGrouping<string, MoneyCalculatorBase>();
 
             totalGroup.Key = "Souhrn";
-            totalGroup.AddRange(Game.Money);
+            totalGroup.AddRange(Game.Money.Where(i => i.GameIdSpecified));
             AppendStatsForGameType(totalGroup, sbGamesSummary, sbMoneySummary, sbDefenceGamesSummary, sbDefenceMoneySummary);
             foreach (var stat in stats.OrderBy(g => g.Key))
             {
@@ -279,7 +281,11 @@ namespace Mariasek.SharedClient
 
         private void PopulateRadarChart()
         {
-            var stats = Game.Money.GroupBy(g => g.GameTypeString.TrimEnd()).Where(i => !string.IsNullOrWhiteSpace(i.Key)).ToList();
+            var stats = Game.Money
+                            .Where(i => i.GameIdSpecified)
+                            .GroupBy(g => g.GameTypeString.TrimEnd())
+                            .Where(i => !string.IsNullOrWhiteSpace(i.Key))
+                            .ToList();
             var maxValue = 0f;
             var maxDefenceValue = 0f;
             var allStats = new[]

@@ -317,7 +317,7 @@ namespace Mariasek.SharedClient
                 }
                 total++;
             }
-            var ratio = total != 0 ? (wins * 100f / total) : 0f;
+            var ratio = played != 0 ? (wins * 100f / played) : 0f;
 
             _historyBox.Text = sb.ToString().TrimEnd();
             _historyChart.ScrollToEnd();
