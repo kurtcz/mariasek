@@ -287,8 +287,19 @@ namespace Mariasek.Engine.New
                             _cardProbabilityForPlayer[ii][b][Hodnota.Svrsek] = ii == _hundredIndex ? 0.9f : 0.05f;
                         }
                     }
+                    foreach (var h in new[] { Hodnota.Eso, Hodnota.Desitka })
+                    {
+                        if ((_gameType & Hra.Kilo) != 0 &&
+                            _myIndex != _hundredIndex &&
+                            _cardProbabilityForPlayer[ii][b][h] > epsilon &&
+                            _cardProbabilityForPlayer[ii][b][h] < 1 - epsilon)
+                        {
+                            _cardProbabilityForPlayer[ii][b][h] = ii == _hundredIndex ? 0.9f : 0.05f;
+                        }
+                    }
                     if ((_gameType & Hra.KiloProti) != 0 &&
                         _myIndex != _hundredAgainstIndex &&
+                        _hundredAgainstIndex != -1 &&
                         ((b == _trump.Value &&
                           _cardProbabilityForPlayer[_hundredAgainstIndex][_trump.Value][Hodnota.Kral] > 0 &&
                           _cardProbabilityForPlayer[_hundredAgainstIndex][_trump.Value][Hodnota.Svrsek] > 0) ||

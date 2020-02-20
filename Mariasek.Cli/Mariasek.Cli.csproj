@@ -9,7 +9,6 @@
     <AssemblyName>Mariasek.Cli</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <ReleaseVersion>1.1</ReleaseVersion>
-    <Description>load -filename=/Users/kurt/Downloads/mariasek/cli/0015.def.hra</Description>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

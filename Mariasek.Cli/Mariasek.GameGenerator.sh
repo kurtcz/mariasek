@@ -43,7 +43,7 @@ while [ $i -le $gamesToGenerate ]; do
     filename=$(printf "%04d.end.hra" $i)
     cp -f ${path}_end.hra $outputDir/$filename
   else
-    mono $tool -GameType=$gameType > /dev/null
+    mono $tool -GameType=$gameType
     filename=$(printf "%04d-%s.def.hra" $i $gameType)
     cp -f ${path}_def.hra $outputDir/$filename
     filename=$(printf "%04d-%s.end.hra" $i $gameType)

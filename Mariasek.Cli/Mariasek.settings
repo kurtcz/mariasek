@@ -2,15 +2,19 @@
 <GameSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Default>false</Default>
   <DoLog>false</DoLog>
-  <HintEnabled>false</HintEnabled>
+  <HintEnabled>true</HintEnabled>
   <SoundEnabled>false</SoundEnabled>
   <BgSoundEnabled>false</BgSoundEnabled>
+  <BgMusicMinDelayMs>60000</BgMusicMinDelayMs>
+  <BgMusicMaxDelayMs>120000</BgMusicMaxDelayMs>
   <PlayerNames>
-    <string>Lukáš</string>
+    <string>Já</string>
     <string>Karel</string>
     <string>Pepa</string>
   </PlayerNames>
   <SortMode>Descending</SortMode>
+  <WhenToShuffle>AfterAutomaticVictory</WhenToShuffle>
+  <AutoSort>true</AutoSort>
   <BaseBet>0.1</BaseBet>
   <MaxWin>500</MaxWin>
   <GameValue>1</GameValue>
@@ -18,20 +22,21 @@
   <SevenValue>2</SevenValue>
   <QuietHundredValue>2</QuietHundredValue>
   <HundredValue>4</HundredValue>
-  <BetlValue>15</BetlValue>
-  <DurchValue>30</DurchValue>
+  <BetlValue>5</BetlValue>
+  <DurchValue>10</DurchValue>
   <AllowAXTalon>false</AllowAXTalon>
   <AllowTrumpTalon>true</AllowTrumpTalon>
   <AllowAIAutoFinish>true</AllowAIAutoFinish>
   <AllowPlayerAutoFinish>true</AllowPlayerAutoFinish>
-  <ThinkingTimeMs>1500</ThinkingTimeMs>
+  <ThinkingTimeMs>750</ThinkingTimeMs>
   <BubbleTimeMs>500</BubbleTimeMs>
   <MaxHistoryLength>0</MaxHistoryLength>
-  <AiMayGiveUp>false</AiMayGiveUp>
+  <DirectionOfPlay>Clockwise</DirectionOfPlay>
+  <AiMayGiveUp>true</AiMayGiveUp>
   <KeepScreenOn>true</KeepScreenOn>
   <CalculationStyle>Adding</CalculationStyle>
-  <GameTypeSimulationsPerSecond>14</GameTypeSimulationsPerSecond>
-  <RoundSimulationsPerSecond>0</RoundSimulationsPerSecond>
+  <GameTypeSimulationsPerSecond>87</GameTypeSimulationsPerSecond>
+  <RoundSimulationsPerSecond>1</RoundSimulationsPerSecond>
   <CurrentStartingPlayerIndex>2</CurrentStartingPlayerIndex>
   <CardDesign>Single</CardDesign>
   <CardBackSide>Horse</CardBackSide>
@@ -40,25 +45,25 @@
       <GameType>Hra</GameType>
       <Use>true</Use>
       <MaxBidCount>3</MaxBidCount>
-      <Thresholds>5|15|45|85</Thresholds>
+      <Thresholds>5|15|40|75</Thresholds>
     </BidThresholdSettings>
     <BidThresholdSettings>
       <GameType>Sedma</GameType>
       <Use>true</Use>
       <MaxBidCount>2</MaxBidCount>
-      <Thresholds>40|50|85|95</Thresholds>
+      <Thresholds>25|50|80|100</Thresholds>
     </BidThresholdSettings>
     <BidThresholdSettings>
       <GameType>Kilo</GameType>
       <Use>true</Use>
       <MaxBidCount>0</MaxBidCount>
-      <Thresholds>55|80|95|100</Thresholds>
+      <Thresholds>60|80|95|100</Thresholds>
     </BidThresholdSettings>
     <BidThresholdSettings>
       <GameType>SedmaProti</GameType>
       <Use>true</Use>
       <MaxBidCount>0</MaxBidCount>
-      <Thresholds>40|75|95|100</Thresholds>
+      <Thresholds>25|75|95|100</Thresholds>
     </BidThresholdSettings>
     <BidThresholdSettings>
       <GameType>KiloProti</GameType>
@@ -81,15 +86,37 @@
   </Thresholds>
   <RiskFactor>0.28</RiskFactor>
   <SolitaryXThreshold>0.13</SolitaryXThreshold>
+  <SolitaryXThresholdDefense>0.5</SolitaryXThresholdDefense>
+  <SafetyBetlThreshold>24</SafetyBetlThreshold>
   <RoundFinishedWaitTimeMs>1000</RoundFinishedWaitTimeMs>
   <AutoFinishRounds>true</AutoFinishRounds>
   <AutoFinish>true</AutoFinish>
   <MinimalBidsForGame>1</MinimalBidsForGame>
-  <MinimalBidsForSeven>1</MinimalBidsForSeven>
+  <MinimalBidsForSeven>0</MinimalBidsForSeven>
+  <PlayZeroSumGames>false</PlayZeroSumGames>
   <Top107>false</Top107>
+  <Calculate107Separately>true</Calculate107Separately>
+  <HlasConsidered>Highest</HlasConsidered>
   <ShowStatusBar>false</ShowStatusBar>
   <ShowScoreDuringGame>true</ShowScoreDuringGame>
-  <AutoDisable100Against>false</AutoDisable100Against>
+  <WhiteScore>false</WhiteScore>
+  <AutoDisable100Against>true</AutoDisable100Against>
   <CardScaleFactor>0.6</CardScaleFactor>
   <BackgroundImage>Default</BackgroundImage>
+  <DefaultTextRgba>ffffff</DefaultTextRgba>
+  <HighlightedTextRgba>ffdd00</HighlightedTextRgba>
+  <Player1Rgba>ff4c4c</Player1Rgba>
+  <Player2Rgba>34bf49</Player2Rgba>
+  <Player3Rgba>0399e5</Player3Rgba>
+  <NegativeScoreRgba>ff4c4c</NegativeScoreRgba>
+  <PositiveScoreRgba>34bf49</PositiveScoreRgba>
+  <HintRgba>34bf49</HintRgba>
+  <WinRgba>34bf49</WinRgba>
+  <LossRgba>ff4c4c</LossRgba>
+  <TieRgba>0399e5</TieRgba>
+  <ButtonRgba>603010</ButtonRgba>
+  <PressedButtonRgba>994d1a</PressedButtonRgba>
+  <SelectedButtonRgba>006400</SelectedButtonRgba>
+  <ReviewPtsWonRgba>90ee90</ReviewPtsWonRgba>
+  <ReviewPtsLostRgba>ff90a0</ReviewPtsLostRgba>
 </GameSettings>

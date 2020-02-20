@@ -407,14 +407,14 @@ namespace Mariasek.Engine.New
 
             foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
             {
-                var hiCards = Hand.Count(i => i.Suit == b &&
+                var hiCards = hand.Count(i => i.Suit == b &&
                                               Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                   .Select(h => new Card(i.Suit, h))
                                                   .All(j => j.BadValue < i.BadValue ||
-                                                            Hand.Contains(j))); //pocet nejvyssich karet v barve
-                var loCards = Hand.CardCount(b) - hiCards;                      //pocet karet ktere maji nad sebou diru v barve
+                                                            hand.Contains(j))); //pocet nejvyssich karet v barve
+                var loCards = hand.CardCount(b) - hiCards;                      //pocet karet ktere maji nad sebou diru v barve
                 var opCards = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()   //vsechny hodnoty ktere v dane barve neznam
-                                .Where(h => !Hand.Any(i => i.Suit == b &&
+                                .Where(h => !hand.Any(i => i.Suit == b &&
                                                            i.BadValue == Card.GetBadValue(h)))
                                 .ToList();
                 if (opCards.Count() >= hiCards)                                 //odstran tolik nejmensich hodnot kolik mam nejvyssich karet
@@ -425,13 +425,13 @@ namespace Mariasek.Engine.New
                 {
                     opCards.Clear();
                 }
-                var holes = opCards.Count(h => Hand.Any(i => i.Suit == b &&     //pocet zbylych der vyssich nez moje nejnizsi karta plus puvodni dira (eso)
+                var holes = opCards.Count(h => hand.Any(i => i.Suit == b &&     //pocet zbylych der vyssich nez moje nejnizsi karta plus puvodni dira (eso)
                                                              i.BadValue < Card.GetBadValue(h)));
                 var n = Math.Min(holes, loCards);
 
                 holesPerSuit.Add(b, n);
             }
-            talon.AddRange(Hand.Where(i => !talon.Contains(i))
+            talon.AddRange(hand.Where(i => !talon.Contains(i))
                                .OrderByDescending(i => holesPerSuit[i.Suit])
                                .ThenBy(i => hand.CardCount(i.Suit))    //prednostne ber kratsi barvy
                                .ThenBy(i => i.BadValue)                //a nizsi karty
@@ -1288,7 +1288,7 @@ namespace Mariasek.Engine.New
                                 {
                                     if (_g.GameType == Hra.Betl)
                                     {   //pokud jsem volil ja tak v UpdateGeneratedHandsByChoosingTalon() pouziju skutecne zvoleny trumf
-                                    UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, _g.GameStartingPlayerIndex);
+                                        UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, _g.GameStartingPlayerIndex);
                                     }
                                     else
                                     {
@@ -3443,7 +3443,7 @@ namespace Mariasek.Engine.New
         {
             var result = new GameComputationResult
             {
-                Hands = new Hand[Game.NumPlayers],
+                Hands = new Hand[Game.NumPlayers + 1],
                 Rounds = new List<RoundDebugContext>(),
                 Score = new int[Game.NumPlayers],
                 BasicScore = new int[Game.NumPlayers],
@@ -3452,7 +3452,7 @@ namespace Mariasek.Engine.New
                 Final7Won = null
             };
 
-            for (var i = 0; i < Game.NumPlayers; i++ )
+            for (var i = 0; i < Game.NumPlayers + 1; i++ )
             {
                 var h = new List<Card>();
 

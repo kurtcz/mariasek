@@ -33,15 +33,112 @@ namespace Mariasek.Engine.New
             for (int i = 0; i < MaxSize; i++)
             {
                 var c = new Card((Barva)Enum.ToObject(typeof(Barva), i / 8),
-                                  (Hodnota)Enum.ToObject(typeof(Hodnota), i % 8));
+                                 (Hodnota)Enum.ToObject(typeof(Hodnota), i % 8));
                 _cards.Add(c);
             }
 			CheckDeck();
         }
 
-        public void Shuffle()
+        private Barva RandomSuit()
         {
-            _cards = _cards.Shuffle().ToList();
+            return (Barva)Enum.ToObject(typeof(Barva), _rand.Next() % Game.NumSuits);
+        }
+
+        public void Shuffle(Hra? gameType = null)
+        {
+            if (gameType == null)
+            {
+                _cards = _cards.Shuffle().ToList();
+            }
+            else
+            {
+                var trump = RandomSuit();
+                var hand1 = new List<Card>();
+                var hand2 = new List<Card>();
+                var hand3 = new List<Card>();
+
+                if ((gameType & Hra.Kilo) != 0)
+                {
+                    var kqSuit = RandomSuit();
+                    hand1.Add(new Card(kqSuit, Hodnota.Kral));
+                    hand1.Add(new Card(kqSuit, Hodnota.Svrsek));
+                }
+                if ((gameType & Hra.Sedma) != 0)
+                {
+                    hand1.Add(new Card(trump, Hodnota.Sedma));
+                }
+
+                //generujeme rozlozeni na konkretni typ hry
+                foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().OrderByDescending(h => h))
+                {
+                    foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>().OrderByDescending(b => b == trump ? 10 : (int)b))
+                    {
+                        float[] probs;
+
+                        if (hand1.Contains(new Card(b, h)))
+                        {
+                            continue;
+                        }
+                        if (h >= Hodnota.Desitka && ((gameType & Hra.Kilo) != 0))
+                        {
+                            probs = new[] { 0.5f, 0.25f, 0.25f };
+                        }
+                        else if (h >= Hodnota.Svrsek && ((gameType & Hra.Kilo) != 0))
+                        {
+                            probs = new[] { 0.4f, 0.3f, 0.3f };
+                        }
+                        else if (b == trump)
+                        {
+                            if ((gameType & Hra.Sedma) != 0)
+                            {
+                                probs = new[] { 0.7f, 0.15f, 0.15f };
+                            }
+                            else if ((gameType & Hra.Kilo) != 0)
+                            {
+                                probs = new[] { 0.5f, 0.25f, 0.25f };
+                            }
+                            else
+                            {
+                                probs = new[] { 1 / 3f, 1 / 3f, 1 / 3f };
+                            }
+                        }
+                        else
+                        {
+                            probs = new[] { 1 / 3f, 1 / 3f, 1 / 3f };
+                        }
+                        probs[1] = probs[0] + probs[1];
+                        probs[2] = 1;
+
+                        var n = _rand.NextDouble();
+                        if (n <= probs[0] && hand1.Count() < 12)
+                        {
+                            hand1.Add(new Card(b, h));
+                        }
+                        else if (n <= probs[1] && hand2.Count() < 10)
+                        {
+                            hand2.Add(new Card(b, h));
+                        }
+                        else if (hand3.Count() < 10)
+                        {
+                            hand3.Add(new Card(b, h));
+                        }
+                        else if (hand2.Count() < 10)
+                        {
+                            hand2.Add(new Card(b, h));
+                        }
+                        else
+                        {
+                            hand1.Add(new Card(b, h));
+                        }
+                    }
+                }
+                _cards = hand3.Take(5).ToList();
+                _cards.AddRange(hand2.Take(5));
+                _cards.AddRange(hand1.Take(5));
+                _cards.AddRange(hand3.Skip(5).Take(5));
+                _cards.AddRange(hand2.Skip(5).Take(5));
+                _cards.AddRange(hand1.Skip(5).Take(7));
+            }
 			CheckDeck();
         }
 

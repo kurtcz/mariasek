@@ -90,9 +90,23 @@ parse_dom() {
             MONEY_WON=$money
             #echo Vyhra $MONEY_WON
         fi
+    elif [[ $TAG_NAME == "Hrac1" ]]; then
+        CURRENT_PLAYER=$TAG_NAME
+    elif [[ $TAG_NAME == "Hrac2" ]]; then
+        CURRENT_PLAYER=$TAG_NAME
+    elif [[ $TAG_NAME == "Hrac3" ]]; then
+        CURRENT_PLAYER=$TAG_NAME
+    elif [[ $ATTRIBUTES =~ Barva\=\"([a-zA-Z]+)\"\ Hodnota\=\"([a-zA-Z]+) ]]; then
+        local barva=${BASH_REMATCH[1]}
+        local hodnota=${BASH_REMATCH[2]}
+        
     fi
 }
 
+CURRENT_PLAYER="?"
+HAND1=""
+HAND2=""
+HAND3=""
 GAME_TYPE="?"
 GAME_TYPE_STR="?"
 GAME_TYPE_COMPLETE="?"

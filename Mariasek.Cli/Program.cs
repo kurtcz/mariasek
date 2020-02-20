@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Xml.Serialization;
 using CLAP;
 using Mariasek.Engine.New;
@@ -88,7 +89,7 @@ namespace Mariasek.Cli
                     new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[2] }
                 );
 
-                g.NewGame(gameStartingPlayerIndex: 0, deck: deck); //saves the new game as _temp.hra
+                g.NewGame(gameStartingPlayerIndex: 0, deck: deck, cutDeck: false); //saves the new game as _temp.hra
                 for (var i = 0; i < Game.NumPlayers; i++)
                 {
                     var player = g.players[(g.GameStartingPlayerIndex + i) % Game.NumPlayers];
@@ -98,7 +99,14 @@ namespace Mariasek.Cli
                 {
                     finished = PlayGame(gameType == 0 ? (Hra?)null : gameType);
                     deck = g.GetDeckFromLastGame();
-                    deck.Shuffle();
+                    if (gameType != 0)
+                    {
+                        deck.Shuffle(gameType);
+                    }
+                    else
+                    {
+                        deck.Shuffle();
+                    }
                 }
                 else
                 {
@@ -218,6 +226,82 @@ namespace Mariasek.Cli
             }
         }
 
+        [Verb(Aliases = "hand2csv", Description = "Extracts game starting player's hand to a CSV file")]
+        public static void HandToCsv(string filename)
+        {
+            PopulateAiConfig();
+
+            g = new Game()
+            {
+                SkipBidding = false,
+                BaseBet = Settings.BaseBet,
+                MaxWin = Settings.MaxWin,
+                GetFileStream = GetFileStream,
+                GetVersion = () => Assembly.GetExecutingAssembly().GetName().Version,
+                GameValue = Settings.GameValue,
+                QuietSevenValue = Settings.QuietSevenValue,
+                SevenValue = Settings.SevenValue,
+                QuietHundredValue = Settings.QuietHundredValue,
+                HundredValue = Settings.HundredValue,
+                BetlValue = Settings.BetlValue,
+                DurchValue = Settings.DurchValue,
+                AllowAXTalon = Settings.AllowAXTalon,
+                AllowTrumpTalon = Settings.AllowTrumpTalon,
+                AllowAIAutoFinish = Settings.AllowAIAutoFinish,
+                AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish
+            };
+            g.RegisterPlayers(
+                new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[0] },
+                new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[1] },
+                new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[2] }
+            );
+
+            using (var fs = new FileStream(filename, FileMode.Open))
+            {
+                g.LoadGame(fs);
+                //for (var i = 0; i < Game.NumPlayers; i++)
+                //{
+                //    var player = g.players[(g.GameStartingPlayerIndex + i) % Game.NumPlayers];
+                //    System.Console.WriteLine("{0}: {1}", player.Name, new Hand(player.Hand));
+                //}
+            }
+            g.Rewind();
+            if (g.GameType != 0 && (g.GameType & (Hra.Durch | Hra.Betl)) != 0 && !g.trump.HasValue)
+            {
+                System.Console.WriteLine($"Warning: no trump suit defined for {g.GameType}!");
+            }
+
+            var csv = new StringBuilder(100);
+            var suitWeights = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                  .ToDictionary(k => k, v => g.GameStartingPlayer
+                                                              .Hand
+                                                              .Where(i => i.Suit == v)
+                                                              .Sum(i => (int)i.Value));
+            var orderedSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                   .OrderBy(b => g.trump.HasValue && b == g.trump.Value ? 0 : 1)
+                                   .ThenByDescending(b => suitWeights[b]).ToList();
+
+            csv.AppendFormat("{0},", Path.GetFileName(filename));
+            foreach(var b in orderedSuits)
+            {
+                foreach(var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().OrderByDescending(h => h))
+                {
+                    if (g.GameStartingPlayer.Hand.Any(i => i.Suit == b && i.Value == h))
+                    {
+                        csv.Append("1,");
+                    }
+                    else
+                    {
+                        csv.Append("0,");
+                    }
+                }
+            }
+            csv.Append("\n");
+            var output = Path.Combine(Path.GetDirectoryName(filename), "hand1.csv");
+            File.AppendAllText(output, csv.ToString());
+            //System.Console.WriteLine($"{g.GameStartingPlayer.Name}: {csv.ToString()}");
+            System.Console.Write(csv.ToString());
+        }
         //[Verb(Aliases = "learn", Description = "Runs a neural network trainer on the test set")]
         //public static void Learn(string inputDir, double learningRate = 0.1, double momentum = 0, double targetError = 30)
         //{

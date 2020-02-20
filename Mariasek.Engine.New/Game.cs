@@ -328,16 +328,19 @@ namespace Mariasek.Engine.New
             }
         }
 
-        public void NewGame(int gameStartingPlayerIndex, Deck deck = null)
+        public void NewGame(int gameStartingPlayerIndex, Deck deck = null, bool cutDeck = true)
         {
             IsRunning = true;
             if (deck == null || deck.IsEmpty())
             {
+                cutDeck = true;
                 deck = new Deck();
                 deck.Shuffle();
             }
-            deck.Cut();
-
+            if (cutDeck)
+            {
+                deck.Cut();
+            }
             GameStartingPlayerIndex = gameStartingPlayerIndex;
             OriginalGameStartingPlayerIndex = GameStartingPlayerIndex;
 
@@ -582,7 +585,7 @@ namespace Mariasek.Engine.New
             OnGameLoaded();
 
             rounds = new Round[NumRounds];
-            foreach (var stych in gameData.Stychy.Where(i => i.Hrac1 != null && i.Hrac2 != null && i.Hrac3 != null).OrderBy(i => i.Kolo))
+            foreach (var stych in gameData.Stychy.Where(i => i.Kolo < gameData.Kolo && i.Hrac1 != null && i.Hrac2 != null && i.Hrac3 != null).OrderBy(i => i.Kolo))
             {
                 if (RoundNumber == 0)
                 {
