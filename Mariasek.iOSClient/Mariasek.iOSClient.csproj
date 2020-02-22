@@ -98,6 +98,10 @@
     <Reference Include="MonoGame.Framework">
       <HintPath>..\libs\iOS\iPhone\Release\MonoGame.Framework.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="CsvHelper">
+      <HintPath>..\packages\CsvHelper.15.0.0\lib\netstandard2.1\CsvHelper.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />

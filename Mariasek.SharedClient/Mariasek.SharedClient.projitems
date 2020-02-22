@@ -12,6 +12,7 @@
     <Folder Include="$(MSBuildThisFileDirectory)GameComponents\" />
     <Folder Include="$(MSBuildThisFileDirectory)BmFont\" />
     <Folder Include="$(MSBuildThisFileDirectory)SavedGame\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Serialization\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)IEmailSender.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)AssetLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReviewScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SettingsScene.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Serialization\MoneyCalculatorBaseMap.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)SavedGame\SavedGame.hra">

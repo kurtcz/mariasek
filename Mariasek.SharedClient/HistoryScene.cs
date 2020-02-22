@@ -333,64 +333,64 @@ namespace Mariasek.SharedClient
             _footer.Text = string.Format("Součet:\t{0}\t{1}\t{2}", sum1, sum2, sum3);
 
             //Elements of _archiveGames hold GameId or 0 if the game is not archived
-            var noidGames = Game.Money.Count(i => i.GameId == 0);
+            //var noidGames = Game.Money.Count(i => i.GameId == 0);
 
-            if (noidGames > Game.Money.Count() / 2 && !_moneyDataFixupStarted)
-            {
-                _moneyDataFixupStarted = true;
-                Task.Run(() =>
-                {
-                    try
-                    {
+            //if (noidGames > Game.Money.Count() / 2 && !_moneyDataFixupStarted)
+            //{
+            //    _moneyDataFixupStarted = true;
+            //    Task.Run(() =>
+            //    {
+            //        try
+            //        {
 
-                        var k = 0;
-                        for (var i = 0; i < Game.Money.Count(); i++)
-                        {
-                            if (Game.Money[i].IsArchived)
-                            {
-                                var n = Game.Money[i].GameId == 0 ? k + 1 : Game.Money[i].GameId;
-                                var files = Directory.GetFiles(_archivePath, string.Format("{0:0000}-{1}*.hra", n, Game.Money[i].GameTypeString.Trim().ToLower()));
+            //            var k = 0;
+            //            for (var i = 0; i < Game.Money.Count(); i++)
+            //            {
+            //                if (Game.Money[i].IsArchived)
+            //                {
+            //                    var n = Game.Money[i].GameId == 0 ? k + 1 : Game.Money[i].GameId;
+            //                    var files = Directory.GetFiles(_archivePath, string.Format("{0:0000}-{1}*.hra", n, Game.Money[i].GameTypeString.Trim().ToLower()));
 
-                                if (files.Length == 2)
-                                {
-                                    if (Game.Money[i].GameId == 0)
-                                    {
-                                        Game.Money[i].GameId = n;
-                                        k = n;
-                                    }
-                                }
-                                else
-                                {
-                                    Game.Money[i].GameId = 0;
-                                }
-                            }
-                        }
-                        //chci ziskat ostre rostouci posloupnost (nuly ignoruju)
-                        //vyhodime duplikaty, nechavam si vzdy posledni vyskyt, ostatni mazu
-                        //zbavime se zaroven i pripadnych nesetridenych prvku
-                        var minimum = int.MaxValue;
-                        for (var i = Game.Money.Count() - 1; i >= 0; i--)
-                        {
-                            if (Game.Money[i].GameId > 0)
-                            {
-                                if (Game.Money[i].GameId < minimum)
-                                {
-                                    minimum = Game.Money[i].GameId;
-                                }
-                                else
-                                {
-                                    Game.Money[i].GameId = 0;
-                                }
-                            }
-                        }
-                        Game.MainScene.SaveHistory();
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine(string.Format("Cannot fixup history\n{0}", ex.Message));
-                    }
-                });
-            }
+            //                    if (files.Length == 2)
+            //                    {
+            //                        if (Game.Money[i].GameId == 0)
+            //                        {
+            //                            Game.Money[i].GameId = n;
+            //                            k = n;
+            //                        }
+            //                    }
+            //                    else
+            //                    {
+            //                        Game.Money[i].GameId = 0;
+            //                    }
+            //                }
+            //            }
+            //            //chci ziskat ostre rostouci posloupnost (nuly ignoruju)
+            //            //vyhodime duplikaty, nechavam si vzdy posledni vyskyt, ostatni mazu
+            //            //zbavime se zaroven i pripadnych nesetridenych prvku
+            //            var minimum = int.MaxValue;
+            //            for (var i = Game.Money.Count() - 1; i >= 0; i--)
+            //            {
+            //                if (Game.Money[i].GameId > 0)
+            //                {
+            //                    if (Game.Money[i].GameId < minimum)
+            //                    {
+            //                        minimum = Game.Money[i].GameId;
+            //                    }
+            //                    else
+            //                    {
+            //                        Game.Money[i].GameId = 0;
+            //                    }
+            //                }
+            //            }
+            //            Game.MainScene.SaveHistory();
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            System.Diagnostics.Debug.WriteLine(string.Format("Cannot fixup history\n{0}", ex.Message));
+            //        }
+            //    });
+            //}
         }
 
         private void ChartButtonClicked(object sender)

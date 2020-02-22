@@ -16,6 +16,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input.Touch;
 using Mariasek.SharedClient.GameComponents;
 using Mariasek.Engine.New;
+using CsvHelper;
+using CsvHelper.Configuration;
+using Mariasek.SharedClient.Serialization;
 
 namespace Mariasek.SharedClient
 {
@@ -871,17 +874,35 @@ namespace Mariasek.SharedClient
         {
             try
             {
-                var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
-
 				Game.StorageAccessor.GetStorageAccess();
-                using (var fs = File.Open(_historyFilePath, FileMode.Open))
+                using (var reader = new StreamReader(_historyFilePath))
                 {
-                    Game.Money = (List<MoneyCalculatorBase>)xml.Deserialize(fs);
+                    using(var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                    {
+                        csv.Configuration.RegisterClassMap<MoneyCalculatorBaseMap>();
+                        //Game.Money = csv.GetRecords<MoneyCalculatorBase>().ToList();
+                        Game.Money = Game.Settings.CalculationStyle == CalculationStyle.Adding
+                                        ? csv.GetRecords<AddingMoneyCalculator>().Select(i => (MoneyCalculatorBase)i).ToList()
+                                        : csv.GetRecords<MultiplyingMoneyCalculator>().Select(i => (MoneyCalculatorBase)i).ToList();
+                    }
                 }
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("Cannot load history\n{0}", e.Message);
+                try
+                {
+                    var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
+
+                    Game.StorageAccessor.GetStorageAccess();
+                    using (var fs = File.Open(_historyFilePath, FileMode.Open))
+                    {
+                        Game.Money = (List<MoneyCalculatorBase>)xml.Deserialize(fs);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Cannot load history\n{0}", ex.Message);
+                }
             }
         }
 
@@ -889,18 +910,33 @@ namespace Mariasek.SharedClient
         {
             try
             {
-                var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
-
-				Game.StorageAccessor.GetStorageAccess();
-                CreateDirectoryForFilePath(_historyFilePath);
-                using (var fs = File.Open(_historyFilePath, FileMode.Create))
+                Game.StorageAccessor.GetStorageAccess();
+                using (var sw = new StreamWriter(_historyFilePath))
                 {
-                    xml.Serialize(fs, Game.Money);
+                    using (var csv = new CsvWriter(sw, CultureInfo.InvariantCulture))
+                    {
+                        csv.Configuration.RegisterClassMap<MoneyCalculatorBaseMap>();
+                        csv.WriteRecords<MoneyCalculatorBase>(Game.Money);
+                    }
                 }
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("Cannot save history\n{0}", e.Message);
+                try
+                {
+                    var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
+
+                    Game.StorageAccessor.GetStorageAccess();
+                    CreateDirectoryForFilePath(_historyFilePath);
+                    using (var fs = File.Open(_historyFilePath, FileMode.Create))
+                    {
+                        xml.Serialize(fs, Game.Money);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Cannot save history\n{0}", ex.Message);
+                }
             }
         }
 

@@ -106,7 +106,7 @@ namespace Mariasek.Engine.New
         public int DurchValue { get; private set; }
 
         [XmlArray]
-        public int[] MoneyWon { get; protected set; }
+        public int[] MoneyWon { get; set; }
         [XmlIgnore]
         public float SimulatedSuccessRate { get; set; } //HumanPlayer confidence at the beginning of the game. Set from MainScene
 
