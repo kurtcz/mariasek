@@ -269,6 +269,14 @@ namespace Mariasek.Engine.New
                         }
                         if (hands[MyIndex].CardCount(_trump) == 2)
                         {
+                            if ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 &&
+                                hands[MyIndex].Has7(_trump) &&
+                                Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                    .Count(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > 0 ||
+                                                _probabilities.CardProbability(player3, new Card(_trump, h)) > 0) == 2)
+                            {
+                                return ValidCards(hands[MyIndex]).OrderBy(i => i.Value).FirstOrDefault();
+                            }
                             //pokus se uhrat tichou sedmu
                             if (hands[MyIndex].Has7(_trump) && Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                    .Count(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > 0 ||
@@ -2057,6 +2065,18 @@ namespace Mariasek.Engine.New
                         {
                             return null;
                         }
+                        if (hands[MyIndex].CardCount(_trump) == 2 &&
+                            (_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 &&
+                            hands[MyIndex].Has7(_trump) &&
+                            (Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                .Count(h => (c1.Suit != _trump || c1.Value != h) &&
+                                            _probabilities.CardProbability(player1, new Card(_trump, h)) > 0) == 1 ||
+                             Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                .Count(h => _probabilities.CardProbability(player1, new Card(_trump, h)) > 0 ||
+                                            _probabilities.CardProbability(player3, new Card(_trump, h)) > 0) == 2))
+                        {
+                            return ValidCards(hands[MyIndex]).OrderBy(i => i.Value).FirstOrDefault();
+                        }
                         if (TeamMateIndex == -1)
                         {
                             //: -c-
@@ -2647,6 +2667,17 @@ namespace Mariasek.Engine.New
                              _probabilities.CardProbability(TeamMateIndex, new Card(_trump, Hodnota.Sedma)) == 1)
                         {
                             return null;
+                        }
+                        if (hands[MyIndex].CardCount(_trump) == 2 &&
+                            (_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 &&
+                            hands[MyIndex].Has7(_trump) &&
+                            Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                .Count(h => ((c1.Suit != _trump || c1.Value != h) &&
+                                             _probabilities.CardProbability(player1, new Card(_trump, h)) > 0) ||
+                                            ((c2.Suit != _trump || c2.Value != h) &&
+                                             _probabilities.CardProbability(player2, new Card(_trump, h)) > 0)) == 1)
+                        {
+                            return ValidCards(hands[MyIndex]).OrderBy(i => i.Value).FirstOrDefault();
                         }
                         if (TeamMateIndex == -1)
                         {

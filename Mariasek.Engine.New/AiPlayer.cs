@@ -2090,21 +2090,20 @@ namespace Mariasek.Engine.New
                               ((!Hand.HasA(b) &&
                                 !Hand.HasX(b)) ||
                                (Hand.HasX(b) &&
-                                (!Hand.HasA(b) ||
-                                 !Hand.HasK(b))))))
+                                !Hand.HasA(b) &&
+                                !Hand.HasK(b)))))
             {
                 return true;
             }
             //Pokud mas aspon 2 barvy bez A nebo X tak kilo nehraj. Souperi by si mohli uhrat desitky
             if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                    .Where(b => Hand.HasSuit(b) &&
-                                !(Hand.HasA(b) && Hand.CardCount(b) == 1) &&
-                                b != _trump.Value)
-                    .Count(b => (!Hand.HasA(b) &&
+                    .Where(b => b != _trump.Value)
+                    .Count(b => Hand.CardCount(b) > 1 &&
+                                (!Hand.HasA(b) &&
                                  !Hand.HasX(b)) ||
                                 (Hand.HasX(b) &&
-                                 (!Hand.HasA(b) ||
-                                  !Hand.HasK(b)))) > 1)
+                                 !Hand.HasA(b) &&
+                                 !Hand.HasK(b))) > 1)
             {
                 return true;
             }
