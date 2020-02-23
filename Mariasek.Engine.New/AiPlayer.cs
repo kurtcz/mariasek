@@ -2040,8 +2040,9 @@ namespace Mariasek.Engine.New
 
         public bool IsHundredTooRisky()
         {
-			var n = 0;
-			var axCount = Hand.Count(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka);
+			var n = GetTotalHoles();
+            var nn = GetTotalHoles(false);
+            var axCount = Hand.Count(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka);
 
 			if (axCount >= 6)
 			{
@@ -2059,7 +2060,9 @@ namespace Mariasek.Engine.New
 				  !Hand.HasX(_trump.Value)) &&
 				 Enum.GetValues(typeof(Barva)).Cast<Barva>()
 					 .Where(b => b != _trump && Hand.HasSuit(b))
-					 .Any(b => !Hand.HasA(b)) &&
+					 .Any(b => !Hand.HasA(b) &&
+                               !(Hand.HasX(b) &&
+                                 Hand.HasK(b))) &&
 				 Hand.CardCount(_trump.Value) == 4))
 			{
 				return true;
@@ -2120,7 +2123,6 @@ namespace Mariasek.Engine.New
             {
                 return true;
             }
-            n = GetTotalHoles();
 
             //Pokud ve vice nez jedne barve mas diru vetsi nez 2 a mas od ni A ani X+K 
             //if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -2132,7 +2134,8 @@ namespace Mariasek.Engine.New
             //    return true;
             //}
 
-            return n > 3 ||                         //u vice nez 3 neodstranitelnych der kilo urcite neuhraju
+            return n > 4 ||                         //u vice nez 3 neodstranitelnych der kilo urcite neuhraju
+                   (n > 3 && nn > 2) ||
                    (n == 3 &&                       //nebo u 3 neodstranitelnych der pokud nemam trumfove eso
                     !Hand.HasA(_trump.Value)) ||
 				   (n > 1 &&                        //pokud mam vic nez 1 neodstranitelnou diru
@@ -2695,9 +2698,14 @@ namespace Mariasek.Engine.New
                        (kqScore >= 20 &&
                         estimatedFinalBasicScore >= 20))) ||  //nebo mam aspon jeden hlas, dost trumfu a dost bodu na ruce a akter nemuze uhrat kilo
                      (kqScore >= 20 &&
-                      Hand.CardCount(TrumpCard.Value) >= 4 &&
+                      Hand.CardCount(_g.trump.Value) >= 4 &&
                       estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
-                      estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100)))))))
+                      estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100) ||
+                     ((Hand.HasK(_g.trump.Value) ||            //nebo mam trhak, aspon 2 desitky, aspon ctyri trumfy a souper ma max. 40 bodu v hlasech
+                       Hand.HasQ(_g.trump.Value)) &&
+                      Hand.CardCount(_g.trump.Value) >= 4 &&
+                      kqMaxOpponentScore <= 40 &&
+                      bestCaseNonTrumpScore >= 20)))))))
             {
                 bid |= bidding.Bids & Hra.Hra;
                 //minRuleCount = Math.Min(minRuleCount, _gamesBalance);
