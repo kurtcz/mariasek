@@ -23,7 +23,7 @@ namespace Mariasek.SharedClient
         private SpriteButton _rateApp;
         private Vector2 _originalLogoScale;
         private Vector2 _originalRatingScale;
-        private TextBox _warning;
+        public TextBox _warning;
         private Button _permissionsButton;
 
         public MenuScene(MariasekMonoGame game)

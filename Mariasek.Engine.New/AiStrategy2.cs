@@ -2422,7 +2422,7 @@ namespace Mariasek.Engine.New
                                                                            _probabilities.CardProbability(player1, new Card(c1.Suit, Hodnota.Eso)) > _epsilon) &&
                                                                          (_probabilities.SuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1 - RiskFactor ||
                                                                           ((_gameType & Hra.Kilo) != 0 &&
-                                                                           _probabilities.SuitHigherThanCardProbability(player3, c1, RoundNumber) >= 0.5f) ||
+                                                                           _probabilities.SuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1/3f) ||
                                                                           (c1.Suit != _trump &&
                                                                            _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) <= RiskFactor &&
                                                                            (_probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 - RiskFactor ||

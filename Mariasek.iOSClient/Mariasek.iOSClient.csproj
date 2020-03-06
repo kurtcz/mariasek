@@ -58,9 +58,8 @@
     <ConsolePause>false</ConsolePause>
     <MtouchArch>i386, x86_64</MtouchArch>
     <MtouchLink>Full</MtouchLink>
-    <CodesignKey>iPhone Developer: tnemec78@gmail.com (9TS4RT5F7W)</CodesignKey>
+    <CodesignKey>iPhone Distribution: Tomas Nemec (9C7QRTBTDQ)</CodesignKey>
 <AssemblyName>Mariasek.iOS</AssemblyName>
-<CodesignProvision>VS: project.MonoGame.Mariasek.iOS Development</CodesignProvision>
 <MtouchUseLlvm>true</MtouchUseLlvm>
 <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
 <MtouchDebug>true</MtouchDebug>

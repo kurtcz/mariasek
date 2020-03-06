@@ -879,16 +879,34 @@ namespace Mariasek.SharedClient
                 {
                     using(var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                     {
-                        csv.Configuration.RegisterClassMap<MoneyCalculatorBaseMap>();
-                        //Game.Money = csv.GetRecords<MoneyCalculatorBase>().ToList();
-                        Game.Money = Game.Settings.CalculationStyle == CalculationStyle.Adding
-                                        ? csv.GetRecords<AddingMoneyCalculator>().Select(i => (MoneyCalculatorBase)i).ToList()
-                                        : csv.GetRecords<MultiplyingMoneyCalculator>().Select(i => (MoneyCalculatorBase)i).ToList();
+                        //csv.Configuration.RegisterClassMap<MoneyCalculatorBaseMap>();
+                        ////Game.Money = csv.GetRecords<MoneyCalculatorBase>().ToList();
+                        //Game.Money = Game.Settings.CalculationStyle == CalculationStyle.Adding
+                        //                ? csv.GetRecords<AddingMoneyCalculator>().Select(i => (MoneyCalculatorBase)i).ToList()
+                        //                : csv.GetRecords<MultiplyingMoneyCalculator>().Select(i => (MoneyCalculatorBase)i).ToList();
+                        csv.Read();
+                        csv.ReadHeader();
+                        while(csv.Read())
+                        {
+                            var money = new AddingMoneyCalculator();
+                            money.GameId = csv.GetField<int>(0);
+                            money.GameTypeString = csv.GetField<string>(1);
+                            money.GameTypeConfidence = csv.GetField<float>(2);
+                            money.MoneyWon = new[]
+                            {
+                                 csv.GetField<int>(3),
+                                 csv.GetField<int>(4),
+                                 csv.GetField<int>(5)
+                            };
+
+                            Game.Money.Add(money);
+                        }
                     }
                 }
             }
             catch (Exception e)
             {
+                System.Diagnostics.Debug.WriteLine("Cannot load CSV history\n{0}", e.Message);
                 try
                 {
                     var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
@@ -901,7 +919,7 @@ namespace Mariasek.SharedClient
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine("Cannot load history\n{0}", ex.Message);
+                    System.Diagnostics.Debug.WriteLine("Cannot load XML history\n{0}", ex.Message);
                 }
             }
         }
@@ -915,13 +933,31 @@ namespace Mariasek.SharedClient
                 {
                     using (var csv = new CsvWriter(sw, CultureInfo.InvariantCulture))
                     {
-                        csv.Configuration.RegisterClassMap<MoneyCalculatorBaseMap>();
-                        csv.WriteRecords<MoneyCalculatorBase>(Game.Money);
+                        //csv.Configuration.RegisterClassMap<MoneyCalculatorBaseMap>();
+                        //csv.WriteRecords<MoneyCalculatorBase>(Game.Money);
+                        csv.WriteField("GameId");
+                        csv.WriteField("GameTypeString");
+                        csv.WriteField("GameTypeConfidence");
+                        csv.WriteField("MoneyWon1");
+                        csv.WriteField("MoneyWon2");
+                        csv.WriteField("MoneyWon3");
+                        csv.NextRecord();
+                        foreach(var money in Game.Money)
+                        {
+                            csv.WriteField(money.GameId);
+                            csv.WriteField(money.GameTypeString.TrimEnd());
+                            csv.WriteField(money.GameTypeConfidence);
+                            csv.WriteField(money.MoneyWon[0]);
+                            csv.WriteField(money.MoneyWon[1]);
+                            csv.WriteField(money.MoneyWon[2]);
+                            csv.NextRecord();
+                        }
                     }
                 }
             }
             catch (Exception e)
             {
+                System.Diagnostics.Debug.WriteLine("Cannot save CSV history\n{0}", e.Message);
                 try
                 {
                     var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
@@ -935,7 +971,7 @@ namespace Mariasek.SharedClient
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine("Cannot save history\n{0}", ex.Message);
+                    System.Diagnostics.Debug.WriteLine("Cannot save XML history\n{0}", ex.Message);
                 }
             }
         }

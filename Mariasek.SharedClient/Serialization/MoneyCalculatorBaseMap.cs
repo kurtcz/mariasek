@@ -3,8 +3,9 @@ using Mariasek.Engine.New;
 
 namespace Mariasek.SharedClient.Serialization
 {
-    public class MoneyCalculatorBaseMap : ClassMap<MoneyCalculatorBase>
+    public class MoneyCalculatorBaseMap : ClassMap<AddingMoneyCalculator>
     {
+        [Preserve]
         public MoneyCalculatorBaseMap()
         {
             Map(m => m.GameId).Index(0);
