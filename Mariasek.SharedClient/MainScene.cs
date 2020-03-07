@@ -3466,6 +3466,7 @@ namespace Mariasek.SharedClient
         public void SettingsChanged(object sender, SettingsChangedEventArgs e)
         {
             PopulateAiConfig();
+            Game.CardScaleFactor = new Vector2(Game.Settings.CardScaleFactor, Game.Settings.CardScaleFactor);
             if (g != null)
             {
                 g.GameValue = Game.Settings.GameValue;

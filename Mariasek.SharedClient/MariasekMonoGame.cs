@@ -213,7 +213,7 @@ namespace Mariasek.SharedClient
         public IWebNavigate Navigator { get; private set; }
         public IScreenManager ScreenManager { get; private set; }
 		public IStorageAccessor StorageAccessor { get; private set; }
-        public Vector2 CardScaleFactor { get; private set; }
+        public Vector2 CardScaleFactor { get; set; }
 
         public List<Mariasek.Engine.New.MoneyCalculatorBase> Money = new List<Mariasek.Engine.New.MoneyCalculatorBase>();
 
