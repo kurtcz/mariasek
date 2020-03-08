@@ -1001,6 +1001,7 @@ namespace Mariasek.Engine.New
                     else if (TeamMateIndex == player2)
                     {
                         //co-
+                        return null;
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
 																			//_probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Kral)) > _epsilon &&
 																			(i.Suit == _trump ||
@@ -1011,6 +1012,7 @@ namespace Mariasek.Engine.New
                     else
                     {
                         //c-o
+                        return null;
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
 																			//_probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Kral)) > _epsilon &&
 																			(i.Suit == _trump ||

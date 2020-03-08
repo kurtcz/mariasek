@@ -217,11 +217,11 @@ namespace Mariasek.SharedClient
 					    _t0 = Environment.TickCount;
                         _aiTask = Task.Run(() =>
                         {
-                            _g.PreGameHook();
                             try
                             {
                                 _t1 = Environment.TickCount;
-						   //dej 2 karty z ruky do talonu aby byl _aiPlayer v aktualnim stavu
+                                _g.PreGameHook();
+                                //dej 2 karty z ruky do talonu aby byl _aiPlayer v aktualnim stavu
                                 _aiPlayer._talon = new List<Card>(_talon);
                                 _aiPlayer.Hand = new List<Card>(Hand);
                                 var flavour = _scene.TrumpCardTakenBack ? GameFlavour.Bad : _aiPlayer.ChooseGameFlavour(); //uvnitr se zvoli talon, ale clovek muze ve skutecnosti volit jinak nez ai!!!
@@ -259,11 +259,12 @@ namespace Mariasek.SharedClient
                                 if (_talon != null)
                                 {
                                     _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, 
-                                                                              _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, _aiPlayer._talon)
-							  {
-								  ExternalDebugString = _aiPlayer._debugString
-							  };
-							  _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _aiPlayer._talon);
+                                                                              _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory,
+                                                                              _aiPlayer._talon)
+							        {
+								        ExternalDebugString = _aiPlayer._debugString
+							        };
+							        _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _aiPlayer._talon);
                                 }
                             }
                             catch (Exception ex)

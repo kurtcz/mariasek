@@ -2035,7 +2035,7 @@ namespace Mariasek.Engine.New
                                       .Any(b => Hand.HasSuit(b) &&
                                                 holesPerSuit[b] > topCardsPerSuit[b]);
 
-            return isDurchTooRisky;
+            return !isDurchTooRisky;
         }
 
         public bool IsHundredTooRisky()
@@ -2087,6 +2087,7 @@ namespace Mariasek.Engine.New
 
             //Pokud nevidis do vsech barev a mas barvu s vic nez 2 nizkyma kartama bez A nebo X tak kilo nehraj. Souperi by si mohli uhrat desitky
             if (Hand.Select(i => i.Suit).Distinct().Count() < 4 &&
+                n > 3 &&
                 Enum.GetValues(typeof(Barva)).Cast<Barva>()
                     .Where(b => b != _trump.Value)
                     .Any(b => Hand.CardCount(b) > 2 &&
@@ -2137,7 +2138,8 @@ namespace Mariasek.Engine.New
             return n > 4 ||                         //u vice nez 3 neodstranitelnych der kilo urcite neuhraju
                    (n > 3 && nn > 2) ||
                    (n == 3 &&                       //nebo u 3 neodstranitelnych der pokud nemam trumfove eso
-                    !Hand.HasA(_trump.Value)) ||
+                    !Hand.HasA(_trump.Value) &&
+                    Hand.CardCount(_trump.Value) <= 4) ||
 				   (n > 1 &&                        //pokud mam vic nez 1 neodstranitelnou diru
 					!(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
 					  Hand.HasQ(_trump.Value))) ||
@@ -2237,6 +2239,7 @@ namespace Mariasek.Engine.New
                 n += GetTotalHoles(b);
             }
             _debugString.AppendFormat("TotalHoles: {0}\n", n);
+            DebugInfo.TotalHoles = n;
 
             return n;
         }
@@ -2409,6 +2412,7 @@ namespace Mariasek.Engine.New
                                 : 0;
                 var estimatedFinalBasicScore = _g.trump.HasValue ? EstimateFinalBasicScore() : 0;
                 var estimatefOpponentFinalBasicScore = 90 - estimatedFinalBasicScore;
+                var totalHoles = GetTotalHoles();
 
                 if (Settings.CanPlayGameType[Hra.Kilo] && 
                     _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&
@@ -2621,6 +2625,7 @@ namespace Mariasek.Engine.New
                                               .Sum(b => (Hand.HasA(b) ? 10 : 0) +
                                                         ((Hand.HasX(b) && Hand.CardCount(b) >= 2) ? 10 : 0))
                                         : 0;
+            var totalHoles = GetTotalHoles();
 
             //Flekovani u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) 
             if ((bidding.Bids & Hra.Hra) != 0 &&                //pokud byla zvolena hra (nebo hra a sedma]
@@ -2737,7 +2742,7 @@ namespace Mariasek.Engine.New
                      Hand.HasQ(_trump.Value)) &&
                      Hand.CardCount(_trump.Value) >= 3 &&
                      estimatedFinalBasicScore >= 40)) ||
-                 (TeamMateIndex == -1 && GetTotalHoles() <= 2)) &&
+                 (TeamMateIndex == -1 && totalHoles <= 2)) &&
                 (_sevensBalance / (float)_sevenSimulations >= sevenThreshold))
             {
                 bid |= bidding.Bids & Hra.Sedma;
@@ -2821,7 +2826,7 @@ namespace Mariasek.Engine.New
                 (bidding._betlDurchFlek <= Settings.MaxDoubleCountForGameType[Hra.Durch] ||
                  (bidding._betlDurchFlek <= MaxFlek &&
                   _durchBalance / (float)_durchSimulations >= certaintyThreshold)) &&
-                ((PlayerIndex == _g.GameStartingPlayerIndex && _durchBalance / (float)_durchSimulations >= durchThreshold && !IsDurchCertain()) ||
+                ((PlayerIndex == _g.GameStartingPlayerIndex && _durchBalance / (float)_durchSimulations >= durchThreshold && IsDurchCertain()) ||
 			     (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) >= 3)))
             {
                 bid |= bidding.Bids & Hra.Durch;

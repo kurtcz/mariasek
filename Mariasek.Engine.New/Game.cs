@@ -1888,6 +1888,7 @@ namespace Mariasek.Engine.New
                 BiddingDebugInfo.AppendFormat("\nSkóre2: {0}", players[playerIndex].DebugInfo.EstimatedFinalBasicScore2);
                 BiddingDebugInfo.AppendFormat("\nTygrovo: {0}", players[playerIndex].DebugInfo.Tygrovo);
                 BiddingDebugInfo.AppendFormat("\nSilná: {0}", players[playerIndex].DebugInfo.Strong);
+                BiddingDebugInfo.AppendFormat("\nPočet děr: {0}", players[playerIndex].DebugInfo.TotalHoles);
             }
             if (players[playerIndex].TeamMateIndex == -1 && GameType != Hra.Durch)
             {
