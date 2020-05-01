@@ -6,6 +6,7 @@ using System.IO;
 using Mariasek.SharedClient;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using AVFoundation;
 
 #if MONOMAC
 using MonoMac.AppKit;
@@ -97,6 +98,7 @@ namespace Mariasek.iOSClient
         public override void FinishedLaunching(UIApplication app)
         {
 			app.IdleTimerDisabled = true; //stop iOS from stalling our game
+            AVAudioSession.SharedInstance().SetCategory(AVAudioSessionCategory.Ambient);    //share audio with background music players
             TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             RunGame();
