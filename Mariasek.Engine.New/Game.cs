@@ -1820,7 +1820,8 @@ namespace Mariasek.Engine.New
 
                     if (trump.HasValue &&
                         (hands[player2].HasSuit(trump.Value) ||
-                         hands[player3].HasSuit(trump.Value)))
+                         hands[player3].HasSuit(trump.Value) ||
+                         HlasConsidered == HlasConsidered.First))
                     {
                         firstSuit = trump;
                         lastSuit = null;
