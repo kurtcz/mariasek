@@ -2411,8 +2411,15 @@ namespace Mariasek.Engine.New
                 ChooseCard2 = (Card c1) =>
                 {
                     if (TeamMateIndex == player3)
-                    {                        
+                    {
                         //-co
+                        if ((_gameType & Hra.Kilo) != 0 &&
+                            c1.Suit == _trump &&
+                            c1.Value >= Hodnota.Spodek &&
+                            RoundNumber <= 4)
+                        {
+                            return null;
+                        }
                         return ValidCards(c1, hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                          (i.Value == Hodnota.Desitka ||
                                                                           (i.Value == Hodnota.Eso &&        //eso namaz jen kdyz nemuzu chytit desitku nebo pri kilu (proti)
@@ -3020,7 +3027,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule
             {
-                Order = 6,
+                Order = 4,
                 Description = "hrát vysokou kartu",
                 SkipSimulations = true,
                 ChooseCard3 = (Card c1, Card c2) =>
@@ -3042,7 +3049,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule
             {
-                Order = 4,
+                Order = 5,
                 Description = "hrát nízkou kartu mimo A,X",
                 SkipSimulations = true,
                 ChooseCard3 = (Card c1, Card c2) =>
