@@ -1882,7 +1882,13 @@ namespace Mariasek.Engine.New
                                                      (_talon == null ||
                                                       (!_talon.HasA(i.Key)) &&
                                                        !_talon.HasX(i.Key)));
+            var axPotentialDeduction = GetTotalHoles(false) / 2;
             var axWinPotential = Math.Min(2 * emptySuits + aceOnlySuits, (int)Math.Ceiling(Hand.CardCount(trump.Value) / 2f)); // ne kazdym trumfem prebiju a nebo x
+            axWinPotential -= axPotentialDeduction;
+            if (axWinPotential < 0)
+            {
+                axWinPotential = 0;
+            }
             if (PlayerIndex == _g.GameStartingPlayerIndex &&    //mam-li malo trumfu, tak ze souperu moc A,X nedostanu
                 (trumpCount <= 3 ||
                  (trumpCount == 4 &&

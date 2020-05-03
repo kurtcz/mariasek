@@ -276,7 +276,7 @@ namespace Mariasek.Cli
                                   .ToDictionary(k => k, v => g.GameStartingPlayer
                                                               .Hand
                                                               .Where(i => i.Suit == v)
-                                                              .Sum(i => (int)i.Value));
+                                                              .Sum(i => (int)i.Value + 1));
             var orderedSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                    .OrderBy(b => g.trump.HasValue && b == g.trump.Value ? 0 : 1)
                                    .ThenByDescending(b => suitWeights[b]).ToList();

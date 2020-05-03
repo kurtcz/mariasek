@@ -572,6 +572,18 @@ namespace Mariasek.Engine.New
                         {
                             return null;
                         }
+                        if ((_gameType & Hra.Kilo) != 0 &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Any(b => hands[MyIndex].HasSuit(b) &&
+                                          !hands[MyIndex].HasA(b) &&
+                                          !hands[MyIndex].HasX(b) &&
+                                          (_probabilities.CardProbability(player2, new Card(b, Hodnota.Eso)) > _epsilon ||
+                                           _probabilities.CardProbability(player2, new Card(b, Hodnota.Desitka)) > _epsilon ||
+                                           _probabilities.CardProbability(player3, new Card(b, Hodnota.Eso)) > _epsilon ||
+                                           _probabilities.CardProbability(player3, new Card(b, Hodnota.Desitka)) > _epsilon)))
+                        {
+                            return null;
+                        }
                         if (holes.Count > 0 &&
                             topTrumps.Count > 0 &&
                             ((topTrumps.Count >= holes.Count &&
@@ -3028,7 +3040,7 @@ namespace Mariasek.Engine.New
             yield return new AiRule
             {
                 Order = 4,
-                Description = "hrát vysokou kartu",
+                Description = "hrát vysokou kartu mimo A,X",
                 SkipSimulations = true,
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
@@ -3036,7 +3048,10 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex != -1)
                     {
                         var opponent = TeamMateIndex == player1 ? player2 : player1;
-                        var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => _probabilities.SuitProbability(opponent, i.Suit, RoundNumber) == 0 &&
+                        var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                        i.Value != Hodnota.Eso &&
+                                                                                        i.Value != Hodnota.Desitka &&
+                                                                                        _probabilities.SuitProbability(opponent, i.Suit, RoundNumber) == 0 &&
                                                                                         _probabilities.SuitProbability(opponent, _trump, RoundNumber) > 0 &&
                                                                                         (_probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Eso)) > _epsilon ||
                                                                                          _probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Desitka)) > _epsilon));
