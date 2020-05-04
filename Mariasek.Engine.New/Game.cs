@@ -410,7 +410,7 @@ namespace Mariasek.Engine.New
         }
 #endif
 
-        public void LoadGame(Stream fileStream, bool calculateMoney = false, int impersonationPlayerIndex = 0)
+        public void LoadGame(Stream fileStream, bool calculateMoney = false, int impersonationPlayerIndex = 0, bool forceLoadToLastRound = false)
         {
             _log.Init();
             _log.Info("********");
@@ -435,6 +435,11 @@ namespace Mariasek.Engine.New
             var roundComments = new List<Queue<string>>();
             string[] tmpcomments = null;
             var comment = 0;
+
+            if (forceLoadToLastRound)
+            {
+                gameData.Kolo = Game.NumRounds + 1;
+            }
             while (xmlrdr.Read())
             {
                 switch (xmlrdr.NodeType)

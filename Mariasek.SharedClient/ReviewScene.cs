@@ -203,16 +203,16 @@ namespace Mariasek.SharedClient
                     };
                     g.RegisterPlayers(new Engine.New.AbstractPlayer[]
                                       {
-                                     new DummyPlayer(g) { Name = Game.Settings.PlayerNames[0] },
-                                     new DummyPlayer(g) { Name = Game.Settings.PlayerNames[1] },
-                                     new DummyPlayer(g) { Name = Game.Settings.PlayerNames[2] }
+                                          new DummyPlayer(g) { Name = Game.Settings.PlayerNames[0] },
+                                          new DummyPlayer(g) { Name = Game.Settings.PlayerNames[1] },
+                                          new DummyPlayer(g) { Name = Game.Settings.PlayerNames[2] }
                                       });
                     try
                     {
                         Game.StorageAccessor.GetStorageAccess();
                         using (var fs = File.Open(endGamePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
-                            g.LoadGame(fs, true);
+                            g.LoadGame(fs, calculateMoney: true, forceLoadToLastRound: true);
                         }
                         _rawData.Text = string.Format("{0}\n\n", File.ReadAllText(endGamePath));
                     }
