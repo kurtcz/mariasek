@@ -2206,6 +2206,7 @@ namespace Mariasek.SharedClient
 
         public Hra GetBidsAndDoubles(Bidding bidding)
         {
+            //_evt.WaitOne();
 			EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
 			_evt.Reset();
@@ -2215,21 +2216,26 @@ namespace Mariasek.SharedClient
 			_bid = 0;
             if (bidding.Bids != 0)
             {
-                RunOnUiThread(() =>
-                {
-                    this.Invoke(() =>
-                    {
-                        ShowBidButtons(bidding);
-                        _okBtn.IsEnabled = true;
-                        _okBtn.Show();
-                    });
-                });
+                ShowBidButtons(bidding);
+                _okBtn.IsEnabled = true;
+                _okBtn.Show();
+                //RunOnUiThread(() =>
+                //{
+                //    this.Invoke(() =>
+                //    {
+                //        ShowBidButtons(bidding);
+                //        _okBtn.IsEnabled = true;
+                //        _okBtn.Show();
+                //    });
+                //});
                 WaitForUIThread();
-                RunOnUiThread(() =>
-                {
-                    this.ClearOperations();
-                    HideBidButtons();
-                });
+                EnsureBubblesHidden();
+                //RunOnUiThread(() =>
+                //{
+                //    this.ClearOperations();
+                //    HideBidButtons();
+                //});
+                HideBidButtons();
             }
             _state = GameState.NotPlaying;
             g.ThrowIfCancellationRequested();
@@ -2478,13 +2484,18 @@ namespace Mariasek.SharedClient
                         }
                         _bubbles[e.GameStartingPlayerIndex].Show();
                     })
-                    .Wait(2000)
+                    //.Wait(1000)
+                    //.Invoke(() =>
+                    //{
+                    //    _evt.Set(); //v GetBidsAndDoubles() je _evt.WaitOne()
+                    //})
+                    .Wait(1500)
                     .Invoke(() =>
                     {
                         _bubbles[e.GameStartingPlayerIndex].Hide();
                         _bubbles[e.GameStartingPlayerIndex].Height = 50;
                     })
-                    .Wait(1000)
+                    .Wait(100)
                     .Invoke(() =>
                     {
                         imgs[e.GameStartingPlayerIndex].Hide();
