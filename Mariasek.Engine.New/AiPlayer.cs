@@ -1884,11 +1884,7 @@ namespace Mariasek.Engine.New
                                                        !_talon.HasX(i.Key)));
             var axPotentialDeduction = GetTotalHoles(false) / 2;
             var axWinPotential = Math.Min(2 * emptySuits + aceOnlySuits, (int)Math.Ceiling(Hand.CardCount(trump.Value) / 2f)); // ne kazdym trumfem prebiju a nebo x
-            axWinPotential -= axPotentialDeduction;
-            if (axWinPotential < 0)
-            {
-                axWinPotential = 0;
-            }
+
             if (PlayerIndex == _g.GameStartingPlayerIndex &&    //mam-li malo trumfu, tak ze souperu moc A,X nedostanu
                 (trumpCount <= 3 ||
                  (trumpCount == 4 &&
@@ -1933,6 +1929,10 @@ namespace Mariasek.Engine.New
             //{
             //    n -= 10;
             //}
+            if (n >= 60 && emptySuits > 0)  //pokud to vypada na kilo, odecti body za diry na ktere si souperi muzou namazat
+            {
+                n -= axPotentialDeduction * 10;
+            }
             if (n < 0)
             {
                 n = 0;
@@ -2795,11 +2795,10 @@ namespace Mariasek.Engine.New
                 (bidding._sevenAgainstFlek < 3 ||                      //ai nedava tutti pokud neflekoval i clovek
                  PlayerIndex == 0 ||
                  (bidding.PlayerBids[0] & Hra.SedmaProti) != 0) &&
-                (!IsSevenTooRisky() ||                                  //nez poprve zahlasime sedmu proti zjistime jestli to neni riskantni
-                 bidding._sevenAgainstFlek > 0) &&
-                //(Hand.CardCount(_g.trump.Value) >= 4 ||
-                // (Hand.CardCount(_g.trump.Value) >= 3 &&
-                //  Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => Hand.HasSuit(b)))) &&
+                ((bidding._sevenAgainstFlek == 0 &&                                  //nez poprve zahlasime sedmu proti zjistime jestli to neni riskantni
+                  !IsSevenTooRisky()) ||
+                 (bidding._sevenAgainstFlek > 0 &&                                  //flek na sedmu proti dam jen kdyz mam sam dost trumfu
+                  Hand.CardCount(_g.trump.Value) >= 4)) &&
                 _gameSimulations > 0 && _sevensAgainstBalance / (float)_gameSimulations >= sevenAgainstThreshold)
             {
                 bid |= bidding.Bids & Hra.SedmaProti;
