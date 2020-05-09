@@ -2440,6 +2440,7 @@ namespace Mariasek.Engine.New
                                                                               _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) < 1)))) &&
                                                                          !(c1.Value == Hodnota.Desitka &&   //nemaz pokud prvni hrac vyjel desitkou a nevim kdo ma eso (nebylo-li jeste hrano)
                                                                            (_gameType & Hra.Kilo) == 0 &&   //(neplati pri kilu)
+                                                                           _probabilities.CardProbability(player3, new Card(c1.Suit, Hodnota.Eso)) > _epsilon &&
                                                                            _probabilities.CardProbability(player3, new Card(c1.Suit, Hodnota.Eso)) <= 1 - _epsilon &&
                                                                            _probabilities.CardProbability(player1, new Card(c1.Suit, Hodnota.Eso)) > _epsilon) &&
                                                                          (_probabilities.SuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1 - RiskFactor ||
