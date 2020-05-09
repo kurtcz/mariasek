@@ -2073,7 +2073,9 @@ namespace Mariasek.Engine.New
 			{
 				return true;
 			}
-			if (Hand.Count(i => i.Suit == _trump.Value && i.Value >= Hodnota.Spodek) < 3)
+			if (Hand.Count(i => i.Suit == _trump.Value && i.Value >= Hodnota.Spodek) < 3 &&
+                (!Hand.HasA(_trump.Value) ||
+                 !Hand.HasX(_trump.Value)))
 			{
 				return true;
 			}
@@ -2141,14 +2143,19 @@ namespace Mariasek.Engine.New
             //    return true;
             //}
 
-            return n > 4 ||                         //u vice nez 3 neodstranitelnych der kilo urcite neuhraju
+            return n > 4 ||                         //u vice nez 4 neodstranitelnych der kilo urcite neuhraju
                    (n > 3 && nn > 2) ||
                    (n == 3 &&                       //nebo u 3 neodstranitelnych der pokud nemam trumfove eso
                     !Hand.HasA(_trump.Value) &&
                     Hand.CardCount(_trump.Value) <= 4) ||
-				   (n > 1 &&                        //pokud mam vic nez 1 neodstranitelnou diru
+				   (n > 2 &&                        //pokud mam vic nez 2 neodstranitelne diry
 					!(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
 					  Hand.HasQ(_trump.Value))) ||
+                   (n > 1 &&                        //pokud mam vic nez 2 neodstranitelne diry
+                    !(Hand.HasA(_trump.Value) &&    //a nemam trumfove eso ani desitku na navic
+                      Hand.HasX(_trump.Value)) &&
+                    !(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
+                      Hand.HasQ(_trump.Value))) ||
                    (n == 1 &&                       //nebo pokud mam jednu diru
                     !Hand.HasA(_trump.Value) &&     //nemam trumfove eso
                     !(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
