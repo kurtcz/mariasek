@@ -37,7 +37,7 @@ namespace Mariasek.SharedClient
 
     public class MainScene : Scene
     {
-        #region Child components
+#region Child components
 #pragma warning disable 414
 
         //TODO:Add child components here
@@ -94,7 +94,7 @@ namespace Mariasek.SharedClient
         private GameReview _review;
 
 #pragma warning restore 414
-        #endregion
+#endregion
 
         public Mariasek.Engine.New.Game g;
         private SemaphoreSlim _gameSemaphore = new SemaphoreSlim(1);
@@ -108,9 +108,13 @@ namespace Mariasek.SharedClient
         private int _aiMessageIndex;
         public int CurrentStartingPlayerIndex = -1;
         private Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
-        //public string[] PlayerNames = { "Já", "Karel", "Pepa" };
 #if __ANDROID__
         private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+        //Android 10 (API 29) and higher no longer allows direct access to /storage/emulated/0/Mariasek
+        //Instead we can access /storage/emulated/0/Android/data/com.tnemec.mariasek.android/Files using the code below
+        //private static string _path = Path.Combine(Android.App.Application.Context.GetExternalFilesDir(null).AbsolutePath, "Mariasek");
+        //Note: If we decide to target Android 10+ we will need to move the data from the old location to the new one
+        //(but we will no longer be able to share the files between apps)
 #else   //#elif __IOS__
         private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 #endif
