@@ -2873,6 +2873,13 @@ namespace Mariasek.Engine.New
                                                                                       j.BadValue > i.BadValue)));
             var opMidSuits = opponentMidCards.Select(i => i.Suit).Distinct().Count();
             var handSuits = Hand.Select(i => i.Suit).Distinct().Count();
+            var minCardPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                     .ToDictionary(b => b,
+                                                   b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                            .Select(h => new Card(b, h))
+                                                            .OrderBy(i => i.BadValue)
+                                                            .FirstOrDefault(i => Hand.Any(j => j.Suit == i.Suit &&
+                                                                                               j.Value == i.Value)));
 
             if ((bidding.Bids & Hra.Betl) != 0 &&
                 Settings.CanPlayGameType[Hra.Betl] &&
@@ -2883,7 +2890,10 @@ namespace Mariasek.Engine.New
                   opponentMidCards.Count() >= 5 &&                          //a vidis aspon 5 der
                   opMidSuits >= 2 &&                                        //a mas nizsi karty nez diry aspon ve dvou barvach
                   (handSuits < Game.NumSuits ||                             //nebo znas vsechny barvy a mas nizke karty ve trech barvach
-                   opMidSuits >= 3))))
+                   opMidSuits >= 3 &&
+                   minCardPerSuit.All(i => i.Value == null ||               //z nichz je kazda mensi nez desitka
+                                           i.Value.BadValue < Card.GetBadValue(Hodnota.Desitka))
+                   ))))
             {
                 bid |= bidding.Bids & Hra.Betl;
                 //minRuleCount = Math.Min(minRuleCount, _betlBalance);
