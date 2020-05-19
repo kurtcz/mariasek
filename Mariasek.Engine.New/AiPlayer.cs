@@ -404,6 +404,7 @@ namespace Mariasek.Engine.New
                             .Take(2)
                             .ToList();
             var holesPerSuit = new Dictionary<Barva, int>();
+            var topCards = new List<Card>();
 
             foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
             {
@@ -430,11 +431,15 @@ namespace Mariasek.Engine.New
                 var n = Math.Min(holes, loCards);
 
                 holesPerSuit.Add(b, n);
+                topCards.AddRange(hand.Where(i => i.Suit == b)
+                                      .OrderByDescending(i => i.BadValue)
+                                      .Take(hiCards));
             }
             talon.AddRange(hand.Where(i => !talon.Contains(i))
                                .OrderByDescending(i => holesPerSuit[i.Suit])
-                               .ThenBy(i => hand.CardCount(i.Suit))    //prednostne ber kratsi barvy
-                               .ThenBy(i => i.BadValue)                //a nizsi karty
+                               .ThenBy(i => topCards.Contains(i) ? 1 : 0)   //snaz se nebrat karty co nad sebou nemaji diru
+                               .ThenBy(i => hand.CardCount(i.Suit))         //prednostne ber kratsi barvy
+                               .ThenBy(i => i.BadValue)                     //a nizsi karty
                                .Take(2 - talon.Count()));
             var count = talon.Count();
 

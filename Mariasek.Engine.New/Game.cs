@@ -1123,67 +1123,79 @@ namespace Mariasek.Engine.New
 
         private void RoundSanityCheck()
         {
-            LogHands();
-            var cardsPlayed = rounds.Where(i => i != null && i.c3 != null).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).ToList();
-
-            for (var i = 0; i < NumPlayers; i++)
+            Exception e = null;
+            try
             {
-                var distinctHand = players[i].Hand.Distinct().ToList();
-                if (distinctHand.Count != players[i].Hand.Count)
-                {
-                    players[i].Hand = distinctHand;
-                }
-                foreach (var c in cardsPlayed)
-                {
-                    players[i].Hand.Remove(c);
-                }
+                LogHands();
+                var cardsPlayed = rounds.Where(i => i != null && i.c3 != null).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).ToList();
 
-                var aiPlayer = players[i] as AiPlayer;
-
-                if (aiPlayer != null &&
-                    aiPlayer.Probabilities != null &&
-                    aiPlayer.PlayerIndex == GameStartingPlayerIndex &&
-                    (aiPlayer._talon == null ||
-                     aiPlayer._talon.Count() == 0))
-                {
-                    aiPlayer._talon = new List<Card>(talon);
-                    if (aiPlayer.Probabilities.IsUpdateProbabilitiesAfterTalonNeeded())
-                    {
-                        aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(new List<Card>(aiPlayer.Hand), new List<Card>(aiPlayer._talon));
-                    }
-                }
-			}
-			if (talon != null)
-			{
-                var distinctHand = talon.Distinct().ToList();
-                if (distinctHand.Count != talon.Count)
-                {
-                    talon = distinctHand;
-                }
                 for (var i = 0; i < NumPlayers; i++)
                 {
-                    foreach (var c in talon)
+                    var distinctHand = new List<Card>(players[i].Hand).Distinct().ToList();
+                    if (distinctHand.Count != players[i].Hand.Count)
+                    {
+                        players[i].Hand = distinctHand;
+                    }
+                    foreach (var c in cardsPlayed)
                     {
                         players[i].Hand.Remove(c);
                     }
+
+                    var aiPlayer = players[i] as AiPlayer;
+
+                    if (aiPlayer != null &&
+                        aiPlayer.Probabilities != null &&
+                        aiPlayer.PlayerIndex == GameStartingPlayerIndex &&
+                        (aiPlayer._talon == null ||
+                         aiPlayer._talon.Count() == 0))
+                    {
+                        aiPlayer._talon = new List<Card>(talon);
+                        if (aiPlayer.Probabilities.IsUpdateProbabilitiesAfterTalonNeeded())
+                        {
+                            aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(new List<Card>(aiPlayer.Hand), new List<Card>(aiPlayer._talon));
+                        }
+                    }
                 }
-                if (RoundNumber > 0 && talon.Count() != 2)
+                if (talon != null)
                 {
-                    if (players.Sum(i => i.Hand.Count()) + cardsPlayed.Count() == 30)
+                    var distinctHand = new List<Card>(talon).Distinct().ToList();
+                    if (distinctHand.Count != talon.Count)
                     {
-                        talon = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                    .SelectMany(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                         .Select(h => new Card(b, h)))
-                                    .Where(i => !cardsPlayed.Contains(i) &&
-                                                players.All(j => !j.Hand.Contains(i)))
-                                    .ToList();
+                        talon = distinctHand;
                     }
-                    else
+                    for (var i = 0; i < NumPlayers; i++)
                     {
-                        throw new InvalidOperationException($"Bad talon count: {talon.Count()} hands: {players[0].Hand.Count()} {players[1].Hand.Count()} {players[2].Hand.Count()}");
+                        foreach (var c in talon)
+                        {
+                            players[i].Hand.Remove(c);
+                        }
+                    }
+                    if (RoundNumber > 0 && talon.Count() != 2)
+                    {
+                        if (players.Sum(i => i.Hand.Count()) + cardsPlayed.Count() == 30)
+                        {
+                            talon = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                        .SelectMany(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                             .Select(h => new Card(b, h)))
+                                        .Where(i => !cardsPlayed.Contains(i) &&
+                                                    players.All(j => !j.Hand.Contains(i)))
+                                        .ToList();
+                        }
+                        else
+                        {
+                            e = new InvalidOperationException($"Bad talon count: {talon.Count()} hands: {players[0].Hand.Count()} {players[1].Hand.Count()} {players[2].Hand.Count()}");
+                        }
                     }
                 }
-			}
+            }
+            catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"{ex.GetType().Name} in RoundSanityCheck:\n {ex.Message}\n{ex.StackTrace}");
+            }
+            if (e != null)
+            {
+                throw e;
+            }
 		}
 
         public void Rewind()
