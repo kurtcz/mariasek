@@ -47,6 +47,8 @@ namespace Mariasek.Engine.New
         [XmlIgnore]
         public float BaseBet { get; set; }
         [XmlIgnore]
+        public string Locale { get; set; }
+        [XmlIgnore]
 		public int MaxWin { get; set; }
         public Hra GameType { get { return _gameType; } }
         public string GameTypeString { get; set; }
@@ -182,6 +184,7 @@ namespace Mariasek.Engine.New
             GameTypeConfidence = g.GameTypeConfidence;
             PlayerNames = g.players.Select(i => i.Name).ToArray();
             BaseBet = g.BaseBet;
+            Locale = g.Locale;
 			MaxWin = g.MaxWin;
             GamePlayed = g.rounds[0] != null;
             GivenUp = g.GivenUp;
@@ -198,7 +201,7 @@ namespace Mariasek.Engine.New
 
             if (ci == null)
             {
-                _ci = new CultureInfo("cs-CZ");
+                _ci = new CultureInfo(Locale);
             }
             if (GoodGame)
             {

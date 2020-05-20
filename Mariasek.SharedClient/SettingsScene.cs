@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Mariasek.SharedClient.GameComponents;
 using Mariasek.Engine.New;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Mariasek.SharedClient
 {
@@ -21,6 +22,7 @@ namespace Mariasek.SharedClient
         private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 #endif
         public static string _settingsFilePath = Path.Combine(_path, "Mariasek.settings");
+        private Tuple<string, int, int>[] _locales;
 		private Label _hint;
         private Label _sounds;
         private Label _bgsounds;
@@ -318,9 +320,15 @@ namespace Mariasek.SharedClient
 				Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "0,10 Kč", 0.1f}, { "0,20 Kč", 0.2f}, { "0,50 Kč", 0.5f },
-											  { "1 Kč", 1f }, { "2 Kč", 2f}, { "5 Kč", 5f}, { "10 Kč", 10f} }
+											  { "1 Kč", 1f }, { "2 Kč", 2f}, { "0,01 €", 0.01f}, { "0,02 €", 0.02f}, { "0,05 €", 0.05f}, { "0,10 €", 0.1f}, { "0,20 €", 0.2f} }
 			};
-			_baseBetSelector.SelectedIndex = _baseBetSelector.Items.FindIndex(Game.Settings.BaseBet);
+            _locales = new[]
+            {
+                new Tuple<string, int, int>("cs-CZ", 0, 4),
+                new Tuple<string, int, int>("sk-SK", 5, 9)
+            };
+            var startIndex = _locales.First(i => i.Item1 == Game.Settings.Locale).Item2;
+			_baseBetSelector.SelectedIndex = _baseBetSelector.Items.FindIndex(startIndex, i => (i.Value as float?) == Game.Settings.BaseBet);
 			_baseBetSelector.SelectionChanged += BaseBetChanged;
             #endregion
             #region Page 2
@@ -1291,6 +1299,9 @@ namespace Mariasek.SharedClient
             var selector = sender as LeftRightSelector;
 
             Game.Settings.BaseBet = (float)selector.SelectedValue;
+            Game.Settings.Locale = _locales.First(i => selector.SelectedIndex >= i.Item2 &&
+                                                       selector.SelectedIndex <= i.Item3)
+                                           .Item1;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }

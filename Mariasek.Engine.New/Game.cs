@@ -74,7 +74,8 @@ namespace Mariasek.Engine.New
         public bool AllowPlayerAutoFinish { get; set; }
         public bool SkipBidding { get; set; }
         public float BaseBet { get; set; }
-		public int MaxWin { get; set; }
+        public string Locale { get; set; }
+        public int MaxWin { get; set; }
         public int MinimalBidsForGame { get; set; }
         public int MinimalBidsForSeven { get; set; }
         public bool PlayZeroSumGames { get; set; }
@@ -224,6 +225,7 @@ namespace Mariasek.Engine.New
         {
             CurrentGameNumber = ++GameCounter;
             BaseBet = 1f;
+            Locale = "cs-CZ";
             MinimalBidsForGame = 1;
             MinimalBidsForSeven = 0;
             Top107 = false;

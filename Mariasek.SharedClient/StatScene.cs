@@ -499,7 +499,7 @@ namespace Mariasek.SharedClient
                                    gamesPlayed3 > 0 ? games3.Max(i => -i.MoneyWon[2] * Game.Settings.BaseBet) : 0f;
             var defenceMoneyMax3 = gamesPlayed1 > 0 ? games1.Max(i => -i.MoneyWon[0] * Game.Settings.BaseBet) : 0f +
                                    gamesPlayed2 > 0 ? games2.Max(i => -i.MoneyWon[1] * Game.Settings.BaseBet) : 0f;
-            var culture = CultureInfo.CreateSpecificCulture("cs-CZ");
+            var culture = CultureInfo.CreateSpecificCulture(Game.Settings.Locale);
 
             sbGames.AppendFormat("{0,-7}\tHer\tVýher\tProher\tPoměr\n", gameTypeString);
             sbGames.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4:F0}%\n", Game.Settings.PlayerNames[0], gamesPlayed1, gamesWon1, gamesLost1, gamesRatio1 * 100);

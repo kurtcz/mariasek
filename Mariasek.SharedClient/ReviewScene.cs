@@ -177,6 +177,7 @@ namespace Mariasek.SharedClient
                     var g = new Mariasek.Engine.New.Game()
                     {
                         BaseBet = Game.Settings.BaseBet,
+                        Locale = Game.Settings.Locale,
                         MaxWin = Game.Settings.MaxWin,
                         SkipBidding = false,
                         MinimalBidsForGame = Game.Settings.MinimalBidsForGame,
@@ -223,7 +224,7 @@ namespace Mariasek.SharedClient
                     }
                     //Vysledky beru z g.Results ale penize a procenta u aktera beru z historie
                     var resultStr = g.Results.ToString().Split('\n');
-                    var numFormat = (NumberFormatInfo)CultureInfo.GetCultureInfo("cs-CZ").NumberFormat.Clone();
+                    var numFormat = (NumberFormatInfo)CultureInfo.GetCultureInfo(Game.Settings.Locale).NumberFormat.Clone();
                     var gameDate = new FileInfo(endGamePath).CreationTime;
 
                     var description = string.Format("{0}\n{1} {2}\n{3}\n{4}\t{5}\n{6}\t{7}\n{8}\t{9}",

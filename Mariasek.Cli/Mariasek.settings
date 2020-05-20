@@ -16,6 +16,7 @@
   <WhenToShuffle>AfterAutomaticVictory</WhenToShuffle>
   <AutoSort>true</AutoSort>
   <BaseBet>0.1</BaseBet>
+  <Locale>cs-CZ</Locale>
   <MaxWin>500</MaxWin>
   <GameValue>1</GameValue>
   <QuietSevenValue>1</QuietSevenValue>

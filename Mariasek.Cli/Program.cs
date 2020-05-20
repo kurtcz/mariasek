@@ -68,7 +68,8 @@ namespace Mariasek.Cli
                 {
                     SkipBidding = false,
                     BaseBet = Settings.BaseBet,
-					MaxWin = Settings.MaxWin,
+                    Locale = Settings.Locale,
+                    MaxWin = Settings.MaxWin,
                     GetFileStream = GetFileStream,
                     GetVersion = () => Assembly.GetExecutingAssembly().GetName().Version,
 					GameValue = Settings.GameValue,
@@ -130,7 +131,8 @@ namespace Mariasek.Cli
                 {
                     SkipBidding = false,
                     BaseBet = Settings.BaseBet,
-					MaxWin = Settings.MaxWin,
+                    Locale = Settings.Locale,
+                    MaxWin = Settings.MaxWin,
                     GetFileStream = GetFileStream,
                     GetVersion = () => Assembly.GetExecutingAssembly().GetName().Version,
 					GameValue = Settings.GameValue,
@@ -175,7 +177,8 @@ namespace Mariasek.Cli
                     {
                         SkipBidding = false,
                         BaseBet = Settings.BaseBet,
-						MaxWin = Settings.MaxWin,
+                        Locale = Settings.Locale,
+                        MaxWin = Settings.MaxWin,
                         GetFileStream = GetFileStream,
                         GetVersion = () => Assembly.GetExecutingAssembly().GetName().Version,
 						GameValue = Settings.GameValue,
@@ -212,7 +215,7 @@ namespace Mariasek.Cli
                 System.Console.WriteLine("-=-=-=-=-");
                 foreach (var kv in gameTypes)
                 {
-                    System.Console.WriteLine("{0}:\t{1}\t{2}", kv.Key, kv.Value.Item1 ? "won" : "lost", kv.Value.Item2.ToString("C", CultureInfo.CreateSpecificCulture("cs-CZ")));
+                    System.Console.WriteLine("{0}:\t{1}\t{2}", kv.Key, kv.Value.Item1 ? "won" : "lost", kv.Value.Item2.ToString("C", CultureInfo.CreateSpecificCulture(Game.Settings.Locale)));
                 }
                 var gamesWon = 0;
                 foreach (var kv in gameTypes.Where(gt => gt.Value.Item1))
@@ -235,6 +238,7 @@ namespace Mariasek.Cli
             {
                 SkipBidding = false,
                 BaseBet = Settings.BaseBet,
+                Locale = Settings.Locale,
                 MaxWin = Settings.MaxWin,
                 GetFileStream = GetFileStream,
                 GetVersion = () => Assembly.GetExecutingAssembly().GetName().Version,
