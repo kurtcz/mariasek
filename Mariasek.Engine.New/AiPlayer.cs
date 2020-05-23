@@ -2116,6 +2116,7 @@ namespace Mariasek.Engine.New
             if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
                     .Where(b => b != _trump.Value)
                     .Count(b => Hand.CardCount(b) > 1 &&
+                                //Hand.CardCount(Hodnota.Eso) + Hand.CardCount(Hodnota.Desitka) <= 6 &&
                                 (!Hand.HasA(b) &&
                                  !Hand.HasX(b)) ||
                                 (Hand.HasX(b) &&
@@ -2683,6 +2684,11 @@ namespace Mariasek.Engine.New
                       (kqScore >= 40 ||                         //a mam aspon 40 bodu v hlasech
                        (kqScore >= 20 &&                        //nebo aspon 20 bodu v hlasech a 30 bodu odhadem k tomu
                         estimatedFinalBasicScore >= 20))) ||
+                     (Hand.CardCount(_g.trump.Value) >= 4 &&    //nebo mam aspon 4 trumfy
+                      Hand.HasA(_g.trump.Value) &&              //eso, trhak
+                      (Hand.HasK(_g.trump.Value) ||              //a aspon 50 bodu
+                       Hand.HasQ(_g.trump.Value) &&
+                      estimatedFinalBasicScore >= 50)) ||
                      (Hand.CardCount(_g.trump.Value) >= 4 &&    //nebo mam aspon 4 trumfy
                       DebugInfo.Tygrovo >= 20))) ||             //a k tomu silne karty
                    (bidding.GameMultiplier < 2 &&               //Flek:

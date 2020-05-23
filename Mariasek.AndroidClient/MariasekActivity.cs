@@ -19,11 +19,12 @@ using Android;
 using System.Diagnostics;
 using Android.Support.V4.App;
 using Android.Support.V4.View;
+using Android.OS.Storage;
 
 namespace Mariasek.AndroidClient
 {
-	[Activity (Name = "com.tnemec.mariasek.android.MariasekActivity",
-               Label = "Mariášek", 
+    [Activity(Name = "com.tnemec.mariasek.android.MariasekActivity",
+               Label = "Mariášek",
                MainLauncher = true,
                Icon = "@mipmap/ic_launcher",
                Theme = "@style/Theme.Splash",
@@ -32,23 +33,19 @@ namespace Mariasek.AndroidClient
                ScreenOrientation = ScreenOrientation.SensorLandscape,
                ConfigurationChanges = ConfigChanges.Orientation |
                                       ConfigChanges.ScreenSize |
-        		                      ConfigChanges.KeyboardHidden |
-        		                      ConfigChanges.Keyboard)]
-	public class MariasekActivity :
-//Xamarin.Android.Support.v4 29+
-//        AndroidGameActivity, Android.Support.V4.View.IOnApplyWindowInsetsListener, IEmailSender, IWebNavigate, IScreenManager, IStorageAccessor
-//Minimal API 20
-//        AndroidGameActivity, View.IOnApplyWindowInsetsListener, IEmailSender, IWebNavigate, IScreenManager, IStorageAccessor
-        AndroidGameActivity, IEmailSender, IWebNavigate, IScreenManager, IStorageAccessor
-	{
+                                      ConfigChanges.KeyboardHidden |
+                                      ConfigChanges.Keyboard)]
+    public class MariasekActivity :
+        AndroidGameActivity, IEmailSender, IWebNavigate, IScreenManager, IStorageAccessor, IOnApplyWindowInsetsListener
+    {
         MariasekMonoGame g;
-		int storageAccessRequestCode;
+        int storageAccessRequestCode;
 
         public Rectangle Padding { get; set; }
         private Stopwatch sw = new Stopwatch();
 
-		protected override void OnCreate (Bundle bundle)
-		{
+        protected override void OnCreate(Bundle bundle)
+        {
             System.Diagnostics.Debug.WriteLine("OnCreate()");
             sw.Start();
 
@@ -65,25 +62,36 @@ namespace Mariasek.AndroidClient
                 // Create our OpenGL view, and display it
                 g = new MariasekMonoGame(this, this, this, this);
                 var view = g.Services.GetService<View>();
-                //Minimal API 20
-                //view.SetOnApplyWindowInsetsListener(this);
-                //if ((int)Android.OS.Build.VERSION.SdkInt >= 28)
+                if ((int)Android.OS.Build.VERSION.SdkInt >= 28)
+                {
+                    ViewCompat.SetOnApplyWindowInsetsListener(view, this);
+                    Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
+                    Window.AddFlags(WindowManagerFlags.TranslucentStatus);
+                }
+                //if ((int)Android.OS.Build.VERSION.SdkInt >= 29)
                 //{
-                //    //Xamarin.Android.Support.v4 29+
-                //    //ViewCompat.SetOnApplyWindowInsetsListener(view, this);
-                //    Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
-                //    Window.AddFlags(WindowManagerFlags.TranslucentStatus);
+                //    var storageManager = (StorageManager)ApplicationContext.GetSystemService(StorageService);
+                //    var storageVolume = storageManager.GetStorageVolume(Android.OS.Environment.ExternalStorageDirectory);
+
+                //    if (storageVolume != null)
+                //    {
+                //        //Nasledujici metoda zrejme zatim neni implementovana do Xamarin Android SDK 10 ?
+                //        //var intent = storageVolume.CreateOpenDocumentTreeIntent();
+                //        //Nasledujici alternativni metoda nefunguje s adresarem "Mariasek", cili je nepouzitelna
+                //        var intent = storageVolume.CreateAccessIntent("DCIM");
+                //        StartActivityForResult(intent, 111);
+                //    }
                 //}
                 SetContentView(view);
                 sw.Stop();
                 System.Diagnostics.Debug.WriteLine("OnCreate sw {0}", sw.ElapsedMilliseconds);
                 g.Run();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 HandleException(ex);
             }
-		}
+        }
 
         public bool CheckStorageAccess()
         {
@@ -93,14 +101,14 @@ namespace Mariasek.AndroidClient
         }
 
         public void GetStorageAccess()
-		{
+        {
             var permission = Manifest.Permission.WriteExternalStorage;
 
             if (!CheckStorageAccess())
             {
                 ActivityCompat.RequestPermissions(this, new[] { permission }, ++storageAccessRequestCode);
             }
-		}
+        }
 
         public override void OnConfigurationChanged(Android.Content.Res.Configuration newConfig)
         {
@@ -143,14 +151,14 @@ namespace Mariasek.AndroidClient
                 base.OnPause();
                 g.OnPaused();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 HandleException(ex);
             }
         }
 
-		protected override void OnResume()
-		{
+        protected override void OnResume()
+        {
             try
             {
                 System.Diagnostics.Debug.WriteLine("OnResume()");
@@ -161,7 +169,7 @@ namespace Mariasek.AndroidClient
             {
                 HandleException(ex);
             }
-		}
+        }
 
         protected override void OnStop()
         {
@@ -205,7 +213,7 @@ namespace Mariasek.AndroidClient
             }
         }
 
-		protected override void OnSaveInstanceState (Bundle outState)
+        protected override void OnSaveInstanceState(Bundle outState)
         {
             try
             {
@@ -229,13 +237,13 @@ namespace Mariasek.AndroidClient
         {
             System.Diagnostics.Debug.WriteLine("OnUnhandledException()");
             HandleException(args.ExceptionObject as Exception);
-		}
+        }
 
-		private void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
-		{
-			System.Diagnostics.Debug.WriteLine("OnUnhandledExceptionRaiser()");
+        private void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("OnUnhandledExceptionRaiser()");
             HandleException(e.Exception);
-		}
+        }
 
         private void HandleException(Exception ex)
         {
@@ -261,7 +269,7 @@ namespace Mariasek.AndroidClient
                 else
                 {
                     var subject = $"Mariášek crash report v{MariasekMonoGame.Version} ({MariasekMonoGame.Platform})";
-                    var msg = string.Format("{0}\nUnhandled exception\n{1}\n{2}\n{3}\n-\n{4}", 
+                    var msg = string.Format("{0}\nUnhandled exception\n{1}\n{2}\n{3}\n-\n{4}",
                                             subject, ex?.Message, ex?.StackTrace,
                                             mainScene?.g?.DebugString?.ToString() ?? string.Empty,
                                             mainScene?.g?.BiddingDebugInfo?.ToString() ?? string.Empty);
@@ -286,7 +294,7 @@ namespace Mariasek.AndroidClient
                 email.PutExtra(Android.Content.Intent.ExtraSubject, "");
 
                 var packageManager = Application.Context.PackageManager;
-				var emailApps = packageManager.QueryIntentActivities(email, PackageInfoFlags.MatchDefaultOnly);//(PackageInfoFlags)0x20000); //PackageInfoFlags.MatchAll == 0x20000
+                var emailApps = packageManager.QueryIntentActivities(email, PackageInfoFlags.MatchDefaultOnly);//(PackageInfoFlags)0x20000); //PackageInfoFlags.MatchAll == 0x20000
 
                 foreach (var resolveInfo in emailApps)
                 {
@@ -303,7 +311,7 @@ namespace Mariasek.AndroidClient
             return result.ToArray();
         }
 
-		public void SendEmail(string[] recipients, string subject, string body, string[] attachments)
+        public void SendEmail(string[] recipients, string subject, string body, string[] attachments)
         {
             var email = new Intent(Android.Content.Intent.ActionSendMultiple);
             var uris = new List<Android.Net.Uri>();
@@ -319,7 +327,7 @@ namespace Mariasek.AndroidClient
                     //copy attachment to external storage where an email application can have access to it
                     var externalPath = Path.Combine(global::Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
                     var path = Path.Combine(externalPath, Path.GetFileName(attachment));
-                    var file = new Java.IO.File(path);                    
+                    var file = new Java.IO.File(path);
 
                     if (!File.Exists(attachment))
                     {
@@ -331,16 +339,16 @@ namespace Mariasek.AndroidClient
                         File.Copy(attachment, path, true);
                     }
                     file.SetReadable(true, false);
-					if ((int)Build.VERSION.SdkInt < 24)
-					{
-						var uri = Android.Net.Uri.FromFile(file);
-						uris.Add(uri);
-					}
-					else
-					{
-						var uri = FileProvider.GetUriForFile(Application.Context, Application.Context.PackageName + ".fileprovider", file);
-						uris.Add(uri);
-					}
+                    if ((int)Build.VERSION.SdkInt < 24)
+                    {
+                        var uri = Android.Net.Uri.FromFile(file);
+                        uris.Add(uri);
+                    }
+                    else
+                    {
+                        var uri = FileProvider.GetUriForFile(Application.Context, Application.Context.PackageName + ".fileprovider", file);
+                        uris.Add(uri);
+                    }
                 }
                 email.PutParcelableArrayListExtra(Intent.ExtraStream, uris.ToArray());
 
@@ -352,7 +360,7 @@ namespace Mariasek.AndroidClient
                 }
                 StartActivity(chooser);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Cannot send email: {ex.Message}\n{ex.StackTrace}");
             }
@@ -374,41 +382,22 @@ namespace Mariasek.AndroidClient
             view.KeepScreenOn = flag;
         }
 
-        //    tento kod bude fungovat pokud budeme mit minimalni verzi API 20 (Android 5.0)
-        //    public WindowInsetsCompat OnApplyWindowInsets(View v, WindowInsetsCompat insets)
-        //    {
-        //        var cutout = insets.DisplayCutout;
+        //tento kod bude fungovat s Xamarin.Android.Support.v4 v29.0.0.0+
+        public WindowInsetsCompat OnApplyWindowInsets(View v, WindowInsetsCompat insets)
+        {
+            var cutout = insets.DisplayCutout;
 
-        //        if (cutout != null)
-        //        {
-        //            Padding = new Rectangle(cutout.SafeInsetLeft, cutout.SafeInsetTop, cutout.SafeInsetRight, cutout.SafeInsetBottom);
+            if (cutout != null)
+            {
+                Padding = new Rectangle(cutout.SafeInsetLeft, cutout.SafeInsetTop, cutout.SafeInsetRight, cutout.SafeInsetBottom);
 
-        //            if (g.GraphicsDevice != null)
-        //            {
-        //                g.OnOrientationChanged();
-        //            }
-        //        }
-        //        return insets;
-        //    }
-        //}
-
-        //    tento kod bude fungovat s Xamarin.Android.Support.v4 v29.0.0.0+
-        //    public WindowInsetsCompat OnApplyWindowInsets(View v, WindowInsetsCompat insets)
-        //    {
-        //        var cutout = insets.DisplayCutout;
-
-        //        if (cutout != null)
-        //        {
-        //            Padding = new Rectangle(cutout.SafeInsetLeft, cutout.SafeInsetTop, cutout.SafeInsetRight, cutout.SafeInsetBottom);
-
-        //            if (g.GraphicsDevice != null)
-        //            {
-        //                g.OnOrientationChanged();
-        //            }
-        //        }
-        //        return insets;
-        //    }
+                if (g.GraphicsDevice != null)
+                {
+                    g.OnOrientationChanged();
+                }
+            }
+            return insets;
         }
     }
-
+}
 
