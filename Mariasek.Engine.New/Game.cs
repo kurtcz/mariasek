@@ -1236,9 +1236,9 @@ namespace Mariasek.Engine.New
                 var hand3 = players[2].Hand;
 
                 //setridime zbyle karty hracu v ruce, aby se barvy slozily k sobe
-                hand1.Sort(SortMode == SortMode.None ? SortMode.SuitsOnly : SortMode, trump == null, trump);
-                hand2.Sort(SortMode == SortMode.None ? SortMode.SuitsOnly : SortMode, trump == null, trump);
-                hand3.Sort(SortMode == SortMode.None ? SortMode.SuitsOnly : SortMode, trump == null, trump);
+                hand1.Sort(SortMode == SortMode.None ? SortMode.SuitsOnly : SortMode, trump == null, shuffleSuits: true);
+                hand2.Sort(SortMode == SortMode.None ? SortMode.SuitsOnly : SortMode, trump == null, shuffleSuits: true);
+                hand3.Sort(SortMode == SortMode.None ? SortMode.SuitsOnly : SortMode, trump == null, shuffleSuits: true);
 
                 //do balicku budeme karty pridavat odzadu
                 hand1.Reverse();

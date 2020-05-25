@@ -42,19 +42,23 @@ namespace Mariasek.Engine.New
 			return list;
 		}
 
-        public static IEnumerable<Card> Sort(this List<Card> hand, SortMode sortMode, bool badGameSorting = false, Barva? firstSuit = null, Barva? lastSuit = null)
+        public static IEnumerable<Card> Sort(this List<Card> hand, SortMode sortMode, bool badGameSorting = false, Barva? firstSuit = null, Barva? lastSuit = null, bool shuffleSuits = false)
         {
             if (sortMode == SortMode.None)
             {
                 return hand;
             }
 
-            hand.Sort((c1, c2) =>
-                {
-                    var sign = sortMode == SortMode.Ascending ? -1 : sortMode == SortMode.Descending ? 1 : 0;
-                    int s1 = Convert.ToInt16(c1.Suit);
-                    int s2 = Convert.ToInt16(c2.Suit);
+            var shuffledSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>().Shuffle().ToArray();
 
+            hand.Sort((c1, c2) =>
+            {
+                var sign = sortMode == SortMode.Ascending ? -1 : sortMode == SortMode.Descending ? 1 : 0;
+                int s1 = shuffleSuits ? Array.IndexOf(shuffledSuits, c1.Suit) : Convert.ToInt16(c1.Suit);
+                int s2 = shuffleSuits ? Array.IndexOf(shuffledSuits, c2.Suit) : Convert.ToInt16(c2.Suit);
+
+                if (!shuffleSuits)
+                {
                     if (lastSuit.HasValue)
                     {
                         if (c1.Suit == lastSuit.Value)
@@ -77,23 +81,24 @@ namespace Mariasek.Engine.New
                             s2 -= 10;
                         }
                     }
-                    if (s1 == s2)
+                }
+                if (s1 == s2)
+                {
+                    if (!badGameSorting)
                     {
-                        if (!badGameSorting)
-                        {
-                            //normalni trideni
-                            return sign * (Convert.ToInt16(c2.Value) - Convert.ToInt16(c1.Value));
-                        }
-                        else
-                        {
-                            //betl a durch
-                            return sign * (c2.BadValue - c1.BadValue);
-                        }
+                        //normalni trideni
+                        return sign * (Convert.ToInt16(c2.Value) - Convert.ToInt16(c1.Value));
                     }
+                    else
+                    {
+                        //betl a durch
+                        return sign * (c2.BadValue - c1.BadValue);
+                    }
+                }
 
-                    //return sign*(s1 - s2);
-                    return s1 - s2; //sign ignorujeme v poradi barev
-                });
+                //return sign*(s1 - s2);
+                return s1 - s2; //sign ignorujeme v poradi barev
+            });
 
             return hand;
         }
