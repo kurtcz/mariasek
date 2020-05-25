@@ -20,6 +20,7 @@ using System.Diagnostics;
 using Android.Support.V4.App;
 using Android.Support.V4.View;
 using Android.OS.Storage;
+using Microsoft.Xna.Framework.GamerServices;
 
 namespace Mariasek.AndroidClient
 {
@@ -62,12 +63,12 @@ namespace Mariasek.AndroidClient
                 // Create our OpenGL view, and display it
                 g = new MariasekMonoGame(this, this, this, this);
                 var view = g.Services.GetService<View>();
-                if ((int)Android.OS.Build.VERSION.SdkInt >= 28)
-                {
-                    ViewCompat.SetOnApplyWindowInsetsListener(view, this);
-                    Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
-                    Window.AddFlags(WindowManagerFlags.TranslucentStatus);
-                }
+                //if ((int)Android.OS.Build.VERSION.SdkInt >= 28)
+                //{
+                //    ViewCompat.SetOnApplyWindowInsetsListener(view, this);
+                //    Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
+                //    Window.AddFlags(WindowManagerFlags.TranslucentStatus);
+                //}
                 //if ((int)Android.OS.Build.VERSION.SdkInt >= 29)
                 //{
                 //    var storageManager = (StorageManager)ApplicationContext.GetSystemService(StorageService);
@@ -325,7 +326,8 @@ namespace Mariasek.AndroidClient
                 foreach (var attachment in attachments)
                 {
                     //copy attachment to external storage where an email application can have access to it
-                    var externalPath = Path.Combine(global::Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+                    //var externalPath = Path.Combine(global::Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+                    var externalPath = Android.App.Application.Context.GetExternalFilesDir(null).Path;
                     var path = Path.Combine(externalPath, Path.GetFileName(attachment));
                     var file = new Java.IO.File(path);
 

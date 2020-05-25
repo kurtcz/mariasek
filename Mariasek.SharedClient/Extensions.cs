@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Audio;
 
 using GameEngine = Mariasek.Engine.New;
 using Mariasek.SharedClient.GameComponents;
+using Java.IO;
 
 namespace Mariasek.SharedClient
 {

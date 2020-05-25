@@ -13,6 +13,8 @@ using System.Xml.Serialization;
 using Mariasek.Engine.New;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.GamerServices;
+using CsvHelper;
 #if __IOS__
 using Foundation;
 #endif
@@ -41,11 +43,12 @@ namespace Mariasek.SharedClient
     public class MariasekMonoGame : Microsoft.Xna.Framework.Game
     {
 #if __ANDROID__
-		private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+		//private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+        private static string _path = Android.App.Application.Context.GetExternalFilesDir(null).Path;
 #else   //#elif __IOS__
         private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 #endif
-		public static string _settingsFilePath = Path.Combine(_path, "Mariasek.settings");
+        public static string _settingsFilePath = Path.Combine(_path, "Mariasek.settings");
 
         private int _loadProgress;
         private int _maxProgress;
@@ -55,6 +58,9 @@ namespace Mariasek.SharedClient
         private Texture2D _progressBar;
         private int _progressRenderWidth;
         private int _maxRenderWidth;
+        private string _fileBeingMigrated;
+        private FontRenderer _textRenderer;
+        private Vector2 _textPosition;
         private Random _random = new Random();
 
         public GraphicsDeviceManager Graphics { get; private set; }
@@ -610,6 +616,7 @@ namespace Mariasek.SharedClient
 		}
 
         bool _contentLoaded = false;
+        private bool _loadingFinished;
 
         private void ContentLoaded()
         {
@@ -619,6 +626,8 @@ namespace Mariasek.SharedClient
                             { "BM2Font", FontRenderer.GetFontRenderer(this, "BM2Font.fnt", "BM2Font_0", "BM2Font_1") },
                             { "SegoeUI40Outl", FontRenderer.GetFontRenderer(this, "SegoeUI40Outl.fnt", "SegoeUI40Outl_0", "SegoeUI40Outl_1", "SegoeUI40Outl_2") }
                         };
+            _textRenderer = FontRenderers["BM2Font"];
+            _textPosition = new Vector2(VirtualScreenWidth / 2f, VirtualScreenHeight / 2f);
 
             AmbientSound = Assets.GetSoundEffect("tavern-ambience-looping").CreateInstance();
             if (AmbientSound != null && !AmbientSound.IsDisposed)
@@ -634,12 +643,84 @@ namespace Mariasek.SharedClient
             });
             System.Diagnostics.Debug.WriteLine("update sw {0}", sw.ElapsedMilliseconds);
 
+            MigrateFilesIfNeeded();
             if (!SettingsLoaded)
             {
                 LoadGameSettings(true);
             }
-            MenuScene.SetActive();
-            MainScene.ResumeGame();
+        }
+
+        private void MigrateFilesIfNeeded()
+        {
+#if __ANDROID__
+            var legacyFolder = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/Mariasek";
+
+            StorageAccessor.GetStorageAccess();
+            if (Directory.Exists(legacyFolder))
+            {
+                MigrateFiles();
+            }
+            else
+            {
+                _loadingFinished = true;
+            }
+#else
+            _loadingFinished = true;
+#endif
+        }
+
+        private void MigrateFiles()
+        {
+            Task.Run(() =>
+            {
+                var legacyFolder = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/Mariasek";
+                var destinationFolder = Android.App.Application.Context.GetExternalFilesDir(null).Path;
+                var legacyArchive = Path.Combine(legacyFolder, "Archive");
+                var destinationArchive = Path.Combine(destinationFolder, "Archive");
+                var legacyEditor = Path.Combine(legacyFolder, "Editor");
+                var destinationEditor = Path.Combine(destinationFolder, "Editor");
+
+                foreach (var entry in Directory.EnumerateFiles(legacyFolder))
+                {
+                    _fileBeingMigrated = Path.GetFileName(entry);
+                    var destination = Path.Combine(destinationFolder, _fileBeingMigrated);
+                    MoveWithOverwrite(entry, destination);
+                }
+                if (!Directory.Exists(destinationArchive))
+                {
+                    Directory.CreateDirectory(destinationArchive);
+                }
+                foreach (var entry in Directory.EnumerateFiles(legacyArchive))
+                {
+                    _fileBeingMigrated = Path.GetFileName(entry);
+                    var destination = Path.Combine(destinationArchive, _fileBeingMigrated);
+                    MoveWithOverwrite(entry, destination);
+                }
+                if (Directory.Exists(legacyEditor))
+                {
+                    if (!Directory.Exists(destinationEditor))
+                    {
+                        Directory.CreateDirectory(destinationEditor);
+                    }
+                    foreach (var entry in Directory.EnumerateFiles(legacyEditor))
+                    {
+                        _fileBeingMigrated = Path.GetFileName(entry);
+                        var destination = Path.Combine(destinationEditor, _fileBeingMigrated);
+                        MoveWithOverwrite(entry, destination);
+                    }
+                }
+                Directory.Delete(legacyFolder, true);
+                _loadingFinished = true;
+            });
+        }
+
+        private void MoveWithOverwrite(string source, string destination)
+        {
+            if (File.Exists(destination))
+            {
+                File.Delete(destination);
+            }
+            File.Move(source, destination);
         }
 
         public async void PlayBackgroundMusic()
@@ -674,6 +755,11 @@ namespace Mariasek.SharedClient
 		{
             try
             {
+                if (_loadingFinished && CurrentScene == null)
+                {
+                    MenuScene.SetActive();
+                    MainScene.ResumeGame();
+                }
                 if (!Assets.ContentLoaded)
                 {
                     _progressRenderWidth = _maxRenderWidth * _loadProgress / _maxProgress;
@@ -686,7 +772,7 @@ namespace Mariasek.SharedClient
                         ContentLoaded();
                     }
                 }
-                else
+                else if (CurrentScene != null)
                 {
 #if !__IOS__ && !__TVOS__
                     // For Mobile devices, this logic will close the Game when the Back button is pressed
@@ -736,6 +822,24 @@ namespace Mariasek.SharedClient
                         SpriteBatch.Draw(_progressBar, new Rectangle(_progressBarOffset, GraphicsDevice.Viewport.Height - _progressBarOffset - _progressBarHeight / 2, _progressRenderWidth, _progressBarHeight), _progressBarColor);
                         SpriteBatch.End();
                     }
+                    return;
+                }
+                if (!string.IsNullOrEmpty(_fileBeingMigrated))
+                {
+                    SpriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, MainScaleMatrix);
+                    SpriteBatch.Draw(DefaultBackground, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
+                    _textRenderer.DrawText(
+                        SpriteBatch,
+                        $"Importuji soubor {_fileBeingMigrated} ...",
+                        _textPosition,
+                        1f,
+                        Color.White,
+                        Alignment.MiddleCenter);
+                    SpriteBatch.End();
+                }
+
+                if (CurrentScene == null)
+                {
                     return;
                 }
 

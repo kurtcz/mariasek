@@ -107,7 +107,8 @@ namespace Mariasek.SharedClient
         public int CurrentStartingPlayerIndex = -1;
         private Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
 #if __ANDROID__
-        private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+        //private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+        private static string _path = Android.App.Application.Context.GetExternalFilesDir(null).Path;
         //Android 10 (API 29) and higher no longer allows direct access to /storage/emulated/0/Mariasek
         //Instead we can access /storage/emulated/0/Android/data/com.tnemec.mariasek.android/Files using the code below
         //private static string _path = Path.Combine(Android.App.Application.Context.GetExternalFilesDir(null).AbsolutePath, "Mariasek");
@@ -120,7 +121,6 @@ namespace Mariasek.SharedClient
         private string _historyFilePath = Path.Combine(_path, "Mariasek.history");
         private string _deckFilePath = Path.Combine(_path, "Mariasek.deck");
         private string _savedGameFilePath = Path.Combine(_path, "_temp.hra");
-        private string _testGameFilePath = Path.Combine(_path, "test.hra");
         private string _newGameFilePath = Path.Combine(_path, "_def.hra");
         private string _screenPath = Path.Combine(_path, "screen.png");
         private string _errorFilePath = Path.Combine(_path, "_error.hra");
@@ -2988,6 +2988,7 @@ namespace Mariasek.SharedClient
         {
             try
             {
+                Game.StorageAccessor.GetStorageAccess();
                 if (File.Exists(_savedGameFilePath))
                 {
                     var fi = new FileInfo(_savedGameFilePath);
@@ -3002,33 +3003,10 @@ namespace Mariasek.SharedClient
             return false;
         }
 
-        public bool CanLoadTestGame()
-		{
-            try
-            {
-                if (File.Exists(_testGameFilePath))
-                {
-                    var fi = new FileInfo(_testGameFilePath);
-
-                    return fi.Length > 0;
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-            }
-            return false;
-        }
-
-        public void LoadGame(bool testGame = false, int impersonationPlayerIndex = 0)
-        {
-            LoadGame(_testGame ? _testGameFilePath : _savedGameFilePath, testGame, impersonationPlayerIndex);
-        }
-
         public void LoadGame(string path, bool testGame, int impersonationPlayerIndex = 0)
         {
             _testGame = testGame;
-            if (g == null)
+            //if (g == null)
             {
                 if (!_gameSemaphore.Wait(0))
                 {
@@ -3099,11 +3077,6 @@ namespace Mariasek.SharedClient
                         catch (Exception ex)
                         {
                             ShowMsgLabel(string.Format("Error loading game:\n{0}", ex.Message), false);
-                            if (!_testGame)
-                            {
-                                File.Delete(path);
-                                MenuBtnClicked(this);
-                            }
                             return;
                         }
                         g.GameFlavourChosen += GameFlavourChosen;
@@ -3261,10 +3234,6 @@ namespace Mariasek.SharedClient
                             }
                             _trumpLabels[i].Show();
                         }
-                        if (!_testGame)
-                        {
-                            File.Delete(path);
-                        }
                     }
                     finally
                     {
@@ -3325,14 +3294,7 @@ namespace Mariasek.SharedClient
                 }
                 if (CanLoadGame())
                 {
-                    _testGame = false;
-                    LoadGame();
-                }
-                else if (CanLoadTestGame())
-                {
-                    _testGame = true;
-                    FileCopy(_testGameFilePath, _newGameFilePath, true);
-                    LoadGame(true);
+                    LoadGame(_savedGameFilePath, false);
                 }
             }
             catch (Exception ex)
@@ -3350,13 +3312,7 @@ namespace Mariasek.SharedClient
             {
                 try
                 {
-                    Game.StorageAccessor.GetStorageAccess();
-                    if (gamePath != _newGameFilePath)
-                    {
-                        FileCopy(gamePath, _newGameFilePath, true);
-                    }
-                    FileCopy(gamePath, _savedGameFilePath, true);
-                    LoadGame(impersonationPlayerIndex: impersonationPlayerIndex);
+                    LoadGame(gamePath, true, impersonationPlayerIndex: impersonationPlayerIndex);
                 }
                 catch (Exception ex)
                 {

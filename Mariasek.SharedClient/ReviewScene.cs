@@ -12,7 +12,8 @@ namespace Mariasek.SharedClient
 	public class ReviewScene : Scene
     {
 #if __ANDROID__
-        private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+        //private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+        private static string _path = Android.App.Application.Context.GetExternalFilesDir(null).Path;
 #else   //#elif __IOS__
         private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 #endif
@@ -83,13 +84,12 @@ namespace Mariasek.SharedClient
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _rawButton.Click += RawButtonClicked;
-            _editButton = new ToggleButton(this)
+            _editButton = new Button(this)
             {
                 Position = new Vector2(115, (int)Game.VirtualScreenHeight - 120),
                 Width = 95,
                 Height = 50,
                 Text = "Upravit",
-                IsSelected = false,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _editButton.Click += EditButtonClicked;

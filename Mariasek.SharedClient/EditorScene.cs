@@ -16,22 +16,24 @@ namespace Mariasek.SharedClient
     public class EditorScene : Scene
     {
 #if __ANDROID__
-        private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+        //private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+        private static string _path = Android.App.Application.Context.GetExternalFilesDir(null).Path;
 #else   //#elif __IOS__
         private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 #endif
         private static string _editorPath = Path.Combine(_path, "Editor");
-        private string _testGameFilePath = Path.Combine(_editorPath, "test.hra");
+        private string _newGameFilePath = Path.Combine(_path, "_def.hra");
 
         private Button _menuButton;
         private Button _newGameButton;
         private Button _loadGameButton;
         private Button _saveGameButton;
         private Button _playGameButton;
-        private Button _gameListButton;
+        private ToggleButton _gameListButton;
         private Button _deleteGameButton;
         private Button _startingPlayerButton;
         private TextBox _gameListBox;
+        private Button _sendBtn;
 
         private int _gameStartingPlayerIndex;
         private Label _fileLabel;
@@ -79,12 +81,13 @@ namespace Mariasek.SharedClient
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _newGameButton.Click += NewGameClicked;
-            _gameListButton = new Button(this)
+            _gameListButton = new ToggleButton(this)
             {
                 Position = new Vector2(10, 70),
                 Width = 200,
                 Height = 50,
                 Text = "Uložené hry",
+                IsSelected = false,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _gameListButton.Click += GameListClicked;
@@ -171,8 +174,30 @@ namespace Mariasek.SharedClient
                     }
                 }
             };
+            //tlacitka na prave strane
+            _sendBtn = new Button(this)
+            {
+                Text = "@",
+                Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 25),
+                ZIndex = 100,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main,
+                Width = 50
+            };
+            _sendBtn.Click += SendBtnClicked;
 
             NewGameClicked(this);
+        }
+
+        private void SendBtnClicked(object sender)
+        {
+            if (Game.EmailSender != null)
+            {
+                var saveGamePath = Path.Combine(_editorPath, $"{_filename}.hra");
+                var subject = $"Mariášek: komentář v{MariasekMonoGame.Version} ({MariasekMonoGame.Platform})";
+
+                Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře\n:",
+                                            new[] { saveGamePath, SettingsScene._settingsFilePath });
+            }
         }
 
         private void PopulateCards(IEnumerable<Card> cards)
@@ -237,7 +262,7 @@ namespace Mariasek.SharedClient
             }
             else
             {
-                _fileLabel.Text = _filename;
+                _fileLabel.Text = _filename ?? "";
             }
         }
 
@@ -246,6 +271,7 @@ namespace Mariasek.SharedClient
             try
             {
                 Game.StorageAccessor.GetStorageAccess();
+                MainScene.CreateDirectoryForFilePath(_editorPath);
                 var fileInfos = Directory.GetFiles(_editorPath, "*.hra")
                                          .Select(i => new FileInfo(i))
                                          .OrderBy(i => i.CreationTime)
@@ -298,10 +324,15 @@ namespace Mariasek.SharedClient
             var cards = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                             .SelectMany(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                  .Select(h => new Card(b, h))
-                                                 .OrderByDescending(i => i.Value));
+                                                 .OrderByDescending(i => i.Value))
+                            .ToList();
 
+            cards.InsertRange(8, cards.Skip(28).Take(4).ToList());
+            cards.RemoveRange(32, 4);
+            cards.InsertRange(20, cards.Skip(28).Take(2).ToList());
+            cards.RemoveRange(30, 2);
             _gameStartingPlayerIndex = 0;
-            _filename = "Moje hra";
+            _filename = null;
             _loadSuccessful = false;
             PopulateCards(cards);
             PopulateLabels();
@@ -310,8 +341,15 @@ namespace Mariasek.SharedClient
 
         private void GameListClicked(object sender)
         {
-            PopulateGameList();
-            ShowGameList();
+            if (_gameListButton.IsSelected)
+            {
+                PopulateGameList();
+                ShowGameList();
+            }
+            else
+            {
+                ShowEditor();
+            }
         }
 
         private void ShowGameList()
@@ -330,6 +368,7 @@ namespace Mariasek.SharedClient
 
         private void ShowEditor()
         {
+            _gameListButton.IsSelected = false;
             _gameListBox.MoveTo(_hiddenPosition, 5000)
                         .Invoke(() =>
                         {
@@ -352,7 +391,6 @@ namespace Mariasek.SharedClient
             if (!string.IsNullOrEmpty(file))
             {
                 LoadGame(file);
-                ShowEditor();
             }
         }
 
@@ -425,6 +463,7 @@ namespace Mariasek.SharedClient
 
                         PopulateCards(cards);
                         PopulateLabels();
+                        ShowEditor();
                     }
                 }
                 catch (Exception ex)
@@ -439,9 +478,18 @@ namespace Mariasek.SharedClient
 
         private void PlayGameClicked(object sender)
         {
-            var path = Path.Combine(_editorPath, $"{_filename}.hra");
+            if (_filename != null)
+            {
+                var path = Path.Combine(_editorPath, $"{_filename}.hra");
 
-            Game.MainScene.LoadGame(path, true);
+                Game.StorageAccessor.GetStorageAccess();
+                File.Copy(path, _newGameFilePath, true);
+            }
+            else
+            {
+                SaveGame();
+            }
+            Game.MainScene.LoadGame(_newGameFilePath, true);
         }
 
         private void SaveGameClicked(object sender)
@@ -449,7 +497,7 @@ namespace Mariasek.SharedClient
             Guide.BeginShowKeyboardInput(PlayerIndex.One,
                                          "Uložit hru",
                                          $"Zadej jméno hry",
-                                         _filename,
+                                         _filename ?? "Moje hra",
                                          SaveGameClickedCalback,
                                          //editedPlayerIndex);
                                          null);
@@ -457,7 +505,7 @@ namespace Mariasek.SharedClient
 
         private void SaveGameClickedCalback(IAsyncResult result)
         {
-            _filename = Guide.EndShowKeyboardInput(result);
+            _filename = Guide.EndShowKeyboardInput(result) ?? "Moje hra";
             var saveGamePath = Path.Combine(_editorPath, $"{_filename}.hra");
 
             if (File.Exists(saveGamePath))
@@ -484,7 +532,9 @@ namespace Mariasek.SharedClient
         {
             try
             {
-                var saveGamePath = Path.Combine(_editorPath, $"{_filename}.hra");
+                var saveGamePath = _filename != null
+                                    ? Path.Combine(_editorPath, $"{_filename}.hra")
+                                    : _newGameFilePath;
 
                 var g = new Mariasek.Engine.New.Game(gameStartingPlayerIndex: _gameStartingPlayerIndex)
                 {
@@ -531,8 +581,11 @@ namespace Mariasek.SharedClient
                 {
                     g.SaveGame(fs, saveFromEditor: true);
                 }
-                var dt = new FileInfo(saveGamePath).CreationTime.ToString(CultureInfo.GetCultureInfo(Game.Settings.Locale));
-                _fileLabel.Text = $"{dt}\t{_filename}";
+                if (_filename != null)
+                {
+                    var dt = new FileInfo(saveGamePath).CreationTime.ToString(CultureInfo.GetCultureInfo(Game.Settings.Locale));
+                    _fileLabel.Text = $"{dt}\t{_filename}";
+                }
                 _loadSuccessful = true; //aby se v update text nesmazal
             }
             catch (Exception ex)
@@ -589,6 +642,7 @@ namespace Mariasek.SharedClient
                                            _gameListBox.HighlightedLine < _files.Length) || _loadSuccessful;
             _saveGameButton.IsEnabled = !_gameListBox.IsVisible;
             _startingPlayerButton.IsEnabled = !_gameListBox.IsVisible;
+            _sendBtn.IsEnabled = _filename != null;
 
             if (!_loadSuccessful && !string.IsNullOrEmpty(_fileLabel.Text))
             {

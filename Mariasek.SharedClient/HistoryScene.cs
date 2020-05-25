@@ -17,7 +17,8 @@ namespace Mariasek.SharedClient
     public class HistoryScene : Scene
     {
 #if __ANDROID__
-        private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+        //private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+        private static string _path = Android.App.Application.Context.GetExternalFilesDir(null).Path;
 #else   //#elif __IOS__
         private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 #endif
