@@ -17,8 +17,6 @@ using Microsoft.Xna.Framework.Input.Touch;
 using Mariasek.SharedClient.GameComponents;
 using Mariasek.Engine.New;
 using CsvHelper;
-using CsvHelper.Configuration;
-using Mariasek.SharedClient.Serialization;
 
 namespace Mariasek.SharedClient
 {
@@ -829,7 +827,7 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth - 160,
                 Height = (int)Game.VirtualScreenHeight - 55,
                 BackgroundColor = g != null && g.IsRunning ? Color.Black : Color.Transparent,
-                ZIndex = 200
+                ZIndex = 100
             };
             _review.Hide();
             UpdateControlsPositions();
@@ -3024,6 +3022,12 @@ namespace Mariasek.SharedClient
 
         public void LoadGame(bool testGame = false, int impersonationPlayerIndex = 0)
         {
+            LoadGame(_testGame ? _testGameFilePath : _savedGameFilePath, testGame, impersonationPlayerIndex);
+        }
+
+        public void LoadGame(string path, bool testGame, int impersonationPlayerIndex = 0)
+        {
+            _testGame = testGame;
             if (g == null)
             {
                 if (!_gameSemaphore.Wait(0))
@@ -3087,7 +3091,7 @@ namespace Mariasek.SharedClient
                         {
                             //g.DoSort = Game.Settings.SortMode != SortMode.None;
                             Game.StorageAccessor.GetStorageAccess();
-                            using (var fs = File.Open(testGame ? _testGameFilePath : _savedGameFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                            using (var fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                             {
                                 g.LoadGame(fs, impersonationPlayerIndex: impersonationPlayerIndex);
                             }
@@ -3095,9 +3099,9 @@ namespace Mariasek.SharedClient
                         catch (Exception ex)
                         {
                             ShowMsgLabel(string.Format("Error loading game:\n{0}", ex.Message), false);
-                            if (!testGame)
+                            if (!_testGame)
                             {
-                                File.Delete(_savedGameFilePath);
+                                File.Delete(path);
                                 MenuBtnClicked(this);
                             }
                             return;
@@ -3259,7 +3263,7 @@ namespace Mariasek.SharedClient
                         }
                         if (!_testGame)
                         {
-                            File.Delete(_savedGameFilePath);
+                            File.Delete(path);
                         }
                     }
                     finally

@@ -215,7 +215,7 @@ namespace Mariasek.Cli
                 System.Console.WriteLine("-=-=-=-=-");
                 foreach (var kv in gameTypes)
                 {
-                    System.Console.WriteLine("{0}:\t{1}\t{2}", kv.Key, kv.Value.Item1 ? "won" : "lost", kv.Value.Item2.ToString("C", CultureInfo.CreateSpecificCulture(Game.Settings.Locale)));
+                    System.Console.WriteLine("{0}:\t{1}\t{2}", kv.Key, kv.Value.Item1 ? "won" : "lost", kv.Value.Item2.ToString("C", CultureInfo.CreateSpecificCulture(Settings.Locale)));
                 }
                 var gamesWon = 0;
                 foreach (var kv in gameTypes.Where(gt => gt.Value.Item1))

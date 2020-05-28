@@ -122,7 +122,7 @@ namespace Mariasek.SharedClient
             get { return _zIndex; }
             set
             {
-                _zIndex = Math.Max(0, value);
+                _zIndex = Math.Max(0, Math.Min(value, 100));
                 if (_parent != null)
                 {
                     lock (_parent)

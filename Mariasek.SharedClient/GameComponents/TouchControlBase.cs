@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -157,9 +157,9 @@ namespace Mariasek.SharedClient.GameComponents
                 return;
             }
 
-			// Transform the touch collection to show position in virtual coordinates
-			var currTouches = Game.TouchCollection.Select(i => new TouchLocation(i.Id, i.State, new Vector2((i.Position.X - ScaleMatrix.M41) / ScaleMatrix.M11,
-			                                                                                                (i.Position.Y - ScaleMatrix.M42) / ScaleMatrix.M22)));
+            // Transform the touch collection to show position in virtual coordinates
+            var currTouches = Game.TouchCollection.Select(i => new TouchLocation(i.Id, i.State, new Vector2((i.Position.X - ScaleMatrix.M41) / ScaleMatrix.M11,
+                                                                                                            (i.Position.Y - ScaleMatrix.M42) / ScaleMatrix.M22)));
 
             IsClicked = false;
             if (TouchId != -1)  //if touch held
@@ -168,6 +168,12 @@ namespace Mariasek.SharedClient.GameComponents
             }
             foreach (var tl in currTouches)
             {
+                if (_draggedObject != null && TouchId == -1)
+                {
+                    //pokud uz tahame jiny objekt, tak eventy ignoruj
+                    continue;
+                }
+                System.Diagnostics.Debug.WriteLine($"Touch {tl.Id} {tl.State}. TouchId {TouchId} {Name}");
                 if (CollidesWithPosition(tl.Position))
                 {
                     if ((tl.State == TouchLocationState.Pressed || tl.State == TouchLocationState.Moved))
@@ -182,6 +188,7 @@ namespace Mariasek.SharedClient.GameComponents
                             _draggedObject = this;
                             _touchHeldTimeMs = 0;
                             TouchId = tl.Id;
+                            System.Diagnostics.Debug.WriteLine($"TouchId <- {TouchId} * {Name}");
                             OnTouchDown(tl);
                         }
                         if (_draggedObject == this && !_touchHeldConsumed)
@@ -194,6 +201,7 @@ namespace Mariasek.SharedClient.GameComponents
                         _draggedObject = null;
                         _touchHeldConsumed = false;
                         TouchId = -1;
+                        System.Diagnostics.Debug.WriteLine($"TouchId <- {TouchId} ** {Name}");
 
                         OnTouchUp(tl);
 
@@ -223,7 +231,8 @@ namespace Mariasek.SharedClient.GameComponents
 					_draggedObject = null;
 					_touchHeldConsumed = false;
 					TouchId = -1;
-					OnTouchUp(tl);
+                    System.Diagnostics.Debug.WriteLine($"TouchId <- {TouchId} *** {Name}");
+                    OnTouchUp(tl);
                 }
                 else
                 {

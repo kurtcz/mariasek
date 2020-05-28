@@ -16,6 +16,9 @@ namespace Mariasek.SharedClient
         private Button _settingsButton;
         public ToggleButton ShuffleBtn;
         private Button _historyBtn;
+        private Button _editorBtn;
+        private Button _leftBtn;
+        private Button _rightBtn;
         private Label _version;
         private Label _author;
         private Sprite[] _cards;
@@ -25,6 +28,8 @@ namespace Mariasek.SharedClient
         private Vector2 _originalRatingScale;
         public TextBox _warning;
         private Button _permissionsButton;
+
+        private int _currentButtonIndex;
 
         public MenuScene(MariasekMonoGame game)
             : base(game)
@@ -39,6 +44,7 @@ namespace Mariasek.SharedClient
         {
             base.Initialize();
 
+            _currentButtonIndex = 0;
             _newGameButton = new Button(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f - 140),
@@ -79,6 +85,37 @@ namespace Mariasek.SharedClient
                 Text = "Historie"
             };
             _historyBtn.Click += HistoryClicked;
+            _editorBtn = new Button(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 100, Game.VirtualScreenHeight / 2f + 100),
+                Width = 200,
+                Height = 50,
+                Text = "Editor her"
+            };
+            _editorBtn.Click += EditorClicked;
+            _editorBtn.Hide();
+            _leftBtn = new Button(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2f - 140, Game.VirtualScreenHeight / 2f + 95),
+                Width = 40,
+                Height = 50,
+                Text = "«",
+                BackgroundColor = Color.Transparent,
+                BorderColor = Color.Transparent,
+                TextRenderer = Game.FontRenderers["SegoeUI40Outl"]
+            };
+            _leftBtn.Click += LeftRightBtnClick;
+            _rightBtn = new Button(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2f + 100, Game.VirtualScreenHeight / 2f + 95),
+                Width = 40,
+                Height = 50,
+                Text = "»",
+                BackgroundColor = Color.Transparent,
+                BorderColor = Color.Transparent,
+                TextRenderer = Game.FontRenderers["SegoeUI40Outl"]
+            };
+            _rightBtn.Click += LeftRightBtnClick;
             _warning = new TextBox(this)
             {
                 Position = new Vector2(0, Game.VirtualScreenHeight / 2f + 160),
@@ -185,6 +222,23 @@ namespace Mariasek.SharedClient
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"{ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        private void LeftRightBtnClick(object sender)
+        {
+            _currentButtonIndex = (_currentButtonIndex + 1) % 2;
+
+            switch (_currentButtonIndex)
+            {
+                case 0:
+                    _editorBtn.Hide();
+                    _historyBtn.Show();
+                    break;
+                case 1:
+                    _historyBtn.Hide();
+                    _editorBtn.Show();
+                    break;
             }
         }
 
@@ -405,7 +459,12 @@ namespace Mariasek.SharedClient
             Game.HistoryScene.SetActive();
         }
 
-		public override void Update(GameTime gameTime)
+        private void EditorClicked(object sender)
+        {
+            Game.EditorScene.SetActive();
+        }
+
+        public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
             _resumeButton.IsEnabled = Game.MainScene.g != null;// && Game.MainScene.g.IsRunning;

@@ -25,6 +25,7 @@ namespace Mariasek.SharedClient
         Button _replayAsPlayer2Button;
         Button _replayAsPlayer3Button;
         ToggleButton _rawButton;
+        Button _editButton;
         Button _sendButton;
         GameReview _review;
         TextBox _description;
@@ -75,13 +76,23 @@ namespace Mariasek.SharedClient
             _rawButton = new ToggleButton(this)
             {
                 Position = new Vector2(10, (int)Game.VirtualScreenHeight - 120),
-                Width = 200,
+                Width = 95,
                 Height = 50,
                 Text = "<XML/>",
                 IsSelected = false,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _rawButton.Click += RawButtonClicked;
+            _editButton = new ToggleButton(this)
+            {
+                Position = new Vector2(115, (int)Game.VirtualScreenHeight - 120),
+                Width = 95,
+                Height = 50,
+                Text = "Upravit",
+                IsSelected = false,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
+            };
+            _editButton.Click += EditButtonClicked;
             _replayButton = new Button(this)
             {
                 Position = new Vector2(10, (int)Game.VirtualScreenHeight - 180),
@@ -150,11 +161,17 @@ namespace Mariasek.SharedClient
             {
                 Text = "@",
                 Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 25),
-                ZIndex = 200,
+                ZIndex = 100,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main,
                 Width = 50
             };
             _sendButton.Click += SendBtnClicked;
+        }
+
+        private void EditButtonClicked(object sender)
+        {
+            Game.EditorScene.LoadGame(_newGamePath);
+            Game.EditorScene.SetActive();
         }
 
         public void ShowGame(MoneyCalculatorBase results, string newGamePath, string endGamePath)

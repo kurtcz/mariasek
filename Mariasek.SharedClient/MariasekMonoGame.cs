@@ -162,8 +162,20 @@ namespace Mariasek.SharedClient
             }
             private set { _reviewScene = value; }
         }
-        //public GeneratorScene GenerateScene { get; private set; }
-
+        private EditorScene _editorScene;
+        public EditorScene EditorScene
+        {
+            get
+            {
+                if (_editorScene == null)
+                {
+                    _editorScene = new EditorScene(this);
+                    _editorScene.Initialize();
+                }
+                return _editorScene;
+            }
+            private set { _editorScene = value; }
+        }
         public GameSettings Settings { get; private set; }
         public bool SettingsLoaded { get; private set; }
         public Rectangle BackSideRect { get; set; }
@@ -367,7 +379,7 @@ namespace Mariasek.SharedClient
             {
                 //skutecna obrazovka ma pomery sran mene sirokouhle nez virtualni
                 //vertikalni pomer upravime podle horizontalniho, obraz vertikalne posuneme na stred (vzniknou okraje nahore a dole)
-                translation = new Vector3(ScreenManager.Padding.Left, (height - VirtualScreenHeight * scaleX) / 2f, 0);
+                translation = new Vector3(ScreenManager.Padding.Left, (height - VirtualScreenHeight * scaleX) / 2f - ScreenManager.Padding.Bottom, 0);
                 scale = new Vector3(scaleX, scaleX, 1.0f);
                 RealScreenGeometry = ScreenGeometry.Narrow;
             }
@@ -375,7 +387,7 @@ namespace Mariasek.SharedClient
             {
                 //skutecna obrazovka ma pomery sran vice sirokouhle nez virtualni
                 //horizontalni pomer upravime podle vertikalniho, obraz horizontalne posuneme na stred (vzniknou okraje vlevo a vpravo)
-                translation = new Vector3((width - VirtualScreenWidth * scaleY) / 2f, ScreenManager.Padding.Top, 0);
+                translation = new Vector3((width - VirtualScreenWidth * scaleY) / 2f - ScreenManager.Padding.Right, ScreenManager.Padding.Top, 0);
                 scale = new Vector3(scaleY, scaleY, 1.0f);
                 RealScreenGeometry = ScreenGeometry.Wide;
             }

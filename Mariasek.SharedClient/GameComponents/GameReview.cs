@@ -276,7 +276,7 @@ namespace Mariasek.SharedClient.GameComponents
                     Width = 200,
                     Height = 40,
                     TextColor = Game.Settings.HighlightedTextColor,
-                    ZIndex = 200,
+                    ZIndex = 100,
                     UseCommonScissorRect = true
                 };
             }
@@ -297,7 +297,7 @@ namespace Mariasek.SharedClient.GameComponents
                     Height = 40,
                     Text = string.Format("{0}. kolo:", i + 1),
                     TextColor = Game.Settings.HighlightedTextColor,
-                    ZIndex = 200,
+                    ZIndex = 100,
                     UseCommonScissorRect = true
                 };
                 //var r = game.rounds[i];
@@ -346,7 +346,7 @@ namespace Mariasek.SharedClient.GameComponents
                     //Text = string.Format("{0}: {1}", game.rounds[i].player1.Name, game.rounds[i].player1.PlayerIndex == 0 ? "-" : debugNote1 != null ? debugNote1.Split('\n')[0] : "-"),
                     //TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player1.PlayerIndex ? Color.Yellow : Color.White,
                     UseCommonScissorRect = true,
-                    ZIndex = 200,
+                    ZIndex = 100,
                     FontScaleFactor = 0.9f
                 };
                 //rect = game.rounds[i].c2.ToTextureRect();
@@ -375,7 +375,7 @@ namespace Mariasek.SharedClient.GameComponents
                     //Text = string.Format("{0}: {1}", game.rounds[i].player2.Name, game.rounds[i].player2.PlayerIndex == 0 ? "-" : debugNote2 != null ? debugNote2.Split('\n')[0] : "-"),
                     //TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player2.PlayerIndex ? Color.Yellow : Color.White,
                     UseCommonScissorRect = true,
-                    ZIndex = 200,
+                    ZIndex = 100,
                     FontScaleFactor = 0.9f
                 };
                 //rect = game.rounds[i].c3.ToTextureRect();
@@ -404,7 +404,7 @@ namespace Mariasek.SharedClient.GameComponents
                     //Text = string.Format("{0}: {1}", game.rounds[i].player3.Name, game.rounds[i].player3.PlayerIndex == 0 ? "-" : debugNote3 != null ? debugNote3.Split('\n')[0] : "-"),
                     //TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player3.PlayerIndex ? Color.Yellow : Color.White,
                     UseCommonScissorRect = true,
-                    ZIndex = 200,
+                    ZIndex = 100,
                     FontScaleFactor = 0.9f
                 };
             }
@@ -786,6 +786,7 @@ namespace Mariasek.SharedClient.GameComponents
                         }
                     }
                     Hands[i][j].SpriteRectangle = rect;
+                    Hands[i][j].Tag = hand[j];
                     Hands[i][j].Show();
                     if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
                         (hand[j].Value == Hodnota.Eso ||
@@ -834,6 +835,7 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 var rect = _initialHands[3][j].ToTextureRect();
                 Hands[3][j].SpriteRectangle = rect;
+                Hands[3][j].Tag = _initialHands[3][j];
             }
         }
 

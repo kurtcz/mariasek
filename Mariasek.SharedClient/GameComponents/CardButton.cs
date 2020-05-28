@@ -10,7 +10,7 @@ namespace Mariasek.SharedClient.GameComponents
         private bool _doneFlipping = true;
 		private Vector2 _origPosition;
 		private Vector2 _origTouchLocation;
-		private const int MinimalDragDistance = 100;
+		public int MinimalDragDistance { get; set; } = 100;
 
         private Rectangle _reverseSpriteRectangle;
         public Rectangle ReverseSpriteRectangle
@@ -237,11 +237,15 @@ namespace Mariasek.SharedClient.GameComponents
 			for (var i = 0; i < polygon.Length; i++)
 			{
 				polygon[i] = Vector2.Subtract(polygon[i], Sprite.RotationOrigin);
-                polygon[i] = polygon[i].Scale(new Vector2(0.5f, 1f));   //aby neslo klikat na okraje karty, kde jsou prekryvy
+                polygon[i] = polygon[i].Scale(new Vector2(0.5f * Sprite.Scale.X, 1f * Sprite.Scale.Y));   //aby neslo klikat na okraje karty, kde jsou prekryvy
 				polygon[i] = Vector2.Add(polygon[i], Position);
 			}
 
-			return position.IsPointInPolygon(polygon);
+            //var r = Sprite.SpriteRectangle;
+
+            //System.Diagnostics.Debug.WriteLine($"{Name}: position at {position.X}:{position.Y} collides with {Name} BoundsRect {r.Left}:{r.Top}-{r.Right}:{r.Bottom}");
+
+            return position.IsPointInPolygon(polygon);
 		}
 
 		public override bool IsBusy { get { return Sprite.IsBusy || _reverseSprite.IsBusy; } }
@@ -249,15 +253,20 @@ namespace Mariasek.SharedClient.GameComponents
 
         protected override void OnTouchDown(TouchLocation tl)
         {
+            base.OnTouchDown(tl);
+
             _origPosition = Position;
 			_origTouchLocation = tl.Position;
             PostDragPosition = Position;
-            System.Diagnostics.Debug.WriteLine(string.Format("{0}: DOWN state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position));
+            ZIndex += 50;
+            System.Diagnostics.Debug.WriteLine(string.Format("{0}: DOWN state: {1} id: {2} position: {3} z-index: {4}", Name, tl.State, tl.Id, tl.Position, ZIndex));
         }
 
         protected override bool OnTouchHeld(float touchHeldTimeMs, TouchLocation tl)
         {
-			System.Diagnostics.Debug.WriteLine(string.Format("{0}: HELD state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position));
+            base.OnTouchHeld(touchHeldTimeMs, tl);
+
+            System.Diagnostics.Debug.WriteLine(string.Format("{0}: HELD state: {1} id: {2} position: {3} z-index: {4}", Name, tl.State, tl.Id, tl.Position, ZIndex));
 			if (CanDrag)
 			{
 				Position = new Vector2(_origPosition.X + tl.Position.X - _origTouchLocation.X, _origPosition.Y + tl.Position.Y - _origTouchLocation.Y);
@@ -268,8 +277,11 @@ namespace Mariasek.SharedClient.GameComponents
 
 		protected override void OnTouchUp(TouchLocation tl)
 		{
-			System.Diagnostics.Debug.WriteLine(string.Format("{0}: UP state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position));
-			if (CanDrag)
+            base.OnTouchUp(tl);
+
+            ZIndex -= 50;
+            System.Diagnostics.Debug.WriteLine(string.Format("{0}: UP state: {1} id: {2} position: {3} z-index: {4}", Name, tl.State, tl.Id, tl.Position, ZIndex));
+            if (CanDrag)
 			{
 				if (Vector2.Distance(tl.Position, _origTouchLocation) >= MinimalDragDistance)
                 {

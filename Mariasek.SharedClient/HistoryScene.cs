@@ -10,6 +10,7 @@ using System.IO;
 using System;
 using Mariasek.Engine.New;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.GamerServices;
 
 namespace Mariasek.SharedClient
 {
@@ -446,11 +447,21 @@ namespace Mariasek.SharedClient
 
         private void ResetHistoryClicked(object sender)
         {
-            _useMockData = false;
-            Game.Money.Clear();
-            Game.MainScene.DeleteArchiveFolder();
-            PopulateControls();
-            Game.MainScene.SaveHistory();
+            Guide.BeginShowMessageBox("Varování", $"Opravdu si přejete smazat historii?", new string[] { "Smazat", "Zpět" }, 1, MessageBoxIcon.Warning, ResetHistoryCallback, null);
+        }
+
+        private void ResetHistoryCallback(IAsyncResult result)
+        {
+            var buttonIndex = Guide.EndShowMessageBox(result);
+
+            if (buttonIndex.HasValue && buttonIndex.Value == 0)
+            {
+                _useMockData = false;
+                Game.Money.Clear();
+                Game.MainScene.DeleteArchiveFolder();
+                PopulateControls();
+                Game.MainScene.SaveHistory();
+            }
         }
 
         private void ViewGameButtonClicked(object sender)
@@ -463,6 +474,7 @@ namespace Mariasek.SharedClient
                 {
                     return;
                 }
+                Game.StorageAccessor.GetStorageAccess();
                 var pattern = string.Format("{0:0000}-*.hra", historicGame.GameId);
                 var files = Directory.GetFiles(_archivePath, pattern).OrderBy(i => i).ToArray();
 

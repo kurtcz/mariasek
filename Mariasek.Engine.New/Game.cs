@@ -221,7 +221,7 @@ namespace Mariasek.Engine.New
 
         #region Public methods
 
-        public Game(Func<IStringLogger> stringLoggerFactory = null)
+        public Game(Func<IStringLogger> stringLoggerFactory = null, int? gameStartingPlayerIndex = null)
         {
             CurrentGameNumber = ++GameCounter;
             BaseBet = 1f;
@@ -243,6 +243,10 @@ namespace Mariasek.Engine.New
             }
             BiddingDebugInfo = GetStringLogger();
             DebugString = GetStringLogger();
+            if (gameStartingPlayerIndex.HasValue)
+            {
+                GameStartingPlayerIndex = gameStartingPlayerIndex.Value;
+            }
 #if PORTABLE
             GetFileStream = _ => new MemoryStream(); //dummy stream factory
 #endif
@@ -706,7 +710,7 @@ namespace Mariasek.Engine.New
         }
 #endif
 
-        public void SaveGame(Stream fileStream, bool saveDebugInfo = false)
+        public void SaveGame(Stream fileStream, bool saveDebugInfo = false, bool saveFromEditor = false)
         {
             try
             {
@@ -773,6 +777,11 @@ namespace Mariasek.Engine.New
                     new List<Card>(players[1].Hand),
                     new List<Card>(players[2].Hand)
                 };
+
+                if (saveFromEditor)
+                {
+                    rounds = new Round[NumRounds];
+                }
                 if (!IsRunning &&
                     rounds[0] != null &&
                     ((GameType & (Hra.Betl | Hra.Durch)) == 0 ||
@@ -786,8 +795,11 @@ namespace Mariasek.Engine.New
                 {
                     hands[GameStartingPlayerIndex].Sort();
                 }
-                hands[(GameStartingPlayerIndex + 1) % NumPlayers].Sort();
-                hands[(GameStartingPlayerIndex + 2) % NumPlayers].Sort();
+                if (!saveFromEditor)
+                {
+                    hands[(GameStartingPlayerIndex + 1) % NumPlayers].Sort();
+                    hands[(GameStartingPlayerIndex + 2) % NumPlayers].Sort();
+                }
                 var gameDto = new GameDto
                 {
                     Kolo = roundNumber,
