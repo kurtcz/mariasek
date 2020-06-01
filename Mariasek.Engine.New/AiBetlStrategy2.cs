@@ -73,7 +73,7 @@ namespace Mariasek.Engine.New
                 {
                     var playedCards = new List<Card>() { _rounds[0].c1, _rounds[0].c2, _rounds[0].c3 };
 
-                    //pokud v nejakem kole zahral akter nejnizsi kartu v barve, tak predpokladej, ze barvu nezna
+                    //pokud v nejakem kole zahral akter nejnizsi kartu v barve a ja nemam nizkyho chytaka, tak predpokladej, ze barvu nezna
                     for (var i = 1; i < RoundNumber - 1; i++)
                     {
                         var minPossibleOpponentCardInSuit = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
@@ -90,7 +90,10 @@ namespace Mariasek.Engine.New
                         {
                             if (_rounds[i].c1.Suit == _rounds[i].c3.Suit &&
                                 _rounds[i].c1.BadValue > _rounds[i].c3.BadValue &&
-                                _rounds[i].c3.BadValue == minPossibleOpponentCardInSuit.BadValue)
+                                _rounds[i].c3.BadValue == minPossibleOpponentCardInSuit.BadValue &&
+                                _hands[MyIndex].Where(j => j.Suit == _rounds[i].c1.Suit &&
+                                                           j.BadValue < Card.GetBadValue(Hodnota.Spodek))
+                                               .All(j => _probabilities.SuitHigherThanCardProbability(_rounds[i].player3.PlayerIndex, j, RoundNumber) == 0))
                             {
                                 bannedSuits.Add(_rounds[i].c1.Suit);
                             }
@@ -100,7 +103,10 @@ namespace Mariasek.Engine.New
                         {
                             if (_rounds[i].c1.Suit == _rounds[i].c2.Suit &&
                                 _rounds[i].c1.BadValue > _rounds[i].c2.BadValue &&
-                                _rounds[i].c2.BadValue == minPossibleOpponentCardInSuit.BadValue)
+                                _rounds[i].c2.BadValue == minPossibleOpponentCardInSuit.BadValue &&
+                                _hands[MyIndex].Where(j => j.Suit == _rounds[i].c1.Suit &&
+                                                           j.BadValue < Card.GetBadValue(Hodnota.Spodek))
+                                               .All(j => _probabilities.SuitHigherThanCardProbability(_rounds[i].player2.PlayerIndex, j, RoundNumber) == 0))
                             {
                                 bannedSuits.Add(_rounds[i].c1.Suit);
                             }
