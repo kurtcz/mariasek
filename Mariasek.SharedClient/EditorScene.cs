@@ -510,7 +510,7 @@ namespace Mariasek.SharedClient
 
             if (File.Exists(saveGamePath))
             {
-                Guide.BeginShowMessageBox("Soubor již existuje", $"Přepsat hru {_filename}?", new string[] { "OK", "Storno" }, 1, MessageBoxIcon.Warning, OverwriteCalback, null);
+                Guide.BeginShowMessageBox("Soubor již existuje", $"Přepsat hru {_filename}?", new string[] { "Storno", "OK" }, 1, MessageBoxIcon.Warning, OverwriteCalback, null);
             }
             else
             {
@@ -522,7 +522,7 @@ namespace Mariasek.SharedClient
         {
             var buttonIndex = Guide.EndShowMessageBox(result);
 
-            if(buttonIndex.HasValue && buttonIndex.Value == 0)
+            if(buttonIndex.HasValue && buttonIndex.Value == 1)
             {
                 SaveGame();
             }
@@ -605,14 +605,14 @@ namespace Mariasek.SharedClient
                 var path = _files[_gameListBox.HighlightedLine];
                 _filename = Path.GetFileNameWithoutExtension(path);
             }
-            Guide.BeginShowMessageBox("Potvrzení", $"Smazat hru {_filename}?", new string[] { "Smazat", "Zpět" }, 1, MessageBoxIcon.Warning, DeleteGameCallback, null);
+            Guide.BeginShowMessageBox("Potvrzení", $"Smazat hru {_filename}?", new string[] { "Zpět", "Smazat" }, 1, MessageBoxIcon.Warning, DeleteGameCallback, null);
         }
 
         private void DeleteGameCallback(IAsyncResult result)
         {
             var buttonIndex = Guide.EndShowMessageBox(result);
 
-            if (buttonIndex.HasValue && buttonIndex.Value == 0)
+            if (buttonIndex.HasValue && buttonIndex.Value == 1)
             {
                 var path = Path.Combine(_editorPath, $"{_filename}.hra");
 

@@ -448,14 +448,14 @@ namespace Mariasek.SharedClient
 
         private void ResetHistoryClicked(object sender)
         {
-            Guide.BeginShowMessageBox("Varování", $"Opravdu si přejete smazat historii?", new string[] { "Smazat", "Zpět" }, 1, MessageBoxIcon.Warning, ResetHistoryCallback, null);
+            Guide.BeginShowMessageBox("Varování", $"Opravdu si přejete smazat historii?", new string[] { "Zpět", "Smazat" }, 1, MessageBoxIcon.Warning, ResetHistoryCallback, null);
         }
 
         private void ResetHistoryCallback(IAsyncResult result)
         {
             var buttonIndex = Guide.EndShowMessageBox(result);
 
-            if (buttonIndex.HasValue && buttonIndex.Value == 0)
+            if (buttonIndex.HasValue && buttonIndex.Value == 1)
             {
                 _useMockData = false;
                 Game.Money.Clear();

@@ -1565,6 +1565,11 @@ namespace Mariasek.Engine.New
                             }
                         }
 
+                        if (cardsToPlay.Any(i => i.Suit == _trump))
+                        {
+                            return cardsToPlay.OrderByDescending(i => i.Value)
+                                              .FirstOrDefault();
+                        }
                         return cardsToPlay.OrderBy(i => i.Value)
                                           .FirstOrDefault();
                     }
@@ -2082,13 +2087,15 @@ namespace Mariasek.Engine.New
                                                                             !_bannedSuits.Contains(i.Suit) &&
                                                                             i.Value != Hodnota.Eso &&
                                                                             i.Value != Hodnota.Desitka &&
-                                                                            _probabilities.HasAOrXAndNothingElse(TeamMateIndex, i.Suit, RoundNumber) < RiskFactor).ToList();
+                                                                            (TeamMateIndex == -1 ||
+                                                                             _probabilities.HasAOrXAndNothingElse(TeamMateIndex, i.Suit, RoundNumber) < RiskFactor)).ToList();
                     if (!cardsToPlay.Any())
                     {
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                             i.Value != Hodnota.Eso &&
                                                                             i.Value != Hodnota.Desitka &&
-                                                                            _probabilities.HasAOrXAndNothingElse(TeamMateIndex, i.Suit, RoundNumber) < RiskFactor).ToList();
+                                                                            (TeamMateIndex == -1 ||
+                                                                             _probabilities.HasAOrXAndNothingElse(TeamMateIndex, i.Suit, RoundNumber) < RiskFactor)).ToList();
                     }
                     if (!cardsToPlay.Any())
                     {
@@ -2136,7 +2143,8 @@ namespace Mariasek.Engine.New
                 {
                     var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump && 
                                                                             !_bannedSuits.Contains(i.Suit) &&
-                                                                            _probabilities.HasAOrXAndNothingElse(TeamMateIndex, i.Suit, RoundNumber) < RiskFactor).ToList();
+                                                                            (TeamMateIndex == -1 ||
+                                                                             _probabilities.HasAOrXAndNothingElse(TeamMateIndex, i.Suit, RoundNumber) < RiskFactor)).ToList();
 
                     if (!cardsToPlay.Any())
                     {
