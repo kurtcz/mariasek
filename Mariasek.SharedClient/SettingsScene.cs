@@ -1633,7 +1633,7 @@ namespace Mariasek.SharedClient
             const int MaxNameLength = 12;
             var text = Guide.EndShowKeyboardInput(result);
 
-            if (text == null)
+            if (string.IsNullOrWhiteSpace(text))
             {
                 return;
             }

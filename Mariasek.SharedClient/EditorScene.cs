@@ -192,9 +192,10 @@ namespace Mariasek.SharedClient
         {
             if (Game.EmailSender != null)
             {
-                var saveGamePath = Path.Combine(_editorPath, $"{_filename}.hra");
+                var saveGamePath = _filename != null ? Path.Combine(_editorPath, $"{_filename}.hra") : Path.Combine(_path, "_editor.hra");
                 var subject = $"Mariášek: komentář v{MariasekMonoGame.Version} ({MariasekMonoGame.Platform})";
 
+                SaveGame(saveGamePath);
                 Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře\n:",
                                             new[] { saveGamePath, SettingsScene._settingsFilePath });
             }
@@ -401,6 +402,10 @@ namespace Mariasek.SharedClient
                 try
                 {
                     _filename = Path.GetFileNameWithoutExtension(path);
+                    if (_filename == "_def")
+                    {
+                        _filename = null;
+                    }
                     var g = new Mariasek.Engine.New.Game()
                     {
                         BaseBet = Game.Settings.BaseBet,
@@ -458,7 +463,13 @@ namespace Mariasek.SharedClient
                         var cards = new List<Card>();
                         for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
                         {
-                            cards.AddRange(g.players[(_gameStartingPlayerIndex + i) % Mariasek.Engine.New.Game.NumPlayers].Hand);
+                            var hand = g.players[(_gameStartingPlayerIndex + i) % Mariasek.Engine.New.Game.NumPlayers].Hand;
+
+                            if (i > 0)
+                            {
+                                hand.Sort(Game.Settings.SortMode);
+                            }
+                            cards.AddRange(hand);
                         }
 
                         PopulateCards(cards);
@@ -487,7 +498,11 @@ namespace Mariasek.SharedClient
             }
             else
             {
-                SaveGame();
+                var saveGamePath = _filename != null
+                    ? Path.Combine(_editorPath, $"{_filename}.hra")
+                    : _newGameFilePath;
+
+                SaveGame(saveGamePath);
             }
             Game.MainScene.LoadGame(_newGameFilePath, true);
         }
@@ -505,7 +520,20 @@ namespace Mariasek.SharedClient
 
         private void SaveGameClickedCalback(IAsyncResult result)
         {
-            _filename = Guide.EndShowKeyboardInput(result) ?? "Moje hra";
+            const int MaxNameLength = 16;
+            var filename = Guide.EndShowKeyboardInput(result);
+
+            if (string.IsNullOrWhiteSpace(filename))
+            {
+                return;
+            }
+            filename = filename.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).First().Trim();
+            if (filename.Length > MaxNameLength)
+            {
+                filename = filename.Substring(0, MaxNameLength);
+            }
+            _filename = filename;
+
             var saveGamePath = Path.Combine(_editorPath, $"{_filename}.hra");
 
             if (File.Exists(saveGamePath))
@@ -514,7 +542,7 @@ namespace Mariasek.SharedClient
             }
             else
             {
-                SaveGame();
+                SaveGame(saveGamePath);
             }
         }
 
@@ -524,18 +552,16 @@ namespace Mariasek.SharedClient
 
             if(buttonIndex.HasValue && buttonIndex.Value == 1)
             {
-                SaveGame();
+                var saveGamePath = Path.Combine(_editorPath, $"{_filename}.hra");
+
+                SaveGame(saveGamePath);
             }
         }
 
-        private void SaveGame()
+        private void SaveGame(string saveGamePath)
         {
             try
             {
-                var saveGamePath = _filename != null
-                                    ? Path.Combine(_editorPath, $"{_filename}.hra")
-                                    : _newGameFilePath;
-
                 var g = new Mariasek.Engine.New.Game(gameStartingPlayerIndex: _gameStartingPlayerIndex)
                 {
                     BaseBet = Game.Settings.BaseBet,

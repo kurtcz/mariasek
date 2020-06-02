@@ -56,6 +56,7 @@ namespace Mariasek.SharedClient
         private Button _repeatGameAsPlayer2Btn;
         private Button _repeatGameAsPlayer3Btn;
         private Button _reviewGameBtn;
+        private Button _editGameBtn;
         private ToggleButton _reviewGameToggleBtn;
         private Button _okBtn;
         private Button[] gtButtons, gfButtons, bidButtons;
@@ -462,8 +463,17 @@ namespace Mariasek.SharedClient
             };
             _reviewGameBtn.Click += ReviewGameBtnClicked;
             _reviewGameBtn.Hide();
-
-//tlacitka na prave strane
+            _editGameBtn = new Button(this)
+            {
+                Text = "Upravit hru",
+                Position = new Vector2(10, Game.VirtualScreenHeight / 2f + 90),
+                ZIndex = 100,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                Width = 150
+            };
+            _editGameBtn.Click += EditGameBtnClicked;
+            _editGameBtn.Hide();
+            //tlacitka na prave strane
             _sendBtn = new Button(this)
             {
                 Text = "@",
@@ -1179,6 +1189,16 @@ namespace Mariasek.SharedClient
             //}
         }
 
+        public void EditGameBtnClicked(object sender)
+        {
+            //pokud nehrajeme hru z editoru, tak nahraj aktualni hru do editoru
+            if (!_testGame)
+            {
+                Game.EditorScene.LoadGame(_newGameFilePath);
+            }
+            Game.EditorScene.SetActive();
+        }
+
         public void ReviewGameBtnClicked(object sender)
         {
             if (g.IsRunning &&
@@ -1479,6 +1499,7 @@ namespace Mariasek.SharedClient
                      _reviewGameToggleBtn.Show();
                      _reviewGameToggleBtn.IsSelected = false;
                      _reviewGameToggleBtn.IsEnabled = Game.Settings.TestMode.HasValue && Game.Settings.TestMode.Value;
+                     _editGameBtn.Hide();
 
                      if (_review != null)
                      {
@@ -2981,6 +3002,7 @@ namespace Mariasek.SharedClient
                 //_repeatGameAsPlayer3Btn.Show();
                 _reviewGameBtn.Text = "Průběh hry";
                 _reviewGameBtn.Show();
+                _editGameBtn.Show();
             });
         }
 
@@ -3122,6 +3144,7 @@ namespace Mariasek.SharedClient
                         ClearTable(true);
                         HideMsgLabel();
                         _reviewGameBtn.Hide();
+                        _editGameBtn.Hide();
                         _reviewGameToggleBtn.Show();
                         _reviewGameToggleBtn.IsSelected = false;
                         _reviewGameToggleBtn.IsEnabled = (Game.Settings.TestMode.HasValue && 

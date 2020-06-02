@@ -327,19 +327,20 @@ namespace Mariasek.AndroidClient
                 {
                     //copy attachment to external storage where an email application can have access to it
                     //var externalPath = Path.Combine(global::Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
-                    var externalPath = Android.App.Application.Context.GetExternalFilesDir(null).Path;
-                    var path = Path.Combine(externalPath, Path.GetFileName(attachment));
-                    var file = new Java.IO.File(path);
+                    //var externalPath = Android.App.Application.Context.GetExternalFilesDir(null).Path;
+                    //var path = Path.Combine(externalPath, Path.GetFileName(attachment));
+                    //var file = new Java.IO.File(path);
+                    var file = new Java.IO.File(attachment);
 
                     if (!File.Exists(attachment))
                     {
                         continue;
                     }
-                    if (path != attachment)
-                    {
-                        MainScene.CreateDirectoryForFilePath(path);
-                        File.Copy(attachment, path, true);
-                    }
+                    //if (path != attachment)
+                    //{
+                    //    MainScene.CreateDirectoryForFilePath(path);
+                    //    File.Copy(attachment, path, true);
+                    //}
                     file.SetReadable(true, false);
                     if ((int)Build.VERSION.SdkInt < 24)
                     {
