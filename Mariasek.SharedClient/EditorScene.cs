@@ -269,23 +269,26 @@ namespace Mariasek.SharedClient
 
         private void PopulateGameList()
         {
-            try
+            Task.Run(() =>
             {
-                Game.StorageAccessor.GetStorageAccess();
-                MainScene.CreateDirectoryForFilePath(_editorPath);
-                var fileInfos = Directory.GetFiles(_editorPath, "*.hra")
-                                         .Select(i => new FileInfo(i))
-                                         .OrderBy(i => i.CreationTime)
-                                         .ToArray();
+                try
+                {
+                    Game.StorageAccessor.GetStorageAccess();
+                    MainScene.CreateDirectoryForFilePath(_editorPath);
+                    var fileInfos = Directory.GetFiles(_editorPath, "*.hra")
+                                             .Select(i => new FileInfo(i))
+                                             .OrderBy(i => i.CreationTime)
+                                             .ToArray();
 
-                _files = fileInfos.Select(i => i.FullName).ToArray();
-                _gameListBox.Text = string.Join('\n', fileInfos.Select(i => $"{i.CreationTime.ToString(CultureInfo.GetCultureInfo(Game.Settings.Locale))}\t{Path.GetFileNameWithoutExtension(i.FullName)}"));
-                _gameListBox.ScrollToBottom();
-            }
-            catch (Exception ex)
-            {
-                //ShowMsgLabel(string.Format("Error loading game:\n{0}", ex.Message), false);
-            }
+                    _files = fileInfos.Select(i => i.FullName).ToArray();
+                    _gameListBox.Text = string.Join('\n', fileInfos.Select(i => $"{i.CreationTime.ToString(CultureInfo.GetCultureInfo(Game.Settings.Locale))}\t{Path.GetFileNameWithoutExtension(i.FullName)}"));
+                    _gameListBox.ScrollToBottom();
+                }
+                catch (Exception ex)
+                {
+                    _fileLabel.Text = ex.Message;
+                }
+            });
         }
 
         private void CardDragged(object sender, DragEndEventArgs e)
@@ -489,22 +492,12 @@ namespace Mariasek.SharedClient
 
         private void PlayGameClicked(object sender)
         {
-            if (_filename != null)
+            Task.Run(() =>
             {
-                var path = Path.Combine(_editorPath, $"{_filename}.hra");
-
                 Game.StorageAccessor.GetStorageAccess();
-                File.Copy(path, _newGameFilePath, true);
-            }
-            else
-            {
-                var saveGamePath = _filename != null
-                    ? Path.Combine(_editorPath, $"{_filename}.hra")
-                    : _newGameFilePath;
-
-                SaveGame(saveGamePath);
-            }
-            Game.MainScene.LoadGame(_newGameFilePath, true);
+                SaveGame(_newGameFilePath);
+                Game.MainScene.LoadGame(_newGameFilePath, true);
+            });
         }
 
         private void SaveGameClicked(object sender)

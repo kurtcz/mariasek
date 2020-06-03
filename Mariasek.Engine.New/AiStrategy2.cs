@@ -2200,6 +2200,12 @@ namespace Mariasek.Engine.New
                         {
                             return null;
                         }
+                        //pri kilu pravidlo nehraj (pokusime se namazat, pokud je co)
+                        if (TeamMateIndex != -1 &&
+                            (_gameType & Hra.Kilo) != 0)
+                        {
+                            return null;
+                        }
                         if (hands[MyIndex].CardCount(_trump) == 2 &&
                             (_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 &&
                             hands[MyIndex].Has7(_trump) &&
