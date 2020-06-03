@@ -494,7 +494,6 @@ namespace Mariasek.SharedClient
         {
             Task.Run(() =>
             {
-                Game.StorageAccessor.GetStorageAccess();
                 SaveGame(_newGameFilePath);
                 Game.MainScene.LoadGame(_newGameFilePath, true);
             });

@@ -251,6 +251,8 @@ namespace Mariasek.SharedClient.GameComponents
 		public override bool IsBusy { get { return Sprite.IsBusy || _reverseSprite.IsBusy; } }
         public override bool IsMoving { get { return Sprite.IsMoving || _reverseSprite.IsMoving; } }
 
+        private int _preTouchZIndex;
+
         protected override void OnTouchDown(TouchLocation tl)
         {
             base.OnTouchDown(tl);
@@ -258,7 +260,8 @@ namespace Mariasek.SharedClient.GameComponents
             _origPosition = Position;
 			_origTouchLocation = tl.Position;
             PostDragPosition = Position;
-            ZIndex += 50;
+            _preTouchZIndex = ZIndex;
+            ZIndex = 100;
             System.Diagnostics.Debug.WriteLine(string.Format("{0}: DOWN state: {1} id: {2} position: {3} z-index: {4}", Name, tl.State, tl.Id, tl.Position, ZIndex));
         }
 
@@ -279,7 +282,7 @@ namespace Mariasek.SharedClient.GameComponents
 		{
             base.OnTouchUp(tl);
 
-            ZIndex -= 50;
+            ZIndex = _preTouchZIndex;
             System.Diagnostics.Debug.WriteLine(string.Format("{0}: UP state: {1} id: {2} position: {3} z-index: {4}", Name, tl.State, tl.Id, tl.Position, ZIndex));
             if (CanDrag)
 			{

@@ -1573,9 +1573,14 @@ namespace Mariasek.SharedClient
                      _hlasy[0][0].Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f + 20);
                      try
                      {
+                         Game.StorageAccessor.GetStorageAccess();
                          if (File.Exists(_endGameFilePath))
                          {
                              File.Delete(_endGameFilePath);
+                         }
+                         if (File.Exists(_savedGameFilePath))
+                         {
+                             File.Delete(_savedGameFilePath);
                          }
                      }
                      catch (Exception e)
@@ -2829,6 +2834,7 @@ namespace Mariasek.SharedClient
                         }
                         try
                         {
+                            Game.StorageAccessor.GetStorageAccess();
                             if (File.Exists(_savedGameFilePath))
                             {
                                 File.Delete(_savedGameFilePath);
@@ -3257,6 +3263,16 @@ namespace Mariasek.SharedClient
                             }
                             _trumpLabels[i].Show();
                         }
+                        try
+                        {
+                            Game.StorageAccessor.GetStorageAccess();
+                            if (File.Exists(_savedGameFilePath))
+                            {
+                                File.Delete(_savedGameFilePath);
+                            }
+                        }
+                        catch (Exception e)
+                        { }
                     }
                     finally
                     {
@@ -3282,9 +3298,12 @@ namespace Mariasek.SharedClient
                 try
                 {
                     Game.StorageAccessor.GetStorageAccess();
-                    if (_testGame && File.Exists(_savedGameFilePath))
+                    if (_testGame)
                     {
-                        File.Delete(_savedGameFilePath);
+                        if (File.Exists(_savedGameFilePath))
+                        {
+                            File.Delete(_savedGameFilePath);
+                        }
                         return;
                     }
                     CreateDirectoryForFilePath(_savedGameFilePath);

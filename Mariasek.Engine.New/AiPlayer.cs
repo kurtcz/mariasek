@@ -331,15 +331,36 @@ namespace Mariasek.Engine.New
 
             if (talon.Count < 2)
             {
-                //pak vezmi dve karty od barev kde mas 2-3 prostredni karty s 2 dirama
-                talon.AddRange(holesByCard.Where(i => !talon.Contains(i.Item1) &&
-                                                      i.Item2 >= 2 &&
-                                                      i.Item2 <= 3 &&
-                                                      i.Item4 >= 2)
-                                          .OrderByDescending(i => i.Item1.BadValue)
-                                          .Take(2 - talon.Count)
-                                          .Select(i => i.Item1)             //Card
-                                          .ToList());
+                //pak vezmi karty od barev kde mas 2-3 prostredni karty s 2 dirama
+                var temp = holesByCard.Where(i => !talon.Contains(i.Item1) &&
+                                                      i.Item2 >= 2 &&			    //CardCount
+                                                      i.Item2 <= 3 &&			    //CardCount
+                                                      i.Item4 >= 2)			        //holes
+                                      .OrderByDescending(i => i.Item1.BadValue)
+                                      .Take(2 - talon.Count)
+                                      .Select(i => i.Item1)                     //Card
+                                      .ToList();
+                //pokud mas nejake vyssi plonky, tak pouzij radsi ty
+                if (temp.Count > 1)
+                {
+                    var higherSoloCards = holesByCard.Where(i => !talon.Contains(i.Item1) &&
+                                                                 i.Item2 == 1 &&    //CardCount
+                                                                 temp.Any(j => j.BadValue < i.Item1.BadValue))
+                                                     .Select(i => i.Item1)          //Card
+                                                     .ToList();
+                    if (higherSoloCards.Any())
+                    {
+                        temp = temp.Concat(higherSoloCards)
+                                   .OrderByDescending(i => i.BadValue)
+                                   .Take(2 - talon.Count)
+                                   .ToList();
+                        talon.AddRange(temp);
+                    }
+                }
+                else
+                {
+                    talon.AddRange(temp);
+                }
             }
             if (talon.Count < 2)
             {
@@ -1735,12 +1756,12 @@ namespace Mariasek.Engine.New
             }
 
             var spodek = new Card(Barva.Cerveny, Hodnota.Spodek);
-            //max 3 vysoke karty s dirama celkove a max 2 v jedne barve => jednou kartou zacnu hrat, dalsi diry risknu
+            //max 4 vysoke karty s dirama celkove a max 2 v jedne barve => jednou kartou zacnu hrat, dalsi diry risknu
             //simulace ukazou. pokud jsem puvodne nevolil, je sance, ze nekterou diru zalepi talon ...
             //nebo max jedna barva s hodne vysokymi kartami ale prave jednou dirou (musim mit sedmu v dane barve)
             //nebo pokud mam max 2 vysoke karty
             if (//hh.Count(i => i.BadValue >= spodek.BadValue) <= 2 ||
-                (hiCardsPerSuit.Sum(i => i.Value) <= 3 && hiCardsPerSuit.All(i => i.Value <= 2)) ||
+                (hiCardsPerSuit.Sum(i => i.Value) <= 4 && hiCardsPerSuit.All(i => i.Value <= 2)) ||
                 (hiCardsPerSuit.Count(i => i.Value > 2 &&
                                            holesPerSuit[i.Key] <= 2 &&
                                            (hh.Any(j => j.Value == Hodnota.Sedma && j.Suit == i.Key) ||
