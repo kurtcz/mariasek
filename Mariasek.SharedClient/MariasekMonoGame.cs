@@ -43,12 +43,12 @@ namespace Mariasek.SharedClient
     public class MariasekMonoGame : Microsoft.Xna.Framework.Game
     {
 #if __ANDROID__
-		//private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
-        private static string _path = Android.App.Application.Context.GetExternalFilesDir(null).Path;
+        public static string RootPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+        //public static string RootPath = Android.App.Application.Context.GetExternalFilesDir(null).Path;
 #else   //#elif __IOS__
-        private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        public static string RootPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 #endif
-        public static string _settingsFilePath = Path.Combine(_path, "Mariasek.settings");
+        public static string _settingsFilePath = Path.Combine(RootPath, "Mariasek.settings");
 
         private int _loadProgress;
         private int _maxProgress;
@@ -653,22 +653,23 @@ namespace Mariasek.SharedClient
         private void MigrateFilesIfNeeded()
         {
 #if __ANDROID__
-            var legacyFolder = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/Mariasek";
+            //var legacyFolder = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/Mariasek";
 
-            StorageAccessor.GetStorageAccess();
-            if (Directory.Exists(legacyFolder))
-            {
-                MigrateFiles();
-            }
-            else
-            {
+            //StorageAccessor.GetStorageAccess();
+            //if (Directory.Exists(legacyFolder))
+            //{
+            //    MigrateFiles();
+            //}
+            //else
+            //{
                 _loadingFinished = true;
-            }
+            //}
 #else
             _loadingFinished = true;
 #endif
         }
 
+#if __ANDROID__
         private void MigrateFiles()
         {
             Task.Run(() =>
@@ -713,6 +714,7 @@ namespace Mariasek.SharedClient
                 _loadingFinished = true;
             });
         }
+#endif
 
         private void MoveWithOverwrite(string source, string destination)
         {

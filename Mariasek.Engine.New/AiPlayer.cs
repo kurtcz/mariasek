@@ -2105,20 +2105,30 @@ namespace Mariasek.Engine.New
 			{
 				return true;
 			}
-			//Pokud vic nez v jedne barve nemas eso nebo mas vetsi diru tak kilo nehraj. Souperi by si mohli uhrat desitky
-			//var dict = new Dictionary<Barva, Tuple<int, Hodnota, Hodnota>>();
+            //Pokud vic nez v jedne barve nemas eso nebo mas vetsi diru tak kilo nehraj. Souperi by si mohli uhrat desitky
+            //var dict = new Dictionary<Barva, Tuple<int, Hodnota, Hodnota>>();
 
-			//foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
-			//{
-			//	var topCard = Hand.Where(i => i.Suit == b).OrderByDescending(i => i.Value).FirstOrDefault();
-			//	var secondCard = Hand.Where(i => i.Suit == b).OrderByDescending(i => i.Value).Skip(1).FirstOrDefault();
-			//	var holeSize = topCard == null || secondCard == null
-			//					? 0
-			//					: topCard.Value - secondCard.Value - 1;
+            //foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            //{
+            //	var topCard = Hand.Where(i => i.Suit == b).OrderByDescending(i => i.Value).FirstOrDefault();
+            //	var secondCard = Hand.Where(i => i.Suit == b).OrderByDescending(i => i.Value).Skip(1).FirstOrDefault();
+            //	var holeSize = topCard == null || secondCard == null
+            //					? 0
+            //					: topCard.Value - secondCard.Value - 1;
 
-			//	dict.Add(b, new Tuple<int, Hodnota, Hodnota>(holeSize, topCard?.Value ?? Hodnota.Eso, secondCard?.Value ?? Hodnota.Eso));
-			//}
-
+            //	dict.Add(b, new Tuple<int, Hodnota, Hodnota>(holeSize, topCard?.Value ?? Hodnota.Eso, secondCard?.Value ?? Hodnota.Eso));
+            //}
+            //var hiCards = 0;
+            //foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            //{
+            //    if (Hand.HasX(b) ||
+            //        (Hand.HasA(b) &&
+            //         Hand.HasK(b)))
+            //    {
+            //        hiCards += Hand.Count(i => i.Suit == b &&
+            //                             i.Value >= Hodnota.Spodek);
+            //    }
+            //}
             //Pokud nevidis do vsech barev a mas barvu s vic nez 2 nizkyma kartama bez A nebo X tak kilo nehraj. Souperi by si mohli uhrat desitky
             if (Hand.Select(i => i.Suit).Distinct().Count() < 4 &&
                 n > 3 &&
@@ -2173,8 +2183,11 @@ namespace Mariasek.Engine.New
             return n > 4 ||                         //u vice nez 4 neodstranitelnych der kilo urcite neuhraju
                    (n > 3 && nn > 2) ||
                    (n == 3 &&                       //nebo u 3 neodstranitelnych der pokud nemam trumfove eso
-                    !Hand.HasA(_trump.Value) &&
-                    Hand.CardCount(_trump.Value) <= 4) ||
+                    !Hand.HasA(_trump.Value) &&     //a mam ctyri nebo mene trumfu
+                    (Hand.CardCount(_trump.Value) <= 4 &&
+                     !(Hand.HasX(_trump.Value) &&   //a nemam jednu z trumfovych X, K, F
+                       Hand.HasK(_trump.Value) &&
+                       Hand.HasQ(_trump.Value)))) ||
 				   (n > 2 &&                        //pokud mam vic nez 2 neodstranitelne diry
 					!(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
 					  Hand.HasQ(_trump.Value))) ||

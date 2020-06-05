@@ -18,7 +18,9 @@ namespace Mariasek.SharedClient
     {
 #if __ANDROID__
         //private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
-        private static string _path = Android.App.Application.Context.GetExternalFilesDir(null).Path;
+        private static string _path => (int)Android.OS.Build.VERSION.SdkInt >= 29
+                                        ? Android.App.Application.Context.GetExternalFilesDir(null).Path
+                                        : Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
 #else   //#elif __IOS__
         private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 #endif

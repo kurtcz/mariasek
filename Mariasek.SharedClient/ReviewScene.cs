@@ -11,14 +11,8 @@ namespace Mariasek.SharedClient
 {
 	public class ReviewScene : Scene
     {
-#if __ANDROID__
-        //private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
-        private static string _path = Android.App.Application.Context.GetExternalFilesDir(null).Path;
-#else   //#elif __IOS__
-        private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-#endif
-        private string _savedGameFilePath = Path.Combine(_path, "_temp.hra");
-        private string _screenPath = Path.Combine(_path, "screen.png");
+        private string _savedGameFilePath = Path.Combine(MariasekMonoGame.RootPath, "_temp.hra");
+        private string _screenPath = Path.Combine(MariasekMonoGame.RootPath, "screen.png");
 
         Button _backButton;
         Button _replayButton;

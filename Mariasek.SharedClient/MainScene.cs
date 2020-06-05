@@ -107,26 +107,15 @@ namespace Mariasek.SharedClient
         private int _aiMessageIndex;
         public int CurrentStartingPlayerIndex = -1;
         private Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
-#if __ANDROID__
-        //private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
-        private static string _path = Android.App.Application.Context.GetExternalFilesDir(null).Path;
-        //Android 10 (API 29) and higher no longer allows direct access to /storage/emulated/0/Mariasek
-        //Instead we can access /storage/emulated/0/Android/data/com.tnemec.mariasek.android/Files using the code below
-        //private static string _path = Path.Combine(Android.App.Application.Context.GetExternalFilesDir(null).AbsolutePath, "Mariasek");
-        //Note: If we decide to target Android 10+ we will need to move the data from the old location to the new one
-        //(but we will no longer be able to share the files between apps)
-#else   //#elif __IOS__
-        private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-#endif
-        private string _archivePath = Path.Combine(_path, "Archive");
-        private string _historyFilePath = Path.Combine(_path, "Mariasek.history");
-        private string _deckFilePath = Path.Combine(_path, "Mariasek.deck");
-        private string _savedGameFilePath = Path.Combine(_path, "_temp.hra");
-        private string _newGameFilePath = Path.Combine(_path, "_def.hra");
-        private string _screenPath = Path.Combine(_path, "screen.png");
-        private string _errorFilePath = Path.Combine(_path, "_error.hra");
-        private string _errorMsgFilePath = Path.Combine(_path, "_error.txt");
-        private string _endGameFilePath = Path.Combine(_path, "_end.hra");
+        private string _archivePath = Path.Combine(MariasekMonoGame.RootPath, "Archive");
+        private string _historyFilePath = Path.Combine(MariasekMonoGame.RootPath, "Mariasek.history");
+        private string _deckFilePath = Path.Combine(MariasekMonoGame.RootPath, "Mariasek.deck");
+        private string _savedGameFilePath = Path.Combine(MariasekMonoGame.RootPath, "_temp.hra");
+        private string _newGameFilePath = Path.Combine(MariasekMonoGame.RootPath, "_def.hra");
+        private string _screenPath = Path.Combine(MariasekMonoGame.RootPath, "screen.png");
+        private string _errorFilePath = Path.Combine(MariasekMonoGame.RootPath, "_error.hra");
+        private string _errorMsgFilePath = Path.Combine(MariasekMonoGame.RootPath, "_error.txt");
+        private string _endGameFilePath = Path.Combine(MariasekMonoGame.RootPath, "_end.hra");
 
         private Action HintBtnFunc;
         private volatile GameState _state;
@@ -854,7 +843,7 @@ namespace Mariasek.SharedClient
         /// </summary>
         public Stream GetFileStream(string filename)
         {
-            var path = Path.Combine(_path, filename);
+            var path = Path.Combine(MariasekMonoGame.RootPath, filename);
 
             Game.StorageAccessor.GetStorageAccess();
             CreateDirectoryForFilePath(path);

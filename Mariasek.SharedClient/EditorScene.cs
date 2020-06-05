@@ -15,14 +15,8 @@ namespace Mariasek.SharedClient
 {
     public class EditorScene : Scene
     {
-#if __ANDROID__
-        //private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
-        private static string _path = Android.App.Application.Context.GetExternalFilesDir(null).Path;
-#else   //#elif __IOS__
-        private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-#endif
-        private static string _editorPath = Path.Combine(_path, "Editor");
-        private string _newGameFilePath = Path.Combine(_path, "_def.hra");
+        private static string _editorPath = Path.Combine(MariasekMonoGame.RootPath, "Editor");
+        private string _newGameFilePath = Path.Combine(MariasekMonoGame.RootPath, "_def.hra");
 
         private Button _menuButton;
         private Button _newGameButton;
@@ -46,7 +40,6 @@ namespace Mariasek.SharedClient
         private Vector2 _hiddenPosition;
         private string[] _files;
         private string _filename;
-        private bool _loadSuccessful;
 
         public EditorScene(MariasekMonoGame game)
             : base(game)
@@ -192,7 +185,7 @@ namespace Mariasek.SharedClient
         {
             if (Game.EmailSender != null)
             {
-                var saveGamePath = _filename != null ? Path.Combine(_editorPath, $"{_filename}.hra") : Path.Combine(_path, "_editor.hra");
+                var saveGamePath = _filename != null ? Path.Combine(_editorPath, $"{_filename}.hra") : Path.Combine(MariasekMonoGame.RootPath, "_editor.hra");
                 var subject = $"Mariášek: komentář v{MariasekMonoGame.Version} ({MariasekMonoGame.Platform})";
 
                 SaveGame(saveGamePath);
@@ -337,7 +330,7 @@ namespace Mariasek.SharedClient
             cards.RemoveRange(30, 2);
             _gameStartingPlayerIndex = 0;
             _filename = null;
-            _loadSuccessful = false;
+            _fileLabel.Text = "";
             PopulateCards(cards);
             PopulateLabels();
             ShowEditor();
@@ -450,7 +443,6 @@ namespace Mariasek.SharedClient
                         {
                             g.LoadGame(fs);
                         }
-                        _loadSuccessful = true;
                     }
                     catch (Exception ex)
                     {
@@ -604,7 +596,6 @@ namespace Mariasek.SharedClient
                     var dt = new FileInfo(saveGamePath).CreationTime.ToString(CultureInfo.GetCultureInfo(Game.Settings.Locale));
                     _fileLabel.Text = $"{dt}\t{_filename}";
                 }
-                _loadSuccessful = true; //aby se v update text nesmazal
             }
             catch (Exception ex)
             {
@@ -613,17 +604,27 @@ namespace Mariasek.SharedClient
             }
         }
 
+        private string _fileToDelete;
+
         private void DeleteGameClicked(object sender)
         {
+            _fileToDelete = null;
             if (_gameListBox.IsVisible &&
                 _gameListBox.Text.Length > 0 &&
                 _gameListBox.HighlightedLine >= 0 &&
                 _gameListBox.HighlightedLine < _files.Length)
             {
                 var path = _files[_gameListBox.HighlightedLine];
-                _filename = Path.GetFileNameWithoutExtension(path);
+                _fileToDelete = Path.GetFileNameWithoutExtension(path);
             }
-            Guide.BeginShowMessageBox("Potvrzení", $"Smazat hru {_filename}?", new string[] { "Zpět", "Smazat" }, 1, MessageBoxIcon.Warning, DeleteGameCallback, null);
+            else if (_filename != null)
+            {
+                _fileToDelete = _filename;
+            }
+            if (_fileToDelete != null)
+            {
+                Guide.BeginShowMessageBox("Potvrzení", $"Smazat hru {_fileToDelete}?", new string[] { "Zpět", "Smazat" }, 1, MessageBoxIcon.Warning, DeleteGameCallback, _fileToDelete);
+            }
         }
 
         private void DeleteGameCallback(IAsyncResult result)
@@ -632,11 +633,15 @@ namespace Mariasek.SharedClient
 
             if (buttonIndex.HasValue && buttonIndex.Value == 1)
             {
-                var path = Path.Combine(_editorPath, $"{_filename}.hra");
+                var path = Path.Combine(_editorPath, $"{_fileToDelete}.hra");
 
                 Game.StorageAccessor.GetStorageAccess();
                 File.Delete(path);
-                _loadSuccessful = false;
+                if (_fileToDelete == _filename)
+                {
+                    _filename = null;
+                    _fileLabel.Text = "";
+                }
                 GameListClicked(this);
             }
         }
@@ -651,20 +656,25 @@ namespace Mariasek.SharedClient
         {
             base.Update(gameTime);
 
-            _loadGameButton.IsEnabled = _gameListBox.IsVisible && _gameListBox.HighlightedLine >= 0;
+            _loadGameButton.IsEnabled = _gameListBox.IsVisible &&
+                                        _gameListBox.Text.Length > 0 &&
+                                        _gameListBox.HighlightedLine >= 0 &&
+                                        _gameListBox.HighlightedLine < _files.Length;
             _saveGameButton.IsEnabled = !_gameListBox.IsVisible;
             _playGameButton.IsEnabled = !_gameListBox.IsVisible;
             _deleteGameButton.IsEnabled = (_gameListBox.IsVisible &&
                                            _gameListBox.Text.Length > 0 &&
                                            _gameListBox.HighlightedLine >= 0 &&
-                                           _gameListBox.HighlightedLine < _files.Length) || _loadSuccessful;
+                                           _gameListBox.HighlightedLine < _files.Length) || _filename != null;
             _saveGameButton.IsEnabled = !_gameListBox.IsVisible;
             _startingPlayerButton.IsEnabled = !_gameListBox.IsVisible;
             _sendBtn.IsEnabled = _filename != null;
 
-            if (!_loadSuccessful && !string.IsNullOrEmpty(_fileLabel.Text))
+            if (!_gameListBox.IsVisible &&
+                _filename == null &&
+                string.IsNullOrEmpty(_fileLabel.Text))
             {
-                _fileLabel.Text = "";
+                _fileLabel.Text = "Upravte hru přetáhnutím jednotlivých karet.";
             }
         }
     }
