@@ -274,7 +274,7 @@ namespace Mariasek.SharedClient
                                              .ToArray();
 
                     _files = fileInfos.Select(i => i.FullName).ToArray();
-                    _gameListBox.Text = string.Join('\n', fileInfos.Select(i => $"{i.CreationTime.ToString(CultureInfo.GetCultureInfo(Game.Settings.Locale))}\t{Path.GetFileNameWithoutExtension(i.FullName)}"));
+                    _gameListBox.Text = string.Join('\n', fileInfos.Select(i => $"{i.CreationTime.ToString("dd.MM.yyyy HH:mm:ss")}\t{Path.GetFileNameWithoutExtension(i.FullName)}"));
                     _gameListBox.ScrollToBottom();
                 }
                 catch (Exception ex)
@@ -593,7 +593,7 @@ namespace Mariasek.SharedClient
                 }
                 if (_filename != null)
                 {
-                    var dt = new FileInfo(saveGamePath).CreationTime.ToString(CultureInfo.GetCultureInfo(Game.Settings.Locale));
+                    var dt = new FileInfo(saveGamePath).CreationTime.ToString("dd.MM.yyyy HH:mm:ss");
                     _fileLabel.Text = $"{dt}\t{_filename}";
                 }
             }

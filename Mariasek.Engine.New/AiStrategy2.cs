@@ -1371,7 +1371,9 @@ namespace Mariasek.Engine.New
                 SkipSimulations = true,
                 ChooseCard1 = () =>
                 {
-                    if (TeamMateIndex == -1 && (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0)
+                    if (TeamMateIndex == -1 &&
+                        (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
+                        (_gameType & (Hra.Kilo | Hra.KiloProti)) == 0)
                     {
                         //c--
 
@@ -1392,7 +1394,9 @@ namespace Mariasek.Engine.New
                                                                     .ToList();
                         return cardsToPlay.FirstOrDefault();
                     }
-                    else if (TeamMateIndex == player2 && (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0)
+                    else if (TeamMateIndex == player2 &&
+                             (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
+                             (_gameType & (Hra.Kilo | Hra.KiloProti)) == 0)
                     {
                         //co-
                         //u sedmy hraju od nejvyssi karty (A nebo X) v nejdelsi netrumfove barve
@@ -1421,7 +1425,9 @@ namespace Mariasek.Engine.New
                         return cardsToPlay.FirstOrDefault();
 
                     }
-                    else if (TeamMateIndex == player3 && (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0)
+                    else if (TeamMateIndex == player3 &&
+                             (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
+                             (_gameType & (Hra.Kilo | Hra.KiloProti)) == 0)
                     {
                         //c-o
                         //u sedmy hraju od nejvyssi karty (A nebo X) v nejdelsi netrumfove barve

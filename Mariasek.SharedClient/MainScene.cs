@@ -442,26 +442,26 @@ namespace Mariasek.SharedClient
             };
             giveUpButton.Click += GtButtonClicked;
             giveUpButton.Hide();
-            _reviewGameBtn = new Button(this)
-            {
-                Text = "Průběh hry",
-                Position = new Vector2(10, Game.VirtualScreenHeight / 2f + 30),
-                ZIndex = 100,
-                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
-                Width = 150
-            };
-            _reviewGameBtn.Click += ReviewGameBtnClicked;
-            _reviewGameBtn.Hide();
             _editGameBtn = new Button(this)
             {
                 Text = "Upravit hru",
-                Position = new Vector2(10, Game.VirtualScreenHeight / 2f + 90),
+                Position = new Vector2(10, Game.VirtualScreenHeight / 2f + 30),
                 ZIndex = 100,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
                 Width = 150
             };
             _editGameBtn.Click += EditGameBtnClicked;
             _editGameBtn.Hide();
+            _reviewGameBtn = new Button(this)
+            {
+                Text = "Průběh hry",
+                Position = new Vector2(10, Game.VirtualScreenHeight / 2f + 90),
+                ZIndex = 100,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                Width = 150
+            };
+            _reviewGameBtn.Click += ReviewGameBtnClicked;
+            _reviewGameBtn.Hide();
             //tlacitka na prave strane
             _sendBtn = new Button(this)
             {
