@@ -1577,6 +1577,10 @@ namespace Mariasek.SharedClient
                          System.Diagnostics.Debug.WriteLine(string.Format("Cannot delete old end of game file\n{0}", e.Message));
                      }
                  }
+                 catch(Exception e)
+                 {
+                     ShowMsgLabel(e.Message, false);
+                 }
                  finally
                  {
                      if (_gameSemaphore.CurrentCount == 0)
@@ -1585,7 +1589,14 @@ namespace Mariasek.SharedClient
                      }
                  }
                  _lastGameWasLoaded = false;
-                 g.PlayGame(_cancellationTokenSource.Token);
+                 try
+                 {
+                     g.PlayGame(_cancellationTokenSource.Token);
+                 }
+                 catch (Exception e)
+                 {
+                     ShowMsgLabel(e.Message, false);
+                 }
              }, cancellationTokenSource.Token);
         }
 

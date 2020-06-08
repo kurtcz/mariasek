@@ -85,7 +85,6 @@
     </IpaPackageName>
     <MtouchLink>Full</MtouchLink>
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
-    <MtouchSdkVersion>13.5</MtouchSdkVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

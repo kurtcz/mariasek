@@ -623,7 +623,7 @@ namespace Mariasek.SharedClient
             }
             if (_fileToDelete != null)
             {
-                Guide.BeginShowMessageBox("Potvrzení", $"Smazat hru {_fileToDelete}?", new string[] { "Zpět", "Smazat" }, 1, MessageBoxIcon.Warning, DeleteGameCallback, _fileToDelete);
+                Guide.BeginShowMessageBox("Potvrzení", $"Smazat hru {_fileToDelete}?", new string[] { "Zpět", "Smazat" }, 1, MessageBoxIcon.Warning, DeleteGameCallback, null);
             }
         }
 

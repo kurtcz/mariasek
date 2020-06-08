@@ -462,7 +462,10 @@ namespace Mariasek.SharedClient
                 _useMockData = false;
                 Game.Money.Clear();
                 Game.MainScene.DeleteArchiveFolder();
-                PopulateControls();
+                RunOnUiThread(() =>
+                {
+                    PopulateControls();
+                });
                 Game.MainScene.SaveHistory();
             }
         }

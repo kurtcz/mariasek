@@ -42,8 +42,8 @@
 	<key>XSLaunchImageAssets</key>
 	<string>Resources/Images.xcassets/LaunchImage.launchimage</string>
 	<key>CFBundleVersion</key>
-	<string>160</string>
+	<string>162</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.4.160</string>
+	<string>1.4.162</string>
 </dict>
 </plist>
