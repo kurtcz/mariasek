@@ -123,7 +123,47 @@ namespace Mariasek.Engine.New
                 }
                 if (!preferredSuits.Any())
                 {
-                    //prednostne zkousej hrat barvu kterou spoluhrac odmazaval
+                    //primarne zkus hrat barvu kterou akter odmazaval
+                    for (var i = 0; i < RoundNumber - 1; i++)
+                    {
+                        if (_rounds[i].player2.TeamMateIndex == -1 &&
+                            _rounds[i].c2.Suit != _rounds[i].c1.Suit)
+                        {
+                            preferredSuits.Add(_rounds[i].c2.Suit);
+                        }
+                        else if (_rounds[i].player3.TeamMateIndex == -1 &&
+                                 _rounds[i].c3.Suit != _rounds[i].c1.Suit)
+                        {
+                            preferredSuits.Add(_rounds[i].c3.Suit);
+                        }
+                    }
+                }
+                if (!preferredSuits.Any())
+                {
+                    //nasledne zkus hrat barvu kterou akter hral a nebyla nejnizsi
+                    for (var i = 0; i < RoundNumber - 1; i++)
+                    {
+                        if (_rounds[i].c1.Suit == _rounds[i].c2.Suit &&
+                            _rounds[i].c1.Suit == _rounds[i].c3.Suit)
+                        {
+                            if (_rounds[i].player2.TeamMateIndex == -1 &&
+                                (_rounds[i].c2.BadValue > _rounds[i].c1.BadValue ||
+                                 _rounds[i].c2.BadValue > _rounds[i].c3.BadValue))
+                            {
+                                preferredSuits.Add(_rounds[i].c2.Suit);
+                            }
+                            else if (_rounds[i].player3.TeamMateIndex == -1 &&
+                                (_rounds[i].c3.BadValue > _rounds[i].c1.BadValue ||
+                                 _rounds[i].c3.BadValue > _rounds[i].c2.BadValue))
+                            {
+                                preferredSuits.Add(_rounds[i].c3.Suit);
+                            }
+                        }
+                    }
+                }
+                if (!preferredSuits.Any())
+                {
+                    //nakonec zkus hrat barvu kterou spoluhrac odmazaval
                     for (var i = 0; i < RoundNumber - 1; i++)
                     {
                         if (_rounds[i].player2.PlayerIndex == TeamMateIndex &&
@@ -413,14 +453,22 @@ namespace Mariasek.Engine.New
                                                                         .Where(j => j.BadValue > i.BadValue)
                                                                         .Count(j => _probabilities.CardProbability(opponent, j) > 0)))
                                                     .Where(i => i.Item2 > 0);
-                            cardsToPlay = loCards.OrderBy(i => hochCards.Any(j => j.Suit == i.Item1.Suit)
-                                                                ? 0
-                                                                : 1)
-                                                 .ThenByDescending(i => i.Item2)
-                                                 .ThenBy(i => i.Item1.BadValue)
-                                                 .ThenBy(i => _probabilities.SuitProbability(opponent, i.Item1.Suit, RoundNumber))
+
+                            cardsToPlay = loCards.Where(i => preferredSuits.Contains(i.Item1.Suit))
                                                  .Select(i => i.Item1)
+                                                 .OrderBy(i => i.BadValue)
                                                  .Take(1);
+                            if (!cardsToPlay.Any())
+                            {
+                                cardsToPlay = loCards.OrderBy(i => hochCards.Any(j => j.Suit == i.Item1.Suit)
+                                                                    ? 0
+                                                                    : 1)
+                                                     .ThenByDescending(i => i.Item2)
+                                                     .ThenBy(i => i.Item1.BadValue)
+                                                     .ThenBy(i => _probabilities.SuitProbability(opponent, i.Item1.Suit, RoundNumber))
+                                                     .Select(i => i.Item1)
+                                                     .Take(1);
+                            }
                         }
 
                         return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
@@ -612,7 +660,47 @@ namespace Mariasek.Engine.New
                 }
                 if (!preferredSuits.Any())
                 {
-                    //prednostne zkousej hrat barvu kterou spoluhrac odmazaval
+                    //primarne zkus hrat barvu kterou akter odmazaval
+                    for (var i = 0; i < RoundNumber - 1; i++)
+                    {
+                        if (_rounds[i].player2.TeamMateIndex == -1 &&
+                            _rounds[i].c2.Suit != _rounds[i].c1.Suit)
+                        {
+                            preferredSuits.Add(_rounds[i].c2.Suit);
+                        }
+                        else if (_rounds[i].player3.TeamMateIndex == -1 &&
+                                 _rounds[i].c3.Suit != _rounds[i].c1.Suit)
+                        {
+                            preferredSuits.Add(_rounds[i].c3.Suit);
+                        }
+                    }
+                }
+                if (!preferredSuits.Any())
+                {
+                    //nasledne zkus hrat barvu kterou akter hral a nebyla nejnizsi
+                    for (var i = 0; i < RoundNumber - 1; i++)
+                    {
+                        if (_rounds[i].c1.Suit == _rounds[i].c2.Suit &&
+                            _rounds[i].c1.Suit == _rounds[i].c3.Suit)
+                        {
+                            if (_rounds[i].player2.TeamMateIndex == -1 &&
+                                (_rounds[i].c2.BadValue > _rounds[i].c1.BadValue ||
+                                 _rounds[i].c2.BadValue > _rounds[i].c3.BadValue))
+                            {
+                                preferredSuits.Add(_rounds[i].c2.Suit);
+                            }
+                            else if (_rounds[i].player3.TeamMateIndex == -1 &&
+                                (_rounds[i].c3.BadValue > _rounds[i].c1.BadValue ||
+                                 _rounds[i].c3.BadValue > _rounds[i].c2.BadValue))
+                            {
+                                preferredSuits.Add(_rounds[i].c3.Suit);
+                            }
+                        }
+                    }
+                }
+                if (!preferredSuits.Any())
+                {
+                    //nakonec zkus hrat barvu kterou spoluhrac odmazaval
                     for (var i = 0; i < RoundNumber - 1; i++)
                     {
                         if (_rounds[i].player2.PlayerIndex == TeamMateIndex &&
@@ -830,7 +918,47 @@ namespace Mariasek.Engine.New
                 }
                 if (!preferredSuits.Any())
                 {
-                    //prednostne zkousej hrat barvu kterou spoluhrac odmazaval
+                    //primarne zkus hrat barvu kterou akter odmazaval
+                    for (var i = 0; i < RoundNumber - 1; i++)
+                    {
+                        if (_rounds[i].player2.TeamMateIndex == -1 &&
+                            _rounds[i].c2.Suit != _rounds[i].c1.Suit)
+                        {
+                            preferredSuits.Add(_rounds[i].c2.Suit);
+                        }
+                        else if (_rounds[i].player3.TeamMateIndex == -1 &&
+                                 _rounds[i].c3.Suit != _rounds[i].c1.Suit)
+                        {
+                            preferredSuits.Add(_rounds[i].c3.Suit);
+                        }
+                    }
+                }
+                if (!preferredSuits.Any())
+                {
+                    //nasledne zkus hrat barvu kterou akter hral a nebyla nejnizsi
+                    for (var i = 0; i < RoundNumber - 1; i++)
+                    {
+                        if (_rounds[i].c1.Suit == _rounds[i].c2.Suit &&
+                            _rounds[i].c1.Suit == _rounds[i].c3.Suit)
+                        {
+                            if (_rounds[i].player2.TeamMateIndex == -1 &&
+                                (_rounds[i].c2.BadValue > _rounds[i].c1.BadValue ||
+                                 _rounds[i].c2.BadValue > _rounds[i].c3.BadValue))
+                            {
+                                preferredSuits.Add(_rounds[i].c2.Suit);
+                            }
+                            else if (_rounds[i].player3.TeamMateIndex == -1 &&
+                                (_rounds[i].c3.BadValue > _rounds[i].c1.BadValue ||
+                                 _rounds[i].c3.BadValue > _rounds[i].c2.BadValue))
+                            {
+                                preferredSuits.Add(_rounds[i].c3.Suit);
+                            }
+                        }
+                    }
+                }
+                if (!preferredSuits.Any())
+                {
+                    //nakonec zkousej hrat barvu kterou spoluhrac odmazaval
                     for (var i = 0; i < RoundNumber - 1; i++)
                     {
                         if (_rounds[i].player2.PlayerIndex == TeamMateIndex &&

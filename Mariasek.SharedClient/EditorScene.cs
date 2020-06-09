@@ -504,7 +504,7 @@ namespace Mariasek.SharedClient
 
         private void SaveGameClickedCalback(IAsyncResult result)
         {
-            const int MaxNameLength = 16;
+            const int MaxNameLength = 25;
             var filename = Guide.EndShowKeyboardInput(result);
 
             if (string.IsNullOrWhiteSpace(filename))
