@@ -893,6 +893,11 @@ namespace Mariasek.Engine.New
             }
             else if (_gameType == Hra.Betl)
             {
+                if (TeamMateIndex == -1)
+                {
+                    //v ChooseTalon() jsem zvolil talon na betla a chci hrat utikacka
+                    return GameFlavour.Bad;
+                }
                 //pouzivam vyssi prahy: pokud nam vysel durch (beru 70% prah), abych kompenzoval, ze simulace nejsou presne
                 var thresholdIndex = Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 1);    //70%
                 if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][thresholdIndex] * _durchSimulations && 
@@ -931,6 +936,9 @@ namespace Mariasek.Engine.New
                         (lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                          lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold))
                     {
+                        _gameType = Hra.Betl;   //toto zajisti, ze si umysl nerozmysli po odhozeni talonu na betla
+                                                //(odhadovane skore se muze zmenit a s tim i odhodlani hrat betla,
+                                                //ale protoze talon uz byl odhozen na betla, tak si zde vynutime ho sehrat)
                         DebugInfo.RuleCount = _betlBalance;
                         DebugInfo.TotalRuleCount = _betlSimulations;
                     }
@@ -1908,6 +1916,11 @@ namespace Mariasek.Engine.New
                                                      (_talon == null ||
                                                       (!_talon.HasA(i.Key)) &&
                                                        !_talon.HasX(i.Key)));
+            if (Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => !Hand.HasA(b)))
+            {
+                emptySuits = 0;
+                aceOnlySuits = 0;
+            }
             var axPotentialDeduction = GetTotalHoles(false) / 2;
             var axWinPotential = Math.Min(2 * emptySuits + aceOnlySuits, (int)Math.Ceiling(Hand.CardCount(trump.Value) / 2f)); // ne kazdym trumfem prebiju a nebo x
 
@@ -2183,8 +2196,8 @@ namespace Mariasek.Engine.New
             return n > 4 ||                         //u vice nez 4 neodstranitelnych der kilo urcite neuhraju
                    (n > 3 && nn > 2) ||
                    (n == 3 &&                       //nebo u 3 neodstranitelnych der pokud nemam trumfove eso
-                    !Hand.HasA(_trump.Value) &&     //a mam ctyri nebo mene trumfu
-                    (Hand.CardCount(_trump.Value) <= 4 &&
+                    !Hand.HasA(_trump.Value) &&     //a mam pet nebo mene trumfu
+                    (Hand.CardCount(_trump.Value) <= 5 &&
                      !(Hand.HasX(_trump.Value) &&   //a nemam jednu z trumfovych X, K, F
                        Hand.HasK(_trump.Value) &&
                        Hand.HasQ(_trump.Value)))) ||
