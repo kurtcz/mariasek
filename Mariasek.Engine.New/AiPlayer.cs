@@ -2118,6 +2118,13 @@ namespace Mariasek.Engine.New
 			{
 				return true;
 			}
+            //Pokud nevidis do trumfoveho hlasu a mas malo trumfu, tak kilo nehraj
+            if (Hand.CardCount(_trump.Value) <= 4 &&
+                !Hand.HasK(_trump.Value) &&
+                !Hand.HasQ(_trump.Value))
+            {
+                return true;
+            }
             //Pokud vic nez v jedne barve nemas eso nebo mas vetsi diru tak kilo nehraj. Souperi by si mohli uhrat desitky
             //var dict = new Dictionary<Barva, Tuple<int, Hodnota, Hodnota>>();
 

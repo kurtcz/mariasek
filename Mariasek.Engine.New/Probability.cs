@@ -550,6 +550,40 @@ namespace Mariasek.Engine.New
             return numerator / (float)CNK(uncertainCards, unknownCards);
         }
 
+        public float NoneOfCardsInSuitProbability(int playerIndex, Barva suit, int roundNumber, Hodnota bottomValue, Hodnota topValue)
+        {
+            var y = NoneOfCardsInSuitProbability(playerIndex, suit, roundNumber, Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                     .Where(h => h >= bottomValue && h <= topValue)
+                                                                                     .ToArray());
+
+            return y;
+        }
+
+        private float NoneOfCardsInSuitProbability(int playerIndex, Barva suit, int roundNumber, Hodnota[] values)
+        {
+            //pokud ma hrac jiste kartu ktera je na seznamu, tak vrat nulu
+            if (_cardProbabilityForPlayer[playerIndex][suit].Any(i => values.Contains(i.Key) && i.Value == 1f))
+            {
+                return 0f;
+            }
+            //pokud nema hrac jiste zadnou kartu ktera je na seznamu, tak vrat jednicku
+            if (_cardProbabilityForPlayer[playerIndex][suit].All(i => !values.Contains(i.Key) || i.Value == 0f))
+            {
+                return 1f;
+            }
+
+            //hrac ma nejake nejiste karty v barve
+            var uncertainCards = _cardProbabilityForPlayer[playerIndex].Sum(b => b.Value.Count(h => h.Value > 0f && h.Value < 1f));
+            var certainCards = _cardProbabilityForPlayer[playerIndex].Sum(b => b.Value.Count(h => h.Value == 1f));
+            var cardsCertainlyNotInSuit = _cardProbabilityForPlayer[playerIndex][suit].Count(h => values.Contains(h.Key) &&
+                                                                                                  h.Value == 0f);
+            var totalCards = 10 - roundNumber + 1;
+            var unknownCards = totalCards - certainCards;
+            var n = values.Length - cardsCertainlyNotInSuit;
+
+            return CNK(uncertainCards - n, unknownCards) / (float)CNK(uncertainCards, unknownCards);
+        }
+
         private long CNK(int n, int k)
         {
             long numerator = 1;
