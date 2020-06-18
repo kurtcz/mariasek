@@ -779,18 +779,19 @@ namespace Mariasek.Engine.New
                         //zkus vytlacit trumf trumfem pokud jich mam dost a
                         //v dlouhych netrumfovych barvach mam vzdycky taky eso
                         //(cili hrozi, ze kdyz s takovym esem vyjedu, tak o nej prijdu)
-                        if (!cardsToPlay.Any() &&
-                            opponentTrumps > 0 &&
-                            (hands[MyIndex].CardCount(_trump) > opponentTrumps ||
-                             (hands[MyIndex].CardCount(_trump) == opponentTrumps &&
-                              _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 &&
-                              _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0)) &&
-                            longSuits.Any() &&
-                            longSuits.All(b => hands[MyIndex].HasA(b)))
-                        {
-                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
-                                                                                i.Suit == _trump);
-                        }
+                        //if (!cardsToPlay.Any() &&
+                        //    opponentTrumps > 0 &&
+                        //    (hands[MyIndex].CardCount(_trump) > opponentTrumps ||
+                        //     (hands[MyIndex].CardCount(_trump) == opponentTrumps &&
+                        //      _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 &&
+                        //      _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0)) &&
+                        //    longSuits.Any() &&
+                        //    longSuits.All(b => hands[MyIndex].HasA(b)))
+                        //{
+                        //    cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
+                        //                                                        i.Suit == _trump);
+                        //}
+
                         //var lowcards = hands[MyIndex].Where(i => i.Suit != _trump &&
                         //                                         Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                         //                                             .Any(h => i.Value < h &&
@@ -1637,7 +1638,7 @@ namespace Mariasek.Engine.New
                         //c--
                         if ((_probabilities.SuitProbability(player2, _trump, RoundNumber) > 0 ||
                              _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0) &&
-                            (_gameType & Hra.Kilo) == 0 &&              //tohle pravidlo nehraju pri kilu
+                            //(_gameType & Hra.Kilo) == 0 &&              //tohle pravidlo nehraju pri kilu
                             (((_gameType & Hra.Sedma)!=0 &&             //pokud hraju sedmu tak se pokusim uhrat A,X nize 
                               hands[MyIndex].CardCount(_trump) > 1) ||  //a dalsi karty pripadne hrat v ramci "hrat cokoli mimo A,X,trumf a dalsich"
                              (hands[MyIndex].CardCount(_trump) > 0)))   //to same pokud jsem volil, sedmu nehraju a uz nemam zadny trumf v ruce
@@ -1967,6 +1968,15 @@ namespace Mariasek.Engine.New
                               _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
                               opponentTrumps.Any(i => hands[MyIndex].Where(j => j.Suit == _trump)
                                                                     .Any(j => i > j.Value))))
+                        {
+                            return null;
+                        }
+                        //nehraj pokud mas dlouhou netrumfovou barvu ve ktere muzes zkusit vytlacit trumf
+                        var longSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                            .Where(b => b != _trump &&
+                                                        hands[MyIndex].CardCount(b) >= 5)
+                                            .ToList();
+                        if (longSuits.Any())
                         {
                             return null;
                         }

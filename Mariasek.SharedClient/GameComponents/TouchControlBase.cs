@@ -144,7 +144,6 @@ namespace Mariasek.SharedClient.GameComponents
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public void TouchUpdate(GameTime gameTime)
         {
-            // TODO: Add your update code here
             if (!IsVisible || 
                 !IsEnabled ||
                 !IsChildOf(Game.CurrentScene) ||
@@ -155,6 +154,14 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 //Ignore input if there is an exclusive control (a modal dialog or an overlay) being shown and we are not that control or one of its children
                 return;
+            }
+
+            if (_draggedObject != null &&
+                (_draggedObject.TouchId == -1 ||
+                 !_draggedObject.IsChildOf(Game.CurrentScene)))
+            {
+                _draggedObject._touchHeldConsumed = false;
+                _draggedObject = null;
             }
 
             // Transform the touch collection to show position in virtual coordinates
@@ -168,12 +175,12 @@ namespace Mariasek.SharedClient.GameComponents
             }
             foreach (var tl in currTouches)
             {
+                System.Diagnostics.Debug.WriteLine($"Touch {tl.Id} {tl.State}. TouchId {TouchId} {Name} {GetHashCode()}");
                 if (_draggedObject != null && TouchId == -1)
                 {
                     //pokud uz tahame jiny objekt, tak eventy ignoruj
                     continue;
                 }
-                System.Diagnostics.Debug.WriteLine($"Touch {tl.Id} {tl.State}. TouchId {TouchId} {Name}");
                 if (CollidesWithPosition(tl.Position))
                 {
                     if ((tl.State == TouchLocationState.Pressed || tl.State == TouchLocationState.Moved))
@@ -185,9 +192,9 @@ namespace Mariasek.SharedClient.GameComponents
 						}
 						if (_draggedObject == null)// && TouchId == -1)	//first time down
                         {
-                            _draggedObject = this;
                             _touchHeldTimeMs = 0;
                             TouchId = tl.Id;
+                            _draggedObject = this;
                             System.Diagnostics.Debug.WriteLine($"TouchId <- {TouchId} * {Name}");
                             OnTouchDown(tl);
                         }
@@ -214,17 +221,10 @@ namespace Mariasek.SharedClient.GameComponents
                 }
                 else if (tl.Id == TouchId && tl.State == TouchLocationState.Moved)
                 {
-                    if (!_touchHeldConsumed)
+                    if (_draggedObject == this && !_touchHeldConsumed)
                     {
                         _touchHeldConsumed = OnTouchHeld(_touchHeldTimeMs, tl);
                     }
-                }
-                else if (tl.Id == TouchId && tl.State == TouchLocationState.Moved)
-                {
-					if (!_touchHeldConsumed)
-					{
-						_touchHeldConsumed = OnTouchHeld(_touchHeldTimeMs, tl);
-					}
                 }
                 else if (tl.Id == TouchId && tl.State == TouchLocationState.Released)
                 {

@@ -812,7 +812,7 @@ namespace Mariasek.Engine.New
 
                 if (PlayerIndex == _g.OriginalGameStartingPlayerIndex && bidding.BetlDurchMultiplier == 0)
                 {
-
+                        
                     //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
                     //Zapamatujeme si vysledek a pouzijeme ho i v ChooseGameFlavour() a ChooseGameType()
                     RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, true);
@@ -834,7 +834,8 @@ namespace Mariasek.Engine.New
                              ((_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && 
                                _betlSimulations > 0 &&
                                !_hundredOverBetl) ||
-                              (lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
+                              (Settings.SafetyBetlThreshold > 0 &&
+                               lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                                lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold)))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
                     {
                         if (_talon == null || !_talon.Any())
@@ -926,14 +927,16 @@ namespace Mariasek.Engine.New
                       _betlSimulations > 0 &&
                       (TeamMateIndex != -1 ||
                        !_hundredOverBetl)) ||
-                       (lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
+                       (Settings.SafetyBetlThreshold > 0 &&
+                        lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                         lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold)))
                 {
                     if ((_betlSimulations > 0 && 
                          (!Settings.CanPlayGameType[Hra.Durch] ||
                           _durchSimulations == 0 || 
                           (float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations)) ||
-                        (lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
+                        (Settings.SafetyBetlThreshold > 0 &&
+                         lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                          lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold))
                     {
                         _gameType = Hra.Betl;   //toto zajisti, ze si umysl nerozmysli po odhozeni talonu na betla
@@ -1672,20 +1675,20 @@ namespace Mariasek.Engine.New
 		{
 			var holesPerSuit = new Dictionary<Barva, int>();
 			var hiHolePerSuit = new Dictionary<Barva, Card>();
-            var dummyTalon = ChooseDurchTalon(Hand, _trumpCard);
+            var dummyTalon = TeamMateIndex == -1 ? ChooseDurchTalon(Hand, _trumpCard) : Enumerable.Empty<Card>();
 
 			foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
 			{
 				var holes = 0;
 				var hiHole = new Card(Barva.Cerveny, Hodnota.Sedma);
 
-				foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
-				{
-					var c = new Card(b, h);
+                foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+                {
+                    var c = new Card(b, h);
 
-                    if (Hand.Any(i => i.Suit == b && 
-                                      i.BadValue < c.BadValue && 
-                                      !dummyTalon.Contains(i) &&
+                    if (Hand.Any(i => i.Suit == b &&
+                                      i.BadValue < c.BadValue &&
+                                      !dummyTalon.Contains(i)  &&
                                       !Hand.Contains(c)))
 					{
 						holes++;
@@ -1725,7 +1728,7 @@ namespace Mariasek.Engine.New
                                           hiHolePerSuit[i.Key].BadValue <= minHole.BadValue ||
                                           (topCards.Count(j => j.Suit == i.Key) > 0 &&              //barva ve ktere mam o 2 mene nejvyssich karet nez der 
                                            topCards.Count(j => j.Suit == i.Key) + 2 >= i.Value) ||  //doufam v dobrou rozlozenost (simulace ukaze)
-                                          Hand.CardCount(i.Key) <= 2))
+                                          Hand.CardCount(i.Key) <= 0))          //tady puvodne bylo <= 2 (sazel jsem na to, ze kratkou barvu dam do talonu), moc riskantni
                 {
                     return true;
                 }
@@ -1733,9 +1736,34 @@ namespace Mariasek.Engine.New
 			return false;
 		}
 
-		public bool ShouldChooseBetl()
+        public int GetBetlHoles()   //vola se pouze z GetBidsAndDoubles pri rozhodovani zda si dat re na betla
+        {
+            var holes = 0;      //pocet der v barve
+
+            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            {
+
+                foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+                {
+                    var c = new Card(b, h);
+                    var n = Hand.Count(i => i.Suit == b &&
+                                          i.BadValue > c.BadValue &&
+                                          !Hand.Contains(c) &&
+                                          !_talon.Contains(c));
+
+                    if (n > 0)
+                    {
+                        holes++;
+                    }
+                }
+            }
+
+            return holes;
+        }
+
+        public bool ShouldChooseBetl()
 		{
-            var talon = ChooseBetlTalon(Hand, null);                //nasimuluj talon
+            var talon = TeamMateIndex == -1 ? ChooseBetlTalon(Hand, null) : Enumerable.Empty<Card>();                //nasimuluj talon
             var hh = Hand.Where(i => !talon.Contains(i)).ToList();
             var holesPerSuit = new Dictionary<Barva, int>();
             var hiCardsPerSuit = new Dictionary<Barva, int>();
@@ -2091,6 +2119,7 @@ namespace Mariasek.Engine.New
 
 			if (axCount >= 6)
 			{
+                DebugInfo.HunderTooRisky = false;
 				return false;
 			}
 			//if (!((Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value)) || //abych nehral kilo pokud aspon netrham a nemam aspon 2 hlasky
@@ -2110,19 +2139,22 @@ namespace Mariasek.Engine.New
                                  Hand.HasK(b))) &&
 				 Hand.CardCount(_trump.Value) == 4))
 			{
-				return true;
+                DebugInfo.HunderTooRisky = true;
+                return true;
 			}
 			if (Hand.Count(i => i.Suit == _trump.Value && i.Value >= Hodnota.Spodek) < 3 &&
                 (!Hand.HasA(_trump.Value) ||
                  !Hand.HasX(_trump.Value)))
 			{
-				return true;
+                DebugInfo.HunderTooRisky = true;
+                return true;
 			}
             //Pokud nevidis do trumfoveho hlasu a mas malo trumfu, tak kilo nehraj
             if (Hand.CardCount(_trump.Value) <= 4 &&
                 !Hand.HasK(_trump.Value) &&
                 !Hand.HasQ(_trump.Value))
             {
+                DebugInfo.HunderTooRisky = true;
                 return true;
             }
             //Pokud vic nez v jedne barve nemas eso nebo mas vetsi diru tak kilo nehraj. Souperi by si mohli uhrat desitky
@@ -2161,6 +2193,7 @@ namespace Mariasek.Engine.New
                                 !Hand.HasA(b) &&
                                 !Hand.HasK(b)))))
             {
+                DebugInfo.HunderTooRisky = true;
                 return true;
             }
             //Pokud mas aspon 2 barvy bez A nebo X tak kilo nehraj. Souperi by si mohli uhrat desitky
@@ -2174,6 +2207,7 @@ namespace Mariasek.Engine.New
                                  !Hand.HasA(b) &&
                                  !Hand.HasK(b))) > 1)
             {
+                DebugInfo.HunderTooRisky = true;
                 return true;
             }
             //Pokud ve vice nez jedne barve mas nizke karty a nemas desitku (ani ji nemuzes vytahnout) tak kilo nehraj. Souperi by si mohli uhrat desitky
@@ -2187,6 +2221,7 @@ namespace Mariasek.Engine.New
                                 Hand.CardCount(b) > 2 &&        //???
                                 Hand.CardCount(b) < 5) > 1)
             {
+                DebugInfo.HunderTooRisky = true;
                 return true;
             }
 
@@ -2200,7 +2235,7 @@ namespace Mariasek.Engine.New
             //    return true;
             //}
 
-            return n > 4 ||                         //u vice nez 4 neodstranitelnych der kilo urcite neuhraju
+            var result = n > 4 ||                         //u vice nez 4 neodstranitelnych der kilo urcite neuhraju
                    (n > 3 && nn > 2) ||
                    (n == 3 &&                       //nebo u 3 neodstranitelnych der pokud nemam trumfove eso
                     !Hand.HasA(_trump.Value) &&     //a mam pet nebo mene trumfu
@@ -2220,7 +2255,11 @@ namespace Mariasek.Engine.New
                     !Hand.HasA(_trump.Value) &&     //nemam trumfove eso
                     !(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
                       Hand.HasQ(_trump.Value)));
-		}
+
+            DebugInfo.HunderTooRisky = result;
+
+            return result;
+        }
 
         public int GetTotalHoles(Barva b)
         {
@@ -2918,7 +2957,10 @@ namespace Mariasek.Engine.New
                 (bidding._betlDurchFlek <= Settings.MaxDoubleCountForGameType[Hra.Betl] ||
 				 (bidding._betlDurchFlek <= MaxFlek &&
                   _betlBalance / (float)_betlSimulations >= certaintyThreshold)) &&
-                PlayerIndex == _g.GameStartingPlayerIndex && _betlBalance / (float)_betlSimulations >= betlThreshold)
+                PlayerIndex == _g.GameStartingPlayerIndex &&
+                _betlBalance / (float)_betlSimulations >= betlThreshold &&
+                (TeamMateIndex != -1 || //pokud jsem volil betla, tak si dej re a vys jen kdyz ma max 1 diru (kterou vyjede)
+                 GetBetlHoles() <= 1))
             {
                 bid |= bidding.Bids & Hra.Betl;
                 //minRuleCount = Math.Min(minRuleCount, _betlBalance);
