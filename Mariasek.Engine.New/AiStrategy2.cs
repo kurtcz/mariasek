@@ -2805,6 +2805,31 @@ namespace Mariasek.Engine.New
             yield return new AiRule
             {
                 Order = 8,
+                Description = "zkusit vytáhnout trumfovou X",
+                SkipSimulations = true,
+                ChooseCard2 = (Card c1) =>
+                {
+                    if (TeamMateIndex != player3)
+                    {
+                        //-c-
+                        //oc-
+                        //normalne se tohle pravidlo neuplatni, protoze driv vytahne plnkovou trumfovou x z prvni pozice
+                        //pokud ale clovek neposlechne napovedu, tak v dalsich kolech tohle pravidlo muze poradit vytahnout trumfovou desitku zde
+                        if (c1.Suit == _trump &&
+                            _probabilities.HasSolitaryX(player3, c1.Suit, RoundNumber) >= (TeamMateIndex == -1 ? SolitaryXThreshold : SolitaryXThresholdDefense))
+                        {
+                            return ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == c1.Suit &&
+                                                                             i.Value == Hodnota.Eso)
+                                                                 .FirstOrDefault();
+                        }
+                    }
+                    return null;
+                }
+            };
+
+            yield return new AiRule
+            {
+                Order = 9,
                 Description = "hrát vysokou kartu mimo A,X",
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
@@ -2827,7 +2852,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule
             {
-                Order = 9,
+                Order = 10,
                 Description = "hrát nízkou kartu mimo A,X",
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
@@ -2893,7 +2918,7 @@ namespace Mariasek.Engine.New
 
             yield return new AiRule
             {
-                Order = 10,
+                Order = 11,
                 Description = "hrát nízkou kartu",
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
