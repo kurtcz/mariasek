@@ -1975,14 +1975,13 @@ namespace Mariasek.Engine.New
                                            i.Value >= Hodnota.Svrsek);
 
             if (trumpCount > 5 ||
-                (trumpCount <= 5 &&
+                (trumpCount >= 4 &&
                  hiTrumps >= 2 &&
                  (Hand.HasA(trump.Value) ||
-                  Hand.HasX(trump.Value) &&
-                (PlayerIndex == _g.GameStartingPlayerIndex &&
-                 trumpCount >= 4 &&
-                 cardsPerSuit.All(i => i.Value > 0)) ||
-                Hand.Average(i => (float)i.Value) >= (float)Hodnota.Kral)))
+                  (Hand.HasX(trump.Value) &&
+                   ((PlayerIndex == _g.GameStartingPlayerIndex &&
+                     cardsPerSuit.All(i => i.Value > 0)) ||
+                    Hand.Average(i => (float)i.Value) >= (float)Hodnota.Kral)))))
             {
                 n += 10;
             }
@@ -2122,13 +2121,18 @@ namespace Mariasek.Engine.New
                 DebugInfo.HunderTooRisky = false;
 				return false;
 			}
-			//if (!((Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value)) || //abych nehral kilo pokud aspon netrham a nemam aspon 2 hlasky
-			//		 Enum.GetValues(typeof(Barva)).Cast<Barva>()
-			//			 .Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2))
-			//{
-			//	return true;
-			//}
-			if ((!Hand.HasA(_trump.Value) &&
+            if (Hand.CardCount(_trump.Value) <= 3)
+            {
+                DebugInfo.HunderTooRisky = true;
+                return true;
+            }
+            //if (!((Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value)) || //abych nehral kilo pokud aspon netrham a nemam aspon 2 hlasky
+            //		 Enum.GetValues(typeof(Barva)).Cast<Barva>()
+            //			 .Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2))
+            //{
+            //	return true;
+            //}
+            if ((!Hand.HasA(_trump.Value) &&
 				 Hand.CardCount(_trump.Value) < 4) ||
 				((!Hand.HasA(_trump.Value) ||
 				  !Hand.HasX(_trump.Value)) &&
