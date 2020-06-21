@@ -179,6 +179,7 @@ namespace Mariasek.SharedClient
             _sendBtn.Click += SendBtnClicked;
 
             NewGameClicked(this);
+            PopulateGameList(true);
         }
 
         private void SendBtnClicked(object sender)
@@ -260,7 +261,7 @@ namespace Mariasek.SharedClient
             }
         }
 
-        private void PopulateGameList()
+        private void PopulateGameList(bool firstTime = false)
         {
             Task.Run(() =>
             {
@@ -276,6 +277,19 @@ namespace Mariasek.SharedClient
                     _files = fileInfos.Select(i => i.FullName).ToArray();
                     _gameListBox.Text = string.Join('\n', fileInfos.Select(i => $"{i.CreationTime.ToString("dd.MM.yyyy HH:mm:ss")}\t{Path.GetFileNameWithoutExtension(i.FullName)}"));
                     _gameListBox.ScrollToBottom();
+                    if (firstTime)
+                    {
+                        if (_files.Any())
+                        {
+                            _gameListButton.IsSelected = true;
+                            _fileLabel.Text = "";
+                            GameListClicked(this);
+                        }
+                        else
+                        {
+                            NewGameClicked(this);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -351,13 +365,19 @@ namespace Mariasek.SharedClient
 
         private void ShowGameList()
         {
-            foreach (var card in _cards)
+            if (_cards != null)
             {
-                card.Hide();
+                foreach (var card in _cards)
+                {
+                    card.Hide();
+                }
             }
-            foreach (var label in _labels)
+            if (_labels != null)
             {
-                label.Hide();
+                foreach (var label in _labels)
+                {
+                    label.Hide();
+                }
             }
             _gameListBox.Show();
             _gameListBox.MoveTo(_origPosition, 5000);
