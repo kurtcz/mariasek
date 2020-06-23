@@ -1409,8 +1409,17 @@ namespace Mariasek.Engine.New
 
                 return calc;
             }).Union(gameComputationResults.Where(i => (i.GameType & Hra.Sedma) != 0).Select((i, idx) =>
-			{
+            {
                 var calc = GetMoneyCalculator(Hra.Kilo | Hra.Sedma, _trump ?? _g.trump, gameStartingPlayerIndex, sevenBidding, i);
+
+                calc.CalculateMoney();
+                _sevenStrings.Add(GetComputationResultString(i, calc));
+
+                return calc;
+            }).Union(gameComputationResults.Where(i => !_g.Calculate107Separately &&
+                                                       (i.GameType & Hra.Sedma) != 0).Select((i, idx) =>
+			{
+                var calc = GetMoneyCalculator(Hra.Hra | Hra.Sedma, _trump ?? _g.trump, gameStartingPlayerIndex, sevenBidding, i);
 
                 calc.CalculateMoney();
                 _sevenStrings.Add(GetComputationResultString(i, calc));
@@ -1432,7 +1441,7 @@ namespace Mariasek.Engine.New
                 _betlStrings.Add(GetComputationResultString(i, calc));
 
                 return calc;
-            }))).ToList();
+            })))).ToList();
             _betlSimulations = moneyCalculations.Count(i => i.GameType == Hra.Betl);
             _durchSimulations = moneyCalculations.Count(i => i.GameType == Hra.Durch);
 
@@ -1463,12 +1472,24 @@ namespace Mariasek.Engine.New
             _hundredsAgainstBalance = PlayerIndex == gameStartingPlayerIndex
                                         ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.HundredAgainstWon)
                                         : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.HundredAgainstWon);
-            _sevensBalance = PlayerIndex == gameStartingPlayerIndex
-                                ? moneyCalculations.Where(i => (i.GameType & Hra.Sedma) != 0).Count(i => i.SevenWon)
-                                : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.SevenWon);
-            _sevenSimulations = PlayerIndex == gameStartingPlayerIndex
-                                ? moneyCalculations.Count(i => (i.GameType & Hra.Sedma) != 0)
-                                : moneyCalculations.Count(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0);
+            if (_g.Calculate107Separately)
+            {
+                _sevensBalance = PlayerIndex == gameStartingPlayerIndex
+                                    ? moneyCalculations.Where(i => (i.GameType & Hra.Sedma) != 0).Count(i => i.SevenWon)
+                                    : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.SevenWon);
+                _sevenSimulations = PlayerIndex == gameStartingPlayerIndex
+                                    ? moneyCalculations.Count(i => (i.GameType & Hra.Sedma) != 0)
+                                    : moneyCalculations.Count(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0);
+            }
+            else
+            {
+                _sevensBalance = PlayerIndex == gameStartingPlayerIndex
+                                    ? moneyCalculations.Where(i => i.GameType == (Hra.Hra | Hra.Sedma)).Count(i => i.SevenWon)
+                                    : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.SevenWon);
+                _sevenSimulations = PlayerIndex == gameStartingPlayerIndex
+                                    ? moneyCalculations.Count(i => i.GameType == (Hra.Hra | Hra.Sedma))
+                                    : moneyCalculations.Count(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0);
+            }
             _sevensAgainstBalance = PlayerIndex == gameStartingPlayerIndex
                                         ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.SevenAgainstWon)
                                         : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.SevenAgainstWon);
