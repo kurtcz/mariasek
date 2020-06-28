@@ -40,6 +40,7 @@ namespace Mariasek.SharedClient
         private Vector2 _hiddenPosition;
         private string[] _files;
         private string _filename;
+        private bool _loadGameCalled;
 
         public EditorScene(MariasekMonoGame game)
             : base(game)
@@ -277,7 +278,7 @@ namespace Mariasek.SharedClient
                     _files = fileInfos.Select(i => i.FullName).ToArray();
                     _gameListBox.Text = string.Join('\n', fileInfos.Select(i => $"{i.CreationTime.ToString("dd.MM.yyyy HH:mm:ss")}\t{Path.GetFileNameWithoutExtension(i.FullName)}"));
                     _gameListBox.ScrollToBottom();
-                    if (firstTime)
+                    if (firstTime && !_loadGameCalled)
                     {
                         if (_files.Any())
                         {
@@ -490,6 +491,7 @@ namespace Mariasek.SharedClient
                         PopulateCards(cards);
                         PopulateLabels();
                         ShowEditor();
+                        _loadGameCalled = true;
                     }
                 }
                 catch (Exception ex)
