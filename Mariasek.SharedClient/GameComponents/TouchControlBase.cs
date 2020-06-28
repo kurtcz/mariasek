@@ -30,12 +30,12 @@ namespace Mariasek.SharedClient.GameComponents
         public bool IsClicked { get; private set; }
         public SoundEffect ClickSound { get; set; }
 
+        
         public TouchControlBase(GameComponent parent)
             : base(parent)
         {
             // TODO: Construct any child components here
             ClickSound = Game.ClickSound;
-
         }
 
         /// <summary>
@@ -152,6 +152,13 @@ namespace Mariasek.SharedClient.GameComponents
                  Game.CurrentScene.ExclusiveControl != this &&
                  !Parent.IsChildOf(Game.CurrentScene.ExclusiveControl)))
             {
+                if (_draggedObject == this)
+                {
+                    TouchId = -1;
+                    _touchHeldConsumed = false;
+                    _touchHeldTimeMs = 0;
+                    _draggedObject = null;
+                }
                 //Ignore input if there is an exclusive control (a modal dialog or an overlay) being shown and we are not that control or one of its children
                 return;
             }
@@ -170,23 +177,43 @@ namespace Mariasek.SharedClient.GameComponents
             var currTouches = Game.TouchCollection.Select(i => new TouchLocation(i.Id, i.State, new Vector2((i.Position.X - ScaleMatrix.M41) / ScaleMatrix.M11,
                                                                                                             (i.Position.Y - ScaleMatrix.M42) / ScaleMatrix.M22)));
 
+            if (_draggedObject != null &&
+                currTouches.All(i => i.Id != _draggedObject.TouchId))
+            {
+                _draggedObject.TouchId = -1;
+                _draggedObject._touchHeldConsumed = false;
+                _touchHeldTimeMs = 0;
+                _draggedObject = null;
+            }
             IsClicked = false;
             if (TouchId != -1)  //if touch held
             {
                 _touchHeldTimeMs += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                if (currTouches.All(i => i.Id != TouchId))
+                {
+                    TouchId = -1;
+                    _touchHeldTimeMs = 0;
+                    _touchHeldConsumed = false;
+                    if (_draggedObject == this)
+                    {
+                        _draggedObject = null;
+                    }
+                }
             }
             foreach (var tl in currTouches)
             {
                 System.Diagnostics.Debug.WriteLine($"Touch {tl.Id} {tl.State}. TouchId {TouchId} {Name} {GetHashCode()}");
-                if (_draggedObject != null && TouchId == -1)
-                {
-                    //pokud uz tahame jiny objekt, tak eventy ignoruj
-                    continue;
-                }
                 if (CollidesWithPosition(tl.Position))
                 {
                     if ((tl.State == TouchLocationState.Pressed || tl.State == TouchLocationState.Moved))
                     {
+                        if (_draggedObject != null &&
+                            (TouchId == -1 ||
+                             _draggedObject != this))
+                        {
+                            //pokud uz tahame jiny objekt, tak eventy ignoruj
+                            continue;
+                        }
                         if (tl.State == TouchLocationState.Pressed)// && _draggedObject != null && TouchId == -1)
 						{
                             //prevents orphan dragged objects to cause a deadlock (nothing receives a touch down event)
@@ -194,6 +221,7 @@ namespace Mariasek.SharedClient.GameComponents
                             {
                                 _draggedObject.TouchId = -1;
                                 _draggedObject._touchHeldConsumed = false;
+                                _touchHeldTimeMs = 0;
                                 _draggedObject = null;
                             }
                         }
@@ -204,6 +232,7 @@ namespace Mariasek.SharedClient.GameComponents
                             TouchId = tl.Id;
                             _draggedObject = this;
                             System.Diagnostics.Debug.WriteLine($"TouchId <- {TouchId} * {Name}");
+
                             OnTouchDown(tl);
                         }
                         if (_draggedObject == this && !_touchHeldConsumed)
@@ -242,6 +271,7 @@ namespace Mariasek.SharedClient.GameComponents
                     _touchHeldConsumed = false;
 					TouchId = -1;
                     System.Diagnostics.Debug.WriteLine($"TouchId <- {TouchId} *** {Name}");
+
                     OnTouchUp(tl);
                 }
                 else
@@ -249,7 +279,7 @@ namespace Mariasek.SharedClient.GameComponents
                     //System.Diagnostics.Debug.WriteLine(string.Format("{0}: OUT state: {1} id: {2} position: {3}", Name, tl.State, tl.Id, tl.Position));
                 }
             }
-        } 
+        }
     }
 }
 

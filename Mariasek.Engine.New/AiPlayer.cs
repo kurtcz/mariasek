@@ -3356,10 +3356,10 @@ namespace Mariasek.Engine.New
                 }
                 finally
                 {
+                    List<Card> cardsToPlay;
+
                     if (cardToPlay == null)
                     {
-                        List<Card> cardsToPlay;
-
                         DebugInfo.Rule = "Náhodná karta (simulace neproběhla)";
                         DebugInfo.RuleCount = 0;
                         DebugInfo.TotalRuleCount = 0;
@@ -3382,6 +3382,39 @@ namespace Mariasek.Engine.New
                         else
                         {
                             cardToPlay = cardsToPlay.OrderBy(i => i.Value).First();
+                        }
+                    }
+                    else if (_g.HlasConsidered == HlasConsidered.First &&                             
+                             cardToPlay.Value == Hodnota.Svrsek &&
+                             cardToPlay.Suit != _trump.Value &&
+                             Hand.HasK(cardToPlay.Suit) &&
+                             Hand.HasK(_trump.Value) &&
+                             Hand.HasQ(_trump.Value) &&
+                             ((TeamMateIndex == -1 &&
+                               (_gameType.Value & Hra.Kilo) != 0) ||
+                              (TeamMateIndex != -1 &&
+                               (_gameType.Value & Hra.KiloProti) != 0)))
+                    {
+                        if (r.c2 != null)
+                        {
+                            cardsToPlay = ValidCards(Hand, _trump, _gameType.Value, TeamMateIndex, r.c1, r.c2);
+                        }
+                        else if (r.c1 != null)
+                        {
+                            cardsToPlay = ValidCards(Hand, _trump, _gameType.Value, TeamMateIndex, r.c1);
+                        }
+                        else
+                        {
+                            cardsToPlay = ValidCards(Hand, _trump, _gameType.Value, TeamMateIndex);
+                        }
+                        if (cardsToPlay.HasQ(_trump.Value))
+                        {
+                            DebugInfo.Rule = "Hraj trumfovou hlášku";
+                            DebugInfo.RuleCount = 0;
+                            DebugInfo.TotalRuleCount = 0;
+
+                            cardToPlay = cardsToPlay.First(i => i.Value == Hodnota.Svrsek &&
+                                                                i.Suit == _trump.Value);
                         }
                     }
                 }
