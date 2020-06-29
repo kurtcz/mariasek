@@ -16,15 +16,7 @@ namespace Mariasek.SharedClient
 {
     public class HistoryScene : Scene
     {
-#if __ANDROID__
-        //private static string _path = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
-        private static string _path => (int)Android.OS.Build.VERSION.SdkInt >= 29
-                                        ? Android.App.Application.Context.GetExternalFilesDir(null).Path
-                                        : Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
-#else   //#elif __IOS__
-        private static string _path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-#endif
-        private string _archivePath = Path.Combine(_path, "Archive");
+        private string _archivePath = Path.Combine(MariasekMonoGame.RootPath, "Archive");
 
         private Button _menuButton;
         private Button _viewGameButton;
@@ -472,31 +464,37 @@ namespace Mariasek.SharedClient
 
         private void ViewGameButtonClicked(object sender)
         {
-            if (_historyBox.HighlightedLine >= 0 &&
-                _historyBox.HighlightedLine < Game.Money.Count())
+            try
             {
-                var historicGame = Game.Money[_historyBox.HighlightedLine];
-                if (historicGame.GameId <= 0)
+                if (_historyBox.HighlightedLine >= 0 &&
+                    _historyBox.HighlightedLine < Game.Money.Count())
                 {
-                    return;
-                }
-                Game.StorageAccessor.GetStorageAccess();
-                var pattern = string.Format("{0:0000}-*.hra", historicGame.GameId);
-                var files = Directory.GetFiles(_archivePath, pattern).OrderBy(i => i).ToArray();
-
-                if (historicGame.GameId > 0 &&
-                    files.Length == 2)
-                {
-                    var newGameFilePath = files[0];
-                    var endGameFilePath = files[1];
-
-                    if (File.Exists(newGameFilePath) &&
-                        File.Exists(endGameFilePath))
+                    var historicGame = Game.Money[_historyBox.HighlightedLine];
+                    if (historicGame.GameId <= 0)
                     {
-                        Game.ReviewScene.ShowGame(historicGame, newGameFilePath, endGameFilePath);
-                        Game.ReviewScene.SetActive();
+                        return;
+                    }
+                    Game.StorageAccessor.GetStorageAccess();
+                    var pattern = string.Format("{0:0000}-*.hra", historicGame.GameId);
+                    var files = Directory.GetFiles(_archivePath, pattern).OrderBy(i => i).ToArray();
+                    if (historicGame.GameId > 0 &&
+                        files.Length == 2)
+                    {
+                        var newGameFilePath = files[0];
+                        var endGameFilePath = files[1];
+
+                        if (File.Exists(newGameFilePath) &&
+                            File.Exists(endGameFilePath))
+                        {
+                            Game.ReviewScene.ShowGame(historicGame, newGameFilePath, endGameFilePath);
+                            Game.ReviewScene.SetActive();
+                        }
                     }
                 }
+            }
+            catch(Exception ex)
+            {
+                Guide.BeginShowMessageBox("Chyba", ex.Message, new string[] { "OK" }, 0, MessageBoxIcon.Error, null, null);
             }
         }
 

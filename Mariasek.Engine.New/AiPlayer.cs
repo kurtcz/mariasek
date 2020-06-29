@@ -3384,16 +3384,16 @@ namespace Mariasek.Engine.New
                             cardToPlay = cardsToPlay.OrderBy(i => i.Value).First();
                         }
                     }
-                    else if (_g.HlasConsidered == HlasConsidered.First &&                             
+                    else if (((TeamMateIndex == -1 &&
+                               (_gameType.Value & Hra.Kilo) != 0) ||
+                              (TeamMateIndex != -1 &&
+                               (_gameType.Value & Hra.KiloProti) != 0)) &&
+                             _g.HlasConsidered == HlasConsidered.First &&                             
                              cardToPlay.Value == Hodnota.Svrsek &&
                              cardToPlay.Suit != _trump.Value &&
                              Hand.HasK(cardToPlay.Suit) &&
                              Hand.HasK(_trump.Value) &&
-                             Hand.HasQ(_trump.Value) &&
-                             ((TeamMateIndex == -1 &&
-                               (_gameType.Value & Hra.Kilo) != 0) ||
-                              (TeamMateIndex != -1 &&
-                               (_gameType.Value & Hra.KiloProti) != 0)))
+                             Hand.HasQ(_trump.Value))
                     {
                         if (r.c2 != null)
                         {
