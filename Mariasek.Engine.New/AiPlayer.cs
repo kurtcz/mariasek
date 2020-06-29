@@ -925,8 +925,10 @@ namespace Mariasek.Engine.New
                     (Settings.CanPlayGameType[Hra.Betl] && 
                      (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][betlThresholdIndex] * _betlSimulations &&
                       _betlSimulations > 0 &&
-                      (TeamMateIndex != -1 ||
-                       !_hundredOverBetl)) ||
+                      ((TeamMateIndex != -1 &&
+                        Hand.CardCount(Hodnota.Eso) <= 1) ||
+                       (TeamMateIndex == -1 &&
+                        !_hundredOverBetl))) ||
                        (Settings.SafetyBetlThreshold > 0 &&
                         lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                         lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold)))
@@ -2786,8 +2788,11 @@ namespace Mariasek.Engine.New
                      estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqMaxOpponentScore ||
                      (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + 10 &&
                       !Is100AgainstPossible(110)))) ||
-                   (estimatedFinalBasicScore > 60 &&    //pokud si davam re a nethram, musim mit velkou jistotu
-                    !Is100AgainstPossible(110)))) ||    //ze uhraju vic bodu i bez trhaka a ze souper neuhraje kilo (110 - kilo jeste risknu)
+                   (kqScore >= 20 &&                            //davam si re kdyz mam aspon jeden hlas
+                    Hand.CardCount(_trump.Value) >= 4 &&        //4 trumfy 
+                    GetTotalHoles() <= 3) ||                    //a max tri diry (tj. jinak same vysoke karty), netreba trhat trumfovou hlasku
+                   (estimatedFinalBasicScore > 60 &&            //pokud si davam re a nethram, musim mit velkou jistotu
+                    !Is100AgainstPossible(110)))) ||            //ze uhraju vic bodu i bez trhaka a ze souper neuhraje kilo (110 - kilo jeste risknu)
                  //nebo jsem nevolil a:
                  (TeamMateIndex != -1 &&                  
                   ((bidding.GameMultiplier > 2 &&               //Tutti:

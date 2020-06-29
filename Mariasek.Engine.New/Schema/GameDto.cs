@@ -119,15 +119,15 @@ namespace Mariasek.Engine.New.Schema
 
                     if (!string.IsNullOrEmpty(Stychy[i]?.Hrac1?.Poznamka))
                     {
-                        hrac1.AddAfterSelf(new XComment(Stychy[i].Hrac1.Poznamka));
+                        hrac1.AddAfterSelf(new XComment($" {Stychy[i].Hrac1.Poznamka} "));
                     }
                     if (!string.IsNullOrEmpty(Stychy[i]?.Hrac2?.Poznamka))
                     {
-                        hrac2.AddAfterSelf(new XComment(Stychy[i].Hrac2.Poznamka));
+                        hrac2.AddAfterSelf(new XComment($" {Stychy[i].Hrac2.Poznamka} "));
                     }
                     if (!string.IsNullOrEmpty(Stychy[i]?.Hrac3?.Poznamka))
                     {
-                        hrac3.AddAfterSelf(new XComment(Stychy[i].Hrac3.Poznamka));
+                        hrac3.AddAfterSelf(new XComment($" {Stychy[i].Hrac3.Poznamka} "));
                     }
                     i++;
                 }

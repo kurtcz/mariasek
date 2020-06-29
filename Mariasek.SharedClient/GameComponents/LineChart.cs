@@ -141,7 +141,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             else
             {
-                return (int)Math.Max(Width, Data.Length > 0 ? Data[0].Length * 25f : 0);
+                return (int)Math.Max(Width, Data.Length > 0 ? Data[0].Length * 10f : 0);
             }
         }
 
