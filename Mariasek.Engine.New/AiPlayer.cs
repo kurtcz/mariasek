@@ -25,7 +25,7 @@ namespace Mariasek.Engine.New
         private static readonly ILog _log = new DummyLogWrapper();
 #endif   
         public Barva? _trump;
-        private Hra? _gameType;
+        public Hra? _gameType;
         public List<Card> _talon; //public so that HumanPlayer can set it
         private float _avgWinForHundred;
         private float _avgBasicPointsLost;
@@ -82,41 +82,42 @@ namespace Mariasek.Engine.New
                 MaxSimulationTimeMs = 2000,
                 SimulationsPerRound = 250,
                 RuleThreshold = 0.95f,
-                RuleThresholdForGameType = new Dictionary<Hra, float> {{ Hra.Kilo, 0.99f }},
-                GameThresholds = new [] { 0.75f, 0.8f, 0.85f, 0.9f, 0.95f },
+                RuleThresholdForGameType = new Dictionary<Hra, float> { { Hra.Kilo, 0.99f } },
+                GameThresholds = new[] { 0.75f, 0.8f, 0.85f, 0.9f, 0.95f },
                 GameThresholdsForGameType = new Dictionary<Hra, float[]>
-                                            {
-                                                { Hra.Hra,        new[] { 0.00f, 0.50f, 0.65f, 0.80f, 0.95f } },
-                                                { Hra.Sedma,      new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
-                                                { Hra.SedmaProti, new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
-                                                { Hra.Kilo,       new[] { 0.80f, 0.85f, 0.90f, 0.95f, 0.99f } },
-                                                { Hra.KiloProti,  new[] { 0.95f, 0.96f, 0.97f, 0.98f, 0.99f } },
-                                                { Hra.Betl,       new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
-                                                { Hra.Durch,      new[] { 0.80f, 0.85f, 0.90f, 0.95f, 0.99f } }
-                                            },
+                {
+                    { Hra.Hra, new[] { 0.00f, 0.50f, 0.65f, 0.80f, 0.95f } },
+                    { Hra.Sedma, new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
+                    { Hra.SedmaProti, new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
+                    { Hra.Kilo, new[] { 0.80f, 0.85f, 0.90f, 0.95f, 0.99f } },
+                    { Hra.KiloProti, new[] { 0.95f, 0.96f, 0.97f, 0.98f, 0.99f } },
+                    { Hra.Betl, new[] { 0.75f, 0.80f, 0.85f, 0.90f, 0.95f } },
+                    { Hra.Durch, new[] { 0.80f, 0.85f, 0.90f, 0.95f, 0.99f } }
+                },
                 MaxDoubleCountForGameType = new Dictionary<Hra, int>
-                                            {
-                                                { Hra.Hra,        3 },
-                                                { Hra.Sedma,      3 },
-                                                { Hra.SedmaProti, 2 },
-                                                { Hra.Kilo,       3 },
-                                                { Hra.KiloProti,  0 },
-                                                { Hra.Betl,       3 },
-                                                { Hra.Durch,      3 }
-                                            },
+                {
+                    { Hra.Hra, 3 },
+                    { Hra.Sedma, 3 },
+                    { Hra.SedmaProti, 2 },
+                    { Hra.Kilo, 3 },
+                    { Hra.KiloProti, 0 },
+                    { Hra.Betl, 3 },
+                    { Hra.Durch, 3 }
+                },
                 CanPlayGameType = new Dictionary<Hra, bool>
-                                            {
-                                                { Hra.Hra,        true },
-                                                { Hra.Sedma,      true },
-                                                { Hra.SedmaProti, true },
-                                                { Hra.Kilo,       true },
-                                                { Hra.KiloProti,  false },
-                                                { Hra.Betl,       true },
-                                                { Hra.Durch,      true }
-                                            },
+                {
+                    { Hra.Hra, true },
+                    { Hra.Sedma, true },
+                    { Hra.SedmaProti, true },
+                    { Hra.Kilo, true },
+                    { Hra.KiloProti, false },
+                    { Hra.Betl, true },
+                    { Hra.Durch, true }
+                },
                 SigmaMultiplier = 0,
-			    GameFlavourSelectionStrategy = GameFlavourSelectionStrategy.Standard,
+                GameFlavourSelectionStrategy = GameFlavourSelectionStrategy.Standard,
                 RiskFactor = 0.275f,
+                RiskFactorSevenDefense = 0.5f,
                 SolitaryXThreshold = 0.13f,
                 SolitaryXThresholdDefense = 0.5f,
                 SafetyBetlThreshold = 24
@@ -175,6 +176,7 @@ namespace Mariasek.Engine.New
             Settings.GameThresholdsForGameType[Hra.Durch] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
             //Settings.MaxDoubleCount = int.Parse(parameters["MaxDoubleCount"].Value);
             Settings.RiskFactor = float.Parse(parameters["RiskFactor"].Value, CultureInfo.InvariantCulture);
+            Settings.RiskFactorSevenDefense = float.Parse(parameters["RiskFactorSevenDefense"].Value, CultureInfo.InvariantCulture);
             Settings.SolitaryXThreshold = float.Parse(parameters["SolitaryXThreshold"].Value, CultureInfo.InvariantCulture);
             Settings.SolitaryXThresholdDefense = float.Parse(parameters["SolitaryXThresholdDefense"].Value, CultureInfo.InvariantCulture);
             Settings.SafetyBetlThreshold = int.Parse(parameters["SafetyBetlThreshold"].Value, CultureInfo.InvariantCulture);
@@ -664,7 +666,7 @@ namespace Mariasek.Engine.New
         public override List<Card> ChooseTalon()
         {
             //zacinajici hrac nejprve vybira talon a az pak rozhoduje jakou hru bude hrat (my mame oboje implementovane uvnitr ChooseGameFlavour())
-            if (PlayerIndex == _g.OriginalGameStartingPlayerIndex)
+            if (PlayerIndex == _g.OriginalGameStartingPlayerIndex && _g.GameType == 0)
             {
                 ChooseGameFlavour();
 				//pokud delam poradce pro cloveka, musim vybrat talon i kdyz bych normalne nehral betla nebo durcha
@@ -1154,7 +1156,7 @@ namespace Mariasek.Engine.New
 
                                         UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
 
-                                        var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType ?? (Hra.Kilo | Hra.Sedma), 10, 1);
+                                        var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, AdvisorMode ? (Hra.Kilo | Hra.Sedma) : _gameType ?? (Hra.Kilo | Hra.Sedma), 10, 1);
                                         gameComputationResults.Enqueue(gameComputationResult);
                                     }
                                     var val = Interlocked.Increment(ref progress);
@@ -1241,17 +1243,19 @@ namespace Mariasek.Engine.New
                                     for (var i = 0; i < hh.Length; i++)
                                     {
                                         hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
-                                }
+                                    }
                                     if (PlayerIndex != _g.GameStartingPlayerIndex) //pokud nevolim tak nasimuluju shoz do talonu
-                                {
+                                    {
                                         UpdateGeneratedHandsByChoosingTrumpAndTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
                                     }
                                     else if (!_rerunSimulations) //pokud volim (poprve, tak v UpdateGeneratedHandsByChoosingTalon() beru v potaz trumfovou kartu kterou jsem zvolil
-                                {
+                                    {
                                         UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
                                     }
-                                    UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, gameStartingPlayerIndex);
-
+                                    if (!AdvisorMode || _talon == null || !_talon.Any())
+                                    {
+                                        UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, gameStartingPlayerIndex);
+                                    }
                                     var betlComputationResult = ComputeGame(hands, null, null, null, Hra.Betl, 10, 1, true);
                                     betlComputationResults.Enqueue(betlComputationResult);
                                 }
@@ -2844,11 +2848,19 @@ namespace Mariasek.Engine.New
                      (Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
                       kqScore >= 40 &&                         //40 bodu v hlasech
                       estimatedFinalBasicScore >= 50) ||       //a odhaduju ze uhraju aspon 50 bodu v desitkach
+                     (Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
+                      (Hand.HasX(_g.trump.Value) ||            //a desitku nebo
+                       Hand.CardCount(_g.trump.Value) >= 3) && //aspon 3 trumfy
+                      estimatedFinalBasicScore >= 50 &&        //a aspon 50 bodu na ruce
+                      kqMaxOpponentScore <= 80) ||             //a trham aspon jeden hlas
                      (_teamMateDoubledSeven &&                //nebo spoluhrac dal flek na sedmu a ja mam aspon 40 bodu na ruce
-                      !Is100AgainstPossible() &&
+                      //!Is100AgainstPossible() &&
                       (kqScore >= 40 ||
                        (kqScore >= 20 &&
-                        estimatedFinalBasicScore >= 20))) ||  //nebo mam aspon jeden hlas, dost trumfu a dost bodu na ruce a akter nemuze uhrat kilo
+                        estimatedFinalBasicScore >= 20) ||
+                       ((Hand.HasK(_g.trump.Value) ||
+                         Hand.HasQ(_g.trump.Value)) &&
+                        estimatedFinalBasicScore >= 40))) ||  //nebo mam aspon jeden hlas, dost trumfu a dost bodu na ruce a akter nemuze uhrat kilo
                      (kqScore >= 20 &&
                       Hand.CardCount(_g.trump.Value) >= 4 &&
                       estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
@@ -3821,7 +3833,9 @@ namespace Mariasek.Engine.New
             }
             prob.UseDebugString = false;    //otherwise we are being really slooow
             var teamMatesSuits = new List<Barva>(_teamMatesSuits);
-            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.rounds, teamMatesSuits, prob, playerName, playerIndex, teamMateIndex, initialRoundNumber, Settings.RiskFactor, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense);
+            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.rounds, teamMatesSuits,
+                prob, playerName, playerIndex, teamMateIndex, initialRoundNumber,
+                Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense);
             
             _log.DebugFormat("Round {0}. Starting simulation for {1}", _g.RoundNumber, _g.players[PlayerIndex].Name);
             if (c1 != null) _log.DebugFormat("First card: {0}", c1);

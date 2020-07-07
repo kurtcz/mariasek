@@ -91,6 +91,7 @@ namespace Mariasek.SharedClient
         public CardBackSide CardBackSide { get; set; }
         public BidThresholdSettings[] Thresholds { get; set; }
         public float RiskFactor { get; set; }
+        public float RiskFactorSevenDefense { get; set; }    //xml-only
         public float SolitaryXThreshold { get; set; }           //xml-only
         public float SolitaryXThresholdDefense { get; set; }    //xml-only
         public int SafetyBetlThreshold { get; set; }            //xml-only
@@ -225,6 +226,7 @@ namespace Mariasek.SharedClient
 			RiskFactor = 0.28f; //0.2727f ~ (9 nad 5) / (11 nad 5)
             SolitaryXThreshold = 0.13f; //pokud mam na zacatku 5 karet, tak P(souper ma plonkovou X) ~ 0.131
             SolitaryXThresholdDefense = 0.5f; //v obrane musi mit prah vyssi hodnotu aby tahali jen kdyz je to skoro jiste
+            RiskFactorSevenDefense = 0.5f; //pouziva se u pravidla bodovat nebo vytlacit trumf proti sedme
             SafetyBetlThreshold = 24;
             Thresholds = new []
             {

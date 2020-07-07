@@ -263,6 +263,11 @@ namespace Mariasek.SharedClient
                 Name = "RiskFactor",
                 Value = Game.Settings.RiskFactor.ToString(CultureInfo.InvariantCulture)
             });
+            _aiConfig.Add("RiskFactorSevenDefense", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "RiskFactorSevenDefense",
+                Value = Game.Settings.RiskFactorSevenDefense.ToString(CultureInfo.InvariantCulture)
+            });
             _aiConfig.Add("SolitaryXThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "SolitaryXThreshold",

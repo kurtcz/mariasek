@@ -10,7 +10,7 @@ namespace Mariasek.Engine.New
     {
         public static AiStrategyBase GetAiStrategy(Game g, Hra? gameType, Barva? trump, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, 
                                                    Probability probabilities, string name, int playerIndex, int teamMateIndex, int? initialRoundNumber, 
-                                                   float riskFactor, float solitaryXThreshold, float solitaryXThresholdDefense)
+                                                   float riskFactor, float riskFactorSevenDefense, float solitaryXThreshold, float solitaryXThresholdDefense)
         {
             var gt = gameType.HasValue ? gameType.Value : g.GameType;
 
@@ -41,6 +41,7 @@ namespace Mariasek.Engine.New
                         TeamMateIndex = teamMateIndex,
                         RoundNumber = initialRoundNumber.HasValue ? initialRoundNumber.Value : g.RoundNumber,
                         RiskFactor = riskFactor,
+                        RiskFactorSevenDefense = riskFactorSevenDefense,
                         SolitaryXThreshold = solitaryXThreshold,
                         SolitaryXThresholdDefense = solitaryXThresholdDefense
                     };

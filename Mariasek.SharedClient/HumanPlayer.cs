@@ -182,6 +182,12 @@ namespace Mariasek.SharedClient
                 {
                     ExternalDebugString = _aiPlayer._debugString
                 };
+                //pokud ai radil talon na betla ale my hrac vybral jiny talon, tak zapomen co ai radil
+                if (_aiPlayer._gameType == Hra.Betl &&
+                    _aiPlayer._talon.Any(i => !_talon.Contains(i)))
+                {
+                    _aiPlayer._gameType = null;
+                }
                 _aiPlayer._talon = new List<Card>(_talon);
                 _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _aiPlayer._talon);
             }

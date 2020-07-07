@@ -21,6 +21,7 @@ namespace Mariasek.SharedClient
         private Label _threshold2;
         private Label _threshold3;
         private Label _riskFactor;
+        private Label _riskFactorAgainstSeven;
         private Label _solitaryXThreshold;
         private Label _solitaryXThresholdDefense;
         private Label _safetyBetlThreshold;
@@ -34,6 +35,7 @@ namespace Mariasek.SharedClient
         private LeftRightSelector _threshold2Selector;
         private LeftRightSelector _threshold3Selector;
         private LeftRightSelector _riskFactorSelector;
+        private LeftRightSelector _riskFactorAgainstSevenSelector;
         private LeftRightSelector _solitaryXSelector;
         private LeftRightSelector _solitaryXDefenseSelector;
         private LeftRightSelector _safetyBetlSelector;
@@ -366,7 +368,7 @@ namespace Mariasek.SharedClient
             ///// Game Play Controls /////
             _riskFactor = new Label(this)
             {
-                Position = new Vector2(230, Game.VirtualScreenHeight / 2 - 115),
+                Position = new Vector2(230, Game.VirtualScreenHeight / 2 - 150),
                 Width = 290,
                 Height = 50,
                 Text = "Risk faktor",
@@ -375,7 +377,7 @@ namespace Mariasek.SharedClient
             };
             _riskFactorSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 - 115),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 - 150),
                 Width = (int)Game.VirtualScreenWidth / 2 - 190,
                 Items = new SelectorItems(
                     Enumerable.Range(0, 51)
@@ -390,9 +392,36 @@ namespace Mariasek.SharedClient
                 _riskFactorSelector.SelectedIndex = 0;
             }
 
+            _riskFactorAgainstSeven = new Label(this)
+            {
+                Position = new Vector2(230, Game.VirtualScreenHeight / 2 - 70),
+                Width = 290,
+                Height = 50,
+                Text = "Risk faktor proti sedmě",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+
+            _riskFactorAgainstSevenSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 - 70),
+                Width = (int)Game.VirtualScreenWidth / 2 - 190,
+                Items = new SelectorItems(
+                    Enumerable.Range(0, 101)
+                              .Select(i => new KeyValuePair<string, object>(string.Format("{0}%", i), i / 100f))
+                              .ToList()
+                )
+            };
+            _riskFactorAgainstSevenSelector.SelectedIndex = 0;
+            _riskFactorAgainstSevenSelector.SelectionChanged += RiskFactorAgainstSevenChanged;
+            if (_riskFactorAgainstSevenSelector.SelectedIndex < 0)
+            {
+                _riskFactorAgainstSevenSelector.SelectedIndex = 0;
+            }
+
             _solitaryXThreshold = new Label(this)
             {
-                Position = new Vector2(230, Game.VirtualScreenHeight / 2 - 30),
+                Position = new Vector2(230, Game.VirtualScreenHeight / 2 + 5),
                 Width = 290,
                 Height = 60,
                 Text = "Risk při chytání\nplonkové X pro aktéra",
@@ -401,7 +430,7 @@ namespace Mariasek.SharedClient
             };
             _solitaryXSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 - 25),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 + 10),
                 Width = (int)Game.VirtualScreenWidth / 2 - 190,
                 Items = new SelectorItems(
                     Enumerable.Range(0, 51)
@@ -418,7 +447,7 @@ namespace Mariasek.SharedClient
 
             _solitaryXThresholdDefense = new Label(this)
             {
-                Position = new Vector2(230, Game.VirtualScreenHeight / 2 + 65),
+                Position = new Vector2(230, Game.VirtualScreenHeight / 2 + 85),
                 Width = 290,
                 Height = 60,
                 Text = "Risk při chytání\nplonkové X pro obranu",
@@ -427,7 +456,7 @@ namespace Mariasek.SharedClient
             };
             _solitaryXDefenseSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 + 65),
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 + 90),
                 Width = (int)Game.VirtualScreenWidth / 2 - 190,
                 Items = new SelectorItems(
                     Enumerable.Range(0, 51)
@@ -492,6 +521,8 @@ namespace Mariasek.SharedClient
             _solitaryXDefenseSelector.Show();
             _riskFactor.Show();
             _riskFactorSelector.Show();
+            _riskFactorAgainstSeven.Show();
+            _riskFactorAgainstSevenSelector.Show();
             _note2.Show();
         }
 
@@ -503,6 +534,8 @@ namespace Mariasek.SharedClient
             _solitaryXDefenseSelector.Hide();
             _riskFactor.Hide();
             _riskFactorSelector.Hide();
+            _riskFactorAgainstSeven.Hide();
+            _riskFactorAgainstSevenSelector.Hide();
             _note2.Hide();
         }
 
@@ -583,6 +616,7 @@ namespace Mariasek.SharedClient
                 _threshold3Selector.SelectedIndex = _threshold3Selector.Items.FindIndex(thresholds[3]);
                 _safetyBetlSelector.SelectedIndex = _safetyBetlSelector.Items.FindIndex(Game.Settings.SafetyBetlThreshold);
                 _riskFactorSelector.SelectedIndex = _riskFactorSelector.Items.FindIndex(Game.Settings.RiskFactor);
+                _riskFactorAgainstSevenSelector.SelectedIndex = _riskFactorAgainstSevenSelector.Items.FindIndex(Game.Settings.RiskFactorSevenDefense);
                 _solitaryXSelector.SelectedIndex = _solitaryXSelector.Items.FindIndex(Game.Settings.SolitaryXThreshold);
                 _solitaryXDefenseSelector.SelectedIndex = _solitaryXDefenseSelector.Items.FindIndex(Game.Settings.SolitaryXThresholdDefense);
                 _updating = false;
@@ -624,6 +658,7 @@ namespace Mariasek.SharedClient
                 _maxBidCountSelector.SelectedIndex == -1 ||
                 _playSelector.SelectedIndex == -1 ||
                 _riskFactorSelector.SelectedIndex == -1 ||
+                _riskFactorAgainstSevenSelector.SelectedIndex == -1 ||
                 _safetyBetlSelector.SelectedIndex == -1 ||
                 _solitaryXSelector.SelectedIndex == -1 ||
                 _solitaryXDefenseSelector.SelectedIndex == -1)
@@ -639,6 +674,7 @@ namespace Mariasek.SharedClient
             thresholdSettings.MaxBidCount = (int)_maxBidCountSelector.SelectedValue;
             thresholdSettings.Use = (bool)_playSelector.SelectedValue;
             Game.Settings.RiskFactor = (float)_riskFactorSelector.SelectedValue;
+            Game.Settings.RiskFactorSevenDefense = (float)_riskFactorAgainstSevenSelector.SelectedValue;
             Game.Settings.SolitaryXThreshold = (float)_solitaryXSelector.SelectedValue;
             Game.Settings.SolitaryXThresholdDefense = (float)_solitaryXDefenseSelector.SelectedValue;
             Game.Settings.SafetyBetlThreshold = (int)_safetyBetlSelector.SelectedValue;
@@ -758,6 +794,15 @@ namespace Mariasek.SharedClient
                 UpdateAiSettings();
             }
 		}
+
+        public void RiskFactorAgainstSevenChanged(object sender)
+        {
+            if (!_updating)
+            {
+                _settingsChanged = true;
+                UpdateAiSettings();
+            }
+        }
 
         public void SafetyBetlChanged(object sender)
         {
