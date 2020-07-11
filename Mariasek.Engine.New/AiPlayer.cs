@@ -2856,6 +2856,8 @@ namespace Mariasek.Engine.New
                        Hand.CardCount(_g.trump.Value) >= 3) && //aspon 3 trumfy
                       estimatedFinalBasicScore >= 50 &&        //a aspon 50 bodu na ruce
                       kqMaxOpponentScore <= 80) ||             //a trham aspon jeden hlas
+                     (Hand.CardCount(_g.trump.Value) >= 5 &&   //nebo mam aspon 5 trumfu
+                      estimatedFinalBasicScore >= 40) ||       //a asopn 40 bodu
                      (_teamMateDoubledSeven &&                //nebo spoluhrac dal flek na sedmu a ja mam aspon 40 bodu na ruce
                       //!Is100AgainstPossible() &&
                       (kqScore >= 40 ||
