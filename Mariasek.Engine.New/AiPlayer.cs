@@ -2794,9 +2794,12 @@ namespace Mariasek.Engine.New
                       !Is100AgainstPossible(110)))) ||
                    (kqScore >= 20 &&                            //davam si re kdyz mam aspon jeden hlas
                     Hand.CardCount(_trump.Value) >= 4 &&        //4 trumfy 
-                    GetTotalHoles() <= 3) ||                    //a max tri diry (tj. jinak same vysoke karty), netreba trhat trumfovou hlasku
+                    totalHoles <= 3) ||                         //a max tri diry (tj. jinak same vysoke karty), netreba trhat trumfovou hlasku
                    (estimatedFinalBasicScore > 60 &&            //pokud si davam re a nethram, musim mit velkou jistotu
-                    !Is100AgainstPossible(110)))) ||            //ze uhraju vic bodu i bez trhaka a ze souper neuhraje kilo (110 - kilo jeste risknu)
+                    !Is100AgainstPossible(110)) ||              //ze uhraju vic bodu i bez trhaka a ze souper neuhraje kilo (110 - kilo jeste risknu)
+                   (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
+                    Hand.CardCount(_trump.Value) >= 5 &&
+                    !Is100AgainstPossible(100)))) ||            
                  //nebo jsem nevolil a:
                  (TeamMateIndex != -1 &&                  
                   ((bidding.GameMultiplier > 2 &&               //Tutti:
