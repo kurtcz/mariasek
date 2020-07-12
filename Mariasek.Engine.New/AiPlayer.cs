@@ -2794,7 +2794,7 @@ namespace Mariasek.Engine.New
                       !Is100AgainstPossible(110)))) ||
                    (kqScore >= 20 &&                            //davam si re kdyz mam aspon jeden hlas
                     Hand.CardCount(_trump.Value) >= 4 &&        //4 trumfy 
-                    totalHoles <= 3) ||                         //a max tri diry (tj. jinak same vysoke karty), netreba trhat trumfovou hlasku
+                    totalHoles <= 4) ||                         //a max 4 diry (tj. jinak same vysoke karty), netreba trhat trumfovou hlasku
                    (estimatedFinalBasicScore > 60 &&            //pokud si davam re a nethram, musim mit velkou jistotu
                     !Is100AgainstPossible(110)) ||              //ze uhraju vic bodu i bez trhaka a ze souper neuhraje kilo (110 - kilo jeste risknu)
                    (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
@@ -3161,6 +3161,8 @@ namespace Mariasek.Engine.New
 
 		public void GameLoaded(object sender)
 		{
+            _gameType = _g.GameType;
+            _trump = _g.trump;
 			if (PlayerIndex == _g.GameStartingPlayerIndex)
 			{
                 _talon = new List<Card>(_g.talon); //TODO: tohle by se melo delat v Game.LoadGame()!
@@ -3407,15 +3409,15 @@ namespace Mariasek.Engine.New
                         }
                     }
                     else if (((TeamMateIndex == -1 &&
-                               (_gameType.Value & Hra.Kilo) != 0) ||
+                               (_gameType & Hra.Kilo) != 0) ||
                               (TeamMateIndex != -1 &&
-                               (_gameType.Value & Hra.KiloProti) != 0)) &&
+                               (_gameType & Hra.KiloProti) != 0)) &&
                              _g.HlasConsidered == HlasConsidered.First &&                             
                              cardToPlay.Value == Hodnota.Svrsek &&
-                             cardToPlay.Suit != _trump.Value &&
+                             cardToPlay.Suit != _g.trump.Value &&
                              Hand.HasK(cardToPlay.Suit) &&
-                             Hand.HasK(_trump.Value) &&
-                             Hand.HasQ(_trump.Value))
+                             Hand.HasK(_g.trump.Value) &&
+                             Hand.HasQ(_g.trump.Value))
                     {
                         if (r.c2 != null)
                         {
