@@ -293,8 +293,14 @@ namespace Mariasek.SharedClient
         {
             base.Initialize();
             Game.OnSettingsChanged();
-            var backSideRect = Game.Settings.CardBackSide.ToTextureRect();
-            Game.CardTextures = Game.Settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
+            var backSideRect = Game.Settings.CardDesign == CardFace.Pikety
+                                ? CardBackSide.Pikety.ToTextureRect()
+                                : Game.Settings.CardBackSide.ToTextureRect();
+            Game.CardTextures = Game.Settings.CardDesign == CardFace.Single
+                                    ? Game.CardTextures1
+                                    : Game.Settings.CardDesign == CardFace.Double
+                                        ? Game.CardTextures2
+                                        : Game.CardTextures3;
             //PopulateAiConfig(); //volano uz v Game.OnSettingsChanged()
             _hlasy = new[]
             {
@@ -3443,7 +3449,7 @@ namespace Mariasek.SharedClient
             });
         }
 
-        private void UpdateCardTextures(GameComponent parent, Texture2D oldTexture, Texture2D newTexture)
+        public void UpdateCardTextures(GameComponent parent, Texture2D oldTexture, Texture2D newTexture)
         {
             var sprite = parent as Sprite;
             if (sprite != null && sprite.Texture == oldTexture)
@@ -3546,7 +3552,9 @@ namespace Mariasek.SharedClient
                 Game.ScreenManager.SetKeepScreenOnFlag(Game.Settings.KeepScreenOn);
             });
             UpdateBackground();
-            var newBackSideRect = Game.Settings.CardBackSide.ToTextureRect();
+            var newBackSideRect = Game.Settings.CardDesign == CardFace.Pikety
+                                    ? CardBackSide.Pikety.ToTextureRect()
+                                    : Game.Settings.CardBackSide.ToTextureRect();
 
             if (Game.BackSideRect != newBackSideRect)
             {
@@ -3575,7 +3583,11 @@ namespace Mariasek.SharedClient
             }
 
             var oldTextures = Game.CardTextures;
-            var newTextures = Game.Settings.CardDesign == CardFace.Single ? Game.CardTextures1 : Game.CardTextures2;
+            var newTextures = Game.Settings.CardDesign == CardFace.Single
+                                ? Game.CardTextures1
+                                : Game.Settings.CardDesign == CardFace.Double
+                                    ? Game.CardTextures2
+                                    : Game.CardTextures3;
 
             if (oldTextures != newTextures)
             {

@@ -45,6 +45,7 @@ namespace Mariasek.SharedClient
         public EditorScene(MariasekMonoGame game)
             : base(game)
         {
+            SceneActivated += Activated;
         }
 
         public override void Initialize()
@@ -183,6 +184,22 @@ namespace Mariasek.SharedClient
             PopulateGameList(true);
         }
 
+        private void Activated(object sender)
+        {
+            var newTextures = Game.Settings.CardDesign == CardFace.Single
+                                ? Game.CardTextures1
+                                : Game.Settings.CardDesign == CardFace.Double
+                                    ? Game.CardTextures2
+                                    : Game.CardTextures3;
+
+            foreach(var c in _cards.Where(i => i != null &&
+                                                    i.Sprite != null &&
+                                                    i.Sprite.Texture != Game.CardTextures))
+            {
+                c.Sprite.Texture = newTextures;
+            }
+        }
+
         private void SendBtnClicked(object sender)
         {
             if (Game.EmailSender != null)
@@ -219,6 +236,10 @@ namespace Mariasek.SharedClient
                         MinimalDragDistance = 0
                     };
                     _cards[i].DragEnd += CardDragged;
+                }
+                else
+                {
+                    _cards[i].Sprite.Texture = Game.CardTextures;
                 }
                 _cards[i].Position = _cardPositions[i];
                 _cards[i].Tag = c;

@@ -244,7 +244,7 @@ namespace Mariasek.SharedClient
 				Position = new Vector2(Game.VirtualScreenWidth - 300, 190),
 				Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Jednohlavé", CardFace.Single }, { "Dvouhlavé", CardFace.Double } }
+                Items = new SelectorItems() { { "Jednohlavé", CardFace.Single }, { "Dvouhlavé", CardFace.Double }, { "Pikety", CardFace.Pikety } }
 			};
 			_cardFaceSelector.SelectedIndex = _cardFaceSelector.Items.FindIndex(Game.Settings.CardDesign);
 			_cardFaceSelector.SelectionChanged += CardFaceChanged;

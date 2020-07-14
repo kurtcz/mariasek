@@ -188,6 +188,7 @@ namespace Mariasek.SharedClient
         public Texture2D CardTextures { get; set; }
         public Texture2D CardTextures1 => Assets.GetTexture("marias");
         public Texture2D CardTextures2 => Assets.GetTexture("marias2");
+        public Texture2D CardTextures3 => Assets.GetTexture("marias3");
         public Texture2D ReverseTexture => Assets.GetTexture("revers");
         public Texture2D LogoTexture => Assets.GetTexture("logo_hracikarty");
         public Texture2D RatingTexture => Assets.GetTexture("mariasek_rate");
@@ -331,8 +332,9 @@ namespace Mariasek.SharedClient
                                              "SegoeUI40Outl_2",
                                              "marias",
                                              "marias2",
+                                             "marias3",
                                              "revers",
-                                             "logo_hracikarty",
+                                              "logo_hracikarty",
                                              "mariasek_rate"
                                          },
                                          new[]

@@ -10,14 +10,16 @@ namespace Mariasek.SharedClient
     public enum CardFace
     {
         Single,
-        Double
+        Double,
+        Pikety
     }
 
     public enum CardBackSide
     {
         Tartan,
         Horse,
-        Lace
+        Lace,
+        Pikety
     }
 
     public enum BackgroundImage

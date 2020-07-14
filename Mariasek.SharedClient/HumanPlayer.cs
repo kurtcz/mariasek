@@ -184,7 +184,8 @@ namespace Mariasek.SharedClient
                 };
                 //pokud ai radil talon na betla ale my hrac vybral jiny talon, tak zapomen co ai radil
                 if (_aiPlayer._gameType == Hra.Betl &&
-                    _aiPlayer._talon.Any(i => !_talon.Contains(i)))
+                    (_aiPlayer._talon == null ||
+                     _aiPlayer._talon.Any(i => !_talon.Contains(i))))
                 {
                     _aiPlayer._gameType = null;
                 }
