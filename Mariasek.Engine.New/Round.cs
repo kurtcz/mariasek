@@ -124,7 +124,7 @@ namespace Mariasek.Engine.New
                 allRules.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, player1.DebugInfo.TotalRuleCount);
             }
             //debugNote1 = string.Format(" {0} ({1}/{2})\nVšechny simulace:{3}", player1.DebugInfo.Rule, player1.DebugInfo.RuleCount, player1.DebugInfo.TotalRuleCount, allRules.ToString());
-            debugNote1 = player1.DebugInfo.Rule;
+            debugNote1 = $"{player1.DebugInfo.Card}: {player1.DebugInfo.Rule}";
 
             if (_g.trump.HasValue && c1.Value == Hodnota.Svrsek && player1.Hand.HasK(c1.Suit))
             {
@@ -151,7 +151,8 @@ namespace Mariasek.Engine.New
                 allRules.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, player2.DebugInfo.TotalRuleCount);
             }
             //debugNote2 = string.Format(" {0} ({1}/{2})\nVšechny simulace:{3}", player2.DebugInfo.Rule, player2.DebugInfo.RuleCount, player2.DebugInfo.TotalRuleCount, allRules.ToString());
-            debugNote2 = player2.DebugInfo.Rule;
+            debugNote2 = $"{player2.DebugInfo.Card}: {player2.DebugInfo.Rule}";
+
             if (_g.trump.HasValue && c2.Value == Hodnota.Svrsek && player2.Hand.HasK(c2.Suit))
             {
                 hlasPoints2 = c2.Suit == _g.trump.Value ? 40 : 20;
@@ -177,7 +178,8 @@ namespace Mariasek.Engine.New
                 allRules.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, player3.DebugInfo.TotalRuleCount);
             }
             //debugNote3 = string.Format(" {0} ({1}/{2})\nVšechny simulace:{3}", player3.DebugInfo.Rule, player3.DebugInfo.RuleCount, player3.DebugInfo.TotalRuleCount, allRules.ToString());
-            debugNote3 = player3.DebugInfo.Rule;
+            debugNote3 = $"{player3.DebugInfo.Card}: {player3.DebugInfo.Rule}";
+
             if (_g.trump.HasValue && c3.Value == Hodnota.Svrsek && player3.Hand.HasK(c3.Suit))
             {
                 hlasPoints3 = c3.Suit == _g.trump.Value ? 40 : 20;

@@ -845,13 +845,13 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 return null;
             }
-            var pos = debugNote.IndexOf('(');
+            var pos = debugNote.IndexOf(':');
 
             if (pos < 0)
             {
                 return debugNote;
             }
-            return debugNote.Substring(0, pos);
+            return debugNote.Substring(pos+1).Trim();
         }
     }
 }
