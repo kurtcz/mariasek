@@ -327,6 +327,7 @@ namespace Mariasek.Engine.New
             //nejprve vem karty ktere jsou ve hre nejvyssi a tudiz nejvice rizikove (A, K)
             var talon = holesByCard.Where(i => i.Item2 < 6 && i.Item5 == 0)// &&               
                                    .OrderByDescending(i => i.Item1.BadValue)
+                                   .ThenBy(i => i.Item2)
                                    .Take(2)
                                    .Select(i => i.Item1)                    //Card
                                    .ToList();
