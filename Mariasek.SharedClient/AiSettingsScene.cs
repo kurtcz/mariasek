@@ -637,7 +637,8 @@ namespace Mariasek.SharedClient
 
             var gt = (Hra)_gameTypeSelector.SelectedValue;
             _note.Text = _notes.ContainsKey(gt) ? _notes[gt] : _defaultNote;
-            if ((Hra)_gameTypeSelector.SelectedValue == Hra.Betl)
+            if (_gameTypeSelector.IsVisible &&
+                (Hra)_gameTypeSelector.SelectedValue == Hra.Betl)
             {
                 _safetyBetlThreshold.Show();
                 _safetyBetlSelector.Show();
