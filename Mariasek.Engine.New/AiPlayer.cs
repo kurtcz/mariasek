@@ -2668,15 +2668,18 @@ namespace Mariasek.Engine.New
         private int EstimateLowBetlCardCount()
         {
             var betlLowCards = 0;
+            var sevenCardsAdded = false;
 
             if (PlayerIndex != _g.GameStartingPlayerIndex)
             {
                 foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
                 {
                     if (Hand.CardCount(b) == 1 &&
-                        !Hand.Has7(b))
+                        !Hand.Has7(b) &&
+                        !sevenCardsAdded)
                     {
                         betlLowCards += 7;
+                        sevenCardsAdded = true;
                     }
                     else
                     {
