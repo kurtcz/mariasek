@@ -1047,6 +1047,11 @@ namespace Mariasek.Engine.New
                         //}
                     }
 
+                    if (TeamMateIndex == player2)
+                    {
+                        return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
+                    }
+
                     return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
                 }
             };
@@ -1595,10 +1600,31 @@ namespace Mariasek.Engine.New
 																         .Where(i => _probabilities.CardProbability(opponentIndex, i) > _epsilon));
 							var opponentLoCards = opponentCards.Where(i => !hands[MyIndex].HasSuit(i.Suit) &&
                                                                            _probabilities.SuitHigherThanCardProbability(TeamMateIndex, i, RoundNumber) > 0);
+                            var myInitialHand = new List<Card>();
+                            var myPlayedCards = _rounds.Where(r => r != null && r.c3 != null)
+                                                       .Select(r =>
+                                                       {
+                                                           if (r.player1.PlayerIndex == MyIndex)
+                                                           {
+                                                               return r.c1;
+                                                           }
+                                                           else if (r.player2.PlayerIndex == MyIndex)
+                                                           {
+                                                               return r.c2;
+                                                           }
+                                                           else
+                                                           {
+                                                               return r.c3;
+                                                           }
+                                                       }).ToList();
+                            myInitialHand.AddRange((List<Card>)hands[MyIndex]);
+                            myInitialHand.AddRange(myPlayedCards);
 
-							//odmazat si trumf abych pozdeji mohl mazat 
-							//(musi existovat barva, kterou neznam a muj spoluhrac v ni doufejme ma vyssi karty nez akter)
-                            if (hands[MyIndex].CardCount(_trump) <= 2 &&
+                            //odmazat si trumf abych pozdeji mohl mazat 
+                            //(musi existovat barva, kterou neznam a muj spoluhrac v ni doufejme ma vyssi karty nez akter)
+                            if (myInitialHand.CardCount(_trump) <= 2 &&
+                               (TeamMateIndex == player3 ||
+                                (_gameType & Hra.Kilo) != 0) &&
                                 //((_gameType & Hra.Kilo) != 0 ||
                                 // _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) <= RiskFactor) &&
                                 opponentTrumps > 0 &&
@@ -2647,7 +2673,8 @@ namespace Mariasek.Engine.New
                                                                                   (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 ||
                                                                                    _probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor));
                     }
-                    if (TeamMateIndex != player3)
+                    if (TeamMateIndex != player3 &&
+                        (_gameType & (Hra.Kilo | Hra.KiloProti)) == 0)
                     {
                         return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                   i.Suit != _trump &&
