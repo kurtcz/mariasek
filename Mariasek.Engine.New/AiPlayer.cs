@@ -2007,6 +2007,10 @@ namespace Mariasek.Engine.New
                 {
                     axWinPotential = 1;
                 }
+                if(trumpCount <= 2)
+                {
+                    axWinPotential = 0;
+                }
             }
             var n = 10 * (axCount + axWinPotential);
             var hiTrumps = hand.Count(i => i.Suit == trump.Value &&

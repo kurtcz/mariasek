@@ -622,6 +622,7 @@ namespace Mariasek.SharedClient.GameComponents
                 var debugNote2 = GetMainDebugNote(r.debugNote2);
                 var debugNote3 = GetMainDebugNote(r.debugNote3);
 
+                Rounds[i][0].Texture = Game.CardTextures;
                 Rounds[i][0].SpriteRectangle = r.c1.ToTextureRect();
                 if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka))
                 {
@@ -643,6 +644,7 @@ namespace Mariasek.SharedClient.GameComponents
                                             ? Game.Settings.HighlightedTextColor
                                             : Game.Settings.DefaultTextColor;
 
+                Rounds[i][1].Texture = Game.CardTextures;
                 Rounds[i][1].SpriteRectangle = game.rounds[i].c2.ToTextureRect();
                 if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka))
                 {
@@ -664,6 +666,7 @@ namespace Mariasek.SharedClient.GameComponents
                                             ? Game.Settings.HighlightedTextColor
                                             : Game.Settings.DefaultTextColor;
 
+                Rounds[i][2].Texture = Game.CardTextures;
                 Rounds[i][2].SpriteRectangle = game.rounds[i].c3.ToTextureRect();
                 if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))
                 {
@@ -711,7 +714,7 @@ namespace Mariasek.SharedClient.GameComponents
 
                 Names[i].Text = i == 0 ? string.Format("{0}: {1}",
                                                        game.players[ii].Name,
-                                                       game.GameType.ToDescription().Trim() +
+                                                       Game.MainScene.AmendSuitNameIfNeeded(game.GameType.ToDescription()) +
                                                        (string.IsNullOrEmpty(game.players[ii].BidMade)
                                                             ? string.Empty
                                                             : string.Format(" {0}", game.players[ii].BidMade.TrimEnd()))) +
@@ -785,6 +788,7 @@ namespace Mariasek.SharedClient.GameComponents
                             }
                         }
                     }
+                    Hands[i][j].Texture = Game.CardTextures;
                     Hands[i][j].SpriteRectangle = rect;
                     Hands[i][j].Tag = hand[j];
                     Hands[i][j].Show();
@@ -834,6 +838,8 @@ namespace Mariasek.SharedClient.GameComponents
             for (var j = 0; j < _initialHands[3].Count; j++)
             {
                 var rect = _initialHands[3][j].ToTextureRect();
+
+                Hands[3][j].Texture = Game.CardTextures;
                 Hands[3][j].SpriteRectangle = rect;
                 Hands[3][j].Tag = _initialHands[3][j];
             }

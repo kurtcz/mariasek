@@ -242,7 +242,7 @@ namespace Mariasek.SharedClient
                     var description = string.Format("{0}\n{1} {2}\n{3}\n{4}\t{5}\n{6}\t{7}\n{8}\t{9}",
                                                       gameDate.ToString("dd.MM.yyyy HH:mm"),
                                                       Path.GetFileName(endGamePath).Split('-')[0],
-                                                      g.GameType.ToDescription(g.trump),
+                                                      Game.MainScene.AmendSuitNameIfNeeded(g.GameType.ToDescription(g.trump)),
                                                       string.Join("\n", resultStr.Take(resultStr.Length - 3)
                                                                                  .Select(i => i.Split('\t')[0]
                                                                                                .Replace(" (", "\n(")
@@ -279,7 +279,7 @@ namespace Mariasek.SharedClient
                                                            .Select(j => j[1]));
                     }
                     _review.Names[0].Text = string.Format("{0}: {1}{2}", Game.Settings.PlayerNames[g.GameStartingPlayerIndex],
-                                                                         biddingInfo[g.GameStartingPlayerIndex],
+                                                                         Game.MainScene.AmendSuitNameIfNeeded(biddingInfo[g.GameStartingPlayerIndex]),
                                                                          results.GameTypeConfidence < 0
                                                                             ? ""
                                                                             : string.Format(" ({0:0}%)", results.GameTypeConfidence * 100));

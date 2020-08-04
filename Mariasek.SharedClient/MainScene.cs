@@ -2452,10 +2452,11 @@ namespace Mariasek.SharedClient
 
         private string GetTrumpLabelForPlayer(int playerIndex)
         {
+            var gameTypeString = AmendSuitNameIfNeeded(Game.MainScene.g.GameType.ToDescription(g.trump));
             var text = playerIndex == g.GameStartingPlayerIndex
                                    ? string.Format("{0}: {1}",
                                        Game.MainScene.g.players[playerIndex].Name,
-                                           Game.MainScene.g.GameType.ToDescription(g.trump).Trim() +
+                                           gameTypeString +
                                            (string.IsNullOrEmpty(Game.MainScene.g.players[playerIndex].BidMade)
                                             ? string.Empty
                                             : string.Format(" {0}", Game.MainScene.g.players[playerIndex].BidMade.TrimEnd())))
@@ -2465,6 +2466,21 @@ namespace Mariasek.SharedClient
                                                                    Game.MainScene.g.players[playerIndex].BidMade.Trim());
 
             return text;
+        }
+
+        public string AmendSuitNameIfNeeded(string gameTypeString)
+        {
+            gameTypeString = gameTypeString.Trim();
+
+            if (Game.Settings.CardDesign == CardFace.Pikety)
+            {
+                gameTypeString = gameTypeString.Replace("červený", "srdce")
+                                               .Replace("zelený", "piky")
+                                               //.Replace("kule", "káry")
+                                               .Replace("žaludy", "kříže");
+            }
+
+            return gameTypeString;
         }
 
         public void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
@@ -2516,7 +2532,7 @@ namespace Mariasek.SharedClient
                     .Invoke(() =>
                     {
                         _bubbleAutoHide[e.GameStartingPlayerIndex] = true;
-                        _bubbles[e.GameStartingPlayerIndex].Text = g.GameType.ToDescription(g.trump);
+                        _bubbles[e.GameStartingPlayerIndex].Text = AmendSuitNameIfNeeded(g.GameType.ToDescription(g.trump));
                         if (g.trump.HasValue && g.talon.Any(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka))
                         {
                             _bubbles[e.GameStartingPlayerIndex].Height = 80;
@@ -3718,7 +3734,7 @@ namespace Mariasek.SharedClient
                 _hintBtn.IsEnabled = true;
                 HintBtnFunc = () =>
                 {
-                    ShowMsgLabel(string.Format("Nápověda: {0}", gameType), false);
+                    ShowMsgLabel(string.Format("Nápověda: {0}", AmendSuitNameIfNeeded(gameType)), false);
                     _msgLabelSmall.Text = string.Format("\n\n\n{0}", allChoices);
                     _msgLabelSmall.Show();
                 };
