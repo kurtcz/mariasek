@@ -237,7 +237,7 @@ namespace Mariasek.Engine.New
                 {
                     Order = 0,
                     Description = "hrát tak abych bral poslední štych",
-                    #region ChooseCard1
+                    #region ChooseCard1 Rule0
                     ChooseCard1 = () =>
                     {
                         IEnumerable<Card> cardsToPlay;
@@ -497,7 +497,7 @@ namespace Mariasek.Engine.New
 				Order = 1,
 				Description = "zkus vytlačit eso",
 				SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule1
                 ChooseCard1 = () =>
 				{
 					if (TeamMateIndex == -1)
@@ -558,7 +558,7 @@ namespace Mariasek.Engine.New
                 Order = 2,
                 Description = "vytáhnout trumf",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule2
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = new List<Card>();
@@ -737,7 +737,7 @@ namespace Mariasek.Engine.New
                 Order = 3,
                 Description = "vytlačit trumf",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule3
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = Enumerable.Empty<Card>();
@@ -1067,7 +1067,7 @@ namespace Mariasek.Engine.New
                 Order = 4,
                 Description = "zkusit vytáhnout plonkovou X",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule4
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = new List<Card>();
@@ -1126,7 +1126,7 @@ namespace Mariasek.Engine.New
                     Order = 5,
                     Description = "šetřit trumfy nakonec",
                     SkipSimulations = true,
-                    #region ChooseCard1
+                    #region ChooseCard1 Rule5
                     ChooseCard1 = () =>
                     {
                         if ((_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0)                            //pokud se hraje sedma nebo sedma proti
@@ -1207,7 +1207,7 @@ namespace Mariasek.Engine.New
                 Order = 6,
                 Description = "zkusit uhrát bodovanou kartu",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule6
                 ChooseCard1 = () =>
                 {
                     //nehraj pravidlo pokud spoluhrac hlasil sedmu proti - bodovane karty budeme mazat
@@ -1396,7 +1396,7 @@ namespace Mariasek.Engine.New
                 Order = 7,
                 Description = "vytlačit bodovanou kartu",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule7
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = new List<Card>();
@@ -1459,7 +1459,7 @@ namespace Mariasek.Engine.New
                 Order = 8,
                 Description = "bodovat nebo vytlačit trumf",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule8
                 ChooseCard1 = () =>
                 {
                     if (TeamMateIndex == -1 &&
@@ -1558,7 +1558,7 @@ namespace Mariasek.Engine.New
                 Order = 9,
                 Description = "odmazat si barvu",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule9
                 ChooseCard1 = () =>
                 {
                     //var poorSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -1705,7 +1705,7 @@ namespace Mariasek.Engine.New
                 Order = 10,
                 Description = "hrát spoluhráčovu barvu",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule10
                 ChooseCard1 = () =>
                 {
                     if (TeamMateIndex != -1 && _teamMatesSuits.Any())
@@ -1734,7 +1734,7 @@ namespace Mariasek.Engine.New
                 Order = 11,
                 Description = "hrát dlouhou barvu mimo A,X,trumf",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule11
                 ChooseCard1 = () =>
                 {
                     //nehraj pravidlo pokud spoluhrac hlasil sedmu proti - bodovane karty budeme mazat
@@ -1938,7 +1938,7 @@ namespace Mariasek.Engine.New
                 Order = 12,
                 Description = "obětuj plonkovou X",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule12
                 ChooseCard1 = () =>
                 {
                     if ((TeamMateIndex == -1 &&
@@ -1979,7 +1979,7 @@ namespace Mariasek.Engine.New
                 Order = 13,
                 Description = "hrát vítěznou kartu",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule13
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = new List<Card>();
@@ -2041,7 +2041,7 @@ namespace Mariasek.Engine.New
                 Order = 14,
                 Description = "hrát vítězné A",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule14
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = new List<Card>();
@@ -2117,7 +2117,7 @@ namespace Mariasek.Engine.New
                 Order = 15,
                 Description = "zůstat ve štychu",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule15
                 ChooseCard1 = () =>
                 {
                     var opponent = TeamMateIndex == player2 ? player3 : player2;
@@ -2185,7 +2185,7 @@ namespace Mariasek.Engine.New
                 Order = 16,
                 Description = "hrát největší trumf",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule16
                 ChooseCard1 = () =>
                 {
                     if (TeamMateIndex == -1 && 
@@ -2249,7 +2249,7 @@ namespace Mariasek.Engine.New
                 Order = 17,
                 Description = "zbavit se plev",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule17
                 ChooseCard1 = () =>
                 {
                     var topCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
@@ -2351,7 +2351,7 @@ namespace Mariasek.Engine.New
                 Order = 18,
                 Description = "hrát trumf",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule18
                 ChooseCard1 = () =>
                 {
                     if (TeamMateIndex == player2)
@@ -2384,7 +2384,7 @@ namespace Mariasek.Engine.New
 				Order = 19,
 				Description = "hrát cokoli mimo A,X,trumf",
 				SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule19
                 ChooseCard1 = () =>
 				{
                     var opponent = TeamMateIndex == player2 ? player3 : player2;
@@ -2432,7 +2432,7 @@ namespace Mariasek.Engine.New
                 Order = 20,
                 Description = "hrát cokoli mimo trumf",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule20
                 ChooseCard1 = () =>
                 {
                     var opponent = TeamMateIndex == player2 ? player3 : player2;
@@ -2503,7 +2503,7 @@ namespace Mariasek.Engine.New
                 Order = 21,
                 Description = "hrát cokoli",
                 SkipSimulations = true,
-                #region ChooseCard1
+                #region ChooseCard1 Rule21
                 ChooseCard1 = () =>
                 {
                     var opponent = TeamMateIndex == player2 ? player3 : player2;

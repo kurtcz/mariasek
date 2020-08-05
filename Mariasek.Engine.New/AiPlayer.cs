@@ -2817,7 +2817,10 @@ namespace Mariasek.Engine.New
                     totalHoles <= 4) ||                         //a max 4 diry (tj. jinak same vysoke karty), netreba trhat trumfovou hlasku
                    (estimatedFinalBasicScore > 60 &&            //pokud si davam re a nethram, musim mit velkou jistotu
                     !Is100AgainstPossible(110)) ||              //ze uhraju vic bodu i bez trhaka a ze souper neuhraje kilo (110 - kilo jeste risknu)
-                   (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
+                   (estimatedFinalBasicScore >= 60 &&           //pokud mam dost trumfu, bude kriterium mekci
+                    Hand.CardCount(_trump.Value) >= 4 &&
+                    !Is100AgainstPossible(100)) ||
+                   (estimatedFinalBasicScore >= 50 &&
                     Hand.CardCount(_trump.Value) >= 5 &&
                     !Is100AgainstPossible(100)))) ||            
                  //nebo jsem nevolil a:
