@@ -1772,27 +1772,26 @@ namespace Mariasek.Engine.New
 
         public int GetBetlHoles()   //vola se pouze z GetBidsAndDoubles pri rozhodovani zda si dat re na betla
         {
-            var holes = 0;      //pocet der v barve
+            var totalHoles = 0;
 
             foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
             {
+                var hiCards = Hand.Count(i => i.Suit == b &&
+                                              Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                  .Where(h => i.BadValue > Card.GetBadValue(h))
+                                                  .Select(h => new Card(b, h))
+                                                  .Any(j => !Hand.Contains(j) &&
+                                                            !_talon.Contains(j)));
+                var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                .Where(h => Hand.Any(i => i.BadValue > Card.GetBadValue(h)))
+                                .Select(h => new Card(b, h))
+                                .Count(i => !Hand.Contains(i) &&
+                                            !_talon.Contains(i));
 
-                foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
-                {
-                    var c = new Card(b, h);
-                    var n = Hand.Count(i => i.Suit == b &&
-                                          i.BadValue > c.BadValue &&
-                                          !Hand.Contains(c) &&
-                                          !_talon.Contains(c));
-
-                    if (n > 0)
-                    {
-                        holes++;
-                    }
-                }
+                totalHoles += Math.Min(hiCards, holes);
             }
 
-            return holes;
+            return totalHoles;
         }
 
         public bool ShouldChooseBetl()
@@ -2820,7 +2819,12 @@ namespace Mariasek.Engine.New
                    (estimatedFinalBasicScore >= 60 &&           //pokud mam dost trumfu, bude kriterium mekci
                     Hand.CardCount(_trump.Value) >= 4 &&
                     !Is100AgainstPossible(100)) ||
-                   (estimatedFinalBasicScore >= 50 &&
+                   (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
+                    Hand.CardCount(_trump.Value) >= 4 &&
+                    (Hand.HasK(_g.trump.Value) ||
+                     Hand.HasQ(_g.trump.Value) &&
+                    !Is100AgainstPossible(100))) ||
+                   (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
                     Hand.CardCount(_trump.Value) >= 5 &&
                     !Is100AgainstPossible(100)))) ||            
                  //nebo jsem nevolil a:
@@ -2877,8 +2881,14 @@ namespace Mariasek.Engine.New
                      (Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
                       (Hand.HasX(_g.trump.Value) ||            //a desitku nebo
                        Hand.CardCount(_g.trump.Value) >= 3) && //aspon 3 trumfy
-                      estimatedFinalBasicScore >= 50 &&        //a aspon 50 bodu na ruce
+                      estimatedFinalBasicScore >= 60 &&        //a aspon 60 bodu na ruce
                       kqMaxOpponentScore <= 80) ||             //a trham aspon jeden hlas
+                     (Hand.CardCount(_g.trump.Value) >= 4 &&   //nebo mam aspon 5 trumfu
+                      (Hand.HasA(_g.trump.Value) ||
+                       Hand.HasX(_g.trump.Value) ||
+                       Hand.HasK(_g.trump.Value) ||
+                       Hand.HasQ(_g.trump.Value)) &&
+                      estimatedFinalBasicScore >= 50) ||       //a asopn 40 bodu
                      (Hand.CardCount(_g.trump.Value) >= 5 &&   //nebo mam aspon 5 trumfu
                       estimatedFinalBasicScore >= 40) ||       //a asopn 40 bodu
                      (_teamMateDoubledSeven &&                //nebo spoluhrac dal flek na sedmu a ja mam aspon 40 bodu na ruce
@@ -2938,6 +2948,9 @@ namespace Mariasek.Engine.New
                 DebugInfo.TotalRuleCount = _sevenSimulations;
             }
             else if ((bidding.Bids & Hra.Sedma) != 0 &&
+                     (bidding.Bids & Hra.Kilo) == 0 &&
+                     ((bid & Hra.Hra) != 0 ||
+                      _teamMateDoubledGame) &&
                      Settings.CanPlayGameType[Hra.Sedma] &&
                      TeamMateIndex != -1 &&
                      bidding._sevenFlek == 1 &&                         //flekni krome hry i sedmu i kdyz v simulacich nevysla
@@ -3065,6 +3078,7 @@ namespace Mariasek.Engine.New
                 (opponentLowCards <= 6 ||                                   //1. flekuj pokud akter nemuze mit moc nizkych karet
                  (TeamMateIndex == (PlayerIndex + 1) % Game.NumPlayers &&   //2. flekuj pokud jsi na druhe pozici
                   opponentMidCards.Count() >= 5 &&                          //a vidis aspon 5 der
+                  opponentLowCards <= 8 &&
                   opMidSuits >= 2 &&                                        //a mas nizsi karty nez diry aspon ve dvou barvach
                   (handSuits < Game.NumSuits ||                             //nebo znas vsechny barvy a mas nizke karty ve trech barvach
                    opMidSuits >= 3 &&

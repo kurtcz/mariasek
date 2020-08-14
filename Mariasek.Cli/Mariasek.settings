@@ -46,7 +46,7 @@
       <GameType>Hra</GameType>
       <Use>true</Use>
       <MaxBidCount>3</MaxBidCount>
-      <Thresholds>5|15|40|75</Thresholds>
+      <Thresholds>5|10|25|50</Thresholds>
     </BidThresholdSettings>
     <BidThresholdSettings>
       <GameType>Sedma</GameType>
