@@ -94,6 +94,12 @@
     <Compile Include="RoundContext.cs" />
     <Compile Include="RoundDebugContext.cs" />
     <Compile Include="Schema\GameDto.cs" />
+    <Compile Include="Combinatorics\Combinations.cs" />
+    <Compile Include="Combinatorics\GenerateOption.cs" />
+    <Compile Include="Combinatorics\IMetaCollection.cs" />
+    <Compile Include="Combinatorics\Permutations.cs" />
+    <Compile Include="Combinatorics\SmallPrimeUtility.cs" />
+    <Compile Include="Combinatorics\Variations.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

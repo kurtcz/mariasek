@@ -201,6 +201,27 @@
     <Compile Include="..\Mariasek.Engine.New\AiPlayer.cs">
       <Link>AiPlayer.cs</Link>
     </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Combinatorics\Combinations.cs">
+      <Link>Combinatorics\Combinations.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Combinatorics\GenerateOption.cs">
+      <Link>Combinatorics\GenerateOption.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Combinatorics\IMetaCollection.cs">
+      <Link>Combinatorics\IMetaCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Combinatorics\Permutations.cs">
+      <Link>Combinatorics\Permutations.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Combinatorics\SmallPrimeUtility.cs">
+      <Link>Combinatorics\SmallPrimeUtility.cs</Link>
+    </Compile>
+    <Compile Include="..\Mariasek.Engine.New\Combinatorics\Variations.cs">
+      <Link>Combinatorics\Variations.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Combinatorics\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

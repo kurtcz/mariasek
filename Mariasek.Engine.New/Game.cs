@@ -47,6 +47,8 @@ namespace Mariasek.Engine.New
         public const int NumRounds = 10;
         public const int NumSuits = 4;
 
+        public readonly int MinMaxRound = 8;
+
         private int CurrentGameNumber;
         private static int GameCounter;
 

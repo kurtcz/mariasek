@@ -19,7 +19,7 @@ namespace Mariasek.SharedClient
         private Barva _trump;
         private Card _trumpCard;
         //private Game _g;
-        private AiPlayer _aiPlayer;
+        public AiPlayer _aiPlayer;
         private Task _aiTask;
         private CancellationTokenSource _cancellationTokenSource;
         public Probability Probabilities { get; set; }

@@ -389,6 +389,7 @@ namespace Mariasek.Engine.New
             DurchValue = values.DurchValue;
             Calculate107Separately = calculate107Separately;
             HlasConsidered = hlasConsidered;
+            GamePlayed = true;
 
             if (GoodGame)
             {

@@ -51,7 +51,7 @@ namespace Mariasek.Engine.New
         private bool _teamMateDoubledSeven;
         private bool _shouldMeasureThroughput;
         private List<Barva> _teamMatesSuits;
-
+        
         private ParallelOptions options = new ParallelOptions
         {
             //MaxDegreeOfParallelism = 1  //Uncomment before debugging
@@ -3325,7 +3325,9 @@ namespace Mariasek.Engine.New
                              Probabilities.PossibleCombinations((PlayerIndex + 2) % Game.NumPlayers, r.number))) * 3;
                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = 0, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Generuju karty"});
                 var source = goodGame && _g.CurrentRound != null
-                               ? Probabilities.GenerateHands(r.number, roundStarterIndex, 1) 
+                               ? r.number >= _g.MinMaxRound
+                                    ? Probabilities.GenerateAllHandCombinations(r.number)
+                                    : Probabilities.GenerateHands(r.number, roundStarterIndex, 1) 
                                : Probabilities.GenerateHands(r.number, roundStarterIndex, simulations);
                 var progress = 0;
                 var start = DateTime.Now;
@@ -3342,6 +3344,17 @@ namespace Mariasek.Engine.New
                 var exceptions = new ConcurrentQueue<Exception>();
                 try
                 {
+                    if (r.number >= _g.MinMaxRound && r.c1 == null)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Uhraj nejlepší výsledek");
+                        cardToPlay = ComputeCardToPlay(source, r.number);
+                        DebugInfo.Card = cardToPlay;
+                        DebugInfo.Rule = "Uhraj nejlepší výsledek";
+                        DebugInfo.RuleCount = 1;
+                        DebugInfo.TotalRuleCount = Game.NumRounds - r.number + 1;
+
+                        return cardToPlay;
+                    }
                     Parallel.ForEach(source, options, (hands, loopState) =>
                     {
                         ThrowIfCancellationRequested();
@@ -3483,6 +3496,194 @@ namespace Mariasek.Engine.New
 
             _log.InfoFormat("{0} plays card: {1} - {2}", Name, cardToPlay, DebugInfo.Rule);
             return cardToPlay;                
+        }
+
+        private Card ComputeCardToPlay(IEnumerable<Hand[]> source, int roundNumber)
+        {
+            var results = new ConcurrentQueue<Tuple<Card, MoneyCalculatorBase>>();
+            //var results = new List<Tuple<Card, MoneyCalculatorBase>>();
+            var averageResults = new Dictionary<Card, double>();
+            var minResults = new Dictionary<Card, double>();
+            var maxResults = new Dictionary<Card, double>();
+            var n = 0;
+
+            Parallel.ForEach(source, hands =>
+            {
+            //foreach (var hands in source)
+            //{
+                ThrowIfCancellationRequested();
+                var result = ComputeMinMax(new List<Round>(_g.rounds.Where(i => i?.c3 != null)), hands, roundNumber);
+
+                foreach (var res in result)
+                {
+                    results.Enqueue(res);
+                }
+                //results.AddRange(result);
+                OnGameComputationProgress(new GameComputationProgressEventArgs { Current = ++n, Max = source.Count(), Message = "Generuju karty" });
+            //}
+            });
+
+            foreach (var card in results.Select(i => i.Item1).Distinct())
+            {
+                averageResults.Add(card, results.Where(i => i.Item1 == card)
+                                                .Average(i => 100 * i.Item2.MoneyWon[PlayerIndex] +
+                                                              (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
+                minResults.Add(card, results.Where(i => i.Item1 == card)
+                                            .Min(i => 100 * i.Item2.MoneyWon[PlayerIndex] +
+                                                      (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
+                maxResults.Add(card, results.Where(i => i.Item1 == card)
+                                            .Max(i => 100 * i.Item2.MoneyWon[PlayerIndex] +
+                                                      (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
+            }
+
+            var cardToPlay = minResults.Keys.OrderByDescending(i => minResults[i])
+                                            .ThenByDescending(i => averageResults[i])
+                                            .ThenByDescending(i => maxResults[i])
+                                            .ThenBy(i => _g.trump.HasValue ? (int)i.Value : _g.GameType == Hra.Betl ? i.BadValue : -i.BadValue)
+                                            .First();
+            return cardToPlay;
+        }
+
+        private IEnumerable<Tuple<Card, MoneyCalculatorBase>> ComputeMinMax(List<Round> previousRounds, Hand[] hands, int currentRound)
+        {
+            var previousRound = previousRounds.Last();
+            var roundNumber = previousRounds.Count() + 1;
+            var player1 = previousRound.roundWinner.PlayerIndex;
+            var player2 = (player1 + 1) % Game.NumPlayers;
+            var player3 = (player1 + 2) % Game.NumPlayers;
+            var candidateRounds = new List<Round>();
+            var results = new List<Tuple<Card, MoneyCalculatorBase>>();
+            var cards1 = ValidCards(hands[player1], _g.trump, _g.GameType, _g.players[player1].TeamMateIndex);
+
+            foreach (var c1 in cards1)
+            {
+                var cards2 = ValidCards(hands[player2], _g.trump, _g.GameType, _g.players[player2].TeamMateIndex, c1);
+
+                foreach (var c2 in cards2)
+                {
+                    var cards3 = ValidCards(hands[player3], _g.trump, _g.GameType, _g.players[player3].TeamMateIndex, c1, c2);
+
+                    foreach (var c3 in cards3)
+                    {
+                        var hlas1 = _g.trump.HasValue && c1.Value == Hodnota.Svrsek && hands[player1].HasK(c1.Suit);
+                        var hlas2 = _g.trump.HasValue && c2.Value == Hodnota.Svrsek && hands[player2].HasK(c2.Suit);
+                        var hlas3 = _g.trump.HasValue && c3.Value == Hodnota.Svrsek && hands[player3].HasK(c3.Suit);
+                        var round = new Round(_g, _g.players[player1], c1, c2, c3, roundNumber, hlas1, hlas2, hlas3);
+
+                        if (roundNumber == Game.NumRounds)
+                        {
+                            var result = InitGameComputationResult(
+                                new[]
+                                {
+                                    new Hand(Enumerable.Empty<Card>()),
+                                    new Hand(Enumerable.Empty<Card>()),
+                                    new Hand(Enumerable.Empty<Card>()),
+                                    new Hand(Enumerable.Empty<Card>())
+                                });
+
+                            //System.Diagnostics.Debug.WriteLine("\n*** Minimax ***");
+                            foreach (var r in previousRounds.Concat(new[] { round }))
+                            {
+                                result.Rounds.Add(new RoundDebugContext
+                                {
+                                    c1 = r.c1,
+                                    c2 = r.c2,
+                                    c3 = r.c3,
+                                    RoundStarterIndex = r.player1.PlayerIndex,
+                                    RoundWinnerIndex = r.roundWinner.PlayerIndex
+                                });
+                                if (r.number >= currentRound)
+                                {
+                                    result.Score[r.player1.PlayerIndex] += r.points1;
+                                    result.Score[r.player2.PlayerIndex] += r.points2;
+                                    result.Score[r.player3.PlayerIndex] += r.points3;
+                                    result.BasicScore[r.player1.PlayerIndex] += r.basicPoints1;
+                                    result.BasicScore[r.player2.PlayerIndex] += r.basicPoints2;
+                                    result.BasicScore[r.player3.PlayerIndex] += r.basicPoints3;
+                                    result.MaxHlasScore[r.player1.PlayerIndex] = Math.Max(r.hlasPoints1, result.MaxHlasScore[r.player1.PlayerIndex]);
+                                    result.MaxHlasScore[r.player2.PlayerIndex] = Math.Max(r.hlasPoints2, result.MaxHlasScore[r.player2.PlayerIndex]);
+                                    result.MaxHlasScore[r.player3.PlayerIndex] = Math.Max(r.hlasPoints3, result.MaxHlasScore[r.player3.PlayerIndex]);
+                                    result.TotalHlasScore[r.player1.PlayerIndex] += r.hlasPoints1;
+                                    result.TotalHlasScore[r.player2.PlayerIndex] += r.hlasPoints2;
+                                    result.TotalHlasScore[r.player3.PlayerIndex] += r.hlasPoints3;
+                                }
+                                //System.Diagnostics.Debug.WriteLine($"Round {r.number} Starter: {r.player1.PlayerIndex + 1}");
+                                //System.Diagnostics.Debug.WriteLine($"{r.c1} {r.c2} {r.c3} {r.points1} {r.points2} {r.points3}");
+                                //System.Diagnostics.Debug.WriteLine($"Winner: {r.roundWinner.PlayerIndex + 1} Score: {result.Score[0]} {result.Score[1]} {result.Score[2]}");
+                            }
+
+                            var calc = GetMoneyCalculator(Hra.Hra, _trump ?? _g.trump, _g.GameStartingPlayerIndex, _g.Bidding, result);
+
+                            calc.CalculateMoney();
+
+                            return new[] { new Tuple<Card, MoneyCalculatorBase>(c1, calc) };
+                        }
+                        else
+                        {
+                            candidateRounds.Add(round);
+                        }
+                    }
+                }
+            }
+            foreach(var r in candidateRounds)
+            {
+                var hh = new[] {
+                        new Hand(((List<Card>)hands[0]).Where(i => i != (r.player1.PlayerIndex == 0 ? r.c1 : r.player2.PlayerIndex == 0 ? r.c2 : r.c3))),
+                        new Hand(((List<Card>)hands[1]).Where(i => i != (r.player1.PlayerIndex == 1 ? r.c1 : r.player2.PlayerIndex == 1 ? r.c2 : r.c3))),
+                        new Hand(((List<Card>)hands[2]).Where(i => i != (r.player1.PlayerIndex == 2 ? r.c1 : r.player2.PlayerIndex == 2 ? r.c2 : r.c3))),
+                    };
+                var c = PlayerIndex == r.player1.PlayerIndex ? r.c1 : PlayerIndex == r.player2.PlayerIndex ? r.c2 : r.c3;
+                var result = ComputeMinMax(previousRounds.Concat(new[] { r }).ToList(), hh, currentRound).First();
+
+                results.Add(new Tuple<Card, MoneyCalculatorBase>(c, result.Item2));
+            }
+
+            if (roundNumber == currentRound)
+            {
+                return results;
+            }
+
+            //minimax
+            if (player1 == PlayerIndex || player1 == TeamMateIndex)
+            {
+                Tuple<Card, MoneyCalculatorBase> maxResult = null;
+
+                foreach(var result in results)
+                {
+                    if (maxResult == null ||
+                        result.Item2.MoneyWon[PlayerIndex] > maxResult.Item2.MoneyWon[PlayerIndex] ||
+                        (result.Item2.MoneyWon[PlayerIndex] == maxResult.Item2.MoneyWon[PlayerIndex] &&
+                         ((TeamMateIndex == -1 &&
+                           result.Item2.BasicPointsWon > maxResult.Item2.BasicPointsWon) ||
+                          (TeamMateIndex != -1 &&
+                           result.Item2.BasicPointsLost > maxResult.Item2.BasicPointsLost))))
+                    {
+                        maxResult = result;
+                    }
+                }
+
+                return new[] { maxResult };
+            }
+            else
+            {
+                Tuple<Card, MoneyCalculatorBase> minResult = null;
+
+                foreach (var result in results)
+                {
+                    if (minResult == null ||
+                        result.Item2.MoneyWon[PlayerIndex] < minResult.Item2.MoneyWon[PlayerIndex] ||
+                        (result.Item2.MoneyWon[PlayerIndex] == minResult.Item2.MoneyWon[PlayerIndex] &&
+                         ((TeamMateIndex == -1 &&
+                           result.Item2.BasicPointsLost > minResult.Item2.BasicPointsLost) ||
+                          (TeamMateIndex != -1 &&
+                           result.Item2.BasicPointsWon > minResult.Item2.BasicPointsWon))))
+                    {
+                        minResult = result;
+                    }
+                }
+
+                return new[] { minResult };
+            }
         }
 
         private Card ChooseCardToPlay(Dictionary<Card, List<GameComputationResult>> cardScores)
@@ -3729,8 +3930,8 @@ namespace Mariasek.Engine.New
                 result.Score[_g.rounds[i].player2.PlayerIndex] += _g.rounds[i].points2;
                 result.Score[_g.rounds[i].player3.PlayerIndex] += _g.rounds[i].points3;
                 result.BasicScore[_g.rounds[i].player1.PlayerIndex] += _g.rounds[i].basicPoints1;
-                result.BasicScore[_g.rounds[i].player2.PlayerIndex] += _g.rounds[i].basicPoints1;
-                result.BasicScore[_g.rounds[i].player3.PlayerIndex] += _g.rounds[i].basicPoints1;
+                result.BasicScore[_g.rounds[i].player2.PlayerIndex] += _g.rounds[i].basicPoints2;
+                result.BasicScore[_g.rounds[i].player3.PlayerIndex] += _g.rounds[i].basicPoints3;
                 result.MaxHlasScore[_g.rounds[i].player1.PlayerIndex] = Math.Max(_g.rounds[i].hlasPoints1, result.MaxHlasScore[_g.rounds[i].player1.PlayerIndex]);
                 result.MaxHlasScore[_g.rounds[i].player2.PlayerIndex] = Math.Max(_g.rounds[i].hlasPoints2, result.MaxHlasScore[_g.rounds[i].player2.PlayerIndex]);
                 result.MaxHlasScore[_g.rounds[i].player3.PlayerIndex] = Math.Max(_g.rounds[i].hlasPoints3, result.MaxHlasScore[_g.rounds[i].player3.PlayerIndex]);

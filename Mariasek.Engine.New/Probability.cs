@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
+using Combinatorics.Collections;
 using Mariasek.Engine.New.Logger;
 using MersenneTwister;
 //using Newtonsoft.Json;
@@ -995,6 +996,48 @@ namespace Mariasek.Engine.New
             }
             _log.DebugFormat("Finished generating hands for player{0}\n{1}", _myIndex + 1, sb.ToString());
 			_verboseString.Append("GenerateHands <- Exit\n");
+
+            return result;
+        }
+
+        public IEnumerable<Hand[]> GenerateAllHandCombinations(int roundNumber)
+        {
+            const int talonIndex = 3;
+            var p2 = (_myIndex + 1) % Game.NumPlayers;
+            var p3 = (_myIndex + 2) % Game.NumPlayers;
+            var certainCards = new List<Card>[Game.NumPlayers + 1];
+            var uncertainCards = new List<Card>[Game.NumPlayers + 1];
+            var cardsToGuess = new int[Game.NumPlayers + 1];
+            var result = new List<Hand[]>();
+
+            certainCards = _cardProbabilityForPlayer.Select(j => j.SelectMany(i => i.Value.Where(k => k.Value == 1f).Select(k => new Card(i.Key, k.Key))).ToList()).ToArray();
+            uncertainCards = _cardProbabilityForPlayer.Select(j => j.SelectMany(i => i.Value.Where(k => k.Value > 0f && k.Value < 1f).Select(k => new Card(i.Key, k.Key))).ToList()).ToArray();
+
+            cardsToGuess = certainCards.Select(i => 10 - roundNumber + 1 - i.Count()).ToArray();
+
+            var combinations2 = new Combinations<Card>(uncertainCards[p2], cardsToGuess[p2]);
+            foreach (var guessedCards2 in combinations2)
+            {
+                var hands = new Hand[Game.NumPlayers + 1];
+
+                hands[_myIndex] = new Hand(certainCards[_myIndex]);
+                hands[p2] = new Hand(certainCards[p2].Concat(guessedCards2));
+
+                var combinations3 = new Combinations<Card>(uncertainCards[p3].Except(guessedCards2).ToList(), cardsToGuess[p3]);
+                foreach(var guessedCards3 in combinations3)
+                {
+                    hands[p3] = new Hand(certainCards[p3].Concat(guessedCards3));
+
+                    var combinations4 = new Combinations<Card>(uncertainCards[talonIndex].Except(guessedCards2).Except(guessedCards3).ToList(), cardsToGuess[talonIndex]);
+                    foreach(var guessedCards4 in combinations4)
+                    {
+                        hands[talonIndex] = new Hand(certainCards[talonIndex].Concat(guessedCards4));
+
+                        //yield return hands;
+                        result.Add(hands);
+                    }
+                }
+            }
 
             return result;
         }

@@ -2314,6 +2314,10 @@ namespace Mariasek.SharedClient
                             {
                                 case Renonc.Ok:
                                     ShowMsgLabel("Hraj", false);
+                                    var n2 = (g.players[0] as HumanPlayer)._aiPlayer.Probabilities.PossibleCombinations(1, g.RoundNumber);
+                                    var n3 = (g.players[0] as HumanPlayer)._aiPlayer.Probabilities.PossibleCombinations(2, g.RoundNumber);
+                                    _msgLabelSmall.Text = $"\n\n{n2} {n3}";
+                                    _msgLabelSmall.Show();
                                     break;
                                 case Renonc.PriznejBarvu:
                                     ShowMsgLabel("Musíš přiznat barvu", false);

@@ -63,6 +63,29 @@ namespace Mariasek.Engine.New
         {            
         }
 
+        public Round(Game g, AbstractPlayer roundStarter, Card c1, Card c2, Card c3, int roundNumber, bool hlas1, bool hlas2, bool hlas3) : this(g, roundStarter)
+        {
+            this.c1 = c1;
+            this.c2 = c2;
+            this.c3 = c3;
+            number = roundNumber;
+
+            if (_g.trump.HasValue && hlas1)
+            {
+                hlasPoints1 += c1.Suit == _g.trump ? 40 : 20;
+            }
+            if (_g.trump.HasValue && hlas2)
+            {
+                hlasPoints2 += c2.Suit == _g.trump ? 40 : 20;
+            }
+            if (_g.trump.HasValue && hlas3)
+            {
+                hlasPoints3 += c3.Suit == _g.trump ? 40 : 20;
+            }
+
+            CalculateRoundScore();
+        }
+
         public Round(Game g, AbstractPlayer roundStarter, Card c1, Card c2, Card c3, int roundNumber, string debugNote1, string debugNote2, string debugNote3) : this(g, roundStarter)
         {
             number = roundNumber;
