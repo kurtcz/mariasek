@@ -47,8 +47,6 @@ namespace Mariasek.Engine.New
         public const int NumRounds = 10;
         public const int NumSuits = 4;
 
-        public readonly int MinMaxRound = 8;
-
         private int CurrentGameNumber;
         private static int GameCounter;
 
@@ -83,6 +81,7 @@ namespace Mariasek.Engine.New
         public bool PlayZeroSumGames { get; set; }
         public bool Top107 { get; set; }
         public bool Calculate107Separately { get; set; }
+        public int FirstMinMaxRound { get; set; }
         public HlasConsidered HlasConsidered { get; set; }
         public CalculationStyle CalculationStyle { get; set; }
         public bool IsRunning { get; private set; }
@@ -237,6 +236,7 @@ namespace Mariasek.Engine.New
             AllowAIAutoFinish = true;
             AllowPlayerAutoFinish = true;
             Calculate107Separately = true;
+            FirstMinMaxRound = 8;
             HlasConsidered = HlasConsidered.Highest;
             GetStringLogger = stringLoggerFactory;
             if (GetStringLogger == null)

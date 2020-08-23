@@ -25,6 +25,7 @@
   <HundredValue>4</HundredValue>
   <BetlValue>5</BetlValue>
   <DurchValue>10</DurchValue>
+  <FirstMinMaxRound>8</FirstMinMaxRound>
   <AllowAXTalon>false</AllowAXTalon>
   <AllowTrumpTalon>true</AllowTrumpTalon>
   <AllowAIAutoFinish>true</AllowAIAutoFinish>

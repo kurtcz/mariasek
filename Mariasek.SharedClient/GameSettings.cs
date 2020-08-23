@@ -97,6 +97,7 @@ namespace Mariasek.SharedClient
         public float SolitaryXThreshold { get; set; }           //xml-only
         public float SolitaryXThresholdDefense { get; set; }    //xml-only
         public int SafetyBetlThreshold { get; set; }            //xml-only
+        public int FirstMinMaxRound { get; set; }
         public int RoundFinishedWaitTimeMs { get; set; }
         public bool AutoFinishRounds { get; set; }
         public bool AutoFinish { get; set; }

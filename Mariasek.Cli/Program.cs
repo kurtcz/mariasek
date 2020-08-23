@@ -79,6 +79,7 @@ namespace Mariasek.Cli
                     HundredValue = Settings.HundredValue,
                     BetlValue = Settings.BetlValue,
                     DurchValue = Settings.DurchValue,
+                    FirstMinMaxRound = Settings.FirstMinMaxRound,
                     AllowAXTalon = Settings.AllowAXTalon,
                     AllowTrumpTalon = Settings.AllowTrumpTalon,
                     AllowAIAutoFinish = Settings.AllowAIAutoFinish,

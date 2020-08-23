@@ -2878,6 +2878,10 @@ namespace Mariasek.Engine.New
                      (Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
                       kqScore >= 40 &&                         //40 bodu v hlasech
                       estimatedFinalBasicScore >= 50) ||       //a odhaduju ze uhraju aspon 50 bodu v desitkach
+                     ((Hand.HasK(_g.trump.Value) ||
+                       Hand.HasQ(_g.trump.Value)) &&           //nebo mam trhaka
+                      Hand.CardCount(_g.trump.Value) >= 4 &&   //a aspon 4 trumfy
+                      !Is100AgainstPossible(110)) ||           
                      (Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
                       (Hand.HasX(_g.trump.Value) ||            //a desitku nebo
                        Hand.CardCount(_g.trump.Value) >= 3) && //aspon 3 trumfy
@@ -3325,7 +3329,7 @@ namespace Mariasek.Engine.New
                              Probabilities.PossibleCombinations((PlayerIndex + 2) % Game.NumPlayers, r.number))) * 3;
                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = 0, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Generuju karty"});
                 var source = goodGame && _g.CurrentRound != null
-                               ? r.number >= _g.MinMaxRound
+                               ? _g.FirstMinMaxRound > 0 && r.number >= _g.FirstMinMaxRound
                                     ? Probabilities.GenerateAllHandCombinations(r.number)
                                     : Probabilities.GenerateHands(r.number, roundStarterIndex, 1) 
                                : Probabilities.GenerateHands(r.number, roundStarterIndex, simulations);
@@ -3344,7 +3348,7 @@ namespace Mariasek.Engine.New
                 var exceptions = new ConcurrentQueue<Exception>();
                 try
                 {
-                    if (r.number >= _g.MinMaxRound && r.c1 == null)
+                    if (_g.FirstMinMaxRound > 0 && r.number >= _g.FirstMinMaxRound && r.c1 == null)
                     {
                         System.Diagnostics.Debug.WriteLine("Uhraj nejlepší výsledek");
                         cardToPlay = ComputeCardToPlay(source, r.number);
