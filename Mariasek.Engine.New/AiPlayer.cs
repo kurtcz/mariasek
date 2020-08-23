@@ -3351,13 +3351,20 @@ namespace Mariasek.Engine.New
                     if (_g.FirstMinMaxRound > 0 && r.number >= _g.FirstMinMaxRound && r.c1 == null)
                     {
                         System.Diagnostics.Debug.WriteLine("Uhraj nejlepší výsledek");
-                        cardToPlay = ComputeCardToPlay(source, r.number);
-                        DebugInfo.Card = cardToPlay;
-                        DebugInfo.Rule = "Uhraj nejlepší výsledek";
-                        DebugInfo.RuleCount = 1;
-                        DebugInfo.TotalRuleCount = Game.NumRounds - r.number + 1;
+                        cardToPlay = ComputeBestCardToPlay(source, r.number);
 
-                        return cardToPlay;
+                        if (cardToPlay != null)
+                        {
+                            DebugInfo.Card = cardToPlay;
+                            DebugInfo.Rule = "Uhraj nejlepší výsledek";
+                            DebugInfo.RuleCount = 1;
+                            DebugInfo.TotalRuleCount = Game.NumRounds - r.number + 1;
+
+                            return cardToPlay;
+                        }
+                        //minimax nestihl dobehnout, pokracuj klasicky
+                        source = Probabilities.GenerateHands(r.number, roundStarterIndex, 1);
+                        start = DateTime.Now;
                     }
                     Parallel.ForEach(source, options, (hands, loopState) =>
                     {
@@ -3502,30 +3509,37 @@ namespace Mariasek.Engine.New
             return cardToPlay;                
         }
 
-        private Card ComputeCardToPlay(IEnumerable<Hand[]> source, int roundNumber)
+        private Card ComputeBestCardToPlay(IEnumerable<Hand[]> source, int roundNumber)
         {
             var results = new ConcurrentQueue<Tuple<Card, MoneyCalculatorBase>>();
-            //var results = new List<Tuple<Card, MoneyCalculatorBase>>();
             var averageResults = new Dictionary<Card, double>();
             var minResults = new Dictionary<Card, double>();
             var maxResults = new Dictionary<Card, double>();
             var n = 0;
+            var start = DateTime.Now;
+            var prematureStop = false;
 
-            Parallel.ForEach(source, hands =>
+            Parallel.ForEach(source, (hands, loopState) =>
             {
-            //foreach (var hands in source)
-            //{
                 ThrowIfCancellationRequested();
+                if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
+                {
+                    prematureStop = true;
+                    loopState.Stop();
+                }
                 var result = ComputeMinMax(new List<Round>(_g.rounds.Where(i => i?.c3 != null)), hands, roundNumber);
 
                 foreach (var res in result)
                 {
                     results.Enqueue(res);
                 }
-                //results.AddRange(result);
                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = ++n, Max = source.Count(), Message = "Generuju karty" });
-            //}
             });
+
+            if (prematureStop)
+            {
+                return null;
+            }
 
             foreach (var card in results.Select(i => i.Item1).Distinct())
             {
@@ -3540,11 +3554,32 @@ namespace Mariasek.Engine.New
                                                       (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
             }
 
-            var cardToPlay = minResults.Keys.OrderByDescending(i => minResults[i])
-                                            .ThenByDescending(i => averageResults[i])
-                                            .ThenByDescending(i => maxResults[i])
-                                            .ThenBy(i => _g.trump.HasValue ? (int)i.Value : _g.GameType == Hra.Betl ? i.BadValue : -i.BadValue)
-                                            .First();
+            Card cardToPlay;
+            switch(_g.GameType)
+            {
+                case Hra.Durch:
+                    cardToPlay = minResults.Keys.OrderByDescending(i => minResults[i])
+                                                .ThenByDescending(i => averageResults[i])
+                                                .ThenByDescending(i => maxResults[i])
+                                                .ThenByDescending(i => i.BadValue)
+                                                .FirstOrDefault();
+                    break;
+                case Hra.Betl:
+                    cardToPlay = minResults.Keys.OrderByDescending(i => minResults[i])
+                                                .ThenByDescending(i => averageResults[i])
+                                                .ThenByDescending(i => maxResults[i])
+                                                .ThenBy(i => i.BadValue)
+                                                .FirstOrDefault();
+                    break;
+                default:
+                    cardToPlay = minResults.Keys.OrderByDescending(i => minResults[i])
+                                                .ThenByDescending(i => averageResults[i])
+                                                .ThenByDescending(i => maxResults[i])
+                                                .ThenByDescending(i => maxResults[i] >= 0 ? (int)i.Value : -(int)i.Value)
+                                                .FirstOrDefault();
+                    break;
+            }
+
             return cardToPlay;
         }
 
@@ -3616,7 +3651,7 @@ namespace Mariasek.Engine.New
                                 //System.Diagnostics.Debug.WriteLine($"Winner: {r.roundWinner.PlayerIndex + 1} Score: {result.Score[0]} {result.Score[1]} {result.Score[2]}");
                             }
 
-                            var calc = GetMoneyCalculator(Hra.Hra, _trump ?? _g.trump, _g.GameStartingPlayerIndex, _g.Bidding, result);
+                            var calc = GetMoneyCalculator(_g.GameType, _g.trump, _g.GameStartingPlayerIndex, _g.Bidding, result);
 
                             calc.CalculateMoney();
 
@@ -3702,10 +3737,10 @@ namespace Mariasek.Engine.New
             {
                 var rules = cardScores.Values.SelectMany(i => i)                                    //pro vsechny karty vezmi v kazde simulaci jedno pravidlo pro tuto kartu
                                              .Select(i => i.ToplevelRuleDictionary
-                                                               .Where(j => j.Value == card)
-                                                               .OrderByDescending(j => j.Key.Order)
-                                                               .Select(j => j.Key)
-                                                               .FirstOrDefault())
+                                                           .Where(j => j.Value == card)
+                                                           .OrderByDescending(j => j.Key.Order)
+                                                           .Select(j => j.Key)
+                                                           .FirstOrDefault())
                                              .Where(i => i != null)
                                              .ToList();
                 cardRules.Add(card, rules);

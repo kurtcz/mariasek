@@ -405,7 +405,8 @@ namespace Mariasek.Engine.New
                 var finalRound = res.Rounds[Game.NumRounds - 1];
                 var lastWinningCard = Round.WinningCard(finalRound.c1, finalRound.c2, finalRound.c3, trump);
 
-                SevenAgainstWon = !FinalCardWon &&
+                SevenAgainstWon = trump.HasValue &&
+                                  !FinalCardWon &&
                                   lastWinningCard.Suit == trump.Value &&
                                   lastWinningCard.Value == Hodnota.Sedma;
                 //Not implemented:
