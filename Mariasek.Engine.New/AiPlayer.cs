@@ -3521,14 +3521,21 @@ namespace Mariasek.Engine.New
             var prematureStop = false;
 
             Parallel.ForEach(source, (hands, loopState) =>
+            //foreach(var hands in source)
             {
                 ThrowIfCancellationRequested();
                 if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                 {
                     prematureStop = true;
                     loopState.Stop();
+                    //break;
                 }
-                var result = ComputeMinMax(new List<Round>(_g.rounds.Where(i => i?.c3 != null)), hands, roundNumber);
+                var hh = new[] {
+                        new Hand((List<Card>)hands[0]),
+                        new Hand((List<Card>)hands[1]),
+                        new Hand((List<Card>)hands[2])
+                    };
+                var result = ComputeMinMax(new List<Round>(_g.rounds.Where(i => i?.c3 != null)), hh, roundNumber);
 
                 foreach (var res in result)
                 {

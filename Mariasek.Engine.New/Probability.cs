@@ -1033,8 +1033,15 @@ namespace Mariasek.Engine.New
                     {
                         hands[talonIndex] = new Hand(certainCards[talonIndex].Concat(guessedCards4));
 
-                        //yield return hands;
-                        result.Add(hands);
+                        //vynech kombinace ve kterych nevyslo na vsechny spravny pocet karet
+                        if (hands[0].Count() == 10 - roundNumber + 1 &&
+                            hands[1].Count() == 10 - roundNumber + 1 &&
+                            hands[2].Count() == 10 - roundNumber + 1 &&
+                            hands[talonIndex].Count() == 2)
+                        {
+                            //yield return hands;
+                            result.Add(hands);
+                        }
                     }
                 }
             }
