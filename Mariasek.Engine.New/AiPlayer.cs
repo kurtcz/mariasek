@@ -2927,6 +2927,7 @@ namespace Mariasek.Engine.New
                 _sevenSimulations > 0 && 
                 bidding._sevenFlek <= Settings.MaxDoubleCountForGameType[Hra.Sedma] &&
                 ((TeamMateIndex != -1 &&
+                  (_gameType & Hra.Kilo) == 0 &&
                   (Hand.CardCount(_g.trump.Value) >= 4 ||           //ctyri a vice trumfu nebo
                    (Hand.CardCount(_g.trump.Value) >= 3 &&          //tri trumfy
                     (Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => Hand.HasSuit(b)) ||
