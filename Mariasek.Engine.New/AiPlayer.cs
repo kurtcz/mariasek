@@ -3330,7 +3330,7 @@ namespace Mariasek.Engine.New
                              Probabilities.PossibleCombinations((PlayerIndex + 2) % Game.NumPlayers, r.number))) * 3;
                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = 0, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Generuju karty"});
                 var source = goodGame && _g.CurrentRound != null
-                               ? _g.FirstMinMaxRound > 0 && r.number >= _g.FirstMinMaxRound
+                               ? _g.FirstMinMaxRound > 0 && r.number >= _g.FirstMinMaxRound && r.c1 == null
                                     ? Probabilities.GenerateAllHandCombinations(r.number)
                                     : Probabilities.GenerateHands(r.number, roundStarterIndex, 1) 
                                : Probabilities.GenerateHands(r.number, roundStarterIndex, simulations);
@@ -3512,34 +3512,112 @@ namespace Mariasek.Engine.New
 
         private Card ComputeBestCardToPlay(IEnumerable<Hand[]> source, int roundNumber)
         {
-            var results = new ConcurrentQueue<Tuple<Card, MoneyCalculatorBase>>();
+            const int talonIndex = 3;
+            var results = new ConcurrentQueue<Tuple<Card, MoneyCalculatorBase, GameComputationResult, Hand[]>>();
+            var likelyResults = new ConcurrentQueue<Tuple<Card, MoneyCalculatorBase, GameComputationResult, Hand[]>>();
             var averageResults = new Dictionary<Card, double>();
+            var averageLikelyResults = new Dictionary<Card, double>();
             var minResults = new Dictionary<Card, double>();
             var maxResults = new Dictionary<Card, double>();
             var n = 0;
             var start = DateTime.Now;
             var prematureStop = false;
+            //var uncertainTrumps = _g.trump.HasValue
+            //                        ? Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+            //                              .Select(h => new Card(_g.trump.Value, h))
+            //                              .Where(i => Probabilities.CardProbability(0, i) > 0)
+            //                              .ToList()
+            //                        : Enumerable.Empty<Card>();
+            var uncertainTalonTrumps = _g.trump.HasValue
+                                       ? Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                             .Select(h => new Card(_g.trump.Value, h))
+                                             .Where(i => Probabilities.CardProbability(talonIndex, i) > 0)
+                                             .ToList()
+                                       : Enumerable.Empty<Card>();
+            var gameStartingHand = new List<Card>();
 
+            var gameStartedInitialCards = _g.rounds.Where(r => r != null && r.c3 != null)
+                                                   .Select(r =>
+                                                   {
+                                                       if (r.player1.PlayerIndex == _g.GameStartingPlayerIndex)
+                                                       {
+                                                           return r.c1;
+                                                       }
+                                                       else if (r.player2.PlayerIndex == _g.GameStartingPlayerIndex)
+                                                       {
+                                                           return r.c2;
+                                                       }
+                                                       else
+                                                       {
+                                                           return r.c3;
+                                                       }
+                                                   }).ToList();
+
+            //source = new[] { _g.players.Select(i => new Hand(i.Hand)).ToArray() };
+            //foreach (var hands in source)
             Parallel.ForEach(source, (hands, loopState) =>
-            //foreach(var hands in source)
             {
                 ThrowIfCancellationRequested();
-                if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
+                if ((DateTime.Now - start).TotalMilliseconds > 2 * Settings.MaxSimulationTimeMs)
                 {
                     prematureStop = true;
                     loopState.Stop();
                     //break;
                 }
+                //List<Card> talon = null;
+                //if (PlayerIndex != _g.GameStartingPlayerIndex)
+                //{
+                //    var initialHand = gameStartedInitialCards.Concat((List<Card>)hands[_g.GameStartingPlayerIndex]).Concat((List<Card>)hands[talonIndex]).ToList();
+                //    switch (_g.GameType)
+                //    {
+                //        case Hra.Betl:
+                //            talon = ChooseBetlTalon(initialHand, _g.TrumpCard);
+                //            break;
+                //        case Hra.Durch:
+                //            talon = ChooseDurchTalon(initialHand, _g.TrumpCard);
+                //            break;
+                //        default:
+                //            talon = ChooseNormalTalon(initialHand, _g.TrumpCard);
+                //            break;
+                //    }
+                //}
                 var hh = new[] {
                         new Hand((List<Card>)hands[0]),
                         new Hand((List<Card>)hands[1]),
                         new Hand((List<Card>)hands[2])
                     };
                 var result = ComputeMinMax(new List<Round>(_g.rounds.Where(i => i?.c3 != null)), hh, roundNumber);
-
+                
                 foreach (var res in result)
                 {
-                    results.Enqueue(res);
+                    var opponentBidders = _g.Bidding.PlayerBids
+                                                    .Select((i, idx) => new { bid = i, idx })
+                                                    .Where(i => i.idx != PlayerIndex &&
+                                                                i.bid != 0)
+                                                    .Select(i => i.idx)
+                                                    .ToList();
+                    var teamMateDoubledGame = TeamMateIndex != -1 &&
+                                              (_g.Bidding.PlayerBids[TeamMateIndex] & Hra.Hra) != 0;
+                    results.Enqueue(new Tuple<Card, MoneyCalculatorBase, GameComputationResult, Hand[]>(res.Item1, res.Item2, res.Item3, hh));
+                    if (_g.trump.HasValue &&
+                        ((PlayerIndex == _g.GameStartingPlayerIndex &&
+                          (!opponentBidders.Any() ||
+                           opponentBidders.Any(i => Probabilities.SuitProbability(i, _g.trump.Value, roundNumber) == 0 ||
+                                                    hands[i].HasSuit(_g.trump.Value)))) ||
+                         (PlayerIndex != _g.GameStartingPlayerIndex &&
+                          !(teamMateDoubledGame &&
+                            (Probabilities.CardProbability(TeamMateIndex, new Card(_g.trump.Value, Hodnota.Kral)) > 0 ||
+                             Probabilities.CardProbability(TeamMateIndex, new Card(_g.trump.Value, Hodnota.Svrsek)) > 0) &&
+                            (!hands[TeamMateIndex].HasK(_g.trump.Value) &&
+                             !hands[TeamMateIndex].HasQ(_g.trump.Value))) &&
+                            //!hands[_g.GameStartingPlayerIndex].Any(i => talon != null &&
+                            //                                           talon.Contains(i) &&
+                            uncertainTalonTrumps.All(i => hands[0].Any(j => i == j) ||
+                                                          hands[1].Any(j => i == j) ||
+                                                          hands[2].Any(j => i == j)))))
+                    {
+                        likelyResults.Enqueue(new Tuple<Card, MoneyCalculatorBase, GameComputationResult, Hand[]>(res.Item1, res.Item2, res.Item3, hh));
+                    }
                 }
                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = ++n, Max = source.Count(), Message = "Generuju karty" });
             });
@@ -3549,11 +3627,20 @@ namespace Mariasek.Engine.New
                 return null;
             }
 
+            if(!likelyResults.Any())
+            {
+                likelyResults = results;
+            }
+
             foreach (var card in results.Select(i => i.Item1).Distinct())
             {
                 averageResults.Add(card, results.Where(i => i.Item1 == card)
                                                 .Average(i => 100 * i.Item2.MoneyWon[PlayerIndex] +
-                                                              (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
+                                                                (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
+                averageLikelyResults.Add(card, likelyResults.Where(i => i.Item1 == card)
+                                                            .Average(i => 100 * i.Item2.MoneyWon[PlayerIndex] +
+                                                                          (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
+
                 minResults.Add(card, results.Where(i => i.Item1 == card)
                                             .Min(i => 100 * i.Item2.MoneyWon[PlayerIndex] +
                                                       (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
@@ -3581,7 +3668,7 @@ namespace Mariasek.Engine.New
                     break;
                 default:
                     cardToPlay = minResults.Keys.OrderByDescending(i => minResults[i])
-                                                .ThenByDescending(i => averageResults[i])
+                                                .ThenByDescending(i => averageLikelyResults[i])
                                                 .ThenByDescending(i => maxResults[i])
                                                 .ThenByDescending(i => maxResults[i] >= 0 ? (int)i.Value : -(int)i.Value)
                                                 .FirstOrDefault();
@@ -3591,7 +3678,7 @@ namespace Mariasek.Engine.New
             return cardToPlay;
         }
 
-        private IEnumerable<Tuple<Card, MoneyCalculatorBase>> ComputeMinMax(List<Round> previousRounds, Hand[] hands, int currentRound)
+        private IEnumerable<Tuple<Card, MoneyCalculatorBase, GameComputationResult>> ComputeMinMax(List<Round> previousRounds, Hand[] hands, int currentRound)
         {
             var previousRound = previousRounds.Last();
             var roundNumber = previousRounds.Count() + 1;
@@ -3599,7 +3686,7 @@ namespace Mariasek.Engine.New
             var player2 = (player1 + 1) % Game.NumPlayers;
             var player3 = (player1 + 2) % Game.NumPlayers;
             var candidateRounds = new List<Round>();
-            var results = new List<Tuple<Card, MoneyCalculatorBase>>();
+            var results = new List<Tuple<Card, MoneyCalculatorBase, GameComputationResult>>();
             var cards1 = ValidCards(hands[player1], _g.trump, _g.GameType, _g.players[player1].TeamMateIndex);
 
             foreach (var c1 in cards1)
@@ -3653,17 +3740,23 @@ namespace Mariasek.Engine.New
                                     result.TotalHlasScore[r.player1.PlayerIndex] += r.hlasPoints1;
                                     result.TotalHlasScore[r.player2.PlayerIndex] += r.hlasPoints2;
                                     result.TotalHlasScore[r.player3.PlayerIndex] += r.hlasPoints3;
+                                    if (r.number == Game.NumRounds && _g.trump.HasValue)
+                                    {
+                                        var roundWinnerCard = Round.WinningCard(r.c1, r.c2, r.c3, _g.trump);
+
+                                        result.Final7Won = roundWinnerCard.Suit == _g.trump.Value && roundWinnerCard.Value == Hodnota.Sedma && r.roundWinner.PlayerIndex == _g.GameStartingPlayerIndex;
+                                        result.Final7AgainstWon = roundWinnerCard.Suit == _g.trump.Value && roundWinnerCard.Value == Hodnota.Sedma && r.roundWinner.PlayerIndex != _g.GameStartingPlayerIndex;
+                                    }
                                 }
                                 //System.Diagnostics.Debug.WriteLine($"Round {r.number} Starter: {r.player1.PlayerIndex + 1}");
                                 //System.Diagnostics.Debug.WriteLine($"{r.c1} {r.c2} {r.c3} {r.points1} {r.points2} {r.points3}");
                                 //System.Diagnostics.Debug.WriteLine($"Winner: {r.roundWinner.PlayerIndex + 1} Score: {result.Score[0]} {result.Score[1]} {result.Score[2]}");
                             }
-
                             var calc = GetMoneyCalculator(_g.GameType, _g.trump, _g.GameStartingPlayerIndex, _g.Bidding, result);
 
                             calc.CalculateMoney();
 
-                            return new[] { new Tuple<Card, MoneyCalculatorBase>(c1, calc) };
+                            return new[] { new Tuple<Card, MoneyCalculatorBase, GameComputationResult>(c1, calc, result) };
                         }
                         else
                         {
@@ -3682,18 +3775,63 @@ namespace Mariasek.Engine.New
                 var c = PlayerIndex == r.player1.PlayerIndex ? r.c1 : PlayerIndex == r.player2.PlayerIndex ? r.c2 : r.c3;
                 var result = ComputeMinMax(previousRounds.Concat(new[] { r }).ToList(), hh, currentRound).First();
 
-                results.Add(new Tuple<Card, MoneyCalculatorBase>(c, result.Item2));
-            }
-
-            if (roundNumber == currentRound)
-            {
-                return results;
+                results.Add(new Tuple<Card, MoneyCalculatorBase, GameComputationResult>(c, result.Item2, result.Item3));
             }
 
             //minimax
+            if (roundNumber == currentRound)
+            {
+                if (player1 == PlayerIndex || player1 == TeamMateIndex)
+                {
+                    var maxResult = new Dictionary<Card, Tuple<Card, MoneyCalculatorBase, GameComputationResult>>();
+
+                    foreach (var result in results)
+                    {
+                        if (!maxResult.ContainsKey(result.Item1))
+                        {
+                            maxResult.Add(result.Item1, result);
+                        }
+                        if (result.Item2.MoneyWon[PlayerIndex] > maxResult[result.Item1].Item2.MoneyWon[PlayerIndex] ||
+                            (result.Item2.MoneyWon[PlayerIndex] == maxResult[result.Item1].Item2.MoneyWon[PlayerIndex] &&
+                             ((TeamMateIndex == -1 &&
+                               result.Item2.BasicPointsWon > maxResult[result.Item1].Item2.BasicPointsWon) ||
+                              (TeamMateIndex != -1 &&
+                               result.Item2.BasicPointsLost > maxResult[result.Item1].Item2.BasicPointsLost))))
+                        {
+                            maxResult[result.Item1] = result;
+                        }
+                    }
+
+                    return maxResult.Values.ToList();
+                }
+                else
+                {
+                    var minResult = new Dictionary<Card, Tuple<Card, MoneyCalculatorBase, GameComputationResult>>();
+
+                    foreach (var result in results)
+                    {
+                        if (!minResult.ContainsKey(result.Item1))
+                        {
+                            minResult.Add(result.Item1, result);
+                        }
+                        if (result.Item2.MoneyWon[PlayerIndex] < minResult[result.Item1].Item2.MoneyWon[PlayerIndex] ||
+                            (result.Item2.MoneyWon[PlayerIndex] == minResult[result.Item1].Item2.MoneyWon[PlayerIndex] &&
+                             ((TeamMateIndex == -1 &&
+                               result.Item2.BasicPointsLost > minResult[result.Item1].Item2.BasicPointsLost) ||
+                              (TeamMateIndex != -1 &&
+                               result.Item2.BasicPointsWon > minResult[result.Item1].Item2.BasicPointsWon))))
+                        {
+                            minResult[result.Item1] = result;
+                        }
+                    }
+
+                    return minResult.Values.ToList();
+                }
+            }
+
             if (player1 == PlayerIndex || player1 == TeamMateIndex)
             {
-                Tuple<Card, MoneyCalculatorBase> maxResult = null;
+                Tuple<Card, MoneyCalculatorBase, GameComputationResult> maxResult = null;
 
                 foreach(var result in results)
                 {
@@ -3713,7 +3851,7 @@ namespace Mariasek.Engine.New
             }
             else
             {
-                Tuple<Card, MoneyCalculatorBase> minResult = null;
+                Tuple<Card, MoneyCalculatorBase, GameComputationResult> minResult = null;
 
                 foreach (var result in results)
                 {

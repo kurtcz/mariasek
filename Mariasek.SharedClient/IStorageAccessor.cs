@@ -4,6 +4,6 @@ namespace Mariasek.SharedClient
     public interface IStorageAccessor
     {
         bool CheckStorageAccess();
-        void GetStorageAccess();
+        void GetStorageAccess(bool force = false);
     }
 }

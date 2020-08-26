@@ -1010,28 +1010,29 @@ namespace Mariasek.Engine.New
             var cardsToGuess = new int[Game.NumPlayers + 1];
             var result = new List<Hand[]>();
 
-            certainCards = _cardProbabilityForPlayer.Select(j => j.SelectMany(i => i.Value.Where(k => k.Value == 1f).Select(k => new Card(i.Key, k.Key))).ToList()).ToArray();
-            uncertainCards = _cardProbabilityForPlayer.Select(j => j.SelectMany(i => i.Value.Where(k => k.Value > 0f && k.Value < 1f).Select(k => new Card(i.Key, k.Key))).ToList()).ToArray();
+            certainCards = _cardProbabilityForPlayer.Select(j => j.SelectMany(i => i.Value.Where(k => k.Value >= 0.9f).Select(k => new Card(i.Key, k.Key))).ToList()).ToArray();
+            uncertainCards = _cardProbabilityForPlayer.Select(j => j.SelectMany(i => i.Value.Where(k => k.Value > 0.1f && k.Value < 0.9f).Select(k => new Card(i.Key, k.Key))).ToList()).ToArray();
 
             cardsToGuess = certainCards.Select(i => 10 - roundNumber + 1 - i.Count()).ToArray();
+            cardsToGuess[talonIndex] = 2 - certainCards[talonIndex].Count();
 
             var combinations2 = new Combinations<Card>(uncertainCards[p2], cardsToGuess[p2]);
             foreach (var guessedCards2 in combinations2)
             {
-                var hands = new Hand[Game.NumPlayers + 1];
+                var hands = new List<Card>[Game.NumPlayers + 1];
 
-                hands[_myIndex] = new Hand(certainCards[_myIndex]);
-                hands[p2] = new Hand(certainCards[p2].Concat(guessedCards2));
+                hands[_myIndex] = certainCards[_myIndex];
+                hands[p2] = certainCards[p2].Concat(guessedCards2).ToList();
 
                 var combinations3 = new Combinations<Card>(uncertainCards[p3].Except(guessedCards2).ToList(), cardsToGuess[p3]);
                 foreach(var guessedCards3 in combinations3)
                 {
-                    hands[p3] = new Hand(certainCards[p3].Concat(guessedCards3));
+                    hands[p3] = certainCards[p3].Concat(guessedCards3).ToList();
 
                     var combinations4 = new Combinations<Card>(uncertainCards[talonIndex].Except(guessedCards2).Except(guessedCards3).ToList(), cardsToGuess[talonIndex]);
                     foreach(var guessedCards4 in combinations4)
                     {
-                        hands[talonIndex] = new Hand(certainCards[talonIndex].Concat(guessedCards4));
+                        hands[talonIndex] = certainCards[talonIndex].Concat(guessedCards4).ToList();
 
                         //vynech kombinace ve kterych nevyslo na vsechny spravny pocet karet
                         if (hands[0].Count() == 10 - roundNumber + 1 &&
@@ -1040,7 +1041,13 @@ namespace Mariasek.Engine.New
                             hands[talonIndex].Count() == 2)
                         {
                             //yield return hands;
-                            result.Add(hands);
+                            result.Add(new[]
+                            {
+                                new Hand(hands[0]),
+                                new Hand(hands[1]),
+                                new Hand(hands[2]),
+                                new Hand(hands[3])
+                            });
                         }
                     }
                 }

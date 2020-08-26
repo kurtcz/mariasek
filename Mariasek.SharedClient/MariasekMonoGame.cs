@@ -43,7 +43,9 @@ namespace Mariasek.SharedClient
     public class MariasekMonoGame : Microsoft.Xna.Framework.Game
     {
 #if __ANDROID__
-        public static string RootPath = Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+        public static string RootPath => (int)Android.OS.Build.VERSION.SdkInt >= 29
+                                            ? Android.App.Application.Context.GetExternalFilesDir(null).Path
+                                            : Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
         //public static string RootPath = Android.App.Application.Context.GetExternalFilesDir(null).Path;
 #else   //#elif __IOS__
         public static string RootPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -655,17 +657,24 @@ namespace Mariasek.SharedClient
         private void MigrateFilesIfNeeded()
         {
 #if __ANDROID__
-            //var legacyFolder = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/Mariasek";
+            if ((int)Android.OS.Build.VERSION.SdkInt == 29)
+            {
+                var legacyFolder = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/Mariasek";
 
-            //StorageAccessor.GetStorageAccess();
-            //if (Directory.Exists(legacyFolder))
-            //{
-            //    MigrateFiles();
-            //}
-            //else
-            //{
+                StorageAccessor.GetStorageAccess(true);
+                if (Directory.Exists(legacyFolder))
+                {
+                    MigrateFiles();
+                }
+                else
+                {
+                    _loadingFinished = true;
+                }
+            }
+            else
+            {
                 _loadingFinished = true;
-            //}
+            }
 #else
             _loadingFinished = true;
 #endif

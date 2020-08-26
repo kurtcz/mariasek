@@ -101,8 +101,12 @@ namespace Mariasek.AndroidClient
             return ContextCompat.CheckSelfPermission(this, permission) == Permission.Granted;
         }
 
-        public void GetStorageAccess()
+        public void GetStorageAccess(bool force = false)
         {
+            if ((int)Android.OS.Build.VERSION.SdkInt >= 29 && !force)
+            {
+                return;
+            }
             var permission = Manifest.Permission.WriteExternalStorage;
 
             if (!CheckStorageAccess())

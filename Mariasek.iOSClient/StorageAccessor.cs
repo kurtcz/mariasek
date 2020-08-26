@@ -10,7 +10,7 @@ namespace Mariasek.iOSClient
             return true;
         }
 
-        public void GetStorageAccess()
+        public void GetStorageAccess(bool force)
 		{
 			//no action needed on iOS
 		}
