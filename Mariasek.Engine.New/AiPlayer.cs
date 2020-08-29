@@ -2858,9 +2858,10 @@ namespace Mariasek.Engine.New
                      ((Hand.HasK(_g.trump.Value) ||             //pouze trhak a 40 bodu v hlasech na ruce
                        Hand.HasQ(_g.trump.Value)) &&
                         kqScore >= 40) ||                       //nebo
-                     ((Hand.HasK(_g.trump.Value) ||             //trhak a vetsina bodu
+                     ((Hand.HasK(_g.trump.Value) ||             //trhak a vidim do vsech hlasek (u sedmy jeste pokud mam vic bodu nez souper)
                        Hand.HasQ(_g.trump.Value)) &&
-                      estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
+                       ((bidding.Bids & Hra.Sedma) == 0 ||
+                        estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore) &&
                       !Is100AgainstPossible()) ||
                      ((Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&
@@ -3330,7 +3331,7 @@ namespace Mariasek.Engine.New
                              Probabilities.PossibleCombinations((PlayerIndex + 2) % Game.NumPlayers, r.number))) * 3;
                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = 0, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Generuju karty"});
                 var source = goodGame && _g.CurrentRound != null
-                               ? _g.FirstMinMaxRound > 0 && r.number >= _g.FirstMinMaxRound && r.c1 == null
+                               ? _g.FirstMinMaxRound > 0 && r.number >= _g.FirstMinMaxRound && r.c1 == null && _g.GameType != Hra.Durch
                                     ? Probabilities.GenerateAllHandCombinations(r.number)
                                     : Probabilities.GenerateHands(r.number, roundStarterIndex, 1) 
                                : Probabilities.GenerateHands(r.number, roundStarterIndex, simulations);
@@ -3349,7 +3350,7 @@ namespace Mariasek.Engine.New
                 var exceptions = new ConcurrentQueue<Exception>();
                 try
                 {
-                    if (_g.FirstMinMaxRound > 0 && r.number >= _g.FirstMinMaxRound && r.c1 == null)
+                    if (_g.FirstMinMaxRound > 0 && r.number >= _g.FirstMinMaxRound && r.c1 == null && _g.GameType != Hra.Durch)
                     {
                         System.Diagnostics.Debug.WriteLine("Uhraj nejlepší výsledek");
                         cardToPlay = ComputeBestCardToPlay(source, r.number);
@@ -3680,6 +3681,8 @@ namespace Mariasek.Engine.New
 
         private IEnumerable<Tuple<Card, MoneyCalculatorBase, GameComputationResult>> ComputeMinMax(List<Round> previousRounds, Hand[] hands, int currentRound)
         {
+            ThrowIfCancellationRequested();
+
             var previousRound = previousRounds.Last();
             var roundNumber = previousRounds.Count() + 1;
             var player1 = previousRound.roundWinner.PlayerIndex;
