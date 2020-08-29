@@ -604,8 +604,7 @@ namespace Mariasek.Engine.New
                         {
                             return null;
                         }
-                        if ((_gameType & Hra.Kilo) != 0 &&
-                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                        if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Any(b => hands[MyIndex].HasSuit(b) &&
                                           !hands[MyIndex].HasA(b) &&
                                           !hands[MyIndex].HasX(b) &&

@@ -1040,20 +1040,26 @@ namespace Mariasek.Engine.New
                             hands[2].Count() == 10 - roundNumber + 1 &&
                             hands[talonIndex].Count() == 2)
                         {
-                            //yield return hands;
-                            result.Add(new[]
+                            yield return new[]
                             {
                                 new Hand(hands[0]),
                                 new Hand(hands[1]),
                                 new Hand(hands[2]),
                                 new Hand(hands[3])
-                            });
+                            };
+                            //result.Add(new[]
+                            //{
+                            //    new Hand(hands[0]),
+                            //    new Hand(hands[1]),
+                            //    new Hand(hands[2]),
+                            //    new Hand(hands[3])
+                            //});
                         }
                     }
                 }
             }
 
-            return result;
+            //return result;
         }
 
         private void Check()
