@@ -78,6 +78,18 @@ namespace Mariasek.Engine.New
                     }
                 }
 
+                if (TeamMateIndex != -1)
+                {
+                    foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>().Where(b => b != _trump))
+                    {
+                        if (_probabilities.HasAOrXAndNothingElse(TeamMateIndex, b, RoundNumber) >= 1 - RiskFactor &&
+                            _probabilities.SuitProbability(opponent, b, RoundNumber) == 0 &&
+                            _probabilities.SuitProbability(opponent, _trump, RoundNumber) > 0)
+                        {
+                            _bannedSuits.Add(b);
+                        }
+                    }
+                }
                 foreach (var r in _rounds.Where(i => i != null && i.c3 != null))
                 {
                     if (r.player2.PlayerIndex == TeamMateIndex &&

@@ -2818,15 +2818,15 @@ namespace Mariasek.Engine.New
                     !Is100AgainstPossible(110)) ||              //ze uhraju vic bodu i bez trhaka a ze souper neuhraje kilo (110 - kilo jeste risknu)
                    (estimatedFinalBasicScore >= 60 &&           //pokud mam dost trumfu, bude kriterium mekci
                     Hand.CardCount(_trump.Value) >= 4 &&
-                    !Is100AgainstPossible(100)) ||
+                    !Is100AgainstPossible(110)) ||
                    (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
                     Hand.CardCount(_trump.Value) >= 4 &&
                     (Hand.HasK(_g.trump.Value) ||
                      Hand.HasQ(_g.trump.Value) &&
-                    !Is100AgainstPossible(100))) ||
+                    !Is100AgainstPossible(110))) ||
                    (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
                     Hand.CardCount(_trump.Value) >= 5 &&
-                    !Is100AgainstPossible(100)))) ||            
+                    !Is100AgainstPossible(110)))) ||            
                  //nebo jsem nevolil a:
                  (TeamMateIndex != -1 &&                  
                   ((bidding.GameMultiplier > 2 &&               //Tutti:
@@ -3555,7 +3555,7 @@ namespace Mariasek.Engine.New
                                                            return r.c3;
                                                        }
                                                    }).ToList();
-
+            var estimatedCombinations = (int)Probabilities.EstimateTotalCombinations(roundNumber);
             //source = new[] { _g.players.Select(i => new Hand(i.Hand)).ToArray() };
             //foreach (var hands in source)
             Parallel.ForEach(source, (hands, loopState) =>
@@ -3622,7 +3622,7 @@ namespace Mariasek.Engine.New
                         likelyResults.Enqueue(new Tuple<Card, MoneyCalculatorBase, GameComputationResult, Hand[]>(res.Item1, res.Item2, res.Item3, hh));
                     }
                 }
-                OnGameComputationProgress(new GameComputationProgressEventArgs { Current = ++n, Max = source.Count(), Message = "Generuju karty" });
+                OnGameComputationProgress(new GameComputationProgressEventArgs { Current = ++n, Max = estimatedCombinations, Message = "Generuju karty" });
             });
 
             if (prematureStop)
@@ -3677,6 +3677,7 @@ namespace Mariasek.Engine.New
                                                 .FirstOrDefault();
                     break;
             }
+            OnGameComputationProgress(new GameComputationProgressEventArgs { Current = estimatedCombinations, Max = estimatedCombinations, Message = "Generuju karty" });
 
             return cardToPlay;
         }

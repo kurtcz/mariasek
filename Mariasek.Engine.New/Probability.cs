@@ -1000,6 +1000,31 @@ namespace Mariasek.Engine.New
             return result;
         }
 
+        public long EstimateTotalCombinations(int roundNumber)
+        {
+            const int talonIndex = 3;
+            var p2 = (_myIndex + 1) % Game.NumPlayers;
+            var p3 = (_myIndex + 2) % Game.NumPlayers;
+            var certainCards = new List<Card>[Game.NumPlayers + 1];
+            var uncertainCards = new List<Card>[Game.NumPlayers + 1];
+            var cardsToGuess = new int[Game.NumPlayers + 1];
+
+            certainCards = _cardProbabilityForPlayer.Select(j => j.SelectMany(i => i.Value.Where(k => k.Value >= 0.9f).Select(k => new Card(i.Key, k.Key))).ToList()).ToArray();
+            uncertainCards = _cardProbabilityForPlayer.Select(j => j.SelectMany(i => i.Value.Where(k => k.Value > 0.1f && k.Value < 0.9f).Select(k => new Card(i.Key, k.Key))).ToList()).ToArray();
+
+            cardsToGuess = certainCards.Select(i => 10 - roundNumber + 1 - i.Count()).ToArray();
+            cardsToGuess[talonIndex] = 2 - certainCards[talonIndex].Count();
+
+            //tohle je jen radovy odhad, pro presne cislo je dulezite na kolik pozic muzu dat kazdou nejistou kartu
+            var combinations2 = CNK(uncertainCards[p2].Count(), cardsToGuess[p2]);
+            var combinations3 = CNK(Math.Max(0, uncertainCards[p3].Count() - cardsToGuess[p2]), cardsToGuess[p3]);
+            var combinations4 = CNK(Math.Max(0, uncertainCards[talonIndex].Count() - Math.Max(cardsToGuess[p2], cardsToGuess[p3])), cardsToGuess[talonIndex]);
+
+            var result = combinations2 * combinations3 * combinations4;
+
+            return result;
+        }
+
         public IEnumerable<Hand[]> GenerateAllHandCombinations(int roundNumber)
         {
             const int talonIndex = 3;
@@ -1008,7 +1033,7 @@ namespace Mariasek.Engine.New
             var certainCards = new List<Card>[Game.NumPlayers + 1];
             var uncertainCards = new List<Card>[Game.NumPlayers + 1];
             var cardsToGuess = new int[Game.NumPlayers + 1];
-            var result = new List<Hand[]>();
+            //var result = new List<Hand[]>();
 
             certainCards = _cardProbabilityForPlayer.Select(j => j.SelectMany(i => i.Value.Where(k => k.Value >= 0.9f).Select(k => new Card(i.Key, k.Key))).ToList()).ToArray();
             uncertainCards = _cardProbabilityForPlayer.Select(j => j.SelectMany(i => i.Value.Where(k => k.Value > 0.1f && k.Value < 0.9f).Select(k => new Card(i.Key, k.Key))).ToList()).ToArray();
