@@ -935,7 +935,8 @@ namespace Mariasek.Engine.New
                      (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][betlThresholdIndex] * _betlSimulations &&
                       _betlSimulations > 0 &&
                       ((TeamMateIndex != -1 &&
-                        Hand.CardCount(Hodnota.Eso) <= 1) ||
+                        (Hand.CardCount(Hodnota.Eso) <= 1 ||
+                         GetBetlHoles() <= 2)) ||
                        (TeamMateIndex == -1 &&
                         !_hundredOverBetl))) ||
                        (Settings.SafetyBetlThreshold > 0 &&
@@ -1770,7 +1771,7 @@ namespace Mariasek.Engine.New
 			return false;
 		}
 
-        public int GetBetlHoles()   //vola se pouze z GetBidsAndDoubles pri rozhodovani zda si dat re na betla
+        public int GetBetlHoles()   //vola se ChooseGameFlavour pri rozhodovani zda hlasit spatnou barvu a z GetBidsAndDoubles pri rozhodovani zda si dat re na betla
         {
             var totalHoles = 0;
 
@@ -1781,12 +1782,14 @@ namespace Mariasek.Engine.New
                                                   .Where(h => i.BadValue > Card.GetBadValue(h))
                                                   .Select(h => new Card(b, h))
                                                   .Any(j => !Hand.Contains(j) &&
-                                                            !_talon.Contains(j)));
+                                                            (_talon == null ||
+                                                             !_talon.Contains(j))));
                 var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                 .Where(h => Hand.Any(i => i.BadValue > Card.GetBadValue(h)))
                                 .Select(h => new Card(b, h))
                                 .Count(i => !Hand.Contains(i) &&
-                                            !_talon.Contains(i));
+                                            (_talon == null ||
+                                             !_talon.Contains(i)));
 
                 totalHoles += Math.Min(hiCards, holes);
             }
@@ -1986,7 +1989,7 @@ namespace Mariasek.Engine.New
                 emptySuits = 0;
                 aceOnlySuits = 0;
             }
-            var axPotentialDeduction = GetTotalHoles(false) / 2;
+            var axPotentialDeduction = GetTotalHoles(false) / 3;
             var axWinPotential = Math.Min(2 * emptySuits + aceOnlySuits, (int)Math.Ceiling(hand.CardCount(trump.Value) / 2f)); // ne kazdym trumfem prebiju a nebo x
 
             if (PlayerIndex == _g.GameStartingPlayerIndex &&    //mam-li malo trumfu, tak ze souperu moc A,X nedostanu
