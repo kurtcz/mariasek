@@ -3307,6 +3307,11 @@ namespace Mariasek.Engine.New
             }
         }
 
+        private bool ShouldComputeBestCard(Round r)
+        {
+            return _g.FirstMinMaxRound > 0 && r.number >= _g.FirstMinMaxRound && r.number < Game.NumRounds && r.c1 == null && _g.GameType != Hra.Durch;
+        }
+
         public override Card PlayCard(Round r)
         {
             var roundStarterIndex = r.player1.PlayerIndex;
@@ -3336,7 +3341,7 @@ namespace Mariasek.Engine.New
                              Probabilities.PossibleCombinations((PlayerIndex + 2) % Game.NumPlayers, r.number))) * 3;
                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = 0, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Generuju karty"});
                 var source = goodGame && _g.CurrentRound != null
-                               ? _g.FirstMinMaxRound > 0 && r.number >= _g.FirstMinMaxRound && r.c1 == null && _g.GameType != Hra.Durch
+                               ? ShouldComputeBestCard(r)
                                     ? Probabilities.GenerateAllHandCombinations(r.number)
                                     : Probabilities.GenerateHands(r.number, roundStarterIndex, 1) 
                                : Probabilities.GenerateHands(r.number, roundStarterIndex, simulations);
@@ -3355,7 +3360,7 @@ namespace Mariasek.Engine.New
                 var exceptions = new ConcurrentQueue<Exception>();
                 try
                 {
-                    if (_g.FirstMinMaxRound > 0 && r.number >= _g.FirstMinMaxRound && r.c1 == null && _g.GameType != Hra.Durch)
+                    if (ShouldComputeBestCard(r))
                     {
                         System.Diagnostics.Debug.WriteLine("Uhraj nejlepší výsledek");
                         cardToPlay = ComputeBestCardToPlay(source, r.number);
@@ -3781,102 +3786,56 @@ namespace Mariasek.Engine.New
                         new Hand(((List<Card>)hands[1]).Where(i => i != (r.player1.PlayerIndex == 1 ? r.c1 : r.player2.PlayerIndex == 1 ? r.c2 : r.c3))),
                         new Hand(((List<Card>)hands[2]).Where(i => i != (r.player1.PlayerIndex == 2 ? r.c1 : r.player2.PlayerIndex == 2 ? r.c2 : r.c3))),
                     };
-                var c = PlayerIndex == r.player1.PlayerIndex ? r.c1 : PlayerIndex == r.player2.PlayerIndex ? r.c2 : r.c3;
+                //var c = PlayerIndex == r.player1.PlayerIndex ? r.c1 : PlayerIndex == r.player2.PlayerIndex ? r.c2 : r.c3;
                 var result = ComputeMinMax(previousRounds.Concat(new[] { r }).ToList(), hh, currentRound).First();
 
-                results.Add(new Tuple<Card, MoneyCalculatorBase, GameComputationResult>(c, result.Item2, result.Item3));
+                results.Add(new Tuple<Card, MoneyCalculatorBase, GameComputationResult>(r.c1, result.Item2, result.Item3));
             }
 
             //minimax
-            if (roundNumber == currentRound)
+            var minResult = new Dictionary<Card, Tuple<Card, MoneyCalculatorBase, GameComputationResult>>();
+
+            foreach (var result in results)
             {
-                if (player1 == PlayerIndex || player1 == TeamMateIndex)
+                if (!minResult.ContainsKey(result.Item1))
                 {
-                    var maxResult = new Dictionary<Card, Tuple<Card, MoneyCalculatorBase, GameComputationResult>>();
-
-                    foreach (var result in results)
-                    {
-                        if (!maxResult.ContainsKey(result.Item1))
-                        {
-                            maxResult.Add(result.Item1, result);
-                        }
-                        if (result.Item2.MoneyWon[PlayerIndex] > maxResult[result.Item1].Item2.MoneyWon[PlayerIndex] ||
-                            (result.Item2.MoneyWon[PlayerIndex] == maxResult[result.Item1].Item2.MoneyWon[PlayerIndex] &&
-                             ((TeamMateIndex == -1 &&
-                               result.Item2.BasicPointsWon > maxResult[result.Item1].Item2.BasicPointsWon) ||
-                              (TeamMateIndex != -1 &&
-                               result.Item2.BasicPointsLost > maxResult[result.Item1].Item2.BasicPointsLost))))
-                        {
-                            maxResult[result.Item1] = result;
-                        }
-                    }
-
-                    return maxResult.Values.ToList();
+                    minResult.Add(result.Item1, result);
                 }
-                else
+                else if (result.Item2.MoneyWon[player1] < minResult[result.Item1].Item2.MoneyWon[player1] ||
+                    (result.Item2.MoneyWon[player1] == minResult[result.Item1].Item2.MoneyWon[player1] &&
+                        ((_g.players[player1].TeamMateIndex == -1 &&
+                        result.Item2.BasicPointsWon < minResult[result.Item1].Item2.BasicPointsWon) ||
+                        (_g.players[player1].TeamMateIndex != -1 &&
+                        result.Item2.BasicPointsLost < minResult[result.Item1].Item2.BasicPointsLost))))
                 {
-                    var minResult = new Dictionary<Card, Tuple<Card, MoneyCalculatorBase, GameComputationResult>>();
-
-                    foreach (var result in results)
-                    {
-                        if (!minResult.ContainsKey(result.Item1))
-                        {
-                            minResult.Add(result.Item1, result);
-                        }
-                        if (result.Item2.MoneyWon[PlayerIndex] < minResult[result.Item1].Item2.MoneyWon[PlayerIndex] ||
-                            (result.Item2.MoneyWon[PlayerIndex] == minResult[result.Item1].Item2.MoneyWon[PlayerIndex] &&
-                             ((TeamMateIndex == -1 &&
-                               result.Item2.BasicPointsLost > minResult[result.Item1].Item2.BasicPointsLost) ||
-                              (TeamMateIndex != -1 &&
-                               result.Item2.BasicPointsWon > minResult[result.Item1].Item2.BasicPointsWon))))
-                        {
-                            minResult[result.Item1] = result;
-                        }
-                    }
-
-                    return minResult.Values.ToList();
+                    minResult[result.Item1] = result;
                 }
             }
-
-            if (player1 == PlayerIndex || player1 == TeamMateIndex)
+            if (roundNumber == currentRound)
+            {
+                return minResult.Values.ToList();
+            }
+            else
             {
                 Tuple<Card, MoneyCalculatorBase, GameComputationResult> maxResult = null;
 
-                foreach(var result in results)
+                foreach(var kvp in minResult)
                 {
+                    var result = kvp.Value;
+
                     if (maxResult == null ||
-                        result.Item2.MoneyWon[PlayerIndex] > maxResult.Item2.MoneyWon[PlayerIndex] ||
-                        (result.Item2.MoneyWon[PlayerIndex] == maxResult.Item2.MoneyWon[PlayerIndex] &&
-                         ((TeamMateIndex == -1 &&
-                           result.Item2.BasicPointsWon > maxResult.Item2.BasicPointsWon) ||
-                          (TeamMateIndex != -1 &&
-                           result.Item2.BasicPointsLost > maxResult.Item2.BasicPointsLost))))
+                        result.Item2.MoneyWon[player1] > maxResult.Item2.MoneyWon[player1] ||
+                        (result.Item2.MoneyWon[player1] == maxResult.Item2.MoneyWon[player1] &&
+                            ((_g.players[player1].TeamMateIndex == -1 &&
+                              result.Item2.BasicPointsWon > maxResult.Item2.BasicPointsWon) ||
+                             (_g.players[player1].TeamMateIndex != -1 &&
+                              result.Item2.BasicPointsLost > maxResult.Item2.BasicPointsLost))))
                     {
                         maxResult = result;
                     }
                 }
 
                 return new[] { maxResult };
-            }
-            else
-            {
-                Tuple<Card, MoneyCalculatorBase, GameComputationResult> minResult = null;
-
-                foreach (var result in results)
-                {
-                    if (minResult == null ||
-                        result.Item2.MoneyWon[PlayerIndex] < minResult.Item2.MoneyWon[PlayerIndex] ||
-                        (result.Item2.MoneyWon[PlayerIndex] == minResult.Item2.MoneyWon[PlayerIndex] &&
-                         ((TeamMateIndex == -1 &&
-                           result.Item2.BasicPointsLost > minResult.Item2.BasicPointsLost) ||
-                          (TeamMateIndex != -1 &&
-                           result.Item2.BasicPointsWon > minResult.Item2.BasicPointsWon))))
-                    {
-                        minResult = result;
-                    }
-                }
-
-                return new[] { minResult };
             }
         }
 
