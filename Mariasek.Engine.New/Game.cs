@@ -836,7 +836,7 @@ namespace Mariasek.Engine.New
                         .Select(r => new Stych
                         {
                             Kolo = r.number,
-                            Zacina = (Hrac)r.player1.PlayerIndex
+                            Zacina = (Hrac)r.player1.PlayerIndex                            
                         }).ToArray(),
                     Talon = talon
                         ?.Select(i => new Karta

@@ -3362,16 +3362,11 @@ namespace Mariasek.Engine.New
                 {
                     if (ShouldComputeBestCard(r))
                     {
-                        System.Diagnostics.Debug.WriteLine("Uhraj nejlepší výsledek");
+                        System.Diagnostics.Debug.WriteLine("Uhraj co nejlepší výsledek");
                         cardToPlay = ComputeBestCardToPlay(source, r.number);
 
                         if (cardToPlay != null)
                         {
-                            DebugInfo.Card = cardToPlay;
-                            DebugInfo.Rule = "Uhraj nejlepší výsledek";
-                            DebugInfo.RuleCount = 1;
-                            DebugInfo.TotalRuleCount = Game.NumRounds - r.number + 1;
-
                             return cardToPlay;
                         }
                         //minimax nestihl dobehnout, pokracuj klasicky
@@ -3530,6 +3525,7 @@ namespace Mariasek.Engine.New
             var averageLikelyResults = new Dictionary<Card, double>();
             var minResults = new Dictionary<Card, double>();
             var maxResults = new Dictionary<Card, double>();
+            var winCount = new Dictionary<Card, int>();
             var n = 0;
             var start = DateTime.Now;
             var prematureStop = false;
@@ -3610,7 +3606,7 @@ namespace Mariasek.Engine.New
                     var teamMateDoubledGame = TeamMateIndex != -1 &&
                                               (_g.Bidding.PlayerBids[TeamMateIndex] & Hra.Hra) != 0;
                     results.Enqueue(new Tuple<Card, MoneyCalculatorBase, GameComputationResult, Hand[]>(res.Item1, res.Item2, res.Item3, hh));
-                    if (_g.trump.HasValue &&
+                    if (!_g.trump.HasValue ||
                         ((PlayerIndex == _g.GameStartingPlayerIndex &&
                           (!opponentBidders.Any() ||
                            opponentBidders.Any(i => Probabilities.SuitProbability(i, _g.trump.Value, roundNumber) == 0 ||
@@ -3658,35 +3654,51 @@ namespace Mariasek.Engine.New
                 maxResults.Add(card, results.Where(i => i.Item1 == card)
                                             .Max(i => 100 * i.Item2.MoneyWon[PlayerIndex] +
                                                       (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
+                winCount.Add(card, likelyResults.Where(i => i.Item1 == card)
+                                                .Count(i => i.Item2.MoneyWon[PlayerIndex] > 0));
             }
 
             Card cardToPlay;
             switch(_g.GameType)
             {
                 case Hra.Durch:
-                    cardToPlay = minResults.Keys.OrderByDescending(i => minResults[i])
+                    cardToPlay = minResults.Keys.OrderByDescending(i => winCount[i])
+                                                .ThenByDescending(i => minResults[i])
                                                 .ThenByDescending(i => averageResults[i])
                                                 .ThenByDescending(i => maxResults[i])
                                                 .ThenByDescending(i => i.BadValue)
                                                 .FirstOrDefault();
                     break;
                 case Hra.Betl:
-                    cardToPlay = minResults.Keys.OrderByDescending(i => minResults[i])
+                    cardToPlay = minResults.Keys.OrderByDescending(i => winCount[i])
+                                                .ThenByDescending(i => minResults[i])
                                                 .ThenByDescending(i => averageResults[i])
                                                 .ThenByDescending(i => maxResults[i])
                                                 .ThenBy(i => i.BadValue)
                                                 .FirstOrDefault();
                     break;
                 default:
-                    cardToPlay = minResults.Keys.OrderByDescending(i => minResults[i])
+                    cardToPlay = minResults.Keys.OrderByDescending(i => winCount[i])
+                                                .ThenByDescending(i => minResults[i])
                                                 .ThenByDescending(i => averageLikelyResults[i])
                                                 .ThenByDescending(i => maxResults[i])
                                                 .ThenByDescending(i => maxResults[i] >= 0 ? (int)i.Value : -(int)i.Value)
                                                 .FirstOrDefault();
                     break;
             }
-            OnGameComputationProgress(new GameComputationProgressEventArgs { Current = estimatedCombinations, Max = estimatedCombinations, Message = "Generuju karty" });
+            DebugInfo.Card = cardToPlay;
+            DebugInfo.Rule = "Uhrát co nejlepší výsledek";
+            DebugInfo.RuleCount = winCount[cardToPlay];
+            DebugInfo.TotalRuleCount = n;
+            DebugInfo.AllChoices = minResults.Keys.Select(i => new RuleDebugInfo
+            {
+                Card = i,
+                Rule = "Uhrát co nejlepší výsledek",
+                RuleCount = winCount[i],
+                TotalRuleCount = n
+            }).ToArray();
 
+            OnGameComputationProgress(new GameComputationProgressEventArgs { Current = estimatedCombinations, Max = estimatedCombinations, Message = "Generuju karty" });
             return cardToPlay;
         }
 
