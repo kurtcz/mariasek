@@ -895,11 +895,12 @@ namespace Mariasek.Engine.New
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
                                                                 i.Value != Hodnota.Eso &&
                                                                 i.Suit != _trump &&
-																!_bannedSuits.Contains(i.Suit) &&
+                                                                !_bannedSuits.Contains(i.Suit) &&
                                                                 (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0f ||
                                                                  _preferredSuits.Contains(i.Suit)) &&
                                                                 _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0f &&
                                                                 _probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0f &&
+                                                                _probabilities.SuitHigherThanCardExceptAXProbability(player2, i, RoundNumber) > 1 - RiskFactor &&
                                                                 Enum.GetValues(typeof(Hodnota))                             //musi byt sance, ze spoluhrac ma
                                                                     .Cast<Hodnota>()                                        //v barve i neco jineho nez A nebo X
                                                                     .Count(h => h > i.Value &&
@@ -907,7 +908,7 @@ namespace Mariasek.Engine.New
                                                                                 h != Hodnota.Desitka &&
                                                                                 _probabilities.CardProbability(player2, new Card(i.Suit, h)) > _epsilon) > 1);
 
-						//zkus vytlacit trumf svou nebo spoluhracovou desitkou nebo esem pokud hraje souper sedmu
+                        //zkus vytlacit trumf svou nebo spoluhracovou desitkou nebo esem pokud hraje souper sedmu
                         if (!cardsToPlay.Any() && _gameType == (Hra.Hra | Hra.Sedma))// && _rounds[0] != null)
 						{
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
@@ -991,13 +992,14 @@ namespace Mariasek.Engine.New
                                                                  _preferredSuits.Contains(i.Suit)) &&
                                                                 _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0f &&
                                                                 _probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0f &&
+                                                                _probabilities.NoSuitOrSuitLowerThanXProbability(player3, i.Suit, RoundNumber) > 1 - RiskFactor &&
                                                                 Enum.GetValues(typeof(Hodnota))                             //musi byt sance, ze spoluhrac ma
                                                                     .Cast<Hodnota>()                                        //v barve i neco jineho nez A nebo X
                                                                     .Count(h => h > i.Value &&
                                                                                 h != Hodnota.Eso &&
                                                                                 h != Hodnota.Desitka &&
                                                                                 _probabilities.CardProbability(player3, new Card(i.Suit, h)) > _epsilon) > 1);
-						//zkus vytlacit trumf svou nebo spoluhracovou desitkou nebo esem pokud hraje souper sedmu
+                        //zkus vytlacit trumf svou nebo spoluhracovou desitkou nebo esem pokud hraje souper sedmu
                         if (!cardsToPlay.Any() && _gameType == (Hra.Hra | Hra.Sedma))// && _rounds[0] != null)
 						{
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
@@ -1658,6 +1660,7 @@ namespace Mariasek.Engine.New
                             //c-o
                             var cardToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                    !_bannedSuits.Contains(i.Suit) &&
+                                                                                   _probabilities.NoSuitOrSuitLowerThanXProbability(player3, i.Suit, RoundNumber) > 1 - RiskFactor &&
                                                                                    hands[MyIndex].CardCount(i.Suit) == 1 &&//i.Suit == poorSuit.Item1 &&
                                                                                    hands[MyIndex].HasSuit(_trump) &&
                                                                                    _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) > _epsilon &&
@@ -1719,7 +1722,12 @@ namespace Mariasek.Engine.New
 
                             //odmazat si trumf abych pozdeji mohl mazat 
                             //(musi existovat barva, kterou neznam a muj spoluhrac v ni doufejme ma vyssi karty nez akter)
-                            if (myInitialHand.CardCount(_trump) <= 2 &&
+                            if ((myInitialHand.CardCount(_trump) <= 1 ||
+                                 (myInitialHand.CardCount(_trump) <= 2 &&
+                                  myInitialHand.Where(i => i.Suit != _trump).ToList()
+                                               .CardCount(Hodnota.Desitka) +
+                                  myInitialHand.Where(i => i.Suit != _trump).ToList()
+                                               .CardCount(Hodnota.Eso) >= 3)) &&
                                (TeamMateIndex == player3 ||
                                 (_gameType & Hra.Kilo) != 0) &&
                                 //((_gameType & Hra.Kilo) != 0 ||
@@ -1770,14 +1778,15 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex != -1 && _teamMatesSuits.Any())
                     {
                         var opponent = TeamMateIndex == player2 ? player3 : player2;
-                        var cardsToPlay =  ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&    
+                        var cardsToPlay =  ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                 i.Value != Hodnota.Eso &&
+                                                                                 i.Value != Hodnota.Desitka &&
                                                                                  !_bannedSuits.Contains(i.Suit) &&
                                                                                  _teamMatesSuits.Contains(i.Suit) &&
+                                                                                 _probabilities.SuitHigherThanCardExceptAXProbability(TeamMateIndex, i, RoundNumber) > 1 - RoundNumber &&
                                                                                  _probabilities.SuitProbability(opponent, _trump, RoundNumber) > 0 &&
                                                                                  _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) > 0 &&
-                                                                                 _probabilities.HasSolitaryX(TeamMateIndex, i.Suit, RoundNumber) < SolitaryXThreshold &&
-                                                                                 i.Value != Hodnota.Eso &&
-                                                                                 i.Value != Hodnota.Desitka);
+                                                                                 _probabilities.HasSolitaryX(TeamMateIndex, i.Suit, RoundNumber) < SolitaryXThreshold);
 
                         return cardsToPlay.OrderByDescending(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber))
                                           .ThenBy(i => i.Value)
@@ -1901,6 +1910,7 @@ namespace Mariasek.Engine.New
                             //}
                             var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                     !_bannedSuits.Contains(i.Suit) &&
+                                                                                    _probabilities.SuitHigherThanCardExceptAXProbability(TeamMateIndex, i, RoundNumber) > 1 - RoundNumber &&
                                                                                     !(Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                                           .Select(h => new Card(i.Suit,h))
                                                                                           .Count(j => _probabilities.CardProbability(TeamMateIndex, j) > _epsilon) <= 1 &&
@@ -1969,15 +1979,26 @@ namespace Mariasek.Engine.New
                             //    return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
                             //}
                             var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                    i.Value != Hodnota.Eso &&
+                                                                                    i.Value != Hodnota.Desitka &&
                                                                                     !(Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                                           .Select(h => new Card(i.Suit, h))
                                                                                           .Count(j => _probabilities.CardProbability(TeamMateIndex, j) > _epsilon) <= 1 &&
                                                                                       _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) > 0) &&
+                                                                                    _probabilities.NoSuitOrSuitLowerThanXProbability(TeamMateIndex, i.Suit, RoundNumber) > 1 - RoundNumber &&
                                                                                     !_bannedSuits.Contains(i.Suit) &&
-                                                                                    i.Value != Hodnota.Eso &&
-                                                                                    i.Value != Hodnota.Desitka &&
                                                                                     _probabilities.HasAOrXAndNothingElse(TeamMateIndex, i.Suit, RoundNumber) < RiskFactor)
                                                                         .ToList();
+                            if (cardsToPlay.Any(i => hands[MyIndex].Where(j => j.Suit == i.Suit)
+                                                                   .All(j => j.Value != Hodnota.Eso &&
+                                                                             j.Value != Hodnota.Desitka) &&
+                                                     _probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor))
+                            {
+                                cardsToPlay = cardsToPlay.Where(i => hands[MyIndex].Where(j => j.Suit == i.Suit)
+                                                                                   .All(j => j.Value != Hodnota.Eso &&
+                                                                                             j.Value != Hodnota.Desitka) &&
+                                                                     _probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor).ToList();
+                            }
                             if (cardsToPlay.Any(i => _teamMatesSuits.Contains(i.Suit)))
                             {
                                 cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
@@ -2358,6 +2379,10 @@ namespace Mariasek.Engine.New
 
                             //neobetuj karty kterymi bych ze spoluhrace vytahl A,X ktery by souper vzal trumfem
                             cardsToPlay = cardsToPlay.Where(i => !_bannedSuits.Contains(i.Suit) &&
+                                                                 ((TeamMateIndex == player2 &&
+                                                                   _probabilities.SuitHigherThanCardExceptAXProbability(TeamMateIndex, i, RoundNumber) >= 1 - RiskFactor) ||
+                                                                  (TeamMateIndex == player3 &&
+                                                                   _probabilities.NoSuitOrSuitLowerThanXProbability(TeamMateIndex, i.Suit, RoundNumber) >= 1 - RiskFactor)) &&
                                                           (_probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) >= 1 - RiskFactor ||
                                                            _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) <= RiskFactor ||
                                                            _probabilities.SuitProbability(opponentIndex, _trump, RoundNumber) <= RiskFactor) &&
@@ -2471,7 +2496,10 @@ namespace Mariasek.Engine.New
 					}
                     cardsToPlay = cardsToPlay.Where(i => (_probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Eso)) <= _epsilon &&
                                                           _probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon) ||
-                                                         _probabilities.NoneOfCardsInSuitProbability(TeamMateIndex, i.Suit, RoundNumber, i.Value, Hodnota.Kral) < RiskFactor).ToList();
+                                                         ((TeamMateIndex == player2 &&
+                                                           _probabilities.SuitHigherThanCardExceptAXProbability(TeamMateIndex, i, RoundNumber) >= 1 - RiskFactor) ||
+                                                          (TeamMateIndex == player3 &&
+                                                           _probabilities.NoSuitOrSuitLowerThanXProbability(TeamMateIndex, i.Suit, RoundNumber) >= 1 - RiskFactor))).ToList();
                     if (cardsToPlay.Any(i => _teamMatesSuits.Contains(i.Suit)))
                     {
                         cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
@@ -2510,7 +2538,10 @@ namespace Mariasek.Engine.New
                                                                             (TeamMateIndex == -1 ||
                                                                              (_probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Eso)) <= _epsilon &&
                                                                               _probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon) ||
-                                                                             _probabilities.NoneOfCardsInSuitProbability(TeamMateIndex, i.Suit, RoundNumber, i.Value, Hodnota.Kral) < RiskFactor)).ToList();
+                                                                             ((TeamMateIndex == player2 &&
+                                                                               _probabilities.SuitHigherThanCardExceptAXProbability(TeamMateIndex, i, RoundNumber) >= 1 - RiskFactor) ||
+                                                                              (TeamMateIndex == player3 &&
+                                                                               _probabilities.NoSuitOrSuitLowerThanXProbability(TeamMateIndex, i.Suit, RoundNumber) >= 1 - RiskFactor)))).ToList();
                     if (!cardsToPlay.Any())
                     {
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
@@ -2519,7 +2550,10 @@ namespace Mariasek.Engine.New
                                                                             (TeamMateIndex == -1 ||
                                                                              (_probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Eso)) <= _epsilon &&
                                                                               _probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon) ||
-                                                                             _probabilities.NoneOfCardsInSuitProbability(TeamMateIndex, i.Suit, RoundNumber, i.Value, Hodnota.Kral) < RiskFactor)).ToList();
+                                                                             ((TeamMateIndex == player2 &&
+                                                                               _probabilities.SuitHigherThanCardExceptAXProbability(TeamMateIndex, i, RoundNumber) >= 1 - RiskFactor) ||
+                                                                              (TeamMateIndex == player3 &&
+                                                                               _probabilities.NoSuitOrSuitLowerThanXProbability(TeamMateIndex, i.Suit, RoundNumber) >= 1 - RiskFactor)))).ToList();
                     }
                     if (!cardsToPlay.Any())
                     {
@@ -2542,7 +2576,10 @@ namespace Mariasek.Engine.New
                     }
                     cardsToPlay = cardsToPlay.Where(i => (_probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Eso)) <= _epsilon &&
                                                           _probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon) ||
-                                                         _probabilities.NoneOfCardsInSuitProbability(TeamMateIndex, i.Suit, RoundNumber, i.Value, Hodnota.Kral) < RiskFactor).ToList();
+                                                         ((TeamMateIndex == player2 &&
+                                                           _probabilities.SuitHigherThanCardExceptAXProbability(TeamMateIndex, i, RoundNumber) >= 1 - RiskFactor) ||
+                                                          (TeamMateIndex == player3 &&
+                                                           _probabilities.NoSuitOrSuitLowerThanXProbability(TeamMateIndex, i.Suit, RoundNumber) >= 1 - RiskFactor))).ToList();
                     if (cardsToPlay.Any(i => _teamMatesSuits.Contains(i.Suit)))
                     {
                         cardsToPlay = cardsToPlay.Where(i => _teamMatesSuits.Contains(i.Suit)).ToList();
@@ -2579,7 +2616,10 @@ namespace Mariasek.Engine.New
                                                                             (TeamMateIndex == -1 ||
                                                                              (_probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Eso)) <= _epsilon &&
                                                                               _probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon) ||
-                                                                             _probabilities.NoneOfCardsInSuitProbability(TeamMateIndex, i.Suit, RoundNumber, i.Value, Hodnota.Kral) < RiskFactor)).ToList();
+                                                                             ((TeamMateIndex == player2 &&
+                                                                               _probabilities.SuitHigherThanCardExceptAXProbability(TeamMateIndex, i, RoundNumber) >= 1 - RiskFactor) ||
+                                                                              (TeamMateIndex == player3 &&
+                                                                               _probabilities.NoSuitOrSuitLowerThanXProbability(TeamMateIndex, i.Suit, RoundNumber) >= 1 - RiskFactor)))).ToList();
 
                     if (!cardsToPlay.Any())
                     {
