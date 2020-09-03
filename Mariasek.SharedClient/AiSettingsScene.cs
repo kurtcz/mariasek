@@ -25,6 +25,7 @@ namespace Mariasek.SharedClient
         private Label _riskFactorAgainstSeven;
         private Label _solitaryXThreshold;
         private Label _solitaryXThresholdDefense;
+        private Label _safetyHundredThreshold;
         private Label _safetyBetlThreshold;
         private RectangleShape _hline;
         //private RectangleShape _shadow;
@@ -40,6 +41,7 @@ namespace Mariasek.SharedClient
         private LeftRightSelector _riskFactorAgainstSevenSelector;
         private LeftRightSelector _solitaryXSelector;
         private LeftRightSelector _solitaryXDefenseSelector;
+        private LeftRightSelector _safetyHundredSelector;
         private LeftRightSelector _safetyBetlSelector;
         private LineChart _chart;
         private Label _0Percent;
@@ -52,6 +54,7 @@ namespace Mariasek.SharedClient
         private const string _defaultNote2 = "Risk faktor udává ochotu AI mazat a hrát ostrou kartu.";
         private static readonly Dictionary<Hra, string> _notes = new Dictionary<Hra, string>
         {
+            { Hra.Kilo, "AI kilo nevolí pokud na základě simulací\nhrozí zobrazená prohra." },
             { Hra.Betl, "AI používá práh pro Flek když nevolil a hlásí špatnou\nbarvu. AI hraje utíkáčka pokud hrozí zobrazená prohra." },
             { Hra.Durch, "AI používá práh pro Flek když nevolil a hlásí\nšpatnou barvu. AI durch flekuje jen když nejde uhrát." },
         };
@@ -344,6 +347,29 @@ namespace Mariasek.SharedClient
                 FontScaleFactor = 0.9f
             };
 
+            _safetyHundredThreshold = new Label(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 - 175),
+                Width = 300,
+                Height = 50,
+                Text = "Max. riziko ztráty",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _safetyHundredSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 - 175),
+                Width = (int)Game.VirtualScreenWidth / 2 - 190,
+                Items = new SelectorItems() { { "Žádné", 0 }, { "30x základ", 30 }, { "40x základ", 40 }, { "50x základ", 50 },
+                                              { "60x základ", 60 }, { "70x základ", 70 }, { "80x základ", 80 } }
+            };
+            _safetyHundredSelector.SelectedIndex = 0;
+            _safetyHundredSelector.SelectionChanged += SafetyHundredChanged;
+            if (_safetyHundredSelector.SelectedIndex < 0)
+            {
+                _safetyHundredSelector.SelectedIndex = 0;
+            }
+
             _safetyBetlThreshold = new Label(this)
 			{
                 Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 - 175),
@@ -523,6 +549,16 @@ namespace Mariasek.SharedClient
                 default:
                     HideGamePlayControls();
                     ShowBiddingControls();
+                    if ((Hra)_gameTypeSelector.SelectedValue == Hra.Kilo)
+                    {
+                        _safetyHundredSelector.Show();
+                        _safetyHundredThreshold.Show();
+                    }
+                    else
+                    {
+                        _safetyHundredSelector.Hide();
+                        _safetyHundredThreshold.Hide();
+                    }
                     if ((Hra)_gameTypeSelector.SelectedValue == Hra.Betl)
                     {
                         _safetyBetlSelector.Show();
@@ -575,6 +611,8 @@ namespace Mariasek.SharedClient
             _threshold1.Show();
             _threshold2.Show();
             _threshold3.Show();
+            _safetyHundredThreshold.Show();
+            _safetyHundredSelector.Show();
             _safetyBetlThreshold.Show();
             _safetyBetlSelector.Show();
             _gameTypeSelector.Show();
@@ -600,6 +638,8 @@ namespace Mariasek.SharedClient
             _threshold1.Hide();
             _threshold2.Hide();
             _threshold3.Hide();
+            _safetyHundredThreshold.Hide();
+            _safetyHundredSelector.Hide();
             _safetyBetlThreshold.Hide();
             _safetyBetlSelector.Hide();
             _gameTypeSelector.Hide();
@@ -642,6 +682,7 @@ namespace Mariasek.SharedClient
                 _threshold1Selector.SelectedIndex = _threshold1Selector.Items.FindIndex(thresholds[1]);
                 _threshold2Selector.SelectedIndex = _threshold2Selector.Items.FindIndex(thresholds[2]);
                 _threshold3Selector.SelectedIndex = _threshold3Selector.Items.FindIndex(thresholds[3]);
+                _safetyHundredSelector.SelectedIndex = _safetyHundredSelector.Items.FindIndex(Game.Settings.SafetyHundredThreshold);
                 _safetyBetlSelector.SelectedIndex = _safetyBetlSelector.Items.FindIndex(Game.Settings.SafetyBetlThreshold);
                 _riskFactorSelector.SelectedIndex = _riskFactorSelector.Items.FindIndex(Game.Settings.RiskFactor);
                 _riskFactorAgainstSevenSelector.SelectedIndex = _riskFactorAgainstSevenSelector.Items.FindIndex(Game.Settings.RiskFactorSevenDefense);
@@ -665,6 +706,17 @@ namespace Mariasek.SharedClient
 
             var gt = (Hra)_gameTypeSelector.SelectedValue;
             _note.Text = _notes.ContainsKey(gt) ? _notes[gt] : _defaultNote;
+            if (_gameTypeSelector.IsVisible &&
+                (Hra)_gameTypeSelector.SelectedValue == Hra.Kilo)
+            {
+                _safetyHundredThreshold.Show();
+                _safetyHundredSelector.Show();
+            }
+            else
+            {
+                _safetyHundredThreshold.Hide();
+                _safetyHundredSelector.Hide();
+            }
             if (_gameTypeSelector.IsVisible &&
                 (Hra)_gameTypeSelector.SelectedValue == Hra.Betl)
             {
@@ -708,6 +760,7 @@ namespace Mariasek.SharedClient
             Game.Settings.RiskFactorSevenDefense = (float)_riskFactorAgainstSevenSelector.SelectedValue;
             Game.Settings.SolitaryXThreshold = (float)_solitaryXSelector.SelectedValue;
             Game.Settings.SolitaryXThresholdDefense = (float)_solitaryXDefenseSelector.SelectedValue;
+            Game.Settings.SafetyHundredThreshold = (int)_safetyHundredSelector.SelectedValue;
             Game.Settings.SafetyBetlThreshold = (int)_safetyBetlSelector.SelectedValue;
         }
 
@@ -836,6 +889,15 @@ namespace Mariasek.SharedClient
 		}
 
         public void RiskFactorAgainstSevenChanged(object sender)
+        {
+            if (!_updating)
+            {
+                _settingsChanged = true;
+                UpdateAiSettings();
+            }
+        }
+
+        public void SafetyHundredChanged(object sender)
         {
             if (!_updating)
             {

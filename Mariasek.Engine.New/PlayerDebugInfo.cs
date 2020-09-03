@@ -14,6 +14,7 @@ namespace Mariasek.Engine.New
         public int Tygrovo { get; set; }
         public int Strong { get; set; }
         public int MaxEstimatedLoss { get; set; }
+        public int MaxSimulatedLoss { get; set; }
         public int TotalHoles { get; set; }
         public bool HunderTooRisky { get; set; }
 

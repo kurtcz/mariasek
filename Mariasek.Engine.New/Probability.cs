@@ -1142,8 +1142,8 @@ namespace Mariasek.Engine.New
             var cardsToGuess = new int[Game.NumPlayers + 1];
             //var result = new List<Hand[]>();
 
-            certainCards = _cardProbabilityForPlayer.Select(j => j.SelectMany(i => i.Value.Where(k => k.Value >= 0.9f).Select(k => new Card(i.Key, k.Key))).ToList()).ToArray();
-            uncertainCards = _cardProbabilityForPlayer.Select(j => j.SelectMany(i => i.Value.Where(k => k.Value > 0.1f && k.Value < 0.9f).Select(k => new Card(i.Key, k.Key))).ToList()).ToArray();
+            certainCards = _cardProbabilityForPlayer.Select(j => j.SelectMany(i => i.Value.Where(k => k.Value == 1).Select(k => new Card(i.Key, k.Key))).ToList()).ToArray();
+            uncertainCards = _cardProbabilityForPlayer.Select(j => j.SelectMany(i => i.Value.Where(k => k.Value > 0 && k.Value < 1).Select(k => new Card(i.Key, k.Key))).ToList()).ToArray();
 
             cardsToGuess = certainCards.Select(i => 10 - roundNumber + 1 - i.Count()).ToArray();
             cardsToGuess[talonIndex] = 2 - certainCards[talonIndex].Count();

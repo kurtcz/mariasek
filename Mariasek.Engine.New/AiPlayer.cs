@@ -32,6 +32,7 @@ namespace Mariasek.Engine.New
         private float _maxBasicPointsLost;
         private bool _hundredOverBetl;
         private bool _hundredOverDurch;
+        private int _minWinForHundred;
         private int _gamesBalance;
         private int _hundredsBalance;
         private int _hundredsAgainstBalance;
@@ -120,6 +121,7 @@ namespace Mariasek.Engine.New
                 RiskFactorSevenDefense = 0.5f,
                 SolitaryXThreshold = 0.13f,
                 SolitaryXThresholdDefense = 0.5f,
+                SafetyHundredThreshold = 50,
                 SafetyBetlThreshold = 24
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
@@ -179,6 +181,7 @@ namespace Mariasek.Engine.New
             Settings.RiskFactorSevenDefense = float.Parse(parameters["RiskFactorSevenDefense"].Value, CultureInfo.InvariantCulture);
             Settings.SolitaryXThreshold = float.Parse(parameters["SolitaryXThreshold"].Value, CultureInfo.InvariantCulture);
             Settings.SolitaryXThresholdDefense = float.Parse(parameters["SolitaryXThresholdDefense"].Value, CultureInfo.InvariantCulture);
+            Settings.SafetyHundredThreshold = int.Parse(parameters["SafetyHundredThreshold"].Value, CultureInfo.InvariantCulture);
             Settings.SafetyBetlThreshold = int.Parse(parameters["SafetyBetlThreshold"].Value, CultureInfo.InvariantCulture);
             Settings.MaxDoubleCountForGameType = new Dictionary<Hra, int>();
             Settings.MaxDoubleCountForGameType[Hra.Hra] = int.Parse(parameters["MaxDoubleCount.Hra"].Value);
@@ -1469,6 +1472,11 @@ namespace Mariasek.Engine.New
                                                                 : (i.GameType & (Hra.Betl | Hra.Durch)) == 0)
                                                  .DefaultIfEmpty()
                                                  .Average(i => (float)(i?.MoneyWon?[gameStartingPlayerIndex] ?? 0));
+            _minWinForHundred = moneyCalculations.Where(i => PlayerIndex == gameStartingPlayerIndex
+                                                                ? (i.GameType & Hra.Kilo) != 0
+                                                                : (i.GameType & (Hra.Betl | Hra.Durch)) == 0)
+                                                 .DefaultIfEmpty()
+                                                 .Min(i => i?.MoneyWon?[gameStartingPlayerIndex] ?? 0);
             _avgBasicPointsLost = moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0)
                                                    .DefaultIfEmpty()
                                                    .Average(i => (float)(i?.BasicPointsLost ?? 0));
@@ -1480,7 +1488,7 @@ namespace Mariasek.Engine.New
             _gamesBalance = PlayerIndex == gameStartingPlayerIndex
                             ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => i.GameWon)
                             : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.GameWon);
-            _hundredsBalance =  PlayerIndex == gameStartingPlayerIndex                                
+            _hundredsBalance =  PlayerIndex == gameStartingPlayerIndex
                                 ? moneyCalculations.Where(i => (i.GameType & Hra.Kilo) != 0).Count(i => i.HundredWon)
                                 : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.HundredWon);
             _hundredsAgainstBalance = PlayerIndex == gameStartingPlayerIndex
@@ -2168,6 +2176,12 @@ namespace Mariasek.Engine.New
 				return false;
 			}
             if (Hand.CardCount(_trump.Value) <= 3)
+            {
+                DebugInfo.HunderTooRisky = true;
+                return true;
+            }
+            if (Settings.SafetyHundredThreshold > 0 &&
+                _minWinForHundred <= -Settings.SafetyHundredThreshold)
             {
                 DebugInfo.HunderTooRisky = true;
                 return true;
@@ -3343,7 +3357,7 @@ namespace Mariasek.Engine.New
                 var source = goodGame && _g.CurrentRound != null
                                ? ShouldComputeBestCard(r)
                                     ? Probabilities.GenerateAllHandCombinations(r.number)
-                                    : Probabilities.GenerateHands(r.number, roundStarterIndex, 1) 
+                                    : Probabilities.GenerateHands(r.number, roundStarterIndex, 1)
                                : Probabilities.GenerateHands(r.number, roundStarterIndex, simulations);
                 var progress = 0;
                 var start = DateTime.Now;
@@ -3529,12 +3543,6 @@ namespace Mariasek.Engine.New
             var n = 0;
             var start = DateTime.Now;
             var prematureStop = false;
-            //var uncertainTrumps = _g.trump.HasValue
-            //                        ? Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-            //                              .Select(h => new Card(_g.trump.Value, h))
-            //                              .Where(i => Probabilities.CardProbability(0, i) > 0)
-            //                              .ToList()
-            //                        : Enumerable.Empty<Card>();
             var uncertainTalonTrumps = _g.trump.HasValue
                                        ? Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                              .Select(h => new Card(_g.trump.Value, h))
@@ -3560,6 +3568,7 @@ namespace Mariasek.Engine.New
                                                        }
                                                    }).ToList();
             var estimatedCombinations = (int)Probabilities.EstimateTotalCombinations(roundNumber);
+
             //source = new[] { _g.players.Select(i => new Hand(i.Hand)).ToArray() };
             //foreach (var hands in source)
             Parallel.ForEach(source, (hands, loopState) =>
@@ -3688,7 +3697,7 @@ namespace Mariasek.Engine.New
             }
             DebugInfo.Card = cardToPlay;
             DebugInfo.Rule = "Uhrát co nejlepší výsledek";
-            DebugInfo.RuleCount = winCount[cardToPlay];
+            DebugInfo.RuleCount = cardToPlay != null ? winCount[cardToPlay] : 0;
             DebugInfo.TotalRuleCount = n;
             DebugInfo.AllChoices = minResults.Keys.Select(i => new RuleDebugInfo
             {

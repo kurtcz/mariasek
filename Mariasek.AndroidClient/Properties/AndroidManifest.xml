@@ -4,7 +4,7 @@
 	<!-- Tell the system this app requires OpenGL ES 2.0. -->
 	<uses-feature android:glEsVersion="0x00020000" android:required="true" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-	<application android:label="Mariášek" android:icon="@mipmap/ic_launcher">
+	<application android:label="Mariášek" android:icon="@mipmap/ic_launcher" android:requestLegacyExternalStorage="true">
 		<provider android:name="android.support.v4.content.FileProvider" android:authorities="com.tnemec.mariasek.android.fileprovider" android:exported="false" android:grantUriPermissions="true">
 			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths"></meta-data>
 		</provider>

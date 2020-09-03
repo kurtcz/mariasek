@@ -1933,6 +1933,10 @@ namespace Mariasek.Engine.New
             if (players[playerIndex].TeamMateIndex == -1 && GameType != Hra.Durch)
             {
                 BiddingDebugInfo.AppendFormat("\nMaximální bodová ztráta: {0}", players[playerIndex].DebugInfo.MaxEstimatedLoss);
+                if ((GameType & Hra.Kilo) != 0 && players[playerIndex].DebugInfo.MaxSimulatedHundredLoss < 0)
+                {
+                    BiddingDebugInfo.AppendFormat("\nMaximální simulovaná prohra: {0}", players[playerIndex].DebugInfo.MaxSimulatedHundredLoss);
+                }
                 if (players[playerIndex].DebugInfo.HunderTooRisky)
                 {
                     BiddingDebugInfo.AppendFormat("\nPříliš riskantní na kilo");
