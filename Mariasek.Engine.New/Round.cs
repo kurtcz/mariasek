@@ -148,7 +148,7 @@ namespace Mariasek.Engine.New
                 {
                     allRules.AppendFormat("\n{0} ({1}/{2})", choice.Card, choice.RuleCount, player1.DebugInfo.TotalRuleCount);
                 }
-                debugNote1 = string.Format("{0} ({1}/{2})\nVšechny simulace:{3}", player1.DebugInfo.Card, player1.DebugInfo.RuleCount, player1.DebugInfo.TotalRuleCount, allRules.ToString());
+                debugNote1 = string.Format("{0}: {1}\nVšechny simulace:{2}", player1.DebugInfo.Card, player1.DebugInfo.Rule, allRules.ToString());
             }
             else
             {
@@ -181,7 +181,7 @@ namespace Mariasek.Engine.New
                 {
                     allRules.AppendFormat("\n{0} ({1}/{2})", choice.Card, choice.RuleCount, player2.DebugInfo.TotalRuleCount);
                 }
-                debugNote1 = string.Format("{0} ({1}/{2})\nVšechny simulace:{3}", player2.DebugInfo.Card, player2.DebugInfo.RuleCount, player2.DebugInfo.TotalRuleCount, allRules.ToString());
+                debugNote1 = string.Format("{0}: {1}\nVšechny simulace:{2}", player2.DebugInfo.Card, player2.DebugInfo.Rule, allRules.ToString());
             }
             else
             {
@@ -214,7 +214,7 @@ namespace Mariasek.Engine.New
                 {
                     allRules.AppendFormat("\n{0} ({1}/{2})", choice.Card, choice.RuleCount, player3.DebugInfo.TotalRuleCount);
                 }
-                debugNote1 = string.Format("{0} ({1}/{2})\nVšechny simulace:{3}", player3.DebugInfo.Card, player3.DebugInfo.RuleCount, player3.DebugInfo.TotalRuleCount, allRules.ToString());
+                debugNote1 = string.Format("{0}: {1}\nVšechny simulace:{2}", player3.DebugInfo.Card, player3.DebugInfo.Rule, allRules.ToString());
             }
             else
             {

@@ -409,8 +409,12 @@ namespace Mariasek.Engine.New
                                   !FinalCardWon &&
                                   lastWinningCard.Suit == trump.Value &&
                                   lastWinningCard.Value == Hodnota.Sedma;
-                //Not implemented:
-                //KilledSeven
+
+                var playerIndexWithKilledSeven = GetPlayerIndexWithKilledSeven(finalRound);
+                var killedSeven = playerIndexWithKilledSeven >= 0;
+
+                KilledSeven = killedSeven && playerIndexWithKilledSeven == gameStartingPlayerIndex;
+                KilledSevenAgainst = killedSeven && playerIndexWithKilledSeven != gameStartingPlayerIndex;
 
                 QuietHundredWon = PointsWon >= 100 && (_gameType & Hra.Kilo) == 0;
                 QuietHundredAgainstWon = PointsLost >= 100 && (_gameType & Hra.KiloProti) == 0;
@@ -770,6 +774,25 @@ namespace Mariasek.Engine.New
             if (playerWithTrumpSeven >= 0 && winningCard.Value != Hodnota.Sedma)
             {
                 return players[playerWithTrumpSeven].PlayerIndex;
+            }
+            return -1;
+        }
+
+        private int GetPlayerIndexWithKilledSeven(RoundDebugContext finalRound)
+        {
+            if (!_trump.HasValue)
+            {
+                return -1;
+            }
+
+            var winningCard = Round.WinningCard(finalRound.c1, finalRound.c2, finalRound.c3, _trump);
+            var finalCards = new[] { finalRound.c1, finalRound.c2, finalRound.c3 };
+            var playerWithTrumpSeven = finalCards.ToList()
+                                                 .FindIndex(i => i.Suit == _trump.Value && i.Value == Hodnota.Sedma);
+
+            if (playerWithTrumpSeven >= 0 && winningCard.Value != Hodnota.Sedma)
+            {
+                return playerWithTrumpSeven;
             }
             return -1;
         }
