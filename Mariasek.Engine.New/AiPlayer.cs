@@ -1589,6 +1589,7 @@ namespace Mariasek.Engine.New
                 TotalRuleCount = _durchSimulations
             });
             DebugInfo.AllChoices = allChoices.ToArray();
+            DebugInfo.MaxSimulatedHundredLoss = _minWinForHundred;
             //DebugInfo.TotalRuleCount = Settings.SimulationsPerGameType;
             gameComputationResults = null;
             moneyCalculations = null;

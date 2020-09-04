@@ -1337,7 +1337,8 @@ namespace Mariasek.Engine.New
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump)
                                 .Sum(b => (myInitialHand.HasA(b) ? 1 : 0) + (myInitialHand.HasX(b) ? 1 : 0)) >= 3 &&
-                            myInitialHand.CardCount(_trump) <= 3)
+                            myInitialHand.CardCount(_trump) <= 3 &&
+                            myInitialHand.HasSuit(_trump))  //neplati pokud jsem nemel trumfy - je lepsi si pockat na mazani
                         {
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                 !_bannedSuits.Contains(i.Suit) &&
@@ -1406,7 +1407,8 @@ namespace Mariasek.Engine.New
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump)
                                 .Sum(b => (myInitialHand.HasA(b) ? 1 : 0) + (myInitialHand.HasX(b) ? 1 : 0)) >= 3 &&
-                            myInitialHand.CardCount(_trump) <= 3)
+                            myInitialHand.CardCount(_trump) <= 3 &&
+                            myInitialHand.HasSuit(_trump))  //neplati pokud jsem nemel trumfy - je lepsi si pockat na mazani
                         {
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                 !_bannedSuits.Contains(i.Suit) &&
@@ -3057,7 +3059,7 @@ namespace Mariasek.Engine.New
             //yield return new AiRule
             //{
             //    Order = 7,
-            //    Description = "zkusit uhrát trumfovou X",
+            //    Description = "át bhrát trumfovou X",
             //    SkipSimulations = true,
             //    ChooseCard2 = (Card c1) =>
             //    {
