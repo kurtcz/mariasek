@@ -2961,8 +2961,10 @@ namespace Mariasek.Engine.New
                     (Hand.HasX(_trump.Value) ||
                      Hand.HasK(_trump.Value) ||
                      Hand.HasQ(_trump.Value)) &&
-                     Hand.CardCount(_trump.Value) >= 3 &&
-                     estimatedFinalBasicScore >= 40) ||
+                     ((Hand.CardCount(_trump.Value) >= 3 &&
+                       estimatedFinalBasicScore >= 40) ||
+                      (estimatedFinalBasicScore >= 50 &&
+                       kqScore >= 20))) ||
                     (_teamMateDoubledGame &&
                      kqScore >= 40)) ||
                  (TeamMateIndex == -1 && totalHoles <= 2)) &&
