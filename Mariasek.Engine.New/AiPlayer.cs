@@ -121,7 +121,7 @@ namespace Mariasek.Engine.New
                 RiskFactorSevenDefense = 0.5f,
                 SolitaryXThreshold = 0.13f,
                 SolitaryXThresholdDefense = 0.5f,
-                SafetyHundredThreshold = 50,
+                SafetyHundredThreshold = 80,
                 SafetyBetlThreshold = 24
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
