@@ -2853,9 +2853,7 @@ namespace Mariasek.Engine.New
                       (!Is100AgainstPossible() || _teamMateDoubledGame) &&
                       (kqScore >= 20 ||
                        Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) || Hand.HasQ(b)) >= 2)) ||
-                     (_teamMateDoubledGame &&                   //nebo kolega flekoval a jsem si jisty aspon na prah pro Re
-                      //_gamesBalance / (float)_gameSimulations >= gameThresholdPrevious &&
-                      //estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100 &&
+                     (_teamMateDoubledGame &&                   //nebo kolega flekoval
                       (kqScore >= 40 ||                         //a mam aspon 40 bodu v hlasech
                        (kqScore >= 20 &&                        //nebo aspon 20 bodu v hlasech a 30 bodu odhadem k tomu
                         estimatedFinalBasicScore >= 20))) ||
