@@ -986,8 +986,9 @@ namespace Mariasek.Engine.New
                     Enum.GetValues(typeof(Barva)).Cast<Barva>()
                         .Any(b => Hand.HasK(b) && Hand.HasQ(b)) &&  //protoze prah pro kilo muze nekdo nastavit na nulu
                     Hand.Has7(_trump ?? _g.trump.Value) &&          //protoze prah pro sedmu muze nekdo nastavit na nulu
+                    _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations &&
                     _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&
-                    _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations)
+                    !IsHundredTooRisky())
                 {
                     return GameFlavour.Good107;
                 }
