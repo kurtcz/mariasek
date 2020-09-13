@@ -407,7 +407,7 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 - 160),
                 Width = (int)Game.VirtualScreenWidth / 2 - 190,
-                Items = new SelectorItems() { { "Od 8. kola", 8 }, { "Od 9. kola", 9 }, { "Nikdy", 0 } }
+                Items = new SelectorItems() { { "Od 8. kola", 8 }, { "Od 9. kola", 9 }, { "Nikdy", -1 } }
             };
             _firstMinMaxRoundSelector.SelectedIndex = 0;
             _firstMinMaxRoundSelector.SelectionChanged += FirstMinMaxRoundChanged;
@@ -682,6 +682,7 @@ namespace Mariasek.SharedClient
                 _threshold1Selector.SelectedIndex = _threshold1Selector.Items.FindIndex(thresholds[1]);
                 _threshold2Selector.SelectedIndex = _threshold2Selector.Items.FindIndex(thresholds[2]);
                 _threshold3Selector.SelectedIndex = _threshold3Selector.Items.FindIndex(thresholds[3]);
+                _firstMinMaxRoundSelector.SelectedIndex = _firstMinMaxRoundSelector.Items.FindIndex(Game.Settings.FirstMinMaxRound);
                 _safetyHundredSelector.SelectedIndex = _safetyHundredSelector.Items.FindIndex(Game.Settings.SafetyHundredThreshold);
                 _safetyBetlSelector.SelectedIndex = _safetyBetlSelector.Items.FindIndex(Game.Settings.SafetyBetlThreshold);
                 _riskFactorSelector.SelectedIndex = _riskFactorSelector.Items.FindIndex(Game.Settings.RiskFactor);

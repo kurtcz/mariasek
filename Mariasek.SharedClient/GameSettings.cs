@@ -201,6 +201,7 @@ namespace Mariasek.SharedClient
             HundredValue = 4;
             BetlValue = 5;
             DurchValue = 10;
+            FirstMinMaxRound = 8;
             DefaultTextRgba = "ffffff";
             HighlightedTextRgba = "ffdd00";
             Player1Rgba = "ff4c4c";

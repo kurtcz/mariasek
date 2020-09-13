@@ -564,6 +564,10 @@ namespace Mariasek.SharedClient
             {
                 Settings.BgMusicMaxDelayMs = Settings.BgMusicMinDelayMs;
             }
+            if (Settings.FirstMinMaxRound == 0)
+            {
+                Settings.FirstMinMaxRound = 8;
+            }
             CardScaleFactor = new Vector2(Settings.CardScaleFactor, Settings.CardScaleFactor);
 		}
 
