@@ -122,7 +122,7 @@ namespace Mariasek.Engine.New
                 SolitaryXThreshold = 0.13f,
                 SolitaryXThresholdDefense = 0.5f,
                 SafetyHundredThreshold = 80,
-                SafetyBetlThreshold = 24
+                SafetyBetlThreshold = 64
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 

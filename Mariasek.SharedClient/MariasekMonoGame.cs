@@ -568,6 +568,12 @@ namespace Mariasek.SharedClient
             {
                 Settings.FirstMinMaxRound = 8;
             }
+            if (Settings.SafetyBetlThreshold > 0 &&
+                Settings.SafetyBetlThreshold < 24)
+            {
+                Settings.SafetyBetlThreshold = 24;
+            }
+
             CardScaleFactor = new Vector2(Settings.CardScaleFactor, Settings.CardScaleFactor);
 		}
 
