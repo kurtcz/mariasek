@@ -365,10 +365,11 @@ namespace Mariasek.Engine.New
                                                                    .Select(h => new Card(i.Suit, h))
                                                                    .Where(j => j.BadValue > i.BadValue)
                                                                    .Any(j => _probabilities.CardProbability(player3, j) > 0 &&
-                                                                             Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                                 .Select(h => new Card(i.Suit, h))
-                                                                                 .Where(k => k.BadValue >= j.BadValue)
-                                                                                 .All(k => _probabilities.CardProbability(player2, k) == 0)));
+                                                                             (preferredSuits.Contains(i.Suit) ||
+                                                                              Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                  .Select(h => new Card(i.Suit, h))
+                                                                                  .Where(k => k.BadValue >= j.BadValue)
+                                                                                  .All(k => _probabilities.CardProbability(player2, k) == 0))));
                         }
                         else if (TeamMateIndex == player3)//c-o
                         {
@@ -378,10 +379,11 @@ namespace Mariasek.Engine.New
                                                                    .Select(h => new Card(i.Suit, h))
                                                                    .Where(j => j.BadValue > i.BadValue)
                                                                    .Any(j => _probabilities.CardProbability(player2, j) > 0 &&
-                                                                             Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                                 .Select(h => new Card(i.Suit, h))
-                                                                                 .Where(k => k.BadValue >= j.BadValue)
-                                                                                 .All(k => _probabilities.CardProbability(player3, k) == 0)));
+                                                                             (preferredSuits.Contains(i.Suit) ||
+                                                                              Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                  .Select(h => new Card(i.Suit, h))
+                                                                                  .Where(k => k.BadValue >= j.BadValue)
+                                                                                  .All(k => _probabilities.CardProbability(player3, k) == 0))));
                         }
                         var prefCards = cardsToPlay.Where(i => preferredSuits.Contains(i.Suit));
 
