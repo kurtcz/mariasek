@@ -530,14 +530,16 @@ namespace Mariasek.Engine.New
                                            hand.HasA(i.Suit) &&
                                            hand.HasX(i.Suit) &&
                                            hand.CardCount(i.Suit) == 3)
-                               .OrderBy(i => hand.Count(j => j.Suit == i.Suit)));  //vybirej od nejkratsich barev
+                               .OrderBy(i => hand.Count(j => j.Suit == i.Suit))
+                               .ThenByDescending(i => i.BadValue));  //vybirej od nejkratsich barev
 
             //potom zkus vzit karty v barve kde krom esa mam 3 plivy (a nemam hlasku)
             talon.AddRange(hand.Where(i => i.Suit != trumpCard.Suit &&             //nevybirej trumfy
                                            !hand.HasA(i.Suit) &&                   //v barve kde neznam A, X ani nemam hlas
                                            !hand.HasX(i.Suit) &&
                                            !(hand.HasK(i.Suit) && hand.HasQ(i.Suit)))
-                               .OrderBy(i => hand.Count(j => j.Suit == i.Suit)));  //vybirej od nejkratsich barev
+                               .OrderBy(i => hand.Count(j => j.Suit == i.Suit))
+                               .ThenByDescending(i => i.BadValue));  //vybirej od nejkratsich barev
 
             //pokud mas X + 2 plivy, tak vezmi tu mensi
             var c = hand.Where(i => //!(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
