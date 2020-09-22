@@ -555,7 +555,7 @@ namespace Mariasek.Engine.New
                                       hand.HasX(i.Suit) &&                 //pokud mam jen X+2 plivy, viz nasl. krok
                                       !hand.HasA(i.Suit) &&
                                       hand.CardCount(i.Suit) == 3)
-                         .OrderBy(i => i.Value)
+                         .OrderByDescending(i => i.BadValue)
                         .FirstOrDefault();
 
             if (c != null)
@@ -579,7 +579,7 @@ namespace Mariasek.Engine.New
                                            !(hand.HasX(i.Suit) &&                  //nebo pokud mam jen X+2 plivy
                                              !hand.HasA(i.Suit) &&
                                              hand.CardCount(i.Suit) == 3))
-                                .OrderBy(i => i.Value));                           //vybirej od nejmensich karet
+                                .OrderBy(i => i.BadValue));                           //vybirej od nejmensich karet
 
             //potom zkus cokoli mimo trumfu,A,X,trumfove 7, hlasu a samotne plivy ktera doplnuje X
             //talon.AddRange(hand.Where(i => !(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
@@ -2894,7 +2894,8 @@ namespace Mariasek.Engine.New
                        Hand.HasQ(_g.trump.Value)) &&             
                       Hand.CardCount(_g.trump.Value) >= 2 &&   //a aspon dva trumfy
                       kqScore >= 20 &&                         //a aspon 1 netrumfovou desitku
-                      kqMaxOpponentScore <= 20) ||             //a vidim aspon do tri hlasu
+                      kqMaxOpponentScore <= 20 &&              //a vidim aspon do tri hlasu
+                      estimatedFinalBasicScore >= 20) ||       //a odhaduju ze uhraju aspon 20 bodu v desitkach
                      (Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
                       kqScore >= 40 &&                         //40 bodu v hlasech
                       estimatedFinalBasicScore >= 50) ||       //a odhaduju ze uhraju aspon 50 bodu v desitkach
