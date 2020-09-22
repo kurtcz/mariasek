@@ -3577,14 +3577,14 @@ namespace Mariasek.Engine.New
             var estimatedCombinations = (int)Probabilities.EstimateTotalCombinations(roundNumber);
 
             //source = new[] { _g.players.Select(i => new Hand(i.Hand)).ToArray() };
-            foreach (var hands in source)
-            //Parallel.ForEach(source, (hands, loopState) =>
+            //foreach (var hands in source)
+            Parallel.ForEach(source, (hands, loopState) =>
             {
                 ThrowIfCancellationRequested();
                 if ((DateTime.Now - start).TotalMilliseconds > 2 * Settings.MaxSimulationTimeMs)
                 {
-                    //prematureStop = true;
-                    //loopState.Stop();
+                    prematureStop = true;
+                    loopState.Stop();
                     //break;
                 }
                 //List<Card> talon = null;
@@ -3643,7 +3643,7 @@ namespace Mariasek.Engine.New
                     }
                 }
                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = ++n, Max = estimatedCombinations, Message = "Generuju karty" });
-            }//);
+            });
 
             if (prematureStop)
             {
