@@ -2675,26 +2675,26 @@ namespace Mariasek.Engine.New
                 RuleCount = _durchBalance,
                 TotalRuleCount = _durchSimulations
             });
-#if DEBUG
-            allChoices.Add(new RuleDebugInfo
-            {
-                Rule = "Skóre2",
-                RuleCount = DebugInfo.EstimatedFinalBasicScore2,
-                TotalRuleCount = 100
-            });
-            allChoices.Add(new RuleDebugInfo
-            {
-                Rule = "Tygrovo",
-                RuleCount = DebugInfo.Tygrovo,
-                TotalRuleCount = 100
-            });
-            allChoices.Add(new RuleDebugInfo
-            {
-                Rule = "Silná",
-                RuleCount = DebugInfo.Strong * 100,
-                TotalRuleCount = 100
-            });
-#endif
+//#if DEBUG
+//            allChoices.Add(new RuleDebugInfo
+//            {
+//                Rule = "Skóre2",
+//                RuleCount = DebugInfo.EstimatedFinalBasicScore2,
+//                TotalRuleCount = 100
+//            });
+//            allChoices.Add(new RuleDebugInfo
+//            {
+//                Rule = "Tygrovo",
+//                RuleCount = DebugInfo.Tygrovo,
+//                TotalRuleCount = 100
+//            });
+//            allChoices.Add(new RuleDebugInfo
+//            {
+//                Rule = "Silná",
+//                RuleCount = DebugInfo.Strong * 100,
+//                TotalRuleCount = 100
+//            });
+//#endif
             DebugInfo.AllChoices = allChoices.OrderByDescending(i => i.RuleCount).ToArray();
             _log.DebugFormat("Selected game type: {0}", gameType);
 
@@ -3148,26 +3148,26 @@ namespace Mariasek.Engine.New
             DebugInfo.Rule = bid.ToString();
             BidConfidence = DebugInfo.TotalRuleCount > 0 ? (float)DebugInfo.RuleCount / (float)DebugInfo.TotalRuleCount : -1;
             var allChoices = new List<RuleDebugInfo>();
-#if DEBUG
-            allChoices.Add(new RuleDebugInfo
-            {
-                Rule = "Skóre2",
-                RuleCount = DebugInfo.EstimatedFinalBasicScore2,
-                TotalRuleCount = 100
-            });
-            allChoices.Add(new RuleDebugInfo
-            {
-                Rule = "Tygrovo",
-                RuleCount = DebugInfo.Tygrovo,
-                TotalRuleCount = 100
-            });
-            allChoices.Add(new RuleDebugInfo
-            {
-                Rule = "Silná",
-                RuleCount = DebugInfo.Strong,
-                TotalRuleCount = 100
-            });
-#endif
+//#if DEBUG
+//            allChoices.Add(new RuleDebugInfo
+//            {
+//                Rule = "Skóre2",
+//                RuleCount = DebugInfo.EstimatedFinalBasicScore2,
+//                TotalRuleCount = 100
+//            });
+//            allChoices.Add(new RuleDebugInfo
+//            {
+//                Rule = "Tygrovo",
+//                RuleCount = DebugInfo.Tygrovo,
+//                TotalRuleCount = 100
+//            });
+//            allChoices.Add(new RuleDebugInfo
+//            {
+//                Rule = "Silná",
+//                RuleCount = DebugInfo.Strong,
+//                TotalRuleCount = 100
+//            });
+//#endif
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = Hra.Hra.ToString(),

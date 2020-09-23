@@ -1706,7 +1706,8 @@ namespace Mariasek.Engine.New
 
                             //odmazat si trumf abych pozdeji mohl mazat 
                             //(musi existovat barva, kterou neznam a muj spoluhrac v ni doufejme ma vyssi karty nez akter)
-                            if ((myInitialHand.CardCount(_trump) <= 1 ||
+                            if (((_gameType & Hra.Kilo) != 0 ||
+                                 myInitialHand.CardCount(_trump) <= 1 ||
                                  (myInitialHand.CardCount(_trump) <= 2 &&
                                   myInitialHand.Where(i => i.Suit != _trump).ToList()
                                                .CardCount(Hodnota.Desitka) +
@@ -3455,7 +3456,8 @@ namespace Mariasek.Engine.New
                         //a muj spoluhrac bere stych esem
                         //a pokud mam krome desitky jeste jinou kartu v barve
                         //tak si desitku setri na pozdeji aby prebijela akterova zbyvajiciho krale
-                        if (c2.Value == Hodnota.Eso &&
+                        if ((_gameType & Hra.Kilo) == 0 &&
+                            c2.Value == Hodnota.Eso &&
                             c2.Suit == c1.Suit &&
                             Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                 .Where(h => h != c1.Value)

@@ -3746,7 +3746,7 @@ namespace Mariasek.SharedClient
                 HintBtnFunc = () =>
                 {
                     ShowMsgLabel(string.Format("Nápověda: {0}", AmendSuitNameIfNeeded(gameType)), false);
-                    _msgLabelSmall.Text = string.Format("\n\n\n{0}", allChoices);
+                    _msgLabelSmall.Text = string.Format("\n\n\n\n{0}", allChoices.Trim());
                     _msgLabelSmall.Show();
                 };
             }
