@@ -3148,68 +3148,89 @@ namespace Mariasek.Engine.New
             DebugInfo.Rule = bid.ToString();
             BidConfidence = DebugInfo.TotalRuleCount > 0 ? (float)DebugInfo.RuleCount / (float)DebugInfo.TotalRuleCount : -1;
             var allChoices = new List<RuleDebugInfo>();
-//#if DEBUG
-//            allChoices.Add(new RuleDebugInfo
-//            {
-//                Rule = "Skóre2",
-//                RuleCount = DebugInfo.EstimatedFinalBasicScore2,
-//                TotalRuleCount = 100
-//            });
-//            allChoices.Add(new RuleDebugInfo
-//            {
-//                Rule = "Tygrovo",
-//                RuleCount = DebugInfo.Tygrovo,
-//                TotalRuleCount = 100
-//            });
-//            allChoices.Add(new RuleDebugInfo
-//            {
-//                Rule = "Silná",
-//                RuleCount = DebugInfo.Strong,
-//                TotalRuleCount = 100
-//            });
-//#endif
-            allChoices.Add(new RuleDebugInfo
+            //#if DEBUG
+            //            allChoices.Add(new RuleDebugInfo
+            //            {
+            //                Rule = "Skóre2",
+            //                RuleCount = DebugInfo.EstimatedFinalBasicScore2,
+            //                TotalRuleCount = 100
+            //            });
+            //            allChoices.Add(new RuleDebugInfo
+            //            {
+            //                Rule = "Tygrovo",
+            //                RuleCount = DebugInfo.Tygrovo,
+            //                TotalRuleCount = 100
+            //            });
+            //            allChoices.Add(new RuleDebugInfo
+            //            {
+            //                Rule = "Silná",
+            //                RuleCount = DebugInfo.Strong,
+            //                TotalRuleCount = 100
+            //            });
+            //#endif
+            if ((bidding.Bids & Hra.Hra) != 0)
             {
-                Rule = Hra.Hra.ToString(),
-                RuleCount = _gamesBalance,
-                TotalRuleCount = _gameSimulations
-            });
-			allChoices.Add(new RuleDebugInfo
+                allChoices.Add(new RuleDebugInfo
+                {
+                    Rule = Hra.Hra.ToString(),
+                    RuleCount = _gamesBalance,
+                    TotalRuleCount = _gameSimulations
+                });
+            }
+            if ((bidding.Bids & Hra.Sedma) != 0)
             {
-                Rule = Hra.Sedma.ToString(),
-                RuleCount = _sevensBalance,
-                TotalRuleCount = _sevenSimulations
-            });
-            allChoices.Add(new RuleDebugInfo
+                allChoices.Add(new RuleDebugInfo
+                {
+                    Rule = Hra.Sedma.ToString(),
+                    RuleCount = _sevensBalance,
+                    TotalRuleCount = _sevenSimulations
+                });
+            }
+            if ((bidding.Bids & Hra.SedmaProti) != 0)
             {
-                Rule = Hra.SedmaProti.ToString(),
-                RuleCount = _sevensAgainstBalance,
-                TotalRuleCount = _gameSimulations
-            });
-            allChoices.Add(new RuleDebugInfo
+                allChoices.Add(new RuleDebugInfo
+                {
+                    Rule = Hra.SedmaProti.ToString(),
+                    RuleCount = _sevensAgainstBalance,
+                    TotalRuleCount = _gameSimulations
+                });
+            }
+            if ((bidding.Bids & Hra.Kilo) != 0)
             {
-                Rule = Hra.Kilo.ToString(),
-                RuleCount = _hundredsBalance,
-                TotalRuleCount = _hundredSimulations
-            });
-			allChoices.Add(new RuleDebugInfo
-			{
-				Rule = Hra.KiloProti.ToString(),
-				RuleCount = _hundredsAgainstBalance,
-				TotalRuleCount = _gameSimulations
-			});
-			allChoices.Add(new RuleDebugInfo
+                allChoices.Add(new RuleDebugInfo
+                {
+                    Rule = Hra.Kilo.ToString(),
+                    RuleCount = _hundredsBalance,
+                    TotalRuleCount = _hundredSimulations
+                });
+            }
+            if ((bidding.Bids & Hra.KiloProti) != 0)
             {
-                Rule = Hra.Betl.ToString(),
-                RuleCount = _betlBalance,
-                TotalRuleCount = _betlSimulations
-            });
-            allChoices.Add(new RuleDebugInfo
+                allChoices.Add(new RuleDebugInfo
+                {
+                    Rule = Hra.KiloProti.ToString(),
+                    RuleCount = _hundredsAgainstBalance,
+                    TotalRuleCount = _gameSimulations
+                });
+            }
+            if ((bidding.Bids & Hra.Betl) != 0)
             {
-                Rule = Hra.Durch.ToString(),
-                RuleCount = _durchBalance,
-                TotalRuleCount = _durchSimulations
-            });
+                allChoices.Add(new RuleDebugInfo
+                {
+                    Rule = Hra.Betl.ToString(),
+                    RuleCount = _betlBalance,
+                    TotalRuleCount = _betlSimulations
+                });
+            }
+            if ((bidding.Bids & Hra.Durch) != 0)
+            {
+                allChoices.Add(new RuleDebugInfo
+                {
+                    Rule = Hra.Durch.ToString(),
+                    RuleCount = _durchBalance,
+                    TotalRuleCount = _durchSimulations
+                });
+            }
             DebugInfo.AllChoices = allChoices.OrderByDescending(i => i.RuleCount).ToArray();
 
             return bid;
@@ -3575,13 +3596,14 @@ namespace Mariasek.Engine.New
                                                        }
                                                    }).ToList();
             var estimatedCombinations = (int)Probabilities.EstimateTotalCombinations(roundNumber);
+            var maxtime = Math.Max(2000, 2 * Settings.MaxSimulationTimeMs);
 
             //source = new[] { _g.players.Select(i => new Hand(i.Hand)).ToArray() };
             //foreach (var hands in source)
             Parallel.ForEach(source, (hands, loopState) =>
             {
                 ThrowIfCancellationRequested();
-                if ((DateTime.Now - start).TotalMilliseconds > 2 * Settings.MaxSimulationTimeMs)
+                if ((DateTime.Now - start).TotalMilliseconds > maxtime)
                 {
                     prematureStop = true;
                     loopState.Stop();

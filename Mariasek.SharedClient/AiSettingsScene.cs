@@ -398,7 +398,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(230, Game.VirtualScreenHeight / 2 - 160),
                 Width = 290,
                 Height = 50,
-                Text = "Dopočítávat hru",
+                Text = "Dopočítávat koncovku hry",
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };

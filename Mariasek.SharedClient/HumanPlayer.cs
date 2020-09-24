@@ -421,7 +421,9 @@ namespace Mariasek.SharedClient
                         var msg = new StringBuilder();
 #if DEBUG
                         var k = 0;
-                        foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(i => i.RuleCount > 0))
+                        foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(i => i.RuleCount > 0 &&
+                                                                                            (i.Rule != Hra.KiloProti.ToString() ||
+                                                                                             (bid & Hra.KiloProti) != 0)))
                         {
                             if (debugInfo.TotalRuleCount > 0)
                             {
