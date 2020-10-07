@@ -2012,7 +2012,11 @@ namespace Mariasek.Engine.New
                    !hand.HasK(trump.Value) ||
                    !hand.HasQ(trump.Value)))))
             {
-                if (cardsPerSuit.Count(i => i.Value > 0) == 2)
+                if (_g.Bidding.SevenMultiplier > 1)
+                {
+                    axWinPotential = 0;
+                }
+                else if (cardsPerSuit.Count(i => i.Value > 0) == 2)
                 {
                     axWinPotential = 0;
                 }
@@ -2174,18 +2178,18 @@ namespace Mariasek.Engine.New
             var nn = GetTotalHoles(false);
             var axCount = Hand.Count(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka);
 
-			if (axCount >= 6)
+            if (Settings.SafetyHundredThreshold > 0 &&
+                _minWinForHundred <= -Settings.SafetyHundredThreshold)
+            {
+                DebugInfo.HunderTooRisky = true;
+                return true;
+            }
+            if (axCount >= 6)
 			{
                 DebugInfo.HunderTooRisky = false;
 				return false;
 			}
             if (Hand.CardCount(_trump.Value) <= 3)
-            {
-                DebugInfo.HunderTooRisky = true;
-                return true;
-            }
-            if (Settings.SafetyHundredThreshold > 0 &&
-                _minWinForHundred <= -Settings.SafetyHundredThreshold)
             {
                 DebugInfo.HunderTooRisky = true;
                 return true;
@@ -3007,7 +3011,10 @@ namespace Mariasek.Engine.New
                   _hundredsBalance / (float)_hundredSimulations >= hundredThreshold &&
                   Enum.GetValues(typeof(Barva)).Cast<Barva>().Where(b => Hand.HasSuit(b)).All(b => Hand.HasA(b))) ||    //Re na kilo si dej jen pokud mas ve vsech barvach eso
 			     (PlayerIndex != _g.GameStartingPlayerIndex &&                                                          //Flek na kilo si dej jen pokud akter nema hlas
-                  Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0)))
+                  (Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0 ||
+                   (_hundredsBalance == _hundredSimulations &&                                                          //nebo pokud v simulacich nevyslo ani jednou
+                    (Hand.HasK(_g.trump.Value) ||
+                     Hand.HasQ(_g.trump.Value)))))))
             {
                 bid |= bidding.Bids & Hra.Kilo;
                 //minRuleCount = Math.Min(minRuleCount, _hundredsBalance);
@@ -3406,6 +3413,7 @@ namespace Mariasek.Engine.New
                     {
                         System.Diagnostics.Debug.WriteLine("Uhraj co nejlepší výsledek");
                         cardToPlay = ComputeBestCardToPlay(source, r.number);
+                        GC.Collect();
 
                         if (cardToPlay != null)
                         {
@@ -3693,7 +3701,7 @@ namespace Mariasek.Engine.New
                                             .Max(i => 100 * i.Item2.MoneyWon[PlayerIndex] +
                                                       (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
                 winCount.Add(card, likelyResults.Where(i => i.Item1 == card)
-                                                .Count(i => i.Item2.MoneyWon[PlayerIndex] > 0));
+                                                .Count(i => i.Item2.MoneyWon[PlayerIndex] >= 0));
             }
 
             Card cardToPlay;
@@ -3720,7 +3728,7 @@ namespace Mariasek.Engine.New
                                                 .ThenByDescending(i => minResults[i])
                                                 .ThenByDescending(i => averageLikelyResults[i])
                                                 .ThenByDescending(i => maxResults[i])
-                                                .ThenByDescending(i => maxResults[i] >= 0 ? (int)i.Value : -(int)i.Value)
+                                                .ThenBy(i => (int)i.Value)
                                                 .FirstOrDefault();
                     break;
             }
@@ -3737,6 +3745,7 @@ namespace Mariasek.Engine.New
             }).ToArray();
 
             OnGameComputationProgress(new GameComputationProgressEventArgs { Current = estimatedCombinations, Max = estimatedCombinations, Message = "Generuju karty" });
+
             return cardToPlay;
         }
 
@@ -3750,7 +3759,7 @@ namespace Mariasek.Engine.New
             var player2 = (player1 + 1) % Game.NumPlayers;
             var player3 = (player1 + 2) % Game.NumPlayers;
             var candidateRounds = new List<Round>();
-            var results = new List<Tuple<Card, MoneyCalculatorBase, GameComputationResult>>();
+            var results = new List<Tuple<Card, Card, Card, MoneyCalculatorBase, GameComputationResult>>();
             var cards1 = ValidCards(hands[player1], _g.trump, _g.GameType, _g.players[player1].TeamMateIndex);
 
             foreach (var c1 in cards1)
@@ -3839,54 +3848,151 @@ namespace Mariasek.Engine.New
                 //var c = PlayerIndex == r.player1.PlayerIndex ? r.c1 : PlayerIndex == r.player2.PlayerIndex ? r.c2 : r.c3;
                 var result = ComputeMinMax(previousRounds.Concat(new[] { r }).ToList(), hh, currentRound).First();
 
-                results.Add(new Tuple<Card, MoneyCalculatorBase, GameComputationResult>(r.c1, result.Item2, result.Item3));
+                results.Add(new Tuple<Card, Card, Card, MoneyCalculatorBase, GameComputationResult>(r.c1, r.c2, r.c3, result.Item2, result.Item3));
             }
 
-            //minimax
-            var minResult = new Dictionary<Card, Tuple<Card, MoneyCalculatorBase, GameComputationResult>>();
 
-            foreach (var result in results)
-            {
-                if (!minResult.ContainsKey(result.Item1))
-                {
-                    minResult.Add(result.Item1, result);
-                }
-                else if (result.Item2.MoneyWon[player1] < minResult[result.Item1].Item2.MoneyWon[player1] ||
-                    (result.Item2.MoneyWon[player1] == minResult[result.Item1].Item2.MoneyWon[player1] &&
-                        ((_g.players[player1].TeamMateIndex == -1 &&
-                        result.Item2.BasicPointsWon < minResult[result.Item1].Item2.BasicPointsWon) ||
-                        (_g.players[player1].TeamMateIndex != -1 &&
-                        result.Item2.BasicPointsLost < minResult[result.Item1].Item2.BasicPointsLost))))
-                {
-                    minResult[result.Item1] = result;
-                }
-            }
-            if (roundNumber == currentRound)
-            {
-                return minResult.Values.ToList();
-            }
-            else
-            {
-                Tuple<Card, MoneyCalculatorBase, GameComputationResult> maxResult = null;
+            var filteredResults = new List<Tuple<Card, Card, Card, MoneyCalculatorBase, GameComputationResult>>();
 
-                foreach(var kvp in minResult)
-                {
-                    var result = kvp.Value;
+            foreach(var c1 in results.Select(i => i.Item1).Distinct())
+            {
+                var filtered1 = new List<Tuple<Card, Card, Card, MoneyCalculatorBase, GameComputationResult>>();
 
-                    if (maxResult == null ||
-                        result.Item2.MoneyWon[player1] > maxResult.Item2.MoneyWon[player1] ||
-                        (result.Item2.MoneyWon[player1] == maxResult.Item2.MoneyWon[player1] &&
-                            ((_g.players[player1].TeamMateIndex == -1 &&
-                              result.Item2.BasicPointsWon > maxResult.Item2.BasicPointsWon) ||
-                             (_g.players[player1].TeamMateIndex != -1 &&
-                              result.Item2.BasicPointsLost > maxResult.Item2.BasicPointsLost))))
+                foreach (var c2 in results.Where(i => i.Item1 == c1).Select(i => i.Item2).Distinct())
+                {
+                    var filtered2 = new List<Tuple<Card, Card, Card, MoneyCalculatorBase, GameComputationResult>>();
+
+                    foreach (var c3 in results.Where(i => i.Item1 == c1 &&
+                                                          i.Item2 == c2).Select(i => i.Item3).Distinct())
                     {
-                        maxResult = result;
+                        var res3 = results.Single(i => i.Item1 == c1 && i.Item2 == c2 && i.Item3 == c3);
+
+                        if (!filtered2.Any(i => i.Item1 == c1 &&
+                                                i.Item2 == c2))
+                        {
+                            filtered2.Add(res3);
+                            continue;
+                        }
+                        
+                        var minmax3 = filtered2.Single(i => i.Item1 == c1 && i.Item2 == c2);
+
+                        if (_g.players[player3].TeamMateIndex == -1)
+                        {
+                            if (res3.Item4.MoneyWon[player3] > minmax3.Item4.MoneyWon[player3] ||
+                                (res3.Item4.MoneyWon[player3] == minmax3.Item4.MoneyWon[player3] &&
+                                 (res3.Item4.BasicPointsWon > minmax3.Item4.BasicPointsWon ||
+                                  (res3.Item4.BasicPointsWon == minmax3.Item4.BasicPointsWon &&
+                                   _g.trump.HasValue &&
+                                   minmax3.Item3.Suit == _g.trump.Value &&
+                                   c3.Suit != _g.trump.Value))))
+                            {
+                                filtered2.Remove(minmax3);
+                                filtered2.Add(res3);
+                            }
+                        }
+                        else
+                        {
+                            if (res3.Item4.MoneyWon[player3] > minmax3.Item4.MoneyWon[player3] ||
+                                (res3.Item4.MoneyWon[player3] == minmax3.Item4.MoneyWon[player3] &&
+                                 (res3.Item4.BasicPointsLost > minmax3.Item4.BasicPointsLost ||
+                                  (res3.Item4.BasicPointsLost == minmax3.Item4.BasicPointsLost &&
+                                   _g.trump.HasValue &&
+                                   minmax3.Item3.Suit == _g.trump.Value &&
+                                   c3.Suit != _g.trump.Value))))
+                            {
+                                filtered2.Remove(minmax3);
+                                filtered2.Add(res3);
+                            }
+                        }
+                    }
+                    var res2 = filtered2.First();
+
+                    if (!filtered1.Any(i => i.Item1 == c1))
+                    {
+                        filtered1.Add(res2);
+                        continue;
+                    }
+
+                    var minmax2 = filtered1.Single(i => i.Item1 == c1);
+
+                    if (_g.players[player2].TeamMateIndex == -1)
+                    {
+                        if (res2.Item4.MoneyWon[player2] > minmax2.Item4.MoneyWon[player2] ||
+                            (res2.Item4.MoneyWon[player2] == minmax2.Item4.MoneyWon[player2] &&
+                             (res2.Item4.BasicPointsWon > minmax2.Item4.BasicPointsWon ||
+                              (res2.Item4.BasicPointsWon == minmax2.Item4.BasicPointsWon &&
+                               _g.trump.HasValue &&
+                               minmax2.Item3.Suit == _g.trump.Value &&
+                               c2.Suit != _g.trump.Value))))
+                        {
+                            filtered1.Remove(minmax2);
+                            filtered1.Add(res2);
+                        }
+                    }
+                    else
+                    {
+                        if (res2.Item4.MoneyWon[player2] > minmax2.Item4.MoneyWon[player2] ||
+                            (res2.Item4.MoneyWon[player2] == minmax2.Item4.MoneyWon[player2] &&
+                             (res2.Item4.BasicPointsLost > minmax2.Item4.BasicPointsLost ||
+                              (res2.Item4.BasicPointsLost == minmax2.Item4.BasicPointsLost &&
+                               _g.trump.HasValue &&
+                               minmax2.Item3.Suit == _g.trump.Value &&
+                               c2.Suit != _g.trump.Value))))
+                        {
+                            filtered1.Remove(minmax2);
+                            filtered1.Add(res2);
+                        }
                     }
                 }
+                var res1 = filtered1.First();
 
-                return new[] { maxResult };
+                if (roundNumber == currentRound ||
+                    !filteredResults.Any())
+                {
+                    filteredResults.Add(res1);
+                    continue;
+                }
+
+                var minmax1 = filteredResults.First();
+
+                if (_g.players[player1].TeamMateIndex == -1)
+                {
+                    if (res1.Item4.MoneyWon[player1] > minmax1.Item4.MoneyWon[player1] ||
+                        (res1.Item4.MoneyWon[player1] == minmax1.Item4.MoneyWon[player1] &&
+                         (res1.Item4.BasicPointsWon > minmax1.Item4.BasicPointsWon ||
+                          (res1.Item4.BasicPointsWon == minmax1.Item4.BasicPointsWon &&
+                           _g.trump.HasValue &&
+                           minmax1.Item3.Suit == _g.trump.Value &&
+                           c1.Suit != _g.trump.Value))))
+                    {
+                        filteredResults.Remove(minmax1);
+                        filteredResults.Add(res1);
+                    }
+                }
+                else
+                {
+                    if (res1.Item4.MoneyWon[player1] > minmax1.Item4.MoneyWon[player1] ||
+                        (res1.Item4.MoneyWon[player1] == minmax1.Item4.MoneyWon[player1] &&
+                         (res1.Item4.BasicPointsLost > minmax1.Item4.BasicPointsLost ||
+                          (res1.Item4.BasicPointsLost == minmax1.Item4.BasicPointsLost &&
+                           _g.trump.HasValue &&
+                           minmax1.Item3.Suit == _g.trump.Value &&
+                           c1.Suit != _g.trump.Value))))
+                    {
+                        filteredResults.Remove(minmax1);
+                        filteredResults.Add(res1);
+                    }
+                }
             }
+            if (roundNumber != currentRound &&
+                filteredResults.Count() > 1)
+            {
+                filteredResults = filteredResults.OrderByDescending(i => i.Item4.MoneyWon[player1])
+                                                 .Take(1)
+                                                 .ToList();
+            }
+
+            return filteredResults.Select(i => new Tuple<Card, MoneyCalculatorBase, GameComputationResult>(i.Item1, i.Item4, i.Item5)).ToList();
         }
 
         private Card ChooseCardToPlay(Dictionary<Card, List<GameComputationResult>> cardScores)
