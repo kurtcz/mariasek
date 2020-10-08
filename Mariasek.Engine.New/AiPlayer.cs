@@ -2863,7 +2863,7 @@ namespace Mariasek.Engine.New
                      (_teamMateDoubledGame &&                   //nebo kolega flekoval
                       (kqScore >= 40 ||                         //a mam aspon 40 bodu v hlasech
                        (kqScore >= 20 &&                        //nebo aspon 20 bodu v hlasech a 30 bodu odhadem k tomu
-                        estimatedFinalBasicScore >= 20))) ||
+                        estimatedFinalBasicScore >= 30))) ||
                      (Hand.CardCount(_g.trump.Value) >= 4 &&    //nebo mam aspon 4 trumfy
                       Hand.HasA(_g.trump.Value) &&              //eso, trhak
                       (Hand.HasK(_g.trump.Value) ||              //a aspon 50 bodu
@@ -3013,8 +3013,8 @@ namespace Mariasek.Engine.New
 			     (PlayerIndex != _g.GameStartingPlayerIndex &&                                                          //Flek na kilo si dej jen pokud akter nema hlas
                   (Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0 ||
                    (_hundredsBalance == _hundredSimulations &&                                                          //nebo pokud v simulacich nevyslo ani jednou
-                    (Hand.HasK(_g.trump.Value) ||
-                     Hand.HasQ(_g.trump.Value)))))))
+                    Hand.HasK(_g.trump.Value) &&
+                    Hand.HasQ(_g.trump.Value))))))
             {
                 bid |= bidding.Bids & Hra.Kilo;
                 //minRuleCount = Math.Min(minRuleCount, _hundredsBalance);
