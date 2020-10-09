@@ -610,9 +610,8 @@ namespace Mariasek.Engine.New
                         if ((_gameType & Hra.Sedma) != 0 &&
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump)
-                                .Any(b => myInitialHand.CardCount(b) >= 4 &&
-                                          (_probabilities.SuitProbability(player2, _trump, RoundNumber) == 0 ||
-                                           _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0)))
+                                .Any(b => myInitialHand.CardCount(b) >= 4) &&
+                            (hands[MyIndex].CardCount(_trump) - holes.Count <= 1))
                         {
                             return null;
                         }
@@ -631,9 +630,11 @@ namespace Mariasek.Engine.New
                             topTrumps.Count > 0 &&
                             ((topTrumps.Count >= holes.Count &&
                               (_gameType != (Hra.Hra | Hra.Sedma) ||
-                               hands[MyIndex].All(i => i.Suit == _trump ||
-                                                       i.Value == Hodnota.Eso ||
-                                                       i.Value == Hodnota.Desitka))) ||
+                               Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                    .Where(b => b != _trump &&
+                                                hands[MyIndex].HasSuit(b))
+                                    .All(b => hands[MyIndex].HasA(b) ||
+                                              hands[MyIndex].HasX(b)))) ||
                              (_probabilities.SuitProbability(player2, _trump, RoundNumber) >= 1 - RiskFactor &&
                               _probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 - RiskFactor &&
                               //pokud ve vsech netrumfovych barvach mam nejvyssi kartu
