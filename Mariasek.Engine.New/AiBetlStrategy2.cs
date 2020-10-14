@@ -38,8 +38,9 @@ namespace Mariasek.Engine.New
                           _rounds[0].c1.BadValue > _rounds[0].c2.BadValue) ||
                          (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
                           _rounds[0].c1.Suit == _rounds[0].c3.Suit &&
-                          _rounds[0].c2.BadValue > _rounds[0].c3.BadValue &&
-                          _rounds[0].c2.Value != Hodnota.Eso)) &&
+                          (_rounds[0].c1.BadValue > _rounds[0].c3.BadValue ||
+                           (_rounds[0].c2.BadValue > _rounds[0].c3.BadValue &&
+                            _rounds[0].c2.Value != Hodnota.Eso)))) &&
                         hands[MyIndex].Any(i => i.Suit == _rounds[0].c1.Suit &&
                                                           Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                               .Select(h => new Card(_rounds[0].c1.Suit, h))

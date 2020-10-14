@@ -2176,6 +2176,9 @@ namespace Mariasek.Engine.New
         {
 			var n = GetTotalHoles();
             var nn = GetTotalHoles(false);
+            var sh = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                         .Where(b => GetTotalHoles(b) > 0)
+                         .ToList();
             var axCount = Hand.Count(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka);
 
             if (Settings.SafetyHundredThreshold > 0 &&
@@ -2308,7 +2311,10 @@ namespace Mariasek.Engine.New
             //}
 
             var result = n > 4 ||                         //u vice nez 4 neodstranitelnych der kilo urcite neuhraju
-                   (n > 3 && nn > 2) ||
+                   (n > 3 &&
+                    (nn > 3 ||
+                     (nn == 3 &&
+                      sh.Count > 2))) ||
                    (n == 3 &&                       //nebo u 3 neodstranitelnych der pokud nemam trumfove eso
                     !Hand.HasA(_trump.Value) &&     //a mam pet nebo mene trumfu
                     (Hand.CardCount(_trump.Value) <= 5 &&
