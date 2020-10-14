@@ -39,6 +39,15 @@ namespace Mariasek.SharedClient.GameComponents
 				_buttonText.Anchor = value;
 			}
 		}
+        public override float Opacity
+        {
+            get => base.Opacity;
+            set
+            {
+                base.Opacity = value;
+                _buttonShape.Opacity = value;
+            }
+        }
         public int Width 
         { 
             get { return _buttonShape.Width; }

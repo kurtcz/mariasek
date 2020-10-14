@@ -92,16 +92,28 @@ namespace Mariasek.SharedClient.GameComponents
                 if (_leftButton != null)
                 {
                     _leftButton.IsEnabled = value;
+					if (!_leftButton.IsEnabled)
+					{
+						_leftButton.Opacity = 0;
+					}
                 }
                 if (_rightButton != null)
                 {
                     _rightButton.IsEnabled = value;
-                }
-                if (_valueLabel != null)
+					if (!_rightButton.IsEnabled)
+					{
+						_rightButton.Opacity = 0;
+					}
+				}
+				if (_valueLabel != null)
                 {
                     _valueLabel.IsEnabled = value;
-                }
-            }
+					if (!_valueLabel.IsEnabled)
+					{
+						_valueLabel.Opacity = 0;
+					}
+				}
+			}
         }
         public bool IsCyclicSelector { get; set; }
 		public SelectorItems<TValue> Items;
