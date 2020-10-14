@@ -2098,35 +2098,35 @@ namespace Mariasek.Engine.New
 
         public bool IsSevenTooRisky()
         {
-            return Hand.CardCount(_trump.Value) < 4 ||                      //1.  mene nez 4 trumfy
-                   (Hand.CardCount(_trump.Value) == 4 &&                    //2.  nebo 4 trumfy a jedno z
-                    (Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||      //2a. mene nez 3 vysoke karty celkem
-                     Hand.Count(i => i.Value == Hodnota.Eso) +              //2b. nebo mene nez 2 (resp. 3) uhratelne A, X
-                     Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                         .Count(b => (Hand.HasX(b) &&
-                                      (Hand.HasK(b) ||
-                                       Hand.HasA(b) ||
-                                       (Hand.HasQ(b) &&
-                                        Hand.CardCount(b) > 2)))) < (TeamMateIndex == -1 ? 2 : 3) ||
-                     (Hand.Select(i => i.Suit).Distinct().Count() < 4) &&   //2c. nebo nevidim do nejake barvy
-                      !(Hand.HasA(_trump.Value) &&                          //    (vyjma pripadu kdy mam trumfove eso a max. 2 neodstranitelne netrumfove diry)
-                        GetTotalHoles(false, false) <= 2))) ||
-                   (Hand.CardCount(_trump.Value) == 5 &&                    //3.  5 trumfu a
-                    ((Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 &&
-                      Hand.Count(i => i.Value >= Hodnota.Spodek) < 4) ||    //3a. mene nez 3 (resp. 4) vysoke karty celkem (plati pro aktera i protihrace)
-                     (Hand.Select(i => i.Suit).Distinct().Count() < 4 &&    //3b. nebo nevidim do nejake barvy a zaroven mam 4 a vice netrumfovych der
-                      Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                          .Where(b => b != _trump.Value)
-                          .Count(b => !Hand.HasA(b) &&
-                                      Hand.Count(i => i.Suit == b &&
-                                                    i.Value >= Hodnota.Svrsek) <
-                                      Hand.Count(i => i.Suit == b &&
-                                                    i.Value <= Hodnota.Spodek)) > 1)));
-                      //(GetTotalHoles(false, false) >= 4 ||                  //3c. nebo tri netrumfove diry ve vice nez jedne barve
-                      // (GetTotalHoles(false, false) == 3 &&
-                      //  Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                      //      .Where(b => b != _trump.Value)
-                      //      .Count(b => !Hand.HasA(b)) > 1)))));
+            var result = Hand.CardCount(_trump.Value) < 4 ||                      //1.  mene nez 4 trumfy
+                         (Hand.CardCount(_trump.Value) == 4 &&                    //2.  nebo 4 trumfy a jedno z
+                          (Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||      //2a. mene nez 3 vysoke karty celkem
+                           Hand.Count(i => i.Value == Hodnota.Eso) +              //2b. nebo mene nez 2 (resp. 3) uhratelne A, X
+                           Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                               .Count(b => (Hand.HasX(b) &&
+                                           (Hand.HasK(b) ||
+                                            Hand.HasA(b) ||
+                                            (Hand.HasQ(b) &&
+                                             Hand.CardCount(b) > 2)))) < (TeamMateIndex == -1 ? 2 : 3) ||
+                           (Hand.Select(i => i.Suit).Distinct().Count() < 4) &&   //2c. nebo nevidim do nejake barvy
+                           !(Hand.HasA(_trump.Value) &&                          //    (vyjma pripadu kdy mam trumfove eso a max. 2 neodstranitelne netrumfove diry)
+                             GetTotalHoles(false, false) <= 2))) ||
+                         (Hand.CardCount(_trump.Value) == 5 &&                    //3.  5 trumfu a nemam trumfove A+K+S
+                          !(Hand.HasA(_trump.Value) &&
+                            Hand.HasK(_trump.Value) &&
+                            Hand.HasQ(_trump.Value)) &&
+                          ((Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 &&
+                            Hand.Count(i => i.Value >= Hodnota.Spodek) < 4) ||    //3a. mene nez 3 (resp. 4) vysoke karty celkem (plati pro aktera i protihrace)
+                           (Hand.Select(i => i.Suit).Distinct().Count() < 4 &&    //3b. nebo nevidim do nejake barvy a zaroven mam 4 a vice netrumfovych der
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => b != _trump.Value)
+                                .Count(b => !Hand.HasA(b) &&
+                                            Hand.Count(i => i.Suit == b &
+                                                            i.Value >= Hodnota.Svrsek) <
+                                            Hand.Count(i => i.Suit == b &&
+                                                            i.Value <= Hodnota.Spodek)) > 1)));
+
+            return result;
         }
 
         public bool IsDurchCertain()
