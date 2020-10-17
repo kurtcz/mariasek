@@ -143,6 +143,7 @@ namespace Mariasek.Cli
                     HundredValue = Settings.HundredValue,
                     BetlValue = Settings.BetlValue,
                     DurchValue = Settings.DurchValue,
+                    FirstMinMaxRound = Settings.FirstMinMaxRound,
                     AllowAXTalon = Settings.AllowAXTalon,
                     AllowTrumpTalon = Settings.AllowTrumpTalon,
                     AllowAIAutoFinish = Settings.AllowAIAutoFinish,
@@ -402,6 +403,7 @@ namespace Mariasek.Cli
             //          _performance.Text = string.Format("Výkon simulace: {0} her/s",
             //              Settings.GameTypeSimulationsPerSecond > 0 ? Settings.GameTypeSimulationsPerSecond.ToString() : "?");
         }
+
         private static void PopulateAiConfig()
         {
             //TODO: Nastavit prahy podle uspesnosti v predchozich zapasech
@@ -504,6 +506,11 @@ namespace Mariasek.Cli
                 Name = "SafetyBetlThreshold",
                 Value = Settings.SafetyBetlThreshold.ToString(CultureInfo.InvariantCulture)
             });
+            _aiConfig.Add("SafetyHundredThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "SafetyHundredThreshold",
+                Value = Settings.SafetyHundredThreshold.ToString(CultureInfo.InvariantCulture)
+            });
             _aiConfig.Add("AiMayGiveUp", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "AiMayGiveUp",
@@ -523,6 +530,11 @@ namespace Mariasek.Cli
             {
                 Name = "RiskFactor",
                 Value = Settings.RiskFactor.ToString(CultureInfo.InvariantCulture)
+            });
+            _aiConfig.Add("RiskFactorSevenDefense", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            {
+                Name = "RiskFactorSevenDefense",
+                Value = Settings.RiskFactorSevenDefense.ToString(CultureInfo.InvariantCulture)
             });
             _aiConfig.Add("SolitaryXThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {

@@ -87,10 +87,12 @@
     </BidThresholdSettings>
   </Thresholds>
   <RiskFactor>0.28</RiskFactor>
+  <RiskFactorSevenDefense>0.5</RiskFactorSevenDefense>
   <SolitaryXThreshold>0.13</SolitaryXThreshold>
   <SolitaryXThresholdDefense>0.5</SolitaryXThresholdDefense>
+  <SafetyHundredThreshold>80</SafetyHundredThreshold>
   <SafetyBetlThreshold>24</SafetyBetlThreshold>
-  <RoundFinishedWaitTimeMs>1000</RoundFinishedWaitTimeMs>
+    <RoundFinishedWaitTimeMs>1000</RoundFinishedWaitTimeMs>
   <AutoFinishRounds>true</AutoFinishRounds>
   <AutoFinish>true</AutoFinish>
   <MinimalBidsForGame>1</MinimalBidsForGame>

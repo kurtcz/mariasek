@@ -627,6 +627,7 @@ namespace Mariasek.Engine.New
                                     .OrderBy(i => i.Suit)
                                     .Take(2));
             }
+
             //nakonec cokoli co je podle pravidel
             talon.AddRange(hand.Where(i => !(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
                                              i.Suit == trumpCard.Suit) &&
@@ -634,6 +635,8 @@ namespace Mariasek.Engine.New
                                .OrderByDescending(i => i.Suit == trumpCard.Suit
                                                        ? -1 : (int)trumpCard.Suit)//nejdriv zkus jine nez trumfy
                                .ThenBy(i => i.Value));                            //vybirej od nejmensich karet
+
+            talon = talon.Distinct().ToList();
 
             //pokud to vypada na sedmu se 4 kartama, tak se snaz mit vsechny barvy na ruce
             if(hand.Has7(trumpCard.Suit) &&
@@ -649,7 +652,6 @@ namespace Mariasek.Engine.New
                 var reducedTalon = talon.Where(i => topCardPerSuit[i.Suit].SuitCount > 2 ||
                                                     (topCardPerSuit[i.Suit].SuitCount == 2 &&
                                                      topCardPerSuit[i.Suit].TopCard == i))
-                                        .Distinct()
                                         .ToList();
                 //pouze pokud mi po odebrani v talonu zustane dost karet
                 if (reducedTalon.Count() >= 2)
@@ -657,12 +659,47 @@ namespace Mariasek.Engine.New
                     talon = reducedTalon;
                 }
             }
-            if(talon.Count < 2)
+            //dej trumf do talonu pokud bys jinak prisel o hlas
+            if (_g.AllowTrumpTalon &&
+                hand.CardCount(trumpCard.Suit) >= 6 &&
+                talon.Count > 2 &&                
+                talon.Count(i => i.Suit != trumpCard.Suit &&
+                                 (i.Value < Hodnota.Svrsek ||
+                                  i.Value > Hodnota.Kral ||
+                                  (i.Value == Hodnota.Kral &&
+                                   !hand.HasQ(i.Suit)) ||
+                                  (i.Value == Hodnota.Svrsek &&
+                                   !hand.HasK(i.Suit)))) <= 1)
+            {
+                //vezmi nizke karty nebo K, S od netrumfove barvy pokud v barve nemam hlasku
+                talon = talon.Where(i => i.Value < Hodnota.Svrsek ||
+                                         (i.Suit != trumpCard.Suit &&
+                                          (i.Value > Hodnota.Kral ||
+                                           (i.Value == Hodnota.Kral &&
+                                            !hand.HasQ(i.Suit)) ||
+                                           (i.Value == Hodnota.Svrsek &&
+                                            !hand.HasK(i.Suit)))))
+                             .OrderBy(i => i.Suit == trumpCard.Suit
+                                            ? 1 : 0)
+                             .ThenBy(i => i.Value)
+                             .ToList();
+                //pokud mam trumfovou sedmu, tak dam do talonu druhy nejnizsi trumf
+                if (talon.Has7(trumpCard.Suit) &&
+                    talon.CardCount(trumpCard.Suit) > 1)
+                {
+                    talon = talon.Where(i => i.Suit != trumpCard.Suit ||
+                                             i.Value != Hodnota.Sedma)
+                                 .OrderBy(i => i.Value)
+                                 .ToList();
+                }
+            }
+            if (talon.Count < 2)
             {
                 var talonstr = string.Join(",", talon);
                 throw new InvalidOperationException(string.Format("Badly generated talon for player{0}\nTalon:\n{1}\nHand:\n{2}", PlayerIndex + 1, talonstr, new Hand(hand)));
             }
-            talon = talon.Distinct().Take(2).ToList();
+
+            talon = talon.Take(2).ToList();
 
 			if (talon == null || talon.Count != 2 || talon.Contains(trumpCard))
 			{
@@ -2112,9 +2149,8 @@ namespace Mariasek.Engine.New
                            !(Hand.HasA(_trump.Value) &&                          //    (vyjma pripadu kdy mam trumfove eso a max. 2 neodstranitelne netrumfove diry)
                              GetTotalHoles(false, false) <= 2))) ||
                          (Hand.CardCount(_trump.Value) == 5 &&                    //3.  5 trumfu a nemam trumfove A+K+S
-                          !(Hand.HasA(_trump.Value) &&
-                            Hand.HasK(_trump.Value) &&
-                            Hand.HasQ(_trump.Value)) &&
+                          Hand.Count(i => i.Suit == _trump.Value &&
+                                          i.Value >= Hodnota.Svrsek) < 3 &&
                           ((Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 &&
                             Hand.Count(i => i.Value >= Hodnota.Spodek) < 4) ||    //3a. mene nez 3 (resp. 4) vysoke karty celkem (plati pro aktera i protihrace)
                            (Hand.Select(i => i.Suit).Distinct().Count() < 4 &&    //3b. nebo nevidim do nejake barvy a zaroven mam 4 a vice netrumfovych der
