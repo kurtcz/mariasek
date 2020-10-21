@@ -1275,7 +1275,8 @@ namespace Mariasek.Engine.New
                                                                                                _probabilities.CardProbability(player3, new Card(_trump, h)) > _epsilon).ToList();
                         var topTrumps = ValidCards(hands[MyIndex]).Count(i => i.Suit == _trump && holes.All(h => h < i.Value));
                         if (holes.Count > 0 &&
-                            topTrumps > 0 &&
+                            (topTrumps > 0 ||
+                             hands[MyIndex].CardCount(_trump) >= 6) &&
                             (topTrumps >= holes.Count ||
                              (hands[MyIndex].CardCount(_trump) >= holes.Count &&
                               Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -1516,11 +1517,18 @@ namespace Mariasek.Engine.New
                                                                                 (i.Value == Hodnota.Desitka &&
                                                                                  _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0 &&
                                                                                  _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0)))
-                                                                    .OrderByDescending(i => hands[MyIndex].CardCount(i.Suit))
-                                                                    .ThenByDescending(i => i.Value)
-                                                                    .Take(1)
                                                                     .ToList();
-                        return cardsToPlay.FirstOrDefault();
+
+                        if (hands[MyIndex].CardCount(_trump) >= 6 ||
+                            (hands[MyIndex].CardCount(_trump) >= 5 &&
+                             Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => hands[MyIndex].HasSuit(b)) == 2))
+                        {
+                            return null;
+                        }
+
+                        return cardsToPlay.OrderByDescending(i => hands[MyIndex].CardCount(i.Suit))
+                                          .ThenByDescending(i => i.Value)
+                                          .FirstOrDefault();
                     }
                     else if (TeamMateIndex == player2 &&
                              (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
