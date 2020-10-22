@@ -654,7 +654,7 @@ namespace Mariasek.Engine.New
                                                      topCardPerSuit[i.Suit].TopCard == i))
                                         .ToList();
                 //pouze pokud mi po odebrani v talonu zustane dost karet
-                if (reducedTalon.Count() >= 2)
+                if (reducedTalon.Count >= 2)
                 {
                     talon = reducedTalon;
                 }
@@ -672,25 +672,29 @@ namespace Mariasek.Engine.New
                                    !hand.HasK(i.Suit)))) <= 1)
             {
                 //vezmi nizke karty nebo K, S od netrumfove barvy pokud v barve nemam hlasku
-                talon = talon.Where(i => i.Value < Hodnota.Svrsek ||
-                                         (i.Suit != trumpCard.Suit &&
-                                          (i.Value > Hodnota.Kral ||
-                                           (i.Value == Hodnota.Kral &&
-                                            !hand.HasQ(i.Suit)) ||
-                                           (i.Value == Hodnota.Svrsek &&
-                                            !hand.HasK(i.Suit)))))
-                             .OrderBy(i => i.Suit == trumpCard.Suit
-                                            ? 1 : 0)
-                             .ThenBy(i => i.Value)
-                             .ToList();
+                var trumpTalon = talon.Where(i => i.Value < Hodnota.Svrsek ||
+                                                  (i.Suit != trumpCard.Suit &&
+                                                   (i.Value > Hodnota.Kral ||
+                                                    (i.Value == Hodnota.Kral &&
+                                                     !hand.HasQ(i.Suit)) ||
+                                                    (i.Value == Hodnota.Svrsek &&
+                                                     !hand.HasK(i.Suit)))))
+                                      .OrderBy(i => i.Suit == trumpCard.Suit
+                                                     ? 1 : 0)
+                                      .ThenBy(i => i.Value)
+                                      .ToList();
                 //pokud mam trumfovou sedmu, tak dam do talonu druhy nejnizsi trumf
                 if (talon.Has7(trumpCard.Suit) &&
                     talon.CardCount(trumpCard.Suit) > 1)
                 {
-                    talon = talon.Where(i => i.Suit != trumpCard.Suit ||
-                                             i.Value != Hodnota.Sedma)
-                                 .OrderBy(i => i.Value)
-                                 .ToList();
+                    trumpTalon = trumpTalon.Where(i => i.Suit != trumpCard.Suit ||
+                                                       i.Value != Hodnota.Sedma)
+                                           .OrderBy(i => i.Value)
+                                           .ToList();
+                }
+                if (trumpTalon.Count >= 2)
+                {
+                    talon = trumpTalon;
                 }
             }
             if (talon.Count < 2)
