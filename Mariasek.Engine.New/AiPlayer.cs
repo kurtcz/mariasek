@@ -4370,6 +4370,7 @@ namespace Mariasek.Engine.New
             int playerIndex;
             int teamMateIndex;
             string playerName;
+            var simRounds = new Round[Game.NumRounds];
 
             Check(hands);
             result.Trump = trump;
@@ -4438,7 +4439,7 @@ namespace Mariasek.Engine.New
             }
             prob.UseDebugString = false;    //otherwise we are being really slooow
             var teamMatesSuits = new List<Barva>(_teamMatesSuits);
-            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.rounds, teamMatesSuits,
+            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds, teamMatesSuits,
                 prob, playerName, playerIndex, teamMateIndex, initialRoundNumber,
                 Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense);
             
@@ -4513,6 +4514,11 @@ namespace Mariasek.Engine.New
                     r3 = r3 != null ? r3.Description : null,
                     RoundWinnerIndex = roundWinnerIndex
                 });
+                if (_g.RoundNumber == 0)
+                {
+                    simRounds[aiStrategy.RoundNumber - 1] = new Round(_g.players, trump, roundStarterIndex, c1, c2, c3, aiStrategy.RoundNumber);
+                }
+
                 _log.TraceFormat("Simulation round {2} won by {0}. Points won: {1}", _g.players[roundWinnerIndex].Name, roundScore, aiStrategy.RoundNumber);
                 if (firstTime)
                 {

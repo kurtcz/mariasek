@@ -63,6 +63,33 @@ namespace Mariasek.Engine.New
         {            
         }
 
+        public Round(AbstractPlayer[] players, Barva? trump, int roundStarterIndex, Card c1, Card c2, Card c3, int roundNumber)
+        {
+            this.player1 = players[roundStarterIndex];
+            this.player2 = players[(roundStarterIndex + 1) % Game.NumPlayers];
+            this.player3 = players[(roundStarterIndex + 2) % Game.NumPlayers];
+
+            this.c1 = c1;
+            this.c2 = c2;
+            this.c3 = c3;
+            number = roundNumber;
+
+            if (trump.HasValue && hlas1)
+            {
+                hlasPoints1 += c1.Suit == trump ? 40 : 20;
+            }
+            if (trump.HasValue && hlas2)
+            {
+                hlasPoints2 += c2.Suit == trump ? 40 : 20;
+            }
+            if (trump.HasValue && hlas3)
+            {
+                hlasPoints3 += c3.Suit == trump ? 40 : 20;
+            }
+
+            CalculateRoundScore(trump);
+        }
+
         public Round(Game g, AbstractPlayer roundStarter, Card c1, Card c2, Card c3, int roundNumber, bool hlas1, bool hlas2, bool hlas3) : this(g, roundStarter)
         {
             this.c1 = c1;
@@ -234,9 +261,11 @@ namespace Mariasek.Engine.New
             return roundWinner;
         }
 
-        private void CalculateRoundScore()
+        private void CalculateRoundScore(Barva? trump = null)
         {
-            var winningCard = Round.WinningCard(c1, c2, c3, _g.trump);
+            trump = trump ?? _g?.trump;
+
+            var winningCard = Round.WinningCard(c1, c2, c3, trump);
 
             if (winningCard == c1)
             {
@@ -258,7 +287,7 @@ namespace Mariasek.Engine.New
             basicPoints2 = points2;
             basicPoints3 = points3;
 
-            if (_g.trump.HasValue)
+            if (trump.HasValue)
             {
                 points1 += hlasPoints1;
                 points2 += hlasPoints2;
