@@ -318,8 +318,8 @@ namespace Mariasek.SharedClient
 			};
             _locales = new[]
             {
-                new Tuple<string, int, int>("cs-CZ", 0, 4),
-                new Tuple<string, int, int>("sk-SK", 5, 9)
+                new Tuple<string, int, int>("cs-CZ", 0, 6),
+                new Tuple<string, int, int>("sk-SK", 7, 13)
             };
             var startIndex = _locales.First(i => i.Item1 == Game.Settings.Locale).Item2;
 			_baseBetSelector.SelectedIndex = _baseBetSelector.Items.FindIndex(startIndex, i => (i.Value as float?) == Game.Settings.BaseBet);
