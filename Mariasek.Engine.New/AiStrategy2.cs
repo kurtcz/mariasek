@@ -652,23 +652,18 @@ namespace Mariasek.Engine.New
                     if (TeamMateIndex == -1)
                     {
                         //c--
-                        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > _epsilon ||
-                                                                                               _probabilities.CardProbability(player3, new Card(_trump, h)) > _epsilon).ToList();
-                        var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
-                        var lowCards = hands[MyIndex].Where(i => i.Suit != _trump &&
-                                                                 Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                     .Any(h => i.Value < h &&
-                                                                               (_probabilities.CardProbability(player2, new Card(i.Suit, h)) > _epsilon ||
-                                                                                _probabilities.CardProbability(player3, new Card(i.Suit, h)) > _epsilon)));
-
-                        //if ((_gameType & Hra.Sedma) != 0 &&
-                        //    Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                        //        .Where(b => b != _trump)
-                        //        .Any(b => myInitialHand.CardCount(b) >= 4) &&
-                        //    (hands[MyIndex].CardCount(_trump) - holes.Count <= 1))
-                        //{
-                        //    return null;
-                        //}
+                        //pokud se hraje sedma proti a mam dlouhou netrumfovou barvu
+                        //a vsechny cizi trumfy ma souper, tak pravidlo nehraj
+                        //hrozi, ze bych na konci nemel dost trumfu
+                        if ((_gameType & Hra.SedmaProti) != 0 &&
+                            _hands[MyIndex].Has7(_trump) &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                         .Where(b => b != _trump)
+                                                         .Any(b => myInitialHand.CardCount(b) >= 4 &&
+                                                                   _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0))
+                        {
+                            return null;
+                        }
                         if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump)
                                 .Any(b => hands[MyIndex].HasSuit(b) &&
@@ -681,6 +676,15 @@ namespace Mariasek.Engine.New
                         {
                             return null;
                         }
+                        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > _epsilon ||
+                                                                                               _probabilities.CardProbability(player3, new Card(_trump, h)) > _epsilon).ToList();
+                        var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
+                        var lowCards = hands[MyIndex].Where(i => i.Suit != _trump &&
+                                                                 Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                     .Any(h => i.Value < h &&
+                                                                               (_probabilities.CardProbability(player2, new Card(i.Suit, h)) > _epsilon ||
+                                                                                _probabilities.CardProbability(player3, new Card(i.Suit, h)) > _epsilon)));
+
                         if (holes.Count > 0 &&
                             topTrumps.Count > 0 &&
                             (((topTrumps.Count >= holes.Count ||

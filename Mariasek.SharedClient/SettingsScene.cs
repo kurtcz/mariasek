@@ -313,8 +313,8 @@ namespace Mariasek.SharedClient
 				Position = new Vector2(Game.VirtualScreenWidth - 300, 370),
 				Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "0,10 Kč", 0.1f}, { "0,20 Kč", 0.2f}, { "0,50 Kč", 0.5f }, { "1 Kč", 1f }, { "2 Kč", 2f},
-                                              { "0,01 €", 0.01f}, { "0,02 €", 0.02f}, { "0,05 €", 0.05f}, { "0,10 €", 0.1f}, { "0,20 €", 0.2f} }
+                Items = new SelectorItems() { { "0,10 Kč", 0.1f}, { "0,20 Kč", 0.2f}, { "0,50 Kč", 0.5f }, { "1 Kč", 1f }, { "2 Kč", 2f}, { "5 Kč", 5f}, { "10 Kč", 10f},
+                                              { "0,01 €", 0.01f}, { "0,02 €", 0.02f}, { "0,05 €", 0.05f}, { "0,10 €", 0.1f}, { "0,20 €", 0.2f}, { "0,50 €", 0.5f}, { "1 €", 1f} }
 			};
             _locales = new[]
             {
