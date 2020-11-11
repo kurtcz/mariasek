@@ -50,12 +50,14 @@ namespace Mariasek.AndroidClient
             System.Diagnostics.Debug.WriteLine("OnCreate()");
             sw.Start();
 
-            //handle unobserver task exceptions
+            //handle unobserved task exceptions
             TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
             //handle unhandled exceptions from the UI thread
             AndroidEnvironment.UnhandledExceptionRaiser += OnUnhandledExceptionRaiser;
             //handle unhandled exceptions from background threads
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+            //handle unhandled Java thread exceptions
+            Java.Lang.Thread.DefaultUncaughtExceptionHandler = new UncaughtExceptionEventHandler(this);
             try
             {
                 base.OnCreate(bundle);
@@ -250,7 +252,7 @@ namespace Mariasek.AndroidClient
             HandleException(e.Exception);
         }
 
-        private void HandleException(Exception ex)
+        public void HandleException(Exception ex)
         {
             try
             {
@@ -404,6 +406,21 @@ namespace Mariasek.AndroidClient
                 }
             }
             return insets;
+        }
+    }
+
+    public class UncaughtExceptionEventHandler : Java.Lang.Object, Java.Lang.Thread.IUncaughtExceptionHandler
+    {
+        private MariasekActivity _activity;
+
+        public UncaughtExceptionEventHandler(MariasekActivity activity)
+        {
+            _activity = activity;
+        }
+
+        public void UncaughtException(Java.Lang.Thread t, Java.Lang.Throwable e)
+        {
+            _activity.HandleException(e);
         }
     }
 }
