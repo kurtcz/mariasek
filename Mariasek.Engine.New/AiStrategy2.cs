@@ -2563,7 +2563,8 @@ namespace Mariasek.Engine.New
                 ChooseCard1 = () =>
                 {
                     var opponent = TeamMateIndex == player2 ? player3 : player2;
-                    var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump && 
+                    var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                            i.Value < Hodnota.Desitka &&
                                                                             !_bannedSuits.Contains(i.Suit) &&
                                                                             (TeamMateIndex == -1 ||
                                                                              (_probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Eso)) <= _epsilon &&
@@ -2576,7 +2577,13 @@ namespace Mariasek.Engine.New
                     if (!cardsToPlay.Any())
                     {
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                            i.Value < Hodnota.Desitka &&
                                                                             !_bannedSuits.Contains(i.Suit)).ToList();
+                    }
+                    if (!cardsToPlay.Any())
+                    {
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                            i.Value < Hodnota.Desitka).ToList();
                     }
                     if (!cardsToPlay.Any())
                     {

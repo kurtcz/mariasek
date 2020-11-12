@@ -2956,8 +2956,14 @@ namespace Mariasek.Engine.New
                      (Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
                       (Hand.HasX(_g.trump.Value) ||            //a desitku nebo
                        Hand.CardCount(_g.trump.Value) >= 3) && //aspon 3 trumfy
-                      estimatedFinalBasicScore >= 60 &&        //a aspon 60 bodu na ruce
+                      estimatedFinalBasicScore >= 60 &&        //a aspon 60 bodu na ruce v desitkach
                       kqMaxOpponentScore <= 80) ||             //a trham aspon jeden hlas
+                     (Hand.CardCount(_g.trump.Value) >= 3 &&    //nebo mam aspon 3 trumfy vcetne A,X
+                      Hand.HasA(_g.trump.Value) &&
+                      Hand.HasX(_g.trump.Value) &&
+                      estimatedFinalBasicScore >= 40 &&         //a aspon 60 bodu, z toho aspon 40 v desitkach
+                      estimatedFinalBasicScore + kqScore >= 60 &&
+                      !Is100AgainstPossible(120)) ||
                      (Hand.CardCount(_g.trump.Value) >= 4 &&   //nebo mam aspon 4 trumfy
                       (Hand.HasA(_g.trump.Value) ||
                        Hand.HasX(_g.trump.Value) ||
