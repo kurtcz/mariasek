@@ -703,6 +703,28 @@ namespace Mariasek.Engine.New
                 throw new InvalidOperationException(string.Format("Badly generated talon for player{0}\nTalon:\n{1}\nHand:\n{2}", PlayerIndex + 1, talonstr, new Hand(hand)));
             }
 
+            //pokud bych vybral do talonu barvu kde mam X ale ne A, tak vybirej tyto barvy odspodu
+            var cardsToRemove = talon.Take(2)
+                                     .Where(i => i.Suit != _trumpCard.Suit &&
+                                                 hand.HasX(i.Suit) &&
+                                                 !hand.HasA(i.Suit) &&
+                                                 !hand.HasK(i.Suit) &&
+                                                 talon.Count(j => j.Suit == i.Suit &&
+                                                                  j.Value < Hodnota.Desitka) >= 2)
+                                    .ToList();
+
+            if (cardsToRemove.Any())
+            {
+                var replacementCards = new List<Card>();
+                foreach(var cardToRemove in cardsToRemove)
+                {
+                    replacementCards.AddRange(hand.Where(i => cardToRemove.Suit == i.Suit)                                           
+                                                  .OrderBy(i => i.Value)
+                                                  .Take(2));
+                }
+                replacementCards = replacementCards.Distinct().ToList();
+                talon = replacementCards.Concat(talon).Distinct().ToList();
+            }
             talon = talon.Take(2).ToList();
 
 			if (talon == null || talon.Count != 2 || talon.Contains(trumpCard))
