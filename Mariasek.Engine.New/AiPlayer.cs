@@ -2900,13 +2900,18 @@ namespace Mariasek.Engine.New
                      Hand.HasQ(_g.trump.Value) ||
                      kqScore >= 40) &&
                     ((kqScore >= 20 &&
+                      estimatedFinalBasicScore >= 40 &&
+                      !Is100AgainstPossible()) ||
+                     (kqScore >= 40 &&
+                      estimatedFinalBasicScore >= 30 &&
                       !Is100AgainstPossible()) ||
                      estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqMaxOpponentScore ||
                      (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + 10 &&
                       !Is100AgainstPossible(110)))) ||
                    (kqScore >= 20 &&                            //davam si re kdyz mam aspon jeden hlas
                     Hand.CardCount(_trump.Value) >= 4 &&        //4 trumfy 
-                    totalHoles <= 4) ||                         //a max 4 diry (tj. jinak same vysoke karty), netreba trhat trumfovou hlasku
+                    totalHoles <= 4 &&                          //a max 4 diry (tj. jinak same vysoke karty), netreba trhat trumfovou hlasku
+                    estimatedFinalBasicScore >= 40) || 
                    (estimatedFinalBasicScore > 60 &&            //pokud si davam re a nethram, musim mit velkou jistotu
                     !Is100AgainstPossible(110)) ||              //ze uhraju vic bodu i bez trhaka a ze souper neuhraje kilo (110 - kilo jeste risknu)
                    (estimatedFinalBasicScore >= 60 &&           //pokud mam dost trumfu, bude kriterium mekci
@@ -2937,6 +2942,10 @@ namespace Mariasek.Engine.New
                       (Hand.HasK(_g.trump.Value) ||              //a aspon 50 bodu
                        Hand.HasQ(_g.trump.Value) &&
                       estimatedFinalBasicScore >= 50)) ||
+                     (Hand.HasA(_g.trump.Value) &&
+                      Hand.HasK(_g.trump.Value) &&
+                      Hand.HasQ(_g.trump.Value) &&
+                      estimatedFinalBasicScore + kqScore >= 60) ||
                      (Hand.CardCount(_g.trump.Value) >= 4 &&    //nebo mam aspon 4 trumfy
                       DebugInfo.Tygrovo >= 20))) ||             //a k tomu silne karty
                    (bidding.GameMultiplier < 2 &&               //Flek:
@@ -2946,6 +2955,9 @@ namespace Mariasek.Engine.New
                       (estimatedFinalBasicScore >= 20 ||        //a aspon 20 nebo 10+20 bodu na ruce
                        (estimatedFinalBasicScore >= 10 && //20 by bylo bezpecnejsi (neni 10 moc malo?)
                         kqScore >= 20))) ||                     //nebo
+                     (kqMaxOpponentScore == 0 ||                //vidim do vsech hlasek
+                      (estimatedFinalBasicScore >= 10 &&        //nebo vidim do tri hlasek a mam aspon 10 bodu
+                       kqMaxOpponentScore <= 20)) ||            //nebo
                      ((Hand.HasK(_g.trump.Value) ||             //pouze trhak a 40 bodu v hlasech na ruce
                        Hand.HasQ(_g.trump.Value)) &&
                         kqScore >= 40) ||                       //nebo
@@ -3052,8 +3064,10 @@ namespace Mariasek.Engine.New
                        estimatedFinalBasicScore >= 40) ||
                       (estimatedFinalBasicScore >= 50 &&
                        kqScore >= 20))) ||
-                    (_teamMateDoubledGame &&
-                     kqScore >= 40)) ||
+                   (_teamMateDoubledGame &&
+                    Hand.CardCount(_trump.Value) >= 3 &&
+                    estimatedFinalBasicScore >= 40 &&
+                    kqScore >= 40)) ||
                  (TeamMateIndex == -1 && totalHoles <= 2)) &&
                 (_sevensBalance / (float)_sevenSimulations >= sevenThreshold))
             {

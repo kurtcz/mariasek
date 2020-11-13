@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -287,15 +288,17 @@ namespace Mariasek.Engine.New
                 bidNumber < Game.NumPlayers && 
                 _g.players[playerIndex].TeamMateIndex != -1)
             {
-                if (_g.players[playerIndex].Hand.Has7(_g.trump.Value))
+                var hand = new List<Card>(_g.players[playerIndex].Hand);
+
+                if (hand.Has7(_g.trump.Value))
                 {
                     Bids |= Hra.SedmaProti;
                 }
 				if ((_g.GameType & Hra.Kilo) == 0 &&    //pri kilu nejde hlasit kilo proti
 					(!_g.AutoDisable100Against ||
                      Enum.GetValues(typeof(Barva)).Cast<Barva>()   //aby neslo omylem hlasit kilo proti bez hlasky
-                         .Any(b => _g.players[playerIndex].Hand.HasK(b) &&
-                                   _g.players[playerIndex].Hand.HasQ(b))) &&
+                         .Any(b => hand.HasK(b) &&
+                                   hand.HasQ(b))) &&
                     (_g.players[playerIndex].TeamMateIndex == (playerIndex + 1) % Game.NumPlayers ||
                      (PlayerBids[_g.players[playerIndex].TeamMateIndex] & Hra.KiloProti) == 0))
                 {

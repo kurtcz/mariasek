@@ -1314,6 +1314,11 @@ namespace Mariasek.SharedClient
             var selector = sender as LeftRightSelector;
 
             Game.Settings.CalculationStyle = (CalculationStyle)selector.SelectedValue;
+            if (Game.Settings.Default.HasValue &&
+                Game.Settings.Default.Value)
+            {
+                Game.Settings.ResetThresholds();
+            }
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
