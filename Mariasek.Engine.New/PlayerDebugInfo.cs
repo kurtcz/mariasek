@@ -13,10 +13,11 @@ namespace Mariasek.Engine.New
         public int EstimatedFinalBasicScore2 { get; set; }
         public int Tygrovo { get; set; }
         public int Strong { get; set; }
-        public int MaxEstimatedLoss { get; set; }
+        public int MaxSimulatedLoss { get; set; }
+        public int MaxEstimatedPointsLost { get; set; }
         public int MaxSimulatedHundredLoss { get; set; }
         public int TotalHoles { get; set; }
-        public bool HunderTooRisky { get; set; }
+        public bool HundredTooRisky { get; set; }
 
         public PlayerDebugInfo()
         {

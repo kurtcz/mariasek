@@ -33,6 +33,7 @@ namespace Mariasek.Engine.New
         private bool _hundredOverBetl;
         private bool _hundredOverDurch;
         private int _minWinForHundred;
+        private int _maxMoneyLost;
         private int _gamesBalance;
         private int _hundredsBalance;
         private int _hundredsAgainstBalance;
@@ -519,9 +520,10 @@ namespace Mariasek.Engine.New
                                                            j.Value != Hodnota.Eso) <= 2 &&
                                            !hand.HasX(i.Suit) &&                   //v barve kde neznam X ani nemam hlas
                                            !(hand.HasK(i.Suit) && hand.HasQ(i.Suit)))
-                               .OrderBy(i => hand.Count(j => j.Suit == i.Suit))    //vybirej od nejkratsich barev
+                               .OrderBy(i => hand.CardCount(i.Suit))    //vybirej od nejkratsich barev
                                .ThenBy(i => hand.Count(j => j.Suit == i.Suit &&    //v pripade stejne delky barev
-                                            j.Value == Hodnota.Eso)));             //dej prednost barve s esem
+                                                            j.Value == Hodnota.Eso))             //dej prednost barve s esem
+                               .ThenBy(i=> i.Suit));
 
             //potom zkus vzit plivy od barvy kde mam A + X + plivu
             talon.AddRange(hand.Where(i => i.Suit != trumpCard.Suit &&
@@ -530,7 +532,7 @@ namespace Mariasek.Engine.New
                                            hand.HasA(i.Suit) &&
                                            hand.HasX(i.Suit) &&
                                            hand.CardCount(i.Suit) == 3)
-                               .OrderBy(i => hand.Count(j => j.Suit == i.Suit))
+                               .OrderBy(i => hand.CardCount(i.Suit))
                                .ThenByDescending(i => i.BadValue));  //vybirej od nejkratsich barev
 
             //potom zkus vzit karty v barve kde krom esa mam 3 plivy (a nemam hlasku)
@@ -538,7 +540,7 @@ namespace Mariasek.Engine.New
                                            !hand.HasA(i.Suit) &&                   //v barve kde neznam A, X ani nemam hlas
                                            !hand.HasX(i.Suit) &&
                                            !(hand.HasK(i.Suit) && hand.HasQ(i.Suit)))
-                               .OrderBy(i => hand.Count(j => j.Suit == i.Suit))
+                               .OrderBy(i => hand.CardCount(i.Suit))
                                .ThenByDescending(i => i.BadValue));  //vybirej od nejkratsich barev
 
             //pokud mas X + 2 plivy, tak vezmi tu mensi
@@ -1549,6 +1551,9 @@ namespace Mariasek.Engine.New
             _maxBasicPointsLost = moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0)
                                                    .DefaultIfEmpty()
                                                    .Max(i => (float)(i?.BasicPointsLost ?? 0));
+            _maxMoneyLost = moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0)
+                                             .DefaultIfEmpty()
+                                             .Min(i => i?.MoneyWon?[PlayerIndex] ?? 0);
             _hundredOverBetl = _avgWinForHundred >= 2 * _g.BetlValue;
             _hundredOverDurch = _avgWinForHundred >= 2 * _g.DurchValue;
             _gamesBalance = PlayerIndex == gameStartingPlayerIndex
@@ -1656,6 +1661,7 @@ namespace Mariasek.Engine.New
             });
             DebugInfo.AllChoices = allChoices.ToArray();
             DebugInfo.MaxSimulatedHundredLoss = _minWinForHundred;
+            DebugInfo.MaxSimulatedLoss = _maxMoneyLost;
             //DebugInfo.TotalRuleCount = Settings.SimulationsPerGameType;
             gameComputationResults = null;
             moneyCalculations = null;
@@ -2153,7 +2159,7 @@ namespace Mariasek.Engine.New
             var estimatedBasicPointsLost = 90 - EstimateFinalBasicScore(hand);
             var estimatedPointsLost = estimatedBasicPointsLost + estimatedKQPointsLost;
 
-            DebugInfo.MaxEstimatedLoss = estimatedPointsLost;
+            DebugInfo.MaxEstimatedPointsLost = estimatedPointsLost;
             _debugString.AppendFormat("MaxEstimatedLoss: {0} pts\n", estimatedPointsLost);
 
             return estimatedPointsLost;
@@ -2246,17 +2252,17 @@ namespace Mariasek.Engine.New
             if (Settings.SafetyHundredThreshold > 0 &&
                 _minWinForHundred <= -Settings.SafetyHundredThreshold)
             {
-                DebugInfo.HunderTooRisky = true;
+                DebugInfo.HundredTooRisky = true;
                 return true;
             }
             if (axCount >= 6)
 			{
-                DebugInfo.HunderTooRisky = false;
+                DebugInfo.HundredTooRisky = false;
 				return false;
 			}
             if (Hand.CardCount(_trump.Value) <= 3)
             {
-                DebugInfo.HunderTooRisky = true;
+                DebugInfo.HundredTooRisky = true;
                 return true;
             }
             //if (!((Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value)) || //abych nehral kilo pokud aspon netrham a nemam aspon 2 hlasky
@@ -2276,14 +2282,14 @@ namespace Mariasek.Engine.New
                                  Hand.HasK(b))) &&
 				 Hand.CardCount(_trump.Value) == 4))
 			{
-                DebugInfo.HunderTooRisky = true;
+                DebugInfo.HundredTooRisky = true;
                 return true;
 			}
 			if (Hand.Count(i => i.Suit == _trump.Value && i.Value >= Hodnota.Spodek) < 3 &&
                 (!Hand.HasA(_trump.Value) ||
                  !Hand.HasX(_trump.Value)))
 			{
-                DebugInfo.HunderTooRisky = true;
+                DebugInfo.HundredTooRisky = true;
                 return true;
 			}
             //Pokud nevidis do trumfoveho hlasu a mas malo trumfu, tak kilo nehraj
@@ -2291,7 +2297,7 @@ namespace Mariasek.Engine.New
                 !Hand.HasK(_trump.Value) &&
                 !Hand.HasQ(_trump.Value))
             {
-                DebugInfo.HunderTooRisky = true;
+                DebugInfo.HundredTooRisky = true;
                 return true;
             }
             //Pokud vic nez v jedne barve nemas eso nebo mas vetsi diru tak kilo nehraj. Souperi by si mohli uhrat desitky
@@ -2330,7 +2336,7 @@ namespace Mariasek.Engine.New
                                 !Hand.HasA(b) &&
                                 !Hand.HasK(b)))))
             {
-                DebugInfo.HunderTooRisky = true;
+                DebugInfo.HundredTooRisky = true;
                 return true;
             }
             //Pokud mas aspon 2 barvy bez A nebo X tak kilo nehraj. Souperi by si mohli uhrat desitky
@@ -2344,7 +2350,7 @@ namespace Mariasek.Engine.New
                                  !Hand.HasA(b) &&
                                  !Hand.HasK(b))) > 1)
             {
-                DebugInfo.HunderTooRisky = true;
+                DebugInfo.HundredTooRisky = true;
                 return true;
             }
             //Pokud ve vice nez jedne barve mas nizke karty a nemas desitku (ani ji nemuzes vytahnout) tak kilo nehraj. Souperi by si mohli uhrat desitky
@@ -2358,7 +2364,7 @@ namespace Mariasek.Engine.New
                                 Hand.CardCount(b) > 2 &&        //???
                                 Hand.CardCount(b) < 5) > 1)
             {
-                DebugInfo.HunderTooRisky = true;
+                DebugInfo.HundredTooRisky = true;
                 return true;
             }
 
@@ -2396,7 +2402,7 @@ namespace Mariasek.Engine.New
                     !(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
                       Hand.HasQ(_trump.Value)));
 
-            DebugInfo.HunderTooRisky = result;
+            DebugInfo.HundredTooRisky = result;
 
             return result;
         }

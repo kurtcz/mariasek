@@ -935,7 +935,7 @@ namespace Mariasek.Engine.New
             DebugString.AppendLine($"Talon: {talonstr}");
         }
 
-        public void PlayGame(CancellationToken cancellationToken = default(CancellationToken))
+        public void PlayGame(CancellationToken cancellationToken = default(CancellationToken), Hra? desiredGameType = null)
         {
             try
             {
@@ -953,7 +953,9 @@ namespace Mariasek.Engine.New
                 {
                     PreGameHook();
                 }
-                if (ShouldPlayGame())
+                if (ShouldPlayGame() &&
+                    (desiredGameType == null ||
+                     (GameType & desiredGameType) != 0))
                 {
                     //vlastni hra
                     var roundWinner = _roundStartingPlayer;
@@ -1932,12 +1934,13 @@ namespace Mariasek.Engine.New
             }
             if (players[playerIndex].TeamMateIndex == -1 && GameType != Hra.Durch)
             {
-                BiddingDebugInfo.AppendFormat("\nMaximální bodová ztráta: {0}", players[playerIndex].DebugInfo.MaxEstimatedLoss);
+                BiddingDebugInfo.AppendFormat("\nMaximální bodová ztráta: {0}", players[playerIndex].DebugInfo.MaxEstimatedPointsLost);
+                BiddingDebugInfo.AppendFormat("\nMaximální simulovaná prohra: {0}", players[playerIndex].DebugInfo.MaxSimulatedLoss);
                 if ((GameType & Hra.Kilo) != 0 && players[playerIndex].DebugInfo.MaxSimulatedHundredLoss < 0)
                 {
-                    BiddingDebugInfo.AppendFormat("\nMaximální simulovaná prohra: {0}", players[playerIndex].DebugInfo.MaxSimulatedHundredLoss);
+                    BiddingDebugInfo.AppendFormat("\nMaximální simulovaná prohra při kilu: {0}", players[playerIndex].DebugInfo.MaxSimulatedHundredLoss);
                 }
-                if (players[playerIndex].DebugInfo.HunderTooRisky)
+                if (players[playerIndex].DebugInfo.HundredTooRisky)
                 {
                     BiddingDebugInfo.AppendFormat("\nPříliš riskantní na kilo");
                 }

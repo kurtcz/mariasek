@@ -574,7 +574,7 @@ namespace Mariasek.Cli
             g.BidMade += BidMade;
             g.RoundFinished += RoundFinished;
             g.GameFinished += GameFinished;
-            g.PlayGame();
+            g.PlayGame(desiredGameType: desiredGameType);
 
             var origcolor = System.Console.ForegroundColor;
             System.Console.ForegroundColor = g.Results.GamePlayed
