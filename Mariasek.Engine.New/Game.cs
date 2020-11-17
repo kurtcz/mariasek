@@ -1935,11 +1935,14 @@ namespace Mariasek.Engine.New
             if (players[playerIndex].TeamMateIndex == -1 && GameType != Hra.Durch)
             {
                 BiddingDebugInfo.AppendFormat("\nMaximální bodová ztráta: {0}", players[playerIndex].DebugInfo.MaxEstimatedPointsLost);
-                BiddingDebugInfo.AppendFormat("\nMaximální simulovaná prohra: {0}", players[playerIndex].DebugInfo.MaxSimulatedLoss);
-                if ((GameType & Hra.Kilo) != 0 && players[playerIndex].DebugInfo.MaxSimulatedHundredLoss < 0)
+                if (players[playerIndex].DebugInfo.MaxSimulatedLoss < 0)
                 {
-                    BiddingDebugInfo.AppendFormat("\nMaximální simulovaná prohra při kilu: {0}", players[playerIndex].DebugInfo.MaxSimulatedHundredLoss);
+                    BiddingDebugInfo.AppendFormat("\nMaximální simulovaná prohra: {0}", players[playerIndex].DebugInfo.MaxSimulatedLoss);
                 }
+                //if ((GameType & Hra.Kilo) != 0 && players[playerIndex].DebugInfo.MaxSimulatedHundredLoss < 0)
+                //{
+                //    BiddingDebugInfo.AppendFormat("\nMaximální simulovaná prohra při kilu: {0}", players[playerIndex].DebugInfo.MaxSimulatedHundredLoss);
+                //}
                 if (players[playerIndex].DebugInfo.HundredTooRisky)
                 {
                     BiddingDebugInfo.AppendFormat("\nPříliš riskantní na kilo");

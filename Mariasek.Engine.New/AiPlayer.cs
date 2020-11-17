@@ -643,7 +643,8 @@ namespace Mariasek.Engine.New
             //pokud to vypada na sedmu se 4 kartama, tak se snaz mit vsechny barvy na ruce
             if(hand.Has7(trumpCard.Suit) &&
                hand.CardCount(trumpCard.Suit) == 4 &&
-               hand.Select(i => i.Suit).Distinct().Count() == 4)
+               hand.Select(i => i.Suit).Distinct().Count() == Game.NumSuits &&
+               hand.Count(i => !talon.Take(2).Contains(i)) < Game.NumSuits)
             {
                 var topCardPerSuit = hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                           .Where(h => h > i.Value)
