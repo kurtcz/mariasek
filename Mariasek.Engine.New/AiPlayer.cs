@@ -556,7 +556,10 @@ namespace Mariasek.Engine.New
                                        i.Suit == trumpCard.Suit) &&
                                       hand.HasX(i.Suit) &&                 //pokud mam jen X+2 plivy, viz nasl. krok
                                       !hand.HasA(i.Suit) &&
-                                      hand.CardCount(i.Suit) == 3)
+                                      hand.CardCount(i.Suit) == 3 &&
+                                      !Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                           .Where(b => b != trumpCard.Suit)
+                                           .Any(b => hand.CardCount(b) >= 5))
                          .OrderByDescending(i => i.BadValue)
                         .FirstOrDefault();
 
@@ -564,7 +567,14 @@ namespace Mariasek.Engine.New
             {
                 talon.Add(c);
             }
-
+            var lowCardsPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                      .ToDictionary(b => b, b => hand.FirstOrDefault(i => i.Suit == b &&
+                                                                                          i.Value < Hodnota.Desitka &&
+                                                                                          hand.Where(j => j.Suit == i.Suit)
+                                                                                              .All(j => j.Value >= i.Value)));
+            var lowCardCountsPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                           .ToDictionary(b => b, b => hand.Count(i => i.Suit == b &&
+                                                                                      i.Value < Hodnota.Desitka));
             //potom zkus cokoli mimo trumfu,A,X,7, hlasu a samotne plivy ktera doplnuje X
             talon.AddRange(hand.Where(i => i.Suit != trumpCard.Suit &&             //nevybirej trumfy
                                            i.Value != Hodnota.Eso &&               //ani A,X
@@ -572,7 +582,7 @@ namespace Mariasek.Engine.New
                                            !((i.Value == Hodnota.Kral ||           //ani hlasy
                                               i.Value == Hodnota.Svrsek) &&
                                              hand.HasK(i.Suit) && hand.HasQ(i.Suit)) &&
-                                           (i.Value != Hodnota.Sedma ||            //ani sedmu
+                                           (i != lowCardsPerSuit[i.Suit] ||        //ani nejnizsi kartu
                                             (hand.CardCount(i.Suit) == 3 &&        //(vyjma situace kdy mam prave X,K,7)
                                              hand.HasX(i.Suit) &&
                                              hand.HasK(i.Suit))) &&
@@ -723,7 +733,8 @@ namespace Mariasek.Engine.New
                 {
                     replacementCards.AddRange(hand.Where(i => cardToRemove.Suit == i.Suit)                                           
                                                   .OrderBy(i => i.Value)
-                                                  .Take(2));
+                                                  .Take(Math.Min(2, hand.Count(i => i.Suit == cardToRemove.Suit &&
+                                                                                    i.Value < Hodnota.Desitka) - 1)));
                 }
                 replacementCards = replacementCards.Distinct().ToList();
                 talon = replacementCards.Concat(talon).Distinct().ToList();

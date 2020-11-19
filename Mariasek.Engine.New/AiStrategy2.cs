@@ -2859,6 +2859,7 @@ namespace Mariasek.Engine.New
                                                                                         c1.IsLowerThan(i, _trump) &&          //moje karta prebiji prvni kartu
                                                                                         i.Suit == _trump &&                  //a pokud moje X je trumfova
                                                                                         !hands[MyIndex].HasA(_trump) &&      //trumfovou X hraju jen kdyz nemam A
+                                                                                        _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0 &&
                                                                                         (_probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor ||
                                                                                          _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor)).ToList();
                         }
@@ -2893,6 +2894,7 @@ namespace Mariasek.Engine.New
                                                                                         c1.IsLowerThan(i, _trump) &&          //moje karta prebiji prvni kartu
                                                                                         i.Suit == _trump &&                  //a pokud moje X je trumfova
                                                                                         !hands[MyIndex].HasA(_trump) &&      //trumfovou X hraju jen kdyz nemam A
+                                                                                        _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0 &&
                                                                                         (_probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor ||
                                                                                          _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor)).ToList();
                         }
