@@ -162,6 +162,27 @@ namespace Mariasek.Engine.New
                         }
                     }
                 }
+                //if (!preferredSuits.Any())
+                //{
+                //    //dale zkus hrat barvu kterou spoluhrac neznal
+                //    for (var i = 0; i < RoundNumber - 1; i++)
+                //    {
+                //        if (_rounds[i].player2.PlayerIndex == TeamMateIndex &&
+                //            _rounds[i].c1.Suit != _rounds[i].c2.Suit &&
+                //            _rounds[i].c1.Suit == _rounds[i].c3.Suit &&
+                //            hands[MyIndex].HasSuit(_rounds[i].c3.Suit))
+                //        {
+                //            preferredSuits.Add(_rounds[i].c3.Suit);
+                //        }
+                //        if (_rounds[i].player3.PlayerIndex == TeamMateIndex &&
+                //            _rounds[i].c1.Suit != _rounds[i].c3.Suit &&
+                //            _rounds[i].c1.Suit == _rounds[i].c2.Suit &&
+                //            hands[MyIndex].HasSuit(_rounds[i].c2.Suit))
+                //        {
+                //            preferredSuits.Add(_rounds[i].c2.Suit);
+                //        }
+                //    }
+                //}
                 if (!preferredSuits.Any())
                 {
                     //nakonec zkus hrat barvu kterou spoluhrac odmazaval
@@ -361,30 +382,48 @@ namespace Mariasek.Engine.New
                         if (TeamMateIndex == player2)//co-
                         {
                             cardsToPlay = hands[MyIndex].Where(i =>
+                                                           !bannedSuits.Contains(i.Suit) &&
+                                                           Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                               .Select(h => new Card(i.Suit, h))
+                                                               .Where(j => j.BadValue > i.BadValue)
+                                                               .Any(j => _probabilities.CardProbability(player3, j) > 0 &&
+                                                                         Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                             .Select(h => new Card(i.Suit, h))
+                                                                             .Where(k => k.BadValue >= j.BadValue)
+                                                                             .All(k => _probabilities.CardProbability(player2, k) == 0)));
+                            if (!cardsToPlay.Any())
+                            {
+                                cardsToPlay = hands[MyIndex].Where(i =>
                                                                !bannedSuits.Contains(i.Suit) &&
                                                                Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                    .Select(h => new Card(i.Suit, h))
                                                                    .Where(j => j.BadValue > i.BadValue)
                                                                    .Any(j => _probabilities.CardProbability(player3, j) > 0 &&
-                                                                             (preferredSuits.Contains(i.Suit) ||
-                                                                              Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                                  .Select(h => new Card(i.Suit, h))
-                                                                                  .Where(k => k.BadValue >= j.BadValue)
-                                                                                  .All(k => _probabilities.CardProbability(player2, k) == 0))));
+                                                                             preferredSuits.Contains(i.Suit)));
+                            }
                         }
                         else if (TeamMateIndex == player3)//c-o
                         {
                             cardsToPlay = hands[MyIndex].Where(i =>
-                                                               !bannedSuits.Contains(i.Suit) &&
-                                                               Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                   .Select(h => new Card(i.Suit, h))
-                                                                   .Where(j => j.BadValue > i.BadValue)
-                                                                   .Any(j => _probabilities.CardProbability(player2, j) > 0 &&
-                                                                             (preferredSuits.Contains(i.Suit) ||
-                                                                              Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                                  .Select(h => new Card(i.Suit, h))
-                                                                                  .Where(k => k.BadValue >= j.BadValue)
-                                                                                  .All(k => _probabilities.CardProbability(player3, k) == 0))));
+                                   !bannedSuits.Contains(i.Suit) &&
+                                   Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                       .Select(h => new Card(i.Suit, h))
+                                       .Where(j => j.BadValue > i.BadValue)
+                                       .Any(j => _probabilities.CardProbability(player2, j) > 0 &&
+                                                 Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                     .Select(h => new Card(i.Suit, h))
+                                                     .Where(k => k.BadValue >= j.BadValue)
+                                                     .All(k => _probabilities.CardProbability(player3, k) == 0)));
+                            if (!cardsToPlay.Any())
+                            {
+                                cardsToPlay = hands[MyIndex].Where(i =>
+                                                                !bannedSuits.Contains(i.Suit) &&
+                                                                Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                    .Select(h => new Card(i.Suit, h))
+                                                                    .Where(j => j.BadValue > i.BadValue)
+                                                                    .Any(j => _probabilities.CardProbability(player2, j) > 0 &&
+                                                                              preferredSuits.Contains(i.Suit)));
+                            }
                         }
                         var prefCards = cardsToPlay.Where(i => preferredSuits.Contains(i.Suit));
 
