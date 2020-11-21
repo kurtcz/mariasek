@@ -3069,15 +3069,15 @@ namespace Mariasek.Engine.New
                 bidding._sevenFlek <= Settings.MaxDoubleCountForGameType[Hra.Sedma] &&
                 ((TeamMateIndex != -1 &&
                   (_gameType & Hra.Kilo) == 0 &&
-                  (Hand.CardCount(_g.trump.Value) >= 4 ||           //ctyri a vice trumfu nebo
-                   (Hand.CardCount(_g.trump.Value) >= 3 &&          //tri trumfy
-                    (Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => Hand.HasSuit(b)) ||
-                     (Hand.HasA(_trump.Value) &&                    //trumfove eso a desitka
-                      Hand.HasX(_trump.Value) &&
-                      Hand.CardCount(Hodnota.Eso) >= 2 &&           //aspon dve esa a
-                      Enum.GetValues(typeof(Barva)).Cast<Barva>()   //jedna dlouha barva
-                          .Where(b => b != _trump.Value)
-                          .Any(b => Hand.CardCount(b) >= 5))))) ||
+                  ((Hand.CardCount(_g.trump.Value) >= 4 ||           //ctyri a vice trumfu nebo
+                    (Hand.CardCount(_g.trump.Value) >= 3 &&          //tri trumfy 3-3-2-2
+                     (Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => Hand.CardCount(b) >= 2) ||
+                      (Hand.HasA(_trump.Value) &&                    //trumfove eso a desitka
+                       Hand.HasX(_trump.Value) &&
+                       Hand.CardCount(Hodnota.Eso) >= 2 &&           //aspon dve esa a
+                       Enum.GetValues(typeof(Barva)).Cast<Barva>()   //jedna dlouha barva
+                           .Where(b => b != _trump.Value)
+                           .Any(b => Hand.CardCount(b) >= 5))))) ||
                    (_teamMateDoubledGame &&                          //nebo pokud kolega flekoval
                     Hand.HasA(_trump.Value) &&                       //a ja mam aspon 3 trumfy a navic eso a neco velkeho a aspon 40 bodu
                     (Hand.HasX(_trump.Value) ||
@@ -3086,11 +3086,11 @@ namespace Mariasek.Engine.New
                      ((Hand.CardCount(_trump.Value) >= 3 &&
                        estimatedFinalBasicScore >= 40) ||
                       (estimatedFinalBasicScore >= 50 &&
-                       kqScore >= 20))) ||
+                       kqScore >= 20)) ||
                    (_teamMateDoubledGame &&
                     Hand.CardCount(_trump.Value) >= 3 &&
                     estimatedFinalBasicScore >= 40 &&
-                    kqScore >= 40)) ||
+                    kqScore >= 40)))) ||
                  (TeamMateIndex == -1 && totalHoles <= 2)) &&
                 (_sevensBalance / (float)_sevenSimulations >= sevenThreshold))
             {

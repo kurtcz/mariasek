@@ -701,13 +701,17 @@ namespace Mariasek.Engine.New
 
                         if (holes.Count > 0 &&
                             topTrumps.Count > 0 &&
-                            (((topTrumps.Count >= holes.Count ||
-                               ((hands[MyIndex].CardCount(_trump) >= 3 ||
-                                 ((_gameType & Hra.Sedma) != 0 &&
-                                  hands[MyIndex].CardCount(_trump) >= 4)) &&
-                                _probabilities.SuitProbability(player2, _trump, RoundNumber) >= 1 - RiskFactor &&
-                                _probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 - RiskFactor &&
-                                topTrumps.Count + 1 == holes.Count)) &&
+                            ((((((_gameType & Hra.Sedma) != 0 &&
+                                 topTrumps.Count >= holes.Count + 1) ||
+                                ((_gameType & Hra.Sedma) == 0 &&
+                                 topTrumps.Count >= holes.Count)) ||
+                               (((_gameType & Hra.Sedma) != 0 &&
+                                  hands[MyIndex].CardCount(_trump) >= 4) ||
+                                ((_gameType & Hra.Sedma) == 0 &&
+                                 hands[MyIndex].CardCount(_trump) >= 3) &&
+                               _probabilities.SuitProbability(player2, _trump, RoundNumber) >= 1 - RiskFactor &&
+                               _probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 - RiskFactor &&
+                               topTrumps.Count + 1 == holes.Count)) &&
                               (_gameType != (Hra.Hra | Hra.Sedma) ||
                                Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                     .Where(b => b != _trump &&
