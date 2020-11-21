@@ -635,6 +635,15 @@ namespace Mariasek.Engine.New
                                                                                   myInitialHand.CardCount(i.Suit) >= 5 &&
                                                                                   myInitialHand.CardCount(_trump) >= 4))
                                                                     .ToList();
+                            if (!cardsToPlay.Any())
+                            {
+                                cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                    i.Value == Hodnota.Desitka &&
+                                                                                    hands[MyIndex].CardCount(i.Suit) == 1 &&
+                                                                                  (_probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) > 0 ||
+                                                                                   _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) > 0))
+                                                                        .ToList();
+                            }
                         }
                     }
 

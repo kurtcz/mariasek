@@ -2919,24 +2919,29 @@ namespace Mariasek.Engine.New
                      kqScore >= 40) &&
                     ((kqScore >= 20 &&
                       estimatedFinalBasicScore >= 40 &&
+                      (bidding.Bids & Hra.SedmaProti) == 0 &&
                       !Is100AgainstPossible()) ||
                      (kqScore >= 40 &&
                       estimatedFinalBasicScore >= 30 &&
                       !Is100AgainstPossible()) ||
                      estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqMaxOpponentScore ||
                      (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + 10 &&
+                      (bidding.Bids & Hra.SedmaProti) == 0 &&
                       !Is100AgainstPossible(110)))) ||
                    (kqScore >= 20 &&                            //davam si re kdyz mam aspon jeden hlas
                     Hand.CardCount(_trump.Value) >= 4 &&        //4 trumfy 
                     totalHoles <= 4 &&                          //a max 4 diry (tj. jinak same vysoke karty), netreba trhat trumfovou hlasku
+                    (bidding.Bids & Hra.SedmaProti) == 0 &&
                     estimatedFinalBasicScore >= 40) || 
                    (estimatedFinalBasicScore > 60 &&            //pokud si davam re a nethram, musim mit velkou jistotu
+                    (bidding.Bids & Hra.SedmaProti) == 0 &&
                     !Is100AgainstPossible(110)) ||              //ze uhraju vic bodu i bez trhaka a ze souper neuhraje kilo (110 - kilo jeste risknu)
                    (estimatedFinalBasicScore >= 60 &&           //pokud mam dost trumfu, bude kriterium mekci
                     Hand.CardCount(_trump.Value) >= 4 &&
                     !Is100AgainstPossible(110)) ||
                    (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
                     Hand.CardCount(_trump.Value) >= 4 &&
+                    (bidding.Bids & Hra.SedmaProti) == 0 &&
                     (Hand.HasK(_g.trump.Value) ||
                      Hand.HasQ(_g.trump.Value) &&
                     !Is100AgainstPossible(110))) ||
