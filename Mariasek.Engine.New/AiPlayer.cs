@@ -2182,13 +2182,16 @@ namespace Mariasek.Engine.New
             var result = Hand.CardCount(_trump.Value) < 4 ||                      //1.  mene nez 4 trumfy
                          (Hand.CardCount(_trump.Value) == 4 &&                    //2.  nebo 4 trumfy a jedno z
                           (Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||      //2a. mene nez 3 vysoke karty celkem
-                           Hand.Count(i => i.Value == Hodnota.Eso) +              //2b. nebo mene nez 2 (resp. 3) uhratelne A, X
-                           Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                               .Count(b => (Hand.HasX(b) &&
-                                           (Hand.HasK(b) ||
-                                            Hand.HasA(b) ||
-                                            (Hand.HasQ(b) &&
-                                             Hand.CardCount(b) > 2)))) < (TeamMateIndex == -1 ? 2 : 3) ||
+                           (Hand.Count(i => i.Value == Hodnota.Eso) +              //2b. nebo mene nez 2 (resp. 3) uhratelne A, X
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Count(b => (Hand.HasX(b) &&
+                                            (Hand.HasK(b) ||
+                                             Hand.HasA(b) ||
+                                             (Hand.HasQ(b) &&
+                                              Hand.CardCount(b) > 2)))) < (TeamMateIndex == -1 ? 2 : 3) &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => b != _trump.Value)
+                                .All(b => Hand.CardCount(b) < 4)) ||              //   (vyjma pripadu kdy mam dlouhou netrumfovou tlacnou barvu)
                            (Hand.Select(i => i.Suit).Distinct().Count() < 4) &&   //2c. nebo nevidim do nejake barvy
                            !(Hand.HasA(_trump.Value) &&                          //    (vyjma pripadu kdy mam trumfove eso a max. 2 neodstranitelne netrumfove diry)
                              GetTotalHoles(false, false) <= 2))) ||
