@@ -2936,7 +2936,9 @@ namespace Mariasek.Engine.New
                     totalHoles <= 4 &&                          //a max 4 diry (tj. jinak same vysoke karty), netreba trhat trumfovou hlasku
                     (bidding.Bids & Hra.SedmaProti) == 0 &&
                     estimatedFinalBasicScore >= 40) || 
-                   (estimatedFinalBasicScore > 60 &&            //pokud si davam re a nethram, musim mit velkou jistotu
+                   ((estimatedFinalBasicScore > 60 ||            //pokud si davam re a nethram, musim mit velkou jistotu
+                     (estimatedFinalBasicScore >= 60 &&
+                      kqScore >= 20)) &&
                     (bidding.Bids & Hra.SedmaProti) == 0 &&
                     !Is100AgainstPossible(110)) ||              //ze uhraju vic bodu i bez trhaka a ze souper neuhraje kilo (110 - kilo jeste risknu)
                    (estimatedFinalBasicScore >= 60 &&           //pokud mam dost trumfu, bude kriterium mekci
@@ -2955,8 +2957,10 @@ namespace Mariasek.Engine.New
                  (TeamMateIndex != -1 &&                  
                   ((bidding.GameMultiplier > 2 &&               //Tutti:
                     ((Hand.CardCount(_g.trump.Value) >= 2 &&    //mam aspon 2 trumfy a k tomu aspon jednu hlasku nebo trham aspon 2 hlasky
-                      estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
-                      (!Is100AgainstPossible() || _teamMateDoubledGame) &&
+                      ((estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
+                        _teamMateDoubledGame) ||
+                       (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqMaxOpponentScore &&
+                        !Is100AgainstPossible())) &&
                       (kqScore >= 20 ||
                        Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) || Hand.HasQ(b)) >= 2)) ||
                      (_teamMateDoubledGame &&                   //nebo kolega flekoval
