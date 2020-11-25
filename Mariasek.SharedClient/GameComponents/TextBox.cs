@@ -324,6 +324,8 @@ namespace Mariasek.SharedClient.GameComponents
         {
             _touchDownLocation = tl;
             _touchHeldLocation = tl;
+            _previoustouchHeldLocation = tl;
+            _scrollingVelocity = 0;
             if (TapToHighlight)
             {
                 var highlightedLine = PositionToLineNumber(tl.Position);
@@ -376,50 +378,42 @@ namespace Mariasek.SharedClient.GameComponents
 
 		private double _scrollingVelocity;
 		private int _scrollingDirection;
-		private const float decceleration = 0.01f;
+		private const float decceleration = 0.002f;
 
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
 
+            var dt = gameTime.ElapsedGameTime;
             var distance = _touchHeldLocation.Position.Y - _previoustouchHeldLocation.Position.Y;
-			var dt = gameTime.ElapsedGameTime;
 
-            //if (distance > 0)
-            //{
-            //System.Diagnostics.Debug.WriteLine("Distance: {0}", distance);
-            //}
-            if (_textureUpdateNeeded)
+            if ((int)distance != 0)
             {
-                UpdateVerticalScrollbarPosition();
+                _scrollingVelocity = Math.Abs(distance / dt.TotalMilliseconds);
             }
-			if ((int)distance != 0)
-			{
-				_scrollingVelocity = Math.Abs(distance / dt.TotalMilliseconds);
-			}
-			if (distance > 0)
-			{
-				_scrollingDirection = 1;
-			}
-			else if (distance < 0)
-			{
-				_scrollingDirection = -1;
-			}
-			//System.Diagnostics.Debug.WriteLine("Dist: {0} DT: {1}, SV: {2}", distance, dt.TotalMilliseconds, _scrollingVelocity);
-			if ((int)distance == 0 && _scrollingVelocity > 0)
-			{
-				distance = (float)(_scrollingDirection * _scrollingVelocity * dt.TotalMilliseconds);
-				_scrollingVelocity -= decceleration * dt.TotalMilliseconds;
-				if (_scrollingVelocity < 0)
-				{
-					_scrollingVelocity = 0;
-				}
-			}
+            if (distance > 0)
+            {
+                _scrollingDirection = 1;
+            }
+            else if (distance < 0)
+            {
+                _scrollingDirection = -1;
+            }
+            //System.Diagnostics.Debug.WriteLine("Dist: {0} DT: {1}, SV: {2}", distance, dt.TotalMilliseconds, _scrollingVelocity);
+            if ((int)distance == 0 && _scrollingVelocity > 0)
+            {
+                distance = (float)(_scrollingDirection * _scrollingVelocity * dt.TotalMilliseconds);
+                _scrollingVelocity -= decceleration * dt.TotalMilliseconds;
+                if (_scrollingVelocity < 0)
+                {
+                    _scrollingVelocity = 0;
+                }
+            }
             VerticalScrollOffset += (int)distance;
-			//if ((int)distance != 0)
-			//{
-			//	System.Diagnostics.Debug.WriteLine("Update: distance: {0} VO: {1}", distance, VerticalScrollOffset);
-			//}
+            //if ((int)distance != 0)
+            //{
+            //	System.Diagnostics.Debug.WriteLine("Update: distance: {0} VO: {1}", distance, VerticalScrollOffset);
+            //}
         }
 
         public override void Draw(GameTime gameTime)
