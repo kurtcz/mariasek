@@ -735,8 +735,9 @@ namespace Mariasek.Engine.New
                                                   .OrderBy(i => i.Value)
                                                   .Take(Math.Min(2, hand.Count(i => i.Suit == cardToRemove.Suit &&
                                                                                     i.Value < Hodnota.Desitka) - 1)));
+                    talon.Remove(cardToRemove);
                 }
-                replacementCards = replacementCards.Distinct().ToList();
+                replacementCards = replacementCards.Distinct().Take(cardsToRemove.Count).ToList();
                 talon = replacementCards.Concat(talon).Distinct().ToList();
             }
             talon = talon.Take(2).ToList();
@@ -3743,30 +3744,30 @@ namespace Mariasek.Engine.New
                         {
                             prematureStop = true;
                             loopState.Stop();
-                        //break;
-                    }
-                    //List<Card> talon = null;
-                    //if (PlayerIndex != _g.GameStartingPlayerIndex)
-                    //{
-                    //    var initialHand = gameStartedInitialCards.Concat((List<Card>)hands[_g.GameStartingPlayerIndex]).Concat((List<Card>)hands[talonIndex]).ToList();
-                    //    switch (_g.GameType)
-                    //    {
-                    //        case Hra.Betl:
-                    //            talon = ChooseBetlTalon(initialHand, _g.TrumpCard);
-                    //            break;
-                    //        case Hra.Durch:
-                    //            talon = ChooseDurchTalon(initialHand, _g.TrumpCard);
-                    //            break;
-                    //        default:
-                    //            talon = ChooseNormalTalon(initialHand, _g.TrumpCard);
-                    //            break;
-                    //    }
-                    //}
-                    var hh = new[] {
-                        new Hand((List<Card>)hands[0]),
-                        new Hand((List<Card>)hands[1]),
-                        new Hand((List<Card>)hands[2])
-                        };
+                            //break;
+                        }
+                        //List<Card> talon = null;
+                        //if (PlayerIndex != _g.GameStartingPlayerIndex)
+                        //{
+                        //    var initialHand = gameStartedInitialCards.Concat((List<Card>)hands[_g.GameStartingPlayerIndex]).Concat((List<Card>)hands[talonIndex]).ToList();
+                        //    switch (_g.GameType)
+                        //    {
+                        //        case Hra.Betl:
+                        //            talon = ChooseBetlTalon(initialHand, _g.TrumpCard);
+                        //            break;
+                        //        case Hra.Durch:
+                        //            talon = ChooseDurchTalon(initialHand, _g.TrumpCard);
+                        //            break;
+                        //        default:
+                        //            talon = ChooseNormalTalon(initialHand, _g.TrumpCard);
+                        //            break;
+                        //    }
+                        //}
+                        var hh = new[] {
+                            new Hand((List<Card>)hands[0]),
+                            new Hand((List<Card>)hands[1]),
+                            new Hand((List<Card>)hands[2])
+                            };
                         var result = ComputeMinMax(new List<Round>(_g.rounds.Where(i => i?.c3 != null)), hh, roundNumber);
 
                         foreach (var res in result)

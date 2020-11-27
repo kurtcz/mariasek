@@ -768,8 +768,9 @@ namespace Mariasek.Engine.New
             var winningCard = Round.WinningCard(finalRound.c1, finalRound.c2, finalRound.c3, _trump);
             var finalCards = new[] { finalRound.c1, finalRound.c2, finalRound.c3 };
             var players = new[] { finalRound.player1, finalRound.player2, finalRound.player3 };
-            var playerWithTrumpSeven = finalCards.ToList()
-                                                 .FindIndex(i => i.Suit == _trump.Value && i.Value == Hodnota.Sedma);
+            var playerWithTrumpSeven = (finalRound.player1.PlayerIndex +
+                                        finalCards.ToList()
+                                                  .FindIndex(i => i.Suit == _trump.Value && i.Value == Hodnota.Sedma)) % Game.NumPlayers;
 
             if (playerWithTrumpSeven >= 0 && winningCard.Value != Hodnota.Sedma)
             {
@@ -787,8 +788,9 @@ namespace Mariasek.Engine.New
 
             var winningCard = Round.WinningCard(finalRound.c1, finalRound.c2, finalRound.c3, _trump);
             var finalCards = new[] { finalRound.c1, finalRound.c2, finalRound.c3 };
-            var playerWithTrumpSeven = finalCards.ToList()
-                                                 .FindIndex(i => i.Suit == _trump.Value && i.Value == Hodnota.Sedma);
+            var playerWithTrumpSeven = (finalRound.RoundStarterIndex +
+                                        finalCards.ToList()
+                                                  .FindIndex(i => i.Suit == _trump.Value && i.Value == Hodnota.Sedma)) % Game.NumPlayers;
 
             if (playerWithTrumpSeven >= 0 && winningCard.Value != Hodnota.Sedma)
             {
