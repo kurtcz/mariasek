@@ -284,8 +284,8 @@ namespace Mariasek.Engine.New
                     FinalCardWon = finalRound.roundWinner == g.GameStartingPlayer;
 
                     SevenWon = FinalCardWon &&
-                    lastWinningCard.Suit == g.trump.Value &&
-                    lastWinningCard.Value == Hodnota.Sedma;
+                               lastWinningCard.Suit == g.trump.Value &&
+                               lastWinningCard.Value == Hodnota.Sedma;
                     QuietSevenWon = SevenWon && (_gameType & Hra.Sedma) == 0;
 
                     SevenAgainstWon = !FinalCardWon &&
@@ -400,15 +400,18 @@ namespace Mariasek.Engine.New
                 MaxHlasWon = res.MaxHlasScore[_gameStartingPlayerIndex];
                 MaxHlasLost = res.MaxHlasScore[(_gameStartingPlayerIndex + 1) % Game.NumPlayers] + res.MaxHlasScore[(_gameStartingPlayerIndex + 2) % Game.NumPlayers];
                 GameWon = PointsWon > PointsLost;
-                SevenWon = res.Final7Won.HasValue && res.Final7Won.Value;
 
                 var finalRound = res.Rounds[Game.NumRounds - 1];
                 var lastWinningCard = Round.WinningCard(finalRound.c1, finalRound.c2, finalRound.c3, trump);
 
+                FinalCardWon = finalRound.RoundWinnerIndex == _gameStartingPlayerIndex;
+                SevenWon = res.Final7Won.HasValue && res.Final7Won.Value;
+                QuietSevenWon = SevenWon && (_gameType & Hra.Sedma) == 0;
                 SevenAgainstWon = trump.HasValue &&
                                   !FinalCardWon &&
                                   lastWinningCard.Suit == trump.Value &&
                                   lastWinningCard.Value == Hodnota.Sedma;
+                QuietSevenAgainstWon = SevenAgainstWon && (_gameType & Hra.SedmaProti) == 0;
 
                 var playerIndexWithKilledSeven = GetPlayerIndexWithKilledSeven(finalRound);
                 var killedSeven = playerIndexWithKilledSeven >= 0;
@@ -768,12 +771,14 @@ namespace Mariasek.Engine.New
             var winningCard = Round.WinningCard(finalRound.c1, finalRound.c2, finalRound.c3, _trump);
             var finalCards = new[] { finalRound.c1, finalRound.c2, finalRound.c3 };
             var players = new[] { finalRound.player1, finalRound.player2, finalRound.player3 };
-            var playerWithTrumpSeven = (finalRound.player1.PlayerIndex +
-                                        finalCards.ToList()
-                                                  .FindIndex(i => i.Suit == _trump.Value && i.Value == Hodnota.Sedma)) % Game.NumPlayers;
+            var playerWithTrumpSeven = finalCards.ToList()
+                                                 .FindIndex(i => i.Suit == _trump.Value &&
+                                                                 i.Value == Hodnota.Sedma);
 
             if (playerWithTrumpSeven >= 0 && winningCard.Value != Hodnota.Sedma)
             {
+                playerWithTrumpSeven = (finalRound.player1.PlayerIndex + playerWithTrumpSeven) % Game.NumPlayers;
+
                 return players[playerWithTrumpSeven].PlayerIndex;
             }
             return -1;
@@ -788,12 +793,14 @@ namespace Mariasek.Engine.New
 
             var winningCard = Round.WinningCard(finalRound.c1, finalRound.c2, finalRound.c3, _trump);
             var finalCards = new[] { finalRound.c1, finalRound.c2, finalRound.c3 };
-            var playerWithTrumpSeven = (finalRound.RoundStarterIndex +
-                                        finalCards.ToList()
-                                                  .FindIndex(i => i.Suit == _trump.Value && i.Value == Hodnota.Sedma)) % Game.NumPlayers;
+            var playerWithTrumpSeven = finalCards.ToList()
+                                                 .FindIndex(i => i.Suit == _trump.Value &&
+                                                                 i.Value == Hodnota.Sedma);
 
             if (playerWithTrumpSeven >= 0 && winningCard.Value != Hodnota.Sedma)
             {
+                playerWithTrumpSeven = (finalRound.RoundStarterIndex + playerWithTrumpSeven) % Game.NumPlayers;
+
                 return playerWithTrumpSeven;
             }
             return -1;

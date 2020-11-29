@@ -2884,6 +2884,7 @@ namespace Mariasek.Engine.New
                 RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, false);
             }
             DebugInfo.RuleCount = -1;
+            var axCount = Hand.CardCount(Hodnota.Eso) + Hand.CardCount(Hodnota.Desitka);
             var kqScore = _g.trump.HasValue
                             ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                   .Where(b => Hand.HasK(b) && Hand.HasQ(b))
@@ -3018,17 +3019,21 @@ namespace Mariasek.Engine.New
                        Hand.HasQ(_g.trump.Value)) &&           //nebo mam trhaka
                       Hand.CardCount(_g.trump.Value) >= 4 &&   //a aspon 4 trumfy
                       !Is100AgainstPossible(110)) ||           
-                     (Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
-                      (Hand.HasX(_g.trump.Value) ||            //a desitku nebo
-                       Hand.CardCount(_g.trump.Value) >= 3) && //aspon 3 trumfy
-                      estimatedFinalBasicScore >= 60 &&        //a aspon 60 bodu na ruce v desitkach
-                      kqMaxOpponentScore <= 80) ||             //a trham aspon jeden hlas
-                     (Hand.CardCount(_g.trump.Value) >= 3 &&    //nebo mam aspon 3 trumfy vcetne A,X
+                     //(Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
+                     // (Hand.HasX(_g.trump.Value) ||            //a desitku nebo
+                     //  Hand.CardCount(_g.trump.Value) >= 3) && //aspon 3 trumfy
+                     // estimatedFinalBasicScore >= 60 &&        //a aspon 60 bodu na ruce v desitkach
+                     // kqMaxOpponentScore <= 80) ||             //a trham aspon jeden hlas
+                     (//Hand.CardCount(_g.trump.Value) >= 3 &&    //nebo mam aspon 3 trumfy vcetne A,X
                       Hand.HasA(_g.trump.Value) &&
-                      Hand.HasX(_g.trump.Value) &&
-                      estimatedFinalBasicScore >= 40 &&         //a aspon 60 bodu, z toho aspon 40 v desitkach
-                      estimatedFinalBasicScore + kqScore >= 60 &&
-                      !Is100AgainstPossible(120)) ||
+                      (Hand.HasX(_g.trump.Value) ||
+                       Hand.CardCount(_g.trump.Value) >= 3) &&
+                      estimatedFinalBasicScore >= 40 &&         //a aspon 40 bodu v desitkach a 20 v hlasech
+                      axCount >= 4 &&
+                      (estimatedFinalBasicScore + kqScore >= 60 ||
+                       (estimatedFinalBasicScore >= 50 &&
+                        axCount >= 5)) &&       //nebo aspon 50 bodu
+                      !Is100AgainstPossible(140)) ||
                      (Hand.CardCount(_g.trump.Value) >= 4 &&   //nebo mam aspon 4 trumfy
                       (Hand.HasA(_g.trump.Value) ||
                        Hand.HasX(_g.trump.Value) ||
