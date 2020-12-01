@@ -2063,6 +2063,8 @@ namespace Mariasek.Engine.New
                                             (i.Suit == trump.Value ||       //pokud je bud trumfova 
                                             ((hand.CardCount(i.Suit) <= 3 || //nebo pokud mas 3 a mene karet v barve (jen v pripade aktera)
                                               hand.CardCount(trump.Value) >= 5 || //nebo pokud mas 5 a vice trumfu (jen v pripade aktera)
+                                              (hand.CardCount(trump.Value) >= 4 &&
+                                               hand.HasA(trump.Value)) || //nebo pokud mas trumfove eso a 4 a vice trumfu (jen v pripade aktera)
                                               TeamMateIndex != -1) &&
                                              (hand.HasA(i.Suit) ||          //(pokud jsem akter, mam v barve hodne karet a malo trumfu, tak asi X neuhraju)
                                               hand.HasK(i.Suit) ||          //netrumfovou desitku pocitej jen pokud ma k sobe A, K nebo filka+1
@@ -2098,7 +2100,8 @@ namespace Mariasek.Engine.New
                 {
                     axWinPotential = 0;
                 }
-                else if (cardsPerSuit.Count(i => i.Value > 0) == 2)
+                else if (cardsPerSuit.Count(i => i.Value > 0) == 2 &&
+                         hand.CardCount(Hodnota.Eso) < 2)
                 {
                     axWinPotential = 0;
                 }
