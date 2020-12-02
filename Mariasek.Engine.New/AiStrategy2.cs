@@ -127,6 +127,12 @@ namespace Mariasek.Engine.New
                     //{
                     //    _teamMatesSuits.Add(r.c1.Suit);
                     //}
+                    if (r.number <= 2 &&
+                        r.player1.TeamMateIndex == -1 &&
+                        RoundNumber <= 5)
+                    {
+                        _bannedSuits.Add(r.c1.Suit);
+                    }
                 }
                 if (_gameType != (Hra.Hra | Hra.Sedma))
                 {
@@ -227,7 +233,7 @@ namespace Mariasek.Engine.New
                 }
             }
             _bannedSuits = _bannedSuits.Distinct().ToList();
-            if (_hands[MyIndex].All(i => _bannedSuits.Contains(i.Suit)))
+            if (_hands[MyIndex].Where(i => i.Suit != _trump).All(i => _bannedSuits.Contains(i.Suit)))
             {
                 _bannedSuits.Clear();
             }
