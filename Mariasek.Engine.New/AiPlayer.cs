@@ -640,6 +640,22 @@ namespace Mariasek.Engine.New
                                     .Take(2));
             }
 
+            //potom zkus vzit odspoda kartu v barve kde nemam X bez A (stejna podminka jako vyse, ale bere v potaz i nejnizsi kartu)
+            talon.AddRange(hand.Where(i => i.Suit != trumpCard.Suit &&             //nevybirej trumfy
+                                           i.Value < Hodnota.Desitka &&            //ani A,X
+                                           !((i.Value == Hodnota.Kral ||           //ani hlasy
+                                              i.Value == Hodnota.Svrsek) &&
+                                             hand.HasK(i.Suit) && hand.HasQ(i.Suit)) &&
+                                           !(hand.CardCount(i.Suit) == 3 &&        //(vyjma situace kdy mam prave X,K,7)
+                                             hand.HasX(i.Suit) &&
+                                             hand.HasK(i.Suit)) &&
+                                           !(hand.HasX(i.Suit) &&                  //ani pokud mam jen X+plivu
+                                             hand.CardCount(i.Suit) <= 2) &&
+                                           !(hand.HasX(i.Suit) &&                  //nebo pokud mam jen X+2 plivy
+                                             !hand.HasA(i.Suit) &&
+                                             hand.CardCount(i.Suit) == 3))
+                                .OrderBy(i => i.BadValue));
+
             //nakonec cokoli co je podle pravidel
             talon.AddRange(hand.Where(i => !(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
                                              i.Suit == trumpCard.Suit) &&
