@@ -127,8 +127,8 @@ namespace Mariasek.Engine.New
                     //{
                     //    _teamMatesSuits.Add(r.c1.Suit);
                     //}
-                    if (r.number <= 2 &&
-                        r.player1.TeamMateIndex == -1 &&
+
+                    if (r.player1.TeamMateIndex == -1 &&
                         RoundNumber <= 5)
                     {
                         _bannedSuits.Add(r.c1.Suit);

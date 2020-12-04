@@ -64,7 +64,21 @@ namespace Mariasek.SharedClient.GameComponents
         public Vector2 MaxValue { get; set; }
         public float LineThickness { get; set; }
         public float AxisThickness { get; set; }
-        public float DataMarkerSize { get; set; }
+        private float _dataMarkerSize;
+        public float DataMarkerSize
+        {
+            get
+            {
+                if (SizeChartToFit &&
+                    (Data?[0]?.Length ?? 0) * _dataMarkerSize >= Width)
+                {
+                    return _dataMarkerSize * 0.67f;
+                }
+
+                return _dataMarkerSize;
+            }
+            set { _dataMarkerSize = value; }
+        }
         public DataMarkerShape DataMarkerShape { get; set; }
 
         public LineChart(GameComponent parent)
@@ -282,7 +296,7 @@ namespace Mariasek.SharedClient.GameComponents
         private Vector2 _oldHorizontalScrollOffset;
         private double _scrollingVelocity;
         private int _scrollingDirection;
-        private const float decceleration = 0.01f;
+        private const float decceleration = 0.002f;
 
         protected override void OnTouchDown(TouchLocation tl)
         {

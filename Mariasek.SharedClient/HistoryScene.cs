@@ -50,6 +50,7 @@ namespace Mariasek.SharedClient
         /// </summary>
         public override void Initialize()
         {
+            const float originalDataMarkerSize = 9f;
             base.Initialize();
 
             _origPosition = new Vector2(220, 60);
@@ -61,7 +62,7 @@ namespace Mariasek.SharedClient
                 Height = (int)Game.VirtualScreenHeight - 120,
                 Colors = new [] { Game.Settings.Player1Color, Game.Settings.Player2Color, Game.Settings.Player3Color },
                 LineThickness = 3f,
-                DataMarkerSize = 9f,
+                DataMarkerSize = originalDataMarkerSize,
                 TickMarkLength = 5f,
                 GridInterval = new Vector2(1f, 10f),
                 ShowHorizontalGridLines = false,
