@@ -2,7 +2,7 @@
 # compiler_version: 1.6.82
 # min_api: 19
 # compiler_hash: engineering
-# pg_map_id: 9fd2f81
+# pg_map_id: ed63ee8
 # common_typos_disable
 android.arch.lifecycle.ViewModel -> android.arch.lifecycle.ViewModel:
     96:96:void <init>() -> <init>
@@ -706,6 +706,13 @@ com.xamarin.java_interop.internal.JavaProxyThrowable -> com.xamarin.java_interop
     25:19:void <init>(java.lang.String) -> <init>
     30:30:void jiAddManagedReference(java.lang.Object) -> jiAddManagedReference
     35:35:void jiClearManagedReferences() -> jiClearManagedReferences
+crc640b6876b93497571e.UncaughtExceptionEventHandler -> crc640b6876b93497571e.UncaughtExceptionEventHandler:
+    16:16:void <clinit>() -> <clinit>
+    22:24:void <init>() -> <init>
+    29:31:void <init>(com.tnemec.mariasek.android.MariasekActivity) -> <init>
+    45:47:void monodroidAddReference(java.lang.Object) -> monodroidAddReference
+    52:53:void monodroidClearReferences() -> monodroidClearReferences
+    37:37:void uncaughtException(java.lang.Thread,java.lang.Throwable) -> uncaughtException
 crc64493ac3851fab1842.AndroidGameActivity -> crc64493ac3851fab1842.AndroidGameActivity:
     19:19:void <clinit>() -> <clinit>
     25:27:void <init>() -> <init>

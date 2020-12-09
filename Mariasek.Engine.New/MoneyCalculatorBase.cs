@@ -779,7 +779,7 @@ namespace Mariasek.Engine.New
             {
                 playerWithTrumpSeven = (finalRound.player1.PlayerIndex + playerWithTrumpSeven) % Game.NumPlayers;
 
-                return players[playerWithTrumpSeven].PlayerIndex;
+                return playerWithTrumpSeven;
             }
             return -1;
         }
