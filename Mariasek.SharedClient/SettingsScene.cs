@@ -308,22 +308,37 @@ namespace Mariasek.SharedClient
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
+#if __IOS__
             _baseBetSelector = new LeftRightSelector(this)
 			{
 				Position = new Vector2(Game.VirtualScreenWidth - 300, 370),
 				Width = 270,
                 Group = 1,
+                Items = new SelectorItems() { { "0,01", 0.01f}, { "0,02", 0.02f}, { "0,05", 0.05f}, { "0,10", 0.1f}, { "0,20", 0.2f}, { "0,50", 0.5f }, { "1", 1f }, { "2", 2f}, { "5", 5f}, { "10", 10f} }
+			};
+            _locales = new[]
+            {
+                new Tuple<string, int, int>("cs-CZ", 0, 10),
+                new Tuple<string, int, int>("sk-SK", 0, 10)
+            };
+#else
+            _baseBetSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 370),
+                Width = 270,
+                Group = 1,
                 Items = new SelectorItems() { { "0,10 Kč", 0.1f}, { "0,20 Kč", 0.2f}, { "0,50 Kč", 0.5f }, { "1 Kč", 1f }, { "2 Kč", 2f}, { "5 Kč", 5f}, { "10 Kč", 10f},
                                               { "0,01 €", 0.01f}, { "0,02 €", 0.02f}, { "0,05 €", 0.05f}, { "0,10 €", 0.1f}, { "0,20 €", 0.2f}, { "0,50 €", 0.5f}, { "1 €", 1f} }
-			};
+            };
             _locales = new[]
             {
                 new Tuple<string, int, int>("cs-CZ", 0, 6),
                 new Tuple<string, int, int>("sk-SK", 7, 13)
             };
+#endif
             var startIndex = _locales.First(i => i.Item1 == Game.Settings.Locale).Item2;
-			_baseBetSelector.SelectedIndex = _baseBetSelector.Items.FindIndex(startIndex, i => (i.Value as float?) == Game.Settings.BaseBet);
-			_baseBetSelector.SelectionChanged += BaseBetChanged;
+            _baseBetSelector.SelectedIndex = _baseBetSelector.Items.FindIndex(startIndex, i => (i.Value as float?) == Game.Settings.BaseBet);
+            _baseBetSelector.SelectionChanged += BaseBetChanged;
             #endregion
             #region Page 2
             _minBidsForGame = new Label(this)
@@ -487,8 +502,8 @@ namespace Mariasek.SharedClient
             {
                 _playZeroSumGamesSelector.SelectedIndex = 0;
             }
-            #endregion
-            #region Page 3
+#endregion
+#region Page 3
             _allowAXTalon = new Label(this)
             {
                 Position = new Vector2(200, 2 * pageOffset + 10),
@@ -650,8 +665,8 @@ namespace Mariasek.SharedClient
             {
                 _whenToShuffleSelector.SelectedIndex = 0;
             }
-            #endregion
-            #region Page 4
+#endregion
+#region Page 4
             _bgImage = new Label(this)
             {
                 Position = new Vector2(200, 3 * pageOffset + 10),
@@ -813,8 +828,8 @@ namespace Mariasek.SharedClient
             {
                 _autoFinishLastRoundSelector.SelectedIndex = 0;
             }
-            #endregion
-            #region Page 5
+#endregion
+#region Page 5
             _player1 = new Label(this)
             {
                 Position = new Vector2(200, 4 * pageOffset + 10),
@@ -997,8 +1012,8 @@ namespace Mariasek.SharedClient
             //{
             //    _maxHistoryLengthSelector.SelectedIndex = 0;
             //}
-            #endregion
-            #region Page 6
+#endregion
+#region Page 6
             _gameValue = new Label(this)
             {
                 Position = new Vector2(200, 5 * pageOffset + 10),
@@ -1160,7 +1175,7 @@ namespace Mariasek.SharedClient
             {
                 _durchValueSelector.SelectedIndex = 0;
             }
-            #endregion
+#endregion
 
             _menuBtn = new Button(this)
             {

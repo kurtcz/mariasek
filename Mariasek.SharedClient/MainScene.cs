@@ -35,7 +35,7 @@ namespace Mariasek.SharedClient
 
     public class MainScene : Scene
     {
-#region Child components
+        #region Child components
 #pragma warning disable 414
 
         //TODO:Add child components here
@@ -93,7 +93,7 @@ namespace Mariasek.SharedClient
         private GameReview _review;
 
 #pragma warning restore 414
-#endregion
+        #endregion
 
         public Mariasek.Engine.New.Game g;
         private SemaphoreSlim _gameSemaphore = new SemaphoreSlim(1);
@@ -1416,7 +1416,7 @@ namespace Mariasek.SharedClient
                      {
                          BaseBet = Game.Settings.BaseBet,
                          Locale = Game.Settings.Locale,
-					     MaxWin = Game.Settings.MaxWin,
+                         MaxWin = Game.Settings.MaxWin,
                          SkipBidding = false,
                          MinimalBidsForGame = Game.Settings.MinimalBidsForGame,
                          MinimalBidsForSeven = Game.Settings.MinimalBidsForSeven,
@@ -1440,7 +1440,8 @@ namespace Mariasek.SharedClient
                          AllowTrumpTalon = Game.Settings.AllowTrumpTalon,
                          AllowAIAutoFinish = Game.Settings.AllowAIAutoFinish,
                          AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish,
-                         PreGameHook = () => _preGameEvent.WaitOne()
+                         PreGameHook = () => _preGameEvent.WaitOne(),
+                         CurrencyFormat = Game.CurrencyFormat
                      };
                      g.RegisterPlayers(
                          new HumanPlayer(g, _aiConfig, this, Game.Settings.HintEnabled) { Name = Game.Settings.PlayerNames[0] },
@@ -1559,7 +1560,7 @@ namespace Mariasek.SharedClient
                          _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                                   GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
                                                   Game.Settings.ShowScoreDuringGame
-                                                  ? sum.ToString("C", CultureInfo.CreateSpecificCulture(Game.Settings.Locale))
+                                                  ? sum.ToString("C", Game.CurrencyFormat)
                                                   : string.Empty);
                          _trumpLabels[i].Height = 60;
                          if (Game.Settings.WhiteScore)
@@ -2398,7 +2399,7 @@ namespace Mariasek.SharedClient
                                                      g.players[_gameFlavourChosenEventArgs.Player.PlayerIndex].Name,
                                                      _gameFlavourChosenEventArgs.AXTalon ? " Ostrá v talonu" : string.Empty,
                                                      Game.Settings.ShowScoreDuringGame
-                                                     ? (Game.Money.Sum(j => j.MoneyWon[_gameFlavourChosenEventArgs.Player.PlayerIndex]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture(Game.Settings.Locale))
+                                                     ? (Game.Money.Sum(j => j.MoneyWon[_gameFlavourChosenEventArgs.Player.PlayerIndex]) * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat)
                                                      : string.Empty);
                         }
                         if (g.GameStartingPlayerIndex != 2)
@@ -2421,7 +2422,7 @@ namespace Mariasek.SharedClient
                                                                                  g.players[_gameFlavourChosenEventArgs.Player.PlayerIndex].Name,
                                                                                  _gameFlavourChosenEventArgs.AXTalon ? " Ostrá v talonu" : string.Empty,
                                                                                  Game.Settings.ShowScoreDuringGame
-                                                                                 ? (Game.Money.Sum(j => j.MoneyWon[_gameFlavourChosenEventArgs.Player.PlayerIndex]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture(Game.Settings.Locale))
+                                                                                 ? (Game.Money.Sum(j => j.MoneyWon[_gameFlavourChosenEventArgs.Player.PlayerIndex]) * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat)
                                                                                  : string.Empty);
                         }
                         ShowThinkingMessage((_gameFlavourChosenEventArgs.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
@@ -2515,7 +2516,7 @@ namespace Mariasek.SharedClient
                     {
                         _trumpLabels[i].Text = string.Format("{0}\n{1}", GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
                                                                          Game.Settings.ShowScoreDuringGame
-                                                                         ? (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", CultureInfo.CreateSpecificCulture(Game.Settings.Locale))
+                                                                         ? (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat)
                                                                          : string.Empty);
                     }
                 });
@@ -2619,7 +2620,7 @@ namespace Mariasek.SharedClient
                     _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                              GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
                                              Game.Settings.ShowScoreDuringGame
-                                             ? sum.ToString("C", CultureInfo.CreateSpecificCulture(Game.Settings.Locale))
+                                             ? sum.ToString("C", Game.CurrencyFormat)
                                              : string.Empty);
                     if (Game.Settings.WhiteScore)
                     {
@@ -2972,14 +2973,14 @@ namespace Mariasek.SharedClient
                 HideInvisibleClickableOverlay();
                 HideThinkingMessage();
                 var totalWon = Game.Money.Sum(i => i.MoneyWon[0]) * Game.Settings.BaseBet;
-                _totalBalance.Text = string.Format("Celkem jsem {0}: {1}", totalWon >= 0 ? "vyhrál" : "prohrál", totalWon.ToString("C", CultureInfo.CreateSpecificCulture(Game.Settings.Locale)));
+                _totalBalance.Text = string.Format("Celkem jsem {0}: {1}", totalWon >= 0 ? "vyhrál" : "prohrál", totalWon.ToString("C", Game.CurrencyFormat));
                 for (var i = 0; i < _trumpLabels.Count(); i++)
                 {
                     var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
 
                     _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                              GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
-                                             sum.ToString("C", CultureInfo.CreateSpecificCulture(Game.Settings.Locale)));
+                                             sum.ToString("C", Game.CurrencyFormat));
                     if (Game.Settings.WhiteScore)
                     {
                         _trumpLabels[i].HighlightColor = Game.Settings.DefaultTextColor;
@@ -3123,7 +3124,8 @@ namespace Mariasek.SharedClient
                             AllowAXTalon = Game.Settings.AllowAXTalon,
                             AllowTrumpTalon = Game.Settings.AllowTrumpTalon,
                             AllowAIAutoFinish = Game.Settings.AllowAIAutoFinish,
-                            AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish
+                            AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish,
+                            CurrencyFormat = Game.CurrencyFormat
                         };
                         g.RegisterPlayers(
                             new HumanPlayer(g, _aiConfig, this, Game.Settings.HintEnabled) { Name = Game.Settings.PlayerNames[0] },
@@ -3284,7 +3286,7 @@ namespace Mariasek.SharedClient
                             _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                                      GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
                                                      Game.Settings.ShowScoreDuringGame
-                                                     ? sum.ToString("C", CultureInfo.CreateSpecificCulture(Game.Settings.Locale))
+                                                     ? sum.ToString("C", Game.CurrencyFormat)
                                                      : string.Empty);
                             _trumpLabels[i].Height = 60;
                             if (Game.Settings.WhiteScore)
@@ -3541,7 +3543,7 @@ namespace Mariasek.SharedClient
                     _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                              GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
                                              Game.Settings.ShowScoreDuringGame
-                                             ? sum.ToString("C", CultureInfo.CreateSpecificCulture(Game.Settings.Locale))
+                                             ? sum.ToString("C", Game.CurrencyFormat)
                                              : string.Empty);
                     if (Game.Settings.WhiteScore)
                     {

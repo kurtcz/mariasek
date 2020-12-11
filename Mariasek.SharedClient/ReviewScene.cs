@@ -236,7 +236,6 @@ namespace Mariasek.SharedClient
                     }
                     //Vysledky beru z g.Results ale penize a procenta u aktera beru z historie
                     var resultStr = g.Results.ToString().Split('\n');
-                    var numFormat = (NumberFormatInfo)CultureInfo.GetCultureInfo(Game.Settings.Locale).NumberFormat.Clone();
                     var gameDate = new FileInfo(endGamePath).CreationTime;
 
                     var description = string.Format("{0}\n{1} {2}\n{3}\n{4}\t{5}\n{6}\t{7}\n{8}\t{9}",
@@ -249,11 +248,11 @@ namespace Mariasek.SharedClient
                                                                                                .Replace(", ", "\n"))
                                                                                  .ToArray()),
                                                       Game.Settings.PlayerNames[g.GameStartingPlayerIndex],
-                                                      (results.MoneyWon[g.GameStartingPlayerIndex] * Game.Settings.BaseBet).ToString("C", numFormat),
+                                                      (results.MoneyWon[g.GameStartingPlayerIndex] * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat),
                                                       Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers],
-                                                      (results.MoneyWon[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", numFormat),
+                                                      (results.MoneyWon[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat),
                                                       Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers],
-                                                      (results.MoneyWon[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", numFormat))
+                                                      (results.MoneyWon[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat))
                                             .Split("\n");
                     if (description.Length > 12)
                     {

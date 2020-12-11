@@ -499,7 +499,7 @@ namespace Mariasek.SharedClient
                                    gamesPlayed3 > 0 ? games3.Max(i => -i.MoneyWon[2] * Game.Settings.BaseBet) : 0f;
             var defenceMoneyMax3 = gamesPlayed1 > 0 ? games1.Max(i => -i.MoneyWon[0] * Game.Settings.BaseBet) : 0f +
                                    gamesPlayed2 > 0 ? games2.Max(i => -i.MoneyWon[1] * Game.Settings.BaseBet) : 0f;
-            var culture = CultureInfo.CreateSpecificCulture(Game.Settings.Locale);
+            var numberFormat = Game.CurrencyFormat;
 
             sbGames.AppendFormat("{0,-7}\tHer\tVýher\tProher\tPoměr\n", gameTypeString);
             sbGames.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4:F0}%\n", Game.Settings.PlayerNames[0], gamesPlayed1, gamesWon1, gamesLost1, gamesRatio1 * 100);
@@ -508,9 +508,9 @@ namespace Mariasek.SharedClient
             sbGames.Append("__________________________________________________________\n");
 
             sbMoney.AppendFormat("{0,-7}\tVýhra\tMin\tPrůměr\tMax\n", gameTypeString);
-            sbMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.Settings.PlayerNames[0], moneyBalance1.ToString("F2", culture), moneyMin1.ToString("F2", culture), moneyAvg1.ToString("F2", culture), moneyMax1.ToString("F2", culture));
-            sbMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.Settings.PlayerNames[1], moneyBalance2.ToString("F2", culture), moneyMin2.ToString("F2", culture), moneyAvg2.ToString("F2", culture), moneyMax2.ToString("F2", culture));
-            sbMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.Settings.PlayerNames[2], moneyBalance3.ToString("F2", culture), moneyMin3.ToString("F2", culture), moneyAvg3.ToString("F2", culture), moneyMax3.ToString("F2", culture));
+            sbMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.Settings.PlayerNames[0], moneyBalance1.ToString("F2", numberFormat), moneyMin1.ToString("F2", numberFormat), moneyAvg1.ToString("F2", numberFormat), moneyMax1.ToString("F2", numberFormat));
+            sbMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.Settings.PlayerNames[1], moneyBalance2.ToString("F2", numberFormat), moneyMin2.ToString("F2", numberFormat), moneyAvg2.ToString("F2", numberFormat), moneyMax2.ToString("F2", numberFormat));
+            sbMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.Settings.PlayerNames[2], moneyBalance3.ToString("F2", numberFormat), moneyMin3.ToString("F2", numberFormat), moneyAvg3.ToString("F2", numberFormat), moneyMax3.ToString("F2", numberFormat));
             sbMoney.Append("__________________________________________________________\n");
 
             sbDefenceGames.AppendFormat("{0,-7}\tHer\tVýher\tProher\tPoměr\n", gameTypeString);
@@ -520,9 +520,9 @@ namespace Mariasek.SharedClient
             sbDefenceGames.Append("__________________________________________________________\n");
 
             sbDefenceMoney.AppendFormat("{0,-7}\tVýhra\tMin\tPrůměr\tMax\n", gameTypeString);
-            sbDefenceMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.Settings.PlayerNames[0], defenceMoneyBalance1.ToString("F2", culture), defenceMoneyMin1.ToString("F2", culture), defenceMoneyAvg1.ToString("F2", culture), defenceMoneyMax1.ToString("F2", culture));
-            sbDefenceMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.Settings.PlayerNames[1], defenceMoneyBalance2.ToString("F2", culture), defenceMoneyMin2.ToString("F2", culture), defenceMoneyAvg2.ToString("F2", culture), defenceMoneyMax2.ToString("F2", culture));
-            sbDefenceMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.Settings.PlayerNames[2], defenceMoneyBalance3.ToString("F2", culture), defenceMoneyMin3.ToString("F2", culture), defenceMoneyAvg3.ToString("F2", culture), defenceMoneyMax3.ToString("F2", culture));
+            sbDefenceMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.Settings.PlayerNames[0], defenceMoneyBalance1.ToString("F2", numberFormat), defenceMoneyMin1.ToString("F2", numberFormat), defenceMoneyAvg1.ToString("F2", numberFormat), defenceMoneyMax1.ToString("F2", numberFormat));
+            sbDefenceMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.Settings.PlayerNames[1], defenceMoneyBalance2.ToString("F2", numberFormat), defenceMoneyMin2.ToString("F2", numberFormat), defenceMoneyAvg2.ToString("F2", numberFormat), defenceMoneyMax2.ToString("F2", numberFormat));
+            sbDefenceMoney.AppendFormat("{0,-7}\t{1}\t{2}\t{3}\t{4}\n", Game.Settings.PlayerNames[2], defenceMoneyBalance3.ToString("F2", numberFormat), defenceMoneyMin3.ToString("F2", numberFormat), defenceMoneyAvg3.ToString("F2", numberFormat), defenceMoneyMax3.ToString("F2", numberFormat));
             sbDefenceMoney.Append("__________________________________________________________\n");
             //sbMoney.Append("«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»«»\n");
         }

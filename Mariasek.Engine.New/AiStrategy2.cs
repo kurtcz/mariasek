@@ -1438,6 +1438,7 @@ namespace Mariasek.Engine.New
                                                                                   //myInitialHand.CardCount(_trump) <= 2))
                                                                           )
                                                                     .ToList();
+
                         //pokud jsem mel na zacatku malo trumfu a hodne desitek a es, zkus neco uhrat
                         if (!cardsToPlay.Any() &&
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -1454,7 +1455,9 @@ namespace Mariasek.Engine.New
                                                                                 (i.Value == Hodnota.Eso ||
                                                                                  (i.Value == Hodnota.Desitka &&
                                                                                   _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) <= _epsilon)) &&
-                                                                                _probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor)
+                                                                                (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor ||
+                                                                                 ((_gameType & Hra.Kilo) != 0 &&
+                                                                                  _probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1)))
                                                                     .ToList();
 
                             return cardsToPlay.OrderBy(i => myInitialHand.CardCount(i.Suit))
@@ -1488,6 +1491,7 @@ namespace Mariasek.Engine.New
                                                                                   //myInitialHand.CardCount(_trump) <= 2))
                                                                           )
                                                                     .ToList();
+
                         //pokud jsem mel na zacatku malo trumfu a hodne desitek a es, zkus neco uhrat
                         if (!cardsToPlay.Any() &&
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -1504,7 +1508,9 @@ namespace Mariasek.Engine.New
                                                                                 (i.Value == Hodnota.Eso ||
                                                                                  (i.Value == Hodnota.Desitka &&
                                                                                   _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) <= _epsilon)) &&
-                                                                                _probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor)
+                                                                                (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor ||
+                                                                                 ((_gameType & Hra.Kilo) != 0 &&
+                                                                                  _probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 1)))
                                                                     .ToList();
 
                             return cardsToPlay.OrderBy(i => myInitialHand.CardCount(i.Suit))

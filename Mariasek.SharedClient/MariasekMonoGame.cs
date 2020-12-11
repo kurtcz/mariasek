@@ -15,6 +15,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.GamerServices;
 using CsvHelper;
+using System.Globalization;
 #if __IOS__
 using Foundation;
 #endif
@@ -186,6 +187,18 @@ namespace Mariasek.SharedClient
         }
         public GameSettings Settings { get; private set; }
         public bool SettingsLoaded { get; private set; }
+        public NumberFormatInfo CurrencyFormat
+        {
+            get
+            {
+                var numberFormatInfo = CultureInfo.CreateSpecificCulture(Settings.Locale).NumberFormat;
+#if __IOS__     //Comply with Apple's Simulating Gambling policies
+                numberFormatInfo.CurrencySymbol = string.Empty;
+#endif
+                return numberFormatInfo;
+            }
+        }
+
         public Rectangle BackSideRect { get; set; }
         public Texture2D CardTextures { get; set; }
         public Texture2D CardTextures1 => Assets.GetTexture("marias");

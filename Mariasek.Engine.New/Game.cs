@@ -15,6 +15,7 @@ using Mariasek.Engine.New.Configuration;
 //#if !PORTABLE
 using Mariasek.Engine.New.Schema;
 using System.Runtime.CompilerServices;
+using System.Globalization;
 //#endif
 
 namespace Mariasek.Engine.New
@@ -58,6 +59,7 @@ namespace Mariasek.Engine.New
         public int GameStartingPlayerIndex { get; private set; }
         public int OriginalGameStartingPlayerIndex { get; private set; }
 
+        public NumberFormatInfo CurrencyFormat { get; set; }
         public MoneyCalculatorBase Results { get; private set; }
 
         public int GameValue { get; set; }
@@ -1404,9 +1406,9 @@ namespace Mariasek.Engine.New
             switch (CalculationStyle)
             {
                 case CalculationStyle.Adding:
-                    return new AddingMoneyCalculator(this);
+                    return new AddingMoneyCalculator(this, CurrencyFormat);
                 case CalculationStyle.Multiplying:
-                    return new MultiplyingMoneyCalculator(this);
+                    return new MultiplyingMoneyCalculator(this, CurrencyFormat);
                 default:
                     throw new Exception(string.Format("Unsupported calculation style: {0}", CalculationStyle));
             }

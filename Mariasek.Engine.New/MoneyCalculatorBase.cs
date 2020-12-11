@@ -150,7 +150,7 @@ namespace Mariasek.Engine.New
             }
         }
 
-        protected CultureInfo _ci;
+        protected NumberFormatInfo _nfi;
 
         //Default constructor for XmlSerialize purposes
         [Preserve]
@@ -160,7 +160,7 @@ namespace Mariasek.Engine.New
             PlayerNames = new[] { "Hráč1", "Hráč2", "Hráč3" };
             BaseBet = 1f;
 			MaxWin = 500;
-            _ci = new CultureInfo("cs-CZ");
+            _nfi = new CultureInfo("cs-CZ").NumberFormat;
             SimulatedSuccessRate = -1;
             GameValue = 1;
             QuietSevenValue = 1;
@@ -174,7 +174,7 @@ namespace Mariasek.Engine.New
         }
 
         //vola se na konci hry
-        protected MoneyCalculatorBase(Game g, CultureInfo ci = null)
+        protected MoneyCalculatorBase(Game g, NumberFormatInfo nfi = null)//CultureInfo ci = null)
         {
             _gameStartingPlayerIndex = g.GameStartingPlayerIndex;
             _trump = g.trump;
@@ -199,9 +199,9 @@ namespace Mariasek.Engine.New
             Calculate107Separately = g.Calculate107Separately;
             HlasConsidered = g.HlasConsidered;
 
-            if (ci == null)
+            if (nfi == null)
             {
-                _ci = new CultureInfo(Locale);
+                _nfi = nfi;
             }
             if (GoodGame)
             {
@@ -524,7 +524,7 @@ namespace Mariasek.Engine.New
                     gtString,
                     multiplier > 1 ? string.Format(" ({0}x flek)", MultiplierToDoubleCount(multiplier)) : string.Empty,
                     other,
-                    (money * BaseBet).ToString("C", _ci),
+                    (money * BaseBet).ToString("C", _nfi),
                     score);
                 items++;
             }
@@ -676,7 +676,7 @@ namespace Mariasek.Engine.New
                     gtString,
                     multiplier > 1 ? string.Format(" ({0}x flek)", MultiplierToDoubleCount(multiplier)) : string.Empty,
                     other,
-                    (money * BaseBet).ToString("C", _ci),
+                    (money * BaseBet).ToString("C", _nfi),
                     score);
                 items++;
             }
@@ -704,45 +704,45 @@ namespace Mariasek.Engine.New
                     gtString,
                     multiplier > 1 ? string.Format(" ({0}x flek)", MultiplierToDoubleCount(multiplier)) : string.Empty,
                     other,
-                    (money * BaseBet).ToString("C", _ci),
+                    (money * BaseBet).ToString("C", _nfi),
                     score);
                 items++;
             }
             if (QuietSevenWon)
             {
-                sb.AppendFormat("Tichá sedma\t{0}\n", (QuietSevenMoneyWon * BaseBet).ToString("C", _ci));
+                sb.AppendFormat("Tichá sedma\t{0}\n", (QuietSevenMoneyWon * BaseBet).ToString("C", _nfi));
                 items++;
             }
             if (KilledSeven && (_gameType & Hra.Sedma) == 0)
             {
-                sb.AppendFormat("Tichá sedma zabitá\t{0}\n", (QuietSevenMoneyWon * BaseBet).ToString("C", _ci));
+                sb.AppendFormat("Tichá sedma zabitá\t{0}\n", (QuietSevenMoneyWon * BaseBet).ToString("C", _nfi));
                 items++;
             }
             if (QuietSevenAgainstWon)
             {
-                sb.AppendFormat("Tichá sedma proti\t{0}\n", (QuietSevenAgainstMoneyWon * BaseBet).ToString("C", _ci));
+                sb.AppendFormat("Tichá sedma proti\t{0}\n", (QuietSevenAgainstMoneyWon * BaseBet).ToString("C", _nfi));
                 items++;
             }
             if (KilledSevenAgainst && (_gameType & Hra.SedmaProti) == 0)
             {
-                sb.AppendFormat("Tichá sedma proti zabitá\t{0}\n", (QuietSevenAgainstMoneyWon * BaseBet).ToString("C", _ci));
+                sb.AppendFormat("Tichá sedma proti zabitá\t{0}\n", (QuietSevenAgainstMoneyWon * BaseBet).ToString("C", _nfi));
                 items++;
             }
             if (_trump.HasValue)
             {
                 if (_trump.Value == Barva.Cerveny)
                 {
-                    sb.AppendFormat("V červenejch:\t{0}\n", (MoneyWon[_gameStartingPlayerIndex] / 2 * BaseBet).ToString("C", _ci));
+                    sb.AppendFormat("V červenejch:\t{0}\n", (MoneyWon[_gameStartingPlayerIndex] / 2 * BaseBet).ToString("C", _nfi));
                 }
                 else if (items > 1)
                 {
-                    sb.AppendFormat("Celkem:\t{0}\n", (MoneyWon[_gameStartingPlayerIndex] / 2 * BaseBet).ToString("C", _ci));
+                    sb.AppendFormat("Celkem:\t{0}\n", (MoneyWon[_gameStartingPlayerIndex] / 2 * BaseBet).ToString("C", _nfi));
                 }
             }
             for (var i = 0; i < Game.NumPlayers; i++)
             {
                 sb.AppendFormat("\n{0}:\t{1}",
-                    PlayerNames[(_gameStartingPlayerIndex + i) % Game.NumPlayers], (MoneyWon[(_gameStartingPlayerIndex + i) % Game.NumPlayers] * BaseBet).ToString("C", _ci));
+                    PlayerNames[(_gameStartingPlayerIndex + i) % Game.NumPlayers], (MoneyWon[(_gameStartingPlayerIndex + i) % Game.NumPlayers] * BaseBet).ToString("C", _nfi));
             }
 
             return sb.ToString();

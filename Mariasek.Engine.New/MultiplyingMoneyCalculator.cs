@@ -15,9 +15,15 @@ namespace Mariasek.Engine.New
         {
         }
 
-        public MultiplyingMoneyCalculator(Game g)
+        //public MultiplyingMoneyCalculator(NumberFormatInfo nfi)
+        //{
+        //    _nfi = nfi;
+        //}
+
+        public MultiplyingMoneyCalculator(Game g, NumberFormatInfo nfi)
             : base(g)
         {
+            _nfi = nfi;
         }
 
         public MultiplyingMoneyCalculator(Game g, Bidding bidding, GameComputationResult res)

@@ -4549,6 +4549,7 @@ namespace Mariasek.Engine.New
             {
                 prob.Set(hands);
             }
+            prob.UpdateProbabilitiesAfterTalon((List<Card>)hands[player1], (List<Card>)hands[3]);
             prob.UseDebugString = false;    //otherwise we are being really slooow
             var teamMatesSuits = new List<Barva>(_teamMatesSuits);
             var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds, teamMatesSuits,

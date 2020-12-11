@@ -248,7 +248,7 @@ namespace Mariasek.SharedClient
             var sb = new StringBuilder();
             int played = 0, wins = 0, total = 0;
             var series = new Vector2[Mariasek.Engine.New.Game.NumPlayers][];
-            var numFormat = (NumberFormatInfo)CultureInfo.GetCultureInfo(Game.Settings.Locale).NumberFormat.Clone();
+            var numFormat = (NumberFormatInfo)Game.CurrencyFormat.Clone();
 
             numFormat.CurrencyGroupSeparator = "";
             if (_useMockData)
