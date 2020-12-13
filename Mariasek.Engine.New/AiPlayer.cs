@@ -1176,6 +1176,7 @@ namespace Mariasek.Engine.New
                     try
                     {
                         Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, Settings.SimulationsPerGameType), options, (hh, loopState) =>
+                        //foreach(var hh in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, Settings.SimulationsPerGameType))
                         {
                             ThrowIfCancellationRequested();
                             try
@@ -1196,8 +1197,11 @@ namespace Mariasek.Engine.New
                                     for (var i = 0; i < hands.Length; i++)
                                     {
                                         hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
-                                }
-                                    UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
+                                    }
+                                    if (_talon == null || !_talon.Any())
+                                    {
+                                        UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
+                                    }
 
                                     var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : (Hra.Hra | Hra.SedmaProti), 10, 1);
                                     gameComputationResults.Enqueue(gameComputationResult);
@@ -1260,10 +1264,12 @@ namespace Mariasek.Engine.New
                                         for (var i = 0; i < hands.Length; i++)
                                         {
                                             hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
-                                    }
+                                        }
 
-                                        UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
-
+                                        if (_talon == null || !_talon.Any())
+                                        {
+                                            UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
+                                        }
                                         var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, AdvisorMode ? (Hra.Kilo | Hra.Sedma) : _gameType ?? (Hra.Kilo | Hra.Sedma), 10, 1);
                                         gameComputationResults.Enqueue(gameComputationResult);
                                     }
@@ -4551,11 +4557,33 @@ namespace Mariasek.Engine.New
             }
             prob.UpdateProbabilitiesAfterTalon((List<Card>)hands[player1], (List<Card>)hands[3]);
             prob.UseDebugString = false;    //otherwise we are being really slooow
+
+            var prob1 = player1 == PlayerIndex ? prob : new Probability(player1, player1, hands[player1], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
+            prob1.UseDebugString = false;
+            var prob2 = player2 == PlayerIndex ? prob : new Probability(player2, player1, hands[player2], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
+            prob2.UseDebugString = false;
+            var prob3 = player3 == PlayerIndex ? prob : new Probability(player3, player1, hands[player3], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
+            prob3.UseDebugString = false;
+
             var teamMatesSuits = new List<Barva>(_teamMatesSuits);
-            var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds, teamMatesSuits,
-                prob, playerName, playerIndex, teamMateIndex, initialRoundNumber,
+            //var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds, teamMatesSuits,
+            //    prob, playerName, playerIndex, teamMateIndex, initialRoundNumber,
+            //    Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense);
+
+            var aiStrategy1 = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds, new List<Barva>(),
+                prob1, _g.players[0].Name, 0, _g.players[0].TeamMateIndex, initialRoundNumber,
                 Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense);
-            
+
+            var aiStrategy2 = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds, new List<Barva>(),
+                prob2, _g.players[1].Name, 1, _g.players[1].TeamMateIndex, initialRoundNumber,
+                Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense);
+
+            var aiStrategy3 = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds, new List<Barva>(),
+                prob3, _g.players[2].Name, 2, _g.players[2].TeamMateIndex, initialRoundNumber,
+                Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense);
+            var aiStrategies = new[] { aiStrategy1, aiStrategy2, aiStrategy3 };
+            var aiStrategy = aiStrategies[player1];
+
             _log.DebugFormat("Round {0}. Starting simulation for {1}", _g.RoundNumber, _g.players[PlayerIndex].Name);
             if (c1 != null) _log.DebugFormat("First card: {0}", c1);
             if (c2 != null) _log.DebugFormat("Second card: {0}", c2);
@@ -4563,7 +4591,8 @@ namespace Mariasek.Engine.New
             _log.TraceFormat("{0}: {1} cerveny, {2} zeleny, {3} kule, {4} zaludy", _g.players[player3].Name, hands[player3].Count(i => i.Suit == Barva.Cerveny), hands[player3].Count(i => i.Suit == Barva.Zeleny), hands[player3].Count(i => i.Suit == Barva.Kule), hands[player3].Count(i => i.Suit == Barva.Zaludy));
             for (initialRoundNumber = aiStrategy.RoundNumber;
                  aiStrategy.RoundNumber < initialRoundNumber + roundsToCompute;
-                 aiStrategy.RoundNumber++)
+                 //aiStrategy.RoundNumber++)
+                 aiStrategy1.RoundNumber++, aiStrategy2.RoundNumber++, aiStrategy3.RoundNumber++)
             {
                 if (aiStrategy.RoundNumber > 10) break;
 
@@ -4573,13 +4602,14 @@ namespace Mariasek.Engine.New
 
                 if (!firstTime || c1 == null)
                 {
+                    aiStrategy = aiStrategies[player1];
                     ruleDictionary = aiStrategy.GetApplicableRules();
 
                     r1 = ruleDictionary.Keys.OrderBy(i => i.Order).FirstOrDefault();
                     c1 = ruleDictionary.OrderBy(i => i.Key.Order).Select(i => i.Value).FirstOrDefault();
 
-                    aiStrategy.MyIndex = player2;
-                    aiStrategy.TeamMateIndex = aiStrategy.TeamMateIndex == player2 ? player1 : (aiStrategy.TeamMateIndex == -1 ? player3 : -1);
+                    //aiStrategy.MyIndex = player2;
+                    //aiStrategy.TeamMateIndex = aiStrategy.TeamMateIndex == player2 ? player1 : (aiStrategy.TeamMateIndex == -1 ? player3 : -1);
                     if (firstTime)
                     {
                         result.CardToPlay = c1;
@@ -4590,13 +4620,14 @@ namespace Mariasek.Engine.New
                 }
                 if (!firstTime || c2 == null)
                 {
+                    aiStrategy = aiStrategies[player2];
                     ruleDictionary = aiStrategy.GetApplicableRules2(c1);
 
                     r2 = ruleDictionary.Keys.OrderBy(i => i.Order).FirstOrDefault();
                     c2 = ruleDictionary.OrderBy(i => i.Key.Order).Select(i => i.Value).FirstOrDefault();
 
-                    aiStrategy.MyIndex = player3;
-                    aiStrategy.TeamMateIndex = aiStrategy.TeamMateIndex == player3 ? player2 : (aiStrategy.TeamMateIndex == -1 ? player1 : -1);
+                    //aiStrategy.MyIndex = player3;
+                    //aiStrategy.TeamMateIndex = aiStrategy.TeamMateIndex == player3 ? player2 : (aiStrategy.TeamMateIndex == -1 ? player1 : -1);
                     if (firstTime)
                     {
                         result.CardToPlay = c2;
@@ -4605,6 +4636,7 @@ namespace Mariasek.Engine.New
                         firstTime = false;
                     }
                 }
+                aiStrategy = aiStrategies[player3];
                 ruleDictionary = aiStrategy.GetApplicableRules3(c1, c2);
 
                 r3 = ruleDictionary.Keys.OrderBy(i => i.Order).FirstOrDefault();
@@ -4658,15 +4690,30 @@ namespace Mariasek.Engine.New
                 }
                 else
                 {
-                    UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
-                    UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
-                    UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                    //UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                    //UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                    //UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+
+                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+
+                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+
+                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
                 }
-                aiStrategy.MyIndex = roundWinnerIndex;
-                aiStrategy.TeamMateIndex = _g.players[roundWinnerIndex].TeamMateIndex;
-                player1 = aiStrategy.MyIndex;
-                player2 = (aiStrategy.MyIndex + 1) % Game.NumPlayers;
-                player3 = (aiStrategy.MyIndex + 2) % Game.NumPlayers;
+                //aiStrategy.MyIndex = roundWinnerIndex;
+                //aiStrategy.TeamMateIndex = _g.players[roundWinnerIndex].TeamMateIndex;
+                //player1 = aiStrategy.MyIndex;
+                //player2 = (aiStrategy.MyIndex + 1) % Game.NumPlayers;
+                //player3 = (aiStrategy.MyIndex + 2) % Game.NumPlayers;
+                player1 = roundWinnerIndex;
+                player2 = (roundWinnerIndex + 1) % Game.NumPlayers;
+                player3 = (roundWinnerIndex + 2) % Game.NumPlayers;
                 AmendGameComputationResult(result, roundStarterIndex, roundWinnerIndex, roundScore, hands, c1, c2, c3);
                 Check(hands);
                 _log.TraceFormat("Score: {0}/{1}/{2}", result.Score[0], result.Score[1], result.Score[2]);
