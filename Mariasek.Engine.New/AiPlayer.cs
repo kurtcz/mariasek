@@ -2306,6 +2306,19 @@ namespace Mariasek.Engine.New
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
+            if (!Hand.HasA(_trump.Value) &&
+                !Hand.HasX(_trump.Value) &&
+                Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                    .Any(b => b != _trump.Value &&
+                              !Hand.HasA(b) &&
+                              !Hand.HasX(b)) &&
+                Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                    .Count(b => !Hand.HasK(b) &&
+                                !Hand.HasQ(b)) > 1)
+            {
+                DebugInfo.HundredTooRisky = true;
+                return true;
+            }
             //if (!((Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value)) || //abych nehral kilo pokud aspon netrham a nemam aspon 2 hlasky
             //		 Enum.GetValues(typeof(Barva)).Cast<Barva>()
             //			 .Count(b => Hand.HasK(b) && Hand.HasQ(b)) >= 2))
@@ -2431,8 +2444,8 @@ namespace Mariasek.Engine.New
                        Hand.HasK(_trump.Value) &&
                        Hand.HasQ(_trump.Value)))) ||
 				   (n > 2 &&                        //pokud mam vic nez 2 neodstranitelne diry
-					!(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
-					  Hand.HasQ(_trump.Value))) ||
+                    !(Hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
+                      Hand.HasQ(_trump.Value))) ||
                    (n > 1 &&                        //pokud mam vic nez 2 neodstranitelne diry
                     !(Hand.HasA(_trump.Value) &&    //a nemam trumfove eso ani desitku na navic
                       Hand.HasX(_trump.Value)) &&
@@ -4555,7 +4568,7 @@ namespace Mariasek.Engine.New
             {
                 prob.Set(hands);
             }
-            prob.UpdateProbabilitiesAfterTalon((List<Card>)hands[player1], (List<Card>)hands[3]);
+            //prob.UpdateProbabilitiesAfterTalon((List<Card>)hands[player1], (List<Card>)hands[3]);
             prob.UseDebugString = false;    //otherwise we are being really slooow
 
             var prob1 = player1 == PlayerIndex ? prob : new Probability(player1, player1, hands[player1], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
