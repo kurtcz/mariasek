@@ -548,7 +548,7 @@ namespace Mariasek.Engine.New
 						var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
 										.Where(b => b != _trump &&
 													hands[MyIndex].HasX(b) &&
-													hands[MyIndex].CardCount(b) > 1 &&
+                                                    hands[MyIndex].CardCount(b) > 1 &&
 													(_probabilities.CardProbability(player2, new Card(b, Hodnota.Eso)) > _epsilon ||
 													 _probabilities.CardProbability(player3, new Card(b, Hodnota.Eso)) > _epsilon));
 						if (suits.Any())
@@ -3109,13 +3109,13 @@ namespace Mariasek.Engine.New
                                                                          !(c1.Value == Hodnota.Desitka &&   //nemaz pokud prvni hrac vyjel desitkou a nevim kdo ma eso (nebylo-li jeste hrano)
                                                                            (_gameType & Hra.Kilo) == 0 &&   //(neplati pri kilu)
                                                                            _probabilities.CardProbability(player3, new Card(c1.Suit, Hodnota.Eso)) > _epsilon &&
-                                                                           _probabilities.CardProbability(player3, new Card(c1.Suit, Hodnota.Eso)) <= 1 - _epsilon &&
+                                                                           _probabilities.CardProbability(player3, new Card(c1.Suit, Hodnota.Eso)) < 1 - _epsilon &&
                                                                            _probabilities.CardProbability(player1, new Card(c1.Suit, Hodnota.Eso)) > _epsilon) &&
-                                                                         (_probabilities.SuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1 - RiskFactor ||
-                                                                          ((_gameType & Hra.Kilo) != 0 &&
-                                                                           _probabilities.SuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1/3f) ||
+                                                                         (_probabilities.SuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1/3f || //1 - RiskFactor ||
+                                                                          //((_gameType & Hra.Kilo) != 0 &&
+                                                                          // _probabilities.SuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1/3f) ||
                                                                           (c1.Suit != _trump &&
-                                                                           _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) <= RiskFactor &&
+                                                                           _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) <= 0.5f && //RiskFactor &&
                                                                            (_probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 - RiskFactor ||
                                                                             ((_gameType & Hra.Kilo) != 0) &&  //u kila zkousim mazat vice
                                                                              _probabilities.SuitProbability(player3, _trump, RoundNumber) >= RiskFactor))))

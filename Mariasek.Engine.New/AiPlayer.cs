@@ -2206,6 +2206,19 @@ namespace Mariasek.Engine.New
         public bool IsSevenTooRisky()
         {
             var result = Hand.CardCount(_trump.Value) < 4 ||                      //1.  mene nez 4 trumfy
+                         (Hand.CardCount(_trump.Value) <= 4 &&
+                          (!Hand.HasA(_trump.Value) ||
+                           !Hand.HasX(_trump.Value)) &&
+                          !(Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => b != _trump &&
+                                            Hand.HasSuit(b))
+                                .Any(b => Hand.CardCount(b) >= 5) ||
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => b != _trump &&
+                                            Hand.HasSuit(b))
+                                .All(b => Hand.HasA(b)) ||
+                            Hand.Where(i => i.Suit != _trump.Value)
+                                .Count(i => i.Value == Hodnota.Eso) >= 2)) ||
                          (Hand.CardCount(_trump.Value) == 4 &&                    //2.  nebo 4 trumfy a jedno z
                           (Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||      //2a. mene nez 3 vysoke karty celkem
                            (Hand.Count(i => i.Value == Hodnota.Eso) +              //2b. nebo mene nez 2 (resp. 3) uhratelne A, X
@@ -2218,9 +2231,9 @@ namespace Mariasek.Engine.New
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump.Value)
                                 .All(b => Hand.CardCount(b) < 4)) ||              //   (vyjma pripadu kdy mam dlouhou netrumfovou tlacnou barvu)
-                           (Hand.Select(i => i.Suit).Distinct().Count() < 4) &&   //2c. nebo nevidim do nejake barvy
+                           (Hand.Select(i => i.Suit).Distinct().Count() < 4 &&   //2c. nebo nevidim do nejake barvy
                            !(Hand.HasA(_trump.Value) &&                          //    (vyjma pripadu kdy mam trumfove eso a max. 2 neodstranitelne netrumfove diry)
-                             GetTotalHoles(false, false) <= 2))) ||
+                             GetTotalHoles(false, false) <= 2)))) ||
                          (Hand.CardCount(_trump.Value) == 5 &&                    //3.  5 trumfu a nemam trumfove A+K+S
                           Hand.Count(i => i.Suit == _trump.Value &&
                                           i.Value >= Hodnota.Svrsek) < 3 &&
@@ -4571,11 +4584,11 @@ namespace Mariasek.Engine.New
             //prob.UpdateProbabilitiesAfterTalon((List<Card>)hands[player1], (List<Card>)hands[3]);
             prob.UseDebugString = false;    //otherwise we are being really slooow
 
-            var prob1 = player1 == PlayerIndex ? prob : new Probability(player1, player1, hands[player1], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
+            var prob1 = 0 == PlayerIndex ? prob : new Probability(0, player1, hands[0], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
             prob1.UseDebugString = false;
-            var prob2 = player2 == PlayerIndex ? prob : new Probability(player2, player1, hands[player2], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
+            var prob2 = 1 == PlayerIndex ? prob : new Probability(1, player1, hands[1], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
             prob2.UseDebugString = false;
-            var prob3 = player3 == PlayerIndex ? prob : new Probability(player3, player1, hands[player3], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
+            var prob3 = 2 == PlayerIndex ? prob : new Probability(2, player1, hands[2], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
             prob3.UseDebugString = false;
 
             var teamMatesSuits = new List<Barva>(_teamMatesSuits);
