@@ -17,6 +17,7 @@ namespace Mariasek.Cli
         private static string _path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         public static string _settingsFilePath = Path.Combine(_path, "Mariasek.settings");
 
+        private static NumberFormatInfo nfi = CultureInfo.CreateSpecificCulture("cs-CZ").NumberFormat;
         private static Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
         private static string programFolder = _path;
         private static string resultFilename;
@@ -83,7 +84,8 @@ namespace Mariasek.Cli
                     AllowAXTalon = Settings.AllowAXTalon,
                     AllowTrumpTalon = Settings.AllowTrumpTalon,
                     AllowAIAutoFinish = Settings.AllowAIAutoFinish,
-                    AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish
+                    AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish,
+                    CurrencyFormat = nfi
                 };
                 g.RegisterPlayers(
                     new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[0] },
@@ -147,7 +149,8 @@ namespace Mariasek.Cli
                     AllowAXTalon = Settings.AllowAXTalon,
                     AllowTrumpTalon = Settings.AllowTrumpTalon,
                     AllowAIAutoFinish = Settings.AllowAIAutoFinish,
-                    AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish
+                    AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish,
+                    CurrencyFormat = nfi
                 };
                 g.RegisterPlayers(
                     new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[0] },
@@ -193,7 +196,8 @@ namespace Mariasek.Cli
                         AllowAXTalon = Settings.AllowAXTalon,
                         AllowTrumpTalon = Settings.AllowTrumpTalon,
                         AllowAIAutoFinish = Settings.AllowAIAutoFinish,
-                        AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish
+                        AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish,
+                        CurrencyFormat = nfi
                     };
                     g.RegisterPlayers(
                         new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[0] },
@@ -254,7 +258,8 @@ namespace Mariasek.Cli
                 AllowAXTalon = Settings.AllowAXTalon,
                 AllowTrumpTalon = Settings.AllowTrumpTalon,
                 AllowAIAutoFinish = Settings.AllowAIAutoFinish,
-                AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish
+                AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish,
+                CurrencyFormat = nfi
             };
             g.RegisterPlayers(
                 new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[0] },

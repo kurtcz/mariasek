@@ -304,7 +304,11 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
+#if __IOS__
+                Text = "Základní sazba pro hru",
+#else
                 Text = "Základní sazba",
+#endif
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
@@ -339,8 +343,8 @@ namespace Mariasek.SharedClient
             var startIndex = _locales.First(i => i.Item1 == Game.Settings.Locale).Item2;
             _baseBetSelector.SelectedIndex = _baseBetSelector.Items.FindIndex(startIndex, i => (i.Value as float?) == Game.Settings.BaseBet);
             _baseBetSelector.SelectionChanged += BaseBetChanged;
-            #endregion
-            #region Page 2
+#endregion
+#region Page 2
             _minBidsForGame = new Label(this)
             {
                 Position = new Vector2(200, pageOffset + 10),
