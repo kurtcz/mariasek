@@ -1249,9 +1249,9 @@ namespace Mariasek.Engine.New
             {
                 //slozime karty v nahodnem poradi
                 sb.AppendFormat("Adding hand of player 1\nAdding hand of player 2\nAdding hand of player 3\nAdding talon");
-                var hand1 = players[0].Hand;
-                var hand2 = players[1].Hand;
-                var hand3 = players[2].Hand;
+                var hand1 = new List<Card>(players[0].Hand).Shuffle().ToList();
+                var hand2 = new List<Card>(players[1].Hand).Shuffle().ToList();
+                var hand3 = new List<Card>(players[2].Hand).Shuffle().ToList();
 
                 //setridime zbyle karty hracu v ruce, aby se barvy slozily k sobe
                 hand1.Sort(SortMode == SortMode.None ? SortMode.SuitsOnly : SortMode, trump == null, shuffleSuits: true);

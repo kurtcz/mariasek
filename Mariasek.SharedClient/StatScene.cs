@@ -41,7 +41,9 @@ namespace Mariasek.SharedClient
         private LeftRightSelector _effectivityMoneySelector;
         private LeftRightSelector _leaderDefenceSelector;
         private RadarChart _chart;
+        private BarChart[] _barCharts;
         private Label[] _chartLabels;
+        private Label[] _barChartLabels;
         private TextBox _summary;
         private TextBox _details;
         private string _effectivityText = string.Empty;
@@ -54,6 +56,12 @@ namespace Mariasek.SharedClient
         private string _defenceMoneySummary = string.Empty;
         private float[][] _points = new float[Mariasek.Engine.New.Game.NumPlayers][];
         private float[][] _defencePoints = new float[Mariasek.Engine.New.Game.NumPlayers][];
+        private float[][] _money = new float[Mariasek.Engine.New.Game.NumPlayers][];
+        private float[][] _defenceMoney = new float[Mariasek.Engine.New.Game.NumPlayers][];
+        private float _minMoney = float.MaxValue;
+        private float _maxMoney = float.MinValue;
+        private float _minDefenceMoney = float.MaxValue;
+        private float _maxDefenceMoney = float.MinValue;
 
         public StatScene(MariasekMonoGame game)
             : base(game)
@@ -101,6 +109,27 @@ namespace Mariasek.SharedClient
                 MaxValue = 1.1f,
                 Colors = new[] { Game.Settings.Player1Color, Game.Settings.Player2Color, Game.Settings.Player3Color }
             };
+            _barCharts = new BarChart[6];
+            for (var i = 0; i < _barCharts.Length; i++)
+            {
+                var row = i / 2;
+                var col = i % 2;
+                _barCharts[i] = new BarChart(this)
+                {
+                    Position = new Vector2(10 + col * 105, 10 + row * 105),
+                    Width = 100,
+                    Height = 75,
+                    Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                    Colors = new[] { Game.Settings.Player1Color, Game.Settings.Player2Color, Game.Settings.Player3Color },
+                    ShowVerticalGridLines = false,
+                    GridInterval = new Vector2(1, 100),
+                    Opacity = 0.8f
+                };
+            }
+            foreach(var bc in _barCharts)
+            {
+                bc.Hide();
+            }
             _summary = new TextBox(this)
             {
                 Position = new Vector2(210, 10),
@@ -241,6 +270,90 @@ namespace Mariasek.SharedClient
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
                 ZIndex = 100
             };
+
+            _barChartLabels = new Label[6];
+            _barChartLabels[0] = new Label(this)
+            {
+                Position = _barCharts[0].Position + new Vector2(0, _barCharts[0].Height - 5),
+                Width = 100,
+                Height = 30,
+                HorizontalAlign = HorizontalAlignment.Left,
+                VerticalAlign = VerticalAlignment.Top,
+                Text = "Hra",
+                TextRenderer = Game.FontRenderers["BMFont"],
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                ZIndex = 100
+            };
+            _barCharts[0].Tag = _barChartLabels[0].Text;
+            _barChartLabels[1] = new Label(this)
+            {
+                Position = _barCharts[1].Position + new Vector2(0, _barCharts[1].Height - 5),
+                Width = 100,
+                Height = 30,
+                HorizontalAlign = HorizontalAlignment.Left,
+                VerticalAlign = VerticalAlignment.Top,
+                Text = "Sedma",
+                TextRenderer = Game.FontRenderers["BMFont"],
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                ZIndex = 100
+            };
+            _barCharts[1].Tag = _barChartLabels[1].Text;
+            _barChartLabels[2] = new Label(this)
+            {
+                Position = _barCharts[2].Position + new Vector2(0, _barCharts[2].Height - 5),
+                Width = 100,
+                Height = 30,
+                HorizontalAlign = HorizontalAlignment.Left,
+                VerticalAlign = VerticalAlignment.Top,
+                Text = "Kilo",
+                TextRenderer = Game.FontRenderers["BMFont"],
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                ZIndex = 100
+            };
+            _barCharts[2].Tag = _barChartLabels[2].Text;
+            _barChartLabels[3] = new Label(this)
+            {
+                Position = _barCharts[3].Position + new Vector2(0, _barCharts[3].Height - 5),
+                Width = 100,
+                Height = 30,
+                HorizontalAlign = HorizontalAlignment.Left,
+                VerticalAlign = VerticalAlignment.Top,
+                Text = "Stosedm",
+                TextRenderer = Game.FontRenderers["BMFont"],
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                ZIndex = 100
+            };
+            _barCharts[3].Tag = _barChartLabels[3].Text;
+            _barChartLabels[4] = new Label(this)
+            {
+                Position = _barCharts[4].Position + new Vector2(0, _barCharts[4].Height - 5),
+                Width = 100,
+                Height = 30,
+                HorizontalAlign = HorizontalAlignment.Left,
+                VerticalAlign = VerticalAlignment.Top,
+                Text = "Betl",
+                TextRenderer = Game.FontRenderers["BMFont"],
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                ZIndex = 100
+            };
+            _barCharts[4].Tag = _barChartLabels[4].Text;
+            _barChartLabels[5] = new Label(this)
+            {
+                Position = _barCharts[5].Position + new Vector2(0, _barCharts[5].Height - 5),
+                Width = 100,
+                Height = 30,
+                HorizontalAlign = HorizontalAlignment.Left,
+                VerticalAlign = VerticalAlignment.Top,
+                Text = "Durch",
+                TextRenderer = Game.FontRenderers["BMFont"],
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                ZIndex = 100
+            };
+            _barCharts[5].Tag = _barChartLabels[5].Text;
+            foreach (var bcl in _barChartLabels)
+            {
+                bcl.Hide();
+            }
             PopulateControls();
         }
 
@@ -267,7 +380,7 @@ namespace Mariasek.SharedClient
                 AppendStatsForGameType(stat, sbGames, sbMoney, sbDefenceGames, sbDefenceMoney);
             }
 
-            PopulateRadarChart();
+            PopulateCharts();
             _effectivityText = sbGames.ToString();
             _effectivitySummary = sbGamesSummary.ToString();
             _defenceEffectivityText = sbDefenceGames.ToString();
@@ -279,7 +392,7 @@ namespace Mariasek.SharedClient
             StatModeSelectorClicked(this);
         }
 
-        private void PopulateRadarChart()
+        private void PopulateCharts()
         {
             var stats = Game.Money
                             .Where(i => i.GameIdSpecified)
@@ -321,12 +434,16 @@ namespace Mariasek.SharedClient
             {
                 _points[i] = new float[stats.Count()];
                 _defencePoints[i] = new float[stats.Count()];
+                _money[i] = new float[stats.Count()];
+                _defenceMoney[i] = new float[stats.Count()];
             }
 
             for (var i = 0; i < stats.Count(); i++)
             {
                 var stat = stats[i];
                 var gameTypeString = stat.Key;
+                var barChart = _barCharts.First(i => (string)i.Tag == gameTypeString);
+                var n = Array.IndexOf(_barCharts, barChart);
                 var games1 = stat.Where(j => (j.MoneyWon[0] > 0 && j.MoneyWon[1] < 0 && j.MoneyWon[2] < 0) ||
                                              (j.MoneyWon[0] < 0 && j.MoneyWon[1] > 0 && j.MoneyWon[2] > 0));
                 var games2 = stat.Where(j => (j.MoneyWon[0] < 0 && j.MoneyWon[1] > 0 && j.MoneyWon[2] < 0) ||
@@ -389,6 +506,18 @@ namespace Mariasek.SharedClient
                 _defencePoints[0][i] = defencesRatio1;
                 _defencePoints[1][i] = defencesRatio2;
                 _defencePoints[2][i] = defencesRatio3;
+
+                _money[0][n] = (float)games1.Sum(i => i.MoneyWon[0]);
+                _money[1][n] = (float)games2.Sum(i => i.MoneyWon[1]);
+                _money[2][n] = (float)games3.Sum(i => i.MoneyWon[2]);
+                _defenceMoney[0][n] = (float)(games2.Sum(i => i.MoneyWon[0]) + games3.Sum(i => i.MoneyWon[0]));
+                _defenceMoney[1][n] = (float)(games1.Sum(i => i.MoneyWon[1]) + games3.Sum(i => i.MoneyWon[1]));
+                _defenceMoney[2][n] = (float)(games1.Sum(i => i.MoneyWon[2]) + games2.Sum(i => i.MoneyWon[2]));
+
+                _minMoney = _money.Min(i => i.Min(j => j));
+                _maxMoney = _money.Max(i => i.Max(j => j));
+                _minDefenceMoney = _defenceMoney.Min(i => i.Min(j => j));
+                _maxDefenceMoney = _defenceMoney.Max(i => i.Max(j => j));
             }
             if (((StatMode)_leaderDefenceSelector.SelectedValue & StatMode.Leader) != 0)
             {
@@ -531,6 +660,19 @@ namespace Mariasek.SharedClient
         {
             if (((StatMode)_effectivityMoneySelector.SelectedValue & StatMode.Efectivity) != 0)
             {
+                _chart.Show();
+                foreach(var cl in _chartLabels)
+                {
+                    cl.Show();
+                }
+                foreach (var bc in _barCharts)
+                {
+                    bc.Hide();
+                }
+                foreach (var bcl in _barChartLabels)
+                {
+                    bcl.Hide();
+                }
                 if (((StatMode)_leaderDefenceSelector.SelectedValue & StatMode.Leader) != 0)
                 {
                     _summary.Text = _effectivitySummary;
@@ -546,17 +688,80 @@ namespace Mariasek.SharedClient
             }
             else
             {
+                _chart.Hide();
+                foreach (var cl in _chartLabels)
+                {
+                    cl.Hide();
+                }
+                foreach (var bc in _barCharts)
+                {
+                    bc.Show();
+                }
+                foreach (var bcl in _barChartLabels)
+                {
+                    bcl.Show();
+                }
                 if (((StatMode)_leaderDefenceSelector.SelectedValue & StatMode.Leader) != 0)
                 {
                     _summary.Text = _moneySummary;
                     _details.Text = _moneyText;
-                    _chart.Data = _points;
+                    for (var i = 0; i < _barCharts.Length; i++)
+                    {
+                        var gridInterval = 5f * (int)Math.Pow(10, Math.Round(Math.Log10(_maxMoney - _minMoney)) - 1);
+
+                        if ((_maxMoney - _minMoney) / gridInterval <= 2)
+                        {
+                            gridInterval /= 5;
+                        }
+                        else if ((_maxMoney - _minMoney) / gridInterval <= 3)
+                        {
+                            gridInterval /= 2f;
+                        }
+                        _barCharts[i].GridInterval = new Vector2(1, gridInterval);
+                        _barCharts[i].MinValue = _minMoney > 0
+                                                    ? 1.1f * (float)Math.Ceiling(_minMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y
+                                                    : 1.1f * (float)Math.Floor(_minMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y;
+                        _barCharts[i].MaxValue = _maxMoney > 0
+                                                    ? 1.1f * (float)Math.Ceiling(_maxMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y
+                                                    : 1.1f * (float)Math.Floor(_maxMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y;
+                        _barCharts[i].Data = new[]
+                        {
+                            new [] { _money[0][i] },
+                            new [] { _money[1][i] },
+                            new [] { _money[2][i] }
+                        };
+                    }
                 }
                 else
                 {
                     _summary.Text = _defenceMoneySummary;
                     _details.Text = _defenceMoneyText;
-                    _chart.Data = _defencePoints;
+                    for (var i = 0; i < _barCharts.Length; i++)
+                    {
+                        var gridInterval = 5f * (int)Math.Pow(10, Math.Round(Math.Log10(_maxDefenceMoney - _minDefenceMoney)) - 1);
+
+                        if ((_maxDefenceMoney - _minDefenceMoney) / gridInterval <= 2)
+                        {
+                            gridInterval /= 5;
+                        }
+                        else if ((_maxDefenceMoney - _minDefenceMoney) / gridInterval <= 3)
+                        {
+                            gridInterval /= 2;
+                        }
+                        _barCharts[i].GridInterval = new Vector2(1, gridInterval);
+                        _barCharts[i].MinValue = _minDefenceMoney > 0
+                                                    ? 1.1f * (float)Math.Ceiling(_minDefenceMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y
+                                                    : 1.1f * (float)Math.Floor(_minDefenceMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y;
+                        _barCharts[i].MaxValue = _maxDefenceMoney > 0
+                                                    ? 1.1f * (float)Math.Ceiling(_maxDefenceMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y
+                                                    : 1.1f * (float)Math.Floor(_maxDefenceMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y;
+                        _barCharts[i].Data = new[]
+                        {
+                            new [] { _defenceMoney[0][i] },
+                            new [] { _defenceMoney[1][i] },
+                            new [] { _defenceMoney[2][i] }
+                        };
+                    }
                 }
             }
         }
