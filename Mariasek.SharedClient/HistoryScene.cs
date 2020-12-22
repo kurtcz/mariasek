@@ -288,7 +288,25 @@ namespace Mariasek.SharedClient
             _historyChart.MinValue = new Vector2(0, maxLost);
             if (Game.Settings != null)
             {
-                _historyChart.GridInterval = new Vector2(1f, 10 * Game.Settings.BaseBet);
+                //_historyChart.GridInterval = new Vector2(1f, 10 * Game.Settings.BaseBet);
+                var gridInterval = (int)Math.Pow(10, Math.Round(Math.Log10(_historyChart.MaxValue.Y - _historyChart.MinValue.Y)) - 1);
+
+                if (gridInterval == 0)
+                {
+                    _historyChart.GridInterval = new Vector2(1, 0.1f);
+                }
+                else
+                {
+                    if ((_historyChart.MaxValue.Y - _historyChart.MinValue.Y) / gridInterval <= 2)
+                    {
+                        gridInterval /= 10;
+                    }
+                    else if ((_historyChart.MaxValue.Y - _historyChart.MinValue.Y) / gridInterval <= 3)
+                    {
+                        gridInterval /= 4;
+                    }
+                    _historyChart.GridInterval = new Vector2(1, gridInterval);
+                }
             }
             _historyChart.Data = series;
             //_historyChart.Click += (sender) => 

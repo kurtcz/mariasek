@@ -3029,15 +3029,18 @@ namespace Mariasek.Engine.New
                       Hand.HasK(_g.trump.Value) &&
                       Hand.HasQ(_g.trump.Value) &&
                       estimatedFinalBasicScore + kqScore >= 60) ||
+                     (Hand.HasA(_g.trump.Value) &&
+                      kqScore >= 40 &&
+                      estimatedFinalBasicScore + kqScore >= 60) ||
                      (Hand.CardCount(_g.trump.Value) >= 4 &&    //nebo mam aspon 4 trumfy
                       DebugInfo.Tygrovo >= 20))) ||             //a k tomu silne karty
                    (bidding.GameMultiplier < 2 &&               //Flek:
                     ((Hand.CardCount(_g.trump.Value) >= 2 &&    //aspon 2 trumfy
                       (Hand.HasK(_g.trump.Value) ||             //a k tomu trhak
-                       Hand.HasQ(_g.trump.Value)) &&
+                       Hand.HasQ(_g.trump.Value) ||
+                       kqScore >= 40) &&
                       (estimatedFinalBasicScore >= 20 ||        //a aspon 20 nebo 10+20 bodu na ruce
-                       (estimatedFinalBasicScore >= 10 && //20 by bylo bezpecnejsi (neni 10 moc malo?)
-                        kqScore >= 20))) ||                     //nebo
+                       kqScore >= 20)) ||                     //nebo
                      (kqMaxOpponentScore == 0 ||                //vidim do vsech hlasek
                       (estimatedFinalBasicScore >= 10 &&        //nebo vidim do tri hlasek a mam aspon 10 bodu
                        kqMaxOpponentScore <= 20)) ||            //nebo
@@ -3194,7 +3197,8 @@ namespace Mariasek.Engine.New
                   (Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0 ||
                    (_hundredsBalance == _hundredSimulations &&                                                          //nebo pokud v simulacich nevyslo ani jednou
                     Hand.HasK(_g.trump.Value) &&
-                    Hand.HasQ(_g.trump.Value))))))
+                    Hand.HasQ(_g.trump.Value) &&
+                    estimatedFinalBasicScore >= 40)))))
             {
                 bid |= bidding.Bids & Hra.Kilo;
                 //minRuleCount = Math.Min(minRuleCount, _hundredsBalance);

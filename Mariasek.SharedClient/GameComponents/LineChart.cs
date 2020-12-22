@@ -260,13 +260,21 @@ namespace Mariasek.SharedClient.GameComponents
                     continue;
                 }
 
-                var points = new Vector2[Data[i].Length + 1];
+                var points = new Vector2[Data[i].Length == 1 ? 2 : Data[i].Length];
 
-                for (var j = 0; j < Data[i].Length; j++)
+                if (Data[i].Length == 1)
                 {
-                    points[j + 1] = LogicalToPhysical(Data[i][j]);
+                    points[1] = LogicalToPhysical(Data[i][0]);
+                    points[0] = new Vector2(points[1].X - 1, points[1].Y);
                 }
-                points[0] = new Vector2(points[1].X - 1, points[1].Y);
+                else
+                {
+                    for (var j = 0; j < Data[i].Length; j++)
+                    {
+                        points[j] = LogicalToPhysical(Data[i][j]);
+                    }
+                }
+//                points[0] = new Vector2(points[1].X - 1, points[1].Y);
                 Primitives2D.DrawSpline(Game.SpriteBatch, points, Colors[i], LineThickness, Opacity);
                 if (DataMarkerSize > 0)
                 {

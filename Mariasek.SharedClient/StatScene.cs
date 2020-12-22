@@ -709,21 +709,31 @@ namespace Mariasek.SharedClient
                     {
                         var gridInterval = 5f * (int)Math.Pow(10, Math.Round(Math.Log10(_maxMoney - _minMoney)) - 1);
 
-                        if ((_maxMoney - _minMoney) / gridInterval <= 2)
+                        if (gridInterval == 0)
                         {
-                            gridInterval /= 5;
+                            gridInterval = 1f;
                         }
-                        else if ((_maxMoney - _minMoney) / gridInterval <= 3)
+                        else
                         {
-                            gridInterval /= 2f;
+                            if (_maxMoney > _minMoney)
+                            {
+                                if ((_maxMoney - _minMoney) / gridInterval <= 1.5f)
+                                {
+                                    gridInterval /= 5;
+                                }
+                                else if ((_maxMoney - _minMoney) / gridInterval <= 3)
+                                {
+                                    gridInterval /= 2f;
+                                }
+                            }
                         }
                         _barCharts[i].GridInterval = new Vector2(1, gridInterval);
                         _barCharts[i].MinValue = _minMoney > 0
-                                                    ? 1.1f * (float)Math.Ceiling(_minMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y
-                                                    : 1.1f * (float)Math.Floor(_minMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y;
+                                                    ? 1.05f * (float)Math.Ceiling(_minMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y
+                                                    : 1.05f * (float)Math.Floor(_minMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y;
                         _barCharts[i].MaxValue = _maxMoney > 0
-                                                    ? 1.1f * (float)Math.Ceiling(_maxMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y
-                                                    : 1.1f * (float)Math.Floor(_maxMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y;
+                                                    ? 1.05f * (float)Math.Ceiling(_maxMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y
+                                                    : 1.05f * (float)Math.Floor(_maxMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y;
                         _barCharts[i].Data = new[]
                         {
                             new [] { _money[0][i] },
@@ -740,21 +750,31 @@ namespace Mariasek.SharedClient
                     {
                         var gridInterval = 5f * (int)Math.Pow(10, Math.Round(Math.Log10(_maxDefenceMoney - _minDefenceMoney)) - 1);
 
-                        if ((_maxDefenceMoney - _minDefenceMoney) / gridInterval <= 2)
+                        if (gridInterval == 0)
                         {
-                            gridInterval /= 5;
+                            gridInterval = 1f;
                         }
-                        else if ((_maxDefenceMoney - _minDefenceMoney) / gridInterval <= 3)
+                        else
                         {
-                            gridInterval /= 2;
+                            if (_maxDefenceMoney > _minDefenceMoney)
+                            {
+                                if ((_maxDefenceMoney - _minDefenceMoney) / gridInterval <= 1.5f)
+                                {
+                                    gridInterval /= 5;
+                                }
+                                else if ((_maxDefenceMoney - _minDefenceMoney) / gridInterval <= 3)
+                                {
+                                    gridInterval /= 2;
+                                }
+                            }
                         }
                         _barCharts[i].GridInterval = new Vector2(1, gridInterval);
                         _barCharts[i].MinValue = _minDefenceMoney > 0
-                                                    ? 1.1f * (float)Math.Ceiling(_minDefenceMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y
-                                                    : 1.1f * (float)Math.Floor(_minDefenceMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y;
+                                                    ? 1.05f * (float)Math.Ceiling(_minDefenceMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y
+                                                    : 1.05f * (float)Math.Floor(_minDefenceMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y;
                         _barCharts[i].MaxValue = _maxDefenceMoney > 0
-                                                    ? 1.1f * (float)Math.Ceiling(_maxDefenceMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y
-                                                    : 1.1f * (float)Math.Floor(_maxDefenceMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y;
+                                                    ? 1.05f * (float)Math.Ceiling(_maxDefenceMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y
+                                                    : 1.05f * (float)Math.Floor(_maxDefenceMoney / _barCharts[i].GridInterval.Y) * _barCharts[i].GridInterval.Y;
                         _barCharts[i].Data = new[]
                         {
                             new [] { _defenceMoney[0][i] },
