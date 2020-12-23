@@ -7,12 +7,14 @@ using System.Globalization;
 
 namespace Mariasek.SharedClient
 {
+    #region test
     public enum CardFace
     {
         Single,
         Double,
         Pikety
     }
+    #endregion
 
     public enum CardBackSide
     {

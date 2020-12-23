@@ -77,12 +77,12 @@ namespace Mariasek.SharedClient
                 _touchHeldLocation = tl;
                 return false;
             };
-			_historyChart.Click += (sender) => {
-				if (Vector2.Distance(_touchHeldLocation.Position, _touchDownLocation.Position) < 10)
-				{
-                    _historyChart.ToggleSizeChartToFit();
-				}
-			};
+			//_historyChart.Click += (sender) => {
+			//	if (Vector2.Distance(_touchHeldLocation.Position, _touchDownLocation.Position) < 10)
+			//	{
+            //        _historyChart.ToggleSizeChartToFit();
+			//	}
+			//};
             _menuButton = new Button(this)
             {
                 Position = new Vector2(10, (int)Game.VirtualScreenHeight - 60),

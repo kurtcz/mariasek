@@ -42,7 +42,7 @@ namespace Mariasek.SharedClient.GameComponents
                                                          .ToArray())
                                            .ToArray()
                                    : value;
-				UpdateSprite();
+                UpdateSprite(true);
             }
         }
         public string[] Series { get; set; }
@@ -159,17 +159,19 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
-        private void UpdateSprite()
+        private void UpdateSprite(bool refreshAxis = false)
         {
             //_chartWidth = (int)Math.Max(Width, _data.Length > 0 ? _data[0].Length * 25f : 0);
             //Draw onto the target rather than the back buffer
             _target = new RenderTarget2D(Game.SpriteBatch.GraphicsDevice, _chartWidth(), Height);
             var physicalWidth = (int)Math.Max(1, LogicalToPhysical(new Vector2(TickMarkLength, 0)).X);
-            _verticalAxisTarget = new RenderTarget2D(Game.SpriteBatch.GraphicsDevice, physicalWidth, Height);
+
             HorizontalScrollOffset = Vector2.Zero;
 
-            if (ShowYAxis)
+            if (ShowYAxis && refreshAxis)
             {
+                _verticalAxisTarget?.Dispose();
+                _verticalAxisTarget = new RenderTarget2D(Game.SpriteBatch.GraphicsDevice, physicalWidth, Height);
                 Game.SpriteBatch.GraphicsDevice.SetRenderTarget(_verticalAxisTarget);
                 Game.SpriteBatch.GraphicsDevice.Clear(Color.Transparent);
                 Game.SpriteBatch.Begin();
@@ -334,7 +336,7 @@ namespace Mariasek.SharedClient.GameComponents
 		    }
 		    SizeChartToFit = !SizeChartToFit;
 		    UpdateMinMaxValues();
-		    UpdateSprite();
+            UpdateSprite();
 		    if (!SizeChartToFit)
 		    {
 		        HorizontalScrollOffset = _oldHorizontalScrollOffset;
