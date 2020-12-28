@@ -2218,7 +2218,9 @@ namespace Mariasek.Engine.New
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump &&
                                             Hand.HasSuit(b))
-                                .All(b => Hand.HasA(b)) ||
+                                .All(b => Hand.HasA(b) ||
+                                          (Hand.HasX(b) &&
+                                           Hand.HasK(b))) ||
                             Hand.Where(i => i.Suit != _trump.Value)
                                 .Count(i => i.Value == Hodnota.Eso) >= 2)) ||
                          (Hand.CardCount(_trump.Value) == 4 &&                    //2.  nebo 4 trumfy a jedno z
@@ -2226,10 +2228,10 @@ namespace Mariasek.Engine.New
                            (Hand.Count(i => i.Value == Hodnota.Eso) +              //2b. nebo mene nez 2 (resp. 3) uhratelne A, X
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Count(b => (Hand.HasX(b) &&
-                                            (Hand.HasK(b) ||
-                                             Hand.HasA(b) ||
-                                             (Hand.HasQ(b) &&
-                                              Hand.CardCount(b) > 2)))) < (TeamMateIndex == -1 ? 2 : 3) &&
+                                             (Hand.HasK(b) ||
+                                              Hand.HasA(b) ||
+                                              (Hand.HasQ(b) &&
+                                               Hand.CardCount(b) > 2)))) < (TeamMateIndex == -1 ? 2 : 3) &&
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump.Value)
                                 .All(b => Hand.CardCount(b) < 4)) ||              //   (vyjma pripadu kdy mam dlouhou netrumfovou tlacnou barvu)
@@ -2238,7 +2240,8 @@ namespace Mariasek.Engine.New
                               GetTotalHoles(false, false) <= 2) ||                //    (nebo vyjma pripadu kdy mam X,K,Q trumfove a k tomu netrumfove eso
                              (Hand.HasX(_trump.Value) &&
                               Hand.HasK(_trump.Value) &&
-                              Hand.HasQ(_trump.Value) &&
+                              (Hand.HasQ(_trump.Value) ||
+                               Hand.HasJ(_trump.Value)) &&
                               Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                   .Where(b => b != _trump.Value &&
                                               Hand.HasSuit(b))

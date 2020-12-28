@@ -442,7 +442,7 @@ namespace Mariasek.SharedClient
             {
                 var stat = stats[i];
                 var gameTypeString = stat.Key;
-                var barChart = _barCharts.First(i => (string)i.Tag == gameTypeString);
+                var barChart = _barCharts.First(j => (string)j.Tag == gameTypeString);
                 var n = Array.IndexOf(_barCharts, barChart);
                 var games1 = stat.Where(j => (j.MoneyWon[0] > 0 && j.MoneyWon[1] < 0 && j.MoneyWon[2] < 0) ||
                                              (j.MoneyWon[0] < 0 && j.MoneyWon[1] > 0 && j.MoneyWon[2] > 0));
@@ -507,17 +507,17 @@ namespace Mariasek.SharedClient
                 _defencePoints[1][i] = defencesRatio2;
                 _defencePoints[2][i] = defencesRatio3;
 
-                _money[0][n] = (float)games1.Sum(i => i.MoneyWon[0]);
-                _money[1][n] = (float)games2.Sum(i => i.MoneyWon[1]);
-                _money[2][n] = (float)games3.Sum(i => i.MoneyWon[2]);
-                _defenceMoney[0][n] = (float)(games2.Sum(i => i.MoneyWon[0]) + games3.Sum(i => i.MoneyWon[0]));
-                _defenceMoney[1][n] = (float)(games1.Sum(i => i.MoneyWon[1]) + games3.Sum(i => i.MoneyWon[1]));
-                _defenceMoney[2][n] = (float)(games1.Sum(i => i.MoneyWon[2]) + games2.Sum(i => i.MoneyWon[2]));
+                _money[0][n] = (float)games1.Sum(j => j.MoneyWon[0]);
+                _money[1][n] = (float)games2.Sum(j => j.MoneyWon[1]);
+                _money[2][n] = (float)games3.Sum(j => j.MoneyWon[2]);
+                _defenceMoney[0][n] = (float)(games2.Sum(j => j.MoneyWon[0]) + games3.Sum(k => k.MoneyWon[0]));
+                _defenceMoney[1][n] = (float)(games1.Sum(j => j.MoneyWon[1]) + games3.Sum(k => k.MoneyWon[1]));
+                _defenceMoney[2][n] = (float)(games1.Sum(j => j.MoneyWon[2]) + games2.Sum(k => k.MoneyWon[2]));
 
-                _minMoney = _money.Min(i => i.Min(j => j));
-                _maxMoney = _money.Max(i => i.Max(j => j));
-                _minDefenceMoney = _defenceMoney.Min(i => i.Min(j => j));
-                _maxDefenceMoney = _defenceMoney.Max(i => i.Max(j => j));
+                _minMoney = _money.Min(j => j.Min(k => k));
+                _maxMoney = _money.Max(j => j.Max(k => k));
+                _minDefenceMoney = _defenceMoney.Min(j => j.Min(k => k));
+                _maxDefenceMoney = _defenceMoney.Max(j => j.Max(k => k));
             }
             if (((StatMode)_leaderDefenceSelector.SelectedValue & StatMode.Leader) != 0)
             {
