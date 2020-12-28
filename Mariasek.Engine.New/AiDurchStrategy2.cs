@@ -364,7 +364,18 @@ namespace Mariasek.Engine.New
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]);
 
-                    return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+                    if (cardsToPlay.Any(i => !catchingCards.Contains(i)))
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => !catchingCards.Contains(i)).ToList();
+                    }
+                    if (cardsToPlay.Any(i => !cardsToKeep.ContainsKey(i.Suit) || !cardsToKeep[i.Suit].Contains(i)))
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => !cardsToKeep.ContainsKey(i.Suit) || !cardsToKeep[i.Suit].Contains(i)).ToList();
+                    }
+
+                    return cardsToPlay.OrderBy(i => cardsToKeep.ContainsKey(i.Suit) ? cardsToKeep[i.Suit].Count() : 0)
+                                      .ThenBy(i => i.BadValue)
+                                      .FirstOrDefault();
                 }
             };
         }
