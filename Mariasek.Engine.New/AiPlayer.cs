@@ -2968,14 +2968,13 @@ namespace Mariasek.Engine.New
                                         : 0;
             var totalHoles = GetTotalHoles();
             var handSuits = Hand.Select(i => i.Suit).Distinct().Count();
-
-            //Flekovani u hry posuzuje podle pravdepodobnosti (musi byt vyssi nez prah) 
+           
             if ((bidding.Bids & Hra.Hra) != 0 &&                //pokud byla zvolena hra (nebo hra a sedma]
                 Settings.CanPlayGameType[Hra.Hra] &&
                 bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Hra] &&
                 (bidding._gameFlek < 3 ||                      //ai nedava tutti pokud neflekoval i clovek
                  PlayerIndex == 0 || 
-                 (bidding.PlayerBids[0] & Hra.Hra) != 0) &&
+                 _teamMateDoubledGame) &&
                 _gameSimulations > 0 &&                         //pokud v simulacich vysla dost casto
                 _gamesBalance / (float)_gameSimulations >= gameThreshold &&
                 //pokud jsem volil (re a vys) a:
@@ -3027,7 +3026,8 @@ namespace Mariasek.Engine.New
                         Hand.CardCount(_g.trump.Value) >= 3 &&
                         !Is100AgainstPossible())) &&
                       (kqScore >= 20 ||
-                       Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.HasK(b) || Hand.HasQ(b)) >= 2)) ||
+                       Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                           .Count(b => Hand.HasK(b) || Hand.HasQ(b)) >= 2)) ||
                      (_teamMateDoubledGame &&                   //nebo kolega flekoval
                       (kqScore >= 40 ||                         //a mam aspon 40 bodu v hlasech
                        (kqScore >= 20 &&                        //nebo aspon 20 bodu v hlasech a 20 bodu odhadem k tomu
@@ -3035,8 +3035,8 @@ namespace Mariasek.Engine.New
                      (Hand.CardCount(_g.trump.Value) >= 4 &&    //nebo mam aspon 4 trumfy
                       Hand.HasA(_g.trump.Value) &&              //eso, trhak
                       (Hand.HasK(_g.trump.Value) ||              //a aspon 50 bodu
-                       Hand.HasQ(_g.trump.Value) &&
-                      estimatedFinalBasicScore >= 50)) ||
+                       Hand.HasQ(_g.trump.Value)) &&
+                      estimatedFinalBasicScore >= 50) ||
                      (Hand.HasA(_g.trump.Value) &&
                       Hand.HasK(_g.trump.Value) &&
                       Hand.HasQ(_g.trump.Value) &&
@@ -3046,7 +3046,7 @@ namespace Mariasek.Engine.New
                       estimatedFinalBasicScore + kqScore >= 60) ||
                      (Hand.CardCount(_g.trump.Value) >= 4 &&    //nebo mam aspon 4 trumfy
                       DebugInfo.Tygrovo >= 20))) ||             //a k tomu silne karty
-                   (bidding.GameMultiplier < 2 &&               //Flek:
+                   (bidding.GameMultiplier < 2 &&               //Flek: ******
                     ((Hand.CardCount(_g.trump.Value) >= 2 &&    //aspon 2 trumfy
                       (Hand.HasK(_g.trump.Value) ||             //a k tomu trhak
                        Hand.HasQ(_g.trump.Value) ||
@@ -3084,7 +3084,13 @@ namespace Mariasek.Engine.New
                      ((Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&           //nebo mam trhaka
                       Hand.CardCount(_g.trump.Value) >= 4 &&   //a aspon 4 trumfy
-                      !Is100AgainstPossible(110)) ||           
+                      !Is100AgainstPossible(130)) ||
+                     ((Hand.HasA(_g.trump.Value) ||
+                       Hand.HasX(_g.trump.Value)) &&           //nebo trumfove A nebo X
+                      Hand.CardCount(_g.trump.Value) >= 4 &&   //a aspon 4 trumfy
+                      estimatedFinalBasicScore >= 50 &&
+                      axCount >= 4 &&
+                      !Is100AgainstPossible(130)) ||
                      //(Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
                      // (Hand.HasX(_g.trump.Value) ||            //a desitku nebo
                      //  Hand.CardCount(_g.trump.Value) >= 3) && //aspon 3 trumfy
@@ -3113,6 +3119,9 @@ namespace Mariasek.Engine.New
                      (Hand.CardCount(_g.trump.Value) >= 5 &&   //nebo mam aspon 5 trumfu vcetne A,X
                       Hand.HasA(_g.trump.Value) &&
                       Hand.HasX(_g.trump.Value)) ||
+                     (Hand.CardCount(_g.trump.Value) >= 5 &&   //nebo mam aspon 5 trumfu a trhaka
+                      (Hand.HasK(_g.trump.Value) &&
+                       Hand.HasQ(_g.trump.Value))) ||
                      (Hand.CardCount(_g.trump.Value) >= 4 &&   //nebo mam aspon 4 trumfy
                       (Hand.HasK(_g.trump.Value) ||            //a trhak a bud A nebo X trumfovou
                        Hand.HasQ(_g.trump.Value)) &&
@@ -3162,7 +3171,7 @@ namespace Mariasek.Engine.New
                        Hand.CardCount(Hodnota.Eso) >= 2 &&           //aspon dve esa a
                        Enum.GetValues(typeof(Barva)).Cast<Barva>()   //jedna dlouha barva
                            .Where(b => b != _trump.Value)
-                           .Any(b => Hand.CardCount(b) >= 5))))) ||
+                           .Any(b => Hand.CardCount(b) >= 4))))) ||
                    (_teamMateDoubledGame &&                          //nebo pokud kolega flekoval
                     Hand.HasA(_trump.Value) &&                       //a ja mam aspon 3 trumfy a navic eso a neco velkeho a aspon 40 bodu
                     (Hand.HasX(_trump.Value) ||
@@ -3869,6 +3878,9 @@ namespace Mariasek.Engine.New
                                      Probabilities.CardProbability(TeamMateIndex, new Card(_g.trump.Value, Hodnota.Svrsek)) > 0) &&
                                     (!hands[TeamMateIndex].HasK(_g.trump.Value) &&
                                      !hands[TeamMateIndex].HasQ(_g.trump.Value))) &&
+                                    !(Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                          .Any(b => hands[TeamMateIndex].HasK(b) &&
+                                                    hands[TeamMateIndex].HasQ(b))) &&
                                     //!hands[_g.GameStartingPlayerIndex].Any(i => talon != null &&
                                     //                                           talon.Contains(i) &&
                                     uncertainTalonTrumps.All(i => hands[0].Any(j => i == j) ||

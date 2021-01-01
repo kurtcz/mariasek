@@ -595,6 +595,16 @@ namespace Mariasek.Engine.New
 
         public float HasSolitaryX(int playerIndex, Barva suit, int roundNumber)
         {
+            const float epsilon = 0.01f;
+
+            if ((_cardProbabilityForPlayer[playerIndex][suit][Hodnota.Desitka] == epsilon &&
+                 _cardProbabilityForPlayer[playerIndex][suit].Count(i => i.Value == epsilon) > 1) ||
+                (_cardProbabilityForPlayer[playerIndex][suit][Hodnota.Desitka] == 1 - epsilon &&
+                 _cardProbabilityForPlayer[playerIndex][suit].Count(i => i.Value == 1 - epsilon) > 1))
+            {
+                return epsilon;
+            }
+
             return AnyOfTheseCardsButNothingElseInSuitProbability(playerIndex, suit, roundNumber, Hodnota.Desitka);
         }
 
