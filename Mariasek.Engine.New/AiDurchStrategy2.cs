@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -223,8 +224,12 @@ namespace Mariasek.Engine.New
                         var list = new List<Card>() { topCard };
                         list.AddRange(bottomCards);
 
-                        //jen pokud danou barvu nechyta spoluhrac
-                        if (!teamMatesCatchingCards.Any(i => i.Suit == b))
+                        //jen pokud danou barvu nechyta spoluhrac a pokud akter muze mit nejake nizsi karty
+                        if (!teamMatesCatchingCards.Any(i => i.Suit == b) &&
+                            list.Any(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                              .Where(h => Card.GetBadValue(h) < i.BadValue)
+                                              .Select(h => new Card(b, h))
+                                              .Any(j => _probabilities.CardProbability(player1, j) != 0)))
                         {
                             cardsToKeep.Add(b, list);
                         }
@@ -314,9 +319,33 @@ namespace Mariasek.Engine.New
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
                 {
+                    var catchCards = new Dictionary<Hodnota, int>
+                    {
+                        { Hodnota.Eso, Card.GetBadValue(Hodnota.Kral) },
+                        { Hodnota.Kral, Card.GetBadValue(Hodnota.Spodek) },
+                        { Hodnota.Svrsek, Card.GetBadValue(Hodnota.Devitka) }
+                    };
+                    //pokud mas od kolegova chytaku vsechny zbyvajici nizsi karty, tak se jich zbav prednostne
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => teamMatesCatchingCards.Any(j => i.Suit == j.Suit &&
+                                                                                                                i.BadValue < j.BadValue &&
+                                                                                                                Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                                                    .Select(h => new Card(i.Suit, h))
+                                                                                                                    .Where(k => k.BadValue < catchCards[j.Value])
+                                                                                                                    .All(k => _probabilities.CardProbability(player1, k) == 0 &&
+                                                                                                                              _probabilities.CardProbability(player3, k) == 0)));
+                    var previousSuit = _rounds == null || RoundNumber == 1
+                                        ? (Barva?)null : _rounds[RoundNumber - 2].player2.PlayerIndex == MyIndex
+                                                    ? _rounds[RoundNumber - 2].c2.Suit
+                                                    : _rounds[RoundNumber - 2].c3.Suit;
+                    if (cardsToPlay.Any(i => i.Suit == previousSuit))
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => i.Suit == previousSuit);
+                    }
+                    if (!cardsToPlay.Any())
+                    {
+                        cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => teamMatesCatchingCards.Any(j => i.Suit == j.Suit &&
                                                                                                                 i.BadValue < j.BadValue));
-                    
+                    }
                     return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                 }
             };
@@ -333,17 +362,25 @@ namespace Mariasek.Engine.New
 
                     if (mySuits.All(i => myCatchingCards.Any(j => j.Suit == i)))
                     {
-                        //v každé barvě mám chytáka, musím se jednoho bavit
+                        //v každé barvě mám chytáka, musím se jednoho zbavit
+                        //nejprve se pokus si nechat barvu, kterou spoluhrac dosud nehral
+                        if (mySuits.Any(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i)))
+                        {
+                            var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i.Suit));
+
+                            return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+                        }
+
                         //vezmeme barvu, kde je nejnizsi dira, tu drzi asi nejspis spoluhrac?
                         var minHole = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                          .Select(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                           .Select(h => new Card(b, h))
-                                                           .Where(i => _probabilities.CardProbability(player, i) > 0)
-                                                           .OrderBy(i => i.BadValue)
-                                                           .FirstOrDefault())
-                                          .Where(i => i != null)
-                                          .OrderBy(i => i.BadValue)
-                                          .FirstOrDefault();
+                                        .Select(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                        .Select(h => new Card(b, h))
+                                                        .Where(i => _probabilities.CardProbability(player, i) > 0)
+                                                        .OrderBy(i => i.BadValue)
+                                                        .FirstOrDefault())
+                                        .Where(i => i != null)
+                                        .OrderBy(i => i.BadValue)
+                                        .FirstOrDefault();
                         if (minHole != null)
                         {
                             var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == minHole.Suit);
@@ -523,8 +560,12 @@ namespace Mariasek.Engine.New
                         var list = new List<Card>() { topCard };
                         list.AddRange(bottomCards);
 
-                        //jen pokud danou barvu nechyta spoluhrac
-                        if (!teamMatesCatchingCards.Any(i => i.Suit == b))
+                        //jen pokud danou barvu nechyta spoluhrac a pokud akter muze mit nejake nizsi karty
+                        if (!teamMatesCatchingCards.Any(i => i.Suit == b) &&
+                            list.Any(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                              .Where(h => Card.GetBadValue(h) < i.BadValue)
+                                              .Select(h => new Card(b, h))
+                                              .Any(j => _probabilities.CardProbability(player1, j) != 0)))
                         {
                             cardsToKeep.Add(b, list);
                         }
@@ -613,9 +654,33 @@ namespace Mariasek.Engine.New
                 SkipSimulations = true,
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
-                    var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => teamMatesCatchingCards.Any(j => i.Suit == j.Suit &&
-                                                                                                                    i.BadValue < j.BadValue));
-
+                    var catchCards = new Dictionary<Hodnota, int>
+                    {
+                        { Hodnota.Eso, Card.GetBadValue(Hodnota.Kral) },
+                        { Hodnota.Kral, Card.GetBadValue(Hodnota.Spodek) },
+                        { Hodnota.Svrsek, Card.GetBadValue(Hodnota.Devitka) }
+                    };
+                    //pokud mas od kolegova chytaku vsechny zbyvajici nizsi karty, tak se jich zbav prednostne
+                    var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => teamMatesCatchingCards.Any(j => i.Suit == j.Suit &&
+                                                                                                                i.BadValue < j.BadValue &&
+                                                                                                                Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                                                    .Select(h => new Card(i.Suit, h))
+                                                                                                                    .Where(k => k.BadValue < catchCards[j.Value])
+                                                                                                                    .All(k => _probabilities.CardProbability(player1, k) == 0 &&
+                                                                                                                              _probabilities.CardProbability(player2, k) == 0)));
+                    var previousSuit = _rounds == null || RoundNumber == 1
+                                        ? (Barva?)null : _rounds[RoundNumber - 2].player2.PlayerIndex == MyIndex
+                                                    ? _rounds[RoundNumber - 2].c2.Suit
+                                                    : _rounds[RoundNumber - 2].c3.Suit;
+                    if (cardsToPlay.Any(i => i.Suit == previousSuit))
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => i.Suit == previousSuit);
+                    }
+                    if (!cardsToPlay.Any())
+                    {
+                        cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => teamMatesCatchingCards.Any(j => i.Suit == j.Suit &&
+                                                                                                                      i.BadValue < j.BadValue));
+                    }
                     return cardsToPlay.OrderBy(i => i.Suit)
                                       .ThenByDescending(i => i.BadValue).FirstOrDefault();
                 }
@@ -634,16 +699,24 @@ namespace Mariasek.Engine.New
                     if (mySuits.All(i => myCatchingCards.Any(j => j.Suit == i)))
                     {
                         //v každé barvě mám chytáka, musím se jednoho bavit
+                        //nejprve se pokus si nechat barvu, kterou spoluhrac dosud nehral
+                        if (mySuits.Any(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i)))
+                        {
+                            var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i.Suit));
+
+                            return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+                        }
+
                         //vezmeme barvu, kde je nejnizsi dira, tu drzi asi nejspis spoluhrac?
                         var minHole = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                          .Select(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                           .Select(h => new Card(b, h))
-                                                           .Where(i => _probabilities.CardProbability(player, i) > 0)
-                                                           .OrderBy(i => i.BadValue)
-                                                           .FirstOrDefault())
-                                          .Where(i => i != null)
-                                          .OrderBy(i => i.BadValue)
-                                          .FirstOrDefault();
+                                        .Select(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                        .Select(h => new Card(b, h))
+                                                        .Where(i => _probabilities.CardProbability(player, i) > 0)
+                                                        .OrderBy(i => i.BadValue)
+                                                        .FirstOrDefault())
+                                        .Where(i => i != null)
+                                        .OrderBy(i => i.BadValue)
+                                        .FirstOrDefault();
                         if (minHole != null)
                         {
                             var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == minHole.Suit);

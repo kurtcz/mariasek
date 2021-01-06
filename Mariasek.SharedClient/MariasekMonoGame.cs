@@ -44,6 +44,8 @@ namespace Mariasek.SharedClient
     public class MariasekMonoGame : Microsoft.Xna.Framework.Game
     {
 #if __ANDROID__
+        //Android 1-9: /Mariasek
+        //Android 10+: /Android/data/com.tnemec.mariasek.android/files
         public static string RootPath => (int)Android.OS.Build.VERSION.SdkInt >= 29
                                             ? Android.App.Application.Context.GetExternalFilesDir(null).Path
                                             : Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");

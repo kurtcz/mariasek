@@ -25,7 +25,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UISupportsDocumentBrowser</key>
+	<true/>
 	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>UIStatusBarHidden</key>
 	<true/>
@@ -44,8 +48,8 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>CFBundleVersion</key>
-	<string>180</string>
+	<string>181</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.5.180</string>
+	<string>1.5.181</string>
 </dict>
 </plist>

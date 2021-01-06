@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading;
 using Combinatorics.Collections;
@@ -323,6 +324,35 @@ namespace Mariasek.Engine.New
             }
         }
 
+        public Card[] CertainCards(int playerIndex)
+        {
+            return CardsBetweenThresholds(playerIndex, 0.99f, 1f);
+        }
+
+        public Card[] LikelyCards(int playerIndex)
+        {
+            return CardsBetweenThresholds(playerIndex, 0.9f, 1f);
+        }
+
+        public Card[] PotentialCards(int playerIndex)
+        {
+            return CardsBetweenThresholds(playerIndex, 0.01f, 0.9f, false, false);
+        }
+
+        public Card[] UnlikelyCards(int playerIndex)
+        {
+            return CardsBetweenThresholds(playerIndex, 0f, 0.01f);
+        }
+
+        private Card[] CardsBetweenThresholds(int playerIndex, float min, float max, bool minInclusive = true, bool maxInclusive = true)
+        {
+            return _cardProbabilityForPlayer[playerIndex].SelectMany(i => i.Value
+                                                                           .Where(j => (minInclusive ? j.Value >= min : j.Value > min) &&
+                                                                                       (maxInclusive ? j.Value <= max : j.Value < max))
+                                                                           .Select(j => new Card(i.Key, j.Key))
+                                                                           .ToList()).ToArray();
+        }
+
         public float CardProbability(int playerIndex, Card c)
         {
             return _cardProbabilityForPlayer[playerIndex][c.Suit][c.Value];
@@ -373,6 +403,12 @@ namespace Mariasek.Engine.New
             if (n < totalCards - certainCards)
             {
                 return 0;
+            }
+            if (n > 0 && totalCards == certainCards)
+            {
+                n = _cardProbabilityForPlayer[playerIndex].Where(i => i.Key != b).Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 0.99f));
+                uncertainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(h => h.Value > 0f && h.Value < 0.99f));
+                certainCards = _cardProbabilityForPlayer[playerIndex].Sum(i => i.Value.Count(j => j.Value >= 0.99f));
             }
             return (float)CNK(n, totalCards - certainCards) / (float)CNK(uncertainCards, totalCards - certainCards);
         }
@@ -1781,6 +1817,23 @@ namespace Mariasek.Engine.New
 					_cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Eso] = 1 - epsilon;
 				}
 			}
+            //pokud hrajeme v barve, zacinal akter a
+            //druhy hrac (ja) jsem hral trumf a kolega
+            //priznal akterovu barvu ale nehral desitku ani eso, tak ma akter pravdepodobne desitku (o esu nic nevim)
+            if (_trump.HasValue &&
+                roundStarterIndex == _gameStarterIndex &&
+                _myIndex == (roundStarterIndex + 1) % Game.NumPlayers &&
+                c1.Suit != _trump &&
+                c2.Suit == _trump &&
+                c3.Suit == c1.Suit &&
+                c3.Value < Hodnota.Desitka)
+            {
+                if (_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] > epsilon)
+                {
+                    _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] = epsilon;
+                    _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] = 1 - epsilon;
+                }
+            }
             //pokud hrajeme v barve, zacinal akter a
             //druhy hrac nesel vejs, ale hral desitkou nebo esem
             //tak pravdepodobne uz v dane barve nema zadne nizke karty

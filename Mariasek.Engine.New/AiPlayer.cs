@@ -3540,10 +3540,10 @@ namespace Mariasek.Engine.New
 
         private void CardPlayed(object sender, Round r)
         {
-            UpdateProbabilitiesAfterCardPlayed(Probabilities, r.number, r.player1.PlayerIndex, r.c1, r.c2, r.c3, r.hlas1, r.hlas2, r.hlas3, TeamMateIndex, _teamMatesSuits, _teamMateDoubledGame);
+            UpdateProbabilitiesAfterCardPlayed(Probabilities, r.number, r.player1.PlayerIndex, r.c1, r.c2, r.c3, r.hlas1, r.hlas2, r.hlas3, TeamMateIndex, _teamMatesSuits, _trump, _teamMateDoubledGame);
         }
 
-        private static void UpdateProbabilitiesAfterCardPlayed(Probability probabilities, int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas1, bool hlas2, bool hlas3, int teamMateIndex, List<Barva> teamMatesSuits, bool teamMateDoubledGame)
+        private static void UpdateProbabilitiesAfterCardPlayed(Probability probabilities, int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas1, bool hlas2, bool hlas3, int teamMateIndex, List<Barva> teamMatesSuits, Barva? trump, bool teamMateDoubledGame)
         {
             if (c3 != null)
             {
@@ -3558,7 +3558,7 @@ namespace Mariasek.Engine.New
                 probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, hlas1);
                 if (roundStarterIndex == teamMateIndex)// && teamMateDoubledGame)
                 {
-                    if (teamMatesSuits.All(i => i != c1.Suit))
+                    if (!teamMatesSuits.Contains(c1.Suit))
                     {
                         teamMatesSuits.Add(c1.Suit);
                     }
@@ -4629,17 +4629,20 @@ namespace Mariasek.Engine.New
             //    prob, playerName, playerIndex, teamMateIndex, initialRoundNumber,
             //    Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense);
 
-            var aiStrategy1 = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds, new List<Barva>(),
-                prob1, _g.players[0].Name, 0, _g.players[0].TeamMateIndex, initialRoundNumber,
-                Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense);
+            var aiStrategy1 = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds,
+                0 == PlayerIndex ? teamMatesSuits : new List<Barva>(), prob1, _g.players[0].Name, 0, _g.players[0].TeamMateIndex, initialRoundNumber,
+                Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense,
+                _g.Bidding);
 
-            var aiStrategy2 = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds, new List<Barva>(),
-                prob2, _g.players[1].Name, 1, _g.players[1].TeamMateIndex, initialRoundNumber,
-                Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense);
+            var aiStrategy2 = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds,
+                1 == PlayerIndex ? teamMatesSuits : new List<Barva>(), prob2, _g.players[1].Name, 1, _g.players[1].TeamMateIndex, initialRoundNumber,
+                Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense,
+                _g.Bidding);
 
-            var aiStrategy3 = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds, new List<Barva>(),
-                prob3, _g.players[2].Name, 2, _g.players[2].TeamMateIndex, initialRoundNumber,
-                Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense);
+            var aiStrategy3 = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds,
+                2 == PlayerIndex ? teamMatesSuits : new List<Barva>(), prob3, _g.players[2].Name, 2, _g.players[2].TeamMateIndex, initialRoundNumber,
+                Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense,
+                _g.Bidding);
             var aiStrategies = new[] { aiStrategy1, aiStrategy2, aiStrategy3 };
             var aiStrategy = aiStrategies[player1];
 
@@ -4753,17 +4756,17 @@ namespace Mariasek.Engine.New
                     //UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
                     //UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
 
-                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
-                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
-                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
 
-                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
-                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
-                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
 
-                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
-                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
-                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
                 }
                 //aiStrategy.MyIndex = roundWinnerIndex;
                 //aiStrategy.TeamMateIndex = _g.players[roundWinnerIndex].TeamMateIndex;
