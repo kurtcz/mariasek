@@ -61,7 +61,7 @@ namespace Mariasek.Engine.New
                                 !SevenAgainstWon &&
                                 !Calculate107Separately)
                             {
-                                HundredAgainstMoneyWon = HundredValue * _bidding.HundredAgainstMultiplier;
+                                HundredAgainstMoneyWon = -HundredValue * _bidding.HundredAgainstMultiplier;
                             }
                             else
                             {

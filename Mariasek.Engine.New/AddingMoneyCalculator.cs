@@ -61,7 +61,7 @@ namespace Mariasek.Engine.New
 								!SevenAgainstWon &&
 								!Calculate107Separately)
 							{
-								HundredAgainstMoneyWon = -HundredValue * _bidding.HundredAgainstMultiplier;
+								HundredAgainstMoneyWon = - HundredValue * _bidding.HundredAgainstMultiplier;
 							}
 							else
 							{
@@ -77,15 +77,15 @@ namespace Mariasek.Engine.New
 							GameMoneyWon = GameValue * _bidding.GameMultiplier;
 							if (QuietHundredWon)
 							{
-								GameMoneyWon = 2 * GameMoneyWon * (PointsWon - 90) / 10;
+								GameMoneyWon = QuietHundredValue * _bidding.GameMultiplier * (PointsWon - 90) / 10;
 							}
 						}
 						else
 						{
-							GameMoneyWon = -GameValue * _bidding.GameMultiplier;
+							GameMoneyWon = - GameValue * _bidding.GameMultiplier;
 							if (QuietHundredAgainstWon)
 							{
-								GameMoneyWon = 2 * GameMoneyWon * (PointsLost - 90) / 10;
+								GameMoneyWon = - QuietHundredValue * _bidding.GameMultiplier * (PointsLost - 90) / 10;
 							}
 						}
 						money += GameMoneyWon;

@@ -182,7 +182,10 @@ namespace Mariasek.Engine.New
                 }
             }
             clone._myHand = new Hand((List<Card>)_myHand);
-            clone.generatedHands = new List<Hand[]>(generatedHands);
+            if (generatedHands != null)
+            {
+                clone.generatedHands = new List<Hand[]>(generatedHands);
+            }
             clone._playerWeights = new List<int>(_playerWeights);
             clone._gameBidders = new List<int>(_gameBidders);
 

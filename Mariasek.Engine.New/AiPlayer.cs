@@ -927,7 +927,8 @@ namespace Mariasek.Engine.New
                     if (Settings.CanPlayGameType[Hra.Durch] && 
                         _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
                         _durchSimulations > 0 &&
-                        !_hundredOverDurch)
+                        !(_hundredOverDurch &&
+                          !IsHundredTooRisky()))
                     {
                         if (_talon == null || !_talon.Any())
                         {
@@ -941,7 +942,8 @@ namespace Mariasek.Engine.New
                     else if (Settings.CanPlayGameType[Hra.Betl] && 
                              ((_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && 
                                _betlSimulations > 0 &&
-                               !_hundredOverBetl) ||
+                               !(_hundredOverBetl &&
+                                 !IsHundredTooRisky())) ||
                               (Settings.SafetyBetlThreshold > 0 &&
                                lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                                lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold)))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
@@ -1029,7 +1031,8 @@ namespace Mariasek.Engine.New
                      _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][durchThresholdIndex] * _durchSimulations &&
                      _durchSimulations > 0 &&
                      (TeamMateIndex != -1 ||
-                      !_hundredOverDurch)) ||
+                      !(_hundredOverDurch &&
+                        !IsHundredTooRisky()))) ||
                     (Settings.CanPlayGameType[Hra.Betl] && 
                      (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][betlThresholdIndex] * _betlSimulations &&
                       _betlSimulations > 0 &&
@@ -1037,7 +1040,8 @@ namespace Mariasek.Engine.New
                         (Hand.CardCount(Hodnota.Eso) <= 1 ||
                          GetBetlHoles() <= 2)) ||
                        (TeamMateIndex == -1 &&
-                        !_hundredOverBetl))) ||
+                        !(_hundredOverBetl &&
+                          !IsHundredTooRisky())))) ||
                        (Settings.SafetyBetlThreshold > 0 &&
                         lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                         lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold)))
@@ -2225,6 +2229,10 @@ namespace Mariasek.Engine.New
                                 .Count(i => i.Value == Hodnota.Eso) >= 2)) ||
                          (Hand.CardCount(_trump.Value) == 4 &&                    //2.  nebo 4 trumfy a jedno z
                           (Hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||      //2a. mene nez 3 vysoke karty celkem
+                           ((!Hand.HasA(_trump.Value) ||
+                             !Hand.HasX(_trump.Value)) &&
+                            !(Hand.HasK(_trump.Value) &&
+                              Hand.HasQ(_trump.Value))) ||
                            (Hand.Count(i => i.Value == Hodnota.Eso) +              //2b. nebo mene nez 2 (resp. 3) uhratelne A, X
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Count(b => (Hand.HasX(b) &&
@@ -3580,11 +3588,27 @@ namespace Mariasek.Engine.New
 			_debugString.AppendFormat("PlayCard(round{0}: c1: {1} c2: {2} c3: {3})\n", r.number, r.c1, r.c2, r.c3);
             if (Settings.Cheat)
             {
-                var hands = _g.players.Select(i => new Hand(i.Hand)).ToArray();
+                ResetDebugInfo();
+
+                var hands = _g.players.Select(i => new Hand(i.Hand)).Concat(new[] { new Hand(_g.talon) }).ToArray();
+                for (var i = 0; i < Game.NumPlayers + 1; i++)
+                {
+                    if (r.c1 != null && !hands[r.player1.PlayerIndex].Any(j => j == r.c1))
+                    {
+                        hands[r.player1.PlayerIndex] = new Hand(((List<Card>)(hands[r.player1.PlayerIndex])).Concat(new [] { r.c1 }));
+                    }
+                    if (r.c2 != null && !hands[r.player2.PlayerIndex].Any(j => j == r.c2))
+                    {
+                        hands[r.player2.PlayerIndex] = new Hand(((List<Card>)(hands[r.player2.PlayerIndex])).Concat(new[] { r.c2 }));
+                    }
+                }
                 var computationResult = ComputeGame(hands, r.c1, r.c2);
 
                 cardToPlay = computationResult.CardToPlay;
+                DebugInfo.Card = cardToPlay;
                 DebugInfo.Rule = computationResult.Rule.Description;
+                DebugInfo.RuleCount = 1;
+                DebugInfo.TotalRuleCount = 1;
             }
             else
             {
@@ -3713,8 +3737,8 @@ namespace Mariasek.Engine.New
                     if (cardToPlay == null)
                     {
                         DebugInfo.Rule = "Náhodná karta (simulace neproběhla)";
-                        DebugInfo.RuleCount = 0;
-                        DebugInfo.TotalRuleCount = 0;
+                        DebugInfo.RuleCount = 1;
+                        DebugInfo.TotalRuleCount = 1;
                         if (r.c2 != null)
                         {
                             cardsToPlay = ValidCards(Hand, _trump, _gameType.Value, TeamMateIndex, r.c1, r.c2);
@@ -3762,8 +3786,8 @@ namespace Mariasek.Engine.New
                         if (cardsToPlay.HasQ(_trump.Value))
                         {
                             DebugInfo.Rule = "Hraj trumfovou hlášku";
-                            DebugInfo.RuleCount = 0;
-                            DebugInfo.TotalRuleCount = 0;
+                            DebugInfo.RuleCount = 1;
+                            DebugInfo.TotalRuleCount = 1;
 
                             cardToPlay = cardsToPlay.First(i => i.Value == Hodnota.Svrsek &&
                                                                 i.Suit == _trump.Value);
@@ -4608,22 +4632,27 @@ namespace Mariasek.Engine.New
                 }
             }
 
-            var useGeneratedHandsForProbabilities = false;// roundsToCompute > 1;        //initial game simulations
             var prob = Probabilities.Clone();
-            if (useGeneratedHandsForProbabilities)                              //all probabilities are based on generated hands (either 0 or 1)
-            {
-                prob.Set(hands);
-            }
+            //if (Settings.Cheat)                              //all probabilities are based on generated hands (either 0 or 1)
+            //{
+            //    prob.Set(hands);
+            //}
             //prob.UpdateProbabilitiesAfterTalon((List<Card>)hands[player1], (List<Card>)hands[3]);
             prob.UseDebugString = false;    //otherwise we are being really slooow
 
-            var prob1 = 0 == PlayerIndex ? prob : new Probability(0, player1, hands[0], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
+            var prob1 = 0 == PlayerIndex ? prob : new Probability(PlayerIndex, player1, hands[PlayerIndex], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
             prob1.UseDebugString = false;
-            var prob2 = 1 == PlayerIndex ? prob : new Probability(1, player1, hands[1], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
+            var prob2 = 1 == PlayerIndex ? prob : new Probability(PlayerIndex, player1, hands[PlayerIndex], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
             prob2.UseDebugString = false;
-            var prob3 = 2 == PlayerIndex ? prob : new Probability(2, player1, hands[2], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
+            var prob3 = 2 == PlayerIndex ? prob : new Probability(PlayerIndex, player1, hands[PlayerIndex], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
             prob3.UseDebugString = false;
 
+            if (Settings.Cheat)
+            {
+                prob1.Set(hands);
+                prob2.Set(hands);
+                prob3.Set(hands);
+            }
             var teamMatesSuits = new List<Barva>(_teamMatesSuits);
             //var aiStrategy = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds, teamMatesSuits,
             //    prob, playerName, playerIndex, teamMateIndex, initialRoundNumber,
@@ -4746,7 +4775,7 @@ namespace Mariasek.Engine.New
                 var hlas1 = _trump.HasValue && c1.Value == Hodnota.Svrsek && hands[player1].HasK(c1.Suit);
                 var hlas2 = _trump.HasValue && c2.Value == Hodnota.Svrsek && hands[player2].HasK(c2.Suit);
                 var hlas3 = _trump.HasValue && c3.Value == Hodnota.Svrsek && hands[player3].HasK(c3.Suit);
-                if (useGeneratedHandsForProbabilities)
+                if (Settings.Cheat)
                 {
                     prob.Set(hands);
                 }

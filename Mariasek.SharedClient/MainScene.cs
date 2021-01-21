@@ -165,7 +165,8 @@ namespace Mariasek.SharedClient
             _aiConfig.Add("AiCheating", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {
                 Name = "AiCheating",
-                Value = "false"
+                //Value = "false"
+                Value = Game.Settings.AiCheating.HasValue && Game.Settings.AiCheating.Value ? "true" : "false"
             });
             _aiConfig.Add("AiMayGiveUp", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
             {

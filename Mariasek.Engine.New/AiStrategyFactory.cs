@@ -45,7 +45,7 @@ namespace Mariasek.Engine.New
                         RiskFactorSevenDefense = riskFactorSevenDefense,
                         SolitaryXThreshold = solitaryXThreshold,
                         SolitaryXThresholdDefense = solitaryXThresholdDefense,
-                        PlayerBids = bidding.PlayerBids
+                        PlayerBids = bidding.AllPlayerBids
                     };
             }
         }

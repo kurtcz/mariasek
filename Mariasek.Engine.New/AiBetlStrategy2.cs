@@ -389,8 +389,8 @@ namespace Mariasek.Engine.New
                                                                .Any(j => _probabilities.CardProbability(player3, j) > 0 &&
                                                                          Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                              .Select(h => new Card(i.Suit, h))
-                                                                             .Where(k => k.BadValue >= j.BadValue)
-                                                                             .All(k => _probabilities.CardProbability(player2, k) == 0)));
+                                                                             .Where(k => k.BadValue < j.BadValue)
+                                                                             .Any(k => _probabilities.CardProbability(player2, k) > 0)));
                             if (!cardsToPlay.Any())
                             {
                                 cardsToPlay = hands[MyIndex].Where(i =>
@@ -858,6 +858,7 @@ namespace Mariasek.Engine.New
                                                                                .Count(j => _probabilities.CardProbability(player1, j) > 0 ||
                                                                                            _probabilities.CardProbability(player3, j) > 0)))
                                                                         .Where(i => i.Item2 > 0);
+                            
                             cardsToPlay = hiCards.OrderByDescending(i => i.Item2)
                                                  .ThenByDescending(i => i.Item1.BadValue)
                                                  .Select(i => i.Item1);
@@ -872,19 +873,20 @@ namespace Mariasek.Engine.New
                                                                                         .Any(j => _probabilities.CardProbability(player1, j) > 0 ||
                                                                                                   _probabilities.CardProbability(player3, j) > 0));
 
-                            return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+                            return cardsToPlay.OrderBy(i => hands[MyIndex].CardCount(i.Suit))
+                                              .ThenByDescending(i => i.BadValue).FirstOrDefault();
                         }
                     }
                     else //oc-
                     {
                         var hiCards = ValidCards(c1, hands[MyIndex]).Select(i => new Tuple<Card, int>(i,
-                                                                       Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                           .Select(h => new Card(i.Suit, h))
-                                                                           .Where(j => j.BadValue < i.BadValue)
-                                                                           .Count(j => _probabilities.CardProbability(opponent, j) > 0)))
+                                                                        Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                            .Select(h => new Card(i.Suit, h))
+                                                                            .Where(j => j.BadValue < i.BadValue)
+                                                                            .Count(j => _probabilities.CardProbability(opponent, j) > 0)))
                                                                     .Where(i => i.Item2 > 0);
                         var prefCards = hiCards.Where(i => preferredSuits.Any(j => j == i.Item1.Suit))
-                                               .Select(i => i.Item1);
+                                                .Select(i => i.Item1);
 
                         if (prefCards.Any())
                         {
@@ -893,8 +895,25 @@ namespace Mariasek.Engine.New
                         else
                         {
                             cardsToPlay = hiCards.OrderByDescending(i => i.Item2)
-                                                 .ThenByDescending(i => i.Item1.BadValue)
-                                                 .Select(i => i.Item1);
+                                                    .ThenByDescending(i => i.Item1.BadValue)
+                                                    .Select(i => i.Item1);
+                        }
+                        //pokud muzes, tak hraj stejnou barvu jako v minulem kole
+                        if (RoundNumber > 1 &&
+                            _rounds[RoundNumber - 2] != null)
+                        {
+                            if (_rounds[RoundNumber - 2].player2.PlayerIndex == MyIndex &&
+                                _rounds[RoundNumber - 2].c2.Suit != _rounds[RoundNumber - 2].c1.Suit &&
+                                cardsToPlay.Any(i => i.Suit == _rounds[RoundNumber - 2].c2.Suit))
+                            {
+                                cardsToPlay = cardsToPlay.Where(i => i.Suit == _rounds[RoundNumber - 2].c2.Suit);
+                            }
+                            else if (_rounds[RoundNumber - 2].player3.PlayerIndex == MyIndex &&
+                                     _rounds[RoundNumber - 2].c3.Suit != _rounds[RoundNumber - 2].c1.Suit &&
+                                     cardsToPlay.Any(i => i.Suit == _rounds[RoundNumber - 2].c3.Suit))
+                            {
+                                cardsToPlay = cardsToPlay.Where(i => i.Suit == _rounds[RoundNumber - 2].c3.Suit);
+                            }
                         }
                     }
 
@@ -1101,7 +1120,7 @@ namespace Mariasek.Engine.New
                                                                         .Where(i => i.Item2 > 0);
                         var prefCards = hiCards.Where(i => preferredSuits.Any(j => j == i.Item1.Suit))
                                                .Select(i => i.Item1);
-
+                        
                         if (prefCards.Any())
                         {
                             cardsToPlay = prefCards.OrderByDescending(i => i.BadValue);
@@ -1111,6 +1130,23 @@ namespace Mariasek.Engine.New
                             cardsToPlay = hiCards.OrderByDescending(i => i.Item2)
                                                  .ThenByDescending(i => i.Item1.BadValue)
                                                  .Select(i => i.Item1);
+                        }
+                        //pokud muzes, tak hraj stejnou barvu jako v minulem kole
+                        if (RoundNumber > 1 &&
+                            _rounds[RoundNumber - 2] != null)
+                        {
+                            if (_rounds[RoundNumber - 2].player2.PlayerIndex == MyIndex &&
+                                _rounds[RoundNumber - 2].c2.Suit != _rounds[RoundNumber - 2].c1.Suit &&
+                                cardsToPlay.Any(i => i.Suit == _rounds[RoundNumber - 2].c2.Suit))
+                            {
+                                cardsToPlay = cardsToPlay.Where(i => i.Suit == _rounds[RoundNumber - 2].c2.Suit);
+                            }
+                            else if (_rounds[RoundNumber - 2].player3.PlayerIndex == MyIndex &&
+                                     _rounds[RoundNumber - 2].c3.Suit != _rounds[RoundNumber - 2].c1.Suit &&
+                                     cardsToPlay.Any(i => i.Suit == _rounds[RoundNumber - 2].c3.Suit))
+                            {
+                                cardsToPlay = cardsToPlay.Where(i => i.Suit == _rounds[RoundNumber - 2].c3.Suit);
+                            }
                         }
                     }
 

@@ -18,6 +18,7 @@ namespace Mariasek.Engine.New
         private Game _g;
 
         public Hra[] PlayerBids { get; private set; }
+        public Hra[] AllPlayerBids { get; private set; }
         /// <summary>
         /// When a AbstractPlayer.GetBidsAndDoubles() is called this property holds valid bids for that player.
         /// This property is set before each call to GetBidsAndDoubles() inside the StartBidding() method
@@ -81,6 +82,7 @@ namespace Mariasek.Engine.New
             _hundredAgainstFlek = 0;
             _betlDurchFlek = 0;
             PlayerBids = new Hra[Game.NumPlayers];
+            AllPlayerBids = new Hra[Game.NumPlayers];
             SetLastBidder(_g.GameStartingPlayer, _g.GameType);
         }
 
@@ -90,9 +92,11 @@ namespace Mariasek.Engine.New
 
             clone.Bids = (Hra)((int)Bids);
             clone.PlayerBids = new Hra[Game.NumPlayers];
+            clone.AllPlayerBids = new Hra[Game.NumPlayers];
             for (var i = 0; i < Game.NumPlayers; i++)
             {
                 clone.PlayerBids[i] = (Hra)((int)PlayerBids[i]);
+                clone.AllPlayerBids[i] = (Hra)((int)AllPlayerBids[i]);
             }
 
             return clone;
@@ -141,6 +145,7 @@ namespace Mariasek.Engine.New
                 _betlDurchFlek++;
             }
             PlayerBids[player.PlayerIndex] = bid;
+            AllPlayerBids[player.PlayerIndex] |= bid;
         }
 
         public void StartBidding(Hra gameType)

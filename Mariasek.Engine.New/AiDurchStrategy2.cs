@@ -108,11 +108,15 @@ namespace Mariasek.Engine.New
                                                     {
                                                         if (r != null && r.c3 != null)
                                                         {
-                                                            if (r.c2.Suit == b && r.c2.BadValue > spodek.BadValue)
+                                                            if (r.c2.Suit == b &&
+                                                                r.c2.BadValue > spodek.BadValue &&
+                                                                myInitialHand.CardCount(r.c2.Suit) <= 4)    //pokud mam sam hodne karet, tak se o chytaka nejedna
                                                             {
                                                                 return r.c2;
                                                             }
-                                                            if (r.c3.Suit == b && r.c3.BadValue > spodek.BadValue)
+                                                            if (r.c3.Suit == b &&
+                                                                r.c3.BadValue > spodek.BadValue &
+                                                                myInitialHand.CardCount(r.c3.Suit) <= 4)    //pokud mam sam hodne karet, tak se o chytaka nejedna
                                                             {
                                                                 return r.c3;
                                                             }
@@ -341,12 +345,15 @@ namespace Mariasek.Engine.New
                     {
                         cardsToPlay = cardsToPlay.Where(i => i.Suit == previousSuit);
                     }
-                    if (!cardsToPlay.Any())
+                    if (cardsToPlay.Any())
                     {
-                        cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => teamMatesCatchingCards.Any(j => i.Suit == j.Suit &&
-                                                                                                                i.BadValue < j.BadValue));
+                        return cardsToPlay.OrderBy(i => i.Suit)
+                                          .ThenByDescending(i => i.BadValue).FirstOrDefault();
                     }
-                    return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+                    cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => teamMatesCatchingCards.Any(j => i.Suit == j.Suit &&
+                                                                                                            i.BadValue < j.BadValue));
+                    return cardsToPlay.OrderBy(i => i.Suit)
+                                      .ThenBy(i => i.BadValue).FirstOrDefault();
                 }
             };
 
@@ -427,7 +434,8 @@ namespace Mariasek.Engine.New
                                                             : r.c3)
                                               .ToList();
             if (_rounds[RoundNumber - 1] != null &&
-                _rounds[RoundNumber - 1].player2.PlayerIndex == TeamMateIndex)
+                _rounds[RoundNumber - 1].player2.PlayerIndex == TeamMateIndex &&
+                _rounds[RoundNumber - 1].c2 != null)
             {
                 teamMatesCardsPlayed.Add(_rounds[RoundNumber - 1].c2);
             }
@@ -444,11 +452,16 @@ namespace Mariasek.Engine.New
                                                     {
                                                         if (r != null && r.c2 != null)
                                                         {
-                                                            if (r.c2.Suit == b && r.c2.BadValue >= svrsek.BadValue)
+                                                            if (r.c2.Suit == b &&
+                                                                r.c2.BadValue >= svrsek.BadValue &&
+                                                                myInitialHand.CardCount(r.c2.Suit) <= 4)    //pokud mam sam hodne karet, tak se o chytaka nejedna
                                                             {
                                                                 return r.c2;
                                                             }
-                                                            if (r.c3 != null && r.c3.Suit == b && r.c3.BadValue >= svrsek.BadValue)
+                                                            if (r.c3 != null &&
+                                                                r.c3.Suit == b &&
+                                                                r.c3.BadValue >= svrsek.BadValue &&
+                                                                myInitialHand.CardCount(r.c3.Suit) <= 4)    //pokud mam sam hodne karet, tak se o chytaka nejedna
                                                             {
                                                                 return r.c3;
                                                             }
@@ -676,13 +689,15 @@ namespace Mariasek.Engine.New
                     {
                         cardsToPlay = cardsToPlay.Where(i => i.Suit == previousSuit);
                     }
-                    if (!cardsToPlay.Any())
+                    if (cardsToPlay.Any())
                     {
-                        cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => teamMatesCatchingCards.Any(j => i.Suit == j.Suit &&
-                                                                                                                      i.BadValue < j.BadValue));
+                        return cardsToPlay.OrderBy(i => i.Suit)
+                                          .ThenByDescending(i => i.BadValue).FirstOrDefault();
                     }
+                    cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => teamMatesCatchingCards.Any(j => i.Suit == j.Suit &&
+                                                                                                                  i.BadValue < j.BadValue));
                     return cardsToPlay.OrderBy(i => i.Suit)
-                                      .ThenByDescending(i => i.BadValue).FirstOrDefault();
+                                      .ThenBy(i => i.BadValue).FirstOrDefault();
                 }
             };
 
