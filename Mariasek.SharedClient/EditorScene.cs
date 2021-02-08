@@ -91,7 +91,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(10, 130),
                 Width = 200,
                 Height = 50,
-                Text = "Upravit hru",
+                Text = "Zobrazit hru",
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _loadGameButton.Click += LoadGameClicked;

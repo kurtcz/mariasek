@@ -2106,7 +2106,10 @@ namespace Mariasek.Engine.New
                                                      (_talon == null ||
                                                       (!_talon.HasA(i.Key)) &&
                                                        !_talon.HasX(i.Key)));
-            if (Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => !hand.HasA(b)))
+            if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                    .All(b => !hand.HasA(b) &&
+                              !(hand.HasX(b) &&
+                                hand.HasK(b))))
             {
                 emptySuits = 0;
                 aceOnlySuits = 0;
@@ -2210,6 +2213,8 @@ namespace Mariasek.Engine.New
         public bool IsSevenTooRisky()
         {
             var result = Hand.CardCount(_trump.Value) < 4 ||                      //1.  mene nez 4 trumfy
+                         (Hand.CardCount(_trump.Value) == 4 &&
+                          TeamMateIndex != -1) ||
                          (Hand.CardCount(_trump.Value) <= 4 &&
                           (!Hand.HasA(_trump.Value) ||
                            !Hand.HasX(_trump.Value)) &&
@@ -2999,7 +3004,12 @@ namespace Mariasek.Engine.New
                       !Is100AgainstPossible()) ||
                      (kqScore >= 40 &&
                       estimatedFinalBasicScore >= 30 &&
-                      !Is100AgainstPossible()) ||
+                      axCount >= 3 &&
+                      !Is100AgainstPossible(110)) ||
+                     (kqScore >= 60 &&
+                      estimatedFinalBasicScore >= 20 &&
+                      axCount >= 2 &&
+                      !Is100AgainstPossible(120)) ||
                      estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqMaxOpponentScore ||
                      (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + 10 &&
                       (bidding.Bids & Hra.SedmaProti) == 0 &&
@@ -3023,6 +3033,9 @@ namespace Mariasek.Engine.New
                     kqScore >= kqMaxOpponentScore) ||
                    (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
                     Hand.CardCount(_trump.Value) >= 5 &&
+                    (Hand.HasK(_g.trump.Value) ||
+                     Hand.HasQ(_g.trump.Value) ||
+                     axCount >= 4) &&
                     !Is100AgainstPossible(110)))) ||            
                  //nebo jsem nevolil a:
                  (TeamMateIndex != -1 &&                  
@@ -3267,7 +3280,10 @@ namespace Mariasek.Engine.New
                    (PlayerIndex == _g.GameStartingPlayerIndex &&
                     (Probabilities.HlasProbability((PlayerIndex + 1) % Game.NumPlayers) == 0) &&
                     (Probabilities.HlasProbability((PlayerIndex + 2) % Game.NumPlayers) == 0))) &&                  
-                  (PlayerIndex != _g.GameStartingPlayerIndex && _gameSimulations > 0 && _hundredsAgainstBalance / (float)_gameSimulations >= hundredAgainstThreshold))))
+                  (PlayerIndex != _g.GameStartingPlayerIndex &&
+                   kqScore >= 20 &&
+                   _gameSimulations > 0 &&
+                   _hundredsAgainstBalance / (float)_gameSimulations >= hundredAgainstThreshold))))
             {
                 bid |= bidding.Bids & Hra.KiloProti;
                 bid &= (Hra)~Hra.Hra; //u kila proti uz nehlasime flek na hru

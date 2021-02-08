@@ -339,7 +339,7 @@ namespace Mariasek.Engine.New
 
         public Card[] PotentialCards(int playerIndex)
         {
-            return CardsBetweenThresholds(playerIndex, 0.01f, 0.9f, false, false);
+            return CardsBetweenThresholds(playerIndex, 0.01f, 1f, false);
         }
 
         public Card[] UnlikelyCards(int playerIndex)
@@ -1778,7 +1778,9 @@ namespace Mariasek.Engine.New
             if (_trump.HasValue &&
                 c1.Suit != _trump &&
                 c1.Suit == c3.Suit &&
-                c3.Value > c1.Value &&
+                (c3.Value > c1.Value ||
+                 (c1.Suit == c2.Suit &&
+                  c2.Value > c1.Value)) &&
                 c3.Value != Hodnota.Desitka &&
                 c3.Value != Hodnota.Eso &&
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] > 0 &&
@@ -1823,20 +1825,21 @@ namespace Mariasek.Engine.New
             //pokud hrajeme v barve, zacinal akter a
             //druhy hrac (ja) jsem hral trumf a kolega
             //priznal akterovu barvu ale nehral desitku ani eso, tak ma akter pravdepodobne desitku (o esu nic nevim)
-            if (_trump.HasValue &&
-                roundStarterIndex == _gameStarterIndex &&
-                _myIndex == (roundStarterIndex + 1) % Game.NumPlayers &&
-                c1.Suit != _trump &&
-                c2.Suit == _trump &&
-                c3.Suit == c1.Suit &&
-                c3.Value < Hodnota.Desitka)
-            {
-                if (_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] > epsilon)
-                {
-                    _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] = epsilon;
-                    _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] = 1 - epsilon;
-                }
-            }
+            //if (_trump.HasValue &&
+            //    roundStarterIndex == _gameStarterIndex &&
+            //    _myIndex == (roundStarterIndex + 1) % Game.NumPlayers &&
+            //    c1.Suit != _trump &&
+            //    c2.Suit == _trump &&
+            //    c3.Suit == c1.Suit &&
+            //    c3.Value < Hodnota.Desitka &&
+            //    _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Eso] > epsilon)
+            //{
+            //    if (_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] > epsilon)
+            //    {
+            //        _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] = epsilon;
+            //        _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] = 1 - epsilon;
+            //    }
+            //}
             //pokud hrajeme v barve, zacinal akter a
             //druhy hrac nesel vejs, ale hral desitkou nebo esem
             //tak pravdepodobne uz v dane barve nema zadne nizke karty

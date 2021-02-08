@@ -117,6 +117,8 @@ namespace Mariasek.Engine.New
                         playedCards.Add(_rounds[i].c2);
                         playedCards.Add(_rounds[i].c3);
                     }
+                    bannedSuits.Add(_rounds[0].c1.Suit);
+                    bannedSuits = bannedSuits.Distinct().ToList();
                     if (bannedSuits.Count() == Game.NumSuits)
                     {
                         bannedSuits.Clear();
@@ -141,8 +143,8 @@ namespace Mariasek.Engine.New
                 }
                 if (!preferredSuits.Any())
                 {
-                    //nasledne zkus hrat barvu kterou akter hral a nebyla nejnizsi
-                    for (var i = 0; i < RoundNumber - 1; i++)
+                    //nasledne zkus hrat barvu kterou akter hral a nebyla nejnizsi (ignoruj prvni kolo)
+                    for (var i = 1; i < RoundNumber - 1; i++)
                     {
                         if (_rounds[i].c1.Suit == _rounds[i].c2.Suit &&
                             _rounds[i].c1.Suit == _rounds[i].c3.Suit)
@@ -336,8 +338,16 @@ namespace Mariasek.Engine.New
                             //ve 2. pokud muzu soupere chytit v nasl. pravidle, tak toto pravidlo nehraj
                             return null;
                         }
+                        if(Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                               .Any(b => hands[MyIndex].CardCount(b) == 1 &&
+                                         hands[MyIndex].Any(i => i.Suit == b &&
+                                                                 _probabilities.PotentialCards(opponent).Any(j => j.Suit == b &&
+                                                                                                                  j.BadValue > i.BadValue))))
+                        {
+                            //pokud se muzes zbavit plonka, tak to udelej a toto pravidlo nehraj
+                            return null;
+                        }
                         //pokud mam A, K, S, X tak hraj X (souper muze mit spodka)
-
                         var topCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                      .Select(h => new Card(i.Suit, h))
                                                                      .Where(j => j.BadValue > i.BadValue)
@@ -371,7 +381,10 @@ namespace Mariasek.Engine.New
                         if (RoundNumber == 2 && preferredSuits.Any())
                         {
                             //v 2.kole zkus rovnou zahrat preferovanou barvu. Pokud takova je, tak je to vitezna barva
-                            cardsToPlay = hands[MyIndex].Where(i => i.Suit == preferredSuits.First());
+                            cardsToPlay = hands[MyIndex].Where(i => i.Suit == preferredSuits.First() &&
+                                                                    (_probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) == 0 ||
+                                                                     _probabilities.PotentialCards(opponent).Count(j => j.Suit == i.Suit &&
+                                                                                                                        j.BadValue > i.BadValue) > 2));
 
                             if (cardsToPlay.Any())
                             {
@@ -379,6 +392,15 @@ namespace Mariasek.Engine.New
                             }
                         }
 
+                        if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                               .Any(b => hands[MyIndex].CardCount(b) == 1 &&
+                                         hands[MyIndex].Any(i => i.Suit == b &&
+                                                                 _probabilities.PotentialCards(opponent).Any(j => j.Suit == b &&
+                                                                                                                  j.BadValue > i.BadValue))))
+                        {
+                            //pokud se muzes zbavit plonka, tak to udelej a toto pravidlo nehraj
+                            return null;
+                        }
                         if (TeamMateIndex == player2)//co-
                         {
                             cardsToPlay = hands[MyIndex].Where(i =>
@@ -502,6 +524,12 @@ namespace Mariasek.Engine.New
                                                  .Take(1);
                             if (!cardsToPlay.Any())
                             {
+                                //if (opponentsRoundOneSuit.HasValue &&
+                                //    loCards.Any(i => i.Item1.Suit != opponentsRoundOneSuit.Value))
+                                //{
+                                //    loCards = loCards.Where(i => i.Item1.Suit != opponentsRoundOneSuit.Value);
+                                //}
+
                                 cardsToPlay = loCards.OrderBy(i => hochCards.Any(j => j.Suit == i.Item1.Suit)
                                                                     ? 0
                                                                     : 1)
