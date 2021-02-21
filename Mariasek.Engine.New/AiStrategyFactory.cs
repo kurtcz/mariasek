@@ -11,7 +11,7 @@ namespace Mariasek.Engine.New
         public static AiStrategyBase GetAiStrategy(Game g, Hra? gameType, Barva? trump, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, 
                                                    Probability probabilities, string name, int playerIndex, int teamMateIndex, int? initialRoundNumber, 
                                                    float riskFactor, float riskFactorSevenDefense, float solitaryXThreshold, float solitaryXThresholdDefense,
-                                                   Bidding bidding)
+                                                   Bidding bidding, int gameValue, int sevenValue)
         {
             var gt = gameType.HasValue ? gameType.Value : g.GameType;
 
@@ -45,7 +45,9 @@ namespace Mariasek.Engine.New
                         RiskFactorSevenDefense = riskFactorSevenDefense,
                         SolitaryXThreshold = solitaryXThreshold,
                         SolitaryXThresholdDefense = solitaryXThresholdDefense,
-                        PlayerBids = bidding.AllPlayerBids
+                        PlayerBids = bidding.AllPlayerBids,
+                        GameValue = bidding.GameMultiplier * gameValue,
+                        SevenValue = bidding.SevenMultiplier * sevenValue
                     };
             }
         }
