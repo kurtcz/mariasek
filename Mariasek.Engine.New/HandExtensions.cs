@@ -103,7 +103,7 @@ namespace Mariasek.Engine.New
             return hand;
         }
 
-        public static bool HasSolitaryX(this List<Card> hand, Barva suit)
+        public static bool HasSolitaryX(this IEnumerable<Card> hand, Barva suit)
         {
             return hand.Any(i => i.Value == Hodnota.Desitka && i.Suit == suit) &&
                    hand.Count(i => i.Suit == suit) == 1;
@@ -114,62 +114,67 @@ namespace Mariasek.Engine.New
             return hand.Any(i => i.Suit == suit);
         }
 
-        public static bool HasAtLeastNCardsOfSuit(this List<Card> hand, Barva suit, int n)
+        public static int SuitCount(this IEnumerable<Card> hand)
+        {
+            return hand.Select(i => i.Suit).Distinct().Count();
+        }
+
+        public static bool HasAtLeastNCardsOfSuit(this IEnumerable<Card> hand, Barva suit, int n)
         {
             return hand.Count(i => i.Suit == suit) >= n;
         }
 
-        public static bool HasAtMostNCardsOfSuit(this List<Card> hand, Barva suit, int n)
+        public static bool HasAtMostNCardsOfSuit(this IEnumerable<Card> hand, Barva suit, int n)
         {
             return hand.Count(i => i.Suit == suit) <= n;
         }
 
-        public static bool HasX(this List<Card> hand, Barva suit)
+        public static bool HasX(this IEnumerable<Card> hand, Barva suit)
         {
             return hand.Any(i => i.Value == Hodnota.Desitka && i.Suit == suit);
         }
 
-        public static bool HasA(this List<Card> hand, Barva suit)
+        public static bool HasA(this IEnumerable<Card> hand, Barva suit)
         {
             return hand.Any(i => i.Value == Hodnota.Eso && i.Suit == suit);
         }
 
-        public static bool HasK(this List<Card> hand, Barva suit)
+        public static bool HasK(this IEnumerable<Card> hand, Barva suit)
         {
             return hand.Any(i => i.Value == Hodnota.Kral && i.Suit == suit);
         }
 
-        public static bool HasQ(this List<Card> hand, Barva suit)
+        public static bool HasQ(this IEnumerable<Card> hand, Barva suit)
         {
             return hand.Any(i => i.Value == Hodnota.Svrsek && i.Suit == suit);
         }
 
-        public static bool HasJ(this List<Card> hand, Barva suit)
+        public static bool HasJ(this IEnumerable<Card> hand, Barva suit)
         {
             return hand.Any(i => i.Value == Hodnota.Spodek && i.Suit == suit);
         }
 
-        public static bool Has9(this List<Card> hand, Barva suit)
+        public static bool Has9(this IEnumerable<Card> hand, Barva suit)
         {
             return hand.Any(i => i.Value == Hodnota.Devitka && i.Suit == suit);
         }
 
-        public static bool Has8(this List<Card> hand, Barva suit)
+        public static bool Has8(this IEnumerable<Card> hand, Barva suit)
         {
             return hand.Any(i => i.Value == Hodnota.Osma && i.Suit == suit);
         }
 
-        public static bool Has7(this List<Card> hand, Barva suit)
+        public static bool Has7(this IEnumerable<Card> hand, Barva suit)
         {
             return hand.Any(i => i.Value == Hodnota.Sedma && i.Suit == suit);
         }
 
-        public static int CardCount(this List<Card> hand, Barva suit)
+        public static int CardCount(this IEnumerable<Card> hand, Barva suit)
         {
             return hand.Count(i => i.Suit == suit);
         }
 
-        public static int CardCount(this List<Card> hand, Hodnota value)
+        public static int CardCount(this IEnumerable<Card> hand, Hodnota value)
         {
             return hand.Count(i => i.Value == value);
         }
@@ -385,6 +390,13 @@ namespace Mariasek.Engine.New
             return _hand.Where(i => i != null).Count(i => i.Suit == suit);
         }
 
+        public int CardCount(Hodnota value)
+        {
+            return _hand.Where(i => i != null).Count(i => i.Value == value);
+        }
+
+        public int SuitCount => _hand.Where(i => i != null).Select(i => i.Suit).Distinct().Count();
+        
         public void Sort(SortMode sortMode = SortMode.Descending, bool badGameSorting = false)
         {
             _hand.Sort(sortMode, badGameSorting);
