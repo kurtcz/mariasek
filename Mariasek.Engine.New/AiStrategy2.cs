@@ -5412,6 +5412,22 @@ namespace Mariasek.Engine.New
                     else if (TeamMateIndex == player1)
                     {
                         //o-c
+                        if (ValidCards(c1, c2, hands[MyIndex]).Count > 1 &&
+                            ValidCards(c1, c2, hands[MyIndex]).Any(i => i.Value == Hodnota.Eso &&
+                                                                    i.Suit != _trump &&
+                                                                    i.Suit == c2.Suit &&
+                                                                    ((_probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0 &&
+                                                                      _probabilities.PotentialCards(player2)
+                                                                                    .Where(j => j.Suit == i.Suit)
+                                                                                    .Count(j => j != c1 &&
+                                                                                                j != c2) > 2) ||
+                                                                     _probabilities.CertainCards(player2)
+                                                                                    .Where(j => j.Suit == i.Suit)
+                                                                                    .Any(j => j != c1 &&
+                                                                                              j != c2))))
+                        {
+                            return null;
+                        }
                         return ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                       i.Suit != _trump &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) != c2 &&
@@ -5424,6 +5440,21 @@ namespace Mariasek.Engine.New
                     else
                     {
                         //-oc
+                        //nehraj pokud ma prvni hrac jiste dalsi male karty v barve a muzes hrat i neco jineho
+                        if (ValidCards(c1, c2, hands[MyIndex]).Count > 1 &&
+                            ValidCards(c1, c2, hands[MyIndex]).Any(i => i.Value == Hodnota.Eso &&
+                                                                    i.Suit != _trump &&
+                                                                    i.Suit == c1.Suit &&
+                                                                    ((_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0 &&
+                                                                      _probabilities.PotentialCards(player1)
+                                                                                    .Where(j => j.Suit == i.Suit)
+                                                                                    .Count(j => j != c1) > 2) ||
+                                                                     _probabilities.CertainCards(player1)
+                                                                                    .Where(j => j.Suit == i.Suit)
+                                                                                    .Any(j => j != c1))))
+                        {
+                            return null;
+                        }
                         return ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                       i.Suit != _trump &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) != c1 &&
