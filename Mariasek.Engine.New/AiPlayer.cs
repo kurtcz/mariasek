@@ -2786,7 +2786,8 @@ namespace Mariasek.Engine.New
                           ((_gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0) ||
                            //estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore + 40 ||
                            (estimatedFinalBasicScore >= 10 &&
-                            estimatedFinalBasicScore + kqScore >= 40) ||
+                            estimatedFinalBasicScore + kqScore >= 40 &&
+                            _maxMoneyLost >= -Settings.SafetyBetlThreshold) ||
                            (estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore &&
                             (Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value))))))
                 {
