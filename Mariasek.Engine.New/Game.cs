@@ -1063,7 +1063,7 @@ namespace Mariasek.Engine.New
 
         public void Die()
         {
-            Bidding.Die();
+            Bidding?.Die();
             Bidding = null;
             foreach (var player in players.Where(i => i != null))
             {

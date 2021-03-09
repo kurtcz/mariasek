@@ -143,7 +143,9 @@ namespace Mariasek.SharedClient
             _permissionsButton.Click += PermissionsButtonClicked;
             _permissionsButton.Hide();
             _cards = new Sprite[3];
-            var backSideRect = Game.Settings.CardBackSide.ToTextureRect();
+            var backSideRect = Game.Settings.CardDesign == CardFace.Pikety
+                    ? CardBackSide.Pikety.ToTextureRect()
+                    : Game.Settings.CardBackSide.ToTextureRect();
             for (var i = 0; i < _cards.Length; i++)
             {
                 _cards[i] = new Sprite(this, Game.ReverseTexture, backSideRect)
@@ -396,10 +398,9 @@ namespace Mariasek.SharedClient
             _cards[0].Texture = Game.ReverseTexture;
             _cards[1].Texture = Game.ReverseTexture;
             _cards[2].Texture = Game.ReverseTexture;
-            var backSideRect = Game.Settings.CardBackSide.ToTextureRect();
-            _cards[0].SpriteRectangle = backSideRect;
-            _cards[1].SpriteRectangle = backSideRect;
-            _cards[2].SpriteRectangle = backSideRect;
+            _cards[0].SpriteRectangle = Game.BackSideRect;
+            _cards[1].SpriteRectangle = Game.BackSideRect;
+            _cards[2].SpriteRectangle = Game.BackSideRect;
             _cards[0].Show();
             _cards[1].Hide();
             _cards[2].Hide();

@@ -47,6 +47,7 @@ namespace Mariasek.SharedClient
         private CardButton[] _stychy;   //animace otoceni stychu
         private Sprite[] _stareStychy;  //stychy z minulych kol
         private Sprite[][] _poslStych;  //zobrazeni posledniho stychu a talonu
+        private Sprite[] _shuffledCards;  //aktualni kolo
         private ClickableArea _overlay;
         private Button _menuBtn;
         private Button _sendBtn;
@@ -90,6 +91,8 @@ namespace Mariasek.SharedClient
         private bool[] _bubbleAutoHide;
         private bool _skipBidBubble;
         private bool _shouldShuffle;
+        private bool _shuffleAnimationRunning;
+        private AutoResetEvent _shuffleEvent = new AutoResetEvent(false);
         private GameReview _review;
 
 #pragma warning restore 414
@@ -98,6 +101,7 @@ namespace Mariasek.SharedClient
         public Mariasek.Engine.New.Game g;
         private SemaphoreSlim _gameSemaphore = new SemaphoreSlim(1);
         private Task _gameTask;
+        private Task _shuffleTask;
         private CancellationTokenSource _cancellationTokenSource;
         private readonly AutoResetEvent _evt = new AutoResetEvent(false);
         private readonly AutoResetEvent _preGameEvent = new AutoResetEvent(false);
@@ -299,7 +303,7 @@ namespace Mariasek.SharedClient
         {
             base.Initialize();
             Game.OnSettingsChanged();
-            var backSideRect = Game.Settings.CardDesign == CardFace.Pikety
+            Game.BackSideRect = Game.Settings.CardDesign == CardFace.Pikety
                                 ? CardBackSide.Pikety.ToTextureRect()
                                 : Game.Settings.CardBackSide.ToTextureRect();
             Game.CardTextures = Game.Settings.CardDesign == CardFace.Single
@@ -312,24 +316,24 @@ namespace Mariasek.SharedClient
             {
                 new []
                 {
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy11", ZIndex = 1 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy12", ZIndex = 2 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy13", ZIndex = 3 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy14", ZIndex = 4 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy11", ZIndex = 1 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy12", ZIndex = 2 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy13", ZIndex = 3 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy14", ZIndex = 4 },
                 },
                 new []
                 {
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(100, 130), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy21", ZIndex = 1 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(150, 130), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy22", ZIndex = 2 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(200, 130), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy23", ZIndex = 3 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(250, 130), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy24", ZIndex = 4 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(100, 130), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy21", ZIndex = 1 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(150, 130), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy22", ZIndex = 2 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(200, 130), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy23", ZIndex = 3 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(250, 130), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy24", ZIndex = 4 },
                 },
                 new []
                 {
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, 130), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy31", ZIndex = 1 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, 130), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy32", ZIndex = 2 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, 130), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy33", ZIndex = 3 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, 130), ReverseSpriteRectangle = backSideRect, IsEnabled = false, Name="Hlasy34", ZIndex = 4 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, 130), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy31", ZIndex = 1 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, 130), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy32", ZIndex = 2 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, 130), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy33", ZIndex = 3 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, 130), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy34", ZIndex = 4 },
                 }
             };
             _hlasy[0][0].Click += TrumpCardClicked;
@@ -338,9 +342,9 @@ namespace Mariasek.SharedClient
             _hlasy[0][0].ZIndex = 70;
             _stareStychy = new[]
             {
-                new Sprite(this, Game.ReverseTexture, backSideRect) { Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f + 40), Scale = Game.CardScaleFactor, Name = "StareStychy1" },
-                new Sprite(this, Game.ReverseTexture, backSideRect) { Position = new Vector2(60, 90), Scale = Game.CardScaleFactor, Name = "StareStychy2" },
-                new Sprite(this, Game.ReverseTexture, backSideRect) { Position = new Vector2(Game.VirtualScreenWidth - 60, 90), Scale = Game.CardScaleFactor, Name = "StareStychy3" }
+                new Sprite(this, Game.ReverseTexture, Game.BackSideRect) { Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f + 40), Scale = Game.CardScaleFactor, Name = "StareStychy1" },
+                new Sprite(this, Game.ReverseTexture, Game.BackSideRect) { Position = new Vector2(60, 90), Scale = Game.CardScaleFactor, Name = "StareStychy2" },
+                new Sprite(this, Game.ReverseTexture, Game.BackSideRect) { Position = new Vector2(Game.VirtualScreenWidth - 60, 90), Scale = Game.CardScaleFactor, Name = "StareStychy3" }
             };
             _poslStych = new[]
             {
@@ -365,9 +369,9 @@ namespace Mariasek.SharedClient
             };
             _stychy = new[]
             {
-                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy1", SpriteRectangle = Rectangle.Empty }) { Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f + 40), ReverseSpriteRectangle = backSideRect, IsEnabled = false, ZIndex = 10 },
-                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy2", SpriteRectangle = Rectangle.Empty }) { Position = new Vector2(60, 90), ReverseSpriteRectangle = backSideRect, IsEnabled = false, ZIndex = 10 },
-                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy3", SpriteRectangle = Rectangle.Empty }) { Position = new Vector2(Game.VirtualScreenWidth - 60, 90), ReverseSpriteRectangle = backSideRect, IsEnabled = false, ZIndex = 10 }
+                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy1", SpriteRectangle = Rectangle.Empty }) { Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f + 40), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, ZIndex = 10 },
+                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy2", SpriteRectangle = Rectangle.Empty }) { Position = new Vector2(60, 90), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, ZIndex = 10 },
+                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy3", SpriteRectangle = Rectangle.Empty }) { Position = new Vector2(Game.VirtualScreenWidth - 60, 90), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, ZIndex = 10 }
             };
             _cardsPlayed = new[]
             {
@@ -837,6 +841,16 @@ namespace Mariasek.SharedClient
             };
             _progressBars = new[] { _progress1, _progress2, _progress3 };
 
+            _shuffledCards = new Sprite[3];
+            for (var i = 0; i < _shuffledCards.Length; i++)
+            {
+                _shuffledCards[i] = new Sprite(this, Game.ReverseTexture, Game.BackSideRect)
+                {
+                    Scale = Game.CardScaleFactor,
+                    Name = string.Format("card{0}", i)
+                };
+                _shuffledCards[i].Hide();
+            }
             _review = new GameReview(this, 200)
             {
                 Position = new Vector2(160, 45),
@@ -1356,6 +1370,7 @@ namespace Mariasek.SharedClient
             ReplayGame(_newGameFilePath, 2);
         }
 
+        //vola se z menu (micha vzdy)
         public void ShuffleDeck()
         {
             //if (_deck == null)
@@ -1377,6 +1392,18 @@ namespace Mariasek.SharedClient
 
         public void NewGameBtnClicked(object sender)
         {
+            if (_shuffleAnimationRunning)
+            {
+                if (!this.ScheduledOperations.IsEmpty)
+                {
+                    ClearOperations();
+                }
+                _shuffledCards[0].Hide();
+                _shuffledCards[1].Hide();
+                _shuffledCards[2].Hide();
+                _cancellationTokenSource.Cancel();
+            }
+            _shuffleEvent.Set(); //odblokovat pripadnou predchozi hru cekajici na konec shuffle animace
             if (!_gameSemaphore.Wait(0))
             {
                 return;
@@ -1472,6 +1499,10 @@ namespace Mariasek.SharedClient
                              LoadDeck();
                          }
                      }
+                     if (Game.Settings.WhenToShuffle == ShuffleTrigger.Always)
+                     {
+                         _shouldShuffle = true;
+                     }
                      if (_shouldShuffle)
                      {
                          _deck.Shuffle();
@@ -1539,21 +1570,45 @@ namespace Mariasek.SharedClient
                      {
                          _hand.ClearOperations();
                          this.ClearOperations();
+                         _shuffledCards[0].Hide();
+                         _shuffledCards[1].Hide();
+                         _shuffledCards[2].Hide();
+                         if (_shouldShuffle)
+                         {
+                             _shuffleEvent.Reset();
+                             ShowShuffleAnimation();
+                         }
+                         this.Invoke(() =>
+                         {
+                             if (g.GameStartingPlayerIndex != 0)
+                             {
+                                 ShowThinkingMessage(g.GameStartingPlayerIndex);
+                                 SortHand();
+                                 _hand.Hide();
+                                 UpdateHand(true);
+                             }
+                             else
+                             {
+                                 SortHand(null, 7);
+                                 _hand.Hide();
+                             }
+                             _shuffleEvent.Set();
+                        });
                      });
                      _hintBtn.IsEnabled = false;
                      _hintBtn.Show();
-                     if (g.GameStartingPlayerIndex != 0)
-                     {
-                         ShowThinkingMessage(g.GameStartingPlayerIndex);
-                         SortHand();
-                         _hand.Hide();
-                         UpdateHand(true);
-                     }
-                     else
-                     {
-                         SortHand(null, 7);
-                         _hand.Hide();
-                     }
+                     //if (g.GameStartingPlayerIndex != 0)
+                     //{
+                     //    ShowThinkingMessage(g.GameStartingPlayerIndex);
+                     //    SortHand();
+                     //    _hand.Hide();
+                     //    UpdateHand(true);
+                     //}
+                     //else
+                     //{
+                     //    SortHand(null, 7);
+                     //    _hand.Hide();
+                     //}
                      for (var i = 0; i < _trumpLabels.Count(); i++)
                      {
                          var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
@@ -1607,14 +1662,18 @@ namespace Mariasek.SharedClient
                          _gameSemaphore.Release();
                      }
                  }
-                 _lastGameWasLoaded = false;
-                 try
+                 _shuffleEvent.WaitOne();
+                 if (!_cancellationTokenSource.Token.IsCancellationRequested)
                  {
-                     g.PlayGame(_cancellationTokenSource.Token);
-                 }
-                 catch (Exception e)
-                 {
-                     ShowMsgLabel(e.Message, false);
+                     _lastGameWasLoaded = false;
+                     try
+                     {
+                         g.PlayGame(_cancellationTokenSource.Token);
+                     }
+                     catch (Exception e)
+                     {
+                         ShowMsgLabel(e.Message, false);
+                     }
                  }
              }, cancellationTokenSource.Token);
         }
@@ -3051,6 +3110,66 @@ namespace Mariasek.SharedClient
             });
         }
 
+        void ShowShuffleAnimation()
+        {
+            var position1 = new Vector2(Game.VirtualScreenWidth / 2f, Game.VirtualScreenHeight / 2f);
+            var position2 = new Vector2(Game.VirtualScreenWidth / 2f + 150, Game.VirtualScreenHeight / 2f);
+
+            _shuffleAnimationRunning = true;
+            _shuffledCards[0].Scale = Game.CardScaleFactor;
+            _shuffledCards[1].Scale = Game.CardScaleFactor;
+            _shuffledCards[2].Scale = Game.CardScaleFactor;
+            _shuffledCards[0].ZIndex = 50;
+            _shuffledCards[1].ZIndex = 51;
+            _shuffledCards[2].ZIndex = 52;
+            _shuffledCards[0].Position = position1;
+            _shuffledCards[1].Position = position1;
+            _shuffledCards[2].Position = position2;
+            _shuffledCards[0].Texture = Game.ReverseTexture;
+            _shuffledCards[1].Texture = Game.ReverseTexture;
+            _shuffledCards[2].Texture = Game.ReverseTexture;
+            _shuffledCards[0].SpriteRectangle = Game.BackSideRect;
+            _shuffledCards[1].SpriteRectangle = Game.BackSideRect;
+            _shuffledCards[2].SpriteRectangle = Game.BackSideRect;
+            _shuffledCards[0].Show();
+            _shuffledCards[1].Hide();
+            _shuffledCards[2].Hide();
+            _shuffledCards[0].FadeIn(2);
+            this.WaitUntil(() => _shuffledCards[0].Opacity == 1)
+                .Invoke(() => _shuffledCards[1].Show());
+            for (var i = 0; i < 5; i++)
+            {
+                this.Invoke(() => _shuffledCards[0].MoveTo(position2, 800))
+                    .WaitUntil(() => _shuffledCards[0].Position == position2)
+                    .Invoke(() =>
+                    {
+                        _shuffledCards[0].Hide();
+                        _shuffledCards[2].Position = position2;
+                        _shuffledCards[2].Show();
+                    })
+                    .Invoke(() => _shuffledCards[2].MoveTo(position1, 800))
+                    .WaitUntil(() => _shuffledCards[2].Position == position1)
+                    .Invoke(() =>
+                    {
+                        _shuffledCards[0].Position = position1;
+                        _shuffledCards[0].Show();
+                        _shuffledCards[2].Hide();
+                        _shuffledCards[2].Position = position2;
+                    });
+            }
+            this.Invoke(() =>
+            {
+                _shuffledCards[0].FadeOut(2);
+                _shuffledCards[1].Hide();
+            })
+                .WaitUntil(() => _shuffledCards[0].Opacity == 0)
+                .Invoke(() =>
+                {
+                    _shuffledCards[0].Hide();
+                    _shuffleAnimationRunning = false;
+                });
+        }
+
         public bool CanLoadGame()
         {
             try
@@ -3498,7 +3617,7 @@ namespace Mariasek.SharedClient
 
 			if (cardButton != null)
 			{
-				cardButton.ReverseSpriteRectangle = Game.BackSideRect;
+                cardButton.ReverseSpriteRectangle = Game.BackSideRect;
 			}
 			foreach (var child in parent.ChildElements)
 			{
@@ -3593,6 +3712,13 @@ namespace Mariasek.SharedClient
                 if (_stareStychy != null)
                 {
                     foreach (var sprite in _stareStychy)
+                    {
+                        sprite.SpriteRectangle = newBackSideRect;
+                    }
+                }
+                if (_shuffledCards != null)
+                {
+                    foreach (var sprite in _shuffledCards)
                     {
                         sprite.SpriteRectangle = newBackSideRect;
                     }
@@ -3988,6 +4114,10 @@ namespace Mariasek.SharedClient
                 _cardsPlayed[0].Hide();
                 _cardsPlayed[1].Hide();
                 _cardsPlayed[2].Hide();
+
+                _shuffledCards[0].Hide();
+                _shuffledCards[1].Hide();
+                _shuffledCards[2].Hide();
 
                 for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
                 {
