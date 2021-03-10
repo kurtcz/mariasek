@@ -1174,6 +1174,24 @@ namespace Mariasek.Engine.New
                                                                  Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                      .Any(h => h > i.Value &&
                                                                                _probabilities.CardProbability(player3, new Card(i.Suit, h)) > _epsilon)).ToList();
+
+                        if (lowCards.Any() &&
+                            _hands[MyIndex].Where(i => i.Suit != _trump)
+                                           .All(i => i.Value < Hodnota.Desitka) &&
+                                                     _rounds != null && //pokud v minulych kolech kolega na tvuj nejvyssi trumf nenamazal, tak pravidlo nehraj (kolega nema co mazat). Trumfy setri na pozdeji
+                                                     _rounds.Any(r => r?.c3 != null &&
+                                                                      r.player1.PlayerIndex == MyIndex &&
+                                                                      r.c1.Suit == _trump &&
+                                                                      r.roundWinner.PlayerIndex == MyIndex &&
+                                                                      ((r.player2.PlayerIndex == TeamMateIndex &&
+                                                                        r.c2.Suit != _trump &&
+                                                                        r.c2.Value < Hodnota.Desitka) ||
+                                                                       (r.player3.PlayerIndex == TeamMateIndex &&
+                                                                        r.c3.Suit != _trump &&
+                                                                        r.c3.Value < Hodnota.Desitka))))
+                        {
+                            return null;
+                        }
                         //pokud se hraje sedma proti a mam dlouhou netrumfovou barvu
                         //a vsechny cizi trumfy ma souper, tak pravidlo nehraj
                         //hrozi, ze bych na konci nemel dost trumfu
@@ -1220,6 +1238,7 @@ namespace Mariasek.Engine.New
                         {
                             return null;
                         }
+
                         //pouzivam 0 misto epsilon protoze jinak bych mohl hrat trumfovou x a myslet si ze souper nema eso a on by ho zrovna mel!
                         var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > _epsilon).ToList();
                         var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
@@ -1228,6 +1247,23 @@ namespace Mariasek.Engine.New
                                                                      .Any(h => h > i.Value &&
                                                                                _probabilities.CardProbability(player2, new Card(i.Suit, h)) > _epsilon)).ToList();
 
+                        if (lowCards.Any() &&
+                            _hands[MyIndex].Where(i => i.Suit != _trump)
+                                           .All(i => i.Value < Hodnota.Desitka) &&
+                                                     _rounds != null && //pokud v minulych kolech kolega na tvuj nejvyssi trumf nenamazal, tak pravidlo nehraj (kolega nema co mazat). Trumfy setri na pozdeji
+                                                     _rounds.Any(r => r?.c3 != null &&
+                                                                      r.player1.PlayerIndex == MyIndex &&
+                                                                      r.c1.Suit == _trump &&
+                                                                      r.roundWinner.PlayerIndex == MyIndex &&
+                                                                      ((r.player2.PlayerIndex == TeamMateIndex &&
+                                                                        r.c2.Suit != _trump &&
+                                                                        r.c2.Value < Hodnota.Desitka) ||
+                                                                       (r.player3.PlayerIndex == TeamMateIndex &&
+                                                                        r.c3.Suit != _trump &&
+                                                                        r.c3.Value < Hodnota.Desitka))))
+                        {
+                            return null;
+                        }
                         //pokud se hraje sedma proti a mam dlouhou netrumfovou barvu
                         //a vsechny cizi trumfy ma souper, tak pravidlo nehraj
                         //hrozi, ze bych na konci nemel dost trumfu
@@ -3652,7 +3688,20 @@ namespace Mariasek.Engine.New
                         (hands[MyIndex].Where(i => i.Suit != _trump)
                                        .All(i => i.Value < Hodnota.Desitka) ||
                          hands[MyIndex].Where(i => i.Suit != _trump).SuitCount() == 3) &&
-                        _probabilities.PotentialCards(TeamMateIndex).Any(i => i.Value >= Hodnota.Desitka)) //&&
+                        _probabilities.PotentialCards(TeamMateIndex).Any(i => i.Value >= Hodnota.Desitka) &&
+                        (hands[MyIndex].Where(i => i.Suit != _trump)
+                                       .All(i => topCards.HasSuit(i.Suit)) ||
+                         _rounds == null || //pokud v minulych kolech kolega na tvuj nejvyssi trumf nenamazal, tak pravidlo nehraj (kolega nema co mazat). Trumfy setri na pozdeji
+                         !_rounds.Any(r => r?.c3 != null &&
+                                           r.player1.PlayerIndex == MyIndex &&
+                                           r.c1.Suit == _trump &&
+                                           !((r.player2.PlayerIndex == TeamMateIndex &&
+                                              r.c2.Suit != _trump &&
+                                              r.c2.Value < Hodnota.Desitka) ||
+                                             (r.player3.PlayerIndex == TeamMateIndex &&
+                                              r.c3.Suit != _trump &&
+                                              r.c3.Value < Hodnota.Desitka)) &&
+                                           r.roundWinner.PlayerIndex == MyIndex))) //&&
                         //_probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) )
                     {
                         return ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump).OrderByDescending(i => i.Suit).FirstOrDefault();
@@ -5424,7 +5473,7 @@ namespace Mariasek.Engine.New
                                                                      _probabilities.CertainCards(player2)
                                                                                     .Where(j => j.Suit == i.Suit)
                                                                                     .Any(j => j != c1 &&
-                                                                                              j != c2))))
+                                                                                               j != c2))))
                         {
                             return null;
                         }

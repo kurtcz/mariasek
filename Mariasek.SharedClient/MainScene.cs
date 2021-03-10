@@ -3071,7 +3071,8 @@ namespace Mariasek.SharedClient
                 _msgLabelRight.Text = rightMessage.ToString();
                 ShowGameScore();
                 //});
-                _shouldShuffle = (Game.Settings.WhenToShuffle == ShuffleTrigger.AfterAutomaticVictory && 
+                _shouldShuffle = (!_testGame &&
+                                  Game.Settings.WhenToShuffle == ShuffleTrigger.AfterAutomaticVictory && 
                                   results.GameWon && 
                                   results.GamePlayed && 
                                   g.RoundNumber == 1) ||

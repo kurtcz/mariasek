@@ -3716,7 +3716,7 @@ namespace Mariasek.Engine.New
                                     (computationResult.Rule.SkipSimulations &&
                                      r.number != 9) ||     //in round no. 9 we want to run simulations every time to mitigate a chance of bad ending
                                     canSkipSimulations)    //We have only one card to play, so there is really no need to compute anything
-                            {
+                                {
                                     OnGameComputationProgress(new GameComputationProgressEventArgs { Current = simulations, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0 });
                                     Probabilities.StopGeneratingHands();
                                     loopState.Stop();

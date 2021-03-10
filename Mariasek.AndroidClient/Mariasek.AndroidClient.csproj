@@ -57,7 +57,7 @@
     <AndroidLinkMode>Full</AndroidLinkMode>
     <AndroidDexTool>d8</AndroidDexTool>
     <AndroidLinkTool>r8</AndroidLinkTool>
-    <AndroidPackageFormat>aab</AndroidPackageFormat>
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <AndroidSigningKeyStore>/Users/kurt/Library/Developer/Xamarin/Keystore/kurt/kurt.keystore</AndroidSigningKeyStore>
     <AndroidSigningStorePass>kensentme</AndroidSigningStorePass>
