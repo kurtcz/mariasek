@@ -1487,7 +1487,7 @@ namespace Mariasek.SharedClient
 #endif
                      Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
                      Game.SaveGameSettings();
-                     if (_deck == null)
+                     if (_deck == null) 
                      {
                          LoadDeck();
                      }

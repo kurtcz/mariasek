@@ -639,32 +639,40 @@ namespace Mariasek.Engine.New
                 }
                 if (gt == Hra.SedmaProti)
                 {
-                    if (_bidding.PlayerBids.Any(i => (i & Hra.SedmaProti) != 0))
+                    if ((_gameType & Hra.KiloProti) == 0 ||
+                        HundredAgainstMoneyWon * SevenAgainstMoneyWon < 0)
                     {
-                        var playerIndex = _bidding.PlayerBids.Select((i, idx) => new { value = i, idx = idx })
-                                                             .Where(i => (i.value & Hra.SedmaProti) != 0)
-                                                             .Select(i => i.idx)
-                                                             .FirstOrDefault();
-                        if (playerIndex == _gameStartingPlayerIndex)
+                        if (_bidding.PlayerBids.Any(i => (i & Hra.SedmaProti) != 0))
                         {
-                            playerIndex = (playerIndex + 1) % Game.NumPlayers;  //sedmu proti nemohl hlasit akter
+                            var playerIndex = _bidding.PlayerBids.Select((i, idx) => new { value = i, idx = idx })
+                                                                 .Where(i => (i.value & Hra.SedmaProti) != 0)
+                                                                 .Select(i => i.idx)
+                                                                 .FirstOrDefault();
+                            if (playerIndex == _gameStartingPlayerIndex)
+                            {
+                                playerIndex = (playerIndex + 1) % Game.NumPlayers;  //sedmu proti nemohl hlasit akter
+                            }
+                            sb.AppendFormat("{0}: ", PlayerNames[playerIndex]);
                         }
-                        sb.AppendFormat("{0}: ", PlayerNames[playerIndex]);
                     }
                 }
                 else if (gt == Hra.KiloProti)
                 {
-                    if (_bidding.PlayerBids.Any(i => (i & Hra.KiloProti) != 0))
+                    if ((_gameType & Hra.SedmaProti) == 0 ||
+                        HundredAgainstMoneyWon * SevenAgainstMoneyWon < 0)
                     {
-                        var playerIndex = _bidding.PlayerBids.Select((i, idx) => new { value = i, idx = idx })
-                                                             .Where(i => (i.value & Hra.KiloProti) != 0)
-                                                             .Select(i => i.idx)
-                                                             .FirstOrDefault();
-                        if (playerIndex == _gameStartingPlayerIndex)
+                        if (_bidding.PlayerBids.Any(i => (i & Hra.KiloProti) != 0))
                         {
-                            playerIndex = (playerIndex + 1) % Game.NumPlayers;  //kilo proti nemohl hlasit akter
+                            var playerIndex = _bidding.PlayerBids.Select((i, idx) => new { value = i, idx = idx })
+                                                                 .Where(i => (i.value & Hra.KiloProti) != 0)
+                                                                 .Select(i => i.idx)
+                                                                 .FirstOrDefault();
+                            if (playerIndex == _gameStartingPlayerIndex)
+                            {
+                                playerIndex = (playerIndex + 1) % Game.NumPlayers;  //kilo proti nemohl hlasit akter
+                            }
+                            sb.AppendFormat("{0}: ", PlayerNames[playerIndex]);
                         }
-                        sb.AppendFormat("{0}: ", PlayerNames[playerIndex]);
                     }
                 }
                 else
@@ -681,7 +689,8 @@ namespace Mariasek.Engine.New
                 items++;
             }
             if ((_gameType & Hra.KiloProti) != 0 &&
-                (_gameType & Hra.SedmaProti) != 0)
+                (_gameType & Hra.SedmaProti) != 0 &&
+                HundredAgainstMoneyWon * SevenAgainstMoneyWon > 0) //pokud jsem bud oboje vyhral nebo oboje prohral
             {
                 var won = HundredAgainstWon;
                 var multiplier = _bidding.HundredAgainstMultiplier;
