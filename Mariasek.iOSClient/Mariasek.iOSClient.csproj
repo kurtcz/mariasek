@@ -128,12 +128,6 @@
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\Mariasek.Engine.Portable\Mariasek.Engine.Portable.csproj">
-      <Project>{0CD59EAE-641A-4AC8-B45F-183B9A54D86F}</Project>
-      <Name>Mariasek.Engine.Portable</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <InterfaceDefinition Include="Launch.storyboard" />
   </ItemGroup>
   <ItemGroup>
@@ -173,5 +167,11 @@
   <ItemGroup>
     <ITunesArtwork Include="Resources\Icon.png" />
     <ITunesArtwork Include="iTunesArtwork%402x" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Mariasek.Engine\Mariasek.Engine.csproj">
+      <Project>{DA5B6FE8-318A-40E5-805E-D93896B924D0}</Project>
+      <Name>Mariasek.Engine</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

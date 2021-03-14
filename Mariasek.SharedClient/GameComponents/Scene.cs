@@ -155,14 +155,14 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     case BackgroundAlignment.Stretch:
                         Game.SpriteBatch.Draw(Background, 
-                                              new Rectangle(0, 0, (int)Game.GraphicsDevice.Viewport.Width, (int)Game.GraphicsDevice.Viewport.Height), 
+                                              new Rectangle(0, 0, (int)Game.GraphicsDevice.DisplayMode.Width, (int)Game.GraphicsDevice.DisplayMode.Height), 
                                               BackgroundTint);
                         break;
                     case BackgroundAlignment.Center:
                     default:
                         Game.SpriteBatch.Draw(Background, 
-                                              new Rectangle((int)((Game.GraphicsDevice.Viewport.Width - Background.Width) / 2f),
-                                                            (int)((Game.GraphicsDevice.Viewport.Height - Background.Height) / 2f),
+                                              new Rectangle((int)((Game.GraphicsDevice.DisplayMode.Width - Background.Width) / 2f),
+                                                            (int)((Game.GraphicsDevice.DisplayMode.Height - Background.Height) / 2f),
                                                             Background.Width,
                                                             Background.Height), 
                                               BackgroundTint);

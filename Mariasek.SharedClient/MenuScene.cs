@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Media;
 using Mariasek.SharedClient.GameComponents;
 using System;
 using System.Collections.Generic;
+using Android.Views;
 
 namespace Mariasek.SharedClient
 {
@@ -194,7 +195,7 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(15, Game.VirtualScreenHeight - 30),
                 Width = 200,
-                Height = 30,
+                Height = 50,
                 Text = string.Format("v{0}", MariasekMonoGame.Version),
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Bottom,
                 FontScaleFactor = Game.RealScreenGeometry == ScreenGeometry.Wide ? 0.9f : 0.75f
@@ -378,6 +379,22 @@ namespace Mariasek.SharedClient
 
         void ShuffleBtnClicked(object sender)
         {
+            Game.Settings.ShowStatusBar = !Game.Settings.ShowStatusBar;
+            Game.Graphics.IsFullScreen = !Game.Graphics.IsFullScreen;
+
+            var view = Game.Services.GetService<View>();
+
+            if (Game.Settings.ShowStatusBar)
+            {
+                view.SystemUiVisibility = 0;
+            }
+            else
+            {
+                view.SystemUiVisibility = (StatusBarVisibility)(SystemUiFlags.LayoutStable | SystemUiFlags.LayoutHideNavigation | SystemUiFlags.LayoutFullscreen | SystemUiFlags.HideNavigation | SystemUiFlags.Fullscreen | SystemUiFlags.ImmersiveSticky);
+            }
+            Game.Graphics.ApplyChanges();
+            return;
+
             var position1 = new Vector2(Game.VirtualScreenWidth * 3 / 4f, Game.VirtualScreenHeight / 2f);
             var position2 = new Vector2(Game.VirtualScreenWidth * 3 / 4f + 150, Game.VirtualScreenHeight / 2f);
             var positionX = new Vector2(Game.VirtualScreenWidth * 3 / 4f, Game.VirtualScreenHeight / 2f - 100);

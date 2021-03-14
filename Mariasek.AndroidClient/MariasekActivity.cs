@@ -65,12 +65,12 @@ namespace Mariasek.AndroidClient
                 // Create our OpenGL view, and display it
                 g = new MariasekMonoGame(this, this, this, this);
                 var view = g.Services.GetService<View>();
-                //if ((int)Android.OS.Build.VERSION.SdkInt >= 28)
-                //{
-                //    ViewCompat.SetOnApplyWindowInsetsListener(view, this);
-                //    Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
-                //    Window.AddFlags(WindowManagerFlags.TranslucentStatus);
-                //}
+                if ((int)Android.OS.Build.VERSION.SdkInt >= 28)
+                {
+                    ViewCompat.SetOnApplyWindowInsetsListener(view, this);
+                    Window.Attributes.LayoutInDisplayCutoutMode = LayoutInDisplayCutoutMode.ShortEdges;
+                    //Window.AddFlags(WindowManagerFlags.TranslucentStatus);                    
+                }
                 //if ((int)Android.OS.Build.VERSION.SdkInt >= 29)
                 //{
                 //    var storageManager = (StorageManager)ApplicationContext.GetSystemService(StorageService);
@@ -85,6 +85,14 @@ namespace Mariasek.AndroidClient
                 //        StartActivityForResult(intent, 111);
                 //    }
                 //}
+                if (g.Settings.ShowStatusBar)
+                {
+                    view.SystemUiVisibility = 0;
+                }
+                else
+                {
+                    view.SystemUiVisibility = (StatusBarVisibility)(SystemUiFlags.LayoutStable | SystemUiFlags.LayoutHideNavigation | SystemUiFlags.LayoutFullscreen | SystemUiFlags.HideNavigation | SystemUiFlags.Fullscreen | SystemUiFlags.ImmersiveSticky);
+                }
                 SetContentView(view);
                 sw.Stop();
                 System.Diagnostics.Debug.WriteLine("OnCreate sw {0}", sw.ElapsedMilliseconds);
@@ -93,6 +101,26 @@ namespace Mariasek.AndroidClient
             catch (Exception ex)
             {
                 HandleException(ex);
+            }
+        }
+
+        public override void OnWindowFocusChanged(bool hasFocus)
+        {
+            base.OnWindowFocusChanged(hasFocus);
+
+            var view = g.Services.GetService<View>();
+
+            if (g.Settings.ShowStatusBar)
+            {
+                view.SystemUiVisibility = 0;
+            }
+            else
+            {
+                view.SystemUiVisibility = (StatusBarVisibility)(SystemUiFlags.LayoutStable | SystemUiFlags.LayoutHideNavigation | SystemUiFlags.LayoutFullscreen | SystemUiFlags.HideNavigation | SystemUiFlags.Fullscreen | SystemUiFlags.ImmersiveSticky);
+            }
+            if (g.GraphicsDevice != null)
+            {
+                g.SetupScaleMatrices();
             }
         }
 

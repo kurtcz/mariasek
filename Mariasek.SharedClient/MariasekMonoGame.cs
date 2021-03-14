@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework.GamerServices;
 using CsvHelper;
 using System.Globalization;
+//using Android.Views;
 #if __IOS__
 using Foundation;
 #endif
@@ -336,6 +337,7 @@ namespace Mariasek.SharedClient
 
             SetupScaleMatrices();
             _loadProgress = 1;
+            Window.ClientSizeChanged += Window_ClientSizeChanged;
             Assets = new AssetLoader(Content,
                                          new[]
                                          {
@@ -377,7 +379,12 @@ namespace Mariasek.SharedClient
             base.Initialize();
 		}
 
-        private void SetupScaleMatrices()
+        private void Window_ClientSizeChanged(object sender, EventArgs e)
+        {
+            SetupScaleMatrices();
+        }
+
+        public void SetupScaleMatrices()
         {   
             var width = Math.Max(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             var height = Math.Min(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);

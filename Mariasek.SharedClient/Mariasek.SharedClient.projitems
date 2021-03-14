@@ -57,7 +57,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)IScreenManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IStorageAccessor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OrientationChangedEventArgs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)AssetLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ReviewScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SettingsScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Serialization\MoneyCalculatorBaseMap.cs" />

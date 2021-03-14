@@ -17,6 +17,7 @@ using Microsoft.Xna.Framework.Input.Touch;
 using Mariasek.SharedClient.GameComponents;
 using Mariasek.Engine.New;
 using CsvHelper;
+using Microsoft.Xna.Framework.GamerServices;
 
 namespace Mariasek.SharedClient
 {
@@ -3489,20 +3490,34 @@ namespace Mariasek.SharedClient
 
         public void ResumeGame()
         {
-            try
+            if (g != null)
             {
-                if (g != null)
-                {
-                    g.DebugString.AppendLine("ResumeGame");
-                }
-                if (CanLoadGame())
+                g.DebugString.AppendLine("ResumeGame");
+            }
+            if (CanLoadGame())
+            {
+                Guide.BeginShowMessageBox("", $"Přejete si pokračovat v rozehrané hře?", new string[] { "Ne", "Ano" }, 1, MessageBoxIcon.Warning, ResumeGameCallback, null);
+            }
+        }
+
+        private void ResumeGameCallback(IAsyncResult result)
+        {
+            var buttonIndex = Guide.EndShowMessageBox(result);
+
+            if (g != null)
+            {
+                g.DebugString.AppendLine("ResumeGameCallback");
+            }
+            if (buttonIndex.HasValue && buttonIndex.Value == 1)
+            {
+                try
                 {
                     LoadGame(_savedGameFilePath, false);
                 }
-            }
-            catch (Exception ex)
-            {
-                GameException(this, new GameExceptionEventArgs(){ e = ex });
+                catch (Exception ex)
+                {
+                    GameException(this, new GameExceptionEventArgs() { e = ex });
+                }
             }
         }
 
