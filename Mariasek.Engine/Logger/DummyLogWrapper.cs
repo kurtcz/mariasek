@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Mariasek.Engine.New.Logger
+namespace Mariasek.Engine.Logger
 {
 #if !PORTABLE
     [ExcludeFromCodeCoverage]

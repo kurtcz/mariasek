@@ -1,5 +1,5 @@
 ﻿using System;
-namespace Mariasek.Engine.New.Logger
+namespace Mariasek.Engine.Logger
 {
     public interface ILog
     {

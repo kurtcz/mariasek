@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Input.Touch;
 using Microsoft.Xna.Framework.Media;
 using Mariasek.SharedClient.GameComponents;
 using System.Xml.Serialization;
-using Mariasek.Engine.New;
+using Mariasek.Engine;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.GamerServices;
@@ -252,7 +252,7 @@ namespace Mariasek.SharedClient
 		public IStorageAccessor StorageAccessor { get; private set; }
         public Vector2 CardScaleFactor { get; set; }
 
-        public List<Mariasek.Engine.New.MoneyCalculatorBase> Money = new List<Mariasek.Engine.New.MoneyCalculatorBase>();
+        public List<Mariasek.Engine.MoneyCalculatorBase> Money = new List<Mariasek.Engine.MoneyCalculatorBase>();
 
         private Stopwatch sw = new Stopwatch();
         public MariasekMonoGame()

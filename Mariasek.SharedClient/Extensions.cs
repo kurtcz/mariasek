@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 
-using GameEngine = Mariasek.Engine.New;
+using GameEngine = Mariasek.Engine;
 using Mariasek.SharedClient.GameComponents;
 using System.Globalization;
 

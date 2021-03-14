@@ -7,7 +7,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-using Mariasek.Engine.New;
+using Mariasek.Engine;
 using Mariasek.SharedClient.GameComponents;
 
 namespace Mariasek.SharedClient
@@ -54,10 +54,10 @@ namespace Mariasek.SharedClient
         private string _moneySummary = string.Empty;
         private string _defenceMoneyText = string.Empty;
         private string _defenceMoneySummary = string.Empty;
-        private float[][] _points = new float[Mariasek.Engine.New.Game.NumPlayers][];
-        private float[][] _defencePoints = new float[Mariasek.Engine.New.Game.NumPlayers][];
-        private float[][] _money = new float[Mariasek.Engine.New.Game.NumPlayers][];
-        private float[][] _defenceMoney = new float[Mariasek.Engine.New.Game.NumPlayers][];
+        private float[][] _points = new float[Mariasek.Engine.Game.NumPlayers][];
+        private float[][] _defencePoints = new float[Mariasek.Engine.Game.NumPlayers][];
+        private float[][] _money = new float[Mariasek.Engine.Game.NumPlayers][];
+        private float[][] _defenceMoney = new float[Mariasek.Engine.Game.NumPlayers][];
         private float _minMoney = float.MaxValue;
         private float _maxMoney = float.MinValue;
         private float _minDefenceMoney = float.MaxValue;
@@ -430,7 +430,7 @@ namespace Mariasek.SharedClient
             };
             stats.AddRange(allStats.Where(i => stats.All(j => i.Key != j.Key)));
             stats = stats.OrderBy(i => Array.IndexOf(allStats.Select(g => g.Key).ToArray(), i.Key)).ToList();
-            for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
+            for (var i = 0; i < Mariasek.Engine.Game.NumPlayers; i++)
             {
                 _points[i] = new float[stats.Count()];
                 _defencePoints[i] = new float[stats.Count()];

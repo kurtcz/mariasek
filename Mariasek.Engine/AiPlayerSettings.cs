@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mariasek.Engine.New
+namespace Mariasek.Engine
 {
     public enum CardSelectionStrategy
     {

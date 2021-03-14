@@ -5,7 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Mariasek.Engine.New;
+using Mariasek.Engine;
 using Mariasek.SharedClient.GameComponents;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.GamerServices;
@@ -254,7 +254,7 @@ namespace Mariasek.SharedClient
         {
             if (_labels == null)
             {
-                _labels = new Label[Mariasek.Engine.New.Game.NumPlayers];
+                _labels = new Label[Mariasek.Engine.Game.NumPlayers];
             }
             for (var i = 0; i < _labels.Length; i++)
             {
@@ -267,7 +267,7 @@ namespace Mariasek.SharedClient
                         Height = 30
                     };
                 }
-                _labels[i].Text = Game.Settings.PlayerNames[(_gameStartingPlayerIndex + i) % Mariasek.Engine.New.Game.NumPlayers];
+                _labels[i].Text = Game.Settings.PlayerNames[(_gameStartingPlayerIndex + i) % Mariasek.Engine.Game.NumPlayers];
             }
 
             _startingPlayerButton.Text = $"Volí: {Game.Settings.PlayerNames[_gameStartingPlayerIndex]}";
@@ -444,7 +444,7 @@ namespace Mariasek.SharedClient
                     {
                         _filename = null;
                     }
-                    var g = new Mariasek.Engine.New.Game()
+                    var g = new Mariasek.Engine.Game()
                     {
                         BaseBet = Game.Settings.BaseBet,
                         Locale = Game.Settings.Locale,
@@ -472,7 +472,7 @@ namespace Mariasek.SharedClient
                         AllowAIAutoFinish = Game.Settings.AllowAIAutoFinish,
                         AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish
                     };
-                    g.RegisterPlayers(new Engine.New.AbstractPlayer[]
+                    g.RegisterPlayers(new Engine.AbstractPlayer[]
                                       {
                                           new DummyPlayer(g) { Name = Game.Settings.PlayerNames[0] },
                                           new DummyPlayer(g) { Name = Game.Settings.PlayerNames[1] },
@@ -498,9 +498,9 @@ namespace Mariasek.SharedClient
                         _gameStartingPlayerIndex = g.GameStartingPlayerIndex;
 
                         var cards = new List<Card>();
-                        for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
+                        for (var i = 0; i < Mariasek.Engine.Game.NumPlayers; i++)
                         {
-                            var hand = g.players[(_gameStartingPlayerIndex + i) % Mariasek.Engine.New.Game.NumPlayers].Hand;
+                            var hand = g.players[(_gameStartingPlayerIndex + i) % Mariasek.Engine.Game.NumPlayers].Hand;
 
                             if (i > 0)
                             {
@@ -589,7 +589,7 @@ namespace Mariasek.SharedClient
         {
             try
             {
-                var g = new Mariasek.Engine.New.Game(gameStartingPlayerIndex: _gameStartingPlayerIndex)
+                var g = new Mariasek.Engine.Game(gameStartingPlayerIndex: _gameStartingPlayerIndex)
                 {
                     BaseBet = Game.Settings.BaseBet,
                     Locale = Game.Settings.Locale,
@@ -617,15 +617,15 @@ namespace Mariasek.SharedClient
                     AllowAIAutoFinish = Game.Settings.AllowAIAutoFinish,
                     AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish
                 };
-                g.RegisterPlayers(new Engine.New.AbstractPlayer[]
+                g.RegisterPlayers(new Engine.AbstractPlayer[]
                                   {
                                           new DummyPlayer(g) { Name = Game.Settings.PlayerNames[0] },
                                           new DummyPlayer(g) { Name = Game.Settings.PlayerNames[1] },
                                           new DummyPlayer(g) { Name = Game.Settings.PlayerNames[2] }
                                   });
                 g.players[_gameStartingPlayerIndex].Hand = _cards.Select(i => (Card)i.Tag).Take(12).ToList();
-                g.players[(_gameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers].Hand = _cards.Select(i => (Card)i.Tag).Skip(12).Take(10).ToList();
-                g.players[(_gameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers].Hand = _cards.Select(i => (Card)i.Tag).Skip(22).Take(10).ToList();
+                g.players[(_gameStartingPlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers].Hand = _cards.Select(i => (Card)i.Tag).Skip(12).Take(10).ToList();
+                g.players[(_gameStartingPlayerIndex + 2) % Mariasek.Engine.Game.NumPlayers].Hand = _cards.Select(i => (Card)i.Tag).Skip(22).Take(10).ToList();
 
                 Game.StorageAccessor.GetStorageAccess();
                 MainScene.CreateDirectoryForFilePath(saveGamePath);
@@ -691,7 +691,7 @@ namespace Mariasek.SharedClient
 
         private void StartingPlayerClicked(object sender)
         {
-            _gameStartingPlayerIndex = (_gameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers;
+            _gameStartingPlayerIndex = (_gameStartingPlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers;
             PopulateLabels();
         }
 

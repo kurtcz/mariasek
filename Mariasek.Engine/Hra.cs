@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Mariasek.Engine.New
+namespace Mariasek.Engine
 {
     [Flags]
     public enum Hra

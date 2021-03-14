@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Mariasek.Engine.New;
+using Mariasek.Engine;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Mariasek.SharedClient.GameComponents
@@ -10,7 +10,7 @@ namespace Mariasek.SharedClient.GameComponents
     public class GameReview : ScrollBox
     {
         private RectangleShape _background;
-        private List<Mariasek.Engine.New.Card>[] _initialHands;
+        private List<Mariasek.Engine.Card>[] _initialHands;
         public Sprite[][] Hands;
         public Sprite[][] Rounds;
         public Label[] Names;
@@ -244,7 +244,7 @@ namespace Mariasek.SharedClient.GameComponents
         public GameReview(GameComponent parent, int leftOffset = 200)
             : base(parent)
         {
-            const int headLength = Mariasek.Engine.New.Game.NumPlayers + 1;
+            const int headLength = Mariasek.Engine.Game.NumPlayers + 1;
             var roundsLength = Game.MainScene?.g?.CurrentRound?.number ?? 0;
             var reviewCardScaleFactor = new Vector2(0.42f, 0.42f);//Game.CardScaleFactor * 0.7f; //default card scale factor = 0.6f
 
@@ -256,17 +256,17 @@ namespace Mariasek.SharedClient.GameComponents
                 Width = BoundsRect.Width,
                 Height = BoundsRect.Height
             };
-            _initialHands = new List<Mariasek.Engine.New.Card>[Mariasek.Engine.New.Game.NumPlayers + 1];
-            Hands = new Sprite[Mariasek.Engine.New.Game.NumPlayers + 1][];
-            Names = new Label[Mariasek.Engine.New.Game.NumPlayers + 1];
-            RoundNum = new Label[Mariasek.Engine.New.Game.NumRounds];
-            Rounds = new Sprite[Mariasek.Engine.New.Game.NumRounds][];
-            Labels = new Label[Mariasek.Engine.New.Game.NumRounds][];
+            _initialHands = new List<Mariasek.Engine.Card>[Mariasek.Engine.Game.NumPlayers + 1];
+            Hands = new Sprite[Mariasek.Engine.Game.NumPlayers + 1][];
+            Names = new Label[Mariasek.Engine.Game.NumPlayers + 1];
+            RoundNum = new Label[Mariasek.Engine.Game.NumRounds];
+            Rounds = new Sprite[Mariasek.Engine.Game.NumRounds][];
+            Labels = new Label[Mariasek.Engine.Game.NumRounds][];
 
-            for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers + 1; i++)
+            for (var i = 0; i < Mariasek.Engine.Game.NumPlayers + 1; i++)
             {
-                //_initialHands[i] = new List<Mariasek.Engine.New.Card>();
-                //if (i < Mariasek.Engine.New.Game.NumPlayers)
+                //_initialHands[i] = new List<Mariasek.Engine.Card>();
+                //if (i < Mariasek.Engine.Game.NumPlayers)
                 //{
                 //    _initialHands[i].AddRange(game.players[i].Hand);    //u betla a durcha mohly zustat karty v ruce
                 //}
@@ -301,8 +301,8 @@ namespace Mariasek.SharedClient.GameComponents
                     UseCommonScissorRect = true
                 };
                 //var r = game.rounds[i];
-                Rounds[i] = new Sprite[Mariasek.Engine.New.Game.NumPlayers];
-                Labels[i] = new Label[Mariasek.Engine.New.Game.NumPlayers];
+                Rounds[i] = new Sprite[Mariasek.Engine.Game.NumPlayers];
+                Labels[i] = new Label[Mariasek.Engine.Game.NumPlayers];
                 //if (r.c1 != null)
                 //{
                 //    _initialHands[r.player1.PlayerIndex].Add(r.c1);
@@ -324,7 +324,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Rounds[i][0] = new Sprite(this, Game.CardTextures)//, rect)
                 {
                     Position = new Vector2(leftOffset, 100 + (i + headLength) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 30),
-                    ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 1,
+                    ZIndex = (Mariasek.Engine.Game.NumPlayers * Mariasek.Engine.Game.NumRounds + 2) + i * 3 + 1,
                     Scale = reviewCardScaleFactor
                 };
                 //if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka))
@@ -353,7 +353,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Rounds[i][1] = new Sprite(this, Game.CardTextures)//, rect)
                 {
                     Position = new Vector2(leftOffset + Hand.CardWidth * reviewCardScaleFactor.X - 10, 100 + (i + headLength) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 40),
-                    ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 2,
+                    ZIndex = (Mariasek.Engine.Game.NumPlayers * Mariasek.Engine.Game.NumRounds + 2) + i * 3 + 2,
                     Scale = reviewCardScaleFactor
                 };
                 //if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka))
@@ -382,7 +382,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Rounds[i][2] = new Sprite(this, Game.CardTextures)//, rect)
                 {
                     Position = new Vector2(leftOffset + 2 * (Hand.CardWidth * reviewCardScaleFactor.X - 10), 100 + (i + headLength) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 50),
-                    ZIndex = (Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + 2) + i * 3 + 3,
+                    ZIndex = (Mariasek.Engine.Game.NumPlayers * Mariasek.Engine.Game.NumRounds + 2) + i * 3 + 3,
                     Scale = reviewCardScaleFactor
                 };
                 //if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))
@@ -418,9 +418,9 @@ namespace Mariasek.SharedClient.GameComponents
    //         var maxHlasQMarked = false;
             //var maxHlasKAgainstMarked = false;
             //var maxHlasQAgainstMarked = false;
-            for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
+            for (var i = 0; i < Mariasek.Engine.Game.NumPlayers; i++)
             {
-                //var ii = (game.GameStartingPlayerIndex + i) % Mariasek.Engine.New.Game.NumPlayers;
+                //var ii = (game.GameStartingPlayerIndex + i) % Mariasek.Engine.Game.NumPlayers;
                 //var hand = new List<Card>(_initialHands[ii].Sort(false, game.trump.HasValue ? false : true, game.trump));
 
                 Hands[i] = new Sprite[12];//hand.Count];
@@ -504,7 +504,7 @@ namespace Mariasek.SharedClient.GameComponents
                     Hands[i][j] = new Sprite(this, Game.CardTextures)//, rect)
                     {
                         Position = new Vector2(leftOffset + j * (Hand.CardWidth * reviewCardScaleFactor.X - 10), 100 + i * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 30),
-                        ZIndex = i * Mariasek.Engine.New.Game.NumRounds + j + 1,
+                        ZIndex = i * Mariasek.Engine.Game.NumRounds + j + 1,
                         Scale = reviewCardScaleFactor
                     };
      //               if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
@@ -549,16 +549,16 @@ namespace Mariasek.SharedClient.GameComponents
                 Hands[3][j] = new Sprite(this, Game.CardTextures)//, rect)
                 {
                     Position = new Vector2(leftOffset + j * (Hand.CardWidth * reviewCardScaleFactor.X - 10), 100 + 3 * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 30),
-                    ZIndex = Mariasek.Engine.New.Game.NumPlayers * Mariasek.Engine.New.Game.NumRounds + j + 1,
+                    ZIndex = Mariasek.Engine.Game.NumPlayers * Mariasek.Engine.Game.NumRounds + j + 1,
                     Scale = reviewCardScaleFactor,
                     SpriteRectangle = Rectangle.Empty
                 };
             }
         }
 
-        public void UpdateReview(Mariasek.Engine.New.Game game)
+        public void UpdateReview(Mariasek.Engine.Game game)
         {
-            const int headLength = Mariasek.Engine.New.Game.NumPlayers + 1;
+            const int headLength = Mariasek.Engine.Game.NumPlayers + 1;
             var roundsLength = game.CurrentRound != null ? game.CurrentRound.number : 0;
             var reviewCardScaleFactor = Game.CardScaleFactor * 0.7f;
 
@@ -570,9 +570,9 @@ namespace Mariasek.SharedClient.GameComponents
             //{
             //    BackgroundColor = Color.Transparent;
             //}
-            for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
+            for (var i = 0; i < Mariasek.Engine.Game.NumPlayers; i++)
             {
-                _initialHands[i] = new List<Mariasek.Engine.New.Card>(game.players[i].Hand);
+                _initialHands[i] = new List<Mariasek.Engine.Card>(game.players[i].Hand);
             }
             if (game.trump.HasValue)
             {
@@ -602,7 +602,7 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 if (game.rounds[i] == null || game.rounds[i].c3 == null)
                 {
-                    for (var j = 0; j < Mariasek.Engine.New.Game.NumPlayers; j++)
+                    for (var j = 0; j < Mariasek.Engine.Game.NumPlayers; j++)
                     {
                         Labels[i][j].Hide();
                         Rounds[i][j].Hide();
@@ -687,7 +687,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Labels[i][2].TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player3.PlayerIndex 
                                             ? Game.Settings.HighlightedTextColor
                                             : Game.Settings.DefaultTextColor;
-                for (var j = 0; j < Mariasek.Engine.New.Game.NumPlayers; j++)
+                for (var j = 0; j < Mariasek.Engine.Game.NumPlayers; j++)
                 {
                     Labels[i][j].Show();
                     Rounds[i][j].Show();
@@ -707,9 +707,9 @@ namespace Mariasek.SharedClient.GameComponents
             var maxHlasQMarked = false;
             var maxHlasKAgainstMarked = false;
             var maxHlasQAgainstMarked = false;
-            for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
+            for (var i = 0; i < Mariasek.Engine.Game.NumPlayers; i++)
             {
-                var ii = (game.GameStartingPlayerIndex + i) % Mariasek.Engine.New.Game.NumPlayers;
+                var ii = (game.GameStartingPlayerIndex + i) % Mariasek.Engine.Game.NumPlayers;
                 var hand = new List<Card>(_initialHands[ii].Sort(SortMode.Descending, game.trump.HasValue ? false : true, game.trump));
 
                 Names[i].Text = i == 0 ? string.Format("{0}: {1}",

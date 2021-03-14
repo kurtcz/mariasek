@@ -1,5 +1,5 @@
 ﻿
-namespace Mariasek.Engine.New.Configuration
+namespace Mariasek.Engine.Configuration
 {
     public class PlayersConfigurationSection
     {

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mariasek.Engine.New
+namespace Mariasek.Engine
 {
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class DescriptionAttribute : Attribute

@@ -8,11 +8,11 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading;
 using Combinatorics.Collections;
-using Mariasek.Engine.New.Logger;
+using Mariasek.Engine.Logger;
 using MersenneTwister;
 //using Newtonsoft.Json;
 
-namespace Mariasek.Engine.New
+namespace Mariasek.Engine
 {
     public class Probability
     {

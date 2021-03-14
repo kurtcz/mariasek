@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
-namespace Mariasek.Engine.New
+namespace Mariasek.Engine
 {
     public enum Barva
     {

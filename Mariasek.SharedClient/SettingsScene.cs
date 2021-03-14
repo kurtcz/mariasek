@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.GamerServices;
 
 using Mariasek.SharedClient.GameComponents;
-using Mariasek.Engine.New;
+using Mariasek.Engine;
 using System.Linq;
 using System.Collections.Generic;
 

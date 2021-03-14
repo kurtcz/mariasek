@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Input.Touch;
 using Mariasek.SharedClient.GameComponents;
 using System.IO;
 using System;
-using Mariasek.Engine.New;
+using Mariasek.Engine;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.GamerServices;
 
@@ -247,7 +247,7 @@ namespace Mariasek.SharedClient
         {
             var sb = new StringBuilder();
             int played = 0, wins = 0, total = 0;
-            var series = new Vector2[Mariasek.Engine.New.Game.NumPlayers][];
+            var series = new Vector2[Mariasek.Engine.Game.NumPlayers][];
             var numFormat = (NumberFormatInfo)Game.CurrencyFormat.Clone();
 
             numFormat.CurrencyGroupSeparator = "";
@@ -339,7 +339,7 @@ namespace Mariasek.SharedClient
 			_historyBox.ScrollToBottom();
             _stat.Text = string.Format("Odehráno her:\n{0}\nZ toho výher:\n{1} ({2:N0}%)\nCelkem her: {3}\nPříště začíná:\n{4}",
                 played, wins, ratio, total,
-                Game.Settings.PlayerNames[(Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers]);
+                Game.Settings.PlayerNames[(Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers]);
 
             var sum1 = Game.Money.Sum(i => i.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", numFormat);
             var sum2 = Game.Money.Sum(i => i.MoneyWon[1] * Game.Settings.BaseBet).ToString("C", numFormat);

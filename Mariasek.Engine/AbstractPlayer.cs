@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 //using System.Security.Policy;
 using System.Text;
-using Mariasek.Engine.New.Configuration;
+using Mariasek.Engine.Configuration;
 
-namespace Mariasek.Engine.New
+namespace Mariasek.Engine
 {
     public interface IPlayer
     {

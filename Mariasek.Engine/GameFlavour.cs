@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-namespace Mariasek.Engine.New
+namespace Mariasek.Engine
 {
     public enum GameFlavour
     {

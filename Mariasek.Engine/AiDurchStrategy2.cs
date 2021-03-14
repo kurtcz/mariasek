@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mariasek.Engine.New
+namespace Mariasek.Engine
 {
     public class AiDurchStrategy2 : AiStrategyBase
     {

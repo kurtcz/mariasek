@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Mariasek.Engine.New.Configuration
+namespace Mariasek.Engine.Configuration
 {
     public class ParameterConfigurationElementCollection : Dictionary<string, ParameterConfigurationElement>
     {

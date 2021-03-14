@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
-namespace Mariasek.Engine.New
+namespace Mariasek.Engine
 {
     public enum CalculationStyle
     {

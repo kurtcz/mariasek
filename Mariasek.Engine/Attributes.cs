@@ -1,6 +1,6 @@
-using System;
+﻿using System;
 
-namespace Mariasek.Engine.New
+namespace Mariasek.Engine
 {
     [AttributeUsage(
             AttributeTargets.Assembly | AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Enum |

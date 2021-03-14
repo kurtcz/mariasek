@@ -15,7 +15,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input.Touch;
 using Mariasek.SharedClient.GameComponents;
-using Mariasek.Engine.New;
+using Mariasek.Engine;
 using CsvHelper;
 using Microsoft.Xna.Framework.GamerServices;
 
@@ -99,7 +99,7 @@ namespace Mariasek.SharedClient
 #pragma warning restore 414
         #endregion
 
-        public Mariasek.Engine.New.Game g;
+        public Mariasek.Engine.Game g;
         private SemaphoreSlim _gameSemaphore = new SemaphoreSlim(1);
         private Task _gameTask;
         private Task _shuffleTask;
@@ -111,7 +111,7 @@ namespace Mariasek.SharedClient
         private bool _firstTimeTalonCardClick;
         private int _aiMessageIndex;
         public int CurrentStartingPlayerIndex = -1;
-        private Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection _aiConfig;
+        private Mariasek.Engine.Configuration.ParameterConfigurationElementCollection _aiConfig;
         private string _archivePath = Path.Combine(MariasekMonoGame.RootPath, "Archive");
         private string _historyFilePath = Path.Combine(MariasekMonoGame.RootPath, "Mariasek.history");
         private string _deckFilePath = Path.Combine(MariasekMonoGame.RootPath, "Mariasek.deck");
@@ -160,75 +160,75 @@ namespace Mariasek.SharedClient
         private void PopulateAiConfig()
         {
             //TODO: Nastavit prahy podle uspesnosti v predchozich zapasech
-            _aiConfig = new Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection();
+            _aiConfig = new Mariasek.Engine.Configuration.ParameterConfigurationElementCollection();
 
-            _aiConfig.Add("DoLog", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("DoLog", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "DoLog",
                 Value = "false" //Game.Settings.DoLog.ToString()
             });
-            _aiConfig.Add("AiCheating", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("AiCheating", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "AiCheating",
                 //Value = "false"
                 Value = Game.Settings.AiCheating.HasValue && Game.Settings.AiCheating.Value ? "true" : "false"
             });
-            _aiConfig.Add("AiMayGiveUp", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("AiMayGiveUp", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "AiMayGiveUp",
                 Value = Game.Settings.AiMayGiveUp.ToString()
             });
-            _aiConfig.Add("RoundsToCompute", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("RoundsToCompute", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "RoundsToCompute",
                 Value = "1"
             });
-            _aiConfig.Add("CardSelectionStrategy", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("CardSelectionStrategy", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "CardSelectionStrategy",
                 Value = "MaxCount"
             });
-            _aiConfig.Add("SimulationsPerGameType", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("SimulationsPerGameType", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "SimulationsPerGameType",
                 Value = "1000"
             });
-            _aiConfig.Add("SimulationsPerGameTypePerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("SimulationsPerGameTypePerSecond", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "SimulationsPerGameTypePerSecond",
                 Value = Game.Settings.GameTypeSimulationsPerSecond.ToString()
             });
-            _aiConfig.Add("MaxSimulationTimeMs", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("MaxSimulationTimeMs", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "MaxSimulationTimeMs",
                 Value = Game.Settings.ThinkingTimeMs.ToString()
             });
-            _aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "SimulationsPerRound",
                 Value = "500"
             });
-            _aiConfig.Add("SimulationsPerRoundPerSecond", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("SimulationsPerRoundPerSecond", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "SimulationsPerRoundPerSecond",
                 Value = Game.Settings.RoundSimulationsPerSecond.ToString()
             });
-            _aiConfig.Add("RuleThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("RuleThreshold", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "RuleThreshold",
                 Value = "95"
             });
-            _aiConfig.Add("RuleThreshold.Kilo", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("RuleThreshold.Kilo", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "RuleThreshold.Kilo",
                 Value = "99"
             });
-            _aiConfig.Add("GameThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("GameThreshold", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "GameThreshold",
                 Value = "75|80|85|90|95"
             });
-            _aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "MaxDoubleCount",
                 Value = "3"
@@ -236,60 +236,60 @@ namespace Mariasek.SharedClient
             foreach (var thresholdSettings in Game.Settings.Thresholds)
             {
                 _aiConfig.Add(string.Format("GameThreshold.{0}", thresholdSettings.GameType.ToString()),
-                              new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                              new Mariasek.Engine.Configuration.ParameterConfigurationElement
                               {
                                   Name = string.Format("GameThreshold.{0}", thresholdSettings.GameType.ToString()),
                                   Value = thresholdSettings.Thresholds
                               });
                 _aiConfig.Add(string.Format("MaxDoubleCount.{0}", thresholdSettings.GameType.ToString()),
-                              new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                              new Mariasek.Engine.Configuration.ParameterConfigurationElement
                               {
                                   Name = string.Format("MaxDoubleCount.{0}", thresholdSettings.GameType.ToString()),
                                   Value = thresholdSettings.MaxBidCount.ToString()
                               });
                 _aiConfig.Add(string.Format("CanPlay.{0}", thresholdSettings.GameType.ToString()),
-                              new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+                              new Mariasek.Engine.Configuration.ParameterConfigurationElement
                               {
                                   Name = string.Format("CanPlay.{0}", thresholdSettings.GameType.ToString()),
                                   Value = thresholdSettings.Use.ToString()
                               });
             }
-            _aiConfig.Add("SigmaMultiplier", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("SigmaMultiplier", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "SigmaMultiplier",
                 Value = "0"
             });
-            _aiConfig.Add("GameFlavourSelectionStrategy", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("GameFlavourSelectionStrategy", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "GameFlavourSelectionStrategy",
                 Value = "Fast"
             });
-            _aiConfig.Add("RiskFactor", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("RiskFactor", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "RiskFactor",
                 Value = Game.Settings.RiskFactor.ToString(CultureInfo.InvariantCulture)
             });
-            _aiConfig.Add("RiskFactorSevenDefense", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("RiskFactorSevenDefense", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "RiskFactorSevenDefense",
                 Value = Game.Settings.RiskFactorSevenDefense.ToString(CultureInfo.InvariantCulture)
             });
-            _aiConfig.Add("SolitaryXThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("SolitaryXThreshold", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "SolitaryXThreshold",
                 Value = Game.Settings.SolitaryXThreshold.ToString(CultureInfo.InvariantCulture)
             });
-            _aiConfig.Add("SolitaryXThresholdDefense", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("SolitaryXThresholdDefense", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "SolitaryXThresholdDefense",
                 Value = Game.Settings.SolitaryXThresholdDefense.ToString(CultureInfo.InvariantCulture)
             });
-            _aiConfig.Add("SafetyHundredThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("SafetyHundredThreshold", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "SafetyHundredThreshold",
                 Value = Game.Settings.SafetyHundredThreshold.ToString(CultureInfo.InvariantCulture)
             });
-            _aiConfig.Add("SafetyBetlThreshold", new Mariasek.Engine.New.Configuration.ParameterConfigurationElement
+            _aiConfig.Add("SafetyBetlThreshold", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "SafetyBetlThreshold",
                 Value = Game.Settings.SafetyBetlThreshold.ToString(CultureInfo.InvariantCulture)
@@ -871,7 +871,7 @@ namespace Mariasek.SharedClient
         }
 
         /// <summary>
-        /// Gets the file stream. Callback function used from Mariasek.Engine.New.Game
+        /// Gets the file stream. Callback function used from Mariasek.Engine.Game
         /// </summary>
         public Stream GetFileStream(string filename)
         {
@@ -1441,7 +1441,7 @@ namespace Mariasek.SharedClient
                      {
                         ShowMsgLabel(ex.Message, false);
                      }
-                     g = new Mariasek.Engine.New.Game()
+                     g = new Mariasek.Engine.Game()
                      {
                          BaseBet = Game.Settings.BaseBet,
                          Locale = Game.Settings.Locale,
@@ -1478,7 +1478,7 @@ namespace Mariasek.SharedClient
                          new AiPlayer(g, _aiConfig) { Name = Game.Settings.PlayerNames[2] }
                      );
                      CurrentStartingPlayerIndex = Game.Settings.CurrentStartingPlayerIndex; //TODO: zrusit CurrentStartingPlayerIndex a pouzivat jen Game.Settings.CurrentStartingPlayerIndex
-                     CurrentStartingPlayerIndex = (CurrentStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers;
+                     CurrentStartingPlayerIndex = (CurrentStartingPlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers;
 #if STARTING_PLAYER_1
                 CurrentStartingPlayerIndex = 0;
 #elif STARTING_PLAYER_2
@@ -1750,7 +1750,7 @@ namespace Mariasek.SharedClient
                     }
                     else
                     {
-                        for (var i = e.roundNumber - 1; i < Mariasek.Engine.New.Game.NumRounds && g.rounds[i] != null; i++)
+                        for (var i = e.roundNumber - 1; i < Mariasek.Engine.Game.NumRounds && g.rounds[i] != null; i++)
                         {
                             winningCards.Add(g.rounds[i].c1);
                         }
@@ -2465,7 +2465,7 @@ namespace Mariasek.SharedClient
                         }
                         if (g.GameStartingPlayerIndex != 2)
                         {
-                            ShowThinkingMessage((g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
+                            ShowThinkingMessage((g.GameStartingPlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers);
                         }
                     }
                 }
@@ -2486,7 +2486,7 @@ namespace Mariasek.SharedClient
                                                                                  ? (Game.Money.Sum(j => j.MoneyWon[_gameFlavourChosenEventArgs.Player.PlayerIndex]) * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat)
                                                                                  : string.Empty);
                         }
-                        ShowThinkingMessage((_gameFlavourChosenEventArgs.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
+                        ShowThinkingMessage((_gameFlavourChosenEventArgs.Player.PlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers);
                     }
                 }
                 //UpdateHand(cardToHide: _trumpCardChosen);
@@ -2503,7 +2503,7 @@ namespace Mariasek.SharedClient
                 ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, description);
                 if (e.Player.PlayerIndex != 2 && _gameFlavourChosenEventArgs.Flavour == GameFlavour.Good)
                 {
-                    ShowThinkingMessage((e.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
+                    ShowThinkingMessage((e.Player.PlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers);
                 }
                 if (_gameFlavourChosenEventArgs.Flavour == GameFlavour.Bad && g.GameType == 0)
                 {
@@ -2671,7 +2671,7 @@ namespace Mariasek.SharedClient
             //nebo pokud se naposledy vyslovil volici hrac a uz dal neflekuje (budeme hrat)
             if (e.Player.PlayerIndex != 2 && e.Player.PlayerIndex != g.GameStartingPlayerIndex && e.BidMade != 0)
             {
-                ShowThinkingMessage((e.Player.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
+                ShowThinkingMessage((e.Player.PlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers);
             }
             this.Invoke(() =>
             {
@@ -2742,7 +2742,7 @@ namespace Mariasek.SharedClient
                 HideThinkingMessage();
                 if (lastPlayer.PlayerIndex != 2 && r.c3 == null)
                 {
-                    ShowThinkingMessage((lastPlayer.PlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers);
+                    ShowThinkingMessage((lastPlayer.PlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers);
                 }
                 if (lastPlayer.PlayerIndex == 2)
                 {
@@ -3219,7 +3219,7 @@ namespace Mariasek.SharedClient
                     try
                     {
                         _cancellationTokenSource = cancellationTokenSource;
-                        g = new Mariasek.Engine.New.Game()
+                        g = new Mariasek.Engine.Game()
                         {
                             BaseBet = Game.Settings.BaseBet,
                             Locale = Game.Settings.Locale,
@@ -3303,7 +3303,7 @@ namespace Mariasek.SharedClient
                         _state = GameState.NotPlaying;
                         _talon = g.GameStartingPlayerIndex == 0 && g.talon != null && g.talon.Any() ? new List<Card>(g.talon) : new List<Card>();
 
-                        if (g.RoundNumber >= 1 && g.RoundNumber <= Mariasek.Engine.New.Game.NumRounds)
+                        if (g.RoundNumber >= 1 && g.RoundNumber <= Mariasek.Engine.Game.NumRounds)
                         {
                             CurrentStartingPlayerIndex = g.GameStartingPlayerIndex;
                             Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
@@ -4135,7 +4135,7 @@ namespace Mariasek.SharedClient
                 _shuffledCards[1].Hide();
                 _shuffledCards[2].Hide();
 
-                for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
+                for (var i = 0; i < Mariasek.Engine.Game.NumPlayers; i++)
                 {
                     _poslStych[i][0].Hide();
                     _poslStych[i][1].Hide();
@@ -4143,7 +4143,7 @@ namespace Mariasek.SharedClient
                 }
                 if (hlasy)
                 {
-                    for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
+                    for (var i = 0; i < Mariasek.Engine.Game.NumPlayers; i++)
                     {
                         _hlasy[i][0].Hide();
                         _hlasy[i][1].Hide();

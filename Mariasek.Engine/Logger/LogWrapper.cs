@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Mariasek.Engine.New.Logger
+namespace Mariasek.Engine.Logger
 {
     [ExcludeFromCodeCoverage]
     public class LogWrapper : ILog

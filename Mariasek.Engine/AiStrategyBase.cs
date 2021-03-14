@@ -6,9 +6,9 @@ using System.Reflection;
 #endif
 using System.Text;
 using System.Threading.Tasks;
-using Mariasek.Engine.New.Logger;
+using Mariasek.Engine.Logger;
 
-namespace Mariasek.Engine.New
+namespace Mariasek.Engine
 {
     public abstract class AiStrategyBase
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mariasek.Engine.New.Logger
+namespace Mariasek.Engine.Logger
 {
     public static class LogManager
     {

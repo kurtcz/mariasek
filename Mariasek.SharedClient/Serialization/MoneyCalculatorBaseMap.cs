@@ -1,5 +1,5 @@
 ﻿using CsvHelper.Configuration;
-using Mariasek.Engine.New;
+using Mariasek.Engine;
 
 namespace Mariasek.SharedClient.Serialization
 {

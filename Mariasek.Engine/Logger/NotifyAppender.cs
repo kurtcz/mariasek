@@ -13,7 +13,7 @@ using log4net.Appender;
 using log4net.Core;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Mariasek.Engine.New.Logger
+namespace Mariasek.Engine.Logger
 {
     /// <summary>
     /// The appender we are going to bind to for our logging.

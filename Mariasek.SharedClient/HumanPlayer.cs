@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using Mariasek.Engine.New;
+using Mariasek.Engine;
 
 namespace Mariasek.SharedClient
 {
@@ -28,7 +28,7 @@ namespace Mariasek.SharedClient
 		private int _t0;
 		private int _t1;
 
-        public HumanPlayer(Game g, Mariasek.Engine.New.Configuration.ParameterConfigurationElementCollection aiConfig, MainScene scene, bool showHint)
+        public HumanPlayer(Game g, Mariasek.Engine.Configuration.ParameterConfigurationElementCollection aiConfig, MainScene scene, bool showHint)
             : base(g)
         {
             var b = bool.Parse(aiConfig["DoLog"].Value);

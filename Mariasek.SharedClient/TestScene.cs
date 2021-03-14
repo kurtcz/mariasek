@@ -51,18 +51,18 @@
 
 //            var cards = new []
 //            {
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Eso),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Desitka),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Kral),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Svrsek),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Spodek),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Devitka),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Osma),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Kule, Mariasek.Engine.New.Hodnota.Sedma),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Cerveny, Mariasek.Engine.New.Hodnota.Eso),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Cerveny, Mariasek.Engine.New.Hodnota.Desitka),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Cerveny, Mariasek.Engine.New.Hodnota.Kral),
-//                    new Mariasek.Engine.New.Card(Mariasek.Engine.New.Barva.Cerveny, Mariasek.Engine.New.Hodnota.Svrsek)
+//                    new Mariasek.Engine.Card(Mariasek.Engine.Barva.Kule, Mariasek.Engine.Hodnota.Eso),
+//                    new Mariasek.Engine.Card(Mariasek.Engine.Barva.Kule, Mariasek.Engine.Hodnota.Desitka),
+//                    new Mariasek.Engine.Card(Mariasek.Engine.Barva.Kule, Mariasek.Engine.Hodnota.Kral),
+//                    new Mariasek.Engine.Card(Mariasek.Engine.Barva.Kule, Mariasek.Engine.Hodnota.Svrsek),
+//                    new Mariasek.Engine.Card(Mariasek.Engine.Barva.Kule, Mariasek.Engine.Hodnota.Spodek),
+//                    new Mariasek.Engine.Card(Mariasek.Engine.Barva.Kule, Mariasek.Engine.Hodnota.Devitka),
+//                    new Mariasek.Engine.Card(Mariasek.Engine.Barva.Kule, Mariasek.Engine.Hodnota.Osma),
+//                    new Mariasek.Engine.Card(Mariasek.Engine.Barva.Kule, Mariasek.Engine.Hodnota.Sedma),
+//                    new Mariasek.Engine.Card(Mariasek.Engine.Barva.Cerveny, Mariasek.Engine.Hodnota.Eso),
+//                    new Mariasek.Engine.Card(Mariasek.Engine.Barva.Cerveny, Mariasek.Engine.Hodnota.Desitka),
+//                    new Mariasek.Engine.Card(Mariasek.Engine.Barva.Cerveny, Mariasek.Engine.Hodnota.Kral),
+//                    new Mariasek.Engine.Card(Mariasek.Engine.Barva.Cerveny, Mariasek.Engine.Hodnota.Svrsek)
 //            };
 //            //cb = new CardButton(this, new Sprite(this, Game.CardTextures, cards[0].ToTextureRect()){ Name = "FrontSprite" })
 //            //{

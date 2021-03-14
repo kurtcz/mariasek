@@ -3,7 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Mariasek.Engine.New;
+using Mariasek.Engine;
 using Mariasek.SharedClient.GameComponents;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.GamerServices;
@@ -186,7 +186,7 @@ namespace Mariasek.SharedClient
             {
                 try
                 {
-                    var g = new Mariasek.Engine.New.Game()
+                    var g = new Mariasek.Engine.Game()
                     {
                         BaseBet = Game.Settings.BaseBet,
                         Locale = Game.Settings.Locale,
@@ -214,7 +214,7 @@ namespace Mariasek.SharedClient
                         AllowAIAutoFinish = Game.Settings.AllowAIAutoFinish,
                         AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish
                     };
-                    g.RegisterPlayers(new Engine.New.AbstractPlayer[]
+                    g.RegisterPlayers(new Engine.AbstractPlayer[]
                                       {
                                           new DummyPlayer(g) { Name = Game.Settings.PlayerNames[0] },
                                           new DummyPlayer(g) { Name = Game.Settings.PlayerNames[1] },
@@ -249,10 +249,10 @@ namespace Mariasek.SharedClient
                                                                                  .ToArray()),
                                                       Game.Settings.PlayerNames[g.GameStartingPlayerIndex],
                                                       (results.MoneyWon[g.GameStartingPlayerIndex] * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat),
-                                                      Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers],
-                                                      (results.MoneyWon[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat),
-                                                      Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers],
-                                                      (results.MoneyWon[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat))
+                                                      Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers],
+                                                      (results.MoneyWon[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat),
+                                                      Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.Game.NumPlayers],
+                                                      (results.MoneyWon[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.Game.NumPlayers] * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat))
                                             .Split("\n");
                     if (description.Length > 12)
                     {
@@ -262,8 +262,8 @@ namespace Mariasek.SharedClient
                     _description.Text = string.Join("\n", description).Replace("V červenejch:", "V červenejch");
                     _review.UpdateReview(g);
 
-                    var biddingInfo = new string[Mariasek.Engine.New.Game.NumPlayers];
-                    for (var i = 0; i < Mariasek.Engine.New.Game.NumPlayers; i++)
+                    var biddingInfo = new string[Mariasek.Engine.Game.NumPlayers];
+                    for (var i = 0; i < Mariasek.Engine.Game.NumPlayers; i++)
                     {
                         var playerName = string.Format("Player {0}", i + 1);
                         biddingInfo[i] = string.Join(" ", g.BiddingDebugInfo.ToString()
@@ -282,10 +282,10 @@ namespace Mariasek.SharedClient
                                                                          results.GameTypeConfidence < 0
                                                                             ? ""
                                                                             : string.Format(" ({0:0}%)", results.GameTypeConfidence * 100));
-                    _review.Names[1].Text = string.Format("{0}: {1}", Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers],
-                                                                      biddingInfo[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.New.Game.NumPlayers]);
-                    _review.Names[2].Text = string.Format("{0}: {1}", Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers],
-                                                                      biddingInfo[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.New.Game.NumPlayers]);
+                    _review.Names[1].Text = string.Format("{0}: {1}", Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers],
+                                                                      biddingInfo[(g.GameStartingPlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers]);
+                    _review.Names[2].Text = string.Format("{0}: {1}", Game.Settings.PlayerNames[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.Game.NumPlayers],
+                                                                      biddingInfo[(g.GameStartingPlayerIndex + 2) % Mariasek.Engine.Game.NumPlayers]);
                     _review.Show();
                     _newGamePath = newGamePath;
                     _endGamePath = endGamePath;

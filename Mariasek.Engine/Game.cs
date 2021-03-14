@@ -10,15 +10,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
-using Mariasek.Engine.New.Logger;
-using Mariasek.Engine.New.Configuration;
+using Mariasek.Engine.Logger;
+using Mariasek.Engine.Configuration;
 //#if !PORTABLE
-using Mariasek.Engine.New.Schema;
+using Mariasek.Engine.Schema;
 using System.Runtime.CompilerServices;
 using System.Globalization;
 //#endif
 
-namespace Mariasek.Engine.New
+namespace Mariasek.Engine
 {
     public interface IGameTypeValues
     {

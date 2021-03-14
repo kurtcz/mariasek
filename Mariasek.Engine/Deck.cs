@@ -5,7 +5,7 @@ using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace Mariasek.Engine.New
+namespace Mariasek.Engine
 {
     public class Deck
     {

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -9,22 +9,22 @@
     <DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD2_1;PORTABLE;</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\Mariasek.Engine.New\Combinatorics\Combinations.cs">
+    <Compile Include="..\Mariasek.Engine\Combinatorics\Combinations.cs">
       <Link>Combinatorics\Combinations.cs</Link>
     </Compile>
-    <Compile Include="..\Mariasek.Engine.New\Combinatorics\GenerateOption.cs">
+    <Compile Include="..\Mariasek.Engine\Combinatorics\GenerateOption.cs">
       <Link>Combinatorics\GenerateOption.cs</Link>
     </Compile>
-    <Compile Include="..\Mariasek.Engine.New\Combinatorics\IMetaCollection.cs">
+    <Compile Include="..\Mariasek.Engine\Combinatorics\IMetaCollection.cs">
       <Link>Combinatorics\IMetaCollection.cs</Link>
     </Compile>
-    <Compile Include="..\Mariasek.Engine.New\Combinatorics\Permutations.cs">
+    <Compile Include="..\Mariasek.Engine\Combinatorics\Permutations.cs">
       <Link>Combinatorics\Permutations.cs</Link>
     </Compile>
-    <Compile Include="..\Mariasek.Engine.New\Combinatorics\SmallPrimeUtility.cs">
+    <Compile Include="..\Mariasek.Engine\Combinatorics\SmallPrimeUtility.cs">
       <Link>Combinatorics\SmallPrimeUtility.cs</Link>
     </Compile>
-    <Compile Include="..\Mariasek.Engine.New\Combinatorics\Variations.cs">
+    <Compile Include="..\Mariasek.Engine\Combinatorics\Variations.cs">
       <Link>Combinatorics\Variations.cs</Link>
     </Compile>
   </ItemGroup>

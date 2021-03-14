@@ -151,7 +151,7 @@ namespace Mariasek.iOSClient
                 }
                 if (mainScene != null)
                 {
-                    mainScene.GameException(this, new Engine.New.GameExceptionEventArgs() { e = ex });
+                    mainScene.GameException(this, new Engine.GameExceptionEventArgs() { e = ex });
                 }
                 else
                 {

@@ -3,7 +3,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 
-namespace Mariasek.Engine.New.Schema
+namespace Mariasek.Engine.Schema
 {
     [XmlRoot(ElementName = "Hra")]
     public class GameDto

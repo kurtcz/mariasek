@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Mariasek.Engine.New
+namespace Mariasek.Engine
 {
     public class GameWonPrematurelyEventArgs
     {

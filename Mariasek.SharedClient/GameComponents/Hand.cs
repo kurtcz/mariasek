@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using Microsoft.Xna.Framework;
 
-using Mariasek.Engine.New;
+using Mariasek.Engine;
 
 namespace Mariasek.SharedClient.GameComponents
 {

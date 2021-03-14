@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Mariasek.Engine.New.Configuration
+namespace Mariasek.Engine.Configuration
 {
     public interface IPlayerSettingsReader
     {

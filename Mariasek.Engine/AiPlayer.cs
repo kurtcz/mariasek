@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -6,16 +6,16 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using Mariasek.Engine.New.Logger;
-using Mariasek.Engine.New.Configuration;
+using Mariasek.Engine.Logger;
+using Mariasek.Engine.Configuration;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
-using Mariasek.Engine.New.Schema;
+using Mariasek.Engine.Schema;
 using System.IO;
 using System.Globalization;
 using System.Runtime.InteropServices.ComTypes;
 
-namespace Mariasek.Engine.New
+namespace Mariasek.Engine
 {
     public class AiPlayer : AbstractPlayer, IStatsPlayer
     {
