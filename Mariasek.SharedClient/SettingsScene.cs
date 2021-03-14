@@ -3,13 +3,12 @@ using System.IO;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.GamerServices;
 
 using Mariasek.SharedClient.GameComponents;
 using Mariasek.Engine;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Input;
 
 namespace Mariasek.SharedClient
 {
@@ -1630,25 +1629,14 @@ namespace Mariasek.SharedClient
 
         private int editedPlayerIndex;
 
-        void ChangePlayerName(object sender)
+        async void ChangePlayerName(object sender)
         {
+            const int MaxNameLength = 12;
             var button = sender as Button;
             var playerIndex = (int)button.Tag;
 
             editedPlayerIndex = playerIndex;
-            Guide.BeginShowKeyboardInput(PlayerIndex.One,
-                                         "Jméno hráče",
-                                         $"Zadej jméno hráče č.{playerIndex}",
-                                         Game.Settings.PlayerNames[playerIndex - 1],
-                                         PlayerNameChangedCallback,
-                                         //editedPlayerIndex);
-                                         null);
-        }
-
-        void PlayerNameChangedCallback(IAsyncResult result)
-        {
-            const int MaxNameLength = 12;
-            var text = Guide.EndShowKeyboardInput(result);
+            var text = await KeyboardInput.Show("Jméno hráče", $"Zadej jméno hráče č.{playerIndex}", Game.Settings.PlayerNames[playerIndex - 1]);
 
             if (string.IsNullOrWhiteSpace(text))
             {
@@ -1664,12 +1652,6 @@ namespace Mariasek.SharedClient
                 return;
             }
 
-            //var playerIndex = (int)result.AsyncState;
-            var playerIndex = editedPlayerIndex;
-            var button = Children.FirstOrDefault(i => i is Button &&
-                                                      i.Tag != null &&
-                                                      i.Tag is int &&
-                                                      (int)i.Tag == playerIndex) as Button;
             if (button != null)
             {
                 button.Text = text;

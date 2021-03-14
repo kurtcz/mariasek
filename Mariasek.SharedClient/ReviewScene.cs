@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Mariasek.Engine;
 using Mariasek.SharedClient.GameComponents;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Xna.Framework.Input;
 
 namespace Mariasek.SharedClient
 {
@@ -293,7 +293,7 @@ namespace Mariasek.SharedClient
                 catch(Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine("Unexpected error in ShowGame: {0}\n{1}", ex.Message, ex.StackTrace);
-                    Guide.BeginShowMessageBox("Chyba", ex.Message, new string[] { "OK" }, 0, MessageBoxIcon.Error, null, null);
+                    _ = MessageBox.Show("Chyba", ex.Message, new string[] { "OK" });
                 }
             });
         }

@@ -91,16 +91,15 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.iOS" />
-    <Reference Include="MonoGame.Framework.Net">
-      <HintPath>..\libs\iOS\iPhone\Release\MonoGame.Framework.Net.dll</HintPath>
-    </Reference>
     <Reference Include="MonoGame.Framework">
-      <HintPath>..\libs\iOS\iPhone\Release\MonoGame.Framework.dll</HintPath>
+      <HintPath>..\packages\MonoGame.Framework.iOS.3.8.0.1641\lib\xamarinios10\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="CsvHelper">
       <HintPath>..\packages\CsvHelper.15.0.0\lib\netstandard2.1\CsvHelper.dll</HintPath>
     </Reference>
+    <Reference Include="System.Drawing.Common.dll" />
+    <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -174,4 +173,5 @@
       <Name>Mariasek.Engine</Name>
     </ProjectReference>
   </ItemGroup>
+  <Import Project="..\packages\MonoGame.Framework.iOS.3.8.0.1641\build\MonoGame.Framework.iOS.targets" Condition="Exists('..\packages\MonoGame.Framework.iOS.3.8.0.1641\build\MonoGame.Framework.iOS.targets')" />
 </Project>

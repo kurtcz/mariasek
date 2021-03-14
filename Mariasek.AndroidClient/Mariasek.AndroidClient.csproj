@@ -52,15 +52,11 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
     <Reference Include="Mono.Android" />
-    <Reference Include="MonoGame.Framework.Net">
-      <HintPath>..\libs\Android\AnyCPU\Release\MonoGame.Framework.Net.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MariasekActivity.cs" />
-    <Compile Include="Content\AssetLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\Values\Strings.xml" />

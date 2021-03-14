@@ -20,7 +20,6 @@ using System.Diagnostics;
 using Android.Support.V4.App;
 using Android.Support.V4.View;
 using Android.OS.Storage;
-using Microsoft.Xna.Framework.GamerServices;
 
 namespace Mariasek.AndroidClient
 {

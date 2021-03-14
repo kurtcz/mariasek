@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 using Mariasek.Engine;
 using Mariasek.SharedClient.GameComponents;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.GamerServices;
-using Microsoft.Xna.Framework.Input.Touch;
+using Microsoft.Xna.Framework.Input;
 
 namespace Mariasek.SharedClient
 {
@@ -534,21 +533,10 @@ namespace Mariasek.SharedClient
             });
         }
 
-        private void SaveGameClicked(object sender)
-        {
-            Guide.BeginShowKeyboardInput(PlayerIndex.One,
-                                         "Uložit hru",
-                                         $"Zadej jméno hry",
-                                         _filename ?? "Moje hra",
-                                         SaveGameClickedCalback,
-                                         //editedPlayerIndex);
-                                         null);
-        }
-
-        private void SaveGameClickedCalback(IAsyncResult result)
+        private async void SaveGameClicked(object sender)
         {
             const int MaxNameLength = 25;
-            var filename = Guide.EndShowKeyboardInput(result);
+            var filename = await KeyboardInput.Show("Uložit hru", "Zadej jméno hry", _filename ?? "Moje hra");
 
             if (string.IsNullOrWhiteSpace(filename))
             {
@@ -565,24 +553,14 @@ namespace Mariasek.SharedClient
 
             if (File.Exists(saveGamePath))
             {
-                Guide.BeginShowMessageBox("Soubor již existuje", $"Přepsat hru {_filename}?", new string[] { "Storno", "OK" }, 1, MessageBoxIcon.Warning, OverwriteCalback, null);
-            }
-            else
-            {
-                SaveGame(saveGamePath);
-            }
-        }
+                var buttonIndex = await MessageBox.Show("Soubor již existuje", $"Přepsat hru {_filename}?", new string[] { "Storno", "OK" });
 
-        private void OverwriteCalback(IAsyncResult result)
-        {
-            var buttonIndex = Guide.EndShowMessageBox(result);
-
-            if(buttonIndex.HasValue && buttonIndex.Value == 1)
-            {
-                var saveGamePath = Path.Combine(_editorPath, $"{_filename}.hra");
-
-                SaveGame(saveGamePath);
+                if (!buttonIndex.HasValue || buttonIndex.Value != 1)
+                {
+                    return;
+                }
             }
+            SaveGame(saveGamePath);
         }
 
         private void SaveGame(string saveGamePath)
@@ -649,7 +627,7 @@ namespace Mariasek.SharedClient
 
         private string _fileToDelete;
 
-        private void DeleteGameClicked(object sender)
+        private async void DeleteGameClicked(object sender)
         {
             _fileToDelete = null;
             if (_gameListBox.IsVisible &&
@@ -666,26 +644,21 @@ namespace Mariasek.SharedClient
             }
             if (_fileToDelete != null)
             {
-                Guide.BeginShowMessageBox("Potvrzení", $"Smazat hru {_fileToDelete}?", new string[] { "Zpět", "Smazat" }, 1, MessageBoxIcon.Warning, DeleteGameCallback, null);
-            }
-        }
+                var buttonIndex = await MessageBox.Show("Potvrzení", $"Smazat hru {_fileToDelete}?", new string[] { "Zpět", "Smazat" });
 
-        private void DeleteGameCallback(IAsyncResult result)
-        {
-            var buttonIndex = Guide.EndShowMessageBox(result);
-
-            if (buttonIndex.HasValue && buttonIndex.Value == 1)
-            {
-                var path = Path.Combine(_editorPath, $"{_fileToDelete}.hra");
-
-                Game.StorageAccessor.GetStorageAccess();
-                File.Delete(path);
-                if (_fileToDelete == _filename)
+                if (buttonIndex.HasValue && buttonIndex.Value == 1)
                 {
-                    _filename = null;
-                    _fileLabel.Text = "";
+                    var path = Path.Combine(_editorPath, $"{_fileToDelete}.hra");
+
+                    Game.StorageAccessor.GetStorageAccess();
+                    File.Delete(path);
+                    if (_fileToDelete == _filename)
+                    {
+                        _filename = null;
+                        _fileLabel.Text = "";
+                    }
+                    GameListClicked(this);
                 }
-                GameListClicked(this);
             }
         }
 

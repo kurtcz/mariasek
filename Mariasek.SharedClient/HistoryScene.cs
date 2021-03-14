@@ -3,14 +3,11 @@ using System.Linq;
 using System.Text;
 
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Input.Touch;
 using Mariasek.SharedClient.GameComponents;
 using System.IO;
 using System;
-using Mariasek.Engine;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework.GamerServices;
 
 namespace Mariasek.SharedClient
 {
@@ -459,15 +456,10 @@ namespace Mariasek.SharedClient
             Game.StatScene.SetActive();
         }
 
-        private void ResetHistoryClicked(object sender)
+        private async void ResetHistoryClicked(object sender)
         {
-            Guide.BeginShowMessageBox("Varování", $"Opravdu si přejete smazat historii?", new string[] { "Zpět", "Smazat" }, 1, MessageBoxIcon.Warning, ResetHistoryCallback, null);
-        }
-
-        private void ResetHistoryCallback(IAsyncResult result)
-        {
-            var buttonIndex = Guide.EndShowMessageBox(result);
-
+            var buttonIndex = await MessageBox.Show("Varování", $"Opravdu si přejete smazat historii?", new string[] { "Zpět", "Smazat" });
+            
             if (buttonIndex.HasValue && buttonIndex.Value == 1)
             {
                 _useMockData = false;
@@ -513,7 +505,7 @@ namespace Mariasek.SharedClient
             }
             catch(Exception ex)
             {
-                Guide.BeginShowMessageBox("Chyba", ex.Message, new string[] { "OK" }, 0, MessageBoxIcon.Error, null, null);
+                _ = MessageBox.Show("Chyba", ex.Message, new string[] { "OK" });
             }
         }
 

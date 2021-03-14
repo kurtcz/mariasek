@@ -62,6 +62,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Serialization\MoneyCalculatorBaseMap.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EditorScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\BarChart.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AssetLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)SavedGame\SavedGame.hra">

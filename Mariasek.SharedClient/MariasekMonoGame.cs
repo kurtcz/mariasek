@@ -13,7 +13,6 @@ using System.Xml.Serialization;
 using Mariasek.Engine;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework.GamerServices;
 using CsvHelper;
 using System.Globalization;
 //using Android.Views;

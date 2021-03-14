@@ -4,8 +4,7 @@ using System.Linq;
 using Mariasek.Engine;
 using Mariasek.SharedClient.GameComponents;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.GamerServices;
-using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace Mariasek.SharedClient
 {
@@ -775,14 +774,9 @@ namespace Mariasek.SharedClient
             Game.SettingsScene.SetActive();
         }
 
-        public void ResetButtonClicked(object sender)
+        public async void ResetButtonClicked(object sender)
         {
-            Guide.BeginShowMessageBox("Potvrzení", $"Obnovit výchozí nastavení?", new string[] { "Zpět", "Obnovit" }, 1, MessageBoxIcon.Warning, ResetButtonCallback, null);
-        }
-
-        private void ResetButtonCallback(IAsyncResult result)
-        {
-            var buttonIndex = Guide.EndShowMessageBox(result);
+            var buttonIndex = await MessageBox.Show("Potvrzení", $"Obnovit výchozí nastavení?", new string[] { "Zpět", "Obnovit" });
 
             if (buttonIndex.HasValue && buttonIndex.Value == 1)
             {
