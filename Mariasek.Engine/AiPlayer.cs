@@ -3022,7 +3022,7 @@ namespace Mariasek.Engine
                      estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqMaxOpponentScore ||
                      (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + 10 &&
                       (bidding.Bids & Hra.SedmaProti) == 0 &&
-                      !Is100AgainstPossible(120)))) ||
+                      !Is100AgainstPossible(110)))) ||
                    (kqScore >= 20 &&                            //davam si re kdyz mam aspon jeden hlas
                     Hand.CardCount(_trump.Value) >= 4 &&        //4 trumfy 
                     totalHoles <= 4 &&                          //a max 4 diry (tj. jinak same vysoke karty), netreba trhat trumfovou hlasku

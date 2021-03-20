@@ -6,7 +6,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD2_1;PORTABLE;</DefineConstants>
+    <DefineConstants>TRACE;NETSTANDARD2_1;PORTABLE;;DEBUG;NETSTANDARD;NETSTANDARD2_0;</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType></DebugType>
+    <DefineConstants>TRACE;RELEASE;NETSTANDARD;NETSTANDARD2_0;PORTABLE;</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Mariasek.Engine\Combinatorics\Combinations.cs">
