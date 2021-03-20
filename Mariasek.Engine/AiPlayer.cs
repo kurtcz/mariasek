@@ -798,8 +798,9 @@ namespace Mariasek.Engine
                 if (_rerunSimulations)
                 {
                     var bidding = new Bidding(_g);
-                    Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, 
-                                                    true, true, _g.CancellationToken, _stringLoggerFactory, new List<Card>())
+                    Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null,
+                                                    _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                                    _g.CancellationToken, _stringLoggerFactory, new List<Card>())
                     {
                         ExternalDebugString = _debugString,
                         UseDebugString = true
@@ -885,8 +886,9 @@ namespace Mariasek.Engine
                     }
                     flavour = GameFlavour.Good;
                 }
-                Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), TrumpCard?.Suit, 
-                                                _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, _talon)
+                Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), TrumpCard?.Suit,
+                                               _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                               _g.CancellationToken, _stringLoggerFactory, _talon)
                 {
                     ExternalDebugString = _debugString,
                     UseDebugString = true
@@ -914,8 +916,9 @@ namespace Mariasek.Engine
                     _talon = PlayerIndex == _g.GameStartingPlayerIndex ? new List<Card>() : null;
                 }
                 var probabilities = Probabilities;
-                Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null, 
-                                                true, true, _g.CancellationToken, _stringLoggerFactory, _talon)
+                Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null,
+                                                _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                                _g.CancellationToken, _stringLoggerFactory, _talon)
 				{
 					ExternalDebugString = _debugString
 				};
@@ -2801,14 +2804,18 @@ namespace Mariasek.Engine
                     DebugInfo.RuleCount = _gamesBalance;
                     DebugInfo.TotalRuleCount = _gameSimulations;
                 }
+                var avgPointsWon = 90 - _avgBasicPointsLost + kqScore;
                 if (Settings.CanPlayGameType[Hra.Sedma] &&
-                    Hand.Has7(_trump.Value) &&
-                    _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0 &&
-                    (!IsSevenTooRisky() ||                  //sedmu hlas pokud neni riskantni nebo pokud nelze uhrat hru (doufej ve flek na hru a konec)
-                     (!_g.PlayZeroSumGames &&
-                      Hand.CardCount(_trump.Value) >= 4 &&
-                      _gamesBalance < Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && 
-                      _gameSimulations > 0)))
+                    ((_g.AllowFakeSeven &&
+                      !Hand.Has7(_trump.Value) &&
+                      avgPointsWon >= 110) ||
+                     (Hand.Has7(_trump.Value) &&
+                      _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0 &&
+                      (!IsSevenTooRisky() ||                  //sedmu hlas pokud neni riskantni nebo pokud nelze uhrat hru (doufej ve flek na hru a konec)
+                       (!_g.PlayZeroSumGames &&
+                        Hand.CardCount(_trump.Value) >= 4 &&
+                        _gamesBalance < Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && 
+                        _gameSimulations > 0)))))
                 {
                     if (gameType == 0)
                     {
@@ -3240,6 +3247,18 @@ namespace Mariasek.Engine
                 DebugInfo.RuleCount = _sevensBalance;
                 DebugInfo.TotalRuleCount = _sevenSimulations;
             }
+
+            if ((bidding.Bids & Hra.Sedma) != 0 &&
+                Settings.CanPlayGameType[Hra.Sedma] &&
+                bidding._sevenFlek < 3 &&
+                TeamMateIndex != -1 &&
+                Hand.Has7(_trump.Value))
+            {
+                bid |= bidding.Bids & Hra.Sedma;
+                DebugInfo.RuleCount = _sevensBalance;
+                DebugInfo.TotalRuleCount = _sevenSimulations;
+            }
+
             //kilo flekuju jen pokud jsem volil sam kilo a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem nevolil a je nemozne aby mel volici hrac kilo (nema hlas)
             //?! Pokud bych chtel simulovat sance na to, ze volici hrac hlasene kilo neuhraje, tak musim nejak generovat "karty na kilo" (aspon 1 hlas) a ne nahodne karty
@@ -3282,6 +3301,18 @@ namespace Mariasek.Engine
                 DebugInfo.RuleCount = _sevensAgainstBalance;
                 DebugInfo.TotalRuleCount = _gameSimulations;
             }
+
+            if ((bidding.Bids & Hra.SedmaProti) != 0 &&
+                Settings.CanPlayGameType[Hra.SedmaProti] &&
+                bidding._sevenAgainstFlek < 3 &&
+                TeamMateIndex == -1 &&
+                Hand.Has7(_trump.Value))
+            {
+                bid |= bidding.Bids & Hra.SedmaProti;
+                DebugInfo.RuleCount = _sevensBalance;
+                DebugInfo.TotalRuleCount = _sevenSimulations;
+            }
+
             //kilo proti flekuju jen pokud jsem hlasil sam kilo proti a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem volil trumf a je nemozne aby meli protihraci kilo (nemaji hlas)
             if ((bidding.Bids & Hra.KiloProti) != 0 &&                
@@ -3509,8 +3540,9 @@ namespace Mariasek.Engine
 			{
                 _talon = new List<Card>(_g.talon); //TODO: tohle by se melo delat v Game.LoadGame()!
 			}
-            Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, 
-                                            _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, _talon)
+            Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump,
+                                            _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                            _g.CancellationToken, _stringLoggerFactory, _talon)
 			{
 				ExternalDebugString = _debugString
 			};
@@ -3546,8 +3578,9 @@ namespace Mariasek.Engine
             }
             if (PlayerIndex != _g.GameStartingPlayerIndex || Probabilities == null) //Probabilities == null by nemelo nastat, ale ...
             {
-                Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump, 
-                                                _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, _talon)
+                Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump,
+                                                _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                                _g.CancellationToken, _stringLoggerFactory, _talon)
 				{
 					ExternalDebugString = _debugString
 				};
@@ -3668,7 +3701,7 @@ namespace Mariasek.Engine
                     };
                 }
                 var exceptions = new ConcurrentQueue<Exception>();
-                try
+                //try
                 {
                     if (ShouldComputeBestCard(r))
                     {
@@ -3730,7 +3763,7 @@ namespace Mariasek.Engine
                         }
                     });
                 }
-                catch
+                //catch
                 {
                 }
                 ThrowIfCancellationRequested();
@@ -4667,11 +4700,11 @@ namespace Mariasek.Engine
             //prob.UpdateProbabilitiesAfterTalon((List<Card>)hands[player1], (List<Card>)hands[3]);
             prob.UseDebugString = false;    //otherwise we are being really slooow
 
-            var prob1 = 0 == PlayerIndex ? prob : new Probability(PlayerIndex, player1, hands[PlayerIndex], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
+            var prob1 = 0 == PlayerIndex ? prob : new Probability(PlayerIndex, player1, hands[PlayerIndex], trump, _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
             prob1.UseDebugString = false;
-            var prob2 = 1 == PlayerIndex ? prob : new Probability(PlayerIndex, player1, hands[PlayerIndex], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
+            var prob2 = 1 == PlayerIndex ? prob : new Probability(PlayerIndex, player1, hands[PlayerIndex], trump, _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
             prob2.UseDebugString = false;
-            var prob3 = 2 == PlayerIndex ? prob : new Probability(PlayerIndex, player1, hands[PlayerIndex], trump, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
+            var prob3 = 2 == PlayerIndex ? prob : new Probability(PlayerIndex, player1, hands[PlayerIndex], trump, _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
             prob3.UseDebugString = false;
 
             if (Settings.Cheat)

@@ -69,6 +69,7 @@ namespace Mariasek.SharedClient
         public SortMode SortMode { get; set; }
         public ShuffleTrigger WhenToShuffle { get; set; }
         public bool AutoSort { get; set; }
+        public bool AutoPlaySingletonCard { get; set; }
         public float BaseBet { get; set; }
         public string Locale { get; set; }
         public int MaxWin { get; set; }
@@ -79,6 +80,7 @@ namespace Mariasek.SharedClient
         public int HundredValue { get; set; }
         public int BetlValue { get; set; }
         public int DurchValue { get; set; }
+        public bool AllowFakeSeven { get; set; }
         public bool AllowAXTalon { get; set; }
         public bool AllowTrumpTalon { get; set; }
         public bool AllowAIAutoFinish { get; set; }
@@ -165,6 +167,7 @@ namespace Mariasek.SharedClient
             SortMode = SortMode.Descending;
             WhenToShuffle = ShuffleTrigger.AfterAutomaticVictory;
             AutoSort = true;
+            AutoPlaySingletonCard = false;
             BaseBet = 1f;
             Locale = "cs-CZ";
 			MaxWin = 500;
@@ -187,6 +190,7 @@ namespace Mariasek.SharedClient
             Top107 = false;
             Calculate107Separately = true;
             HlasConsidered = HlasConsidered.Highest;
+            AllowFakeSeven = false;
             AllowAXTalon = false;
             AllowTrumpTalon = true;
             AllowAIAutoFinish = true;

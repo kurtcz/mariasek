@@ -70,6 +70,7 @@ namespace Mariasek.Engine
         public int BetlValue { get; set; }
         public int DurchValue { get; set; }
         public SortMode SortMode { get; set; }
+        public bool AllowFakeSeven { get; set; }
         public bool AllowAXTalon { get; set; }
         public bool AllowTrumpTalon { get; set; }
         public bool AllowAIAutoFinish { get; set; }
@@ -1540,7 +1541,8 @@ namespace Mariasek.Engine
                 {
                     validGameTypes |= Hra.Kilo; //aby neslo omylem hlasit kilo bez hlasky
                 }
-                if(player.Hand.Has7(trump.Value))
+                if(player.Hand.Has7(trump.Value) ||
+                   AllowFakeSeven)
                 {
                     validGameTypes |= Hra.Sedma;
                 }

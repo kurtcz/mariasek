@@ -30,6 +30,7 @@ namespace Mariasek.Engine
         private static RandomMT mt = new RandomMT((ulong)(DateTime.Now - DateTime.MinValue).TotalMilliseconds);
         private List<int> _playerWeights;
         private List<Hand[]> generatedHands;
+        private bool _allowFakeSeven;
         private bool _allowAXTalon;
         private bool _allowTrumpTalon;
         public const int talonIndex = Game.NumPlayers;
@@ -54,7 +55,7 @@ namespace Mariasek.Engine
         private float _gameStarterCurrentExpectedTrumps = 3f;
         private Hra _gameType;
 
-        public Probability(int myIndex, int gameStarterIndex, Hand myHand, Barva? trump, bool allowAXTalon, bool allowTrumpTalon, CancellationToken cancellationToken, Func<IStringLogger> stringLoggerFactory, List<Card> talon = null)
+        public Probability(int myIndex, int gameStarterIndex, Hand myHand, Barva? trump, bool allowFakeSeven, bool allowAXTalon, bool allowTrumpTalon, CancellationToken cancellationToken, Func<IStringLogger> stringLoggerFactory, List<Card> talon = null)
         {
             _myIndex = myIndex;
         	_gameIndex = -1;
@@ -62,6 +63,7 @@ namespace Mariasek.Engine
             _sevenAgainstIndex = -1;
 			_hundredIndex = -1;
             _hundredAgainstIndex = -1;
+            _allowFakeSeven = allowFakeSeven;
             _allowAXTalon = allowAXTalon;
             _allowTrumpTalon = allowTrumpTalon;
             _gameStarterIndex = gameStarterIndex;
@@ -1403,7 +1405,15 @@ namespace Mariasek.Engine
                 _cardProbabilityForPlayer[i][e.TrumpCard.Suit][e.TrumpCard.Value] = i == e.GameStartingPlayerIndex ? 1f : 0f;
                 if ((e.GameType & Hra.Sedma) != 0)
                 {
-                    _cardProbabilityForPlayer[i][e.TrumpCard.Suit][Hodnota.Sedma] = i == e.GameStartingPlayerIndex ? 1f : 0f;
+                    if (!_allowFakeSeven)
+                    {
+                        _cardProbabilityForPlayer[i][e.TrumpCard.Suit][Hodnota.Sedma] = i == e.GameStartingPlayerIndex ? 1f : 0f;
+                    }
+                    else if(e.GameStartingPlayerIndex != _myIndex &&
+                            !(_myHand.Has7(e.TrumpCard.Suit)))
+                    {
+                        _cardProbabilityForPlayer[i][e.TrumpCard.Suit][Hodnota.Sedma] = i == e.GameStartingPlayerIndex ? 0.99f : 0.01f;
+                    }
                 }
             }
             if ((e.GameType & Hra.Sedma) != 0)
@@ -1489,6 +1499,38 @@ namespace Mariasek.Engine
                     {
                         _cardProbabilityForPlayer[i][_trump.Value][Hodnota.Kral] = i == e.Player.PlayerIndex ? 1 - small : small;
                     }
+                }
+            }
+            if (_allowFakeSeven &&
+                (e.BidMade & Hra.Sedma) != 0 &&
+                e.Player.PlayerIndex != _myIndex &&
+                _gameStarterIndex == _myIndex &&
+                !_myHand.Has7(_trump.Value))
+            {
+                //ten kdo flekoval mou falesnou sedmu ma nejspis trumfovou sedmu sam
+                for (var i = 0; i < Game.NumPlayers + 1; i++)
+                {
+                    if (i == _myIndex)
+                    {
+                        continue;
+                    }
+                    _cardProbabilityForPlayer[i][_trump.Value][Hodnota.Sedma] = i == e.Player.PlayerIndex ? 0.99f : 0.01f;
+                }
+            }
+            if (_allowFakeSeven &&
+                (e.BidMade & Hra.SedmaProti) != 0 &&
+                e.Player.PlayerIndex == _myIndex &&
+                _sevenAgainstIndex == _myIndex &&
+                !_myHand.Has7(_trump.Value))
+            {
+                //akter flekoval mou falesnou sedmu proti takze ma nejspis trumfovou sedmu sam
+                for (var i = 0; i < Game.NumPlayers + 1; i++)
+                {
+                    if (i == _myIndex)
+                    {
+                        continue;
+                    }
+                    _cardProbabilityForPlayer[i][_trump.Value][Hodnota.Sedma] = i == e.Player.PlayerIndex ? 0.99f : 0.01f;
                 }
             }
             if ((e.BidMade & Hra.Sedma) != 0 &&

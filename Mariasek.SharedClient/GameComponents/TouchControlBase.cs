@@ -202,7 +202,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             foreach (var tl in currTouches)
             {
-                System.Diagnostics.Debug.WriteLine($"Touch {tl.Id} {tl.State}. TouchId {TouchId} {Name} {GetHashCode()}");
+                //System.Diagnostics.Debug.WriteLine($"Touch {tl.Id} {tl.State}. TouchId {TouchId} {Name} {GetHashCode()}");
                 if (CollidesWithPosition(tl.Position))
                 {
                     if ((tl.State == TouchLocationState.Pressed || tl.State == TouchLocationState.Moved))
@@ -232,7 +232,7 @@ namespace Mariasek.SharedClient.GameComponents
                             _touchHeldConsumed = false;
                             TouchId = tl.Id;
                             _draggedObject = this;
-                            System.Diagnostics.Debug.WriteLine($"TouchId <- {TouchId} * {Name}");
+                            //System.Diagnostics.Debug.WriteLine($"TouchId <- {TouchId} * {Name}");
 
                             OnTouchDown(tl);
                         }
@@ -248,7 +248,7 @@ namespace Mariasek.SharedClient.GameComponents
                         _draggedObject = null;
                         _touchHeldConsumed = false;
                         TouchId = -1;
-                        System.Diagnostics.Debug.WriteLine($"TouchId <- {TouchId} ** {Name}");
+                        //System.Diagnostics.Debug.WriteLine($"TouchId <- {TouchId} ** {Name}");
 
                         OnTouchUp(tl);
 
@@ -271,7 +271,7 @@ namespace Mariasek.SharedClient.GameComponents
                     _touchHeldTimeMs = 0;
                     _touchHeldConsumed = false;
 					TouchId = -1;
-                    System.Diagnostics.Debug.WriteLine($"TouchId <- {TouchId} *** {Name}");
+                    //System.Diagnostics.Debug.WriteLine($"TouchId <- {TouchId} *** {Name}");
 
                     OnTouchUp(tl);
                 }
