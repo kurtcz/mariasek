@@ -208,6 +208,7 @@ namespace Mariasek.SharedClient.GameComponents
                     if ((tl.State == TouchLocationState.Pressed || tl.State == TouchLocationState.Moved))
                     {
                         if (_draggedObject != null &&
+                            !(_draggedObject is ClickableArea) &&
                             (TouchId == -1 ||
                              _draggedObject != this))
                         {

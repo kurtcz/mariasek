@@ -17,6 +17,16 @@ namespace Mariasek.SharedClient.GameComponents
         protected RectangleShape _buttonShape;
         protected Label _buttonText;
 
+        private bool _useCommonScissorRect;
+        public bool UseCommonScissorRect
+        {
+            get { return _useCommonScissorRect; }
+            set
+            {
+                _useCommonScissorRect = value;
+                _buttonText.UseCommonScissorRect = value;
+            }
+        }
         public override Vector2 Position
         {
             get { return _buttonShape.Position; }
@@ -174,8 +184,28 @@ namespace Mariasek.SharedClient.GameComponents
             };
         }
 
+        private int GetParentScrollBoxVerticalOffset()
+        {
+            var obj = (GameComponent)this;
+
+            while(obj.Parent != null)
+            {
+                var sb = obj as ScrollBox;
+
+                if (sb != null)
+                {
+                    return sb.VerticalScrollOffset;
+                }
+                obj = obj.Parent;
+            }
+
+            return 0;
+        }
         public override bool CollidesWithPosition(Vector2 position)
         {
+            var scrollOffset = GetParentScrollBoxVerticalOffset();
+            position.Y -= scrollOffset;
+
             return position.X >= Position.X &&
                 position.Y >= Position.Y &&
                 position.X <= Position.X + Width &&

@@ -63,6 +63,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)EditorScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\BarChart.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AssetLoader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\SettingsBox.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)SavedGame\SavedGame.hra">

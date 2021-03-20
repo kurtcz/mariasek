@@ -450,7 +450,7 @@ namespace Mariasek.SharedClient.GameComponents
                     _scrollBarTexture != null &&
                     _scrollBarBgTexture != null)
                 {
-                    Game.SpriteBatch.Draw(_scrollBarBgTexture, new Vector2(_scrollBarPosition.X, Position.Y), TextColor * 0.5f);
+                    Game.SpriteBatch.Draw(_scrollBarBgTexture, new Vector2(_scrollBarPosition.X, Position.Y), ScrollBarBackgroundColor * 0.5f);
                     Game.SpriteBatch.Draw(_scrollBarTexture, _scrollBarPosition, TextColor * 0.8f);
                 }
             }

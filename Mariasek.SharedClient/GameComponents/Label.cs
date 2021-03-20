@@ -9,6 +9,7 @@ namespace Mariasek.SharedClient.GameComponents
         public virtual int Height { get; set; }
         public virtual string Text { get; set; }
         public virtual Color TextColor { get; set; }
+        public virtual Color ScrollBarBackgroundColor { get; set; }
         public virtual float FontScaleFactor { get; set; }
         public virtual VerticalAlignment VerticalAlign { get; set; }
         public virtual HorizontalAlignment HorizontalAlign { get; set; }
@@ -24,6 +25,7 @@ namespace Mariasek.SharedClient.GameComponents
             VerticalAlign = VerticalAlignment.Top;
             HorizontalAlign = HorizontalAlignment.Left;
             TextColor = Color.White;
+            ScrollBarBackgroundColor = Color.Transparent;
             Opacity = 1f;
             TextRenderer = Game.FontRenderers["BM2Font"];
             Text = Name;

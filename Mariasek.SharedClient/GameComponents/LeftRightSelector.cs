@@ -78,7 +78,7 @@ namespace Mariasek.SharedClient.GameComponents
 	{
 		private Button _leftButton;
 		private Button _rightButton;
-		private Button _valueLabel;
+		private Label _valueLabel;
 
         public override bool IsEnabled
         {
@@ -167,7 +167,19 @@ namespace Mariasek.SharedClient.GameComponents
                 _valueLabel.Anchor = value;
             }
         }
-        public FontRenderer TextRenderer
+		private bool _useCommonScissorRect;
+		public bool UseCommonScissorRect
+		{
+			get { return _useCommonScissorRect; }
+			set
+			{
+				_useCommonScissorRect = value;
+				_leftButton.UseCommonScissorRect = value;
+				_rightButton.UseCommonScissorRect = value;
+				_valueLabel.UseCommonScissorRect = value;
+			}
+		}
+		public FontRenderer TextRenderer
         {
             get { return _valueLabel.TextRenderer; }
             set
@@ -209,15 +221,17 @@ namespace Mariasek.SharedClient.GameComponents
 				Text = "»»"
 			};
 			_rightButton.Click += RightButtonClick;
-			_valueLabel = new Button(this)
+			_valueLabel = new Label(this)
 			{
 				Name = "Value",
 				Width = 100,
 				Height = 50,
-				BackgroundColor = Color.Transparent,
-				BorderColor = Color.Transparent
+				HorizontalAlign = HorizontalAlignment.Center,
+				VerticalAlign = VerticalAlignment.Middle
+				//BackgroundColor = Color.Transparent,
+				//BorderColor = Color.Transparent
 			};
-			_valueLabel.Click += RightButtonClick;
+			//_valueLabel.Click += RightButtonClick;
 			SelectedIndex = -1;
             IsCyclicSelector = true;
 			UpdateControls();

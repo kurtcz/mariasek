@@ -389,22 +389,22 @@ namespace Mariasek.SharedClient
                 IsMoving = operation != null && (operation.OperationType & GameComponentOperationType.Move) != 0 && positionDiff != Vector2.Zero;
             }
 
-			for (var i = Children.Count - 1; i >= 0; i--)
+            for (var i = Children.Count - 1; i >= 0; i--)
             //for (var i = 0; i < Children.Count; i++)
-			{
-				var child = Children[i] as TouchControlBase;
+            {
+                var child = Children[i] as TouchControlBase;
 
-				if (child != null)
-				{
-					try
-					{
-						child.TouchUpdate(gameTime);
-					}
-					catch (Exception)
-					{
-					}
-				}
-			}
+                if (child != null)
+                {
+                    try
+                    {
+                        child.TouchUpdate(gameTime);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+            }
 
             for (var i = 0; i < Children.Count; i++)
             {

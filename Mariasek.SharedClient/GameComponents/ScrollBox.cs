@@ -10,7 +10,7 @@ namespace Mariasek.SharedClient.GameComponents
         private TouchLocation _touchDownLocation;
         private TouchLocation _touchHeldLocation;
         private TouchLocation _previoustouchHeldLocation;
-        private ClickableArea _clickableArea;
+        protected ClickableArea _clickableArea;
         private Texture2D _scrollBarTexture, _scrollBarBgTexture;
         private int _scrollBarWidth = 5;
         private int _scrollBarHeight;
@@ -51,6 +51,7 @@ namespace Mariasek.SharedClient.GameComponents
         }
 
         public Color ScrollBarColor { get; set; }
+        public Color ScrollBarBackgroundColor { get; set; }
 
         private Rectangle _boundsRect;
         protected virtual Rectangle BoundsRect { get { return _boundsRect; } set { _boundsRect = value; UpdateVerticalScrollbar(); } }
@@ -87,6 +88,7 @@ namespace Mariasek.SharedClient.GameComponents
             Width = 100;
             Height = 100;
             ScrollBarColor = Color.White;
+            ScrollBarBackgroundColor = Color.Transparent;
             _clickableArea.TouchDown += HandleTouchDown;
             _clickableArea.TouchUp += HandleTouchUp;
             _clickableArea.TouchHeld += HandleTouchHeld;
@@ -185,13 +187,13 @@ namespace Mariasek.SharedClient.GameComponents
             _touchHeldLocation = tl;
             _previoustouchHeldLocation = tl;
             _scrollingVelocity = 0;
-            //System.Diagnostics.Debug.WriteLine("Down: {0} BR: {1} VO: {2}", tl.Position, BoundsRect, VerticalScrollOffset);
+            System.Diagnostics.Debug.WriteLine("Down: {0} BR: {1} VO: {2}", tl.Position, BoundsRect, VerticalScrollOffset);
         }
 
         void HandleTouchUp(object sender, TouchLocation tl)
         {
             _previoustouchHeldLocation = _touchHeldLocation;
-            //System.Diagnostics.Debug.WriteLine("Up: {0} BR: {1} VO: {2}", tl.Position, BoundsRect, VerticalScrollOffset);
+            System.Diagnostics.Debug.WriteLine("Up: {0} BR: {1} VO: {2}", tl.Position, BoundsRect, VerticalScrollOffset);
         }
 
         bool HandleTouchHeld(object sender, float touchHeldTimeMs, TouchLocation tl)
@@ -279,7 +281,7 @@ namespace Mariasek.SharedClient.GameComponents
 
                 if (_scrollBarTexture != null)
                 {
-                    Game.SpriteBatch.Draw(_scrollBarBgTexture, new Vector2(_scrollBarPosition.X, Position.Y), ScrollBarColor * 0.5f);
+                    Game.SpriteBatch.Draw(_scrollBarBgTexture, new Vector2(_scrollBarPosition.X, Position.Y), ScrollBarBackgroundColor * 0.5f);
                     Game.SpriteBatch.Draw(_scrollBarTexture, _scrollBarPosition, ScrollBarColor * 0.8f);
                 }
             }
