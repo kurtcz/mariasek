@@ -2808,6 +2808,7 @@ namespace Mariasek.Engine
                 if (Settings.CanPlayGameType[Hra.Sedma] &&
                     ((_g.AllowFakeSeven &&
                       !Hand.Has7(_trump.Value) &&
+                      (gameType & Hra.Hra) != 0 &&  //ne pri kilu
                       avgPointsWon >= 110) ||
                      (Hand.Has7(_trump.Value) &&
                       _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0 &&
