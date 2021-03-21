@@ -3780,7 +3780,12 @@ namespace Mariasek.Engine
                                                                      !hands[MyIndex].HasX(i.Suit))
                                                          .ToList();
                             }
-                            return cardsToPlay.OrderBy(i => i.Value)
+                            return cardsToPlay.OrderByDescending(i => TeamMateIndex == player3 &&
+                                                                      _probabilities.PotentialCards(player2).Any(j => j.Suit == i.Suit &&
+                                                                                                                      j.Value >= Hodnota.Desitka)
+                                                                      ? i.Value
+                                                                      : 0)
+                                              .ThenBy(i => i.Value)
                                               .FirstOrDefault();
                         }
                         //if ((_gameType & Hra.Kilo) == 0)
