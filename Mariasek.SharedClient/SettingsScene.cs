@@ -20,8 +20,6 @@ namespace Mariasek.SharedClient
         private Button _sideNavigation2;
         private Button _sideNavigation3;
         private Button _sideNavigation4;
-        private Button _sideNavigation5;
-        private Button _sideNavigation6;
         private Button[] _sideNavigations;
 
         private RectangleShape _hline;
@@ -136,7 +134,7 @@ namespace Mariasek.SharedClient
                 //FontScaleFactor = 0.75f
             };
             _sideNavigation4.Click += SideNavigationClick;
-            _sideNavigations = new[] { _sideNavigation1, _sideNavigation2, null, _sideNavigation3, null, _sideNavigation4 };
+            _sideNavigations = new[] { _sideNavigation1, _sideNavigation2, _sideNavigation3, _sideNavigation4 };
 
             _menuBtn = new Button(this)
             {
@@ -194,7 +192,7 @@ namespace Mariasek.SharedClient
 
             if (index >=0 && index < _sideNavigations.Length)
             {
-                _settingsBox.ScrollTo(-_settingsBox.pageOffsets[index]);
+                _settingsBox.ScrollTo(-_settingsBox.TopicOffsets[index]);
             }
         }
 

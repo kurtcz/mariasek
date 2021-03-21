@@ -11,13 +11,15 @@ namespace Mariasek.SharedClient.GameComponents
 {
     public class SettingsBox : ScrollBox
     {
+        //offsety puvodnich stranek
         public const int page2Offset = 420;
         public const int page3Offset = 900;
         public const int page4Offset = 1320;
         public const int page5Offset = 1800;
         public const int page6Offset = 2220;
         public const int boundsRectHeight = 2640;
-        public readonly int[] pageOffsets = new [] { 0, page2Offset, page3Offset, page4Offset, page5Offset, page6Offset };
+        //nove tematicke offsety zacinaji na ruznych mistech puvodnich stranek
+        public readonly int[] TopicOffsets = new [] { 0, page2Offset, page4Offset - 300, page6Offset };
 
         private Tuple<string, int, int>[] _locales;
         private Label _hint;
