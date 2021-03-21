@@ -3093,7 +3093,7 @@ namespace Mariasek.SharedClient
                 //});
                 _shouldShuffle = (!_testGame &&
                                   Game.Settings.WhenToShuffle == ShuffleTrigger.AfterAutomaticVictory && 
-                                  results.GameWon && 
+                                  results.MoneyWon[g.GameStartingPlayerIndex] > 0 && 
                                   results.GamePlayed && 
                                   g.RoundNumber == 1) ||
                                  Game.Settings.WhenToShuffle == ShuffleTrigger.Always;
