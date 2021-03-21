@@ -108,11 +108,12 @@ namespace Mariasek.SharedClient.GameComponents
 				if (_valueLabel != null)
                 {
                     _valueLabel.IsEnabled = value;
-					if (!_valueLabel.IsEnabled)
-					{
-						_valueLabel.Opacity = 0;
-					}
-				}
+					//if (!_valueLabel.IsEnabled)
+					//{
+					//	_valueLabel.Opacity = 0;
+					//}
+					_valueLabel.Opacity = _valueLabel.IsEnabled ? 1 : 0.5f;
+                }
 			}
         }
         public bool IsCyclicSelector { get; set; }

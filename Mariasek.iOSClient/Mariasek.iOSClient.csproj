@@ -95,11 +95,11 @@
       <HintPath>..\packages\MonoGame.Framework.iOS.3.8.0.1641\lib\xamarinios10\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="CsvHelper">
-      <HintPath>..\packages\CsvHelper.15.0.0\lib\netstandard2.1\CsvHelper.dll</HintPath>
-    </Reference>
     <Reference Include="System.Drawing.Common.dll" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="CsvHelper">
+      <HintPath>..\packages\CsvHelper.26.0.1\lib\netstandard2.1\CsvHelper.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />

@@ -230,6 +230,29 @@ namespace Mariasek.SharedClient
             };
             _maxBidCountSelector.SelectionChanged += MaxBidCountChanged;
 
+            _threshold1 = new Label(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 + 5),
+                Width = 300,
+                Height = 50,
+                Text = "Flek",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _threshold1Selector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 + 5),
+                Width = (int)Game.VirtualScreenWidth / 2 - 190,
+                IsCyclicSelector = false,
+                Items = new SelectorItems() { { "0%", 0 }, { "5%", 5 }, { "10%", 10 }, { "15%", 15 },
+                                              { "20%", 20 }, { "25%", 25 }, { "30%", 30 }, { "35%", 35 },
+                                              { "40%", 40 }, { "45%", 45 }, { "50%", 50 }, { "55%", 55 },
+                                              { "60%", 60 }, { "65%", 65 }, { "70%", 70 }, { "75%", 75 },
+                                              { "80%", 80 }, { "85%", 85 }, { "90%", 90 }, { "95%", 95 },
+                                              { "100%", 100 } }
+            };
+            _threshold1Selector.SelectionChanged += ThresholdChanged;
+
             _threshold0 = new Label(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 - 55),
@@ -253,28 +276,28 @@ namespace Mariasek.SharedClient
             };
             _threshold0Selector.SelectionChanged += ThresholdChanged;
 
-            _threshold1 = new Label(this)
-            {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 + 5),
-                Width = 300,
-                Height = 50,
-                Text = "Flek",
-                HorizontalAlign = HorizontalAlignment.Center,
-                VerticalAlign = VerticalAlignment.Middle
-            };
-            _threshold1Selector = new LeftRightSelector(this)
-            {
-                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 + 5),
-                Width = (int)Game.VirtualScreenWidth / 2 - 190,
-                IsCyclicSelector = false,
-                Items = new SelectorItems() { { "0%", 0 }, { "5%", 5 }, { "10%", 10 }, { "15%", 15 },
-                                              { "20%", 20 }, { "25%", 25 }, { "30%", 30 }, { "35%", 35 },
-                                              { "40%", 40 }, { "45%", 45 }, { "50%", 50 }, { "55%", 55 },
-                                              { "60%", 60 }, { "65%", 65 }, { "70%", 70 }, { "75%", 75 },
-                                              { "80%", 80 }, { "85%", 85 }, { "90%", 90 }, { "95%", 95 },
-                                              { "100%", 100 } }
-            };
-            _threshold1Selector.SelectionChanged += ThresholdChanged;
+            //_threshold1 = new Label(this)
+            //{
+            //    Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 + 5),
+            //    Width = 300,
+            //    Height = 50,
+            //    Text = "Flek",
+            //    HorizontalAlign = HorizontalAlignment.Center,
+            //    VerticalAlign = VerticalAlignment.Middle
+            //};
+            //_threshold1Selector = new LeftRightSelector(this)
+            //{
+            //    Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 + 5),
+            //    Width = (int)Game.VirtualScreenWidth / 2 - 190,
+            //    IsCyclicSelector = false,
+            //    Items = new SelectorItems() { { "0%", 0 }, { "5%", 5 }, { "10%", 10 }, { "15%", 15 },
+            //                                  { "20%", 20 }, { "25%", 25 }, { "30%", 30 }, { "35%", 35 },
+            //                                  { "40%", 40 }, { "45%", 45 }, { "50%", 50 }, { "55%", 55 },
+            //                                  { "60%", 60 }, { "65%", 65 }, { "70%", 70 }, { "75%", 75 },
+            //                                  { "80%", 80 }, { "85%", 85 }, { "90%", 90 }, { "95%", 95 },
+            //                                  { "100%", 100 } }
+            //};
+            //_threshold1Selector.SelectionChanged += ThresholdChanged;
 
             _threshold2 = new Label(this)
             {
@@ -318,7 +341,8 @@ namespace Mariasek.SharedClient
                                               { "40%", 40 }, { "45%", 45 }, { "50%", 50 }, { "55%", 55 },
                                               { "60%", 60 }, { "65%", 65 }, { "70%", 70 }, { "75%", 75 },
                                               { "80%", 80 }, { "85%", 85 }, { "90%", 90 }, { "95%", 95 },
-                                              { "100%", 100 } }
+                                              { "100%", 100 } },
+                Name = "x"
             };
             _threshold3Selector.SelectionChanged += ThresholdChanged;
 

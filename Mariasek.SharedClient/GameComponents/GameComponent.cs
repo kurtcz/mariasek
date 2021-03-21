@@ -25,7 +25,11 @@ namespace Mariasek.SharedClient
             public int WaitMs;
             public Vector2 Position { get; set; }
             public float Speed { get; set; }
-            public float Opacity { get; set; }
+            public float Opacity
+            {
+                get;
+                set;
+            }
         }
         protected class GameComponentOperationType
         {
