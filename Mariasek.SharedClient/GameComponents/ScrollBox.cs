@@ -207,6 +207,11 @@ namespace Mariasek.SharedClient.GameComponents
             return handled;
         }
 
+        public void ScrollTo(int verticalOffset)
+        {
+            VerticalScrollOffset = verticalOffset;
+        }
+
         private double _scrollingVelocity;
         private int _scrollingDirection;
         private const float decceleration = 0.002f;

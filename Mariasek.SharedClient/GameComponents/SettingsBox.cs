@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Java.Nio.Channels;
 using Mariasek.Engine;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -10,11 +11,13 @@ namespace Mariasek.SharedClient.GameComponents
 {
     public class SettingsBox : ScrollBox
     {
-        private int page2Offset = 420;
-        private int page3Offset = 900;
-        private int page4Offset = 1320;
-        private int page5Offset = 1740;
-        private int page6Offset = 2160;
+        public const int page2Offset = 420;
+        public const int page3Offset = 900;
+        public const int page4Offset = 1320;
+        public const int page5Offset = 1800;
+        public const int page6Offset = 2220;
+        public const int boundsRectHeight = 2640;
+        public readonly int[] pageOffsets = new [] { 0, page2Offset, page3Offset, page4Offset, page5Offset, page6Offset };
 
         private Tuple<string, int, int>[] _locales;
         private Label _hint;
@@ -35,6 +38,7 @@ namespace Mariasek.SharedClient.GameComponents
         private Label _roundFinishedWaitTime;
         private Label _autoFinishRounds;
         private Label _autoFinishLastRound;
+        private Label _autoPlaySingletonCard;
         private Label _autoDisable100Against;
         private Label _showScoreDuringGame;
         private Label _cardSize;
@@ -80,6 +84,7 @@ namespace Mariasek.SharedClient.GameComponents
         private LeftRightSelector _roundFinishedWaitTimeSelector;
         private LeftRightSelector _autoFinishRoundsSelector;
         private LeftRightSelector _autoFinishLastRoundSelector;
+        private LeftRightSelector _autoPlaySingletonCardSelector;
         private LeftRightSelector _autoDisable100AgainstSelector;
         private LeftRightSelector _showScoreDuringGameSelector;
         private LeftRightSelector _cardSizeSelector;
@@ -865,6 +870,31 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _autoFinishLastRoundSelector.SelectedIndex = 0;
             }
+            _autoPlaySingletonCard = new Label(this)
+            {
+                Position = new Vector2(200, page4Offset + 430),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Jedinou možnou kartu hrát",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle,
+                UseCommonScissorRect = true
+            };
+            _autoPlaySingletonCardSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 430),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Automaticky", true }, { "Ručně", false } },
+                UseCommonScissorRect = true
+            };
+            _autoPlaySingletonCardSelector.SelectedIndex = _autoPlaySingletonCardSelector.Items.FindIndex(Game.Settings.AutoFinish);
+            _autoPlaySingletonCardSelector.SelectionChanged += AutoPlaySingletonCardChanged;
+            if (_autoPlaySingletonCardSelector.SelectedIndex < 0)
+            {
+                _autoPlaySingletonCardSelector.SelectedIndex = 0;
+            }
             #endregion
             #region Page 5
             _player1 = new Label(this)
@@ -1242,7 +1272,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             #endregion
 
-            BoundsRect = new Rectangle(0, 0, (int)Game.VirtualScreenWidth - (int)Position.X, 2580 - (int)Position.Y);
+            BoundsRect = new Rectangle(0, 0, (int)Game.VirtualScreenWidth - (int)Position.X, boundsRectHeight - (int)Position.Y);
         }
 
         private void HandleTouchDown(object sender, TouchLocation tl)
@@ -1398,6 +1428,15 @@ namespace Mariasek.SharedClient.GameComponents
             var selector = sender as LeftRightSelector;
 
             Game.Settings.AutoFinish = (bool)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        void AutoPlaySingletonCardChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.AutoPlaySingletonCard = (bool)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }

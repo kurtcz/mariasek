@@ -16,6 +16,14 @@ namespace Mariasek.SharedClient
     {
         public static string _settingsFilePath = Path.Combine(MariasekMonoGame.RootPath, "Mariasek.settings");
 
+        private Button _sideNavigation1;
+        private Button _sideNavigation2;
+        private Button _sideNavigation3;
+        private Button _sideNavigation4;
+        private Button _sideNavigation5;
+        private Button _sideNavigation6;
+        private Button[] _sideNavigations;
+
         private RectangleShape _hline;
         private Label _performance;
         private Button _menuBtn;
@@ -73,6 +81,7 @@ namespace Mariasek.SharedClient
                 FontScaleFactor = 0.75f
             };
             Game.LoadGameSettings(false);
+
             _settingsBox = new SettingsBox(this)
             {
                 Position = new Vector2(0, 10),
@@ -80,7 +89,54 @@ namespace Mariasek.SharedClient
                 Height = (int)Game.VirtualScreenHeight - 20
             };
 
+            _sideNavigation1 = new Button(this)
+            {
+                Position = new Vector2(10, 10),
+                Width = 200,
+                Text = "Obecná nast.",
+                //BackgroundColor = Color.Transparent,
+                //BorderColor = Color.Transparent,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top,
+                //FontScaleFactor = 0.75f
+            };
+            _sideNavigation1.Click += SideNavigationClick;
 
+            _sideNavigation2 = new Button(this)
+            {
+                Position = new Vector2(10, 70),
+                Width = 200,
+                Text = "Nast. pravidel",
+                //BackgroundColor = Color.Transparent,
+                //BorderColor = Color.Transparent,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top,
+                //FontScaleFactor = 0.75f
+            };
+            _sideNavigation2.Click += SideNavigationClick;
+
+            _sideNavigation3 = new Button(this)
+            {
+                Position = new Vector2(10, 130),
+                Width = 200,
+                Text = "Vzhled a chování",
+                //BackgroundColor = Color.Transparent,
+                //BorderColor = Color.Transparent,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top,
+                //FontScaleFactor = 0.75f
+            };
+            _sideNavigation3.Click += SideNavigationClick;
+
+            _sideNavigation4 = new Button(this)
+            {
+                Position = new Vector2(10, 190),
+                Width = 200,
+                Text = "Sazby her",
+                //BackgroundColor = Color.Transparent,
+                //BorderColor = Color.Transparent,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top,                
+                //FontScaleFactor = 0.75f
+            };
+            _sideNavigation4.Click += SideNavigationClick;
+            _sideNavigations = new[] { _sideNavigation1, _sideNavigation2, null, _sideNavigation3, null, _sideNavigation4 };
 
             _menuBtn = new Button(this)
             {
@@ -132,7 +188,15 @@ namespace Mariasek.SharedClient
             Game.OnSettingsChanged();
         }
 
+        private void SideNavigationClick(object sender)
+        {
+            var index = Array.IndexOf(_sideNavigations, sender);
 
+            if (index >=0 && index < _sideNavigations.Length)
+            {
+                _settingsBox.ScrollTo(-_settingsBox.pageOffsets[index]);
+            }
+        }
 
         //void PageChanged(object sender)
         //{

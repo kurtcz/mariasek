@@ -2370,9 +2370,27 @@ namespace Mariasek.SharedClient
                             bubble.Hide();
                         }
                         _state = GameState.Play;
-                        if (g.players[0].Hand.Count() == 1 && Game.Settings.AutoFinish)
+                        var validCards = g.CurrentRound != null
+                                            ? g.CurrentRound.c2 != null
+                                                ? g.players[0].Hand
+                                                   .Where(i => g.players[0].IsCardValid(i, g.CurrentRound.c1, g.CurrentRound.c2) == Renonc.Ok)
+                                                   .ToList()
+                                                : g.CurrentRound.c1 != null
+                                                    ? g.players[0].Hand
+                                                       .Where(i => g.players[0].IsCardValid(i, g.CurrentRound.c1) == Renonc.Ok)
+                                                       .ToList()
+                                                    : g.players[0].Hand
+                                                       .Where(i => g.players[0].IsCardValid(i) == Renonc.Ok)
+                                                       .ToList()
+                                            : new List<Card>(g.players[0].Hand);
+                        if ((Game.Settings.AutoPlaySingletonCard &&
+                             validCards.Count == 1) ||
+                            (g.players[0].Hand.Count() == 1 &&
+                             Game.Settings.AutoFinish))
                         {
-                            var button = _hand.CardButtonForCard(g.players[0].Hand.First());
+                            var button = _hand.CardButtonForCard(g.players[0].Hand.Count() == 1
+                                                                 ? g.players[0].Hand.First()
+                                                                 : g.players[0].Hand.First(i => i == validCards.First()));
                             
                             _hand.AllowDragging();
                             button.TouchUp(new TouchLocation(-1, TouchLocationState.Released, button.Position));

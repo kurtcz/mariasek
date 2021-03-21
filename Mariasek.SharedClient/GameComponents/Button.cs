@@ -58,6 +58,11 @@ namespace Mariasek.SharedClient.GameComponents
                 _buttonShape.Opacity = value;
             }
         }
+        public float FontScaleFactor
+        {
+            get => _buttonText.FontScaleFactor;
+            set { _buttonText.FontScaleFactor = value; }
+        }
         public int Width 
         { 
             get { return _buttonShape.Width; }
