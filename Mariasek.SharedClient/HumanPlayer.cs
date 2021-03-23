@@ -112,7 +112,7 @@ namespace Mariasek.SharedClient
             }
         }
 
-        public override Card ChooseTrump()
+            public override Card ChooseTrump()
         {
             _g.ThrowIfCancellationRequested();
             if (_aiPlayer != null)
@@ -459,6 +459,14 @@ namespace Mariasek.SharedClient
             }
             var bd = _scene.GetBidsAndDoubles(bidding.Clone());
 
+            if ((_g.GameType & Hra.Sedma) != 0) //pokud je hlasena sedma, pak tlacitko [7] znamena flek na sedmu, ne sedmu proti
+            {
+                bd &= ~Hra.SedmaProti;
+            }
+            else
+            {
+                bd &= ~Hra.Sedma;
+            }
             CancelAiTask();
             _g.ThrowIfCancellationRequested();
             return bd;
