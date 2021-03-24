@@ -3514,7 +3514,7 @@ namespace Mariasek.SharedClient
             {
                 g.DebugString.AppendLine("ResumeGame");
             }
-            if (CanLoadGame())
+            if (CanLoadGame() && !MessageBox.IsVisible)
             {
                 var buttonIndex = await MessageBox.Show("", $"Přejete si pokračovat v rozehrané hře?", new string[] { "Ne", "Ano" });
 

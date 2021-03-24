@@ -92,10 +92,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(10, 10),
                 Width = 200,
                 Text = "Obecná nast.",
-                //BackgroundColor = Color.Transparent,
-                //BorderColor = Color.Transparent,
-                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top,
-                //FontScaleFactor = 0.75f
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top
             };
             _sideNavigation1.Click += SideNavigationClick;
 
@@ -104,10 +101,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(10, 70),
                 Width = 200,
                 Text = "Nast. pravidel",
-                //BackgroundColor = Color.Transparent,
-                //BorderColor = Color.Transparent,
-                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top,
-                //FontScaleFactor = 0.75f
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top
             };
             _sideNavigation2.Click += SideNavigationClick;
 
@@ -116,10 +110,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(10, 130),
                 Width = 200,
                 Text = "Vzhled a chování",
-                //BackgroundColor = Color.Transparent,
-                //BorderColor = Color.Transparent,
-                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top,
-                //FontScaleFactor = 0.75f
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top
             };
             _sideNavigation3.Click += SideNavigationClick;
 
@@ -128,10 +119,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(10, 190),
                 Width = 200,
                 Text = "Sazby her",
-                //BackgroundColor = Color.Transparent,
-                //BorderColor = Color.Transparent,
-                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top,                
-                //FontScaleFactor = 0.75f
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Top
             };
             _sideNavigation4.Click += SideNavigationClick;
             _sideNavigations = new[] { _sideNavigation1, _sideNavigation2, _sideNavigation3, _sideNavigation4 };
@@ -154,30 +142,7 @@ namespace Mariasek.SharedClient
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Bottom
             };
             _aiBtn.Click += AiBtnClick;
-            //_pageSelector = new LeftRightSelector(this)
-            //{
-            //    Position = new Vector2(210, (int)Game.VirtualScreenHeight - 60),
-            //    Width = (int)Game.VirtualScreenWidth - 210,
-            //    Items = new SelectorItems() { { "1/6", 0 }, { "2/6", 1 }, { "3/6", 2 }, { "4/6", 3 }, { "5/6", 4 }, { "6/6", 5 } },
-            //    TextRenderer = Game.FontRenderers["SegoeUI40Outl"]
-            //};
-            //_pageSelector.SelectedIndex = 0;
-            //_pageSelector.SelectionChanged += PageChanged;
-            //if (_pageSelector.SelectedIndex < 0)
-            //{
-            //    _pageSelector.SelectedIndex = 0;
-            //}
-            //_hline = new RectangleShape(this)
-            //{
-            //    Position = new Vector2(210, (int)Game.VirtualScreenHeight - 60),
-            //    Width = (int)Game.VirtualScreenWidth - 210,
-            //    Height = 3,
-            //    BackgroundColors = { Color.White },
-            //    BorderColors = { Color.Transparent },
-            //    BorderRadius = 0,
-            //    BorderThickness = 1,
-            //    Opacity = 0.7f
-            //};
+
             _performance.Text = string.Format("Výkon simulace: {0} her/s",
                 Game.Settings.GameTypeSimulationsPerSecond > 0 ? Game.Settings.GameTypeSimulationsPerSecond.ToString() : "?");
 
@@ -195,28 +160,6 @@ namespace Mariasek.SharedClient
                 _settingsBox.ScrollTo(-_settingsBox.TopicOffsets[index]);
             }
         }
-
-        //void PageChanged(object sender)
-        //{
-        //    var selector = sender as LeftRightSelector;
-
-        //    ShowPage((int)selector.SelectedValue);
-        //}
-
-        //void ShowPage(int pageIndex)
-        //{
-        //    var delta = pageIndex - currentPage;
-        //    var controls = Children.Where(i => i.Group == 1);
-
-        //    if (delta != 0)
-        //    {
-        //        foreach (var control in controls)
-        //        {
-        //            control.Position = new Vector2(control.Position.X, control.Position.Y - delta * pageOffset);
-        //        }
-        //    }
-        //    currentPage = pageIndex;
-        //}
 
         void MenuBtnClick(object sender)
         {

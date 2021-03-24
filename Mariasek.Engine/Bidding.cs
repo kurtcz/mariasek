@@ -181,7 +181,7 @@ namespace Mariasek.Engine
                 _g.DebugString.AppendFormat("Player{0} GetBidsAndDoubles()\n", i + 1);
             
                 var bid = _g.players[i].GetBidsAndDoubles(this);
-
+                bid &= Bids;
                 //pokud se 107 pocita dohromady, tak fleky na sedmu uprav podle fleku na hru / kilo proti
                 if (!_g.Calculate107Separately)
                 {
@@ -227,7 +227,7 @@ namespace Mariasek.Engine
 
             _g.DebugString.AppendFormat("Player{0} GetBidsAndDoubles()\n", player.PlayerIndex + 1);
             var bid = player.GetBidsAndDoubles(this);
-
+            bid &= Bids;
             //pokud se 107 pocita dohromady, tak fleky na sedmu uprav podle fleku na hru / kilo proti
             if (!_g.Calculate107Separately)
             {
@@ -296,7 +296,8 @@ namespace Mariasek.Engine
                 var hand = new List<Card>(_g.players[playerIndex].Hand);
 
                 if (hand.Has7(_g.trump.Value) ||
-                    _g.AllowFakeSeven)
+                    (_g.AllowFakeSeven &&
+                     (PlayerBids[_g.GameStartingPlayerIndex] & Hra.Sedma) == 0))
                 {
                     Bids |= Hra.SedmaProti;
                 }
