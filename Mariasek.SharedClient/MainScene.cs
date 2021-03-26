@@ -2354,6 +2354,8 @@ namespace Mariasek.SharedClient
 
         public Card PlayCard(Renonc validationState)
         {
+            var autoPlay = false;
+
             EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
 			_hand.IsEnabled = false;
@@ -2393,6 +2395,7 @@ namespace Mariasek.SharedClient
                                                                  : g.players[0].Hand.First(i => i == validCards.First()));
                             
                             _hand.AllowDragging();
+                            autoPlay = true;
                             button.TouchUp(new TouchLocation(-1, TouchLocationState.Released, button.Position));
                         }
                         else
@@ -2443,7 +2446,10 @@ namespace Mariasek.SharedClient
             _state = GameState.NotPlaying;
 			RunOnUiThread(() =>
             {
-                this.ClearOperations();
+                if (!autoPlay)
+                {
+                    this.ClearOperations();
+                }
                 _hintBtn.IsEnabled = false;
                 _hand.IsEnabled = false;
                 _hand.ForbidDragging();
@@ -2936,7 +2942,7 @@ namespace Mariasek.SharedClient
                 }
                 Game.Money.Add(results);
                 PopulateResults(results);
-                Task.Run(() =>
+                Task.Run(async () =>
                 {
                     try
                     {
@@ -2985,6 +2991,60 @@ namespace Mariasek.SharedClient
                         catch (Exception ex)
                         {
                             System.Diagnostics.Debug.WriteLine(string.Format("Cannot save history\n{0}", ex.Message));
+                        }
+                        if ((!Game.Settings.ShowRatingOffer.HasValue ||
+                             Game.Settings.ShowRatingOffer.Value) &&
+                            Game.Money.Count >= 500 &&
+                            Game.Money.Count % 100 == 0)
+                        {
+#if __IOS__
+                            var buttonIndex = await MessageBox.Show("Prosba autora:", "Rád bych Vás požádal o ohodnocení Mariášku v AppStore", new[] { "Ano", "Později", "Ne, děkuji" });
+                            if (buttonIndex.HasValue)                                
+                            {
+                                switch(buttonIndex.Value)
+                                {
+                                    case 0:
+                                        Game.Settings.ShowRatingOffer = false;
+                                        Game.SaveGameSettings();
+                                        Game.MenuScene.RatingClicked(this);
+                                        break;
+                                    case 1:
+                                        Game.Settings.ShowRatingOffer = null;
+                                        Game.SaveGameSettings();
+                                        break;
+                                    case 2:
+                                        Game.Settings.ShowRatingOffer = false;
+                                        Game.SaveGameSettings();
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+#else
+                            var buttonIndex = await MessageBox.Show("Prosba autora:", "Rád bych Vás požádal o ohodnocení Mariášku\nna Google Play", new[] { "Ne, děkuji", "Ano", "Později" });
+                            if (buttonIndex.HasValue)
+                            {
+                                switch (buttonIndex.Value)
+                                {
+                                    case 0:
+                                        Game.Settings.ShowRatingOffer = false;
+                                        Game.SaveGameSettings();
+                                        break;
+                                    case 1:
+                                        Game.Settings.ShowRatingOffer = false;
+                                        Game.SaveGameSettings();
+                                        Game.MenuScene.RatingClicked(this);
+                                        break;
+                                    case 2:
+                                        Game.Settings.ShowRatingOffer = null;
+                                        Game.SaveGameSettings();
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+#endif
+
                         }
                     }
                     catch(Exception ex)

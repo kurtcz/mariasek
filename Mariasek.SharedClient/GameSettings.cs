@@ -55,6 +55,8 @@ namespace Mariasek.SharedClient
     public class GameSettings
     {    
         public bool? Default { get; set; }
+        public bool? ShowRatingOffer { get; set; }
+        public bool ShouldSerializeShowRatingOffer() { return ShowRatingOffer.HasValue && !ShowRatingOffer.Value; }
         public bool? AiCheating { get; set; }
         public bool ShouldSerializeAiCheating() { return AiCheating.HasValue && AiCheating.Value; }
         public bool? TestMode { get; set; }

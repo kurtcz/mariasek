@@ -283,7 +283,7 @@ namespace Mariasek.SharedClient
             }
         }
 
-        void RatingClicked(object sender)
+        public void RatingClicked(object sender)
         {
             if (Game.Navigator != null)
             {
