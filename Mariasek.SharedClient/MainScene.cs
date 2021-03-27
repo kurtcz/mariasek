@@ -2354,8 +2354,6 @@ namespace Mariasek.SharedClient
 
         public Card PlayCard(Renonc validationState)
         {
-            var autoPlay = false;
-
             EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
 			_hand.IsEnabled = false;
@@ -2387,16 +2385,16 @@ namespace Mariasek.SharedClient
                                             : new List<Card>(g.players[0].Hand);
                         if ((Game.Settings.AutoPlaySingletonCard &&
                              validCards.Count == 1) ||
-                            (g.players[0].Hand.Count() == 1 &&
-                             Game.Settings.AutoFinish))
+                            (Game.Settings.AutoFinish &&
+                             g.CurrentRound != null &&
+                             g.CurrentRound.number == 10))
                         {
                             var button = _hand.CardButtonForCard(g.players[0].Hand.Count() == 1
                                                                  ? g.players[0].Hand.First()
                                                                  : g.players[0].Hand.First(i => i == validCards.First()));
-                            
+
                             _hand.AllowDragging();
-                            autoPlay = true;
-                            button.TouchUp(new TouchLocation(-1, TouchLocationState.Released, button.Position));
+                            button.TouchUp(new TouchLocation(-1, TouchLocationState.Released, button.Position - Vector2.UnitY * button.MinimalDragDistance));
                         }
                         else
                         {
@@ -2446,10 +2444,7 @@ namespace Mariasek.SharedClient
             _state = GameState.NotPlaying;
 			RunOnUiThread(() =>
             {
-                if (!autoPlay)
-                {
-                    this.ClearOperations();
-                }
+                this.ClearOperations();
                 _hintBtn.IsEnabled = false;
                 _hand.IsEnabled = false;
                 _hand.ForbidDragging();
