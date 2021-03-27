@@ -320,6 +320,11 @@ namespace Mariasek.SharedClient.GameComponents
 			VerticalScrollOffset = _minVerticalScrollOffset;
 		}
 
+        public void ScrollToOffset(int scrollOffset)
+        {
+            VerticalScrollOffset = scrollOffset;
+        }
+
         void HandleTouchDown (object sender, TouchLocation tl)
         {
             _touchDownLocation = tl;
