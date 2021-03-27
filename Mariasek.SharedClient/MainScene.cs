@@ -2394,7 +2394,11 @@ namespace Mariasek.SharedClient
                                                                  : g.players[0].Hand.First(i => i == validCards.First()));
 
                             _hand.AllowDragging();
-                            button.TouchUp(new TouchLocation(-1, TouchLocationState.Released, button.Position - Vector2.UnitY * button.MinimalDragDistance));
+                            button.Wait(200)
+                                  .Invoke(() =>
+                                  {
+                                      button.TouchUp(new TouchLocation(-1, TouchLocationState.Released, button.Position - Vector2.UnitY * button.MinimalDragDistance));
+                                  });
                         }
                         else
                         {

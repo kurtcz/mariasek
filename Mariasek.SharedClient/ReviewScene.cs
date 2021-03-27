@@ -145,7 +145,6 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth - (int)_origPosition.X,
                 Height = (int)Game.VirtualScreenHeight - 65,
                 ZIndex = 80,
-                BackgroundColor = Color.TransparentBlack,
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
                 FontScaleFactor = 0.9f
