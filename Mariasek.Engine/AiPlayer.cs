@@ -2805,6 +2805,7 @@ namespace Mariasek.Engine
                     DebugInfo.TotalRuleCount = _gameSimulations;
                 }
                 var avgPointsWon = 90 - _avgBasicPointsLost + kqScore;
+                DebugInfo.AvgSimulatedPointsWon = (int)avgPointsWon;
                 if (Settings.CanPlayGameType[Hra.Sedma] &&
                     ((_g.AllowFakeSeven &&
                       !Hand.Has7(_trump.Value) &&
