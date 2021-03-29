@@ -2949,8 +2949,7 @@ namespace Mariasek.Engine
                             //(musi existovat barva, kterou neznam a muj spoluhrac v ni doufejme ma vyssi karty nez akter)
                             if (((_gameType & Hra.Kilo) != 0 ||
                                  myInitialHand.CardCount(_trump) <= 1 ||
-                                 (myInitialHand.CardCount(_trump) <= 3 &&
-                                  hands[MyIndex].CardCount(_trump) <= 2 &&
+                                 (myInitialHand.CardCount(_trump) <= 2 &&
                                   hands[MyIndex].Where(i => i.Suit != _trump).ToList()
                                                 .CardCount(Hodnota.Desitka) +
                                   hands[MyIndex].Where(i => i.Suit != _trump).ToList()
@@ -4424,13 +4423,16 @@ namespace Mariasek.Engine
                         {
                             return null;
                         }
+                        //nehraj pokud ma akter jiste dalsi male karty v barve a muzes hrat i neco jineho
                         var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Desitka &&
                                                                                     i.Suit != _trump &&
                                                                                     _probabilities.SuitHigherThanCardProbability(player3, c1, RoundNumber) == 0 &&
                                                                                     (c1.Suit == _trump ||
-                                                                                     _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0))
+                                                                                     _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
+                                                                                    !(_probabilities.CertainCards(player3).Any(j => j.Suit == i.Suit &&
+                                                                                               j.Value < i.Value) ||
+                                                                                      _probabilities.PotentialCards(player3).CardCount(i.Suit) > 2))
                                                                         .ToList();
-
                         if (!cardsToPlay.Any())
                         {
                             cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Desitka &&
