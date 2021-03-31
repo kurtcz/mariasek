@@ -112,7 +112,10 @@ namespace Mariasek.Engine
                 return Renonc.HrajSvrska;
             }
             else if (trump.HasValue &&
-                     (gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
+                     (((gameType & Hra.Sedma) != 0 &&
+                       teamMateIndex == -1) ||
+                      ((gameType & Hra.SedmaProti) != 0 &&
+                       teamMateIndex != -1)) &&
                      c.Value == Hodnota.Sedma &&
                      c.Suit == trump.Value &&
                      ((isFirstPlayer && hand.Count() > 1) ||    //pokud zacinam kolo musim hrat trumfovou sedmu jako posledni kartu v ruce
