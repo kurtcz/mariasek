@@ -553,8 +553,19 @@ namespace Mariasek.SharedClient
 					Settings = (GameSettings)xml.Deserialize(fs);
 				}
 				SettingsLoaded = true;
-			}
-			catch (Exception e)
+                //docasny kod pro iOS: ignoruj stare nastaveni ShowRatingOffer
+#if _IOS_
+                var creationTime = new FileInfo(_settingsFilePath).CreationTime;
+                var thresholdTime = new DateTime(2021,4,4);
+
+                if (creationTime < thresholdTime)
+                {
+                    Settings.ShowRatingOffer = null;
+                    SaveGameSettings();
+                }
+#endif
+            }
+            catch (Exception e)
 			{
 				System.Diagnostics.Debug.WriteLine(string.Format("Cannot load settings\n{0}", e.Message));
                 Settings = new GameSettings();

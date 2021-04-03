@@ -3005,15 +3005,24 @@ namespace Mariasek.SharedClient
                                     case 0:
                                         Game.Settings.ShowRatingOffer = false;
                                         Game.SaveGameSettings();
-                                        Game.MenuScene.RatingClicked(this);
+                                        this.Invoke(() =>
+                                        {
+                                            Game.MenuScene.RatingClicked(this);
+                                        });
                                         break;
                                     case 1:
                                         Game.Settings.ShowRatingOffer = null;
-                                        Game.SaveGameSettings();
+                                        this.Invoke(() =>
+                                        {
+                                            Game.MenuScene.RatingClicked(this);
+                                        });
                                         break;
                                     case 2:
                                         Game.Settings.ShowRatingOffer = false;
-                                        Game.SaveGameSettings();
+                                        this.Invoke(() =>
+                                        {
+                                            Game.MenuScene.RatingClicked(this);
+                                        });
                                         break;
                                     default:
                                         break;

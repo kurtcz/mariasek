@@ -48,8 +48,8 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>CFBundleVersion</key>
-	<string>186</string>
+	<string>188</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.5.186</string>
+	<string>1.5.188</string>
 </dict>
 </plist>
