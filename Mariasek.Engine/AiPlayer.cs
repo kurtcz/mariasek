@@ -3012,7 +3012,9 @@ namespace Mariasek.Engine
                 //trham trumfovy hlas
                 //nebo ho netrham a mam aspon hlas a nehrozi kilo proti
                 //nebo to vypada, ze muzu uhrajat vic nez souperi a nehrozi kilo proti
-                ((TeamMateIndex == -1 && 
+                ((TeamMateIndex == -1 &&
+                  (Settings.SafetyHundredThreshold == 0 ||
+                   _maxMoneyLost >= -Settings.SafetyHundredThreshold) && //nedavej si re pokud v nejake simulaci vysla vysoka prohra
                   (((Hand.HasK(_g.trump.Value) ||
                      Hand.HasQ(_g.trump.Value) ||
                      kqScore >= 40) &&
