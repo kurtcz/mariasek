@@ -418,7 +418,7 @@ namespace Mariasek.SharedClient
             {
                 //skutecna obrazovka ma pomery sran vice sirokouhle nez virtualni
                 //horizontalni pomer upravime podle vertikalniho, obraz horizontalne posuneme na stred (vzniknou okraje vlevo a vpravo)
-                translation = new Vector3((width - VirtualScreenWidth * scaleY) / 2f - ScreenManager.Padding.Right, ScreenManager.Padding.Top, 0);
+                translation = new Vector3((width - VirtualScreenWidth * scaleY) / 2f - ScreenManager.Padding.Right + ScreenManager.Padding.Left, ScreenManager.Padding.Top, 0);
                 scale = new Vector3(scaleY, scaleY, 1.0f);
                 RealScreenGeometry = ScreenGeometry.Wide;
             }
