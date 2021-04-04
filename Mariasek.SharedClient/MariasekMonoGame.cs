@@ -553,17 +553,6 @@ namespace Mariasek.SharedClient
 					Settings = (GameSettings)xml.Deserialize(fs);
 				}
 				SettingsLoaded = true;
-                //docasny kod pro iOS: ignoruj stare nastaveni ShowRatingOffer
-#if _IOS_
-                var writeTime = new FileInfo(_settingsFilePath).LastWriteTime;
-                var thresholdTime = new DateTime(2021, 4, 4, 12, 0, 0);
-
-                if (writeTime < thresholdTime)
-                {
-                    Settings.ShowRatingOffer = null;
-                    SaveGameSettings();
-                }
-#endif
             }
             catch (Exception e)
 			{
