@@ -5067,6 +5067,7 @@ namespace Mariasek.Engine
                                                                                                     .All(j =>j.Value <= i.Value)))
                                                                         .ToList();
                             if (cardsToPlay.HasSuit(_trump) ||
+                                cardsToPlay.All(i => i.Suit != c1.Suit) ||
                                 _probabilities.SuitHigherThanCardProbability(TeamMateIndex, c1, RoundNumber) >= 1 - RiskFactor ||
                                 (_probabilities.SuitProbability(TeamMateIndex, c1.Suit, RoundNumber) == 0 &&
                                  _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) >= 1 - RiskFactor))
@@ -5085,6 +5086,7 @@ namespace Mariasek.Engine
                                                                                                 .All(j => j.Value <= i.Value)))
                                                                         .ToList();
                         if (cardsToPlay.HasSuit(_trump) ||
+                            cardsToPlay.All(i => i.Suit != c1.Suit) ||
                             _probabilities.SuitHigherThanCardProbability(TeamMateIndex, c1, RoundNumber) >= 1 - RiskFactor ||
                             (_probabilities.SuitProbability(TeamMateIndex, c1.Suit, RoundNumber) == 0 &&
                              _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) >= 1 - RiskFactor))
@@ -5113,6 +5115,7 @@ namespace Mariasek.Engine
                                                                     .ToList();
 
                     if (cardsToPlay.HasSuit(_trump) ||
+                        cardsToPlay.All(i => i.Suit != c1.Suit) ||
                         (TeamMateIndex == player3 &&
                          (_probabilities.SuitHigherThanCardProbability(TeamMateIndex, c1, RoundNumber) >= 1 - RiskFactor ||
                           (_probabilities.SuitProbability(TeamMateIndex, c1.Suit, RoundNumber) == 0 &&
@@ -5126,6 +5129,10 @@ namespace Mariasek.Engine
                     }
                     else
                     {
+                        if (cardsToPlay.Any(i => i.Value < Hodnota.Desitka))
+                        {
+                            cardsToPlay = cardsToPlay.Where(i => i.Value < Hodnota.Desitka).ToList();
+                        }
                         return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
                     }
                 }
@@ -5714,6 +5721,7 @@ namespace Mariasek.Engine
                                                                                                     .All(j => j.Value <= i.Value)))
                                                                             .ToList();
                         if (cardsToPlay.HasSuit(_trump) ||
+                            cardsToPlay.All(i => i.Suit != c1.Suit) ||
                             (TeamMateIndex == player1 && c1.IsHigherThan(c2, _trump)) ||
                             (TeamMateIndex == player2 && c1.IsLowerThan(c2, _trump)))
                         {
@@ -5721,11 +5729,16 @@ namespace Mariasek.Engine
                         }
                         else
                         {
+                            if (cardsToPlay.Any(i => i.Value < Hodnota.Desitka))
+                            {
+                                cardsToPlay = cardsToPlay.Where(i => i.Value < Hodnota.Desitka).ToList();
+                            }
                             return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
                         }
                     }
 
                     if (cardsToPlay.HasSuit(_trump) ||
+                        cardsToPlay.All(i => i.Suit != c1.Suit) ||
                         (TeamMateIndex == player1 && c1.IsHigherThan(c2, _trump)) ||
                         (TeamMateIndex == player2 && c1.IsLowerThan(c2, _trump)))
                     {
@@ -5733,6 +5746,10 @@ namespace Mariasek.Engine
                     }
                     else
                     {
+                        if (cardsToPlay.Any(i => i.Value < Hodnota.Desitka))
+                        {
+                            cardsToPlay = cardsToPlay.Where(i => i.Value < Hodnota.Desitka).ToList();
+                        }
                         return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
                     }
                 }
@@ -5797,6 +5814,7 @@ namespace Mariasek.Engine
                             if (cardsToPlay.Any())
                             {
                                 if (cardsToPlay.HasSuit(_trump) ||
+                                    cardsToPlay.All(i => i.Suit != c1.Suit) ||
                                     (TeamMateIndex == player1 && c1.IsHigherThan(c2, _trump)) ||
                                     (TeamMateIndex == player2 && c1.IsLowerThan(c2, _trump)))
                                 {
@@ -5804,6 +5822,10 @@ namespace Mariasek.Engine
                                 }
                                 else
                                 {
+                                    if (cardsToPlay.Any(i => i.Value < Hodnota.Desitka))
+                                    {
+                                        cardsToPlay = cardsToPlay.Where(i => i.Value < Hodnota.Desitka).ToList();
+                                    }
                                     return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
                                 }
                             }

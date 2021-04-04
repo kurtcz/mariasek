@@ -2998,7 +2998,7 @@ namespace Mariasek.Engine
                                                         ((Hand.HasX(b) && Hand.CardCount(b) >= 2) ? 10 : 0))
                                         : 0;
             var totalHoles = GetTotalHoles();
-            var handSuits = Hand.Select(i => i.Suit).Distinct().Count();
+            var handSuits = Hand.SuitCount();
            
             if ((bidding.Bids & Hra.Hra) != 0 &&                //pokud byla zvolena hra (nebo hra a sedma]
                 Settings.CanPlayGameType[Hra.Hra] &&
@@ -3128,7 +3128,7 @@ namespace Mariasek.Engine
                       !Is100AgainstPossible(130)) ||
                      ((Hand.HasA(_g.trump.Value) ||
                        Hand.HasX(_g.trump.Value)) &&           //nebo trumfove A nebo X
-                      Hand.CardCount(_g.trump.Value) >= 4 &&   //a aspon 4 trumfy
+                      Hand.CardCount(_g.trump.Value) >= 3 &&   //a aspon 3 trumfy
                       estimatedFinalBasicScore >= 50 &&
                       axCount >= 4 &&
                       !Is100AgainstPossible(130)) ||
