@@ -384,7 +384,7 @@ namespace Mariasek.SharedClient
         }
 
         public void SetupScaleMatrices()
-        {   
+        {
             var width = Math.Max(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             var height = Math.Min(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             var scaleX = (float)(width - ScreenManager.Padding.Left - ScreenManager.Padding.Right) / (float)VirtualScreenWidth;
@@ -410,7 +410,7 @@ namespace Mariasek.SharedClient
             {
                 //skutecna obrazovka ma pomery sran mene sirokouhle nez virtualni
                 //vertikalni pomer upravime podle horizontalniho, obraz vertikalne posuneme na stred (vzniknou okraje nahore a dole)
-                translation = new Vector3(ScreenManager.Padding.Left, (height - VirtualScreenHeight * scaleX) / 2f - ScreenManager.Padding.Bottom, 0);
+                translation = new Vector3(ScreenManager.Padding.Left, (height - VirtualScreenHeight * scaleX) / 2f - ScreenManager.Padding.Bottom + ScreenManager.Padding.Top, 0);
                 scale = new Vector3(scaleX, scaleX, 1.0f);
                 RealScreenGeometry = ScreenGeometry.Narrow;
             }
