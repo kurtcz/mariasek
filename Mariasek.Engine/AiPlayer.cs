@@ -1185,7 +1185,7 @@ namespace Mariasek.Engine
                     try
                     {
                         Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, Settings.SimulationsPerGameType), options, (hh, loopState) =>
-                        //foreach(var hh in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, Settings.SimulationsPerGameType))
+                        //foreach (var hh in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, Settings.SimulationsPerGameType))
                         {
                             ThrowIfCancellationRequested();
                             try
