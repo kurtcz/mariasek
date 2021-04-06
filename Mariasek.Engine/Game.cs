@@ -1894,10 +1894,10 @@ namespace Mariasek.Engine
                     var c1 = AbstractPlayer.ValidCards(hands[player1], trump, gt, players[player1].TeamMateIndex)
                                            .Sort(SortMode.Descending, (GameType & (Hra.Betl | Hra.Durch)) != 0, firstSuit, lastSuit)
                                            .First();
-                    var c2 = AbstractPlayer.ValidCards(hands[player2], trump, gt, players[player2].TeamMateIndex, c1)
+                    var c2 = AbstractPlayer.ValidCards(hands[player2], trump, GameType, players[player2].TeamMateIndex, c1)
                                            .OrderBy(j => j.Value)
                                            .First();
-                    var c3 = AbstractPlayer.ValidCards(hands[player3], trump, gt, players[player3].TeamMateIndex, c1, c2)
+                    var c3 = AbstractPlayer.ValidCards(hands[player3], trump, GameType, players[player3].TeamMateIndex, c1, c2)
                                            .OrderBy(j => j.Value)
                                            .First();
 

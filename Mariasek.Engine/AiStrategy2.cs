@@ -2305,7 +2305,7 @@ namespace Mariasek.Engine
                                                                             ((_probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor ||
                                                                               _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&
                                                                              (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor ||
-                                                                              _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0))
+                                                                              _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0))
                                                                           //                                                             (myInitialHand.CardCount(i.Suit) <= 2 ||
                                                                           //                                                              (myInitialHand.CardCount(i.Suit) <= 3 &&
                                                                           //                                                               myInitialHand.CardCount(_trump) <= 3) ||
