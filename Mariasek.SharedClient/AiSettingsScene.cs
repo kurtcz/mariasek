@@ -24,6 +24,7 @@ namespace Mariasek.SharedClient
         private Label _riskFactorAgainstSeven;
         private Label _solitaryXThreshold;
         private Label _solitaryXThresholdDefense;
+        private Label _safetyGameThreshold;
         private Label _safetyHundredThreshold;
         private Label _safetyBetlThreshold;
         private RectangleShape _hline;
@@ -40,6 +41,7 @@ namespace Mariasek.SharedClient
         private LeftRightSelector _riskFactorAgainstSevenSelector;
         private LeftRightSelector _solitaryXSelector;
         private LeftRightSelector _solitaryXDefenseSelector;
+        private LeftRightSelector _safetyGameSelector;
         private LeftRightSelector _safetyHundredSelector;
         private LeftRightSelector _safetyBetlSelector;
         private LineChart _chart;
@@ -370,6 +372,29 @@ namespace Mariasek.SharedClient
                 FontScaleFactor = 0.9f
             };
 
+            _safetyGameThreshold = new Label(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 - 175),
+                Width = 300,
+                Height = 50,
+                Text = "Max. riziko ztráty",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle
+            };
+            _safetyGameSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 - 175),
+                Width = (int)Game.VirtualScreenWidth / 2 - 190,
+                Items = new SelectorItems() { { "Žádné", 0 }, { "50x základ", 50 }, { "60x základ", 60 },
+                                              { "70x základ", 70 }, { "80x základ", 80 }, { "90x základ", 90 } }
+            };
+            _safetyGameSelector.SelectedIndex = 0;
+            _safetyGameSelector.SelectionChanged += SafetyGameChanged;
+            if (_safetyGameSelector.SelectedIndex < 0)
+            {
+                _safetyGameSelector.SelectedIndex = 0;
+            }
+
             _safetyHundredThreshold = new Label(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 - 175),
@@ -571,6 +596,16 @@ namespace Mariasek.SharedClient
                 default:
                     HideGamePlayControls();
                     ShowBiddingControls();
+                    if ((Hra)_gameTypeSelector.SelectedValue == Hra.Hra)
+                    {
+                        _safetyGameSelector.Show();
+                        _safetyGameThreshold.Show();
+                    }
+                    else
+                    {
+                        _safetyGameSelector.Hide();
+                        _safetyGameThreshold.Hide();
+                    }
                     if ((Hra)_gameTypeSelector.SelectedValue == Hra.Kilo)
                     {
                         _safetyHundredSelector.Show();
@@ -705,6 +740,7 @@ namespace Mariasek.SharedClient
                 _threshold2Selector.SelectedIndex = _threshold2Selector.Items.FindIndex(thresholds[2]);
                 _threshold3Selector.SelectedIndex = _threshold3Selector.Items.FindIndex(thresholds[3]);
                 _firstMinMaxRoundSelector.SelectedIndex = _firstMinMaxRoundSelector.Items.FindIndex(Game.Settings.FirstMinMaxRound);
+                _safetyGameSelector.SelectedIndex = _safetyGameSelector.Items.FindIndex(Game.Settings.SafetyGameThreshold);
                 _safetyHundredSelector.SelectedIndex = _safetyHundredSelector.Items.FindIndex(Game.Settings.SafetyHundredThreshold);
                 _safetyBetlSelector.SelectedIndex = _safetyBetlSelector.Items.FindIndex(Game.Settings.SafetyBetlThreshold);
                 _riskFactorSelector.SelectedIndex = _riskFactorSelector.Items.FindIndex(Game.Settings.RiskFactor);
@@ -729,6 +765,17 @@ namespace Mariasek.SharedClient
 
             var gt = (Hra)_gameTypeSelector.SelectedValue;
             _note.Text = _notes.ContainsKey(gt) ? _notes[gt] : _defaultNote;
+            if (_gameTypeSelector.IsVisible &&
+                (Hra)_gameTypeSelector.SelectedValue == Hra.Hra)
+            {
+                _safetyGameThreshold.Show();
+                _safetyGameSelector.Show();
+            }
+            else
+            {
+                _safetyGameThreshold.Hide();
+                _safetyGameSelector.Hide();
+            }
             if (_gameTypeSelector.IsVisible &&
                 (Hra)_gameTypeSelector.SelectedValue == Hra.Kilo)
             {
@@ -764,6 +811,8 @@ namespace Mariasek.SharedClient
                 _firstMinMaxRoundSelector.SelectedIndex == -1 ||
                 _riskFactorSelector.SelectedIndex == -1 ||
                 _riskFactorAgainstSevenSelector.SelectedIndex == -1 ||
+                _safetyGameSelector.SelectedIndex == -1 ||
+                _safetyHundredSelector.SelectedIndex == -1 ||
                 _safetyBetlSelector.SelectedIndex == -1 ||
                 _solitaryXSelector.SelectedIndex == -1 ||
                 _solitaryXDefenseSelector.SelectedIndex == -1)
@@ -783,6 +832,7 @@ namespace Mariasek.SharedClient
             Game.Settings.RiskFactorSevenDefense = (float)_riskFactorAgainstSevenSelector.SelectedValue;
             Game.Settings.SolitaryXThreshold = (float)_solitaryXSelector.SelectedValue;
             Game.Settings.SolitaryXThresholdDefense = (float)_solitaryXDefenseSelector.SelectedValue;
+            Game.Settings.SafetyGameThreshold = (int)_safetyGameSelector.SelectedValue;
             Game.Settings.SafetyHundredThreshold = (int)_safetyHundredSelector.SelectedValue;
             Game.Settings.SafetyBetlThreshold = (int)_safetyBetlSelector.SelectedValue;
         }
@@ -907,6 +957,15 @@ namespace Mariasek.SharedClient
 		}
 
         public void RiskFactorAgainstSevenChanged(object sender)
+        {
+            if (!_updating)
+            {
+                _settingsChanged = true;
+                UpdateAiSettings();
+            }
+        }
+
+        public void SafetyGameChanged(object sender)
         {
             if (!_updating)
             {

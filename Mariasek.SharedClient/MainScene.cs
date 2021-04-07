@@ -284,6 +284,11 @@ namespace Mariasek.SharedClient
                 Name = "SolitaryXThresholdDefense",
                 Value = Game.Settings.SolitaryXThresholdDefense.ToString(CultureInfo.InvariantCulture)
             });
+            _aiConfig.Add("SafetyGameThreshold", new Mariasek.Engine.Configuration.ParameterConfigurationElement
+            {
+                Name = "SafetyGameThreshold",
+                Value = Game.Settings.SafetyGameThreshold.ToString(CultureInfo.InvariantCulture)
+            });
             _aiConfig.Add("SafetyHundredThreshold", new Mariasek.Engine.Configuration.ParameterConfigurationElement
             {
                 Name = "SafetyHundredThreshold",

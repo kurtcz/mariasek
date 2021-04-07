@@ -122,6 +122,7 @@ namespace Mariasek.Engine
                 RiskFactorSevenDefense = 0.5f,
                 SolitaryXThreshold = 0.13f,
                 SolitaryXThresholdDefense = 0.5f,
+                SafetyGameThreshold = 80,
                 SafetyHundredThreshold = 80,
                 SafetyBetlThreshold = 64
             };
@@ -182,6 +183,7 @@ namespace Mariasek.Engine
             Settings.RiskFactorSevenDefense = float.Parse(parameters["RiskFactorSevenDefense"].Value, CultureInfo.InvariantCulture);
             Settings.SolitaryXThreshold = float.Parse(parameters["SolitaryXThreshold"].Value, CultureInfo.InvariantCulture);
             Settings.SolitaryXThresholdDefense = float.Parse(parameters["SolitaryXThresholdDefense"].Value, CultureInfo.InvariantCulture);
+            Settings.SafetyGameThreshold = int.Parse(parameters["SafetyGameThreshold"].Value, CultureInfo.InvariantCulture);
             Settings.SafetyHundredThreshold = int.Parse(parameters["SafetyHundredThreshold"].Value, CultureInfo.InvariantCulture);
             Settings.SafetyBetlThreshold = int.Parse(parameters["SafetyBetlThreshold"].Value, CultureInfo.InvariantCulture);
             Settings.MaxDoubleCountForGameType = new Dictionary<Hra, int>();
@@ -3013,8 +3015,8 @@ namespace Mariasek.Engine
                 //nebo ho netrham a mam aspon hlas a nehrozi kilo proti
                 //nebo to vypada, ze muzu uhrajat vic nez souperi a nehrozi kilo proti
                 ((TeamMateIndex == -1 &&
-                  (Settings.SafetyHundredThreshold == 0 ||
-                   _maxMoneyLost >= -Settings.SafetyHundredThreshold) && //nedavej si re pokud v nejake simulaci vysla vysoka prohra
+                  (Settings.SafetyGameThreshold == 0 ||
+                   _maxMoneyLost >= -Settings.SafetyGameThreshold) && //nedavej si re pokud v nejake simulaci vysla vysoka prohra
                   (((Hand.HasK(_g.trump.Value) ||
                      Hand.HasQ(_g.trump.Value) ||
                      kqScore >= 40) &&

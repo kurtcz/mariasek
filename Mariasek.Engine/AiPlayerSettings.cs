@@ -48,6 +48,7 @@ namespace Mariasek.Engine
         public float RiskFactorSevenDefense { get; set; }
         public float SolitaryXThreshold { get; set; }
         public float SolitaryXThresholdDefense { get; set; }
+        public int SafetyGameThreshold { get; set; }
         public int SafetyHundredThreshold { get; set; }
         public int SafetyBetlThreshold { get; set; }
 
