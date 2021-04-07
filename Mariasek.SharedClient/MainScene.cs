@@ -863,11 +863,14 @@ namespace Mariasek.SharedClient
             _review.Hide();
             UpdateControlsPositions();
 
-            LoadHistory();
-            Game.LoadGameSettings(false);
-            SettingsChanged(this, new SettingsChangedEventArgs(){ Settings = Game.Settings });
-            BackgroundTint = Color.DimGray;
-            ClearTable(true);
+            Task.Run(() =>
+            {
+                LoadHistory();
+                Game.LoadGameSettings(false);
+                SettingsChanged(this, new SettingsChangedEventArgs() { Settings = Game.Settings });
+                BackgroundTint = Color.DimGray;
+                ClearTable(true);
+            });
         }
 
         /// <summary>
