@@ -169,6 +169,11 @@ namespace Mariasek.Engine
             return hand.Any(i => i.Value == Hodnota.Sedma && i.Suit == suit);
         }
 
+        public static bool HasSuit(this IEnumerable<Card> hand, Barva suit)
+        {
+            return hand.Any(i => i.Suit == suit);
+        }
+
         public static int CardCount(this IEnumerable<Card> hand, Barva suit)
         {
             return hand.Count(i => i.Suit == suit);

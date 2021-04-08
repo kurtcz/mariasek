@@ -28,6 +28,34 @@ namespace Mariasek.Engine
 
             if (TeamMateIndex != -1 && _rounds != null && _rounds[0] != null)
             {
+                //pokud v 1.kole spoluhrac nepriznal barvu a jeste nejake karty v barve zbyvaji
+                //a zaroven souper muze mit vyssi kartu v barve nez mam ja sam
+                if (hands[MyIndex].HasSuit(_rounds[0].c1.Suit) &&
+                    hands[MyIndex].CardCount(_rounds[0].c1.Suit) < 6 &&
+                    ((_rounds[0].player2.PlayerIndex == TeamMateIndex &&
+                      _rounds[0].c1.Suit != _rounds[0].c2.Suit) ||
+                     (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
+                      _rounds[0].c1.Suit != _rounds[0].c3.Suit)) &&
+                    (_probabilities.PotentialCards(opponent).HasSuit(_rounds[0].c1.Suit) ||     //akter musi mit aspon jednu kartu v barve na ruce (plus 2 mohl dat do talonu)
+                     hands[MyIndex].Any(i => i.Suit == _rounds[0].c1.Suit &&                          //nebo ma nejakou vyssi kartu
+                                             Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                 .Select(h => new Card(_rounds[0].c1.Suit, h))
+                                                 .Where(j => j.BadValue > i.BadValue)
+                                                 .Any(j => _probabilities.CardProbability(opponent, j) > 0))))
+                {
+                    if (_probabilities.PotentialCards(opponent).CardCount(_rounds[0].c1.Suit) > 2)  //nejdrive hraj akterovu barvu (dokud ji jiste ma)
+                    {
+                        preferredSuits.Add(_rounds[0].c1.Suit);
+                    }
+                    else if (_rounds[0].player2.PlayerIndex == TeamMateIndex)                       //a potom barvu kterou kolega odmazaval
+                    {
+                        preferredSuits.Add(_rounds[0].c2.Suit);
+                    }
+                    else
+                    {
+                        preferredSuits.Add(_rounds[0].c3.Suit);
+                    }
+                }
                 if (RoundNumber == 2)
                 {
                     //pokud v 1.kole vsichni priznali barvu ale spoluhrac nesel vejs (a bylo kam jit vejs)
@@ -41,22 +69,6 @@ namespace Mariasek.Engine
                           (_rounds[0].c1.BadValue > _rounds[0].c3.BadValue ||
                            (_rounds[0].c2.BadValue > _rounds[0].c3.BadValue &&
                             _rounds[0].c2.Value != Hodnota.Eso)))) &&
-                        hands[MyIndex].Any(i => i.Suit == _rounds[0].c1.Suit &&
-                                                          Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                              .Select(h => new Card(_rounds[0].c1.Suit, h))
-                                                              .Where(j => j.BadValue > i.BadValue)
-                                                              .Any(j => _probabilities.CardProbability(opponent, j) > 0)))
-                    {
-                        preferredSuits.Add(_rounds[0].c1.Suit);
-                    }
-                    //pokud v 2.kole spoluhrac nepriznal barvu a jeste nejake karty v barve zbyvaji
-                    //a zaroven souper muze mit vyssi kartu v barve nez mam ja sam
-                    if (hands[MyIndex].HasSuit(_rounds[0].c1.Suit) &&
-                        hands[MyIndex].CardCount(_rounds[0].c1.Suit) < 6 &&
-                        ((_rounds[0].player2.PlayerIndex == TeamMateIndex &&
-                          _rounds[0].c1.Suit != _rounds[0].c2.Suit) ||
-                         (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
-                          _rounds[0].c1.Suit != _rounds[0].c3.Suit)) &&
                         hands[MyIndex].Any(i => i.Suit == _rounds[0].c1.Suit &&
                                                           Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                               .Select(h => new Card(_rounds[0].c1.Suit, h))
@@ -117,7 +129,10 @@ namespace Mariasek.Engine
                         playedCards.Add(_rounds[i].c2);
                         playedCards.Add(_rounds[i].c3);
                     }
-                    bannedSuits.Add(_rounds[0].c1.Suit);
+                    if (!preferredSuits.Contains(_rounds[0].c1.Suit))
+                    {
+                        bannedSuits.Add(_rounds[0].c1.Suit);
+                    }
                     bannedSuits = bannedSuits.Distinct().ToList();
                     if (bannedSuits.Count() == Game.NumSuits)
                     {
@@ -202,6 +217,8 @@ namespace Mariasek.Engine
                         }
                     }
                 }
+                preferredSuits = preferredSuits.Distinct().ToList();
+
                 var svrsek = new Card(Barva.Cerveny, Hodnota.Svrsek);
 
                 for (var i = 0; i < RoundNumber - 1; i++)
@@ -329,6 +346,20 @@ namespace Mariasek.Engine
                 yield return new AiRule()
                 {
                     Order = 5,
+                    Description = "Nechat spoluhráče odmazat",
+                    SkipSimulations = true,
+                    ChooseCard1 = () =>
+                    {
+                        var cardsToPlay = hands[MyIndex].Where(i => _probabilities.PotentialCards(opponent).CardCount(i.Suit) > 2 &&
+                                                                    _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) == 0);
+
+                        return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+                    }
+                };
+
+                yield return new AiRule()
+                {
+                    Order = 6,
                     Description = "Hrát nejnižší od esa",
                     SkipSimulations = true,
                     ChooseCard1 = () =>
@@ -371,7 +402,7 @@ namespace Mariasek.Engine
 
                 yield return new AiRule()
                 {
-                    Order = 6,
+                    Order = 7,
                     Description = "Chytit soupeře",
                     SkipSimulations = true,
                     ChooseCard1 = () =>
@@ -399,6 +430,12 @@ namespace Mariasek.Engine
                                                                                                                   j.BadValue > i.BadValue))))
                         {
                             //pokud se muzes zbavit plonka, tak to udelej a toto pravidlo nehraj
+                            return null;
+                        }
+                        if (hands[MyIndex].Any(i => _probabilities.PotentialCards(opponent).CardCount(i.Suit) > 2 &&
+                                                    _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) == 0))
+                        {
+                            //pokud muzes nechat kolegu odmazavat (akter barvu jiste ma), tak pravidlo nehraj
                             return null;
                         }
                         if (TeamMateIndex == player2)//co-
@@ -478,66 +515,66 @@ namespace Mariasek.Engine
                                                                                            .BadValue > j.BadValue)
                                                                         .Count(j => _probabilities.CardProbability(opponent, j) > 0)))
                                                     .Where(i => i.Item2 > 0);
-                        //pokud mam hodne vysokych karet (napr. jako na durcha), tak hrat rovnou nizkou
-                        if (hiCards.Count() > 6 && loCards.Any())
+                        var prefCards = loCards.Where(i => !bannedSuits.Contains(i.Item1.Suit) &&
+                                                           preferredSuits.Contains(i.Item1.Suit));
+
+                        if (prefCards.Any())
                         {
-                            var prefCards = loCards.Where(i => !bannedSuits.Contains(i.Item1.Suit) &&
-                                                               preferredSuits.Contains(i.Item1.Suit));
+                            var prefSuit = prefCards.OrderByDescending(i => i.Item2)
+                                                    .ThenBy(i => i.Item1.BadValue)
+                                                    .Select(i => i.Item1.Suit)
+                                                    .First();
 
-                            if (prefCards.Any())
-                            {
-                                var prefSuit = prefCards.OrderByDescending(i => i.Item2)
-                                                        .ThenBy(i => i.Item1.BadValue)
-                                                        .Select(i => i.Item1.Suit)
-                                                        .First();
-
-                                cardsToPlay = loCards.Where(i => i.Item1.Suit == prefSuit)
-                                                     .Select(i => i.Item1);
-                            }
-                            else
+                            cardsToPlay = loCards.Where(i => i.Item1.Suit == prefSuit)
+                                                 .Select(i => i.Item1);
+                        }
+                        if (!cardsToPlay.Any())
+                        {
+                            //pokud mam hodne vysokych karet (napr. jako na durcha), tak hrat rovnou nizkou
+                            if (hiCards.Count() > 6 && loCards.Any())
                             {
                                 //ber jen barvy kde nemam vysokou kartu
                                 cardsToPlay = loCards.OrderByDescending(i => i.Item2)
-                                                     .ThenBy(i => i.Item1.BadValue)
-                                                     .Select(i => i.Item1)
-                                                     .Take(1);
+                                                        .ThenBy(i => i.Item1.BadValue)
+                                                        .Select(i => i.Item1)
+                                                        .Take(1);
                             }
-                        }
-                        else if (RoundNumber > 2) //nizke karty nehraj zbytecne moc brzo
-                        {
-                            //hraj jen barvy kde nemam vysokou kartu (nejdriv hoch a az pak nieder)
-                            //uprednostnuj barvu, ve ktere uz jsme hrali hoch
-                            loCards = hands[MyIndex].Where(i => !bannedSuits.Contains(i.Suit) &&
-                                                                i.BadValue < spodek.BadValue &&
-                                                                (!hiCards.Any(j => j.Suit == i.Suit) ||
-                                                                 hochCards.Any(j => j.Suit == i.Suit)))
-                                                    .Select(i => new Tuple<Card, int>(i,
-                                                                    Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                        .Select(h => new Card(i.Suit, h))
-                                                                        .Where(j => j.BadValue > i.BadValue)
-                                                                        .Count(j => _probabilities.CardProbability(opponent, j) > 0)))
-                                                    .Where(i => i.Item2 > 0);
-
-                            cardsToPlay = loCards.Where(i => preferredSuits.Contains(i.Item1.Suit))
-                                                 .Select(i => i.Item1)
-                                                 .OrderBy(i => i.BadValue)
-                                                 .Take(1);
-                            if (!cardsToPlay.Any())
+                            else if (RoundNumber > 2) //nizke karty nehraj zbytecne moc brzo
                             {
-                                //if (opponentsRoundOneSuit.HasValue &&
-                                //    loCards.Any(i => i.Item1.Suit != opponentsRoundOneSuit.Value))
-                                //{
-                                //    loCards = loCards.Where(i => i.Item1.Suit != opponentsRoundOneSuit.Value);
-                                //}
+                                //hraj jen barvy kde nemam vysokou kartu (nejdriv hoch a az pak nieder)
+                                //uprednostnuj barvu, ve ktere uz jsme hrali hoch
+                                loCards = hands[MyIndex].Where(i => !bannedSuits.Contains(i.Suit) &&
+                                                                    i.BadValue < spodek.BadValue &&
+                                                                    (!hiCards.Any(j => j.Suit == i.Suit) ||
+                                                                     hochCards.Any(j => j.Suit == i.Suit)))
+                                                        .Select(i => new Tuple<Card, int>(i,
+                                                                        Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                            .Select(h => new Card(i.Suit, h))
+                                                                            .Where(j => j.BadValue > i.BadValue)
+                                                                            .Count(j => _probabilities.CardProbability(opponent, j) > 0)))
+                                                        .Where(i => i.Item2 > 0);
 
-                                cardsToPlay = loCards.OrderBy(i => hochCards.Any(j => j.Suit == i.Item1.Suit)
-                                                                    ? 0
-                                                                    : 1)
-                                                     .ThenByDescending(i => i.Item2)
-                                                     .ThenBy(i => i.Item1.BadValue)
-                                                     .ThenBy(i => _probabilities.SuitProbability(opponent, i.Item1.Suit, RoundNumber))
+                                cardsToPlay = loCards.Where(i => preferredSuits.Contains(i.Item1.Suit))
                                                      .Select(i => i.Item1)
+                                                     .OrderBy(i => i.BadValue)
                                                      .Take(1);
+                                if (!cardsToPlay.Any())
+                                {
+                                    //if (opponentsRoundOneSuit.HasValue &&
+                                    //    loCards.Any(i => i.Item1.Suit != opponentsRoundOneSuit.Value))
+                                    //{
+                                    //    loCards = loCards.Where(i => i.Item1.Suit != opponentsRoundOneSuit.Value);
+                                    //}
+
+                                    cardsToPlay = loCards.OrderBy(i => hochCards.Any(j => j.Suit == i.Item1.Suit)
+                                                                        ? 0
+                                                                        : 1)
+                                                         .ThenByDescending(i => i.Item2)
+                                                         .ThenBy(i => i.Item1.BadValue)
+                                                         .ThenBy(i => _probabilities.SuitProbability(opponent, i.Item1.Suit, RoundNumber))
+                                                         .Select(i => i.Item1)
+                                                         .Take(1);
+                                }
                             }
                         }
 
@@ -579,9 +616,15 @@ namespace Mariasek.Engine
                     SkipSimulations = true,
                     ChooseCard1 = () =>
                     {
+                        //nejprv zkus hrat barvu, kterou akter jiste ma, ale kolega ne, aby si mohl odmazat
+                        var cardsToPlay = Enumerable.Empty<Card>();
+
+                        if (cardsToPlay.Any())
+                        {
+                            return cardsToPlay.OrderByDescending(i => i.BadValue).First();
+                        }
                         //napr. A a 8
                         //vysoka bude A nebo K, musim k ni mit nizkou a co nejvetsi diru mezi nima
-                        var cardsToPlay = Enumerable.Empty<Card>();
                         var svrsek = new Card(Barva.Cerveny, Hodnota.Svrsek);
                         var hiCards = hands[MyIndex].Where(i => i.BadValue > svrsek.BadValue);
                         var loCards = hands[MyIndex].Where(i => i.BadValue <= svrsek.BadValue &&

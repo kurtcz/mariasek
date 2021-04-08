@@ -3099,6 +3099,10 @@ namespace Mariasek.Engine
                       (estimatedFinalBasicScore >= 20 ||        //a aspon 20 nebo 10+20 bodu na ruce
                        kqScore >= 20)) ||                     //nebo
                      (kqMaxOpponentScore == 0 ||                //vidim do vsech hlasek
+                      kqScore >= 60 ||
+                      (kqScore >= 40 &&
+                       kqMaxOpponentScore <= 20 &&
+                       estimatedFinalBasicScore >= 20) ||
                       (estimatedFinalBasicScore >= 10 &&        //nebo vidim do tri hlasek a mam aspon 10 bodu
                        kqMaxOpponentScore <= 20)) ||            //nebo
                      ((Hand.HasK(_g.trump.Value) ||             //pouze trhak a 40 bodu v hlasech na ruce

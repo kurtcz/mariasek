@@ -3706,28 +3706,33 @@ namespace Mariasek.Engine
                                                                  .Where(h => h > i.Value)
                                                                  .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0 &&
                                                                            _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0)).ToList();
+                    var opponentIndex = Enumerable.Range(0, Game.NumPlayers).First(i => i != MyIndex && i != TeamMateIndex);
 
                     //pokud mas nevyssi trumfy a nemas co mazat, hraj ho
                     if (TeamMateIndex != -1 &&
                         topCards.HasSuit(_trump) &&
-                        (hands[MyIndex].Where(i => i.Suit != _trump)
-                                       .All(i => i.Value < Hodnota.Desitka) ||
-                         hands[MyIndex].Where(i => i.Suit != _trump).SuitCount() == 3) &&
                         _probabilities.PotentialCards(TeamMateIndex).Any(i => i.Value >= Hodnota.Desitka) &&
-                        (hands[MyIndex].Where(i => i.Suit != _trump)
-                                       .All(i => topCards.HasSuit(i.Suit)) ||
-                         _rounds == null || //pokud v minulych kolech kolega na tvuj nejvyssi trumf nenamazal, tak pravidlo nehraj (kolega nema co mazat). Trumfy setri na pozdeji
-                         !_rounds.Any(r => r?.c3 != null &&
-                                           r.player1.PlayerIndex == MyIndex &&
-                                           r.c1.Suit == _trump &&
-                                           !((r.player2.PlayerIndex == TeamMateIndex &&
-                                              r.c2.Suit != _trump &&
-                                              r.c2.Value < Hodnota.Desitka) ||
-                                             (r.player3.PlayerIndex == TeamMateIndex &&
-                                              r.c3.Suit != _trump &&
-                                              r.c3.Value < Hodnota.Desitka)) &&
-                                           r.roundWinner.PlayerIndex == MyIndex))) //&&
-                        //_probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) )
+                        (Enum.GetValues(typeof(Barva)).Cast<Barva>()    //pokud maji akter a kolega barvu kterou neznam, je sance, ze kolega namaze od 3. barvy
+                             .Where(b => b != _trump)
+                             .Any(b => !hands[MyIndex].HasSuit(b) &&
+                                       _probabilities.PotentialCards(opponentIndex).HasSuit(b) &&
+                                       _probabilities.PotentialCards(TeamMateIndex).HasSuit(b)) ||
+                         ((hands[MyIndex].Where(i => i.Suit != _trump)
+                                         .All(i => i.Value < Hodnota.Desitka) ||
+                           hands[MyIndex].Where(i => i.Suit != _trump).SuitCount() == 3) &&
+                          (hands[MyIndex].Where(i => i.Suit != _trump)
+                                         .All(i => topCards.HasSuit(i.Suit)) ||
+                           _rounds == null || //pokud v minulych kolech kolega na tvuj nejvyssi trumf nenamazal, tak pravidlo nehraj (kolega nema co mazat). Trumfy setri na pozdeji
+                           !_rounds.Any(r => r?.c3 != null &&
+                                             r.player1.PlayerIndex == MyIndex &&
+                                             r.c1.Suit == _trump &&
+                                             !((r.player2.PlayerIndex == TeamMateIndex &&
+                                                r.c2.Suit != _trump &&
+                                                r.c2.Value < Hodnota.Desitka) ||
+                                               (r.player3.PlayerIndex == TeamMateIndex &&
+                                                r.c3.Suit != _trump &&
+                                                r.c3.Value < Hodnota.Desitka)) &&
+                                             r.roundWinner.PlayerIndex == MyIndex)))))
                     {
                         return ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump).OrderByDescending(i => i.Suit).FirstOrDefault();
                     }
