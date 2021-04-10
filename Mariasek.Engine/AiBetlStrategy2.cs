@@ -310,18 +310,28 @@ namespace Mariasek.Engine
                     SkipSimulations = true,
                     ChooseCard1 = () =>
                     {
-                        var cardsToPlay = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                        .Select(h => new Card(i.Suit, h))
-                                                                        .Where(j => j.BadValue > i.BadValue)
-                                                                        .Any(j => _probabilities.CardProbability(player2, j) > 0 ||
-                                                                                  _probabilities.CardProbability(player3, j) > 0) &&
+                        var hiCards = ValidCards(hands[MyIndex]).Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                .Select(h => new Card(i.Suit, h))
+                                                                                .Where(j => j.BadValue > i.BadValue)
+                                                                                .Any(j => _probabilities.CardProbability(player2, j) > 0 ||
+                                                                                          _probabilities.CardProbability(player3, j) > 0) &&
+                                                                            Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                .Select(h => new Card(i.Suit, h))
+                                                                                .Where(j => j.BadValue < i.BadValue)
+                                                                                .Any(j => _probabilities.CardProbability(player2, j) > 0 ||
+                                                                                          _probabilities.CardProbability(player3, j) > 0))
+                                                                .Select(i => new Tuple<Card, int>(i,
                                                                     Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                         .Select(h => new Card(i.Suit, h))
                                                                         .Where(j => j.BadValue < i.BadValue)
-                                                                        .Any(j => _probabilities.CardProbability(player2, j) > 0 ||
-                                                                                  _probabilities.CardProbability(player3, j) > 0));
+                                                                        .Count(j => _probabilities.CardProbability(player2, j) > 0 ||
+                                                                                    _probabilities.CardProbability(player3, j) > 0)));
 
-                        return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+                        var cardsToPlay = hiCards.OrderByDescending(i => i.Item2)
+                                                 .ThenByDescending(i => i.Item1.BadValue)
+                                                 .Select(i => i.Item1);
+
+                        return cardsToPlay.FirstOrDefault();
                     }
                 };
                 yield return new AiRule()

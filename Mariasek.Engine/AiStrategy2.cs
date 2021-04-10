@@ -917,9 +917,13 @@ namespace Mariasek.Engine
                         if (myInitialHand.CardCount(_trump) >= 4 &&
                             lowCards.Any() &&
                             (topCards.Count >= 4 ||
-                             myInitialHand.CardCount(Hodnota.Eso) >= 3) &&
+                             myInitialHand.CardCount(Hodnota.Eso) +
+                             myInitialHand.Count(i => i.Value == Hodnota.Desitka &&
+                                                      myInitialHand.HasA(i.Suit)) >= 3) &&
                             (lowCards.Count <= 4 ||
-                             myInitialHand.CardCount(Hodnota.Eso) >= 3))
+                             myInitialHand.CardCount(Hodnota.Eso) +
+                             myInitialHand.Count(i => i.Value == Hodnota.Desitka &&
+                                                      myInitialHand.HasA(i.Suit)) >= 3))
                         {
                             if ((_gameType & Hra.Kilo) != 0)
                             {

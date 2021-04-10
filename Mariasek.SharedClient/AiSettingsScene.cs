@@ -55,6 +55,7 @@ namespace Mariasek.SharedClient
         private const string _defaultNote2 = "Risk faktor udává ochotu AI mazat a hrát ostrou kartu.";
         private static readonly Dictionary<Hra, string> _notes = new Dictionary<Hra, string>
         {
+            { Hra.Hra, "Prahy udávají jistotu, kterou AI potřebuje aby si dal flek.\nAI si nedá re pokud nevidí do hlasu a hrozí zobrazená prohra." },
             { Hra.Kilo, "AI kilo nevolí pokud na základě simulací\nhrozí zobrazená prohra." },
             { Hra.Betl, "AI používá práh pro Flek když nevolil a hlásí špatnou\nbarvu. AI hraje utíkáčka pokud hrozí zobrazená prohra." },
             { Hra.Durch, "AI používá práh pro Flek když nevolil a hlásí\nšpatnou barvu. AI durch flekuje jen když nejde uhrát." },
@@ -377,7 +378,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth / 2 - 80, Game.VirtualScreenHeight / 2 - 175),
                 Width = 300,
                 Height = 50,
-                Text = "Max. riziko ztráty",
+                Text = "Re: Max. ztráta",
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle
             };
@@ -385,7 +386,7 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 - 175),
                 Width = (int)Game.VirtualScreenWidth / 2 - 190,
-                Items = new SelectorItems() { { "Žádné", 0 }, { "50x základ", 50 }, { "60x základ", 60 },
+                Items = new SelectorItems() { { "Žádná", 0 }, { "50x základ", 50 }, { "60x základ", 60 },
                                               { "70x základ", 70 }, { "80x základ", 80 }, { "90x základ", 90 } }
             };
             _safetyGameSelector.SelectedIndex = 0;
@@ -668,6 +669,8 @@ namespace Mariasek.SharedClient
             _threshold1.Show();
             _threshold2.Show();
             _threshold3.Show();
+            _safetyGameSelector.Show();
+            _safetyGameThreshold.Show();
             _safetyHundredThreshold.Show();
             _safetyHundredSelector.Show();
             _safetyBetlThreshold.Show();
@@ -695,6 +698,8 @@ namespace Mariasek.SharedClient
             _threshold1.Hide();
             _threshold2.Hide();
             _threshold3.Hide();
+            _safetyGameSelector.Hide();
+            _safetyGameThreshold.Hide();
             _safetyHundredThreshold.Hide();
             _safetyHundredSelector.Hide();
             _safetyBetlThreshold.Hide();

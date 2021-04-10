@@ -352,23 +352,23 @@ namespace Mariasek.SharedClient
                                              "marias2",
                                              "marias3",
                                              "revers",
-                                              "logo_hracikarty",
+                                             "logo_hracikarty",
                                              "mariasek_rate"
                                          },
                                          new[]
                                          {
-                                            "watch-tick",
-                                            "on",
-                                            "off",
-                                            "clap",
-                                            "cough",
-                                            "boo",
-                                            "laugh",
-                                            "tavern-ambience-looping"
+                                             "watch-tick",
+                                             "on",
+                                             "off",
+                                             "clap",
+                                             "cough",
+                                             "boo",
+                                             "laugh",
+                                             "tavern-ambience-looping"
                                          },
                                          new[]
                                          {
-                                            "na pankraci"
+                                             "na pankraci"
                                          });
 
             _maxProgress = Assets.TotalCount;
