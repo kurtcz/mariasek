@@ -3236,7 +3236,12 @@ namespace Mariasek.Engine
                     kqScore >= 40)))) ||
                  (TeamMateIndex == -1 &&
                  (Hand.CardCount(_g.trump.Value) >= 6 ||
-                  totalHoles <= 2))) &&
+                  totalHoles <= 2 ||
+                  (Hand.SuitCount() == 2 &&
+                   Hand.CardCount(_g.trump.Value) == 5 &&
+                   Hand.CardCount(Hodnota.Eso) == 2 &&
+                   Hand.Count(i => i.Value >= Hodnota.Kral) >= 4 &&
+                   Hand.Count(i => i.Value >= Hodnota.Spodek) >= 6)))) &&
                 (_sevensBalance / (float)_sevenSimulations >= sevenThreshold))
             {
                 bid |= bidding.Bids & Hra.Sedma;
