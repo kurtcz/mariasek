@@ -292,12 +292,34 @@ namespace Mariasek.Engine
                     SkipSimulations = true,
                     ChooseCard1 = () =>
                     {
+                        var hiCards = ValidCards(hands[MyIndex]).Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                .Select(h => new Card(i.Suit, h))
+                                                                                .Where(j => j.BadValue > i.BadValue)
+                                                                                .Any(j => _probabilities.CardProbability(player2, j) > 0 ||
+                                                                                          _probabilities.CardProbability(player3, j) > 0) &&
+                                                                            Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                .Select(h => new Card(i.Suit, h))
+                                                                                .Where(j => j.BadValue < i.BadValue)
+                                                                                .Any(j => _probabilities.CardProbability(player2, j) > 0 ||
+                                                                                          _probabilities.CardProbability(player3, j) > 0))
+                                                                .Select(i => new Tuple<Card, int>(i,
+                                                                    Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                        .Select(h => new Card(i.Suit, h))
+                                                                        .Where(j => j.BadValue < i.BadValue)
+                                                                        .Count(j => _probabilities.CardProbability(player2, j) > 0 ||
+                                                                                    _probabilities.CardProbability(player3, j) > 0)))
+                                                                .ToList();
                         var cardsToPlay = hands[MyIndex].Where(i => i.Value != Hodnota.Eso &&
                                                                     i.Value != Hodnota.Osma &&
                                                                     i.Value != Hodnota.Sedma &&
                                                                     hands[MyIndex].CardCount(i.Suit) == 1 &&
                                                                     (_probabilities.SuitHigherThanCardProbability(player2, i, RoundNumber, false) > 0 ||
-                                                                     _probabilities.SuitHigherThanCardProbability(player3, i, RoundNumber, false) > 0));
+                                                                     _probabilities.SuitHigherThanCardProbability(player3, i, RoundNumber, false) > 0) &&
+                                                                    hiCards.Any(j => j.Item1 == i) &&   //nehraj plonka pokud jina karta odmaze vic der
+                                                                    i == hiCards.OrderByDescending(j => j.Item2)
+                                                                                .ThenByDescending(j => j.Item1.BadValue)
+                                                                                .Select(j => j.Item1)
+                                                                                .First());
 
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
@@ -330,7 +352,8 @@ namespace Mariasek.Engine
                         var hiCardsPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                                  .ToDictionary(k => k, v => hiCards.Count(i => i.Item1.Suit == v));
                         var cardsToPlay = hiCards.Where(i => hiCardsPerSuit[i.Item1.Suit] == 1)
-                                                 .OrderBy(i => hands[MyIndex].CardCount(i.Item1.Suit))
+                                                 .OrderByDescending(i => i.Item2)
+                                                 .ThenBy(i => hands[MyIndex].CardCount(i.Item1.Suit))
                                                  .ThenByDescending(i => i.Item1.BadValue)
                                                  .Select(i => i.Item1);
 
