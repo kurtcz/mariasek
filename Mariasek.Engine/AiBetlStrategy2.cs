@@ -325,11 +325,21 @@ namespace Mariasek.Engine
                                                                         .Select(h => new Card(i.Suit, h))
                                                                         .Where(j => j.BadValue < i.BadValue)
                                                                         .Count(j => _probabilities.CardProbability(player2, j) > 0 ||
-                                                                                    _probabilities.CardProbability(player3, j) > 0)));
-
-                        var cardsToPlay = hiCards.OrderByDescending(i => i.Item2)
+                                                                                    _probabilities.CardProbability(player3, j) > 0)))
+                                                                .ToList();
+                        var hiCardsPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                 .ToDictionary(k => k, v => hiCards.Count(i => i.Item1.Suit == v));
+                        var cardsToPlay = hiCards.Where(i => hiCardsPerSuit[i.Item1.Suit] == 1)
+                                                 .OrderBy(i => hands[MyIndex].CardCount(i.Item1.Suit))
                                                  .ThenByDescending(i => i.Item1.BadValue)
                                                  .Select(i => i.Item1);
+
+                        if(!cardsToPlay.Any())
+                        {
+                            cardsToPlay = hiCards.OrderByDescending(i => i.Item2)
+                                                 .ThenByDescending(i => i.Item1.BadValue)
+                                                 .Select(i => i.Item1);
+                        }
 
                         return cardsToPlay.FirstOrDefault();
                     }

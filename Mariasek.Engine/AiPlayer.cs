@@ -346,13 +346,20 @@ namespace Mariasek.Engine
             {
                 //pak vezmi karty od barev kde mas 2-3 prostredni karty s 2 dirama
                 var temp = holesByCard.Where(i => !talon.Contains(i.Item1) &&
-                                                      i.Item2 >= 2 &&			    //CardCount
-                                                      i.Item2 <= 3 &&			    //CardCount
-                                                      i.Item4 >= 2)			        //holes
-                                      .OrderByDescending(i => i.Item1.BadValue)
-                                      .Take(2 - talon.Count)
+                                                  i.Item2 >= 2 &&			    //CardCount
+                                                  i.Item2 <= 3 &&			    //CardCount
+                                                  i.Item4 >= 2)			        //holes
                                       .Select(i => i.Item1)                     //Card
-                                      .ToList();
+                                      .ToList();    //
+                temp = holesByCard.Where(i => !talon.Contains(i.Item1) &&
+                                              i.Item2 >= 2 &&               //CardCount
+                                              i.Item2 <= 3 &&               //CardCount
+                                              i.Item4 >= 2)                 //holes
+                                  .OrderByDescending(i => temp.CardCount(i.Item1.Suit))     //snaz se vybrat barvu kde je vic karet kde me muzou chytit
+                                  .ThenByDescending(i => i.Item1.BadValue)
+                                  .Take(2 - talon.Count)
+                                  .Select(i => i.Item1)                     //Card
+                                  .ToList();
                 //pokud mas nejake vyssi plonky, tak pouzij radsi ty
                 if (temp.Count > 1)
                 {
