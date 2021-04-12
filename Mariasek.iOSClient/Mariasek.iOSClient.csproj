@@ -144,11 +144,6 @@
     <Folder Include="Resources\Images.xcassets\LaunchImage.launchimage\" />
   </ItemGroup>
   <ItemGroup>
-    <MonoGameContentReference Include="..\Mariasek.Content\Content.mgcb">
-      <Link>Content\Content.mgcb</Link>
-    </MonoGameContentReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="..\Mariasek.Content\BM2Font.fnt">
       <Link>Content\BM2Font.fnt</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -171,6 +166,11 @@
       <Project>{DA5B6FE8-318A-40E5-805E-D93896B924D0}</Project>
       <Name>Mariasek.Engine</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <MonoGameContentReference Include="..\Mariasek.Content\Content.iOS.mgcb">
+      <Link>Content\Content.iOS.mgcb</Link>
+    </MonoGameContentReference>
   </ItemGroup>
   <Import Project="..\packages\MonoGame.Framework.iOS.3.8.0.1641\build\MonoGame.Framework.iOS.targets" Condition="Exists('..\packages\MonoGame.Framework.iOS.3.8.0.1641\build\MonoGame.Framework.iOS.targets')" />
 </Project>
