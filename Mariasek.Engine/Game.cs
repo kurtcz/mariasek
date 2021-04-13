@@ -30,7 +30,7 @@ namespace Mariasek.Engine
         int DurchValue { get; set; }
     }
 
-    public class Game : IGameTypeValues//: MarshalByRefObject
+    public class Game : IGameTypeValues
     {
 #if !PORTABLE
         private static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
