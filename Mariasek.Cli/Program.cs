@@ -18,7 +18,7 @@ namespace Mariasek.Cli
         public static string _settingsFilePath = Path.Combine(_path, "Mariasek.settings");
 
         private static NumberFormatInfo nfi = CultureInfo.CreateSpecificCulture("cs-CZ").NumberFormat;
-        private static Mariasek.Engine.Configuration.ParameterConfigurationElementCollection _aiConfig;
+        private static AiPlayerSettings _aiSettings;
         private static string programFolder = _path;
         private static string resultFilename;
         private static Game g;
@@ -81,7 +81,7 @@ namespace Mariasek.Cli
                     BetlValue = Settings.BetlValue,
                     DurchValue = Settings.DurchValue,
                     FirstMinMaxRound = Settings.FirstMinMaxRound,
-                    AllowFakeSeven = Game.Settings.AllowFakeSeven,
+                    AllowFakeSeven = Settings.AllowFakeSeven,
                     AllowAXTalon = Settings.AllowAXTalon,
                     AllowTrumpTalon = Settings.AllowTrumpTalon,
                     AllowAIAutoFinish = Settings.AllowAIAutoFinish,
@@ -89,9 +89,9 @@ namespace Mariasek.Cli
                     CurrencyFormat = nfi
                 };
                 g.RegisterPlayers(
-                    new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[0] },
-                    new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[1] },
-                    new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[2] }
+                    new AiPlayer(g, _aiSettings) { Name = Settings.PlayerNames[0] },
+                    new AiPlayer(g, _aiSettings) { Name = Settings.PlayerNames[1] },
+                    new AiPlayer(g, _aiSettings) { Name = Settings.PlayerNames[2] }
                 );
 
                 g.NewGame(gameStartingPlayerIndex: 0, deck: deck, cutDeck: false); //saves the new game as _temp.hra
@@ -147,7 +147,7 @@ namespace Mariasek.Cli
                     BetlValue = Settings.BetlValue,
                     DurchValue = Settings.DurchValue,
                     FirstMinMaxRound = Settings.FirstMinMaxRound,
-                    AllowFakeSeven = Game.Settings.AllowFakeSeven,
+                    AllowFakeSeven = Settings.AllowFakeSeven,
                     AllowAXTalon = Settings.AllowAXTalon,
                     AllowTrumpTalon = Settings.AllowTrumpTalon,
                     AllowAIAutoFinish = Settings.AllowAIAutoFinish,
@@ -155,9 +155,9 @@ namespace Mariasek.Cli
                     CurrencyFormat = nfi
                 };
                 g.RegisterPlayers(
-                    new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[0] },
-                    new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[1] },
-                    new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[2] }
+                    new AiPlayer(g, _aiSettings) { Name = Settings.PlayerNames[0] },
+                    new AiPlayer(g, _aiSettings) { Name = Settings.PlayerNames[1] },
+                    new AiPlayer(g, _aiSettings) { Name = Settings.PlayerNames[2] }
                 );
 
                 using (var fs = new FileStream(filename, FileMode.Open))
@@ -203,9 +203,9 @@ namespace Mariasek.Cli
                         CurrencyFormat = nfi
                     };
                     g.RegisterPlayers(
-                        new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[0] },
-                        new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[1] },
-                        new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[2] }
+                        new AiPlayer(g, _aiSettings) { Name = Settings.PlayerNames[0] },
+                        new AiPlayer(g, _aiSettings) { Name = Settings.PlayerNames[1] },
+                        new AiPlayer(g, _aiSettings) { Name = Settings.PlayerNames[2] }
                     );
 
                     using (var fs = new FileStream(filename, FileMode.Open))
@@ -266,9 +266,9 @@ namespace Mariasek.Cli
                 CurrencyFormat = nfi
             };
             g.RegisterPlayers(
-                new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[0] },
-                new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[1] },
-                new AiPlayer(g, _aiConfig) { Name = Settings.PlayerNames[2] }
+                new AiPlayer(g, _aiSettings) { Name = Settings.PlayerNames[0] },
+                new AiPlayer(g, _aiSettings) { Name = Settings.PlayerNames[1] },
+                new AiPlayer(g, _aiSettings) { Name = Settings.PlayerNames[2] }
             );
 
             using (var fs = new FileStream(filename, FileMode.Open))
@@ -415,151 +415,33 @@ namespace Mariasek.Cli
 
         private static void PopulateAiConfig()
         {
-            //TODO: Nastavit prahy podle uspesnosti v predchozich zapasech
-            _aiConfig = new Mariasek.Engine.Configuration.ParameterConfigurationElementCollection();
-
-            LoadGameSettings();
-            _aiConfig.Add("DoLog", new Mariasek.Engine.Configuration.ParameterConfigurationElement
+            _aiSettings = new AiPlayerSettings()
             {
-                Name = "DoLog",
-                Value = Settings.DoLog.ToString()
-            });
-            _aiConfig.Add("AiCheating", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "AiCheating",
-                Value = "false"
-            });
-            _aiConfig.Add("RoundsToCompute", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "RoundsToCompute",
-                Value = "1"
-            });
-            _aiConfig.Add("CardSelectionStrategy", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "CardSelectionStrategy",
-                Value = "MaxCount"
-            });
-            _aiConfig.Add("SimulationsPerGameType", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "SimulationsPerGameType",
-                Value = "500"
-            });
-            _aiConfig.Add("SimulationsPerGameTypePerSecond", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "SimulationsPerGameTypePerSecond",
-                Value = Settings.GameTypeSimulationsPerSecond.ToString()
-            });
-            _aiConfig.Add("MaxSimulationTimeMs", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "MaxSimulationTimeMs",
-                Value = Settings.ThinkingTimeMs.ToString()
-            });
-            _aiConfig.Add("SimulationsPerRound", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "SimulationsPerRound",
-                Value = "500"
-            });
-            _aiConfig.Add("SimulationsPerRoundPerSecond", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "SimulationsPerRoundPerSecond",
-                Value = Settings.RoundSimulationsPerSecond.ToString()
-            });
-            _aiConfig.Add("RuleThreshold", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "RuleThreshold",
-                Value = "95"
-            });
-            _aiConfig.Add("RuleThreshold.Kilo", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "RuleThreshold.Kilo",
-                Value = "99"
-            });
-            _aiConfig.Add("GameThreshold", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "GameThreshold",
-                Value = "75|80|85|90|95"
-            });
-            _aiConfig.Add("MaxDoubleCount", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "MaxDoubleCount",
-                Value = "3"
-            });
-            foreach (var thresholdSettings in Settings.Thresholds)
-            {
-                _aiConfig.Add(string.Format("GameThreshold.{0}", thresholdSettings.GameType.ToString()),
-                              new Mariasek.Engine.Configuration.ParameterConfigurationElement
-                              {
-                                  Name = string.Format("GameThreshold.{0}", thresholdSettings.GameType.ToString()),
-                                  Value = thresholdSettings.Thresholds
-                              });
-                _aiConfig.Add(string.Format("MaxDoubleCount.{0}", thresholdSettings.GameType.ToString()),
-                              new Mariasek.Engine.Configuration.ParameterConfigurationElement
-                              {
-                                  Name = string.Format("MaxDoubleCount.{0}", thresholdSettings.GameType.ToString()),
-                                  Value = thresholdSettings.MaxBidCount.ToString()
-                              });
-                _aiConfig.Add(string.Format("CanPlay.{0}", thresholdSettings.GameType.ToString()),
-                              new Mariasek.Engine.Configuration.ParameterConfigurationElement
-                              {
-                                  Name = string.Format("CanPlay.{0}", thresholdSettings.GameType.ToString()),
-                                  Value = thresholdSettings.Use.ToString()
-                              });
-            }
-            _aiConfig.Add("SigmaMultiplier", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "SigmaMultiplier",
-                Value = "0"
-            });
-            _aiConfig.Add("SafetyBetlThreshold", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "SafetyBetlThreshold",
-                Value = Settings.SafetyBetlThreshold.ToString(CultureInfo.InvariantCulture)
-            });
-            _aiConfig.Add("SafetyGameThreshold", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "SafetyGameThreshold",
-                Value = Settings.SafetyGameThreshold.ToString(CultureInfo.InvariantCulture)
-            });
-            _aiConfig.Add("SafetyHundredThreshold", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "SafetyHundredThreshold",
-                Value = Settings.SafetyHundredThreshold.ToString(CultureInfo.InvariantCulture)
-            });
-            _aiConfig.Add("AiMayGiveUp", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "AiMayGiveUp",
-                Value = "true"
-            });
-            _aiConfig.Add("BaseBet", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "BaseBet",
-                Value = "1"
-            });
-            _aiConfig.Add("GameFlavourSelectionStrategy", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "GameFlavourSelectionStrategy",
-                Value = "Fast"
-            });
-            _aiConfig.Add("RiskFactor", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "RiskFactor",
-                Value = Settings.RiskFactor.ToString(CultureInfo.InvariantCulture)
-            });
-            _aiConfig.Add("RiskFactorSevenDefense", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "RiskFactorSevenDefense",
-                Value = Settings.RiskFactorSevenDefense.ToString(CultureInfo.InvariantCulture)
-            });
-            _aiConfig.Add("SolitaryXThreshold", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "SolitaryXThreshold",
-                Value = Settings.SolitaryXThreshold.ToString(CultureInfo.InvariantCulture)
-            });
-            _aiConfig.Add("SolitaryXThresholdDefense", new Mariasek.Engine.Configuration.ParameterConfigurationElement
-            {
-                Name = "SolitaryXThresholdDefense",
-                Value = Settings.SolitaryXThresholdDefense.ToString(CultureInfo.InvariantCulture)
-            });
+                Cheat = Settings.AiCheating.HasValue && Settings.AiCheating.Value,
+                AiMayGiveUp = Settings.AiMayGiveUp,
+                RoundsToCompute = 1,
+                CardSelectionStrategy = CardSelectionStrategy.MaxCount,
+                SimulationsPerGameType = 1000,
+                SimulationsPerGameTypePerSecond = Settings.GameTypeSimulationsPerSecond,
+                MaxSimulationTimeMs = Settings.ThinkingTimeMs,
+                SimulationsPerRound = 500,
+                SimulationsPerRoundPerSecond = Settings.RoundSimulationsPerSecond,
+                RuleThreshold = 95,
+                RuleThresholdForGameType = new Dictionary<Hra, float>() { { Hra.Kilo, 99 } },
+                GameThresholds = new float[] { 75, 80, 85, 90, 95 },
+                GameThresholdsForGameType = Settings.Thresholds.ToDictionary(k => k.GameType, v => v.Thresholds.Split('|').Select(i => float.Parse(i)).ToArray()),
+                MaxDoubleCountForGameType = Settings.Thresholds.ToDictionary(k => k.GameType, v => v.MaxBidCount),
+                CanPlayGameType = Settings.Thresholds.ToDictionary(k => k.GameType, v => v.Use),
+                SigmaMultiplier = 0,
+                GameFlavourSelectionStrategy = GameFlavourSelectionStrategy.Fast,
+                RiskFactor = Settings.RiskFactor,
+                RiskFactorSevenDefense = Settings.RiskFactorSevenDefense,
+                SolitaryXThreshold = Settings.SolitaryXThreshold,
+                SolitaryXThresholdDefense = Settings.SolitaryXThresholdDefense,
+                SafetyGameThreshold = Settings.SafetyGameThreshold,
+                SafetyHundredThreshold = Settings.SafetyHundredThreshold,
+                SafetyBetlThreshold = Settings.SafetyBetlThreshold
+            };
         }
 
         private static Stream GetFileStream(string filename)

@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using Mariasek.Engine.Logger;
-using Mariasek.Engine.Configuration;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using Mariasek.Engine.Schema;
@@ -140,73 +139,12 @@ namespace Mariasek.Engine
             ThrowIfCancellationRequested = g.ThrowIfCancellationRequested;
         }
 
-        public AiPlayer(Game g, ParameterConfigurationElementCollection parameters) : this(g)
+        public AiPlayer(Game g, AiPlayerSettings settings) : this(g)
         {
-            var b = bool.Parse(parameters["DoLog"].Value);
-            _stringLoggerFactory = () => new StringLogger(b);
+            _stringLoggerFactory = () => new StringLogger(false);// b);
 
-            Settings.Cheat = bool.Parse(parameters["AiCheating"].Value);
-            Settings.AiMayGiveUp = bool.Parse(parameters["AiMayGiveUp"].Value);
-            Settings.RoundsToCompute = int.Parse(parameters["RoundsToCompute"].Value);
-            Settings.CardSelectionStrategy = (CardSelectionStrategy)Enum.Parse(typeof(CardSelectionStrategy), parameters["CardSelectionStrategy"].Value);
-            Settings.SimulationsPerGameType = int.Parse(parameters["SimulationsPerGameType"].Value);
-            Settings.MaxSimulationTimeMs = int.Parse(parameters["MaxSimulationTimeMs"].Value);
-            Settings.SimulationsPerGameTypePerSecond = int.Parse(parameters["SimulationsPerGameTypePerSecond"].Value);
-            Settings.SimulationsPerRound = int.Parse(parameters["SimulationsPerRound"].Value);
-            Settings.SimulationsPerRoundPerSecond = int.Parse(parameters["SimulationsPerRoundPerSecond"].Value);
-            Settings.RuleThreshold = int.Parse(parameters["RuleThreshold"].Value) / 100f;
-            Settings.RuleThresholdForGameType = new Dictionary<Hra, float>();
-            Settings.RuleThresholdForGameType[Hra.Hra] = int.Parse(parameters["RuleThreshold.Hra"].Value ?? parameters["RuleThreshold"].Value) / 100f;
-            Settings.RuleThresholdForGameType[Hra.Sedma] = int.Parse(parameters["RuleThreshold.Sedma"].Value ?? parameters["RuleThreshold"].Value) / 100f;
-            Settings.RuleThresholdForGameType[Hra.Kilo] = int.Parse(parameters["RuleThreshold.Kilo"].Value ?? parameters["RuleThreshold"].Value) / 100f;
-            Settings.RuleThresholdForGameType[Hra.Durch] = int.Parse(parameters["RuleThreshold.Durch"].Value ?? parameters["RuleThreshold"].Value) / 100f;
-            Settings.RuleThresholdForGameType[Hra.Betl] = int.Parse(parameters["RuleThreshold.Betl"].Value ?? parameters["RuleThreshold"].Value) / 100f;
-            var gameThresholds = parameters["GameThreshold"].Value.Split('|');
-            Settings.GameThresholds = gameThresholds.Select(i => int.Parse(i) / 100f).ToArray();
-            Settings.GameThresholdsForGameType = new Dictionary<Hra, float[]>();
-            var gameThresholds2 = parameters["GameThreshold.Hra"].Value;
-            Settings.GameThresholdsForGameType[Hra.Hra] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
-            gameThresholds2 = parameters["GameThreshold.Sedma"].Value;
-            Settings.GameThresholdsForGameType[Hra.Sedma] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
-            gameThresholds2 = parameters["GameThreshold.SedmaProti"].Value;
-            Settings.GameThresholdsForGameType[Hra.SedmaProti] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
-            gameThresholds2 = parameters["GameThreshold.Kilo"].Value;
-            Settings.GameThresholdsForGameType[Hra.Kilo] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
-            gameThresholds2 = parameters["GameThreshold.KiloProti"].Value;
-            Settings.GameThresholdsForGameType[Hra.KiloProti] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
-            gameThresholds2 = parameters["GameThreshold.Betl"].Value;
-            Settings.GameThresholdsForGameType[Hra.Betl] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
-            gameThresholds2 = parameters["GameThreshold.Durch"].Value;
-            Settings.GameThresholdsForGameType[Hra.Durch] = ((gameThresholds2 != null) ? gameThresholds2.Split('|') : gameThresholds).Select(i => int.Parse(i) / 100f).ToArray();
-            //Settings.MaxDoubleCount = int.Parse(parameters["MaxDoubleCount"].Value);
-            Settings.RiskFactor = float.Parse(parameters["RiskFactor"].Value, CultureInfo.InvariantCulture);
-            Settings.RiskFactorSevenDefense = float.Parse(parameters["RiskFactorSevenDefense"].Value, CultureInfo.InvariantCulture);
-            Settings.SolitaryXThreshold = float.Parse(parameters["SolitaryXThreshold"].Value, CultureInfo.InvariantCulture);
-            Settings.SolitaryXThresholdDefense = float.Parse(parameters["SolitaryXThresholdDefense"].Value, CultureInfo.InvariantCulture);
-            Settings.SafetyGameThreshold = int.Parse(parameters["SafetyGameThreshold"].Value, CultureInfo.InvariantCulture);
-            Settings.SafetyHundredThreshold = int.Parse(parameters["SafetyHundredThreshold"].Value, CultureInfo.InvariantCulture);
-            Settings.SafetyBetlThreshold = int.Parse(parameters["SafetyBetlThreshold"].Value, CultureInfo.InvariantCulture);
-            Settings.MaxDoubleCountForGameType = new Dictionary<Hra, int>();
-            Settings.MaxDoubleCountForGameType[Hra.Hra] = int.Parse(parameters["MaxDoubleCount.Hra"].Value);
-            Settings.MaxDoubleCountForGameType[Hra.Sedma] = int.Parse(parameters["MaxDoubleCount.Sedma"].Value);
-            Settings.MaxDoubleCountForGameType[Hra.Kilo] = int.Parse(parameters["MaxDoubleCount.Kilo"].Value);
-            Settings.MaxDoubleCountForGameType[Hra.SedmaProti] = int.Parse(parameters["MaxDoubleCount.SedmaProti"].Value);
-            Settings.MaxDoubleCountForGameType[Hra.KiloProti] = int.Parse(parameters["MaxDoubleCount.KiloProti"].Value);
-            Settings.MaxDoubleCountForGameType[Hra.Betl] = int.Parse(parameters["MaxDoubleCount.Betl"].Value);
-            Settings.MaxDoubleCountForGameType[Hra.Durch] = int.Parse(parameters["MaxDoubleCount.Durch"].Value);
-            Settings.CanPlayGameType = new Dictionary<Hra, bool>();
-            Settings.CanPlayGameType[Hra.Hra] = bool.Parse(parameters["CanPlay.Hra"].Value);
-            Settings.CanPlayGameType[Hra.Sedma] = bool.Parse(parameters["CanPlay.Sedma"].Value);
-            Settings.CanPlayGameType[Hra.Kilo] = bool.Parse(parameters["CanPlay.Kilo"].Value);
-            Settings.CanPlayGameType[Hra.SedmaProti] = bool.Parse(parameters["CanPlay.SedmaProti"].Value);
-            Settings.CanPlayGameType[Hra.KiloProti] = bool.Parse(parameters["CanPlay.KiloProti"].Value);
-            Settings.CanPlayGameType[Hra.Betl] = bool.Parse(parameters["CanPlay.Betl"].Value);
-            Settings.CanPlayGameType[Hra.Durch] = bool.Parse(parameters["CanPlay.Durch"].Value);
-            Settings.SigmaMultiplier = int.Parse(parameters["SigmaMultiplier"].Value);
-			Settings.GameFlavourSelectionStrategy = (GameFlavourSelectionStrategy)Enum.Parse(typeof(GameFlavourSelectionStrategy), parameters["GameFlavourSelectionStrategy"].Value);
+            Settings = settings;
             _teamMatesSuits = new List<Barva>();
-            //Settings.SimulationsPerGameType = Settings.SimulationsPerGameTypePerSecond * Settings.MaxSimulationTimeMs / 1000;
-            //Settings.SimulationsPerRound = Settings.SimulationsPerRoundPerSecond * Settings.MaxSimulationTimeMs / 1000;
         }
 
 		public override void Die()

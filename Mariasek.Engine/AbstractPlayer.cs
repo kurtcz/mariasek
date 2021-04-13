@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 //using System.Security.Policy;
 using System.Text;
-using Mariasek.Engine.Configuration;
 
 namespace Mariasek.Engine
 {

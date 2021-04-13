@@ -33,7 +33,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Configuration\" />
     <Folder Include="Combinatorics\" />
   </ItemGroup>
 </Project>

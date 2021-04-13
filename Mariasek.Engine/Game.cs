@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using Mariasek.Engine.Logger;
-using Mariasek.Engine.Configuration;
 //#if !PORTABLE
 using Mariasek.Engine.Schema;
 using System.Runtime.CompilerServices;

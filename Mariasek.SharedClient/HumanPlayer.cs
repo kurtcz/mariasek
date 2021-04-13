@@ -29,16 +29,17 @@ namespace Mariasek.SharedClient
 		private int _t0;
 		private int _t1;
 
-        public HumanPlayer(Game g, Mariasek.Engine.Configuration.ParameterConfigurationElementCollection aiConfig, MainScene scene, bool showHint)
+        //public HumanPlayer(Game g, Mariasek.Engine.Configuration.ParameterConfigurationElementCollection aiConfig, MainScene scene, bool showHint)
+        public HumanPlayer(Game g, AiPlayerSettings settings, MainScene scene, bool showHint)
             : base(g)
         {
-            var b = bool.Parse(aiConfig["DoLog"].Value);
-            _stringLoggerFactory = () => new StringLogger(b);
+            //var b = bool.Parse(aiConfig["DoLog"].Value);
+            _stringLoggerFactory = () => new StringLogger(false);// b);
             _scene = scene;
             _g = g;
 			if (showHint)
 			{
-				_aiPlayer = new AiPlayer(_g, aiConfig) { Name = "Advisor", AdvisorMode = true };
+				_aiPlayer = new AiPlayer(_g, settings) { Name = "Advisor", AdvisorMode = true };
 				DebugInfo = _aiPlayer.DebugInfo;
 			}
 			else
