@@ -678,11 +678,12 @@ namespace Mariasek.SharedClient
             });
             System.Diagnostics.Debug.WriteLine("update sw {0}", sw.ElapsedMilliseconds);
 
-            MigrateFilesIfNeeded();
+            //MigrateFilesIfNeeded();
             if (!SettingsLoaded)
             {
                 LoadGameSettings(true);
             }
+            _loadingFinished = true;
         }
 
         private void MigrateFilesIfNeeded()

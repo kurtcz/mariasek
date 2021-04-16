@@ -55,7 +55,14 @@ namespace Mariasek.SharedClient
 
                 if (found)
                 {
-                    _soundEffects[kvp2.Key] = _content.Load<SoundEffect>(kvp2.Key);
+                    try
+                    {
+                        _soundEffects[kvp2.Key] = _content.Load<SoundEffect>(kvp2.Key);
+                    }
+                    catch(Exception ex)
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
@@ -64,7 +71,14 @@ namespace Mariasek.SharedClient
 
                     if (found)
                     {
-                        _songs[kvp3.Key] = _content.Load<Song>(kvp3.Key);
+                        try
+                        {
+                            _songs[kvp3.Key] = _content.Load<Song>(kvp3.Key);
+                        }
+                        catch(Exception ex)
+                        {
+                            return false;
+                        }
                     }
                 }
             }
