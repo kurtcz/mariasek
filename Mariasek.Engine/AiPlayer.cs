@@ -2201,16 +2201,13 @@ namespace Mariasek.Engine
                                             hand.HasSuit(b))
                                 .All(b => hand.HasA(b) ||
                                           (hand.HasX(b) &&
-                                           hand.HasK(b))) ||
+                                           (hand.HasK(b) ||
+                                            hand.CardCount(b) > 2))) ||
                             hand.Where(i => i.Suit != _trump.Value)
                                 .Count(i => i.Value == Hodnota.Eso) >= 2)) ||
                          (hand.CardCount(_trump.Value) == 4 &&                    //2.  nebo 4 trumfy a jedno z
                           !_teamMateDoubledGame &&
                           (hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||      //2a. mene nez 3 vysoke karty celkem
-                           ((!hand.HasA(_trump.Value) ||
-                             !hand.HasX(_trump.Value)) &&
-                            !(hand.HasK(_trump.Value) &&
-                              hand.HasQ(_trump.Value))) ||
                            (hand.Count(i => i.Value == Hodnota.Eso) +              //2b. nebo mene nez 2 (resp. 3) uhratelne A, X
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Count(b => (hand.HasX(b) &&
@@ -3139,6 +3136,7 @@ namespace Mariasek.Engine
                       (Hand.HasA(_g.trump.Value) ||
                        Hand.HasX(_g.trump.Value))) ||
                      (_teamMateDoubledSeven &&                //nebo spoluhrac dal flek na sedmu a ja mam aspon 40 bodu na ruce
+                      !_g.AllowFakeSeven &&
                       //!Is100AgainstPossible() &&
                       (kqScore >= 40 ||
                        (kqScore >= 20 &&
@@ -3558,7 +3556,9 @@ namespace Mariasek.Engine
             {
                 _teamMateDoubledSeven = true;
             }
-            if (e.Player.PlayerIndex != PlayerIndex && e.Player.PlayerIndex != _g.GameStartingPlayerIndex && (e.BidMade & Hra.Sedma) != 0)
+            if (e.Player.PlayerIndex != PlayerIndex &&
+                e.Player.PlayerIndex != _g.GameStartingPlayerIndex &&
+                (e.BidMade & Hra.Sedma) != 0)
             {
                 _initialSimulation = true;
             }
