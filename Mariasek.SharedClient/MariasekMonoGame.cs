@@ -46,10 +46,10 @@ namespace Mariasek.SharedClient
 #if __ANDROID__
         //Android 1-9: /Mariasek
         //Android 10+: /Android/data/com.tnemec.mariasek.android/files
-        public static string RootPath => (int)Android.OS.Build.VERSION.SdkInt >= 29
-                                            ? Android.App.Application.Context.GetExternalFilesDir(null).Path
-                                            : Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
-        //public static string RootPath = Android.App.Application.Context.GetExternalFilesDir(null).Path;
+        //public static string RootPath => (int)Android.OS.Build.VERSION.SdkInt >= 29
+        //                                    ? Android.App.Application.Context.GetExternalFilesDir(null).Path
+        //                                    : Path.Combine(Android.OS.Environment.ExternalStorageDirectory.AbsolutePath, "Mariasek");
+        public static string RootPath => Android.App.Application.Context.GetExternalFilesDir(null).Path;       
 #else   //#elif __IOS__
         public static string RootPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 #endif
@@ -678,7 +678,7 @@ namespace Mariasek.SharedClient
             });
             System.Diagnostics.Debug.WriteLine("update sw {0}", sw.ElapsedMilliseconds);
 
-            //MigrateFilesIfNeeded();
+            MigrateFilesIfNeeded();
             if (!SettingsLoaded)
             {
                 LoadGameSettings(true);
@@ -689,7 +689,7 @@ namespace Mariasek.SharedClient
         private void MigrateFilesIfNeeded()
         {
 #if __ANDROID__
-            if ((int)Android.OS.Build.VERSION.SdkInt == 29)
+            if ((int)Android.OS.Build.VERSION.SdkInt <= 29)
             {
                 try
                 {
