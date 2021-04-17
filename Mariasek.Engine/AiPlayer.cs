@@ -961,10 +961,27 @@ namespace Mariasek.Engine
                     //v ChooseTalon() jsem zvolil talon na betla a chci hrat utikacka
                     return GameFlavour.Bad;
                 }
+                var topCards = Hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                   .Where(h => Card.GetBadValue(h) > i.BadValue)
+                                                   .All(h => Probabilities.CardProbability((PlayerIndex + 1) % Game.NumPlayers, new Card(i.Suit, h)) == 0 &&
+                                                             Probabilities.CardProbability((PlayerIndex + 2) % Game.NumPlayers, new Card(i.Suit, h)) == 0))
+                                   .ToList();
+                var holesPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                       .ToDictionary(k => k, v =>
+                                           Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                               .Select(h => new Card(v, h))
+                                               .Where(i => Probabilities.CardProbability((PlayerIndex + 1) % Game.NumPlayers, i) > 0 ||
+                                                           Probabilities.CardProbability((PlayerIndex + 2) % Game.NumPlayers, i) > 0)
+                                               .OrderBy(i => i.BadValue)
+                                               .Skip(topCards.CardCount(v))
+                                               .ToList());
+                var lowCards = Hand.Where(i => holesPerSuit[i.Suit].Any(j => j.BadValue > i.BadValue))
+                                   .ToList();
                 //pouzivam vyssi prahy: pokud nam vysel durch (beru 70% prah), abych kompenzoval, ze simulace nejsou presne
                 var thresholdIndex = Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 1);    //70%
                 if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][thresholdIndex] * _durchSimulations && 
-                    _durchSimulations > 0)
+                    _durchSimulations > 0 &&
+                    lowCards.Count() < 2)   //pokud mas v nejake barve 2 neodstranitelne diry, tak je durch riskantni (talon by musel byt perfektni)
                 {
 					_talon = ChooseDurchTalon(Hand, null);
 					DebugInfo.RuleCount = _durchBalance;
