@@ -393,8 +393,14 @@ namespace Mariasek.Engine
                     SkipSimulations = true,
                     ChooseCard1 = () =>
                     {
-                        var cardsToPlay = hands[MyIndex].Where(i => _probabilities.PotentialCards(opponent).CardCount(i.Suit) > 2 &&
+                        var cardsToPlay = hands[MyIndex].Where(i => _probabilities.PotentialCards(opponent).HasSuit(i.Suit) &&
                                                                     _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) == 0);
+
+                        if (cardsToPlay.Any(i => _probabilities.PotentialCards(opponent).Any(j => j.Suit == i.Suit && j.BadValue > i.BadValue)))
+                        {
+                            //pokud akter muze mit vyssi kartu v barve, tak pravidlo nehraj. Soupere chytime v pozdejsim pravidle
+                            return null;
+                        }
 
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
@@ -464,6 +470,13 @@ namespace Mariasek.Engine
                             {
                                 return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                             }
+                        }
+                        cardsToPlay = hands[MyIndex].Where(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) == 0 &&
+                                                                _probabilities.PotentialCards(opponent).Any(j => j.Suit == i.Suit &&
+                                                                                                                 j.BadValue > i.BadValue));
+                        if (cardsToPlay.Any())
+                        {
+                            return cardsToPlay.OrderBy(i => i.BadValue).First();
                         }
 
                         if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
