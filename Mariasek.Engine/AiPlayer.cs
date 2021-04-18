@@ -3558,7 +3558,8 @@ namespace Mariasek.Engine
             }
             if (e.Player.PlayerIndex != PlayerIndex &&
                 e.Player.PlayerIndex != _g.GameStartingPlayerIndex &&
-                (e.BidMade & Hra.Sedma) != 0)
+                (e.BidMade & Hra.Sedma) != 0 &&
+                !_g.AllowFakeSeven)
             {
                 _initialSimulation = true;
             }
