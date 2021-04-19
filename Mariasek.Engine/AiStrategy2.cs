@@ -412,7 +412,7 @@ namespace Mariasek.Engine
                                                              (_probabilities.CardProbability(_rounds[RoundNumber - 1].player3.PlayerIndex, new Card(b, Hodnota.Eso)) >= 1 - _epsilon ||
                                                               _probabilities.CardProbability(_rounds[RoundNumber - 1].player3.PlayerIndex, new Card(b, Hodnota.Desitka)) >= 1 - _epsilon))
                                                  .ToList();
-                        _bannedSuits.AddRange(opponentXsuits.Take(nonTrumpSuitCount - 1));
+                        _bannedSuits.AddRange(opponentXsuits.Take(nonTrumpSuitCount));
                     }
                     else
                     {
@@ -425,7 +425,7 @@ namespace Mariasek.Engine
                                                              (_probabilities.CardProbability(_rounds[RoundNumber - 1].player2.PlayerIndex, new Card(b, Hodnota.Eso)) >= 1 - _epsilon ||
                                                               _probabilities.CardProbability(_rounds[RoundNumber - 1].player2.PlayerIndex, new Card(b, Hodnota.Desitka)) >= 1 - _epsilon))
                                                  .ToList();
-                        _bannedSuits.AddRange(opponentXsuits.Take(nonTrumpSuitCount - 1));
+                        _bannedSuits.AddRange(opponentXsuits.Take(nonTrumpSuitCount));
                     }
                 }
             }
@@ -1941,13 +1941,14 @@ namespace Mariasek.Engine
                     {
                         //co-
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
-                                                                            (_probabilities.HasSolitaryX(player3, i.Suit, RoundNumber) == 1 ||
-                                                                             (i.Suit != _trump &&                                   //pokud mas jen 1 barvu nebo 2 barvy
-                                                                              (hands[MyIndex].SuitCount == 1 ||                     //a jedna z nich je trumfova
-                                                                               (hands[MyIndex].SuitCount == 2 &&                    //a souper ma jiste X od meho esa
-                                                                                hands[MyIndex].HasSuit(_trump)))) &&                //a max jednu dalsi kartu v barve
-                                                                              _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) == 1 &&
-                                                                              _probabilities.PotentialCards(player3).CardCount(i.Suit) <= 2)).ToList();
+                                                                            _probabilities.HasSolitaryX(player3, i.Suit, RoundNumber) == 1).ToList();
+                                                                            //(_probabilities.HasSolitaryX(player3, i.Suit, RoundNumber) == 1 ||
+                                                                            // (i.Suit != _trump &&                                   //pokud mas jen 1 barvu nebo 2 barvy
+                                                                            //  (hands[MyIndex].SuitCount == 1 ||                     //a jedna z nich je trumfova
+                                                                            //   (hands[MyIndex].SuitCount == 2 &&                    //a souper ma jiste X od meho esa
+                                                                            //    hands[MyIndex].HasSuit(_trump)))) &&                //a max jednu dalsi kartu v barve
+                                                                            //  _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) == 1 &&
+                                                                            //  _probabilities.PotentialCards(player3).CardCount(i.Suit) <= 2)).ToList();
                                                                             //(i.Suit == _trump ||
                                                                             // (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor ||
                                                                             //  _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0)) &&
@@ -1957,13 +1958,14 @@ namespace Mariasek.Engine
                     {
                         //c-o
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
-                                                                            (_probabilities.HasSolitaryX(player2, i.Suit, RoundNumber) == 1 ||
-                                                                             (i.Suit != _trump &&                                   //pokud mas jen 1 barvu nebo 2 barvy
-                                                                              (hands[MyIndex].SuitCount == 1 ||                     //a jedna z nich je trumfova
-                                                                               (hands[MyIndex].SuitCount == 2 &&                    //a souper ma jiste X od meho esa
-                                                                                hands[MyIndex].HasSuit(_trump)))) &&                //a max jednu dalsi kartu v barve
-                                                                              _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) == 1 &&
-                                                                              _probabilities.PotentialCards(player2).CardCount(i.Suit) <= 2)).ToList();
+                                                                            _probabilities.HasSolitaryX(player2, i.Suit, RoundNumber) == 1).ToList();
+                                                                            //(_probabilities.HasSolitaryX(player2, i.Suit, RoundNumber) == 1 ||
+                                                                            // (i.Suit != _trump &&                                   //pokud mas jen 1 barvu nebo 2 barvy
+                                                                            //  (hands[MyIndex].SuitCount == 1 ||                     //a jedna z nich je trumfova
+                                                                            //   (hands[MyIndex].SuitCount == 2 &&                    //a souper ma jiste X od meho esa
+                                                                            //    hands[MyIndex].HasSuit(_trump)))) &&                //a max jednu dalsi kartu v barve
+                                                                            //  _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) == 1 &&
+                                                                            //  _probabilities.PotentialCards(player2).CardCount(i.Suit) <= 2)).ToList();
                                                                             //(i.Suit == _trump ||
                                                                             // (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor ||
                                                                             //  _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0)) &&
@@ -2078,7 +2080,6 @@ namespace Mariasek.Engine
                     {
                         return null;
                     }
-
                     if (TeamMateIndex != -1)
                     {
                         var opponent = TeamMateIndex == player2 ? player3 : player2;
@@ -4202,6 +4203,8 @@ namespace Mariasek.Engine
         {
             var player3 = (MyIndex + 1) % Game.NumPlayers;
             var player1 = (MyIndex + 2) % Game.NumPlayers;
+
+            BeforeGetRules();
             if (RoundNumber == 9)
             {
                 yield return new AiRule()
@@ -5065,16 +5068,20 @@ namespace Mariasek.Engine
                                                                                    hands[MyIndex].CardCount(i.Key) == 2));
                         if (catchCardsPerSuitNoAX.Any())
                         {
-                            var preferredSuit = catchCardsPerSuitNoAX.OrderBy(i => axPerSuit[i.Key])
+                            var preferredSuit = catchCardsPerSuitNoAX.Where(i => !_bannedSuits.Contains(i.Key))
+                                                                     .OrderBy(i => axPerSuit[i.Key])
                                                                      .ThenBy(i => i.Value)
-                                                                     .Select(i => i.Key)
-                                                                     .First();
+                                                                     .Select(i => (Barva?)i.Key)
+                                                                     .FirstOrDefault();
 
-                            cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == preferredSuit &&
-                                                                                    (hands[MyIndex].CardCount(i.Suit) == 1 ||
-                                                                                     !hands[MyIndex].Where(j => j.Suit == i.Suit)
-                                                                                                    .All(j =>j.Value <= i.Value)))
-                                                                        .ToList();
+                            if (preferredSuit.HasValue)
+                            {
+                                cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == preferredSuit.Value &&
+                                                                                        (hands[MyIndex].CardCount(i.Suit) == 1 ||
+                                                                                         !hands[MyIndex].Where(j => j.Suit == i.Suit)
+                                                                                                        .All(j => j.Value <= i.Value)))
+                                                                            .ToList();
+                            }
                             if (cardsToPlay.HasSuit(_trump) ||
                                 cardsToPlay.All(i => i.Suit != c1.Suit) ||
                                 _probabilities.SuitHigherThanCardProbability(TeamMateIndex, c1, RoundNumber) >= 1 - RiskFactor ||
@@ -5094,6 +5101,10 @@ namespace Mariasek.Engine
                                                                                  !hands[MyIndex].Where(j => j.Suit == i.Suit)
                                                                                                 .All(j => j.Value <= i.Value)))
                                                                         .ToList();
+                        if (cardsToPlay.Any(i => !_bannedSuits.Contains(i.Suit)))
+                        {
+                            cardsToPlay = cardsToPlay.Where(i => !_bannedSuits.Contains(i.Suit)).ToList();
+                        }
                         if (cardsToPlay.HasSuit(_trump) ||
                             cardsToPlay.All(i => i.Suit != c1.Suit) ||
                             _probabilities.SuitHigherThanCardProbability(TeamMateIndex, c1, RoundNumber) >= 1 - RiskFactor ||
@@ -5123,6 +5134,10 @@ namespace Mariasek.Engine
                                                                                                .All(j => j.Value <= i.Value))
                                                                     .ToList();
 
+                    if (cardsToPlay.Any(i => !_bannedSuits.Contains(i.Suit)))
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => !_bannedSuits.Contains(i.Suit)).ToList();
+                    }
                     if (cardsToPlay.HasSuit(_trump) ||
                         cardsToPlay.All(i => i.Suit != c1.Suit) ||
                         (TeamMateIndex == player3 &&
@@ -5153,6 +5168,7 @@ namespace Mariasek.Engine
             var player1 = (MyIndex + 1) % Game.NumPlayers;
             var player2 = (MyIndex + 2) % Game.NumPlayers;
 
+            BeforeGetRules();
             if (RoundNumber == 9)
             {
                 yield return new AiRule()
@@ -5717,18 +5733,22 @@ namespace Mariasek.Engine
                                                                                hands[MyIndex].CardCount(i.Key) == 2));
                     if (catchCardsPerSuitNoAX.Any())
                     {
-                        var preferredSuit = catchCardsPerSuitNoAX.OrderBy(i => axPerSuit[i.Key])
+                        var preferredSuit = catchCardsPerSuitNoAX.Where(i => !_bannedSuits.Contains(i.Key))
+                                                                 .OrderBy(i => axPerSuit[i.Key])
                                                                  .ThenBy(i => i.Value)
-                                                                 .Select(i => i.Key)
-                                                                 .First();
+                                                                 .Select(i => (Barva?)i.Key)
+                                                                 .FirstOrDefault();
 
-                        cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit == preferredSuit &&
-                                                                                    i.Value != Hodnota.Eso &&
-                                                                                    i.Value != Hodnota.Desitka &&
-                                                                                    (hands[MyIndex].CardCount(i.Suit) == 1 ||
-                                                                                     !hands[MyIndex].Where(j => j.Suit == i.Suit)
-                                                                                                    .All(j => j.Value <= i.Value)))
-                                                                            .ToList();
+                        if (preferredSuit.HasValue)
+                        {
+                            cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit == preferredSuit.Value &&
+                                                                                        i.Value != Hodnota.Eso &&
+                                                                                        i.Value != Hodnota.Desitka &&
+                                                                                        (hands[MyIndex].CardCount(i.Suit) == 1 ||
+                                                                                         !hands[MyIndex].Where(j => j.Suit == i.Suit)
+                                                                                                        .All(j => j.Value <= i.Value)))
+                                                                                .ToList();
+                        }
                         if (cardsToPlay.HasSuit(_trump) ||
                             cardsToPlay.All(i => i.Suit != c1.Suit) ||
                             (TeamMateIndex == player1 && c1.IsHigherThan(c2, _trump)) ||
@@ -5746,6 +5766,10 @@ namespace Mariasek.Engine
                         }
                     }
 
+                    if (cardsToPlay.Any(i => !_bannedSuits.Contains(i.Suit)))
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => !_bannedSuits.Contains(i.Suit)).ToList();
+                    }
                     if (cardsToPlay.HasSuit(_trump) ||
                         cardsToPlay.All(i => i.Suit != c1.Suit) ||
                         (TeamMateIndex == player1 && c1.IsHigherThan(c2, _trump)) ||
@@ -5809,17 +5833,25 @@ namespace Mariasek.Engine
                                                                                                          j.Value != Hodnota.Desitka));
                         if (catchCardsPerSuitNoAX.Any())
                         {
-                            var preferredSuit = catchCardsPerSuitNoAX.OrderBy(i => i.Value)
-                                                                     .Select(i => i.Key)
-                                                                     .First();
+                            var preferredSuit = catchCardsPerSuitNoAX.Where(i => !_bannedSuits.Contains(i.Key))
+                                                                     .OrderBy(i => i.Value)
+                                                                     .Select(i => (Barva?)i.Key)
+                                                                     .FirstOrDefault();
 
-                            cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit == preferredSuit &&
-                                                                                        i.Value != Hodnota.Eso &&
-                                                                                        i.Value != Hodnota.Desitka &&
-                                                                                        (hands[MyIndex].CardCount(i.Suit) == 1 ||
-                                                                                         !hands[MyIndex].Where(j => j.Suit == i.Suit)
-                                                                                                        .All(j => j.Value <= i.Value)))
-                                                                            .ToList();
+                            if (preferredSuit.HasValue)
+                            {
+                                cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit == preferredSuit.Value &&
+                                                                                            i.Value != Hodnota.Eso &&
+                                                                                            i.Value != Hodnota.Desitka &&
+                                                                                            (hands[MyIndex].CardCount(i.Suit) == 1 ||
+                                                                                             !hands[MyIndex].Where(j => j.Suit == i.Suit)
+                                                                                                            .All(j => j.Value <= i.Value)))
+                                                                                .ToList();
+                            }
+                            if (cardsToPlay.Any(i => !_bannedSuits.Contains(i.Suit)))
+                            {
+                                cardsToPlay = cardsToPlay.Where(i => !_bannedSuits.Contains(i.Suit)).ToList();
+                            }
                             if (cardsToPlay.Any())
                             {
                                 if (cardsToPlay.HasSuit(_trump) ||
