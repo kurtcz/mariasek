@@ -658,6 +658,8 @@ namespace Mariasek.SharedClient
 
         private void StatModeSelectorClicked(object sender)
         {
+            var offset = _details.VerticalScrollOffset;
+
             if (((StatMode)_effectivityMoneySelector.SelectedValue & StatMode.Efectivity) != 0)
             {
                 _chart.Show();
@@ -673,7 +675,6 @@ namespace Mariasek.SharedClient
                 {
                     bcl.Hide();
                 }
-                var offset = _details.VerticalScrollOffset;
                 if (((StatMode)_leaderDefenceSelector.SelectedValue & StatMode.Leader) != 0)
                 {
                     _summary.Text = _effectivitySummary;
@@ -686,7 +687,6 @@ namespace Mariasek.SharedClient
                     _details.Text = _defenceEffectivityText;
                     _chart.Data = _defencePoints;
                 }
-                _details.ScrollToOffset(offset);
             }
             else
             {
@@ -705,10 +705,8 @@ namespace Mariasek.SharedClient
                 }
                 if (((StatMode)_leaderDefenceSelector.SelectedValue & StatMode.Leader) != 0)
                 {
-                    var offset = _details.VerticalScrollOffset;
                     _summary.Text = _moneySummary;
                     _details.Text = _moneyText;
-                    _details.ScrollToOffset(offset);
                     for (var i = 0; i < _barCharts.Length; i++)
                     {
                         var gridInterval = 5f * (int)Math.Pow(10, Math.Round(Math.Log10(_maxMoney - _minMoney)) - 1);
@@ -788,6 +786,8 @@ namespace Mariasek.SharedClient
                     }
                 }
             }
+
+            _details.ScrollToOffset(offset);
         }
 
         private void BackButtonClicked(object sender)
