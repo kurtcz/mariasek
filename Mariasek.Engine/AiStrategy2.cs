@@ -430,6 +430,42 @@ namespace Mariasek.Engine
                 }
             }
         }
+
+        private void BeforeGetRules23()
+        {
+            _bannedSuits.Clear();
+
+            if (TeamMateIndex != -1)
+            {
+                var opponent = TeamMateIndex == (MyIndex + 1) % Game.NumPlayers
+                    ? (MyIndex + 2) % Game.NumPlayers
+                    : (MyIndex + 1) % Game.NumPlayers;
+
+                //nehraj barvu pokud mam eso a souper muze mit desitku
+                foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                      .Where(b => b != _trump &&
+                                                  _probabilities.CardProbability(MyIndex, new Card(b, Hodnota.Eso)) == 1 &&
+                                                  _probabilities.CardProbability(opponent, new Card(b, Hodnota.Desitka)) > _epsilon))
+                {
+                    _bannedSuits.Add(b);
+                }
+                //nehraj barvu pokud mam vyssi v barve nez souper a kolega barvu nezna
+                foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                      .Where(b => b != _trump &&
+                                                  _probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) == 0 &&
+                                                  _probabilities.PotentialCards(opponent).HasSuit(b) &&
+                                                  _probabilities.PotentialCards(opponent).Where(i => i.Suit == b)
+                                                                                         .All(i => _hands[MyIndex].Any(j => j.Suit == i.Suit &&
+                                                                                                                            j.Value > i.Value))))
+                {
+                    if (!_bannedSuits.Contains(b))
+                    {
+                        _bannedSuits.Add(b);
+                    }
+                }
+            }
+        }
+
         //: - souper
         //: o spoluhrac
         //: c libovolna karta
@@ -4204,7 +4240,7 @@ namespace Mariasek.Engine
             var player3 = (MyIndex + 1) % Game.NumPlayers;
             var player1 = (MyIndex + 2) % Game.NumPlayers;
 
-            BeforeGetRules();
+            BeforeGetRules23();
             if (RoundNumber == 9)
             {
                 yield return new AiRule()
@@ -4923,6 +4959,7 @@ namespace Mariasek.Engine
 							//oc-
 							var cardToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit != _trump && 
                                                                                        hands[MyIndex].CardCount(i.Suit) == 1 &&//i.Suit == poorSuit.Item1 &&
+                                                                                       !_bannedSuits.Contains(i.Suit) &&
                                                                                        hands[MyIndex].HasSuit(_trump) &&
 																					   _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) > _epsilon &&
 																					   _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) > _epsilon)
@@ -5168,7 +5205,7 @@ namespace Mariasek.Engine
             var player1 = (MyIndex + 1) % Game.NumPlayers;
             var player2 = (MyIndex + 2) % Game.NumPlayers;
 
-            BeforeGetRules();
+            BeforeGetRules23();
             if (RoundNumber == 9)
             {
                 yield return new AiRule()
@@ -5617,7 +5654,8 @@ namespace Mariasek.Engine
                                                                          i.Value != Hodnota.Desitka &&
                                                                          hands[MyIndex].Any(j => j.Value == Hodnota.Eso ||
                                                                                                  j.Value == Hodnota.Desitka) &&                                                                    
-                                                                         hands[MyIndex].CardCount(i.Suit) == 1)
+                                                                         hands[MyIndex].CardCount(i.Suit) == 1 &&
+                                                                         !_bannedSuits.Contains(i.Suit))
                                                              .OrderBy(i => i.Value)
                                                              .FirstOrDefault();
 				}
