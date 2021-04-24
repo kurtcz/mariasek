@@ -664,7 +664,7 @@ namespace Mariasek.SharedClient
             _textRenderer = FontRenderers["BM2Font"];
             _textPosition = new Vector2(VirtualScreenWidth / 2f, VirtualScreenHeight / 2f);
 
-            AmbientSound = Assets.GetSoundEffect("tavern-ambience-looping").CreateInstance();
+            AmbientSound = Assets?.GetSoundEffect("tavern-ambience-looping")?.CreateInstance();
             if (AmbientSound != null && !AmbientSound.IsDisposed)
             {
                 AmbientSound.IsLooped = true;
