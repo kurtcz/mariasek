@@ -29,6 +29,7 @@ namespace Mariasek.Engine
                     var cardsToPlay = new List<Card>();
                     var maxCard = Card.GetBadValue(Hodnota.Eso) + 1;
                     var minCard = Card.GetBadValue(Hodnota.Eso) + 1;
+                    var maxCardCount = 0;
 
                     foreach (var barva in Enum.GetValues(typeof(Barva)).Cast<Barva>())
                     {
@@ -39,14 +40,19 @@ namespace Mariasek.Engine
                                                   .ToList();
                         var hi = cards.FirstOrDefault();
                         var lo = cards.LastOrDefault();
+                        var cnt = hands[MyIndex].CardCount(barva);
 
-						if(lo != null && 
+                        if (lo != null && 
                            (lo.BadValue < minCard ||
                             (lo.BadValue == minCard &&
-                             hi.BadValue < maxCard)))
+                             hi.BadValue < maxCard) ||
+                            (lo.BadValue == minCard &&
+                             hi.BadValue == maxCard &&
+                             cnt > maxCardCount)))
                         {
 							minCard = lo.BadValue;
                             maxCard = hi.BadValue;
+                            maxCardCount = cnt;
                             cardsToPlay.Clear();
                             cardsToPlay.Add(hi);
                         }

@@ -3387,7 +3387,7 @@ namespace Mariasek.SharedClient
                         }
                         for (var i = 0; i < _trumpLabels.Count(); i++)
                         {
-                            var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
+                            var sum = new List<MoneyCalculatorBase>(Game.Money).Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
                             //_trumpLabels[i].Text = g.players[i].Name;
                             _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                                      GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
