@@ -3012,7 +3012,6 @@ namespace Mariasek.SharedClient
                     rightMessage = rightMessage.Replace("\n\n", "\n");
                 }
                 giveUpButton.Hide();
-                //_reviewGameToggleBtn.Hide();
                 _reviewGameToggleBtn.IsEnabled = false;
                 HideInvisibleClickableOverlay();
                 HideThinkingMessage();
@@ -3054,15 +3053,15 @@ namespace Mariasek.SharedClient
                 _msgLabelLeft.Text = leftMessage.ToString();
                 _msgLabelRight.Text = rightMessage.ToString();
                 ShowGameScore();
-                //});
+
                 _shouldShuffle = (!_testGame &&
                                   Game.Settings.WhenToShuffle == ShuffleTrigger.AfterAutomaticVictory && 
                                   results.MoneyWon[g.GameStartingPlayerIndex] > 0 && 
                                   results.GamePlayed && 
-                                  g.RoundNumber == 1) ||
+                                  (g.RoundNumber == 1 ||
+                                   (g.Results.BetlWon &&
+                                    g.RoundNumber == 2))) ||
                                  Game.Settings.WhenToShuffle == ShuffleTrigger.Always;
-                //_aiConfig["SimulationsPerGameTypePerSecond"].Value = Game.Settings.GameTypeSimulationsPerSecond.ToString();
-                //_aiConfig["SimulationsPerRoundPerSecond"].Value = Game.Settings.RoundSimulationsPerSecond.ToString();
                 if (!_lastGameWasLoaded)
                 {
                     Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
