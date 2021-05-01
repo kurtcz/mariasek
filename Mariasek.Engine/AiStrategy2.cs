@@ -5132,9 +5132,9 @@ namespace Mariasek.Engine
                                                      _probabilities.PotentialCards(player1).HasA(i.Suit) &&
                                                      !_probabilities.PotentialCards(player3).HasA(i.Suit)) ||
                                 (TeamMateIndex == player3 &&
-                                 _probabilities.SuitHigherThanCardProbability(TeamMateIndex, c1, RoundNumber) >= 1 - RiskFactor ||
-                                 (_probabilities.SuitProbability(TeamMateIndex, c1.Suit, RoundNumber) == 0 &&
-                                  _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) >= 1 - RiskFactor)))
+                                 (_probabilities.SuitHigherThanCardProbability(TeamMateIndex, c1, RoundNumber) >= 1 - RiskFactor ||
+                                  (_probabilities.SuitProbability(TeamMateIndex, c1.Suit, RoundNumber) == 0 &&
+                                   _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) >= 1 - RiskFactor))))
                             {
                                 return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
                             }
@@ -5155,9 +5155,10 @@ namespace Mariasek.Engine
                         }
                         if (cardsToPlay.HasSuit(_trump) ||
                             cardsToPlay.All(i => i.Suit != c1.Suit) ||
-                            _probabilities.SuitHigherThanCardProbability(TeamMateIndex, c1, RoundNumber) >= 1 - RiskFactor ||
-                            (_probabilities.SuitProbability(TeamMateIndex, c1.Suit, RoundNumber) == 0 &&
-                             _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) >= 1 - RiskFactor))
+                            (TeamMateIndex != -1 &&
+                             (_probabilities.SuitHigherThanCardProbability(TeamMateIndex, c1, RoundNumber) >= 1 - RiskFactor ||
+                              (_probabilities.SuitProbability(TeamMateIndex, c1.Suit, RoundNumber) == 0 &&
+                               _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) >= 1 - RiskFactor))))
                         {
                             return cardsToPlay.OrderBy(i => i.Value).FirstOrDefault();
                         }

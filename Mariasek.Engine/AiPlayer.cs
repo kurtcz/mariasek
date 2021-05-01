@@ -3562,7 +3562,7 @@ namespace Mariasek.Engine
                 ((PlayerIndex != _g.GameStartingPlayerIndex &&
                   !_g.AllowFakeSeven) ||
                  (PlayerIndex == _g.GameStartingPlayerIndex &&
-                  !Hand.Has7(_g.trump.Value))))
+                  Hand.Has7(_g.trump.Value))))
             {
                 _initialSimulation = true;
             }
