@@ -134,7 +134,7 @@ namespace Mariasek.SharedClient
             _review = new GameReview(this, (int)_origPosition.X + 40)
             {
                 Position = _origPosition,
-                Width = (int)Game.VirtualScreenWidth,
+                Width = (int)Game.VirtualScreenWidth - 180,
                 Height = (int)Game.VirtualScreenHeight - 65,
                 BackgroundColor = Color.Transparent,
                 ZIndex = 80

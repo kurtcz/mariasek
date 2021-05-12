@@ -28,7 +28,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Scene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Label.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\FontRenderer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TestScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MainScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HumanPlayer.cs" />

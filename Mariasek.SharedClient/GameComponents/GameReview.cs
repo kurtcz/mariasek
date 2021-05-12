@@ -282,14 +282,6 @@ namespace Mariasek.SharedClient.GameComponents
             }
             for (var i = 0; i < Rounds.Length; i++)
             {
-                //if (game.rounds[i] == null || game.rounds[i].c3 == null)
-                //{
-                //    continue;
-                //}
-                //if (i >= roundsLength)
-                //{
-                //    roundsLength = i + 1;
-                //}
                 RoundNum[i] = new Label(this)
                 {
                     Position = new Vector2(leftOffset - 0.5f * Hand.CardWidth * reviewCardScaleFactor.X, 100 + (i + 4 - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 20),
@@ -300,26 +292,8 @@ namespace Mariasek.SharedClient.GameComponents
                     ZIndex = 100,
                     UseCommonScissorRect = true
                 };
-                //var r = game.rounds[i];
                 Rounds[i] = new Sprite[Mariasek.Engine.Game.NumPlayers];
                 Labels[i] = new Label[Mariasek.Engine.Game.NumPlayers];
-                //if (r.c1 != null)
-                //{
-                //    _initialHands[r.player1.PlayerIndex].Add(r.c1);
-                //}
-                //if (r.c2 != null)
-                //{
-                //    _initialHands[r.player2.PlayerIndex].Add(r.c2);
-                //}
-                //if (r.c3 != null)
-                //{
-                //    _initialHands[r.player3.PlayerIndex].Add(r.c3);
-                //}
-
-                //var rect = r.c1.ToTextureRect();
-                //var debugNote1 = GetMainDebugNote(r.debugNote1);
-                //var debugNote2 = GetMainDebugNote(r.debugNote2);
-                //var debugNote3 = GetMainDebugNote(r.debugNote3);
 
                 Rounds[i][0] = new Sprite(this, Game.CardTextures)//, rect)
                 {
@@ -327,225 +301,74 @@ namespace Mariasek.SharedClient.GameComponents
                     ZIndex = (Mariasek.Engine.Game.NumPlayers * Mariasek.Engine.Game.NumRounds + 2) + i * 3 + 1,
                     Scale = reviewCardScaleFactor
                 };
-                //if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka))
-                //{
-                //    if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
-                //    {
-                //        Rounds[i][0].Tint = Color.LightGreen;
-                //    }
-                //    else
-                //    {
-                //        Rounds[i][0].Tint = Color.LightPink;
-                //    }
-                //}
+
                 Labels[i][0] = new Label(this)
                 {
                     Position = new Vector2(leftOffset + 3 * Hand.CardWidth * reviewCardScaleFactor.X - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 20),
                     Width = 600,
                     Height = 40,
-                    //Text = string.Format("{0}: {1}", game.rounds[i].player1.Name, game.rounds[i].player1.PlayerIndex == 0 ? "-" : debugNote1 != null ? debugNote1.Split('\n')[0] : "-"),
-                    //TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player1.PlayerIndex ? Color.Yellow : Color.White,
                     UseCommonScissorRect = true,
                     ZIndex = 100,
                     FontScaleFactor = 0.9f
                 };
-                //rect = game.rounds[i].c2.ToTextureRect();
+
                 Rounds[i][1] = new Sprite(this, Game.CardTextures)//, rect)
                 {
                     Position = new Vector2(leftOffset + Hand.CardWidth * reviewCardScaleFactor.X - 10, 100 + (i + headLength) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 40),
                     ZIndex = (Mariasek.Engine.Game.NumPlayers * Mariasek.Engine.Game.NumRounds + 2) + i * 3 + 2,
                     Scale = reviewCardScaleFactor
                 };
-                //if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka))
-                //{
-                //    if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
-                //    {
-                //        Rounds[i][1].Tint = Color.LightGreen;
-                //    }
-                //    else
-                //    {
-                //        Rounds[i][1].Tint = Color.LightPink;
-                //    }
-                //}
+
                 Labels[i][1] = new Label(this)
                 {
                     Position = new Vector2(leftOffset + 3 * Hand.CardWidth * reviewCardScaleFactor.X - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 50),
                     Width = 600,
                     Height = 40,
-                    //Text = string.Format("{0}: {1}", game.rounds[i].player2.Name, game.rounds[i].player2.PlayerIndex == 0 ? "-" : debugNote2 != null ? debugNote2.Split('\n')[0] : "-"),
-                    //TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player2.PlayerIndex ? Color.Yellow : Color.White,
                     UseCommonScissorRect = true,
                     ZIndex = 100,
                     FontScaleFactor = 0.9f
                 };
-                //rect = game.rounds[i].c3.ToTextureRect();
+
                 Rounds[i][2] = new Sprite(this, Game.CardTextures)//, rect)
                 {
                     Position = new Vector2(leftOffset + 2 * (Hand.CardWidth * reviewCardScaleFactor.X - 10), 100 + (i + headLength) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 50),
                     ZIndex = (Mariasek.Engine.Game.NumPlayers * Mariasek.Engine.Game.NumRounds + 2) + i * 3 + 3,
                     Scale = reviewCardScaleFactor
                 };
-                //if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))
-                //{
-                //    if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
-                //    {
-                //        Rounds[i][2].Tint = Color.LightGreen;
-                //    }
-                //    else
-                //    {
-                //        Rounds[i][2].Tint = Color.LightPink;
-                //    }
-                //}
+
                 Labels[i][2] = new Label(this)
                 {
                     Position = new Vector2(leftOffset + 3 * Hand.CardWidth * reviewCardScaleFactor.X - 20, 100 + (i + headLength - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 80),
                     Width = 600,
                     Height = 40,
-                    //Text = string.Format("{0}: {1}", game.rounds[i].player3.Name, game.rounds[i].player3.PlayerIndex == 0 ? "-" : debugNote3 != null ? debugNote3.Split('\n')[0] : "-"),
-                    //TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player3.PlayerIndex ? Color.Yellow : Color.White,
                     UseCommonScissorRect = true,
                     ZIndex = 100,
                     FontScaleFactor = 0.9f
                 };
             }
-            //_initialHands[3] = game.talon;
+
             BoundsRect = new Rectangle(0, 0, (int)Game.VirtualScreenWidth - (int)Position.X, 
                                        30 + (roundsLength + headLength) * (int)(Hand.CardHeight * reviewCardScaleFactor.Y + 50) - 
                                        (int)Position.Y);
-            ScrollBarColor = Color.Transparent;
+            //ScrollBarColor = Color.Transparent;
 
-            //var maxHlasKMarked = false;
-   //         var maxHlasQMarked = false;
-            //var maxHlasKAgainstMarked = false;
-            //var maxHlasQAgainstMarked = false;
             for (var i = 0; i < Mariasek.Engine.Game.NumPlayers; i++)
             {
-                //var ii = (game.GameStartingPlayerIndex + i) % Mariasek.Engine.Game.NumPlayers;
-                //var hand = new List<Card>(_initialHands[ii].Sort(false, game.trump.HasValue ? false : true, game.trump));
-
-                Hands[i] = new Sprite[12];//hand.Count];
-                //Names[i].Text = i == 0 ? string.Format("{0}: {1}", 
-                                       //                game.players[ii].Name, 
-                                       //                game.GameType.ToDescription().Trim() +
-                                       //                (string.IsNullOrEmpty(game.players[ii].BidMade)
-                                       //                     ? string.Empty
-                                       //                     : string.Format(" {0}", game.players[ii].BidMade.TrimEnd()))) +
-                                       //  (Game.Settings.HintEnabled && game.GameTypeConfidence >= 0
-                                       //     ? string.Format(" ({0:0}%)", game.GameTypeConfidence * 100)
-                                       //     : string.Empty)
-                                       //: string.IsNullOrEmpty(game.players[ii].BidMade)
-                                            //? game.players[ii].Name
-                                            //: string.Format("{0}: {1}", game.players[ii].Name,
-                                              //                          game.players[ii].BidMade.Trim()) +
-                                              //(Game.Settings.HintEnabled && game.players[ii].BidConfidence >= 0
-                                                //? string.Format(" ({0:0}%)", game.players[ii].BidConfidence * 100)
-                                                //: string.Empty);
-                //for (var j = 0; j < hand.Count; j++)
+                Hands[i] = new Sprite[12];
                 for (var j = 0; j < 12; j++)
                 {
-                    //var rect = hand[j].ToTextureRect();
-                    //var hlas = (game.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
-                        //       game.rounds[0] != null &&
-                        //       (game.Results == null ||
-                        //        game.Results.BasicPointsWon + game.Results.BasicPointsLost == 90) &&
-                        //((hand[j].Value == Hodnota.Kral && hand.Any(k => k.Value == Hodnota.Svrsek && k.Suit == hand[j].Suit)) ||
-                         //(hand[j].Value == Hodnota.Svrsek && hand.Any(k => k.Value == Hodnota.Kral && k.Suit == hand[j].Suit)));
-
-     //               if (hlas && 
-     //                   game.Results != null &&
-     //                   i == 0 && 
-     //                   (game.GameType & Hra.Kilo) != 0 &&
-     //                   !game.Results.HundredWon)
-     //               {
-     //                   if (maxHlasKMarked && maxHlasQMarked)
-     //                   {
-                    //        hlas = false;
-                    //    }
-     //                   else if ((game.Results.MaxHlasWon == 40 &&
-     //                             hand[j].Suit == game.trump) ||
-                    //             (game.Results.MaxHlasWon == 20 &&
-     //                             hand[j].Suit != game.trump))
-     //                   {
-     //                       if (hand[j].Value == Hodnota.Kral)
-     //                       {
-     //                           maxHlasKMarked = true;
-     //                       }
-     //                       else
-     //                       {
-     //                           maxHlasQMarked = true;
-     //                       }
-     //                   }
-     //               }
-                    //else if (hlas &&
-                    //         game.Results != null &&
-                    //         i != 0 &&
-                    //         (game.GameType & Hra.KiloProti) != 0 &&
-                    //         !game.Results.HundredAgainstWon)
-                    //{
-                    //    if (maxHlasKAgainstMarked && maxHlasQAgainstMarked)
-                    //    {
-                    //        hlas = false;
-                    //    }
-                    //    else if ((game.Results.MaxHlasLost == 40 &&
-                    //              hand[j].Suit == game.trump) ||
-                    //             (game.Results.MaxHlasLost == 20 &&
-                    //              hand[j].Suit != game.trump))
-                    //    {
-     //                       if (hand[j].Value == Hodnota.Kral)
-     //                       {
-     //                           maxHlasKAgainstMarked = true;
-     //                       }
-     //                       else
-     //                       {
-     //                           maxHlasQAgainstMarked = true;
-     //                       }
-                    //    }
-                    //}
                     Hands[i][j] = new Sprite(this, Game.CardTextures)//, rect)
                     {
                         Position = new Vector2(leftOffset + j * (Hand.CardWidth * reviewCardScaleFactor.X - 10), 100 + i * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 30),
                         ZIndex = i * Mariasek.Engine.Game.NumRounds + j + 1,
                         Scale = reviewCardScaleFactor
                     };
-     //               if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
-     //                   (hand[j].Value == Hodnota.Eso ||
-     //                    hand[j].Value == Hodnota.Desitka) &&
-     //                   game.rounds.Any(k => k != null &&
-     //                                                    (k.c1 == hand[j] ||
-     //                                                     k.c2 == hand[j] ||
-     //                                                     k.c3 == hand[j])))
-     //               {
-                    //    var roundWinner = game.rounds.First(k => k != null &&
-     //                                                                        (k.c1 == hand[j] ||
-     //                                                                         k.c2 == hand[j] ||
-     //                                                                         k.c3 == hand[j])).roundWinner;
-     //                   if (roundWinner.PlayerIndex == 0 || roundWinner.TeamMateIndex == 0)
-     //                   {
-     //                       Hands[i][j].Tint = Color.LightGreen;
-     //                   }
-     //                   else
-     //                   {
-     //                       Hands[i][j].Tint = Color.LightPink;
-     //                   }
-                    //}
-                    //if (hlas)
-                    //{
-                    //    if (game.players[ii].PlayerIndex == 0 || game.players[ii].TeamMateIndex == 0)
-                    //    {
-                    //        Hands[i][j].Tint = Color.LightGreen;
-                    //    }
-                    //    else
-                    //    {
-                    //        Hands[i][j].Tint = Color.LightPink;
-                    //    }
-                    //}
                 }
             }
-            Hands[3] = new Sprite[2];//_initialHands[3].Count];
+            Hands[3] = new Sprite[2];
             Names[3].Text = "Talon";
-            for (var j = 0; j < 2; j++)//_initialHands[3].Count; j++)
+            for (var j = 0; j < 2; j++)
             {
-                //var rect = _initialHands[3][j].ToTextureRect();
                 Hands[3][j] = new Sprite(this, Game.CardTextures)//, rect)
                 {
                     Position = new Vector2(leftOffset + j * (Hand.CardWidth * reviewCardScaleFactor.X - 10), 100 + 3 * (Hand.CardHeight * reviewCardScaleFactor.Y + 50) + 30),
@@ -562,14 +385,6 @@ namespace Mariasek.SharedClient.GameComponents
             var roundsLength = game.CurrentRound != null ? game.CurrentRound.number : 0;
             var reviewCardScaleFactor = Game.CardScaleFactor * 0.7f;
 
-            //if (game.IsRunning)
-            //{
-            //    BackgroundColor = Color.Black;
-            //}
-            //else
-            //{
-            //    BackgroundColor = Color.Transparent;
-            //}
             for (var i = 0; i < Mariasek.Engine.Game.NumPlayers; i++)
             {
                 _initialHands[i] = new List<Mariasek.Engine.Card>(game.players[i].Hand);
@@ -701,7 +516,7 @@ namespace Mariasek.SharedClient.GameComponents
                                        130 + 
                                        (int)((roundsLength + headLength - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50)) -
                                        (int)Position.Y);
-            ScrollBarColor = Color.Transparent;
+            ScrollBarColor = Color.White;
 
             var maxHlasKMarked = false;
             var maxHlasQMarked = false;

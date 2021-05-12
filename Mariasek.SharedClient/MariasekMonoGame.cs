@@ -72,7 +72,6 @@ namespace Mariasek.SharedClient
         public TouchCollection TouchCollection { get; private set; }
         public SpriteBatch SpriteBatch { get; private set; }
         public Scene CurrentScene { get; set; }
-        //public TestScene TestScene { get; private set; }
 
         private MainScene _mainScene;
         public MainScene MainScene

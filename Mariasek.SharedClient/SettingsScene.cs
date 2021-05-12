@@ -41,7 +41,7 @@ namespace Mariasek.SharedClient
         private void SettingsChanged(object sender, SettingsChangedEventArgs e)
         {
             try
-            {
+            {                
                 SoundEffect.MasterVolume = Game.Settings.SoundEnabled ? 1f : 0f;
                 if (Game.AmbientSound != null && !Game.AmbientSound.IsDisposed)
                 {

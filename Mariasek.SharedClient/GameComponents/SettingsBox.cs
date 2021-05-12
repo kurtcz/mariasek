@@ -241,6 +241,7 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _cardBackSelector.SelectedIndex = 0;
             }
+            _cardBackSelector.IsEnabled = Game.Settings.CardDesign != CardFace.Pikety;
             _thinkingTime = new Label(this)
             {
                 Position = new Vector2(200, 310),
@@ -1401,6 +1402,7 @@ namespace Mariasek.SharedClient.GameComponents
             var origValue = Game.Settings.CardDesign;
 
             Game.Settings.CardDesign = (CardFace)selector.SelectedValue;
+            _cardBackSelector.IsEnabled = Game.Settings.CardDesign != CardFace.Pikety;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
