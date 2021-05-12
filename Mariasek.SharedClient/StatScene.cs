@@ -550,6 +550,10 @@ namespace Mariasek.SharedClient
                                                   i.GameId > g.GameId &&
                                                   i.GoodGame &&
                                                   i.MoneyWon[0] != 0);
+                if (g0 == null)
+                {
+                    continue;
+                }    
                 var diff = (g.GameId - g0.GameId) % games.Length;
                 if (diff < 0)
                 {
