@@ -3184,10 +3184,17 @@ namespace Mariasek.Engine
                   (_gameType & Hra.Kilo) == 0 &&
                   ((Hand.CardCount(_g.trump.Value) >= 4 ||           //ctyri a vice trumfu nebo
                     (Hand.CardCount(_g.trump.Value) >= 3 &&          //tri trumfy 3-3-2-2
-                     (Enum.GetValues(typeof(Barva)).Cast<Barva>().All(b => Hand.CardCount(b) >= 2) ||
+                     (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                          .All(b => Hand.CardCount(b) >= 2) ||
                       (axCount >= 4 &&                               //hodne ostrych karet a vsechny barvy
                        estimatedFinalBasicScore >= 40 &&
                        handSuits == Game.NumSuits) ||
+                      (Hand.Any(i => i.Suit == _trump.Value &&
+                                     i.Value >= Hodnota.Svrsek) &&
+                       Hand.Count(i => i.Value >= Hodnota.Svrsek) >= 6 &&
+                       Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                           .Where(b => Hand.HasSuit(b))
+                           .All(b => Hand.CardCount(b) >= 2)) ||
                       (Hand.HasA(_trump.Value) &&                    //trumfove eso a desitka
                        Hand.HasX(_trump.Value) &&
                        Hand.CardCount(Hodnota.Eso) >= 2 &&           //aspon dve esa a
