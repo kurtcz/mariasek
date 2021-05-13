@@ -507,7 +507,7 @@ namespace Mariasek.Engine
                                       !Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                            .Where(b => b != trumpCard.Suit)
                                            .Any(b => hand.CardCount(b) >= 5))
-                         .OrderByDescending(i => i.BadValue)
+                         .OrderBy(i => i.Value)
                         .FirstOrDefault();
 
             if (c != null)
@@ -686,7 +686,8 @@ namespace Mariasek.Engine
                                      .Where(i => i.Suit != _trumpCard.Suit &&
                                                  hand.HasX(i.Suit) &&
                                                  !hand.HasA(i.Suit) &&
-                                                 !hand.HasK(i.Suit) &&
+                                                 (!hand.HasK(i.Suit) ||
+                                                  i.Value == Hodnota.Kral) &&
                                                  talon.Count(j => j.Suit == i.Suit &&
                                                                   j.Value < Hodnota.Desitka) >= 2)
                                     .ToList();
