@@ -3071,6 +3071,11 @@ namespace Mariasek.Engine
                        kqScore >= 40) &&
                       (estimatedFinalBasicScore >= 20 ||        //a aspon 20 nebo 10+20 bodu na ruce
                        kqScore >= 20)) ||                     //nebo
+                     (Hand.CardCount(_g.trump.Value) >= 2 &&    //aspon 2 trumfy
+                      (Hand.HasA(_g.trump.Value) ||             //z toho aspon jeden A nebo X
+                       Hand.HasX(_g.trump.Value)) &&
+                      Hand.CardCount(Hodnota.Eso) >= 2 &&       //a aspon 2 eso celkem
+                      axCount >= 6) ||                          //a dohromady aspon 6 desitek a es nebo
                      (kqMaxOpponentScore == 0 ||                //vidim do vsech hlasek
                       kqScore >= 60 ||
                       (kqScore >= 40 &&

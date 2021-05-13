@@ -46,6 +46,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
         public string[] Series { get; set; }
+        public bool UseSplineCorrection { get; set; }
         public float XAxisPoint { get; set; }
         public float YAxisPoint { get; set; }
         public bool ShowXAxis { get; set; }
@@ -261,8 +262,9 @@ namespace Mariasek.SharedClient.GameComponents
                 {
                     continue;
                 }
-
-                var points = new Vector2[Data[i].Length + 1];
+                //kdyz je hodne datovych bodu a horizontalni vzdalenosti mezi nimi jsou blizke, tak nemusi byt posledni datovy bod napojen na spline
+                //proto pridame jeste jeden bod na stejne misto jako posledni bod a tim spline napojime
+                var points = new Vector2[Data[i].Length + (UseSplineCorrection ? 1 : 0)];
 
                 if (Data[i].Length == 1)
                 {
@@ -275,7 +277,10 @@ namespace Mariasek.SharedClient.GameComponents
                     {
                         points[j] = LogicalToPhysical(Data[i][j]);
                     }
-                    points[Data[i].Length] = new Vector2(points[Data[i].Length - 1].X + 1, points[Data[i].Length - 1].Y);
+                    if (UseSplineCorrection)
+                    {
+                        points[Data[i].Length] = new Vector2(points[Data[i].Length - 1].X + 1, points[Data[i].Length - 1].Y);
+                    }
                 }
                 Primitives2D.DrawSpline(Game.SpriteBatch, points, Colors[i], LineThickness, Opacity);
                 if (DataMarkerSize > 0)
