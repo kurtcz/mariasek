@@ -3109,8 +3109,8 @@ namespace Mariasek.Engine
                      ((Hand.HasA(_g.trump.Value) ||
                        Hand.HasX(_g.trump.Value)) &&           //nebo trumfove A nebo X
                       Hand.CardCount(_g.trump.Value) >= 3 &&   //a aspon 3 trumfy
-                      estimatedFinalBasicScore >= 50 &&
-                      axCount >= 4 &&
+                      estimatedFinalBasicScore + kqScore >= 50 &&
+                      axCount >= 3 &&
                       !Is100AgainstPossible(130)) ||
                      //(Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
                      // (Hand.HasX(_g.trump.Value) ||            //a desitku nebo
