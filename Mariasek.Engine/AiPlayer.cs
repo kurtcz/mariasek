@@ -3189,8 +3189,10 @@ namespace Mariasek.Engine
                 ((TeamMateIndex != -1 &&
                   (_gameType & Hra.Kilo) == 0 &&
                   ((Hand.CardCount(_g.trump.Value) >= 4 ||           //ctyri a vice trumfu nebo
-                    (Hand.CardCount(_g.trump.Value) >= 3 &&          //tri trumfy 3-3-2-2
-                     (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                    (Hand.CardCount(_g.trump.Value) >= 3 &&          //tri trumfy 3-3-2-2                     
+                     (Hand.CardCount(Hodnota.Eso) >= 3 &&
+                      axCount >= 4 &&
+                      Enum.GetValues(typeof(Barva)).Cast<Barva>()
                           .All(b => Hand.CardCount(b) >= 2) ||
                       (axCount >= 4 &&                               //hodne ostrych karet a vsechny barvy
                        estimatedFinalBasicScore >= 40 &&
