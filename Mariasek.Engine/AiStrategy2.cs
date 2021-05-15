@@ -5193,6 +5193,10 @@ namespace Mariasek.Engine
                                                                                                .All(j => j.Value <= i.Value))
                                                                     .ToList();
 
+                    if (cardsToPlay.Any(i => i.Value < Hodnota.Desitka))
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => i.Value < Hodnota.Desitka).ToList();
+                    }
                     if (cardsToPlay.Any(i => !_bannedSuits.Contains(i.Suit)))
                     {
                         cardsToPlay = cardsToPlay.Where(i => !_bannedSuits.Contains(i.Suit)).ToList();
@@ -5212,10 +5216,6 @@ namespace Mariasek.Engine
                     }
                     else
                     {
-                        if (cardsToPlay.Any(i => i.Value < Hodnota.Desitka))
-                        {
-                            cardsToPlay = cardsToPlay.Where(i => i.Value < Hodnota.Desitka).ToList();
-                        }
                         return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
                     }
                 }
