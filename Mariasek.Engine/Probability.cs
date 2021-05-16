@@ -1563,7 +1563,7 @@ namespace Mariasek.Engine
             }
             if (_allowFakeSeven &&
                 (e.BidMade & Hra.SedmaProti) != 0 &&
-                e.Player.PlayerIndex == _myIndex &&
+                e.Player.PlayerIndex != _myIndex &&
                 _sevenAgainstIndex == _myIndex &&
                 !_myHand.Has7(_trump.Value))
             {
@@ -1604,13 +1604,18 @@ namespace Mariasek.Engine
             if ((e.BidMade & Hra.SedmaProti) != 0 && bidding.SevenAgainstMultiplier == 1)
             {
                 _sevenAgainstIndex = e.Player.PlayerIndex;
-                _initialExpectedTrumps[_sevenAgainstIndex] = GetNonStarterInitialExpectedTrumps(Hra.SedmaProti);
-                for (var i = 0; i < Game.NumPlayers + 1; i++)
+                if (_sevenAgainstIndex != _myIndex)
                 {
-                    _cardProbabilityForPlayer[i][_trump.Value][Hodnota.Sedma] = i == _sevenAgainstIndex ? 1 : 0;
-                    if (i != _myIndex && i != _sevenAgainstIndex && i != _gameStarterIndex && i != talonIndex)
+                    _initialExpectedTrumps[_sevenAgainstIndex] = GetNonStarterInitialExpectedTrumps(Hra.SedmaProti);
+                    for (var i = 0; i < Game.NumPlayers + 1; i++)
                     {
-                        _initialExpectedTrumps[i] = 8 - _initialExpectedTrumps[_gameStarterIndex] - _initialExpectedTrumps[_sevenAgainstIndex];
+                        var likelyOrCertain = _allowFakeSeven ? 0.99f : 1f;
+
+                        _cardProbabilityForPlayer[i][_trump.Value][Hodnota.Sedma] = i == _sevenAgainstIndex ? likelyOrCertain : 1 - likelyOrCertain;
+                        if (i != _myIndex && i != _sevenAgainstIndex && i != _gameStarterIndex && i != talonIndex)
+                        {
+                            _initialExpectedTrumps[i] = 8 - _initialExpectedTrumps[_gameStarterIndex] - _initialExpectedTrumps[_sevenAgainstIndex];
+                        }
                     }
                 }
             }
