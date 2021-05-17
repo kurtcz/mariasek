@@ -2160,6 +2160,35 @@ namespace Mariasek.Engine
                                 return cardsToPlay.First();
                             }
                         }
+
+                        //pokud nemuzes eso namazat a lze ho teoreticky uhrat, tak do toho jdi
+                        if (hands[MyIndex].CardCount(_trump) > 1 &&
+                            (SevenValue > GameValue ||                      //pri sedme vzdy
+                             Enum.GetValues(typeof(Barva)).Cast<Barva>()    //pri hre jen kdyz nemas nejakou plonkovou barvu
+                                 .Where(b => b != _trump &&
+                                             hands[MyIndex].HasSuit(b))
+                                 .All(b => hands[MyIndex].HasA(b))) &&
+                            _probabilities.PotentialCards(opponent).CardCount(_trump) > _hands[MyIndex].CardCount(_trump) &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => b != _trump &&
+                                            hands[MyIndex].HasSuit(b))
+                                .Any(b => hands[MyIndex].HasA(b) &&
+                                          _probabilities.PotentialCards(opponent).HasSuit(b)))
+                        {
+                            var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                    i.Value == Hodnota.Eso &&
+                                                                                    _probabilities.PotentialCards(opponent).HasSuit(i.Suit))
+                                                                        .ToList();
+                            if (cardsToPlay.Any(i => !_probabilities.PotentialCards(opponent).HasX(i.Suit)))
+                            {
+                                cardsToPlay = cardsToPlay.Where(i => !_probabilities.PotentialCards(opponent).HasX(i.Suit)).ToList();
+                            }
+
+                            if (cardsToPlay.Any())
+                            {
+                                return cardsToPlay.First();
+                            }
+                        }
                     }
 
                     //pokud hrajes kilo na 4 trumfy (nebo min) a mas vic nez pet ostrych karet (cili souperi maji maximalne 2), muzes zkusit jestli eso projde
@@ -2882,10 +2911,21 @@ namespace Mariasek.Engine
                     {
                         return null;
                     }
+                    var opponent = TeamMateIndex == player2 ? player3 : player2;
+
+                    if (TeamMateIndex != -1 &&
+                        SevenValue > GameValue &&                           //pri sedme se nezbavuj plonka (abych si udrzel trumfy)
+                        hands[MyIndex].HasSuit(_trump) &&
+                        hands[MyIndex].Any(i => i.Suit != _trump &&         //pokud muzes uhrat nejake eso
+                                                i.Value == Hodnota.Eso &&
+                                                _probabilities.PotentialCards(opponent).HasSuit(i.Suit)))
+                    {
+                        return null;
+                    }
                     //pokud hrajes proti kilu, tak se zbav trumfu, pokud mas v ostatnich barvach ostre karty
                     var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                    .Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > 0 ||
-                                                _probabilities.CardProbability(player3, new Card(_trump, h)) > 0).ToList();
+                                .Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > 0 ||
+                                            _probabilities.CardProbability(player3, new Card(_trump, h)) > 0).ToList();
                     var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
 
                     if (TeamMateIndex != -1 &&
@@ -3692,6 +3732,14 @@ namespace Mariasek.Engine
                 #region ChooseCard1 Rule17
                 ChooseCard1 = () =>
                 {
+                    if (TeamMateIndex != -1 &&
+                        (_gameType & Hra.Sedma) != 0 &&
+                        (_gameType & Hra.Hra) != 0 &&
+                        SevenValue > GameValue)
+                    {
+                        return null;
+                    }
+
                     if (TeamMateIndex == -1 && 
                         (_gameType & Hra.Kilo) != 0 &&
                         hands[MyIndex].CardCount(_trump) > 1 &&
@@ -3870,6 +3918,18 @@ namespace Mariasek.Engine
                                                                      !hands[MyIndex].HasX(i.Suit))
                                                          .ToList();
                             }
+                            if (SevenValue > GameValue &&                           //pri sedme se nezbavuj plonka (abych si udrzel trumfy)
+                                hands[MyIndex].HasSuit(_trump) &&                   //nebo karty kde bys ztratil tempo
+                                hands[MyIndex].Any(i => i.Suit != _trump &&         //pokud muzes uhrat nejake eso
+                                                        i.Value == Hodnota.Eso &&
+                                                        _probabilities.PotentialCards(opponentIndex).HasSuit(i.Suit)))
+                            {
+                                cardsToPlay = cardsToPlay.Where(i => hands[MyIndex].CardCount(i.Suit) > 1 &&
+                                                                     !_probabilities.LikelyCards(opponentIndex).Any(j => j.Suit == i.Suit &&
+                                                                                                                         j.Value > i.Value))
+                                                         .ToList();
+                            }
+
                             return cardsToPlay.OrderByDescending(i => TeamMateIndex == player3 &&
                                                                       _probabilities.PotentialCards(player2).Any(j => j.Suit == i.Suit &&
                                                                                                                       j.Value >= Hodnota.Desitka)
@@ -3920,6 +3980,14 @@ namespace Mariasek.Engine
                 #region ChooseCard1 Rule19
                 ChooseCard1 = () =>
                 {
+                    if (TeamMateIndex != -1 &&
+                        (_gameType & Hra.Sedma) != 0 &&
+                        (_gameType & Hra.Hra) != 0 &&
+                        SevenValue > GameValue)
+                    {
+                        return null;
+                    }
+
                     if (TeamMateIndex == player2)
                     {
                         //hraj trumf pokud jsou vsechny ostatni barvy zakazane a zaroven mas v nejake netrumfove barve eso
