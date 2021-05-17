@@ -766,7 +766,7 @@ namespace Mariasek.SharedClient
 			_chart.MaxValue = new Vector2(thresholds.Length - 1 + 0.1f, 105);
 			_chart.MinValue = Vector2.Zero;
 			_chart.GridInterval = new Vector2(1, 10);
-			_chart.Data = series;
+            _chart.Data = series;
 
             var gt = (Hra)_gameTypeSelector.SelectedValue;
             _note.Text = _notes.ContainsKey(gt) ? _notes[gt] : _defaultNote;
