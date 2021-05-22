@@ -56,7 +56,7 @@ namespace Mariasek.Engine
         private ParallelOptions options = new ParallelOptions
         {
             //MaxDegreeOfParallelism = 1  //Uncomment before debugging
-            //MaxDegreeOfParallelism = Environment.ProcessorCount * 8
+            MaxDegreeOfParallelism = 2 * Environment.ProcessorCount - 1
         };
 		public bool AdvisorMode { get; set; }
 		private Card _trumpCard;

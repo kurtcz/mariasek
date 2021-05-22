@@ -389,6 +389,7 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _initialHands[i] = new List<Mariasek.Engine.Card>(game.players[i].Hand);
             }
+            _initialHands[3] = new List<Mariasek.Engine.Card>(game.talon);
             if (game.trump.HasValue)
             {
                 var talon = game.talon;
@@ -413,181 +414,30 @@ namespace Mariasek.SharedClient.GameComponents
                     }
                 }
             }
-            for (var i = 0; i < Rounds.Length; i++)
-            {
-                if (game.rounds[i] == null || game.rounds[i].c3 == null)
-                {
-                    for (var j = 0; j < Mariasek.Engine.Game.NumPlayers; j++)
-                    {
-                        Labels[i][j].Hide();
-                        Rounds[i][j].Hide();
-                    }
-                    continue;
-                }
-                if (i >= roundsLength)
-                {
-                    roundsLength = i + 1;
-                }
-                var r = game.rounds[i];
-                _initialHands[r.player1.PlayerIndex].Add(r.c1);
-                _initialHands[r.player2.PlayerIndex].Add(r.c2);
-                _initialHands[r.player3.PlayerIndex].Add(r.c3);
-
-                var debugNote1 = GetMainDebugNote(r.debugNote1);
-                var debugNote2 = GetMainDebugNote(r.debugNote2);
-                var debugNote3 = GetMainDebugNote(r.debugNote3);
-
-                Rounds[i][0].Texture = Game.CardTextures;
-                Rounds[i][0].SpriteRectangle = r.c1.ToTextureRect();
-                if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka))
-                {
-                    if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
-                    {
-                        Rounds[i][0].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
-                    }
-                    else
-                    {
-                        Rounds[i][0].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
-                    }
-                }
-                else if (r.hlas1)
-                {
-                    if (r.player1.PlayerIndex == 0 || r.player1.TeamMateIndex == 0)
-                    {
-                        Rounds[i][0].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
-                    }
-                    else
-                    {
-                        Rounds[i][0].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
-                    }
-                }
-                else if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && r.c1.Value == Hodnota.Kral && _initialHands[r.player1.PlayerIndex].HasQ(r.c1.Suit))
-                {
-                    if (r.player1.PlayerIndex == 0 || r.player1.TeamMateIndex == 0)
-                    {
-                        Rounds[i][0].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
-                    }
-                    else
-                    {
-                        Rounds[i][0].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
-                    }
-                }
-                else
-                {
-                    Rounds[i][0].Tint = Color.White;
-                }
-                Labels[i][0].Text = string.Format("{0}: {1}", game.rounds[i].player1.Name, game.rounds[i].player1.PlayerIndex == 0 ? "-" : debugNote1 != null ? debugNote1.Split('\n')[0] : "-");
-                Labels[i][0].TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player1.PlayerIndex 
-                                            ? Game.Settings.HighlightedTextColor
-                                            : Game.Settings.DefaultTextColor;
-
-                Rounds[i][1].Texture = Game.CardTextures;
-                Rounds[i][1].SpriteRectangle = game.rounds[i].c2.ToTextureRect();
-                if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka))
-                {
-                    if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
-                    {
-                        Rounds[i][1].Tint = Game.Settings.ReviewPtsWonColor;
-                    }
-                    else
-                    {
-                        Rounds[i][1].Tint = Game.Settings.ReviewPtsLostColor;
-                    }
-                }
-                else if (r.hlas2)
-                {
-                    if (r.player2.PlayerIndex == 0 || r.player2.TeamMateIndex == 0)
-                    {
-                        Rounds[i][1].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
-                    }
-                    else
-                    {
-                        Rounds[i][1].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
-                    }
-                }
-                else if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && r.c2.Value == Hodnota.Kral && _initialHands[r.player2.PlayerIndex].HasQ(r.c2.Suit))
-                {
-                    if (r.player2.PlayerIndex == 0 || r.player2.TeamMateIndex == 0)
-                    {
-                        Rounds[i][1].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
-                    }
-                    else
-                    {
-                        Rounds[i][1].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
-                    }
-                }
-                else
-                {
-                    Rounds[i][1].Tint = Color.White;
-                }
-                Labels[i][1].Text = string.Format("{0}: {1}", game.rounds[i].player2.Name, game.rounds[i].player2.PlayerIndex == 0 ? "-" : debugNote2 != null ? debugNote2.Split('\n')[0] : "-");
-                Labels[i][1].TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player2.PlayerIndex 
-                                            ? Game.Settings.HighlightedTextColor
-                                            : Game.Settings.DefaultTextColor;
-
-                Rounds[i][2].Texture = Game.CardTextures;
-                Rounds[i][2].SpriteRectangle = game.rounds[i].c3.ToTextureRect();
-                if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))
-                {
-                    if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
-                    {
-                        Rounds[i][2].Tint = Game.Settings.ReviewPtsWonColor;
-                    }
-                    else
-                    {
-                        Rounds[i][2].Tint = Game.Settings.ReviewPtsLostColor;
-                    }
-                }
-                else if (r.hlas3)
-                {
-                    if (r.player3.PlayerIndex == 0 || r.player3.TeamMateIndex == 0)
-                    {
-                        Rounds[i][2].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
-                    }
-                    else
-                    {
-                        Rounds[i][2].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
-                    }
-                }
-                else if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && r.c3.Value == Hodnota.Kral && _initialHands[r.player3.PlayerIndex].HasQ(r.c3.Suit))
-                {
-                    if (r.player3.PlayerIndex == 0 || r.player3.TeamMateIndex == 0)
-                    {
-                        Rounds[i][2].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
-                    }
-                    else
-                    {
-                        Rounds[i][2].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
-                    }
-                }
-                else
-                {
-                    Rounds[i][2].Tint = Color.White;
-                }
-                Labels[i][2].Text = string.Format("{0}: {1}", game.rounds[i].player3.Name, game.rounds[i].player3.PlayerIndex == 0 ? "-" : debugNote3 != null ? debugNote3.Split('\n')[0] : "-");
-                Labels[i][2].TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player3.PlayerIndex 
-                                            ? Game.Settings.HighlightedTextColor
-                                            : Game.Settings.DefaultTextColor;
-                for (var j = 0; j < Mariasek.Engine.Game.NumPlayers; j++)
-                {
-                    Labels[i][j].Show();
-                    Rounds[i][j].Show();
-                }
-            }
-            _initialHands[0] = _initialHands[0].Distinct().ToList();
-            _initialHands[1] = _initialHands[1].Distinct().ToList();
-            _initialHands[2] = _initialHands[2].Distinct().ToList();
-            _initialHands[3] = game.talon;
-            BoundsRect = new Rectangle(0, 0, (int)Game.VirtualScreenWidth - (int)Position.X,
-                                       130 + 
-                                       (int)((roundsLength + headLength - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50)) -
-                                       (int)Position.Y);
-            ScrollBarColor = Color.White;
-
             var maxHlasKMarked = false;
             var maxHlasQMarked = false;
             var maxHlasKAgainstMarked = false;
             var maxHlasQAgainstMarked = false;
+            Barva? hlasMarkedIntoHunderd = null;
+            Barva? hlasMarkedIntoHunderdAgainst = null;
+
+            for (var i = 0; i < Mariasek.Engine.Game.NumRounds && game.rounds[i] != null; i++)
+            {
+                var r = game.rounds[i];
+
+                if (!_initialHands[r.player1.PlayerIndex].Contains(r.c1))
+                {
+                    _initialHands[r.player1.PlayerIndex].Add(r.c1);
+                }
+                if (!_initialHands[r.player2.PlayerIndex].Contains(r.c2))
+                {
+                    _initialHands[r.player2.PlayerIndex].Add(r.c2);
+                }
+                if (!_initialHands[r.player3.PlayerIndex].Contains(r.c3))
+                {
+                    _initialHands[r.player3.PlayerIndex].Add(r.c3);
+                }
+            }
             for (var i = 0; i < Mariasek.Engine.Game.NumPlayers; i++)
             {
                 var ii = (game.GameStartingPlayerIndex + i) % Mariasek.Engine.Game.NumPlayers;
@@ -642,6 +492,7 @@ namespace Mariasek.SharedClient.GameComponents
                             {
                                 maxHlasQMarked = true;
                             }
+                            hlasMarkedIntoHunderd = hand[j].Suit;
                         }
                     }
                     else if (hlas &&
@@ -667,6 +518,7 @@ namespace Mariasek.SharedClient.GameComponents
                             {
                                 maxHlasQAgainstMarked = true;
                             }
+                            hlasMarkedIntoHunderdAgainst = hand[j].Suit;
                         }
                     }
                     Hands[i][j].Texture = Game.CardTextures;
@@ -724,6 +576,253 @@ namespace Mariasek.SharedClient.GameComponents
                 Hands[3][j].SpriteRectangle = rect;
                 Hands[3][j].Tag = _initialHands[3][j];
             }
+            for (var i = 0; i < Rounds.Length; i++)
+            {
+                if (game.rounds[i] == null || game.rounds[i].c3 == null)
+                {
+                    for (var j = 0; j < Mariasek.Engine.Game.NumPlayers; j++)
+                    {
+                        Labels[i][j].Hide();
+                        Rounds[i][j].Hide();
+                    }
+                    continue;
+                }
+                if (i >= roundsLength)
+                {
+                    roundsLength = i + 1;
+                }
+                var r = game.rounds[i];
+
+                var debugNote1 = GetMainDebugNote(r.debugNote1);
+                var debugNote2 = GetMainDebugNote(r.debugNote2);
+                var debugNote3 = GetMainDebugNote(r.debugNote3);
+
+                Rounds[i][0].Texture = Game.CardTextures;
+                Rounds[i][0].SpriteRectangle = r.c1.ToTextureRect();
+                if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka))
+                {
+                    if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
+                    {
+                        Rounds[i][0].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
+                    }
+                    else
+                    {
+                        Rounds[i][0].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
+                    }
+                }
+                else if (r.hlas1)
+                {
+                    if ((r.player1.PlayerIndex == game.GameStartingPlayerIndex &&
+                         (game.GameType & Hra.Kilo) != 0 &&
+                         !game.Results.HundredWon &&
+                         hlasMarkedIntoHunderd != r.c1.Suit) ||
+                        (r.player1.PlayerIndex != game.GameStartingPlayerIndex &&
+                         (game.GameType & Hra.KiloProti) != 0 &&
+                         !game.Results.HundredAgainstWon &&
+                         hlasMarkedIntoHunderdAgainst != r.c1.Suit))
+                    {
+                        Rounds[i][0].Tint = Color.White;
+                    }
+                    else
+                    {
+                        if (r.player1.PlayerIndex == 0 || r.player1.TeamMateIndex == 0)
+                        {
+                            Rounds[i][0].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
+                        }
+                        else
+                        {
+                            Rounds[i][0].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
+                        }
+                    }
+                }
+                //else if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && r.c1.Value == Hodnota.Kral && _initialHands[r.player1.PlayerIndex].HasQ(r.c1.Suit))
+                //{
+                //    if ((r.player1.PlayerIndex == game.GameStartingPlayerIndex &&
+                //         (game.GameType & Hra.Kilo) != 0 &&
+                //         !game.Results.HundredWon &&
+                //         hlasMarkedIntoHunderd != r.c1.Suit) ||
+                //        (r.player1.PlayerIndex != game.GameStartingPlayerIndex &&
+                //         (game.GameType & Hra.KiloProti) != 0 &&
+                //         !game.Results.HundredAgainstWon &&
+                //         hlasMarkedIntoHunderdAgainst != r.c1.Suit))
+                //    {
+                //        Rounds[i][0].Tint = Color.White;
+                //    }
+                //    else
+                //    {
+                //        if (r.player1.PlayerIndex == 0 || r.player1.TeamMateIndex == 0)
+                //        {
+                //            Rounds[i][0].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
+                //        }
+                //        else
+                //        {
+                //            Rounds[i][0].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
+                //        }
+                //    }
+                //}
+                else
+                {
+                    Rounds[i][0].Tint = Color.White;
+                }
+                Labels[i][0].Text = string.Format("{0}: {1}", game.rounds[i].player1.Name, game.rounds[i].player1.PlayerIndex == 0 ? "-" : debugNote1 != null ? debugNote1.Split('\n')[0] : "-");
+                Labels[i][0].TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player1.PlayerIndex 
+                                            ? Game.Settings.HighlightedTextColor
+                                            : Game.Settings.DefaultTextColor;
+
+                Rounds[i][1].Texture = Game.CardTextures;
+                Rounds[i][1].SpriteRectangle = game.rounds[i].c2.ToTextureRect();
+                if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka))
+                {
+                    if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
+                    {
+                        Rounds[i][1].Tint = Game.Settings.ReviewPtsWonColor;
+                    }
+                    else
+                    {
+                        Rounds[i][1].Tint = Game.Settings.ReviewPtsLostColor;
+                    }
+                }
+                else if (r.hlas2)
+                {
+                    if ((r.player2.PlayerIndex == game.GameStartingPlayerIndex &&
+                         (game.GameType & Hra.Kilo) != 0 &&
+                         !game.Results.HundredWon &&
+                         hlasMarkedIntoHunderd != r.c2.Suit) ||
+                        (r.player2.PlayerIndex != game.GameStartingPlayerIndex &&
+                         (game.GameType & Hra.KiloProti) != 0 &&
+                         !game.Results.HundredAgainstWon &&
+                         hlasMarkedIntoHunderdAgainst != r.c2.Suit))
+                    {
+                        Rounds[i][1].Tint = Color.White;
+                    }
+                    else
+                    {
+                        if (r.player2.PlayerIndex == 0 || r.player2.TeamMateIndex == 0)
+                        {
+                            Rounds[i][1].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
+                        }
+                        else
+                        {
+                            Rounds[i][1].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
+                        }
+                    }
+                }
+                //else if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && r.c2.Value == Hodnota.Kral && _initialHands[r.player2.PlayerIndex].HasQ(r.c2.Suit))
+                //{
+                //    if ((r.player2.PlayerIndex == game.GameStartingPlayerIndex &&
+                //         (game.GameType & Hra.Kilo) != 0 &&
+                //         !game.Results.HundredWon &&
+                //         hlasMarkedIntoHunderd != r.c2.Suit) ||
+                //        (r.player2.PlayerIndex != game.GameStartingPlayerIndex &&
+                //         (game.GameType & Hra.KiloProti) != 0 &&
+                //         !game.Results.HundredAgainstWon &&
+                //         hlasMarkedIntoHunderdAgainst != r.c2.Suit))
+                //    {
+                //        Rounds[i][1].Tint = Color.White;
+                //    }
+                //    else
+                //    {
+                //        if (r.player2.PlayerIndex == 0 || r.player2.TeamMateIndex == 0)
+                //        {
+                //            Rounds[i][1].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
+                //        }
+                //        else
+                //        {
+                //            Rounds[i][1].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
+                //        }
+                //    }
+                //}
+                else
+                {
+                    Rounds[i][1].Tint = Color.White;
+                }
+                Labels[i][1].Text = string.Format("{0}: {1}", game.rounds[i].player2.Name, game.rounds[i].player2.PlayerIndex == 0 ? "-" : debugNote2 != null ? debugNote2.Split('\n')[0] : "-");
+                Labels[i][1].TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player2.PlayerIndex 
+                                            ? Game.Settings.HighlightedTextColor
+                                            : Game.Settings.DefaultTextColor;
+
+                Rounds[i][2].Texture = Game.CardTextures;
+                Rounds[i][2].SpriteRectangle = game.rounds[i].c3.ToTextureRect();
+                if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))
+                {
+                    if (r.roundWinner.PlayerIndex == game.players[0].PlayerIndex || r.roundWinner.PlayerIndex == game.players[0].TeamMateIndex)
+                    {
+                        Rounds[i][2].Tint = Game.Settings.ReviewPtsWonColor;
+                    }
+                    else
+                    {
+                        Rounds[i][2].Tint = Game.Settings.ReviewPtsLostColor;
+                    }
+                }
+                else if (r.hlas3)
+                {
+                    if ((r.player3.PlayerIndex == game.GameStartingPlayerIndex &&
+                         (game.GameType & Hra.Kilo) != 0 &&
+                         !game.Results.HundredWon &&
+                         hlasMarkedIntoHunderd != r.c3.Suit) ||
+                        (r.player3.PlayerIndex != game.GameStartingPlayerIndex &&
+                         (game.GameType & Hra.KiloProti) != 0 &&
+                         !game.Results.HundredAgainstWon &&
+                         hlasMarkedIntoHunderdAgainst != r.c3.Suit))
+                    {
+                        Rounds[i][2].Tint = Color.White;
+                    }
+                    else
+                    {
+                        if (r.player3.PlayerIndex == 0 || r.player3.TeamMateIndex == 0)
+                        {
+                            Rounds[i][2].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
+                        }
+                        else
+                        {
+                            Rounds[i][2].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
+                        }
+                    }
+                }
+                //else if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && r.c3.Value == Hodnota.Kral && _initialHands[r.player3.PlayerIndex].HasQ(r.c3.Suit))
+                //{
+                //    if ((r.player3.PlayerIndex == game.GameStartingPlayerIndex &&
+                //         (game.GameType & Hra.Kilo) != 0 &&
+                //         !game.Results.HundredWon &&
+                //         hlasMarkedIntoHunderd != r.c3.Suit) ||
+                //        (r.player3.PlayerIndex != game.GameStartingPlayerIndex &&
+                //         (game.GameType & Hra.KiloProti) != 0 &&
+                //         !game.Results.HundredAgainstWon &&
+                //         hlasMarkedIntoHunderdAgainst != r.c3.Suit))
+                //    {
+                //        Rounds[i][2].Tint = Color.White;
+                //    }
+                //    else
+                //    {
+                //        if (r.player3.PlayerIndex == 0 || r.player3.TeamMateIndex == 0)
+                //        {
+                //            Rounds[i][2].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
+                //        }
+                //        else
+                //        {
+                //            Rounds[i][2].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
+                //        }
+                //    }
+                //}
+                else
+                {
+                    Rounds[i][2].Tint = Color.White;
+                }
+                Labels[i][2].Text = string.Format("{0}: {1}", game.rounds[i].player3.Name, game.rounds[i].player3.PlayerIndex == 0 ? "-" : debugNote3 != null ? debugNote3.Split('\n')[0] : "-");
+                Labels[i][2].TextColor = game.rounds[i].roundWinner.PlayerIndex == game.rounds[i].player3.PlayerIndex 
+                                            ? Game.Settings.HighlightedTextColor
+                                            : Game.Settings.DefaultTextColor;
+                for (var j = 0; j < Mariasek.Engine.Game.NumPlayers; j++)
+                {
+                    Labels[i][j].Show();
+                    Rounds[i][j].Show();
+                }
+            }
+            BoundsRect = new Rectangle(0, 0, (int)Game.VirtualScreenWidth - (int)Position.X,
+                                       130 + 
+                                       (int)((roundsLength + headLength - 0.5f) * (Hand.CardHeight * reviewCardScaleFactor.Y + 50)) -
+                                       (int)Position.Y);
+            ScrollBarColor = Color.White;
         }
 
         private string GetMainDebugNote(string debugNote)
