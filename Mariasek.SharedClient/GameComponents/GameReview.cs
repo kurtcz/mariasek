@@ -450,6 +450,28 @@ namespace Mariasek.SharedClient.GameComponents
                         Rounds[i][0].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
                     }
                 }
+                else if (r.hlas1)
+                {
+                    if (r.player1.PlayerIndex == 0 || r.player1.TeamMateIndex == 0)
+                    {
+                        Rounds[i][0].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
+                    }
+                    else
+                    {
+                        Rounds[i][0].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
+                    }
+                }
+                else if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && r.c1.Value == Hodnota.Kral && _initialHands[r.player1.PlayerIndex].HasQ(r.c1.Suit))
+                {
+                    if (r.player1.PlayerIndex == 0 || r.player1.TeamMateIndex == 0)
+                    {
+                        Rounds[i][0].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
+                    }
+                    else
+                    {
+                        Rounds[i][0].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
+                    }
+                }
                 else
                 {
                     Rounds[i][0].Tint = Color.White;
@@ -472,6 +494,28 @@ namespace Mariasek.SharedClient.GameComponents
                         Rounds[i][1].Tint = Game.Settings.ReviewPtsLostColor;
                     }
                 }
+                else if (r.hlas2)
+                {
+                    if (r.player2.PlayerIndex == 0 || r.player2.TeamMateIndex == 0)
+                    {
+                        Rounds[i][1].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
+                    }
+                    else
+                    {
+                        Rounds[i][1].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
+                    }
+                }
+                else if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && r.c2.Value == Hodnota.Kral && _initialHands[r.player2.PlayerIndex].HasQ(r.c2.Suit))
+                {
+                    if (r.player2.PlayerIndex == 0 || r.player2.TeamMateIndex == 0)
+                    {
+                        Rounds[i][1].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
+                    }
+                    else
+                    {
+                        Rounds[i][1].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
+                    }
+                }
                 else
                 {
                     Rounds[i][1].Tint = Color.White;
@@ -492,6 +536,28 @@ namespace Mariasek.SharedClient.GameComponents
                     else
                     {
                         Rounds[i][2].Tint = Game.Settings.ReviewPtsLostColor;
+                    }
+                }
+                else if (r.hlas3)
+                {
+                    if (r.player3.PlayerIndex == 0 || r.player3.TeamMateIndex == 0)
+                    {
+                        Rounds[i][2].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
+                    }
+                    else
+                    {
+                        Rounds[i][2].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
+                    }
+                }
+                else if ((game.GameType & (Hra.Betl | Hra.Durch)) == 0 && r.c3.Value == Hodnota.Kral && _initialHands[r.player3.PlayerIndex].HasQ(r.c3.Suit))
+                {
+                    if (r.player3.PlayerIndex == 0 || r.player3.TeamMateIndex == 0)
+                    {
+                        Rounds[i][2].Tint = Game.Settings.ReviewPtsWonColor;//Color.LightGreen;
+                    }
+                    else
+                    {
+                        Rounds[i][2].Tint = Game.Settings.ReviewPtsLostColor;//Pink;
                     }
                 }
                 else
