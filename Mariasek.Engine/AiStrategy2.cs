@@ -2683,7 +2683,9 @@ namespace Mariasek.Engine
                 ChooseCard1 = () =>
                 {
                     if (TeamMateIndex == -1 &&
-                        (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
+                        (((_gameType & Hra.Sedma) != 0 &&
+                          SevenValue > GameValue) ||
+                         (_gameType & Hra.SedmaProti) != 0) &&
                         (_gameType & (Hra.Kilo | Hra.KiloProti)) == 0)
                     {
                         //c--
@@ -2796,7 +2798,8 @@ namespace Mariasek.Engine
                                           .FirstOrDefault();
                     }
                     else if (TeamMateIndex == player2 &&
-                             (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
+                             (_gameType & Hra.Sedma) != 0 &&  //jen pri sedme, pri sedme proti neriskuj ze o ostrou kartu prijdes
+                             SevenValue > GameValue &&
                              (_gameType & (Hra.Kilo | Hra.KiloProti)) == 0)
                     {
                         //co-
@@ -2858,7 +2861,8 @@ namespace Mariasek.Engine
 
                     }
                     else if (TeamMateIndex == player3 &&
-                             (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
+                             (_gameType & Hra.Sedma) != 0 &&  //jen pri sedme, pri sedme proti neriskuj ze o ostrou kartu prijdes
+                             SevenValue > GameValue &&
                              (_gameType & (Hra.Kilo | Hra.KiloProti)) == 0)
                     {
                         //c-o
