@@ -56,7 +56,7 @@ namespace Mariasek.Engine
         private ParallelOptions options = new ParallelOptions
         {
             //MaxDegreeOfParallelism = 1  //Uncomment before debugging
-            MaxDegreeOfParallelism = 2 * Environment.ProcessorCount - 1
+            //MaxDegreeOfParallelism = 2 * Environment.ProcessorCount - 1
         };
 		public bool AdvisorMode { get; set; }
 		private Card _trumpCard;
@@ -3066,11 +3066,12 @@ namespace Mariasek.Engine
                       DebugInfo.Tygrovo >= 20))) ||             //a k tomu silne karty
                    (bidding.GameMultiplier < 2 &&               //Flek: ******
                     ((Hand.CardCount(_g.trump.Value) >= 2 &&    //aspon 2 trumfy
-                      (Hand.HasK(_g.trump.Value) ||             //a k tomu trhak
+                      (Hand.HasK(_g.trump.Value) ||             //a k tomu trhak nebo 2 hlasy
                        Hand.HasQ(_g.trump.Value) ||
                        kqScore >= 40) &&
-                      (estimatedFinalBasicScore >= 20 ||        //a aspon 20 nebo 10+20 bodu na ruce
-                       kqScore >= 20)) ||                     //nebo
+                      (estimatedFinalBasicScore >= 30 ||        //a aspon 30 nebo 20+20 bodu na ruce
+                       (estimatedFinalBasicScore >= 20 &&
+                        kqScore >= 20))) ||                     //nebo
                      (Hand.CardCount(_g.trump.Value) >= 2 &&    //aspon 2 trumfy
                       (Hand.HasA(_g.trump.Value) ||             //z toho aspon jeden A nebo X
                        Hand.HasX(_g.trump.Value)) &&
@@ -3081,7 +3082,7 @@ namespace Mariasek.Engine
                       (kqScore >= 40 &&
                        kqMaxOpponentScore <= 20 &&
                        estimatedFinalBasicScore >= 20) ||
-                      (estimatedFinalBasicScore >= 10 &&        //nebo vidim do tri hlasek a mam aspon 10 bodu
+                      (estimatedFinalBasicScore >= 30 &&        //nebo vidim do tri hlasek a mam aspon 30 bodu
                        kqMaxOpponentScore <= 20)) ||            //nebo
                      ((Hand.HasK(_g.trump.Value) ||             //pouze trhak a 40 bodu v hlasech na ruce
                        Hand.HasQ(_g.trump.Value)) &&
@@ -3191,24 +3192,24 @@ namespace Mariasek.Engine
                   ((Hand.CardCount(_g.trump.Value) >= 4 ||           //ctyri a vice trumfu nebo
                     (Hand.CardCount(_g.trump.Value) >= 3 &&          //tri trumfy 3-3-2-2                     
                      (Hand.CardCount(Hodnota.Eso) >= 3 &&
-                      axCount >= 4 &&
-                      Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                          .All(b => Hand.CardCount(b) >= 2) ||
-                      (axCount >= 4 &&                               //hodne ostrych karet a vsechny barvy
-                       estimatedFinalBasicScore >= 40 &&
-                       handSuits == Game.NumSuits) ||
-                      (Hand.Any(i => i.Suit == _trump.Value &&
-                                     i.Value >= Hodnota.Svrsek) &&
-                       Hand.Count(i => i.Value >= Hodnota.Svrsek) >= 6 &&
-                       Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                           .Where(b => Hand.HasSuit(b))
-                           .All(b => Hand.CardCount(b) >= 2)) ||
-                      (Hand.HasA(_trump.Value) &&                    //trumfove eso a desitka
-                       Hand.HasX(_trump.Value) &&
-                       Hand.CardCount(Hodnota.Eso) >= 2 &&           //aspon dve esa a
-                       Enum.GetValues(typeof(Barva)).Cast<Barva>()   //jedna dlouha barva
-                           .Where(b => b != _trump.Value)
-                           .Any(b => Hand.CardCount(b) >= 4))))) ||
+                      ((axCount >= 4 &&
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            .All(b => Hand.CardCount(b) >= 2)) ||
+                       (axCount >= 4 &&                               //hodne ostrych karet a vsechny barvy
+                        estimatedFinalBasicScore >= 40 &&
+                        handSuits == Game.NumSuits) ||
+                       (Hand.Any(i => i.Suit == _trump.Value &&
+                                      i.Value >= Hodnota.Svrsek) &&
+                        Hand.Count(i => i.Value >= Hodnota.Svrsek) >= 6 &&
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            .Where(b => Hand.HasSuit(b))
+                            .All(b => Hand.CardCount(b) >= 2)) ||
+                       (Hand.HasA(_trump.Value) &&                    //trumfove eso a desitka
+                        Hand.HasX(_trump.Value) &&
+                        Hand.CardCount(Hodnota.Eso) >= 2 &&           //aspon dve esa a
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()   //jedna dlouha barva
+                            .Where(b => b != _trump.Value)
+                            .Any(b => Hand.CardCount(b) >= 4)))))) ||
                    (_teamMateDoubledGame &&                          //nebo pokud kolega flekoval
                     Hand.HasA(_trump.Value) &&                       //a ja mam aspon 3 trumfy a navic eso a neco velkeho a aspon 40 bodu
                     (Hand.HasX(_trump.Value) ||

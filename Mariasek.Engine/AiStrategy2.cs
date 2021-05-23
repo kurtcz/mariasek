@@ -4598,7 +4598,7 @@ namespace Mariasek.Engine
                                                                                     (c1.Suit == _trump ||
                                                                                      _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
                                                                                     !(_probabilities.CertainCards(player3).Any(j => j.Suit == i.Suit &&
-                                                                                               j.Value < i.Value) ||
+                                                                                                                                    j.Value < i.Value) ||
                                                                                       _probabilities.PotentialCards(player3).CardCount(i.Suit) > 2))
                                                                         .ToList();
                         if (!cardsToPlay.Any())
@@ -4634,9 +4634,9 @@ namespace Mariasek.Engine
                                                                                     c1.IsLowerThan(i, _trump) &&          //moje karta prebiji prvni kartu
                                                                                     i.Suit != _trump &&                  //a pokud moje X neni trumfova
                                                                                     _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0 &&
-                                                                                    (_probabilities.NoSuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1 - RiskFactor &&
-                                                                                        (_probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor ||
-                                                                                        _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor))).ToList();
+                                                                                    (_probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor ||
+                                                                                     (_probabilities.PotentialCards(player3).CardCount(i.Suit) == 1 &&
+                                                                                      _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor))).ToList();
                         if (!cardsToPlay.Any())
                         {
                             cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Desitka &&
@@ -4709,9 +4709,8 @@ namespace Mariasek.Engine
                                                                                     c1.IsLowerThan(i, _trump) &&          //moje karta prebiji prvni kartu
                                                                                     i.Suit != _trump &&                  //a pokud moje X neni trumfova
                                                                                     _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0 &&
-																				    (_probabilities.NoSuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1 - RiskFactor &&
-																				     (_probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor ||
-																				      _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor))).ToList();
+																				    (_probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor ||
+																				     _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor)).ToList();
                         if (!cardsToPlay.Any())
                         {
                             cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Desitka &&
