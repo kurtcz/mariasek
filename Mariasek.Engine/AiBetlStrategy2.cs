@@ -458,7 +458,15 @@ namespace Mariasek.Engine
                     {
                         var cardsToPlay = Enumerable.Empty<Card>();
 
-                        if (RoundNumber == 2 && preferredSuits.Any())
+                        if (RoundNumber == 2 &&
+                            preferredSuits.Any() &&
+                            !(_rounds != null && _rounds[0] != null &&               //pokud si kolega v 1. kole odmazaval a
+                              ((_rounds[0].player2.PlayerIndex == TeamMateIndex &&
+                                _rounds[0].c2.Suit != _rounds[0].c1.Suit) ||
+                               (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
+                                _rounds[0].c3.Suit != _rounds[0].c1.Suit)) &&
+                              _probabilities.PotentialCards(TeamMateIndex)
+                                            .CardCount(preferredSuits.First()) >= 4)) //pokud je ve hre jeste hodne karet, muze kolega stale mit dalsi vysoke
                         {
                             //v 2.kole zkus rovnou zahrat preferovanou barvu. Pokud takova je, tak je to vitezna barva
                             cardsToPlay = hands[MyIndex].Where(i => i.Suit == preferredSuits.First() &&
@@ -1011,7 +1019,8 @@ namespace Mariasek.Engine
                                                                             .Select(h => new Card(i.Suit, h))
                                                                             .Where(j => j.BadValue < i.BadValue)
                                                                             .Count(j => _probabilities.CardProbability(opponent, j) > 0)))
-                                                                    .Where(i => i.Item2 > 0);
+                                                                    .Where(i => i.Item2 > 0)
+                                                                    .ToList();
                         var prefCards = hiCards.Where(i => preferredSuits.Any(j => j == i.Item1.Suit))
                                                 .Select(i => i.Item1);
 
@@ -1021,9 +1030,21 @@ namespace Mariasek.Engine
                         }
                         else
                         {
+                            var hiCardsPerSuit = hiCards.Where(i => hands[MyIndex].Where(j => j.Suit == i.Item1.Suit)
+                                                                                  .All(j => j.BadValue <= i.Item1.BadValue))
+                                                        .ToDictionary(k => k.Item1.Suit, v => v);
+                            var topCards = hiCards.Where(i => i.Item2 == hiCardsPerSuit[i.Item1.Suit].Item2)
+                                                  .Select(i => i.Item1)
+                                                  .ToList();
+                            //odmazavej samotne vysoke karty nebo dvojice
+                            if (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => topCards.CardCount(b) > 0 && topCards.CardCount(b) <= 2))
+                            {
+                                hiCards = hiCards.Where(i => topCards.CardCount(i.Item1.Suit) > 0 && topCards.CardCount(i.Item1.Suit) <= 2).ToList();
+                            }
+                            //setrid pote podle poctu der a nakonec podle velikosti
                             cardsToPlay = hiCards.OrderByDescending(i => i.Item2)
-                                                    .ThenByDescending(i => i.Item1.BadValue)
-                                                    .Select(i => i.Item1);
+                                                 .ThenByDescending(i => i.Item1.BadValue)
+                                                 .Select(i => i.Item1);
                         }
                         //pokud muzes, tak hraj stejnou barvu jako v minulem kole
                         if (RoundNumber > 1 &&
@@ -1244,7 +1265,8 @@ namespace Mariasek.Engine
                                                                                .Select(h => new Card(i.Suit, h))
                                                                                .Where(j => j.BadValue < i.BadValue)
                                                                                .Count(j => _probabilities.CardProbability(opponent, j) > 0)))
-                                                                        .Where(i => i.Item2 > 0);
+                                                                        .Where(i => i.Item2 > 0)
+                                                                        .ToList();
                         var prefCards = hiCards.Where(i => preferredSuits.Any(j => j == i.Item1.Suit))
                                                .Select(i => i.Item1);
                         
@@ -1254,6 +1276,18 @@ namespace Mariasek.Engine
                         }
                         else
                         {
+                            var hiCardsPerSuit = hiCards.Where(i => hands[MyIndex].Where(j => j.Suit == i.Item1.Suit)
+                                                                                  .All(j => j.BadValue <= i.Item1.BadValue))
+                                                        .ToDictionary(k => k.Item1.Suit, v => v);
+                            var topCards = hiCards.Where(i => i.Item2 == hiCardsPerSuit[i.Item1.Suit].Item2)
+                                                  .Select(i => i.Item1)
+                                                  .ToList();
+                            //odmazavej samotne vysoke karty nebo dvojice
+                            if (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => topCards.CardCount(b) > 0 && topCards.CardCount(b) <= 2))
+                            {
+                                hiCards = hiCards.Where(i => topCards.CardCount(i.Item1.Suit) > 0 && topCards.CardCount(i.Item1.Suit) <= 2).ToList();
+                            }
+                            //setrid pote podle poctu der a nakonec podle velikosti
                             cardsToPlay = hiCards.OrderByDescending(i => i.Item2)
                                                  .ThenByDescending(i => i.Item1.BadValue)
                                                  .Select(i => i.Item1);
