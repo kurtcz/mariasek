@@ -572,12 +572,11 @@ namespace Mariasek.Engine
                               hand.Where(i => !(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
                                                 i.Suit == trumpCard.Suit) &&
                                               i.Suit == b)
-                                  .All(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                  .All(i => i.Value >= Hodnota.Svrsek &&
+                                            Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                 .Where(h => h > i.Value)
-                                                .All(h => hand.Any(j => !(j.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
-                                                                          j.Suit == trumpCard.Suit) &&
-                                                                        j.Value == h &&
-                                                                        j.Suit == b)))))
+                                                .Select(h => new Card(i.Suit, h))
+                                                .All(j => hand.Any(k => j == k)))))
             {
                 talon.AddRange(hand.Where(i => i.Suit != trumpCard.Suit &&
                                                hand.HasK(i.Suit) &&
@@ -639,7 +638,7 @@ namespace Mariasek.Engine
             }
             //dej trumf do talonu pokud bys jinak prisel o hlas
             if (_g.AllowTrumpTalon &&
-                hand.CardCount(trumpCard.Suit) >= 6 &&
+                hand.CardCount(trumpCard.Suit) >= 5 &&
                 talon.Count > 2 &&                
                 talon.Count(i => i.Suit != trumpCard.Suit &&
                                  (i.Value < Hodnota.Svrsek ||
@@ -1648,18 +1647,30 @@ namespace Mariasek.Engine
                 RuleCount = _hundredsBalance,
                 TotalRuleCount = _hundredSimulations
             });
-            allChoices.Add(new RuleDebugInfo
+            if (_g.trump.HasValue &&
+                TeamMateIndex != -1 &&
+                Hand.Has7(_g.trump.Value))
             {
-                Rule = "Sedma proti",
-                RuleCount = _sevensAgainstBalance,
-                TotalRuleCount = _gameSimulations
-            });
-            allChoices.Add(new RuleDebugInfo
+                allChoices.Add(new RuleDebugInfo
+                {
+                    Rule = "Sedma proti",
+                    RuleCount = _sevensAgainstBalance,
+                    TotalRuleCount = _gameSimulations
+                });
+            }
+            if (_g.trump.HasValue &&
+                TeamMateIndex != -1 &&
+                Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                    .Any(b => Hand.HasK(b) &&
+                              Hand.HasQ(b)))
             {
-                Rule = "Kilo proti",
-                RuleCount = _hundredsAgainstBalance,
-                TotalRuleCount = _gameSimulations
-            });
+                allChoices.Add(new RuleDebugInfo
+                {
+                    Rule = "Kilo proti",
+                    RuleCount = _hundredsAgainstBalance,
+                    TotalRuleCount = _gameSimulations
+                });
+            }
             allChoices.Add(new RuleDebugInfo
             {
                 Rule = "Betl",
@@ -3033,7 +3044,15 @@ namespace Mariasek.Engine
                     (Hand.HasK(_g.trump.Value) ||
                      Hand.HasQ(_g.trump.Value) ||
                      axCount >= 4) &&
-                    !Is100AgainstPossible(110)))) ||            
+                    !Is100AgainstPossible(110)) ||
+                   (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
+                    Hand.CardCount(_trump.Value) >= 4 &&
+                    Hand.HasA(_g.trump.Value) &&
+                    (Hand.HasK(_g.trump.Value) ||
+                     Hand.HasQ(_g.trump.Value) &&
+                     axCount >= 3 &&
+                     Hand.CardCount(Hodnota.Eso) >= 2) &&
+                    !Is100AgainstPossible()))) ||
                  //nebo jsem nevolil a:
                  (TeamMateIndex != -1 &&                  
                   ((bidding.GameMultiplier > 2 &&               //Tutti:
@@ -3070,8 +3089,9 @@ namespace Mariasek.Engine
                        Hand.HasQ(_g.trump.Value) ||
                        kqScore >= 40) &&
                       (estimatedFinalBasicScore >= 30 ||        //a aspon 30 nebo 20+20 bodu na ruce
-                       (estimatedFinalBasicScore >= 20 &&
-                        kqScore >= 20))) ||                     //nebo
+                       (estimatedFinalBasicScore >= 10 &&
+                        kqScore >= 20) &&
+                       kqMaxOpponentScore <= 20)) ||          //nebo
                      (Hand.CardCount(_g.trump.Value) >= 2 &&    //aspon 2 trumfy
                       (Hand.HasA(_g.trump.Value) ||             //z toho aspon jeden A nebo X
                        Hand.HasX(_g.trump.Value)) &&
