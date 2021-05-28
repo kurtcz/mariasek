@@ -3049,9 +3049,9 @@ namespace Mariasek.Engine
                     Hand.CardCount(_trump.Value) >= 4 &&
                     Hand.HasA(_g.trump.Value) &&
                     (Hand.HasK(_g.trump.Value) ||
-                     Hand.HasQ(_g.trump.Value) &&
-                     axCount >= 3 &&
-                     Hand.CardCount(Hodnota.Eso) >= 2) &&
+                     Hand.HasQ(_g.trump.Value)) &&
+                    axCount >= 3 &&
+                    Hand.CardCount(Hodnota.Eso) >= 2 &&
                     !Is100AgainstPossible()))) ||
                  //nebo jsem nevolil a:
                  (TeamMateIndex != -1 &&                  
