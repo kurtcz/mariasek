@@ -4960,13 +4960,18 @@ namespace Mariasek.Engine
                         }
                         var pointsWonSoFar = _rounds?.Where(r => r != null &&
                                                                  (r?.roundWinner?.PlayerIndex ?? -1) != player1)
-                                                     .Sum(r => r.basicPoints1 + r.basicPoints2 + r.basicPoints3);
+                                                    ?.Sum(r => r.basicPoints1 + r.basicPoints2 + r.basicPoints3);
                         if ((_gameType & Hra.Kilo) != 0 &&
                             c1.Suit == _trump &&
                             c1.Value >= Hodnota.Spodek &&
                             _probabilities.CardProbability(player1, new Card(_trump, Hodnota.Eso)) > _epsilon &&
                             _probabilities.CardProbability(player1, new Card(_trump, Hodnota.Desitka)) > _epsilon &&
-                            pointsWonSoFar < 20)
+                            pointsWonSoFar < 20 &&
+                            !(Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                  .Any(b => (hands[MyIndex].HasX(b) &&
+                                             (hands[MyIndex].HasA(b) ||
+                                              hands[MyIndex].CardCount(b) >= 5)) ||
+                              hands[MyIndex].CardCount(Hodnota.Desitka) > 2)))
                         {
                             //nemaz pokud akter vyjel trumfem a jeste nesla ani desitka ani eso
                             return null;
@@ -4974,13 +4979,17 @@ namespace Mariasek.Engine
                         var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit != _trump  &&
                                                                          ((i.Value == Hodnota.Desitka &&
                                                                            !(c1.Suit == i.Suit &&
-                                                                             c1.Value == Hodnota.Eso)) ||
+                                                                             c1.Value == Hodnota.Eso) &&
+                                                                           !((_gameType & Hra.Kilo) != 0 &&
+                                                                              hands[MyIndex].CardCount(Hodnota.Desitka) <= 2 &&
+                                                                              hands[MyIndex].CardCount(i.Suit) >= 5)) ||
                                                                           (i.Value == Hodnota.Eso &&        //eso namaz jen kdyz nemuzu chytit desitku nebo pri kilu (proti)
                                                                            (_probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon ||
                                                                             ((_gameType & Hra.Kilo) != 0 &&
                                                                              _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) < 1 &&
                                                                              _probabilities.SuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1 - RiskFactor &&
-                                                                             pointsWonSoFar >= 20)))) &&
+                                                                             (pointsWonSoFar >= 20 ||
+                                                                              hands[MyIndex].HasX(i.Suit)))))) &&
                                                                            //))) &&
                                                                          !(c1.Value == Hodnota.Desitka &&   //nemaz pokud prvni hrac vyjel desitkou a nevim kdo ma eso (nebylo-li jeste hrano)
                                                                            (_gameType & Hra.Kilo) == 0 &&   //(neplati pri kilu)
