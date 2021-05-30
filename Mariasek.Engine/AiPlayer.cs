@@ -2353,16 +2353,22 @@ namespace Mariasek.Engine
             //{
             //	return true;
             //}
-            if ((!hand.HasA(_trump.Value) &&
-				 hand.CardCount(_trump.Value) < 4) ||
-				((!hand.HasA(_trump.Value) ||
+            if ((hand.CardCount(_trump.Value) < 4 &&
+                 !hand.HasA(_trump.Value)) ||
+				(hand.CardCount(_trump.Value) == 4 &&
+                 (!hand.HasA(_trump.Value) ||
 				  !hand.HasX(_trump.Value)) &&
 				 Enum.GetValues(typeof(Barva)).Cast<Barva>()
 					 .Where(b => b != _trump && hand.HasSuit(b))
 					 .Any(b => !hand.HasA(b) &&
                                !(hand.HasX(b) &&
                                  hand.HasK(b))) &&
-				 hand.CardCount(_trump.Value) == 4))
+				 !(hand.CardCount(Hodnota.Eso) == 3 &&
+                   hand.HasK(_trump.Value) &&
+                   hand.HasQ(_trump.Value) &&
+                   hand.Count(i => i.Value == Hodnota.Desitka &&
+                                   (hand.HasA(i.Suit) ||
+                                    hand.HasK(i.Suit))) >= 2)))
 			{
                 DebugInfo.HundredTooRisky = true;
                 return true;
