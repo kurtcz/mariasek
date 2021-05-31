@@ -307,7 +307,15 @@ namespace Mariasek.Engine
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
                 {
-                    if (cardsToKeep.Any() && !hands[MyIndex].HasSuit(c1.Suit))
+                    if (!hands[MyIndex].HasSuit(c1.Suit) &&
+                        (cardsToKeep.Any() ||
+                         Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                             .Any(b => hands[MyIndex].CardCount(b) >= 4 &&
+                                       hands[MyIndex].Where(i => i.Suit == b)
+                                                     .All(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                   .Select(h => new Card(b, h))
+                                                                   .Where(j => j.BadValue < i.BadValue)
+                                                                   .All(j => _probabilities.CardProbability(player1, j) == 0)))))
                     {
                         var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => cardsToKeep.SelectMany(j => j.Value)
                                                                                                .All(j => i != j));
@@ -651,7 +659,15 @@ namespace Mariasek.Engine
                 SkipSimulations = true,
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
-                    if (cardsToKeep.Any() && !hands[MyIndex].HasSuit(c1.Suit))
+                    if (!hands[MyIndex].HasSuit(c1.Suit) &&
+                        (cardsToKeep.Any() ||
+                         Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                             .Any(b => hands[MyIndex].CardCount(b) >= 4 &&
+                                       hands[MyIndex].Where(i => i.Suit == b)
+                                                     .All(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                   .Select(h => new Card(b, h))
+                                                                   .Where(j => j.BadValue < i.BadValue)
+                                                                   .All(j => _probabilities.CardProbability(player1, j) == 0)))))
                     {
                         var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => cardsToKeep.SelectMany(j => j.Value)
                                                                                                    .All(j => i != j));
