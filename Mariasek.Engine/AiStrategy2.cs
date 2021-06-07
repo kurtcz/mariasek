@@ -4614,7 +4614,7 @@ namespace Mariasek.Engine
                                             i.Suit != _trump &&
                                             i.Suit != c1.Suit &&
                                             ((_probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) > 0 &&
-                                              hands[MyIndex].CardCount(i.Suit) > 2) ||
+                                              hands[MyIndex].CardCount(i.Suit) > 1) ||
                                              _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0) &&
                                             (_probabilities.CertainCards(player3).Any(j => j.Suit == i.Suit &&
                                                                                           j.Value < i.Value) ||
@@ -5605,7 +5605,7 @@ namespace Mariasek.Engine
                                                                     (c1.IsHigherThan(c2, _trump) ||
                                                                      c2.IsLowerThan(i, _trump)) &&
                                                                     ((_probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) > 0 &&
-                                                                      hands[MyIndex].CardCount(i.Suit) > 2) ||
+                                                                      hands[MyIndex].CardCount(i.Suit) > 1) ||
                                                                       _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0) &&
                                                                     ((_probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) == 0 &&
                                                                       _probabilities.PotentialCards(player2)
