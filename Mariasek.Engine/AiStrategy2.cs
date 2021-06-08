@@ -3007,7 +3007,9 @@ namespace Mariasek.Engine
                                       _hands[MyIndex].HasX(b)))
                     {
                         var cardToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&
-                                                                               i.Value < Hodnota.Desitka)
+                                                                               i.Value < Hodnota.Desitka &&
+                                                                               (!_probabilities.PotentialCards(TeamMateIndex).HasX(_trump) ||
+                                                                                _probabilities.SuitHigherThanCardExceptAXProbability(TeamMateIndex, i, RoundNumber) >= 1 - RiskFactor))
                                                                    .OrderBy(i => i.Value)
                                                                    .FirstOrDefault();
                         if (cardToPlay != null)
