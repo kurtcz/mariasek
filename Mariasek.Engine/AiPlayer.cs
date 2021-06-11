@@ -3286,6 +3286,7 @@ namespace Mariasek.Engine
                 TeamMateIndex != -1 &&
                 Hand.Has7(_trump.Value) &&
                 (_g.MinimalBidsForSeven == 0 || //pokud by akter mohl uhrat 130 a zaroven se sedma nehraje bez fleku, je lepsi neflekovat a snizit tak ztratu
+                 _teamMateDoubledGame ||
                  !Is100AgainstPossible(130)))
             {
                 bid |= bidding.Bids & Hra.Sedma;

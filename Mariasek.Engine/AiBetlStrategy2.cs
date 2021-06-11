@@ -1077,8 +1077,17 @@ namespace Mariasek.Engine
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]);
+                    
+                    if (cardsToPlay.Any(i => i.BadValue > Card.GetBadValue(Hodnota.Devitka)))
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => i.BadValue > Card.GetBadValue(Hodnota.Devitka)).ToList();
 
-                    return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+                        return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+                    }
+                    else
+                    {
+                        return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+                    }
                 }
             };
         }
@@ -1324,7 +1333,16 @@ namespace Mariasek.Engine
                 {
                     var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]);
 
-                    return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+                    if (cardsToPlay.Any(i => i.BadValue > Card.GetBadValue(Hodnota.Devitka)))
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => i.BadValue > Card.GetBadValue(Hodnota.Devitka)).ToList();
+
+                        return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+                    }
+                    else
+                    {
+                        return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+                    }
                 }
             };
         }
