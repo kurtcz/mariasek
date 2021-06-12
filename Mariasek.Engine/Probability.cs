@@ -1601,10 +1601,12 @@ namespace Mariasek.Engine
                     _initialExpectedTrumps[i] = i == _sevenIndex ? 8 - _initialExpectedTrumps[_myIndex] : 0;
                 }
             }
-            if ((e.BidMade & Hra.SedmaProti) != 0 && bidding.SevenAgainstMultiplier == 1)
+            if ((e.BidMade & Hra.SedmaProti) != 0 &&
+                bidding.SevenAgainstMultiplier == 1)
             {
                 _sevenAgainstIndex = e.Player.PlayerIndex;
-                if (_sevenAgainstIndex != _myIndex)
+                if (_sevenAgainstIndex != _myIndex &&
+                    !_myHand.Has7(_trump.Value))
                 {
                     _initialExpectedTrumps[_sevenAgainstIndex] = GetNonStarterInitialExpectedTrumps(Hra.SedmaProti);
                     for (var i = 0; i < Game.NumPlayers + 1; i++)
