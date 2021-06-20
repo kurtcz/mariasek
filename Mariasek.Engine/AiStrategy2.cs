@@ -4576,9 +4576,9 @@ namespace Mariasek.Engine
                                                                     i.Value == Hodnota.Desitka) &&
                             c1.IsLowerThan(new Card(_trump, Hodnota.Desitka), _trump) &&
                             (_probabilities.CardProbability(player1, new Card(_trump, Hodnota.Eso)) > _epsilon ||
-                             _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor) &&
+                                _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor) &&
                             hands[MyIndex].CardCount(_trump) == 2 &&
-                            !hands[MyIndex].HasA(_trump))
+                                                                    !hands[MyIndex].HasA(_trump))
                         {
                             return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Suit == _trump &&
                                                                                       i.Value == Hodnota.Desitka);
@@ -4612,7 +4612,9 @@ namespace Mariasek.Engine
                         //oc-
                         //nehraj pokud ma akter jiste dalsi male karty v barve a muzes hrat i neco jineho
                         if (ValidCards(c1, hands[MyIndex]).Count > 1 &&
-                            ValidCards(c1, hands[MyIndex]).Any(i => i.Value == Hodnota.Desitka &&
+                            ValidCards(c1, hands[MyIndex]).Any(i => i.Value == Hodnota.Desitka) &&
+                            ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Desitka)
+                                                          .All(i =>
                                             i.Suit != _trump &&
                                             i.Suit != c1.Suit &&
                                             ((_probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) > 0 &&
@@ -4772,8 +4774,9 @@ namespace Mariasek.Engine
                         //-c-
                         //nehraj pokud ma prvni hrac jiste dalsi male karty v barve a muzes hrat i neco jineho
                         if (ValidCards(c1, hands[MyIndex]).Count > 1 &&
-                            ValidCards(c1, hands[MyIndex]).Any(i => i.Value == Hodnota.Eso &&
-                                                                    i.Suit != _trump &&
+                            ValidCards(c1, hands[MyIndex]).Any(i => i.Value == Hodnota.Eso) &&
+                            ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Eso)
+                                                          .All(i => i.Suit != _trump &&
                                                                     i.Suit == c1.Suit &&
                                                                     ((_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0 &&
                                                                       _probabilities.PotentialCards(player1)
@@ -4796,14 +4799,23 @@ namespace Mariasek.Engine
                                                                                   (_probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon ||
                                                                                    Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                                        .Where(h => h != Hodnota.Desitka)
-                                                                                       .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) <= _epsilon)));
+                                                                                       .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) <= _epsilon)) &&
+                                                                                  !((_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0 &&
+                                                                                     _probabilities.PotentialCards(player1)
+                                                                                                   .Where(j => j.Suit == i.Suit)
+                                                                                                   .Count(j => j != c1) > 1) ||
+                                                                                    _probabilities.CertainCards(player1)
+                                                                                                  .Where(j => j.Suit == i.Suit)
+                                                                                                  .Any(j => j != c1)));
                     }
                     else if (TeamMateIndex == player3)
                     {
                         //-co
                         //nehraj pokud ma prvni hrac jiste dalsi male karty v barve a muzes hrat i neco jineho
                         if (ValidCards(c1, hands[MyIndex]).Count > 1 &&
-                            ValidCards(c1, hands[MyIndex]).Any(i => i.Value == Hodnota.Eso &&
+                            ValidCards(c1, hands[MyIndex]).Any(i => i.Value == Hodnota.Eso) &&
+                            ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Eso)
+                                                          .All(i => i.Suit != _trump &&
                                                                     i.Suit != _trump &&
                                                                     i.Suit == c1.Suit &&
                                                                     ((_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0 &&
@@ -4824,14 +4836,23 @@ namespace Mariasek.Engine
                                                                                    (_probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon &&
                                                                                     Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                                         .Where(h => h != Hodnota.Desitka)
-                                                                                        .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) < 1 - _epsilon))));
+                                                                                        .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) < 1 - _epsilon))) &&
+                                                                                  !((_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0 &&
+                                                                                     _probabilities.PotentialCards(player1)
+                                                                                                   .Where(j => j.Suit == i.Suit)
+                                                                                                   .Count(j => j != c1) > 1) ||
+                                                                                    _probabilities.CertainCards(player1)
+                                                                                                  .Where(j => j.Suit == i.Suit)
+                                                                                                  .Any(j => j != c1)));
                     }
                     else
                     {
                         //oc-
                         //nehraj pokud ma akter jiste dalsi male karty v barve a muzes hrat i neco jineho
                         if (ValidCards(c1, hands[MyIndex]).Count > 1 &&
-                            ValidCards(c1, hands[MyIndex]).Any(i => i.Value == Hodnota.Eso &&
+                            ValidCards(c1, hands[MyIndex]).Any(i => i.Value == Hodnota.Eso) &&
+                            ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Eso)
+                                                          .All(i =>
                                             i.Suit != _trump &&
                                             i.Suit != c1.Suit &&
                                             (_probabilities.CertainCards(player3).Any(j => j.Suit == i.Suit &&
@@ -4848,7 +4869,11 @@ namespace Mariasek.Engine
                                                                                   ((c1.Suit == _trump &&
                                                                                     Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                                         .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) < 1 - _epsilon)) ||
-                                                                                   _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0));
+                                                                                   _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
+                                                                                  !(_probabilities.CertainCards(player3).Any(j => j.Suit == i.Suit &&
+                                                                                                                                  j.Value < i.Value) ||
+                                                                                    (!_probabilities.PotentialCards(player1).HasSuit(i.Suit) &&
+                                                                                     _probabilities.PotentialCards(player3).CardCount(i.Suit) > 1)));
                     }
                 }
             };
@@ -5036,7 +5061,9 @@ namespace Mariasek.Engine
                         //oc-
                         //nehraj pokud ma akter jiste dalsi male karty v barve a muzes hrat i neco jineho
                         if (ValidCards(c1, hands[MyIndex]).Count > 1 &&
-                            ValidCards(c1, hands[MyIndex]).Any(i => i.Value == Hodnota.Eso &&
+                            ValidCards(c1, hands[MyIndex]).Any(i => i.Value == Hodnota.Eso) &&
+                            ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Eso)
+                                                          .All(i =>
                                             i.Suit != _trump &&
                                             i.Suit != c1.Suit &&
                                             (_probabilities.CertainCards(player3).Any(j => j.Suit == i.Suit &&
@@ -5777,7 +5804,9 @@ namespace Mariasek.Engine
                         //o-c
                         //nehraj pokud ma prvni hrac jiste dalsi male karty v barve a muzes hrat i neco jineho
                         if (ValidCards(c1, c2, hands[MyIndex]).Count > 1 &&
-                            ValidCards(c1, c2, hands[MyIndex]).Any(i => i.Value == Hodnota.Eso &&
+                            ValidCards(c1, c2, hands[MyIndex]).Any(i => i.Value == Hodnota.Eso) &&
+                            ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Value == Hodnota.Eso)
+                                                          .All(i => i.Suit != _trump &&
                                                                     i.Suit != _trump &&
                                                                     i.Suit == c2.Suit &&
                                                                     ((_probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0 &&
@@ -5799,14 +5828,25 @@ namespace Mariasek.Engine
                                                                                         c2.Value == Hodnota.Desitka) ||
                                                                                         _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) == 0 ||
                                                                                        (((_gameType & Hra.Kilo) != 0) &&
-                                                                                        _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) < 1 - _epsilon)));
+                                                                                        _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) < 1 - _epsilon)) &&
+                                                                                      !((_probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0 &&
+                                                                                         _probabilities.PotentialCards(player2)
+                                                                                                       .Where(j => j.Suit == i.Suit)
+                                                                                                       .Count(j => j != c1 &&
+                                                                                                                   j != c2) > 2) ||
+                                                                                        _probabilities.CertainCards(player2)
+                                                                                                      .Where(j => j.Suit == i.Suit)
+                                                                                                      .Any(j => j != c1 &&
+                                                                                                                j != c2)));
                     }
                     else
                     {
                         //-oc
                         //nehraj pokud ma prvni hrac jiste dalsi male karty v barve a muzes hrat i neco jineho
                         if (ValidCards(c1, c2, hands[MyIndex]).Count > 1 &&
-                            ValidCards(c1, c2, hands[MyIndex]).Any(i => i.Value == Hodnota.Eso &&
+                            ValidCards(c1, c2, hands[MyIndex]).Any(i => i.Value == Hodnota.Eso) &&
+                            ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Value == Hodnota.Eso)
+                                                          .All(i => i.Suit != _trump &&
                                                                     i.Suit != _trump &&
                                                                     i.Suit == c1.Suit &&
                                                                     ((_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0 &&
@@ -5826,7 +5866,14 @@ namespace Mariasek.Engine
                                                                                         c1.Value == Hodnota.Desitka) ||
                                                                                         _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) == 0 ||
                                                                                        (((_gameType & Hra.Kilo) != 0) &&
-                                                                                        _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) < 1 - _epsilon)));
+                                                                                        _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) < 1 - _epsilon)) &&
+                                                                                      !((_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0 &&
+                                                                                         _probabilities.PotentialCards(player1)
+                                                                                                       .Where(j => j.Suit == i.Suit)
+                                                                                                       .Count(j => j != c1) > 2) ||
+                                                                                        _probabilities.CertainCards(player1)
+                                                                                                      .Where(j => j.Suit == i.Suit)
+                                                                                                      .Any(j => j != c1)));
                     }
                 }
             };
