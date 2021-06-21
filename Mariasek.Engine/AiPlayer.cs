@@ -1867,9 +1867,9 @@ namespace Mariasek.Engine
                 if (holesPerSuit.All(i => i.Value == 0 || 
                                           hiHolePerSuit[i.Key].BadValue <= minHole.BadValue ||
                                           (topCards.Count(j => j.Suit == i.Key) > 0 &&              //barva ve ktere mam o 2 mene nejvyssich karet nez der 
-                                           topCards.Count(j => j.Suit == i.Key) + 2 >= i.Value) ||  //doufam v dobrou rozlozenost (simulace ukaze)
-                                          Hand.CardCount(i.Key) <= 1) &&          //tady puvodne bylo <= 2 (sazel jsem na to, ze kratkou barvu dam do talonu), moc riskantni
-                    Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.CardCount(b) == 1) <= 1)
+                                           topCards.Count(j => j.Suit == i.Key) + 2 >= i.Value &&  //doufam v dobrou rozlozenost (simulace ukaze)
+                                           Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.CardCount(b) == 1 &&
+                                                                                                  !Hand.HasA(b)) <= 1)))
                 {
                     return true;
                 }
