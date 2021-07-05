@@ -3098,6 +3098,11 @@ namespace Mariasek.Engine
                        (estimatedFinalBasicScore >= 10 &&
                         kqScore >= 20) &&
                        kqMaxOpponentScore <= 20)) ||          //nebo
+                     (Hand.CardCount(_g.trump.Value) >= 3 &&    //aspon 3 trumfy a trhaka
+                      (Hand.HasK(_g.trump.Value) ||             //a aspon 3 ostre karty
+                       Hand.HasQ(_g.trump.Value)) &&            //a aspon jedno eso
+                      axCount >= 3 &&
+                      Hand.CardCount(Hodnota.Eso) >= 1) ||
                      (Hand.CardCount(_g.trump.Value) >= 2 &&    //aspon 2 trumfy
                       (Hand.HasA(_g.trump.Value) ||             //z toho aspon jeden A nebo X
                        Hand.HasX(_g.trump.Value)) &&

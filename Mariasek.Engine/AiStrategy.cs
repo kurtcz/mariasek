@@ -4919,6 +4919,8 @@ namespace Mariasek.Engine
                         return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                   i.Suit != _trump &&
                                                                                   c1.IsLowerThan(i, _trump) &&
+                                                                                  !(hands[MyIndex].CardCount(i.Suit) >= 4 &&
+                                                                                    hands[MyIndex].CardCount(_trump) >= 3) &&
                                                                                   (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 ||
                                                                                    _probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor));
                     }
@@ -4928,6 +4930,8 @@ namespace Mariasek.Engine
                         return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                   i.Suit != _trump &&
                                                                                   c1.IsLowerThan(i, _trump) &&
+                                                                                  !(hands[MyIndex].CardCount(i.Suit) >= 4 &&
+                                                                                    hands[MyIndex].CardCount(_trump) >= 3) &&
                                                                                   (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor ||
                                                                                   _probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor));
                     }
