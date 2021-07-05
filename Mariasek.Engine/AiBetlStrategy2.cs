@@ -200,7 +200,7 @@ namespace Mariasek.Engine
                 //        }
                 //    }
                 //}
-                if (!preferredSuits.Any())
+                //if (!preferredSuits.Any())
                 {
                     //nakonec zkus hrat barvu kterou spoluhrac odmazaval
                     for (var i = 0; i < RoundNumber - 1; i++)
@@ -875,7 +875,7 @@ namespace Mariasek.Engine
                         }
                     }
                 }
-                if (!preferredSuits.Any())
+                //if (!preferredSuits.Any())
                 {
                     //nakonec zkus hrat barvu kterou spoluhrac odmazaval
                     for (var i = 0; i < RoundNumber - 1; i++)
@@ -1174,7 +1174,7 @@ namespace Mariasek.Engine
                         }
                     }
                 }
-                if (!preferredSuits.Any())
+                //if (!preferredSuits.Any())
                 {
                     //nakonec zkousej hrat barvu kterou spoluhrac odmazaval
                     for (var i = 0; i < RoundNumber - 1; i++)
