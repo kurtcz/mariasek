@@ -2706,6 +2706,11 @@ namespace Mariasek.Engine
                     {
                         return null;
                     }
+                    if (TeamMateIndex != -1 &&
+                        (PlayerBids[TeamMateIndex] & Hra.Sedma) != 0)
+                    {
+                        return null;
+                    }
                     if (TeamMateIndex == -1 &&
                         (((_gameType & Hra.Sedma) != 0 &&
                           SevenValue > GameValue) ||
@@ -3804,6 +3809,20 @@ namespace Mariasek.Engine
                         (_gameType & Hra.Sedma) != 0 &&
                         (_gameType & Hra.Hra) != 0 &&
                         SevenValue > GameValue)
+                    {
+                        return null;
+                    }
+                    var opponent = TeamMateIndex == (MyIndex + 1) % Game.NumPlayers
+                                    ? (MyIndex + 2) % Game.NumPlayers
+                                    : (MyIndex + 1) % Game.NumPlayers;
+
+                    if (TeamMateIndex != -1 &&
+                        hands[MyIndex].Any(i => i.Suit != _trump &&
+                                                !hands[MyIndex].HasA(i.Suit) &&
+                                                !hands[MyIndex].HasX(i.Suit) &&
+                                                _probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Eso)) == 0 &&
+                                                _probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Desitka)) == 0 &&
+                                                _probabilities.SuitProbability(opponent, i.Suit, RoundNumber) < 1))
                     {
                         return null;
                     }

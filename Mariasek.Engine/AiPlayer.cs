@@ -900,8 +900,9 @@ namespace Mariasek.Engine
                                !(_hundredOverBetl &&
                                  !IsHundredTooRisky(tempHand))) ||
                               (Settings.SafetyBetlThreshold > 0 &&
-                               lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
-                               lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold)))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
+                               ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
+                                 lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold) ||
+                                _maxMoneyLost < -Settings.SafetyBetlThreshold))))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
                     {
                         if (_talon == null || !_talon.Any())
                         {
@@ -3162,9 +3163,10 @@ namespace Mariasek.Engine
                       axCount >= 3 &&
                       !Is100AgainstPossible(130)) ||
                      ((Hand.HasK(_g.trump.Value) ||
-                       Hand.HasQ(_g.trump.Value)) &&           //nebo trumfove A nebo X
-                      Hand.CardCount(_g.trump.Value) >= 2 &&   //a aspon 3 trumfy
-                      Hand.CardCount(Hodnota.Eso) >= 2 &&
+                       Hand.HasQ(_g.trump.Value)) &&           //nebo trumfove K nebo Q
+                      Hand.CardCount(_g.trump.Value) >= 2 &&   //a aspon 2 trumfy
+                      Hand.CardCount(Hodnota.Eso) >= 2 &&      //a aspon 2 esa
+                      (bidding.Bids & Hra.Sedma) == 0 &&       //a ppuze pokud nbyla hlasena sedma
                       axCount >= 3 &&
                       !Is100AgainstPossible(130)) ||
                      //(Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
