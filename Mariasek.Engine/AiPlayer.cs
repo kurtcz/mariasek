@@ -1910,6 +1910,10 @@ namespace Mariasek.Engine
             var holesPerSuit = new Dictionary<Barva, int>();
             var hiCardsPerSuit = new Dictionary<Barva, int>();
 
+            if (!hh.Any(i => i.Value == Hodnota.Sedma))
+            {
+                return false;
+            }
             foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
             {
                 var holes = 0;      //pocet der v barve
@@ -2329,6 +2333,13 @@ namespace Mariasek.Engine
                 DebugInfo.HundredTooRisky = false;
 				return false;
 			}
+            if (nn == 0 &&
+                Hand.CardCount(_trump.Value) >= 5 &&
+                Hand.HasK(_trump.Value) &&
+                Hand.HasQ(_trump.Value))
+            {
+                return false;
+            }
             if (hand.CardCount(_trump.Value) <= 3)
             {
                 DebugInfo.HundredTooRisky = true;
@@ -3148,6 +3159,12 @@ namespace Mariasek.Engine
                        Hand.HasX(_g.trump.Value)) &&           //nebo trumfove A nebo X
                       Hand.CardCount(_g.trump.Value) >= 3 &&   //a aspon 3 trumfy
                       estimatedFinalBasicScore + kqScore >= 50 &&
+                      axCount >= 3 &&
+                      !Is100AgainstPossible(130)) ||
+                     ((Hand.HasK(_g.trump.Value) ||
+                       Hand.HasQ(_g.trump.Value)) &&           //nebo trumfove A nebo X
+                      Hand.CardCount(_g.trump.Value) >= 2 &&   //a aspon 3 trumfy
+                      Hand.CardCount(Hodnota.Eso) >= 2 &&
                       axCount >= 3 &&
                       !Is100AgainstPossible(130)) ||
                      //(Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
