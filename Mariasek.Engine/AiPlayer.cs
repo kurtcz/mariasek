@@ -902,7 +902,8 @@ namespace Mariasek.Engine
                               (Settings.SafetyBetlThreshold > 0 &&
                                ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                                  lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold) ||
-                                _maxMoneyLost < -Settings.SafetyBetlThreshold))))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
+                                (_maxMoneyLost < -2 * Settings.SafetyBetlThreshold &&
+                                 _avgBasicPointsLost > 60)))))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
                     {
                         if (_talon == null || !_talon.Any())
                         {
@@ -2792,7 +2793,7 @@ namespace Mariasek.Engine
                            //estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore + 40 ||
                            (estimatedFinalBasicScore >= 10 &&
                             estimatedFinalBasicScore + kqScore >= 40 &&
-                            _maxMoneyLost >= -Settings.SafetyBetlThreshold) ||
+                            _maxMoneyLost >= -2 * Settings.SafetyBetlThreshold) ||
                            (estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore &&
                             (Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value))))))
                 {
