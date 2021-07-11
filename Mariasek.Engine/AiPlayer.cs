@@ -4756,17 +4756,17 @@ namespace Mariasek.Engine
             var aiStrategy1 = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds,
                 0 == PlayerIndex ? teamMatesSuits : new List<Barva>(), prob1, _g.players[0].Name, 0, _g.players[0].TeamMateIndex, initialRoundNumber,
                 Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense,
-                _g.Bidding, _g.GameValue, _g.SevenValue);
+                _g.Bidding, _g.GameValue, _g.HundredValue, _g.SevenValue);
 
             var aiStrategy2 = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds,
                 1 == PlayerIndex ? teamMatesSuits : new List<Barva>(), prob2, _g.players[1].Name, 1, _g.players[1].TeamMateIndex, initialRoundNumber,
                 Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense,
-                _g.Bidding, _g.GameValue, _g.SevenValue);
+                _g.Bidding, _g.GameValue, _g.HundredValue, _g.SevenValue);
 
             var aiStrategy3 = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds,
                 2 == PlayerIndex ? teamMatesSuits : new List<Barva>(), prob3, _g.players[2].Name, 2, _g.players[2].TeamMateIndex, initialRoundNumber,
                 Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense,
-                _g.Bidding, _g.GameValue, _g.SevenValue);
+                _g.Bidding, _g.GameValue, _g.HundredValue, _g.SevenValue);
             var aiStrategies = new[] { aiStrategy1, aiStrategy2, aiStrategy3 };
             var aiStrategy = aiStrategies[player1];
 

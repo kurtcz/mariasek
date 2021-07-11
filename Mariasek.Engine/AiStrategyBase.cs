@@ -33,7 +33,7 @@ namespace Mariasek.Engine
             _trump = trump;
             _hands = hands;
             _gameType = gameType;
-			_rounds = rounds;
+            _rounds = rounds;
             _probabilities = probabilities;
             _teamMatesSuits = teamMatesSuits;
         }

@@ -11,7 +11,7 @@ namespace Mariasek.Engine
         public static AiStrategyBase GetAiStrategy(Game g, Hra? gameType, Barva? trump, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, 
                                                    Probability probabilities, string name, int playerIndex, int teamMateIndex, int? initialRoundNumber, 
                                                    float riskFactor, float riskFactorSevenDefense, float solitaryXThreshold, float solitaryXThresholdDefense,
-                                                   Bidding bidding, int gameValue, int sevenValue)
+                                                   Bidding bidding, int gameValue, int hundredValue, int sevenValue)
         {
             var gt = gameType.HasValue ? gameType.Value : g.GameType;
 
@@ -35,7 +35,7 @@ namespace Mariasek.Engine
                         RiskFactor = riskFactor
                     };
                 default:
-                    return new AiStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, teamMatesSuits, probabilities)
+                    return new AiStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, teamMatesSuits, g.HlasConsidered, probabilities)
                     {
                         MyIndex = playerIndex,
                         MyName = name,
@@ -46,7 +46,9 @@ namespace Mariasek.Engine
                         SolitaryXThreshold = solitaryXThreshold,
                         SolitaryXThresholdDefense = solitaryXThresholdDefense,
                         PlayerBids = bidding.AllPlayerBids,
-                        GameValue = bidding.GameMultiplier * gameValue,
+                        GameValue = ((gameType.HasValue ? gameType.Value : g.GameType) & Hra.Hra) != 0
+                                    ? bidding.GameMultiplier * gameValue
+                                    : bidding.GameMultiplier * hundredValue,
                         SevenValue = bidding.SevenMultiplier * sevenValue
                     };
             }
