@@ -1037,9 +1037,17 @@ namespace Mariasek.Engine
                                                   .Select(i => i.Item1)
                                                   .ToList();
                             //odmazavej samotne vysoke karty nebo dvojice
-                            if (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => topCards.CardCount(b) > 0 && topCards.CardCount(b) <= 2))
+                            if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                    .Any(b => topCards.CardCount(b) > 0 &&
+                                              topCards.CardCount(b) <= 2 &&
+                                              topCards.Where(i => i.Suit == b)
+                                                      .Any(i => i.BadValue > Card.GetBadValue(Hodnota.Devitka))))
                             {
-                                hiCards = hiCards.Where(i => topCards.CardCount(i.Item1.Suit) > 0 && topCards.CardCount(i.Item1.Suit) <= 2).ToList();
+                                hiCards = hiCards.Where(i => topCards.CardCount(i.Item1.Suit) > 0 &&
+                                                             topCards.CardCount(i.Item1.Suit) <= 2 &&
+                                                             topCards.Where(j => j.Suit == i.Item1.Suit)
+                                                                     .Any(j => j.BadValue > Card.GetBadValue(Hodnota.Devitka)))
+                                                 .ToList();
                             }
                             //setrid pote podle poctu der a nakonec podle velikosti
                             cardsToPlay = hiCards.OrderByDescending(i => i.Item2)
@@ -1292,9 +1300,17 @@ namespace Mariasek.Engine
                                                   .Select(i => i.Item1)
                                                   .ToList();
                             //odmazavej samotne vysoke karty nebo dvojice
-                            if (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => topCards.CardCount(b) > 0 && topCards.CardCount(b) <= 2))
+                            if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                    .Any(b => topCards.CardCount(b) > 0 &&
+                                              topCards.CardCount(b) <= 2 &&
+                                              topCards.Where(i => i.Suit == b)
+                                                      .Any(i => i.BadValue > Card.GetBadValue(Hodnota.Devitka))))
                             {
-                                hiCards = hiCards.Where(i => topCards.CardCount(i.Item1.Suit) > 0 && topCards.CardCount(i.Item1.Suit) <= 2).ToList();
+                                hiCards = hiCards.Where(i => topCards.CardCount(i.Item1.Suit) > 0 &&
+                                                             topCards.CardCount(i.Item1.Suit) <= 2 &&
+                                                             topCards.Where(j => j.Suit == i.Item1.Suit)
+                                                                     .Any(j => j.BadValue > Card.GetBadValue(Hodnota.Devitka)))
+                                                 .ToList();
                             }
                             //setrid pote podle poctu der a nakonec podle velikosti
                             cardsToPlay = hiCards.OrderByDescending(i => i.Item2)

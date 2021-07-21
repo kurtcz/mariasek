@@ -705,6 +705,15 @@ namespace Mariasek.Engine
                 replacementCards = replacementCards.Distinct().Take(cardsToRemove.Count).ToList();
                 talon = replacementCards.Concat(talon).Distinct().ToList();
             }
+            if (talon.Count > 2 &&
+                talon.Has7(trumpCard.Suit) &&
+                hand.CardCount(trumpCard.Suit) >= 5 &&
+                talon.Any(i => i.Suit == trumpCard.Suit &&
+                               i.Value <= Hodnota.Spodek &&
+                               i.Value >= Hodnota.Osma))
+            {
+                talon.Remove(new Card(trumpCard.Suit, Hodnota.Sedma));
+            }
             talon = talon.Take(2).ToList();
 
 			if (talon == null || talon.Count != 2 || talon.Contains(trumpCard))
@@ -3130,7 +3139,7 @@ namespace Mariasek.Engine
                        kqMaxOpponentScore <= 20)) ||            //nebo
                      ((Hand.HasK(_g.trump.Value) ||             //pouze trhak a 40 bodu v hlasech na ruce
                        Hand.HasQ(_g.trump.Value)) &&
-                        kqScore >= 40) ||                       //nebo
+                      kqScore >= 40) ||                         //nebo
                      ((Hand.HasK(_g.trump.Value) ||             //trhak a vidim do vsech hlasek (u sedmy jeste pokud mam vic bodu nez souper)
                        Hand.HasQ(_g.trump.Value)) &&
                        ((bidding.Bids & Hra.Sedma) == 0 ||
