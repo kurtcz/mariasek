@@ -1258,7 +1258,13 @@ namespace Mariasek.Engine
                                         {
                                             UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
                                         }
-                                        var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, AdvisorMode ? (Hra.Kilo | Hra.Sedma) : _gameType ?? (Hra.Kilo | Hra.Sedma), 10, 1);
+                                        var gt = Hra.Kilo;
+                                        var trump = _trump ?? _g.trump ?? Barva.Cerveny;
+                                        if (hands[PlayerIndex].Has7(trump))
+                                        {
+                                            gt |= Hra.Sedma;
+                                        }
+                                        var gameComputationResult = ComputeGame(hands, null, null, trump, AdvisorMode ? gt : _gameType ?? gt, 10, 1);
                                         gameComputationResults.Enqueue(gameComputationResult);
                                     }
                                     var val = Interlocked.Increment(ref progress);
@@ -1518,16 +1524,15 @@ namespace Mariasek.Engine
                 return calc;
             }).Union(gameComputationResults.Where(i => (i.GameType & Hra.Sedma) != 0).Select((i, idx) =>
             {
-                var calc = GetMoneyCalculator(Hra.Kilo | Hra.Sedma, _trump ?? _g.trump, gameStartingPlayerIndex, sevenBidding, i);
+                var calc = GetMoneyCalculator(Hra.Hra | Hra.Sedma, _trump ?? _g.trump, gameStartingPlayerIndex, sevenBidding, i);
 
                 calc.CalculateMoney();
                 _sevenStrings.Add(GetComputationResultString(i, calc));
 
                 return calc;
-            }).Union(gameComputationResults.Where(i => !_g.Calculate107Separately &&
-                                                       (i.GameType & Hra.Sedma) != 0).Select((i, idx) =>
-			{
-                var calc = GetMoneyCalculator(Hra.Hra | Hra.Sedma, _trump ?? _g.trump, gameStartingPlayerIndex, sevenBidding, i);
+            }).Union(gameComputationResults.Where(i => (i.GameType & Hra.Kilo) != 0).Select((i, idx) =>
+            {
+                var calc = GetMoneyCalculator(Hra.Kilo, _trump ?? _g.trump, gameStartingPlayerIndex, sevenBidding, i);
 
                 calc.CalculateMoney();
                 _sevenStrings.Add(GetComputationResultString(i, calc));
