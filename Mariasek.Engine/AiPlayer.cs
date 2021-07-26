@@ -1484,10 +1484,10 @@ namespace Mariasek.Engine
 			//vyber vhodnou hru podle vysledku simulace
 			var opponent = TeamMateIndex == (PlayerIndex + 1) % Game.NumPlayers
                 ? (PlayerIndex + 2) % Game.NumPlayers : (PlayerIndex + 1) % Game.NumPlayers;
-            var _gameStrings = new List<string>();
-            var _sevenStrings = new List<string>();
-            var _durchStrings = new List<string>();
-            var _betlStrings = new List<string>();
+            //var _gameStrings = new List<string>();
+            //var _sevenStrings = new List<string>();
+            //var _durchStrings = new List<string>();
+            //var _betlStrings = new List<string>();
             Bidding gameBidding;
             Bidding sevenBidding;
             Bidding betlBidding;
@@ -1519,7 +1519,7 @@ namespace Mariasek.Engine
 
                 calc.CalculateMoney();
 
-                _gameStrings.Add(GetComputationResultString(i, calc));
+                //_gameStrings.Add(GetComputationResultString(i, calc));
 
                 return calc;
             }).Union(gameComputationResults.Where(i => (i.GameType & Hra.Sedma) != 0).Select((i, idx) =>
@@ -1527,7 +1527,7 @@ namespace Mariasek.Engine
                 var calc = GetMoneyCalculator(Hra.Hra | Hra.Sedma, _trump ?? _g.trump, gameStartingPlayerIndex, sevenBidding, i);
 
                 calc.CalculateMoney();
-                _sevenStrings.Add(GetComputationResultString(i, calc));
+                //_sevenStrings.Add(GetComputationResultString(i, calc));
 
                 return calc;
             }).Union(gameComputationResults.Where(i => (i.GameType & Hra.Kilo) != 0).Select((i, idx) =>
@@ -1535,13 +1535,13 @@ namespace Mariasek.Engine
                 var calc = GetMoneyCalculator(Hra.Kilo, _trump ?? _g.trump, gameStartingPlayerIndex, sevenBidding, i);
 
                 calc.CalculateMoney();
-                _sevenStrings.Add(GetComputationResultString(i, calc));
+                //_sevenStrings.Add(GetComputationResultString(i, calc));
 
                 return calc;
             }).Union(durchComputationResults.Select(i =>
             {
                 var calc = GetMoneyCalculator(Hra.Durch, null, gameStartingPlayerIndex, durchBidding, i);
-                _durchStrings.Add(GetComputationResultString(i, calc));
+                //_durchStrings.Add(GetComputationResultString(i, calc));
 
                 calc.CalculateMoney();
 
@@ -1551,7 +1551,7 @@ namespace Mariasek.Engine
                 var calc = GetMoneyCalculator(Hra.Betl, null, gameStartingPlayerIndex, betlBidding, i);
 
                 calc.CalculateMoney();
-                _betlStrings.Add(GetComputationResultString(i, calc));
+                //_betlStrings.Add(GetComputationResultString(i, calc));
 
                 return calc;
             })))).ToList();

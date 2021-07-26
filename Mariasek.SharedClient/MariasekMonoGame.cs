@@ -512,12 +512,14 @@ namespace Mariasek.SharedClient
             }
         }
 
+        private bool _ignoreBackButton;
         private void GameResumed()
         {
             try
             {
                 LoadGameSettings(false);
                 //Assets are handled by the ContentManager
+                _ignoreBackButton = true;
             }
             catch (Exception ex)
             {
@@ -606,6 +608,16 @@ namespace Mariasek.SharedClient
 				SettingsChanged(this, new SettingsChangedEventArgs { Settings = Settings });
 			}
 		}
+
+        //public event EventHandler ExitedEventHandler;
+        //protected virtual void OnExitedEventHandler(EventArgs e)
+        //{
+        //    EventHandler handler = ExitedEventHandler;
+        //    if (handler != null)
+        //    {
+        //        handler(this, e);
+        //    }
+        //}
 
         //public delegate void OrientationChangedEventHandler(object sender, OrientationChangedEventArgs e);
         //public event OrientationChangedEventHandler OrientationChanged;
@@ -814,6 +826,7 @@ namespace Mariasek.SharedClient
                 PlayBackgroundMusic();
             }
         }
+
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -842,12 +855,18 @@ namespace Mariasek.SharedClient
                 }
                 else if (CurrentScene != null)
                 {
-#if !__IOS__ && !__TVOS__
+#if ANDROID
                     // For Mobile devices, this logic will close the Game when the Back button is pressed
                     if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                     {
-                        //Exit ();                      //under MonoGame 3.6.0 there is a bug that prevents activity from being able to resume again
-                        Activity.MoveTaskToBack(true);  //so we need to call this instead
+                        if (!_ignoreBackButton)
+                        {
+                            //Exit ();                      //under MonoGame 3.6.0 there is a bug that prevents activity from being able to resume again
+                            Activity.MoveTaskToBack(true);  //so we need to call this instead
+                            //OnExitedEventHandler(EventArgs.Empty);
+                            //Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
+                        }
+                        _ignoreBackButton = false;
                     }
 #endif
                     if (gameTime.ElapsedGameTime.TotalMilliseconds > 500)

@@ -93,6 +93,8 @@ namespace Mariasek.AndroidClient
                     view.SystemUiVisibility = (StatusBarVisibility)(SystemUiFlags.LayoutStable | SystemUiFlags.LayoutHideNavigation | SystemUiFlags.LayoutFullscreen | SystemUiFlags.HideNavigation | SystemUiFlags.Fullscreen | SystemUiFlags.ImmersiveSticky);
                 }
                 SetContentView(view);
+                //g.ExitedEventHandler += ExitedEventHandler;
+
                 sw.Stop();
                 System.Diagnostics.Debug.WriteLine("OnCreate sw {0}", sw.ElapsedMilliseconds);
                 g.Run();
@@ -162,6 +164,11 @@ namespace Mariasek.AndroidClient
                 HandleException(ex);
             }
         }
+
+        //private void ExitedEventHandler(object sender, EventArgs e)
+        //{
+        //    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
+        //}
 
         protected override void OnStart()
         {
