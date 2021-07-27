@@ -1513,7 +1513,8 @@ namespace Mariasek.Engine
             }
 
             //bidding nema zadne zavazky, cili CalculateMoney() nic nespocita
-            var moneyCalculations = gameComputationResults.Where(i => (i.GameType & Hra.Sedma) == 0).Select((i, idx) =>
+            var moneyCalculations = gameComputationResults.Where(i => (i.GameType & Hra.Hra) != 0 &&
+                                                                      (i.GameType & Hra.Sedma) == 0).Select((i, idx) =>
             {
                 var calc = GetMoneyCalculator(Hra.Hra, _trump ?? _g.trump, gameStartingPlayerIndex, gameBidding, i);
 
@@ -1585,7 +1586,8 @@ namespace Mariasek.Engine
             _hundredOverBetl = _avgWinForHundred >= 2 * _g.BetlValue;
             _hundredOverDurch = _avgWinForHundred >= 2 * _g.DurchValue;
             _gamesBalance = PlayerIndex == gameStartingPlayerIndex
-                            ? moneyCalculations.Where(i => (i.GameType & Hra.Sedma) == 0).Count(i => i.GameWon)
+                            ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0 &&
+                                                           (i.GameType & Hra.Sedma) == 0).Count(i => i.GameWon)
                             : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.GameWon);
             _hundredsBalance =  PlayerIndex == gameStartingPlayerIndex
                                 ? moneyCalculations.Where(i => (i.GameType & Hra.Kilo) != 0).Count(i => i.HundredWon)
@@ -3162,9 +3164,9 @@ namespace Mariasek.Engine
                      ((Hand.HasA(_g.trump.Value) ||
                        Hand.HasX(_g.trump.Value)) &&           //nebo trumfove A nebo X
                       Hand.CardCount(_g.trump.Value) >= 3 &&   //a aspon 3 trumfy
-                      estimatedFinalBasicScore + kqScore >= 60 &&
-                      axCount >= 4 &&
-                      !Is100AgainstPossible(130)) ||
+                      estimatedFinalBasicScore + kqScore >= 50 &&
+                      axCount >= 3 &&
+                      !Is100AgainstPossible(120)) ||
                      ((Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&           //nebo trumfove K nebo Q
                       Hand.CardCount(_g.trump.Value) >= 2 &&   //a aspon 2 trumfy
