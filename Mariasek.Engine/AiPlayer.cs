@@ -1585,7 +1585,7 @@ namespace Mariasek.Engine
             _hundredOverBetl = _avgWinForHundred >= 2 * _g.BetlValue;
             _hundredOverDurch = _avgWinForHundred >= 2 * _g.DurchValue;
             _gamesBalance = PlayerIndex == gameStartingPlayerIndex
-                            ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => i.GameWon)
+                            ? moneyCalculations.Where(i => (i.GameType & Hra.Sedma) == 0).Count(i => i.GameWon)
                             : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.GameWon);
             _hundredsBalance =  PlayerIndex == gameStartingPlayerIndex
                                 ? moneyCalculations.Where(i => (i.GameType & Hra.Kilo) != 0).Count(i => i.HundredWon)
@@ -1593,24 +1593,12 @@ namespace Mariasek.Engine
             _hundredsAgainstBalance = PlayerIndex == gameStartingPlayerIndex
                                         ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.HundredAgainstWon)
                                         : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.HundredAgainstWon);
-            if (_g.Calculate107Separately)
-            {
-                _sevensBalance = PlayerIndex == gameStartingPlayerIndex
-                                    ? moneyCalculations.Where(i => (i.GameType & Hra.Sedma) != 0).Count(i => i.SevenWon)
-                                    : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.SevenWon);
-                _sevenSimulations = PlayerIndex == gameStartingPlayerIndex
-                                    ? moneyCalculations.Count(i => (i.GameType & Hra.Sedma) != 0)
-                                    : moneyCalculations.Count(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0);
-            }
-            else
-            {
-                _sevensBalance = PlayerIndex == gameStartingPlayerIndex
-                                    ? moneyCalculations.Where(i => i.GameType == (Hra.Hra | Hra.Sedma)).Count(i => i.SevenWon)
-                                    : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.SevenWon);
-                _sevenSimulations = PlayerIndex == gameStartingPlayerIndex
-                                    ? moneyCalculations.Count(i => i.GameType == (Hra.Hra | Hra.Sedma))
-                                    : moneyCalculations.Count(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0);
-            }
+            _sevensBalance = PlayerIndex == gameStartingPlayerIndex
+                                ? moneyCalculations.Where(i => (i.GameType & Hra.Sedma) != 0).Count(i => i.SevenWon)
+                                : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.SevenWon);
+            _sevenSimulations = PlayerIndex == gameStartingPlayerIndex
+                                ? moneyCalculations.Count(i => (i.GameType & Hra.Sedma) != 0)
+                                : moneyCalculations.Count(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0);
             _sevensAgainstBalance = PlayerIndex == gameStartingPlayerIndex
                                         ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.SevenAgainstWon)
                                         : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.SevenAgainstWon);
@@ -3174,8 +3162,8 @@ namespace Mariasek.Engine
                      ((Hand.HasA(_g.trump.Value) ||
                        Hand.HasX(_g.trump.Value)) &&           //nebo trumfove A nebo X
                       Hand.CardCount(_g.trump.Value) >= 3 &&   //a aspon 3 trumfy
-                      estimatedFinalBasicScore + kqScore >= 50 &&
-                      axCount >= 3 &&
+                      estimatedFinalBasicScore + kqScore >= 60 &&
+                      axCount >= 4 &&
                       !Is100AgainstPossible(130)) ||
                      ((Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&           //nebo trumfove K nebo Q
