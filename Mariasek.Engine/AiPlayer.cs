@@ -3252,19 +3252,20 @@ namespace Mariasek.Engine
                             .All(b => Hand.CardCount(b) >= 2)) ||
                        (axCount >= 4 &&                               //hodne ostrych karet a vsechny barvy
                         estimatedFinalBasicScore >= 40 &&
-                        handSuits == Game.NumSuits) ||
-                       (Hand.Any(i => i.Suit == _trump.Value &&
-                                      i.Value >= Hodnota.Svrsek) &&
-                        Hand.Count(i => i.Value >= Hodnota.Svrsek) >= 6 &&
-                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                            .Where(b => Hand.HasSuit(b))
-                            .All(b => Hand.CardCount(b) >= 2)) ||
-                       (Hand.HasA(_trump.Value) &&                    //trumfove eso a desitka
-                        Hand.HasX(_trump.Value) &&
-                        Hand.CardCount(Hodnota.Eso) >= 2 &&           //aspon dve esa a
-                        Enum.GetValues(typeof(Barva)).Cast<Barva>()   //jedna dlouha barva
-                            .Where(b => b != _trump.Value)
-                            .Any(b => Hand.CardCount(b) >= 4)))))) ||
+                        handSuits == Game.NumSuits) //||
+                       //(Hand.Any(i => i.Suit == _trump.Value &&
+                       //               i.Value >= Hodnota.Svrsek) &&
+                       // Hand.Count(i => i.Value >= Hodnota.Svrsek) >= 6 &&
+                       // Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                       //     .Where(b => Hand.HasSuit(b))
+                       //     .All(b => Hand.CardCount(b) >= 2)) ||
+                       //(Hand.HasA(_trump.Value) &&                    //trumfove eso a desitka
+                       // Hand.HasX(_trump.Value) &&
+                       // Hand.CardCount(Hodnota.Eso) >= 2 &&           //aspon dve esa a
+                       // Enum.GetValues(typeof(Barva)).Cast<Barva>()   //jedna dlouha barva
+                       //     .Where(b => b != _trump.Value)
+                       //     .Any(b => Hand.CardCount(b) >= 4))
+                            )))) ||
                    (_teamMateDoubledGame &&                          //nebo pokud kolega flekoval
                     Hand.HasA(_trump.Value) &&                       //a ja mam aspon 3 trumfy a navic eso a neco velkeho a aspon 40 bodu
                     (Hand.HasX(_trump.Value) ||
