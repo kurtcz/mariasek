@@ -56,7 +56,7 @@ namespace Mariasek.Engine
                         preferredSuits.Add(_rounds[0].c3.Suit);
                     }
                 }
-                if (RoundNumber == 2)
+                //if (RoundNumber == 2)
                 {
                     //pokud v 1.kole vsichni priznali barvu ale spoluhrac nesel vejs (a bylo kam jit vejs)
                     //a zaroven souper muze mit vyssi kartu v barve nez mam ja sam
@@ -82,7 +82,8 @@ namespace Mariasek.Engine
                         bannedSuits.Add(_rounds[0].c1.Suit);
                     }
                 }
-                else if (RoundNumber > 2)
+                //else
+                if (RoundNumber > 2)
                 {
                     var playedCards = new List<Card>() { _rounds[0].c1, _rounds[0].c2, _rounds[0].c3 };
 
@@ -806,7 +807,7 @@ namespace Mariasek.Engine
 
             if (TeamMateIndex != -1 && _rounds != null && _rounds[0] != null)
             {
-                if (RoundNumber == 2)
+                //if (RoundNumber == 2)
                 {
                     //pokud v 1.kole vsichni priznali barvu ale spoluhrac nesel vejs
                     if (_rounds[0].c1.Suit == _rounds[0].c2.Suit &&
@@ -1113,7 +1114,7 @@ namespace Mariasek.Engine
 
             if (TeamMateIndex != -1 && _rounds != null && _rounds[0] != null)
             {
-                if (RoundNumber == 2)
+                //if (RoundNumber == 2)
                 {
                     //pokud v 1.kole vsichni priznali barvu ale spoluhrac nesel vejs
                     if (_rounds[0].c1.Suit == _rounds[0].c2.Suit &&
