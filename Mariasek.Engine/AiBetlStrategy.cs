@@ -504,6 +504,7 @@ namespace Mariasek.Engine
                         {
                             //v 2.kole zkus rovnou zahrat preferovanou barvu. Pokud takova je, tak je to vitezna barva
                             cardsToPlay = hands[MyIndex].Where(i => i.Suit == preferredSuits.First() &&
+                                                                    _probabilities.SuitProbability(opponent, i.Suit, RoundNumber) > 0 &&
                                                                     (_probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) == 0 ||
                                                                      _probabilities.PotentialCards(opponent).Count(j => j.Suit == i.Suit &&
                                                                                                                         j.BadValue > i.BadValue) > 2));
