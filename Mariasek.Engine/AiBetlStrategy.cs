@@ -56,12 +56,11 @@ namespace Mariasek.Engine
                         preferredSuits.Add(_rounds[0].c3.Suit);
                     }
                 }
-                //if (RoundNumber == 2)
+                if (RoundNumber == 2)
                 {
-                    //pokud v 1.kole vsichni priznali barvu ale spoluhrac nesel vejs (a bylo kam jit vejs)
-                    //a zaroven souper muze mit vyssi kartu v barve nez mam ja sam
-                    if (
-                        ((_rounds[0].player2.PlayerIndex == TeamMateIndex &&
+                    ////pokud v 1.kole vsichni priznali barvu ale spoluhrac nesel vejs (a bylo kam jit vejs)
+                    ////a zaroven souper muze mit vyssi kartu v barve nez mam ja sam
+                    if (((_rounds[0].player2.PlayerIndex == TeamMateIndex &&
                           _rounds[0].c1.Suit == _rounds[0].c2.Suit &&
                           _rounds[0].c1.BadValue > _rounds[0].c2.BadValue) ||
                          (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
@@ -87,9 +86,9 @@ namespace Mariasek.Engine
                 {
                     var playedCards = new List<Card>() { _rounds[0].c1, _rounds[0].c2, _rounds[0].c3 };
 
-                    //pokud v nejakem kole zahral akter nejnizsi kartu v barve a ja nemam nizkyho chytaka, tak predpokladej, ze barvu nezna
                     for (var i = 1; i < RoundNumber - 1; i++)
                     {
+                        //pokud v nejakem kole zahral akter nejnizsi kartu v barve a ja nemam nizkyho chytaka, tak predpokladej, ze barvu nezna
                         var minPossibleOpponentCardInSuit = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                 .Select(h => new Card(_rounds[i].c1.Suit, h))
                                                                 .Where(c => !playedCards.Contains(c) &&
@@ -403,6 +402,40 @@ namespace Mariasek.Engine
                             return null;
                         }
 
+                        if (!cardsToPlay.Any())
+                        {
+                            var prefSuits = new List<Barva>();
+
+                            for (var i = 1; i < RoundNumber - 1; i++)
+                            {
+                                //pokud v nejakem kole vsichni priznali barvu ale spoluhrac nesel vejs (a bylo kam jit vejs)
+                                //a zaroven souper muze mit vyssi kartu v barve nez mam ja sam
+                                if (_rounds[i] != null)
+                                {
+                                    if (_rounds[i].player2.PlayerIndex == TeamMateIndex &&
+                                        _rounds[i].c1.Suit == _rounds[i].c2.Suit &&
+                                        _rounds[i].c1.Suit == _rounds[i].c3.Suit &&
+                                        _rounds[i].c1.BadValue > _rounds[i].c2.BadValue &&
+                                        hands[MyIndex].Any(j => j.Suit == _rounds[i].c2.Suit &&
+                                                                _probabilities.PotentialCards(opponent).HasSuit(j.Suit)))
+                                    {
+                                        prefSuits.Add(_rounds[i].c2.Suit);
+                                    }
+                                    else if (_rounds[i].player3.PlayerIndex == TeamMateIndex &&
+                                             _rounds[i].c1.Suit == _rounds[i].c2.Suit &&
+                                             _rounds[i].c1.Suit == _rounds[i].c3.Suit &&
+                                             (_rounds[i].c1.BadValue > _rounds[i].c3.BadValue ||
+                                              (_rounds[i].c2.BadValue > _rounds[i].c3.BadValue &&
+                                               _rounds[i].c2.Value != Hodnota.Eso)) &&
+                                             hands[MyIndex].Any(j => j.Suit == _rounds[i].c3.Suit &&
+                                                                    _probabilities.PotentialCards(opponent).HasSuit(j.Suit)))
+                                    {
+                                        prefSuits.Add(_rounds[i].c3.Suit);
+                                    }
+                                }
+                            }
+                            cardsToPlay = hands[MyIndex].Where(i => prefSuits.Contains(i.Suit));
+                        }
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
                 };
@@ -807,17 +840,9 @@ namespace Mariasek.Engine
 
             if (TeamMateIndex != -1 && _rounds != null && _rounds[0] != null)
             {
-                //if (RoundNumber == 2)
+                if (RoundNumber == 2)
                 {
                     //pokud v 1.kole vsichni priznali barvu ale spoluhrac nesel vejs
-                    if (_rounds[0].c1.Suit == _rounds[0].c2.Suit &&
-                        (_rounds[0].player2.PlayerIndex == TeamMateIndex &&
-                         _rounds[0].c1.BadValue > _rounds[0].c2.BadValue) ||
-                        (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
-                         _rounds[0].c1.BadValue > _rounds[0].c3.BadValue))
-                    {
-                        preferredSuits.Add(_rounds[0].c1.Suit);
-                    }
                     if (_rounds[0].c1.Suit == _rounds[0].c2.Suit &&
                         (_rounds[0].player2.PlayerIndex == TeamMateIndex &&
                          _rounds[0].c1.BadValue > _rounds[0].c2.BadValue) ||
@@ -893,6 +918,40 @@ namespace Mariasek.Engine
                         }
                     }
                 }
+                //for (var i = 1; i < RoundNumber - 1; i++)
+                //{
+                //    //pokud v nejakem kole vsichni priznali barvu ale spoluhrac nesel vejs (a bylo kam jit vejs)
+                //    //a zaroven souper muze mit vyssi kartu v barve nez mam ja sam
+                //    if (_rounds[i] != null)
+                //    {
+                //        if (_rounds[i].player2.PlayerIndex == TeamMateIndex &&
+                //            _rounds[i].c1.Suit == _rounds[i].c2.Suit &&
+                //            _rounds[i].c1.Suit == _rounds[i].c3.Suit &&
+                //            _rounds[i].c1.BadValue > _rounds[i].c2.BadValue &&
+                //            hands[MyIndex].Any(j => j.Suit == _rounds[i].c2.Suit &&
+                //                                          Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                //                                              .Select(h => new Card(_rounds[i].c2.Suit, h))
+                //                                              .Where(k => k.BadValue > j.BadValue)
+                //                                              .Any(k => _probabilities.CardProbability(opponent, k) > 0)))
+                //        {
+                //            preferredSuits.Add(_rounds[i].c2.Suit);
+                //        }
+                //        else if (_rounds[i].player3.PlayerIndex == TeamMateIndex &&
+                //                 _rounds[i].c1.Suit == _rounds[i].c2.Suit &&
+                //                 _rounds[i].c1.Suit == _rounds[i].c3.Suit &&
+                //                 (_rounds[i].c1.BadValue > _rounds[i].c3.BadValue ||
+                //                  (_rounds[i].c2.BadValue > _rounds[i].c3.BadValue &&
+                //                   _rounds[i].c2.Value != Hodnota.Eso)) &&
+                //                 hands[MyIndex].Any(j => j.Suit == _rounds[i].c3.Suit &&
+                //                                          Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                //                                              .Select(h => new Card(_rounds[0].c3.Suit, h))
+                //                                              .Where(k => k.BadValue > j.BadValue)
+                //                                              .Any(k => _probabilities.CardProbability(opponent, k) > 0)))
+                //        {
+                //            preferredSuits.Add(_rounds[i].c3.Suit);
+                //        }
+                //    }
+                //}
                 //var svrsek = new Card(Barva.Cerveny, Hodnota.Svrsek);
 
                 //for (var i = 0; i < RoundNumber - 1; i++)
@@ -1114,17 +1173,9 @@ namespace Mariasek.Engine
 
             if (TeamMateIndex != -1 && _rounds != null && _rounds[0] != null)
             {
-                //if (RoundNumber == 2)
+                if (RoundNumber == 2)
                 {
                     //pokud v 1.kole vsichni priznali barvu ale spoluhrac nesel vejs
-                    if (_rounds[0].c1.Suit == _rounds[0].c2.Suit &&
-                        (_rounds[0].player2.PlayerIndex == TeamMateIndex &&
-                         _rounds[0].c1.BadValue > _rounds[0].c2.BadValue) ||
-                        (_rounds[0].player3.PlayerIndex == TeamMateIndex &&
-                         _rounds[0].c1.BadValue > _rounds[0].c3.BadValue))
-                    {
-                        preferredSuits.Add(_rounds[0].c1.Suit);
-                    }
                     if (_rounds[0].c1.Suit == _rounds[0].c2.Suit &&
                         (_rounds[0].player2.PlayerIndex == TeamMateIndex &&
                          _rounds[0].c1.BadValue > _rounds[0].c2.BadValue) ||
@@ -1200,7 +1251,40 @@ namespace Mariasek.Engine
                         }
                     }
                 }
-
+                //for (var i = 1; i < RoundNumber - 1; i++)
+                //{
+                //    //pokud v nejakem kole vsichni priznali barvu ale spoluhrac nesel vejs (a bylo kam jit vejs)
+                //    //a zaroven souper muze mit vyssi kartu v barve nez mam ja sam
+                //    if (_rounds[i] != null)
+                //    {
+                //        if (_rounds[i].player2.PlayerIndex == TeamMateIndex &&
+                //            _rounds[i].c1.Suit == _rounds[i].c2.Suit &&
+                //            _rounds[i].c1.Suit == _rounds[i].c3.Suit &&
+                //            _rounds[i].c1.BadValue > _rounds[i].c2.BadValue &&
+                //            hands[MyIndex].Any(j => j.Suit == _rounds[i].c2.Suit &&
+                //                                          Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                //                                              .Select(h => new Card(_rounds[i].c2.Suit, h))
+                //                                              .Where(k => k.BadValue > j.BadValue)
+                //                                              .Any(k => _probabilities.CardProbability(opponent, k) > 0)))
+                //        {
+                //            preferredSuits.Add(_rounds[i].c2.Suit);
+                //        }
+                //        else if (_rounds[i].player3.PlayerIndex == TeamMateIndex &&
+                //                 _rounds[i].c1.Suit == _rounds[i].c2.Suit &&
+                //                 _rounds[i].c1.Suit == _rounds[i].c3.Suit &&
+                //                 (_rounds[i].c1.BadValue > _rounds[i].c3.BadValue ||
+                //                  (_rounds[i].c2.BadValue > _rounds[i].c3.BadValue &&
+                //                   _rounds[i].c2.Value != Hodnota.Eso)) &&
+                //                 hands[MyIndex].Any(j => j.Suit == _rounds[i].c3.Suit &&
+                //                                          Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                //                                              .Select(h => new Card(_rounds[0].c3.Suit, h))
+                //                                              .Where(k => k.BadValue > j.BadValue)
+                //                                              .Any(k => _probabilities.CardProbability(opponent, k) > 0)))
+                //        {
+                //            preferredSuits.Add(_rounds[i].c3.Suit);
+                //        }
+                //    }
+                //}
                 //var svrsek = new Card(Barva.Cerveny, Hodnota.Svrsek);
 
                 //for (var i = 0; i < RoundNumber - 1; i++)

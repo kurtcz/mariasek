@@ -2816,8 +2816,11 @@ namespace Mariasek.Engine
                 if (Settings.CanPlayGameType[Hra.Sedma] &&
                     ((_g.AllowFakeSeven &&
                       !Hand.Has7(_trump.Value) &&
-                      (gameType & Hra.Hra) != 0 &&  //ne pri kilu
-                      avgPointsWon >= 110) ||
+                      (((gameType & Hra.Hra) != 0 &&  //pri hre
+                        avgPointsWon >= 110) ||
+                       (_g.Calculate107Separately &&
+                        (gameType & Hra.Kilo) != 0 &&  //pri kilu
+                        avgPointsWon >= 140))) ||
                      (Hand.Has7(_trump.Value) &&
                       _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0 &&
                       (!IsSevenTooRisky() ||                  //sedmu hlas pokud neni riskantni nebo pokud nelze uhrat hru (doufej ve flek na hru a konec)
@@ -3125,6 +3128,9 @@ namespace Mariasek.Engine
                        Hand.HasX(_g.trump.Value)) &&
                       Hand.CardCount(Hodnota.Eso) >= 2 &&       //a aspon 2 eso celkem
                       axCount >= 6) ||                          //a dohromady aspon 6 desitek a es nebo
+                     (axCount >= 5 &&                           //aspon 5 desitek a es a
+                      Hand.HasA(_g.trump.Value) &&              //k tomu trumfove AX
+                      Hand.HasX(_g.trump.Value)) ||             //nebo
                      (kqMaxOpponentScore == 0 ||                //vidim do vsech hlasek
                       kqScore >= 60 ||
                       (kqScore >= 40 &&

@@ -512,7 +512,12 @@ namespace Mariasek.SharedClient.GameComponents
                 Items = new SelectorItems() { { "Zakázáno", false }, { "Povoleno", true } },
                 UseCommonScissorRect = true
             };
+            if (!Game.Settings.Calculate107Separately)
+            {
+                Game.Settings.AllowFakeSeven = false;
+            }
             _fakeSevenSelector.SelectedIndex = _fakeSevenSelector.Items.FindIndex(Game.Settings.AllowFakeSeven);
+            _fakeSevenSelector.IsEnabled = Game.Settings.Calculate107Separately;
             _fakeSevenSelector.SelectionChanged += FakeSevenChanged;
             if (_fakeSevenSelector.SelectedIndex < 0)
             {
@@ -1485,6 +1490,12 @@ namespace Mariasek.SharedClient.GameComponents
             var selector = sender as LeftRightSelector;
 
             Game.Settings.Calculate107Separately = (bool)selector.SelectedValue;
+            if (!Game.Settings.Calculate107Separately)
+            {
+                Game.Settings.AllowFakeSeven = false;
+            }
+            _fakeSevenSelector.IsEnabled = Game.Settings.Calculate107Separately;
+            _fakeSevenSelector.SelectedIndex = _fakeSevenSelector.Items.FindIndex(Game.Settings.AllowFakeSeven);
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
