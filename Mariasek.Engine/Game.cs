@@ -70,6 +70,7 @@ namespace Mariasek.Engine
         public int DurchValue { get; set; }
         public SortMode SortMode { get; set; }
         public bool AllowFakeSeven { get; set; }
+        public bool AllowFake107 { get; set; }
         public bool AllowAXTalon { get; set; }
         public bool AllowTrumpTalon { get; set; }
         public bool AllowAIAutoFinish { get; set; }

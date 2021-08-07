@@ -909,6 +909,8 @@ namespace Mariasek.Engine
                                !(_hundredOverBetl &&
                                  !IsHundredTooRisky(tempHand))) ||
                               (Settings.SafetyBetlThreshold > 0 &&
+                               !AdvisorMode &&
+                               !Settings.AiMayGiveUp &&
                                ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                                  lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold) ||
                                 (_maxMoneyLost < -2 * Settings.SafetyBetlThreshold &&
@@ -1026,6 +1028,8 @@ namespace Mariasek.Engine
                         !(_hundredOverBetl &&
                           !IsHundredTooRisky(tempHand))))) ||
                        (Settings.SafetyBetlThreshold > 0 &&
+                        !AdvisorMode &&
+                        !Settings.AiMayGiveUp &&
                         lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                         lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold)))
                 {
@@ -2814,11 +2818,13 @@ namespace Mariasek.Engine
                 var avgPointsWon = 90 - _avgBasicPointsLost + kqScore;
                 DebugInfo.AvgSimulatedPointsWon = (int)avgPointsWon;
                 if (Settings.CanPlayGameType[Hra.Sedma] &&
-                    ((_g.AllowFakeSeven &&
-                      !Hand.Has7(_trump.Value) &&
-                      (((gameType & Hra.Hra) != 0 &&  //pri hre
+                    ((!Hand.Has7(_trump.Value) &&                      
+                      ((_g.AllowFakeSeven &&
+                        (gameType & Hra.Hra) != 0 &&  //pri hre
                         avgPointsWon >= 110) ||
-                       (_g.Calculate107Separately &&
+                       (_g.AllowFake107 &&
+                        _g.Calculate107Separately &&
+                        _g.Top107 &&
                         (gameType & Hra.Kilo) != 0 &&  //pri kilu
                         avgPointsWon >= 140))) ||
                      (Hand.Has7(_trump.Value) &&

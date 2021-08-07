@@ -82,6 +82,7 @@ namespace Mariasek.Cli
                     DurchValue = Settings.DurchValue,
                     FirstMinMaxRound = Settings.FirstMinMaxRound,
                     AllowFakeSeven = Settings.AllowFakeSeven,
+                    AllowFake107 = Settings.AllowFake107,
                     AllowAXTalon = Settings.AllowAXTalon,
                     AllowTrumpTalon = Settings.AllowTrumpTalon,
                     AllowAIAutoFinish = Settings.AllowAIAutoFinish,

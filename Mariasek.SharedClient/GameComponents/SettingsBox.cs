@@ -12,11 +12,11 @@ namespace Mariasek.SharedClient.GameComponents
     {
         //offsety puvodnich stranek
         public const int page2Offset = 420;
-        public const int page3Offset = 900;
-        public const int page4Offset = 1320;
-        public const int page5Offset = 1800;
-        public const int page6Offset = 2220;
-        public const int boundsRectHeight = 2640;
+        public const int page3Offset = 960;
+        public const int page4Offset = 1380;
+        public const int page5Offset = 1860;
+        public const int page6Offset = 2280;
+        public const int boundsRectHeight = 2700;
         //nove tematicke offsety zacinaji na ruznych mistech puvodnich stranek
         public readonly int[] TopicOffsets = new [] { 0, page2Offset, page4Offset - 300, page6Offset };
 
@@ -30,6 +30,7 @@ namespace Mariasek.SharedClient.GameComponents
         private Label _kiloCounting;
         private Label _playZeroSumGames;
         private Label _fakeSeven;
+        private Label _fake107;
         private Label _top107;
         private Label _calculate107Separately;
         private Label _hlasConsidered;
@@ -76,6 +77,7 @@ namespace Mariasek.SharedClient.GameComponents
         private LeftRightSelector _kiloCountingSelector;
         private LeftRightSelector _playZeroSumGamesSelector;
         private LeftRightSelector _fakeSevenSelector;
+        private LeftRightSelector _fake107Selector;
         private LeftRightSelector _top107Selector;
         private LeftRightSelector _calculate107Selector;
         private LeftRightSelector _hlasSelector;
@@ -522,6 +524,36 @@ namespace Mariasek.SharedClient.GameComponents
             if (_fakeSevenSelector.SelectedIndex < 0)
             {
                 _fakeSevenSelector.SelectedIndex = 0;
+            }
+            _fake107 = new Label(this)
+            {
+                Position = new Vector2(200, page2Offset + 490),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Hlásit falešných stosedm",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle,
+                UseCommonScissorRect = true
+            };
+            _fake107Selector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 490),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Zakázáno", false }, { "Povoleno", true } },
+                UseCommonScissorRect = true
+            };
+            if (!Game.Settings.Calculate107Separately || !Game.Settings.Top107)
+            {
+                Game.Settings.AllowFake107 = false;
+            }
+            _fake107Selector.SelectedIndex = _fake107Selector.Items.FindIndex(Game.Settings.AllowFake107);
+            _fake107Selector.IsEnabled = Game.Settings.Calculate107Separately && Game.Settings.Top107;
+            _fake107Selector.SelectionChanged += Fake107Changed;
+            if (_fake107Selector.SelectedIndex < 0)
+            {
+                _fake107Selector.SelectedIndex = 0;
             }
             #endregion
             #region Page 3
@@ -1472,6 +1504,15 @@ namespace Mariasek.SharedClient.GameComponents
             var selector = sender as LeftRightSelector;
 
             Game.Settings.AllowFakeSeven = (bool)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        void Fake107Changed(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.AllowFake107 = (bool)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }

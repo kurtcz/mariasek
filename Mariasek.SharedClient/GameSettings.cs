@@ -83,6 +83,7 @@ namespace Mariasek.SharedClient
         public int BetlValue { get; set; }
         public int DurchValue { get; set; }
         public bool AllowFakeSeven { get; set; }
+        public bool AllowFake107 { get; set; }
         public bool AllowAXTalon { get; set; }
         public bool AllowTrumpTalon { get; set; }
         public bool AllowAIAutoFinish { get; set; }
@@ -194,6 +195,7 @@ namespace Mariasek.SharedClient
             Calculate107Separately = true;
             HlasConsidered = HlasConsidered.Highest;
             AllowFakeSeven = false;
+            AllowFake107 = false;
             AllowAXTalon = false;
             AllowTrumpTalon = true;
             AllowAIAutoFinish = true;
