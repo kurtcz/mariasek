@@ -1522,6 +1522,12 @@ namespace Mariasek.SharedClient.GameComponents
             var selector = sender as LeftRightSelector;
 
             Game.Settings.Top107 = (bool)selector.SelectedValue;
+            if (!Game.Settings.Top107 || !Game.Settings.Calculate107Separately)
+            {
+                Game.Settings.AllowFake107 = false;
+                _fake107Selector.SelectedIndex = _fake107Selector.Items.FindIndex(Game.Settings.AllowFake107);
+            }
+            _fake107Selector.IsEnabled = Game.Settings.Calculate107Separately && Game.Settings.Top107;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
@@ -1534,9 +1540,15 @@ namespace Mariasek.SharedClient.GameComponents
             if (!Game.Settings.Calculate107Separately)
             {
                 Game.Settings.AllowFakeSeven = false;
+                _fakeSevenSelector.SelectedIndex = _fakeSevenSelector.Items.FindIndex(Game.Settings.AllowFakeSeven);
+            }
+            if (!Game.Settings.Top107 || !Game.Settings.Calculate107Separately)
+            {
+                Game.Settings.AllowFake107 = false;
+                _fake107Selector.SelectedIndex = _fake107Selector.Items.FindIndex(Game.Settings.AllowFake107);
             }
             _fakeSevenSelector.IsEnabled = Game.Settings.Calculate107Separately;
-            _fakeSevenSelector.SelectedIndex = _fakeSevenSelector.Items.FindIndex(Game.Settings.AllowFakeSeven);
+            _fake107Selector.IsEnabled = Game.Settings.Calculate107Separately && Game.Settings.Top107;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
