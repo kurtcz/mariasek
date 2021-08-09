@@ -705,6 +705,22 @@ namespace Mariasek.Engine
                 replacementCards = replacementCards.Distinct().Take(cardsToRemove.Count).ToList();
                 talon = replacementCards.Concat(talon).Distinct().ToList();
             }
+            //pokud je v talonu neco vyssiho nez spodek a mas i spodka, tak ho dej do talonu
+            foreach(var card in talon.Where(i => i.Suit != trumpCard.Suit &&
+                                                 i.Value > Hodnota.Spodek &&
+                                                 hand.HasJ(i.Suit)).ToList())
+            {
+                if (!talon.HasJ(card.Suit) ||
+                    (talon.HasJ(card.Suit) &&
+                     talon.CardCount(card.Suit) > 2))
+                {
+                    talon.Remove(card);
+                }
+                if (!talon.HasJ(card.Suit))
+                {
+                    talon.Insert(0, new Card(c.Suit, Hodnota.Spodek));
+                }
+            }
             if (talon.Count > 2 &&
                 talon.Has7(trumpCard.Suit) &&
                 hand.CardCount(trumpCard.Suit) >= 5 &&
@@ -1023,7 +1039,7 @@ namespace Mariasek.Engine
                       _betlSimulations > 0 &&
                       ((TeamMateIndex != -1 &&
                         (Hand.CardCount(Hodnota.Eso) <= 1 ||
-                         GetBetlHoles() <= 2)) ||
+                         GetBetlHoles() <= 3)) ||
                        (TeamMateIndex == -1 &&
                         !(_hundredOverBetl &&
                           !IsHundredTooRisky(tempHand))))) ||
@@ -1180,6 +1196,7 @@ namespace Mariasek.Engine
                                 {
                                     Probabilities.StopGeneratingHands();
                                     loopState.Stop();
+                                    //break;
                                 }
                                 else
                                 {
@@ -1247,7 +1264,8 @@ namespace Mariasek.Engine
                                     if ((DateTime.Now - start7).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                                     {
                                         Probabilities.StopGeneratingHands();
-                                        //loopState.Stop();
+                                        loopState.Stop();
+                                        //break;
                                     }
                                     else
                                     {
@@ -1345,6 +1363,7 @@ namespace Mariasek.Engine
                         try
                         {
                             Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, Settings.SimulationsPerGameType), options, (hh, loopState) =>
+                            //foreach (var hh in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, Settings.SimulationsPerGameType))
                             {
                                 ThrowIfCancellationRequested();
                                 try
@@ -4705,7 +4724,7 @@ namespace Mariasek.Engine
                 }
                 else
                 {
-					//simuluju vlastni betl/durch (jestli ma cenu hlasit spatnou barvu)
+                    //simuluju vlastni betl/durch (jestli ma cenu hlasit spatnou barvu) nebo pri samotne hre
                     player1 = PlayerIndex;
                     player2 = (PlayerIndex + 1) % Game.NumPlayers;
                     player3 = (PlayerIndex + 2) % Game.NumPlayers;
@@ -4749,18 +4768,19 @@ namespace Mariasek.Engine
             }
 
             var prob = Probabilities.Clone();
-            //if (Settings.Cheat)                              //all probabilities are based on generated hands (either 0 or 1)
-            //{
-            //    prob.Set(hands);
-            //}
+            if (Settings.Cheat)                              //all probabilities are based on generated hands (either 0 or 1)
+            {
+                prob.Set(hands);
+            }
             //prob.UpdateProbabilitiesAfterTalon((List<Card>)hands[player1], (List<Card>)hands[3]);
-            prob.UseDebugString = false;    //otherwise we are being really slooow
+            //prob.UseDebugString = false;    //otherwise we are being really slooow
 
-            var prob1 = 0 == PlayerIndex ? prob : new Probability(PlayerIndex, player1, hands[PlayerIndex], trump, _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
+            const int talonIndex = Game.NumPlayers;
+            var prob1 = 0 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(0, player1, hands[0], trump, _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 0 == PlayerIndex ? (List<Card>)hands[talonIndex] : null);
             prob1.UseDebugString = false;
-            var prob2 = 1 == PlayerIndex ? prob : new Probability(PlayerIndex, player1, hands[PlayerIndex], trump, _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
+            var prob2 = 1 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(1, player1, hands[1], trump, _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 1 == PlayerIndex ? (List<Card>)hands[talonIndex] : null);
             prob2.UseDebugString = false;
-            var prob3 = 2 == PlayerIndex ? prob : new Probability(PlayerIndex, player1, hands[PlayerIndex], trump, _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory);
+            var prob3 = 2 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(2, player1, hands[2], trump, _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 2 == PlayerIndex ? (List<Card>)hands[talonIndex] : null);
             prob3.UseDebugString = false;
 
             if (Settings.Cheat)
@@ -4774,18 +4794,27 @@ namespace Mariasek.Engine
             //    prob, playerName, playerIndex, teamMateIndex, initialRoundNumber,
             //    Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense);
 
+            var teamMateIndex1 = ImpersonateGameStartingPlayer
+                                    ? (0 == PlayerIndex ? -1 : 1 == PlayerIndex ? 2 : 1)
+                                    : _g.players[0].TeamMateIndex;
+            var teamMateIndex2 = ImpersonateGameStartingPlayer
+                                    ? (1 == PlayerIndex ? -1 : 0 == PlayerIndex ? 2 : 0)
+                                    : _g.players[1].TeamMateIndex;
+            var teamMateIndex3 = ImpersonateGameStartingPlayer
+                                    ? (2 == PlayerIndex ? -1 : 0 == PlayerIndex ? 1 : 0)
+                                    : _g.players[2].TeamMateIndex;
             var aiStrategy1 = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds,
-                0 == PlayerIndex ? teamMatesSuits : new List<Barva>(), prob1, _g.players[0].Name, 0, _g.players[0].TeamMateIndex, initialRoundNumber,
+                0 == PlayerIndex ? teamMatesSuits : new List<Barva>(), prob1, _g.players[0].Name, 0, teamMateIndex1, initialRoundNumber,
                 Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense,
                 _g.Bidding, _g.GameValue, _g.HundredValue, _g.SevenValue);
 
             var aiStrategy2 = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds,
-                1 == PlayerIndex ? teamMatesSuits : new List<Barva>(), prob2, _g.players[1].Name, 1, _g.players[1].TeamMateIndex, initialRoundNumber,
+                1 == PlayerIndex ? teamMatesSuits : new List<Barva>(), prob2, _g.players[1].Name, 1, teamMateIndex2, initialRoundNumber,
                 Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense,
                 _g.Bidding, _g.GameValue, _g.HundredValue, _g.SevenValue);
 
             var aiStrategy3 = AiStrategyFactory.GetAiStrategy(_g, gameType, trump, hands, _g.RoundNumber >= 1 ? _g.rounds : simRounds,
-                2 == PlayerIndex ? teamMatesSuits : new List<Barva>(), prob3, _g.players[2].Name, 2, _g.players[2].TeamMateIndex, initialRoundNumber,
+                2 == PlayerIndex ? teamMatesSuits : new List<Barva>(), prob3, _g.players[2].Name, 2, teamMateIndex3, initialRoundNumber,
                 Settings.RiskFactor, Settings.RiskFactorSevenDefense, Settings.SolitaryXThreshold, Settings.SolitaryXThresholdDefense,
                 _g.Bidding, _g.GameValue, _g.HundredValue, _g.SevenValue);
             var aiStrategies = new[] { aiStrategy1, aiStrategy2, aiStrategy3 };
@@ -4893,7 +4922,10 @@ namespace Mariasek.Engine
                 var hlas3 = _trump.HasValue && c3.Value == Hodnota.Svrsek && hands[player3].HasK(c3.Suit);
                 if (Settings.Cheat)
                 {
-                    prob.Set(hands);
+                    //prob.Set(hands);
+                    prob1.Set(hands);
+                    prob2.Set(hands);
+                    prob3.Set(hands);
                 }
                 else
                 {

@@ -468,7 +468,8 @@ namespace Mariasek.Engine
                                                                      .All(j => _probabilities.CardProbability(player2, j) == 0 &&
                                                                                _probabilities.CardProbability(player3, j) == 0 &&
                                                                                _probabilities.SuitProbability(opponent, i.Suit, RoundNumber) > 0))
-                                                     .Distinct();
+                                                     .Distinct()
+                                                     .ToList();
                         var cardsToPlay = hands[MyIndex].Where(i => !bannedSuits.Contains(i.Suit) &&
                                                                     topCards.Count(j => j.Suit == i.Suit) > 2 &&
                                                                     !topCards.Contains(i));

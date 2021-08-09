@@ -4044,6 +4044,12 @@ namespace Mariasek.Engine
                                                                                 !(hands[MyIndex].HasX(i.Suit) &&
                                                                                   hands[MyIndex].CardCount(i.Suit) == 2) &&
                                                                                 !topCards.Contains(i)).ToList();
+                        if (cardsToPlay.Any(i => !hands[MyIndex].HasA(i.Suit) &&
+                                                 !hands[MyIndex].HasX(i.Suit)))
+                        {
+                            cardsToPlay = cardsToPlay.Where(i => !hands[MyIndex].HasA(i.Suit) &&
+                                                                 !hands[MyIndex].HasX(i.Suit)).ToList();
+                        }
                         //pokud jsi nevolil: nezbabuj se plev od barev kde mas A nebo X pokud mas trumfy
                         if (TeamMateIndex != -1)
                         {
@@ -5036,7 +5042,7 @@ namespace Mariasek.Engine
                                                                                   c1.IsLowerThan(i, _trump) &&
                                                                                   !(hands[MyIndex].CardCount(i.Suit) >= 4 &&
                                                                                     hands[MyIndex].CardCount(_trump) >= 3) &&
-                                                                                  (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 ||
+                                                                                  (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor ||
                                                                                    _probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor));
                     }
                     if (TeamMateIndex != player3 &&
