@@ -2400,7 +2400,7 @@ namespace Mariasek.Engine
                                           (_probabilities.SuitProbability(player3, b, RoundNumber) > 0 ||
                                            _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
                                           opponentPotentialCards.Where(i => i.Suit == b)
-                                                                .Count() > 1 &&
+                                                                .Count() >= 2 &&
                                           opponentPotentialCards.Where(i => i.Suit == b)
                                                                 .Count() <= (hands[MyIndex].HasA(b) ? 1 : 0) +
                                                                             (hands[MyIndex].HasX(b) &&
@@ -2417,17 +2417,15 @@ namespace Mariasek.Engine
                                                                                  _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&
                                                                                 (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 ||
                                                                                  _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
-                                                                                _probabilities.PotentialCards(player2)
-                                                                                              .Where(j => j.Suit == i.Suit)
-                                                                                              .Concat(_probabilities.PotentialCards(player3)
-                                                                                              .Where(j => j.Suit == i.Suit))
-                                                                                              .Distinct()
-                                                                                              .Count() <= (hands[MyIndex].HasA(i.Suit) ? 1 : 0) +
-                                                                                                          (hands[MyIndex].HasX(i.Suit) &&
-                                                                                                          _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0 &&
-                                                                                                          _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0 ? 1 : 0) +
-                                                                                                          (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0 &&
-                                                                                                           _probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 ? 2 : 0))
+                                                                                opponentPotentialCards.Where(j => j.Suit == i.Suit)
+                                                                                                      .Count() >= 2 &&
+                                                                                opponentPotentialCards.Where(j => j.Suit == i.Suit)
+                                                                                                      .Count() <= (hands[MyIndex].HasA(i.Suit) ? 1 : 0) +
+                                                                                                                  (hands[MyIndex].HasX(i.Suit) &&
+                                                                                                                   _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0 &&
+                                                                                                                   _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0 ? 1 : 0) +
+                                                                                                                  (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0 &&
+                                                                                                                   _probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 ? 2 : 0))
                                                                     .ToList();
                             if (cardsToPlay.Any())
                             {
