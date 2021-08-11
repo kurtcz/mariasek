@@ -553,7 +553,7 @@ namespace Mariasek.SharedClient
 
             var saveGamePath = Path.Combine(_editorPath, $"{_filename}.hra");
 
-            if (File.Exists(saveGamePath))
+            if (File.Exists(saveGamePath) && !!MessageBox.IsVisible)
             {
                 var buttonIndex = await MessageBox.Show("Soubor již existuje", $"Přepsat hru {_filename}?", new string[] { "Storno", "OK" });
 
@@ -646,7 +646,7 @@ namespace Mariasek.SharedClient
             {
                 _fileToDelete = _filename;
             }
-            if (_fileToDelete != null)
+            if (_fileToDelete != null && !!MessageBox.IsVisible)
             {
                 var buttonIndex = await MessageBox.Show("Potvrzení", $"Smazat hru {_fileToDelete}?", new string[] { "Zpět", "Smazat" });
 

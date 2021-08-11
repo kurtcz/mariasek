@@ -292,7 +292,10 @@ namespace Mariasek.SharedClient
                 catch(Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine("Unexpected error in ShowGame: {0}\n{1}", ex.Message, ex.StackTrace);
-                    _ = MessageBox.Show("Chyba", ex.Message, new string[] { "OK" });
+                    if (!!MessageBox.IsVisible)
+                    {
+                        _ = MessageBox.Show("Chyba", ex.Message, new string[] { "OK" });
+                    }
                 }
             });
         }

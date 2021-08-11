@@ -459,6 +459,10 @@ namespace Mariasek.SharedClient
 
         private async void ResetHistoryClicked(object sender)
         {
+            if (MessageBox.IsVisible)
+            {
+                return;
+            }
             var buttonIndex = await MessageBox.Show("Varování", $"Opravdu si přejete smazat historii?", new string[] { "Zpět", "Smazat" });
             
             if (buttonIndex.HasValue && buttonIndex.Value == 1)
@@ -506,7 +510,10 @@ namespace Mariasek.SharedClient
             }
             catch(Exception ex)
             {
-                _ = MessageBox.Show("Chyba", ex.Message, new string[] { "OK" });
+                if (!!MessageBox.IsVisible)
+                {
+                    _ = MessageBox.Show("Chyba", ex.Message, new string[] { "OK" });
+                }
             }
         }
 

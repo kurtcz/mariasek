@@ -855,6 +855,10 @@ namespace Mariasek.SharedClient
 
         public async void ResetButtonClicked(object sender)
         {
+            if (MessageBox.IsVisible)
+            {
+                return;
+            }
             var buttonIndex = await MessageBox.Show("Potvrzení", $"Obnovit výchozí nastavení?", new string[] { "Zpět", "Obnovit" });
 
             if (buttonIndex.HasValue && buttonIndex.Value == 1)
