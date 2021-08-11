@@ -1617,7 +1617,8 @@ namespace Mariasek.Engine
                                                            (i.GameType & Hra.Sedma) == 0).Count(i => i.GameWon)
                             : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.GameWon);
             _gameSimulations = PlayerIndex == gameStartingPlayerIndex
-                                ? moneyCalculations.Count(i => (i.GameType & Hra.Sedma) == 0)
+                                ? moneyCalculations.Count(i => (i.GameType & Hra.Hra) != 0 &&
+                                                               (i.GameType & Hra.Sedma) == 0)
                                 : moneyCalculations.Count(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0);
             _hundredsBalance =  PlayerIndex == gameStartingPlayerIndex
                                 ? moneyCalculations.Where(i => (i.GameType & Hra.Kilo) != 0).Count(i => i.HundredWon)
