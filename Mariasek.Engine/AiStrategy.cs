@@ -3218,7 +3218,7 @@ namespace Mariasek.Engine
                                                                                      (i.Value != Hodnota.Desitka &&
                                                                                       _probabilities.CardProbability(TeamMateIndex, new Card(_trump, Hodnota.Desitka)) <= _epsilon) ||
                                                                                      _probabilities.PotentialCards(TeamMateIndex).Count(j => j.Suit == _trump &&
-                                                                                                                                             j.Value > i.Value) > 1));
+                                                                                                                                             j.Value > i.Value) > 2));
                             }
                             if(!cardsToPlay.Any() &&
                                (PlayerBids[MyIndex] & Hra.Sedma) == 0 &&
@@ -3235,11 +3235,11 @@ namespace Mariasek.Engine
                                                                         !hands[MyIndex].HasX(_trump) &&
                                                                         hands[MyIndex].SuitCount < Game.NumSuits &&
                                                                         (Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                                                            .Where(b => b != _trump)
-                                                                            .Any(b => (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Eso)) >= 1 - _epsilon ||
-                                                                                       _probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Desitka)) >= 1 - _epsilon) &&
-                                                                                     _probabilities.PotentialCards(opponentIndex).Count(j => j.Suit == i.Suit &&
-                                                                                                                                             j.Value < Hodnota.Desitka) > 1) ||
+                                                                             .Where(b => b != _trump)
+                                                                             .Any(b => (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Eso)) >= 1 - _epsilon ||
+                                                                                        _probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Desitka)) >= 1 - _epsilon) &&
+                                                                                       _probabilities.PotentialCards(opponentIndex).Count(j => j.Suit == i.Suit &&
+                                                                                                                                             j.Value < Hodnota.Desitka) > 2) ||
                                                                          _probabilities.CertainCards(opponentIndex).Any(j => j.Suit == i.Suit &&
                                                                                                                              j.Value < Hodnota.Desitka))))
                                 {
@@ -5030,7 +5030,7 @@ namespace Mariasek.Engine
                     }
                     if (TeamMateIndex == player1 &&
                         //(_gameType & Hra.Sedma) != 0 &&
-                        ((hands[MyIndex].SuitCount == 3 &&
+                        ((hands[MyIndex].SuitCount == 3 &&      
                           !hands[MyIndex].HasSuit(_trump)) ||
                          hands[MyIndex].SuitCount == 1 ||
                          hands[MyIndex].HasSuit(_trump)))
@@ -5040,7 +5040,9 @@ namespace Mariasek.Engine
                                                                                   c1.IsLowerThan(i, _trump) &&
                                                                                   !(hands[MyIndex].CardCount(i.Suit) >= 4 &&
                                                                                     hands[MyIndex].CardCount(_trump) >= 3) &&
-                                                                                  (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor ||
+                                                                                  hands[MyIndex].Count(j => j.Value >= Hodnota.Desitka &&
+                                                                                                            j.Suit != _trump) > 2 &&
+                                                                                  (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 ||
                                                                                    _probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor));
                     }
                     if (TeamMateIndex != player3 &&

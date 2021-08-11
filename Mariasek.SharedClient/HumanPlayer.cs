@@ -113,7 +113,7 @@ namespace Mariasek.SharedClient
             }
         }
 
-            public override Card ChooseTrump()
+        public override Card ChooseTrump()
         {
             _g.ThrowIfCancellationRequested();
             if (_aiPlayer != null)
