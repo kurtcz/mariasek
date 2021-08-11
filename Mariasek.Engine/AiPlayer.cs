@@ -880,7 +880,7 @@ namespace Mariasek.Engine
                                                                   : 1));
             var tempTalon = Hand.Count == 12 ? ChooseNormalTalon(Hand, TrumpCard) : new List<Card>();
             var tempHand = new List<Card>(Hand.Where(i => !tempTalon.Contains(i)));
-            var estimatedPointsLost = _trump != null ? EstimateTotalPointsLost(tempHand) : 0;
+            var estimatedPointsLost = _trump != null ? EstimateTotalPointsLost(tempHand, tempTalon) : 0;
             if (_initialSimulation || AdvisorMode)
             {
                 var bidding = new Bidding(_g);
@@ -2216,17 +2216,18 @@ namespace Mariasek.Engine
             return EstimateTotalPointsLost() >= scoreToQuery;
         }
 
-        public int EstimateTotalPointsLost(List<Card> hand = null)
+        public int EstimateTotalPointsLost(List<Card> hand = null, List<Card> talon = null)
         {
             hand = hand ?? Hand;
+            talon = talon ?? _talon;
 
             var trump = _trump ?? _g.trump;
             var noKQSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => !hand.HasK(b) &&
                                             !hand.HasQ(b) &&
-                                            (_talon == null ||
-                                             (!_talon.HasK(b) &&
-                                              !_talon.HasQ(b))));
+                                            (talon == null ||
+                                             (!talon.HasK(b) &&
+                                              !talon.HasQ(b))));
             var estimatedKQPointsLost = noKQSuits.Sum(b => b == _trump ? 40 : 20);
             var estimatedBasicPointsLost = 90 - EstimateFinalBasicScore(hand);
             var estimatedPointsLost = estimatedBasicPointsLost + estimatedKQPointsLost;
