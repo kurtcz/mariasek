@@ -435,7 +435,53 @@ namespace Mariasek.Engine
                                 }
                             }
                             cardsToPlay = hands[MyIndex].Where(i => prefSuits.Contains(i.Suit));
+
+                            if (!cardsToPlay.Any())
+                            {
+                                var myPlayedCards = _rounds.Where(r => r != null && r.c3 != null)
+                                                           .Select(r =>
+                                                           {
+                                                               if (r.player1.PlayerIndex == MyIndex)
+                                                               {
+                                                                   return r.c1;
+                                                               }
+                                                               else if (r.player2.PlayerIndex == MyIndex)
+                                                               {
+                                                                   return r.c2;
+                                                               }
+                                                               else
+                                                               {
+                                                                   return r.c3;
+                                                               }
+                                                           }).ToList();
+                                var myInitialHand = new List<Card>();
+
+                                myInitialHand.AddRange((List<Card>)hands[MyIndex]);
+                                myInitialHand.AddRange(myPlayedCards);
+
+                                //pokud mas na zacatku v barve 3-5 nejvyssich karet a nic jineho, tak je pravdepodobne, ze akter ma zbyvajici nizke
+                                //muzes proto nechat spoluhrace odmazavat
+                                foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                                {
+                                    var topCards = myInitialHand.Where(i => i.Suit == b &&
+                                                                            !bannedSuits.Contains(b) &&
+                                                                            _probabilities.PotentialCards(opponent).HasSuit(b) &&
+                                                                            Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                .Select(h => new Card(b, h))
+                                                                                .Where(j => j.BadValue > i.BadValue)
+                                                                                .All(j => _probabilities.CardProbability(player2, j) == 0 &&
+                                                                                          _probabilities.CardProbability(player3, j) == 0));
+                                    if (topCards.Count() >= 3 &&
+                                        topCards.Count() <= 5 &&
+                                        myInitialHand.CardCount(b) - topCards.Count() == 0)
+                                    {
+                                        prefSuits.Add(b);
+                                    }                                                                                 
+                                }
+                                cardsToPlay = hands[MyIndex].Where(i => prefSuits.Contains(i.Suit));
+                            }
                         }
+
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
                 };

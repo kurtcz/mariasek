@@ -5028,7 +5028,10 @@ namespace Mariasek.Engine
                             }
                         }
                     }
-                    if (TeamMateIndex == player1 &&                        
+                    if (TeamMateIndex != player3 &&
+                        //((_gameType & (Hra.Kilo | Hra.KiloProti)) != 0 ||
+                        // ((_gameType & Hra.Hra) != 0 &&
+                        //  (_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0)) &&
                         ((hands[MyIndex].SuitCount == 3 &&      
                           !hands[MyIndex].HasSuit(_trump) &&
                           (PlayerBids[TeamMateIndex] & Hra.Hra) == 0) ||
@@ -5040,20 +5043,10 @@ namespace Mariasek.Engine
                                                                                   c1.IsLowerThan(i, _trump) &&
                                                                                   !(hands[MyIndex].CardCount(i.Suit) >= 4 &&
                                                                                     hands[MyIndex].CardCount(_trump) >= 3) &&
-                                                                                  hands[MyIndex].Count(j => j.Value >= Hodnota.Desitka &&
-                                                                                                            j.Suit != _trump) > 2 &&
+                                                                                  (hands[MyIndex].Count(j => j.Value >= Hodnota.Desitka &&
+                                                                                                             j.Suit != _trump) > 2 ||
+                                                                                   hands[MyIndex].HasX(i.Suit)) &&
                                                                                   (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 ||
-                                                                                   _probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor));
-                    }
-                    else if (TeamMateIndex == -1 &&
-                             (_gameType & (Hra.Kilo | Hra.KiloProti)) == 0)
-                    {
-                        return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
-                                                                                  i.Suit != _trump &&
-                                                                                  c1.IsLowerThan(i, _trump) &&
-                                                                                  !(hands[MyIndex].CardCount(i.Suit) >= 4 &&
-                                                                                    hands[MyIndex].CardCount(_trump) >= 3) &&
-                                                                                  (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor ||
                                                                                    _probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor));
                     }
                     return null;
