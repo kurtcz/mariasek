@@ -469,7 +469,17 @@ namespace Mariasek.SharedClient
             {
                 _useMockData = false;
                 Game.Money.Clear();
-                Game.MainScene.DeleteArchiveFolder();
+                try
+                {
+                    Game.MainScene.DeleteArchiveFolder();
+                }
+                catch(Exception ex)
+                {
+                    if (!MessageBox.IsVisible)
+                    {
+                        await MessageBox.Show("Chyba", ex.Message, new string[] { "OK" });
+                    }
+                }
                 RunOnUiThread(() =>
                 {
                     PopulateControls();

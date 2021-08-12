@@ -3084,7 +3084,7 @@ namespace Mariasek.SharedClient
                     Game.CoughSound?.PlaySafely();
                 }
                 _newGameBtn.Show();
-                _repeatGameBtn.IsEnabled = Game.StorageAccessor.CheckStorageAccess();
+                _repeatGameBtn.IsEnabled = true; //Game.StorageAccessor.CheckStorageAccess();
                 _repeatGameOptionBtn.IsEnabled = _repeatGameBtn.IsEnabled;
                 _repeatGameBtn.Show();
                 _repeatGameOptionBtn.Show();
@@ -3989,9 +3989,19 @@ namespace Mariasek.SharedClient
 
         public void DeleteArchiveFolder()
         {
-            foreach (var game in Directory.GetFiles(_archivePath))
+            try
             {
-                File.Delete(game);
+                if (Directory.Exists(_archivePath))
+                {
+                    foreach (var game in Directory.GetFiles(_archivePath))
+                    {
+                        File.Delete(game);
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                ShowMsgLabel(ex.Message, false);
             }
         }
 

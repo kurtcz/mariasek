@@ -210,7 +210,7 @@ namespace Mariasek.SharedClient
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Bottom,
                 FontScaleFactor = Game.RealScreenGeometry == ScreenGeometry.Wide ? 0.9f : 0.75f
             };
-            ShowWarningIfNeeded();
+            //ShowWarningIfNeeded();
             try
             {
                 SoundEffect.MasterVolume = Game.Settings.SoundEnabled ? 1f : 0f;
@@ -245,22 +245,22 @@ namespace Mariasek.SharedClient
             }
         }
 
-        void ShowWarningIfNeeded()
-        {
-            if (Game.StorageAccessor.CheckStorageAccess())
-            {
-                _warning.Hide();
-                _permissionsButton.Hide();
-            }
-            else
-            {
-                _warning.Show();
-                _permissionsButton.Show();
-            }
-            _settingsButton.ClearOperations();
-            _settingsButton.Wait(3000)
-                           .Invoke(() => ShowWarningIfNeeded());
-        }
+        //void ShowWarningIfNeeded()
+        //{
+        //    if (Game.StorageAccessor.CheckStorageAccess())
+        //    {
+        //        _warning.Hide();
+        //        _permissionsButton.Hide();
+        //    }
+        //    else
+        //    {
+        //        _warning.Show();
+        //        _permissionsButton.Show();
+        //    }
+        //    _settingsButton.ClearOperations();
+        //    _settingsButton.Wait(3000)
+        //                   .Invoke(() => ShowWarningIfNeeded());
+        //}
 
         void PermissionsButtonClicked(object sender)
         {

@@ -689,7 +689,7 @@ namespace Mariasek.SharedClient
             });
             System.Diagnostics.Debug.WriteLine("update sw {0}", sw.ElapsedMilliseconds);
 
-            MigrateFilesIfNeeded();
+            //MigrateFilesIfNeeded();
             if (!SettingsLoaded)
             {
                 LoadGameSettings(true);
@@ -697,111 +697,111 @@ namespace Mariasek.SharedClient
             _loadingFinished = true;
         }
 
-        private void MigrateFilesIfNeeded()
-        {
-#if __ANDROID__
-            if ((int)Android.OS.Build.VERSION.SdkInt <= 29)
-            {
-                try
-                {
-                    var legacyFolder = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/Mariasek";
+//        private void MigrateFilesIfNeeded()
+//        {
+//#if __ANDROID__
+//            if ((int)Android.OS.Build.VERSION.SdkInt <= 29)
+//            {
+//                try
+//                {
+//                    var legacyFolder = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/Mariasek";
 
-                    StorageAccessor.GetStorageAccess(true);
-                    if (Directory.Exists(legacyFolder) &&
-                        !Directory.Exists(Path.Combine(RootPath, "Archive")) &&
-                        !File.Exists(Path.Combine(RootPath, "Mariasek.history")) &&
-                        !File.Exists(Path.Combine(RootPath, "Mariasek.deck")) &&
-                        !File.Exists(Path.Combine(RootPath, "Mariasek.settings")))
-                    {
-                        MigrateFiles();
-                    }
-                    else
-                    {
-                        _loadingFinished = true;
-                    }
-                }
-                catch
-                {
-                    _loadingFinished = true;
-                }
-            }
-            else
-            {
-                _loadingFinished = true;
-            }
-#else
-            _loadingFinished = true;
-#endif
-        }
+//                    StorageAccessor.GetStorageAccess(true);
+//                    if (Directory.Exists(legacyFolder) &&
+//                        !Directory.Exists(Path.Combine(RootPath, "Archive")) &&
+//                        !File.Exists(Path.Combine(RootPath, "Mariasek.history")) &&
+//                        !File.Exists(Path.Combine(RootPath, "Mariasek.deck")) &&
+//                        !File.Exists(Path.Combine(RootPath, "Mariasek.settings")))
+//                    {
+//                        MigrateFiles();
+//                    }
+//                    else
+//                    {
+//                        _loadingFinished = true;
+//                    }
+//                }
+//                catch
+//                {
+//                    _loadingFinished = true;
+//                }
+//            }
+//            else
+//            {
+//                _loadingFinished = true;
+//            }
+//#else
+//            _loadingFinished = true;
+//#endif
+//        }
 
-#if __ANDROID__
-        private void MigrateFiles()
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    var legacyFolder = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/Mariasek";
-                    var destinationFolder = Android.App.Application.Context.GetExternalFilesDir(null).Path;
-                    var legacyArchive = Path.Combine(legacyFolder, "Archive");
-                    var destinationArchive = Path.Combine(destinationFolder, "Archive");
-                    var legacyEditor = Path.Combine(legacyFolder, "Editor");
-                    var destinationEditor = Path.Combine(destinationFolder, "Editor");
+//#if __ANDROID__
+//        private void MigrateFiles()
+//        {
+//            Task.Run(() =>
+//            {
+//                try
+//                {
+//                    var legacyFolder = Android.OS.Environment.ExternalStorageDirectory.AbsolutePath + "/Mariasek";
+//                    var destinationFolder = Android.App.Application.Context.GetExternalFilesDir(null).Path;
+//                    var legacyArchive = Path.Combine(legacyFolder, "Archive");
+//                    var destinationArchive = Path.Combine(destinationFolder, "Archive");
+//                    var legacyEditor = Path.Combine(legacyFolder, "Editor");
+//                    var destinationEditor = Path.Combine(destinationFolder, "Editor");
 
-                    foreach (var entry in Directory.EnumerateFiles(legacyFolder))
-                    {
-                        _fileBeingMigrated = Path.GetFileName(entry);
-                        var destination = Path.Combine(destinationFolder, _fileBeingMigrated);
-                        MoveWithOverwrite(entry, destination);
-                    }
-                    if (!Directory.Exists(destinationArchive))
-                    {
-                        Directory.CreateDirectory(destinationArchive);
-                    }
-                    foreach (var entry in Directory.EnumerateFiles(legacyArchive))
-                    {
-                        _fileBeingMigrated = Path.GetFileName(entry);
-                        var destination = Path.Combine(destinationArchive, _fileBeingMigrated);
-                        MoveWithOverwrite(entry, destination);
-                    }
-                    if (Directory.Exists(legacyEditor))
-                    {
-                        if (!Directory.Exists(destinationEditor))
-                        {
-                            Directory.CreateDirectory(destinationEditor);
-                        }
-                        foreach (var entry in Directory.EnumerateFiles(legacyEditor))
-                        {
-                            _fileBeingMigrated = Path.GetFileName(entry);
-                            var destination = Path.Combine(destinationEditor, _fileBeingMigrated);
-                            MoveWithOverwrite(entry, destination);
-                        }
-                    }
-                    Directory.Delete(legacyFolder, true);
-                }
-                catch
-                { }
-                finally
-                {
-                    _loadingFinished = true;
-                }
-            });
-        }
-#endif
+//                    foreach (var entry in Directory.EnumerateFiles(legacyFolder))
+//                    {
+//                        _fileBeingMigrated = Path.GetFileName(entry);
+//                        var destination = Path.Combine(destinationFolder, _fileBeingMigrated);
+//                        MoveWithOverwrite(entry, destination);
+//                    }
+//                    if (!Directory.Exists(destinationArchive))
+//                    {
+//                        Directory.CreateDirectory(destinationArchive);
+//                    }
+//                    foreach (var entry in Directory.EnumerateFiles(legacyArchive))
+//                    {
+//                        _fileBeingMigrated = Path.GetFileName(entry);
+//                        var destination = Path.Combine(destinationArchive, _fileBeingMigrated);
+//                        MoveWithOverwrite(entry, destination);
+//                    }
+//                    if (Directory.Exists(legacyEditor))
+//                    {
+//                        if (!Directory.Exists(destinationEditor))
+//                        {
+//                            Directory.CreateDirectory(destinationEditor);
+//                        }
+//                        foreach (var entry in Directory.EnumerateFiles(legacyEditor))
+//                        {
+//                            _fileBeingMigrated = Path.GetFileName(entry);
+//                            var destination = Path.Combine(destinationEditor, _fileBeingMigrated);
+//                            MoveWithOverwrite(entry, destination);
+//                        }
+//                    }
+//                    Directory.Delete(legacyFolder, true);
+//                }
+//                catch
+//                { }
+//                finally
+//                {
+//                    _loadingFinished = true;
+//                }
+//            });
+//        }
+//#endif
 
-        private void MoveWithOverwrite(string source, string destination)
-        {
-            try
-            {
-                if (File.Exists(destination))
-                {
-                    File.Delete(destination);
-                }
-                File.Move(source, destination);
-            }
-            catch
-            { }
-        }
+        //private void MoveWithOverwrite(string source, string destination)
+        //{
+        //    try
+        //    {
+        //        if (File.Exists(destination))
+        //        {
+        //            File.Delete(destination);
+        //        }
+        //        File.Move(source, destination);
+        //    }
+        //    catch
+        //    { }
+        //}
 
         public async void PlayBackgroundMusic()
         {

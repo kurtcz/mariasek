@@ -134,16 +134,16 @@ namespace Mariasek.AndroidClient
 
         public void GetStorageAccess(bool force = false)
         {
-            if ((int)Android.OS.Build.VERSION.SdkInt >= 29 && !force)
-            {
-                return;
-            }
-            var permission = Manifest.Permission.WriteExternalStorage;
+            //if ((int)Android.OS.Build.VERSION.SdkInt >= 29 && !force)
+            //{
+            //    return;
+            //}
+            //var permission = Manifest.Permission.WriteExternalStorage;
 
-            if (!CheckStorageAccess())
-            {
-                ActivityCompat.RequestPermissions(this, new[] { permission }, ++storageAccessRequestCode);
-            }
+            //if (!CheckStorageAccess())
+            //{
+            //    ActivityCompat.RequestPermissions(this, new[] { permission }, ++storageAccessRequestCode);
+            //}
         }
 
         public override void OnConfigurationChanged(Android.Content.Res.Configuration newConfig)
