@@ -5034,7 +5034,8 @@ namespace Mariasek.Engine
                         //  (_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0)) &&
                         ((hands[MyIndex].SuitCount == 3 &&      
                           !hands[MyIndex].HasSuit(_trump) &&
-                          (PlayerBids[TeamMateIndex] & Hra.Hra) == 0) ||
+                          (TeamMateIndex == -1 ||
+                           (PlayerBids[TeamMateIndex] & Hra.Hra) == 0)) ||
                          hands[MyIndex].SuitCount == 1 ||
                          hands[MyIndex].CardCount(_trump) >= 2))
                     {

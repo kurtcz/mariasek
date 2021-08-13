@@ -918,6 +918,8 @@ namespace Mariasek.Engine
                         DebugInfo.Rule = "Durch";
                         DebugInfo.RuleCount = _durchBalance;
                         DebugInfo.TotalRuleCount = _durchSimulations;
+
+                        return GameFlavour.Bad;
                     }
                     else if (Settings.CanPlayGameType[Hra.Betl] && 
                              ((_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && 
@@ -929,7 +931,7 @@ namespace Mariasek.Engine
                                !Settings.AiMayGiveUp &&
                                ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                                  lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold) ||
-                                (_maxMoneyLost < -2 * Settings.SafetyBetlThreshold &&
+                                (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
                                  _avgBasicPointsLost > 60)))))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
                     {
                         if (_talon == null || !_talon.Any())
@@ -939,6 +941,8 @@ namespace Mariasek.Engine
                         DebugInfo.Rule = "Betl";
                         DebugInfo.RuleCount = _betlBalance;
                         DebugInfo.TotalRuleCount = _betlSimulations;
+
+                        return GameFlavour.Bad;
                     }
                     else
                     {
@@ -957,6 +961,8 @@ namespace Mariasek.Engine
                             DebugInfo.RuleCount = _durchSimulations - _durchBalance;
                             DebugInfo.TotalRuleCount = _durchSimulations;
                         }
+
+                        return GameFlavour.Good;
                     }
                     _rerunSimulations = false;
                 }
@@ -1047,7 +1053,9 @@ namespace Mariasek.Engine
                         !AdvisorMode &&
                         !Settings.AiMayGiveUp &&
                         lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
-                        lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold)))
+                        lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold) ||
+                       (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
+                        _avgBasicPointsLost > 60)))
                 {
                     if ((_betlSimulations > 0 && 
                          (!Settings.CanPlayGameType[Hra.Durch] ||
@@ -2829,7 +2837,7 @@ namespace Mariasek.Engine
                            //estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore + 40 ||
                            (estimatedFinalBasicScore >= 10 &&
                             estimatedFinalBasicScore + kqScore >= 40 &&
-                            _maxMoneyLost >= -2 * Settings.SafetyBetlThreshold) ||
+                            _maxMoneyLost > -Settings.SafetyBetlThreshold) ||
                            (estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore &&
                             (Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value))))))
                 {
