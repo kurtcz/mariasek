@@ -5125,10 +5125,7 @@ namespace Mariasek.Engine
                         var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit != _trump  &&
                                                                          ((i.Value == Hodnota.Desitka &&
                                                                            !(c1.Suit == i.Suit &&
-                                                                             c1.Value == Hodnota.Eso) &&
-                                                                           !((_gameType & Hra.Kilo) != 0 &&
-                                                                              hands[MyIndex].CardCount(Hodnota.Desitka) <= 2 &&
-                                                                              hands[MyIndex].CardCount(i.Suit) >= 5)) ||
+                                                                             c1.Value == Hodnota.Eso)) ||
                                                                           (i.Value == Hodnota.Eso &&        //eso namaz jen kdyz nemuzu chytit desitku nebo pri kilu (proti)
                                                                            (_probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon ||
                                                                             ((_gameType & Hra.Kilo) != 0 &&
