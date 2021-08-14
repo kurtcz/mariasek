@@ -82,6 +82,7 @@ namespace Mariasek.Engine
         public int MinimalBidsForGame { get; set; }
         public int MinimalBidsForSeven { get; set; }
         public bool PlayZeroSumGames { get; set; }
+        public bool MandatoryDouble { get; set; }
         public bool Top107 { get; set; }
         public bool Calculate107Separately { get; set; }
         public int FirstMinMaxRound { get; set; }

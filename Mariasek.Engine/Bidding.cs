@@ -175,7 +175,7 @@ namespace Mariasek.Engine
             var i = (_g.GameStartingPlayerIndex + 1) % Game.NumPlayers;
             for (var j = 1; ; j++, i = ++i % Game.NumPlayers)
             {
-                Round = j % Game.NumPlayers;
+                Round = j / Game.NumPlayers;
                 //zrus priznak u her ktere cele kolo nikdo neflekoval aby uz nesly flekovat dal
                 AdjustValidBidsForPlayer(i, j);
                 _g.DebugString.AppendFormat("Player{0} GetBidsAndDoubles()\n", i + 1);
@@ -196,6 +196,15 @@ namespace Mariasek.Engine
                     {
                         bid |= Hra.SedmaProti;
                     }
+                }
+                if ((gameType & Hra.Hra) != 0 &&
+                    GameMultiplier < 2 &&
+                    _g.MandatoryDouble &&
+                    _g.players[i].TeamMateIndex != -1 &&
+                    (_g.players[i].Hand.HasK(_g.trump.Value) ||
+                     _g.players[i].Hand.HasQ(_g.trump.Value)))
+                {
+                    bid |= Hra.Hra;
                 }
 
                 //nastav priznak co hrac hlasil a flekoval

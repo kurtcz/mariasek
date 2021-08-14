@@ -2252,9 +2252,11 @@ namespace Mariasek.Engine
             var result = hand.CardCount(_trump.Value) < 4 ||                      //1.  mene nez 4 trumfy
                          (hand.CardCount(_trump.Value) == 4 &&
                           TeamMateIndex != -1 &&
-                          !_teamMateDoubledGame) ||
+                          (!_teamMateDoubledGame ||
+                           _g.MandatoryDouble)) ||
                          (hand.CardCount(_trump.Value) <= 4 &&
-                          !_teamMateDoubledGame &&
+                          (!_teamMateDoubledGame ||
+                           _g.MandatoryDouble) &&
                           (!hand.HasA(_trump.Value) ||
                            !hand.HasX(_trump.Value)) &&
                           !(hand.HasK(_trump.Value) &&
@@ -2273,7 +2275,8 @@ namespace Mariasek.Engine
                             hand.Where(i => i.Suit != _trump.Value)
                                 .Count(i => i.Value == Hodnota.Eso) >= 2)) ||
                          (hand.CardCount(_trump.Value) == 4 &&                    //2.  nebo 4 trumfy a jedno z
-                          !_teamMateDoubledGame &&
+                          (!_teamMateDoubledGame ||
+                           _g.MandatoryDouble) &&
                           (hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||      //2a. mene nez 3 vysoke karty celkem
                            (hand.Count(i => i.Value == Hodnota.Eso) +              //2b. nebo mene nez 2 (resp. 3) uhratelne A, X
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -2297,7 +2300,8 @@ namespace Mariasek.Engine
                                               hand.HasSuit(b))
                                   .Any(b => hand.HasA(b))))))) ||
                          (hand.CardCount(_trump.Value) == 5 &&                    //3.  5 trumfu a nemam trumfove A+K+S
-                          !_teamMateDoubledGame &&
+                          (!_teamMateDoubledGame ||
+                           _g.MandatoryDouble) &&
                           hand.Count(i => i.Suit == _trump.Value &&
                                           i.Value >= Hodnota.Svrsek) < 3 &&
                           ((hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 &&
@@ -2855,13 +2859,13 @@ namespace Mariasek.Engine
                 DebugInfo.AvgSimulatedPointsWon = (int)avgPointsWon;
                 if (Settings.CanPlayGameType[Hra.Sedma] &&
                     (((_g.AllowFakeSeven &&
-                        (gameType & Hra.Hra) != 0 &&  //pri hre
-                        avgPointsWon >= 110) ||
-                       (_g.AllowFake107 &&
-                        _g.Calculate107Separately &&
-                        _g.Top107 &&
-                        (gameType & Hra.Kilo) != 0 &&  //pri kilu
-                        avgPointsWon >= 140)) ||
+                       (gameType & Hra.Hra) != 0 &&  //pri hre
+                       avgPointsWon >= 110) ||
+                      (_g.AllowFake107 &&
+                       _g.Calculate107Separately &&
+                       _g.Top107 &&
+                       (gameType & Hra.Kilo) != 0 &&  //pri kilu
+                       avgPointsWon >= 140)) ||
                      (Hand.Has7(_trump.Value) &&
                       _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0 &&
                       (!IsSevenTooRisky() ||                  //sedmu hlas pokud neni riskantni nebo pokud nelze uhrat hru (doufej ve flek na hru a konec)
@@ -3125,7 +3129,8 @@ namespace Mariasek.Engine
                   ((bidding.GameMultiplier > 2 &&               //Tutti:
                     ((Hand.CardCount(_g.trump.Value) >= 2 &&    //mam aspon 2 trumfy a k tomu aspon jednu hlasku nebo trham aspon 2 hlasky
                       ((estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
-                        _teamMateDoubledGame) ||
+                        _teamMateDoubledGame &&
+                        !_g.MandatoryDouble) ||
                        (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqMaxOpponentScore &&
                         Hand.CardCount(_g.trump.Value) >= 3 &&
                         !Is100AgainstPossible())) &&
@@ -3135,7 +3140,8 @@ namespace Mariasek.Engine
                      (_teamMateDoubledGame &&                   //nebo kolega flekoval
                       (kqScore >= 40 ||                         //a mam aspon 40 bodu v hlasech
                        (kqScore >= 20 &&                        //nebo aspon 20 bodu v hlasech a 20 bodu odhadem k tomu
-                        estimatedFinalBasicScore >= 20))) ||
+                        estimatedFinalBasicScore >= 20 &&
+                        !_g.MandatoryDouble))) ||
                      (Hand.CardCount(_g.trump.Value) >= 4 &&    //nebo mam aspon 4 trumfy
                       Hand.HasA(_g.trump.Value) &&              //eso, trhak
                       (Hand.HasK(_g.trump.Value) ||              //a aspon 50 bodu
@@ -3281,6 +3287,17 @@ namespace Mariasek.Engine
                 DebugInfo.RuleCount = _gamesBalance;
                 DebugInfo.TotalRuleCount = _gameSimulations;
             }
+            if ((bidding.Bids & Hra.Hra) != 0 &&
+                _g.MandatoryDouble &&
+                TeamMateIndex != -1 &&
+                bidding.GameMultiplier < 2 &&
+                (Hand.HasK(_g.trump.Value) ||
+                 Hand.HasQ(_g.trump.Value)))
+            {
+                bid |= bidding.Bids & Hra.Hra;
+                DebugInfo.RuleCount = _gamesBalance;
+                DebugInfo.TotalRuleCount = _gameSimulations;
+            }
             //sedmu flekuju pokud mam aspon 3 trumfy a vsechny barvy
             if ((bidding.Bids & Hra.Sedma) != 0 &&
                 Settings.CanPlayGameType[Hra.Sedma] &&
@@ -3314,6 +3331,7 @@ namespace Mariasek.Engine
                        //     .Any(b => Hand.CardCount(b) >= 4))
                             )))) ||
                    (_teamMateDoubledGame &&                          //nebo pokud kolega flekoval
+                    !_g.MandatoryDouble &&
                     Hand.HasA(_trump.Value) &&                       //a ja mam aspon 3 trumfy a navic eso a neco velkeho a aspon 40 bodu
                     (Hand.HasX(_trump.Value) ||
                      Hand.HasK(_trump.Value) ||
@@ -3323,6 +3341,7 @@ namespace Mariasek.Engine
                       (estimatedFinalBasicScore >= 50 &&
                        kqScore >= 20)) ||
                    (_teamMateDoubledGame &&
+                    !_g.MandatoryDouble &&
                     Hand.CardCount(_trump.Value) >= 3 &&
                     estimatedFinalBasicScore >= 40 &&
                     kqScore >= 40)))) ||
@@ -3344,7 +3363,8 @@ namespace Mariasek.Engine
             else if ((bidding.Bids & Hra.Sedma) != 0 &&
                      (bidding.Bids & Hra.Kilo) == 0 &&
                      ((bid & Hra.Hra) != 0 ||
-                      _teamMateDoubledGame) &&
+                      (_teamMateDoubledGame &&
+                       !_g.MandatoryDouble)) &&
                      Settings.CanPlayGameType[Hra.Sedma] &&
                      TeamMateIndex != -1 &&
                      bidding._sevenFlek == 1 &&                         //flekni krome hry i sedmu i kdyz v simulacich nevysla
@@ -3363,7 +3383,8 @@ namespace Mariasek.Engine
                 TeamMateIndex != -1 &&
                 Hand.Has7(_trump.Value) &&
                 (_g.MinimalBidsForSeven == 0 || //pokud by akter mohl uhrat 130 a zaroven se sedma nehraje bez fleku, je lepsi neflekovat a snizit tak ztratu
-                 _teamMateDoubledGame ||
+                 (_teamMateDoubledGame &&
+                  !_g.MandatoryDouble) ||
                  !Is100AgainstPossible(130)))
             {
                 bid |= bidding.Bids & Hra.Sedma;

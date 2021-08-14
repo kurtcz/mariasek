@@ -115,6 +115,7 @@ namespace Mariasek.SharedClient
         public int MinimalBidsForGame { get; set; }
         public int MinimalBidsForSeven { get; set; }
         public bool PlayZeroSumGames { get; set; }
+        public bool MandatoryDouble { get; set; }
         public bool Top107 { get; set; }
         public bool Calculate107Separately { get; set; }
         public HlasConsidered HlasConsidered { get; set; }
@@ -191,6 +192,7 @@ namespace Mariasek.SharedClient
             MinimalBidsForGame = 1;
             MinimalBidsForSeven = 0;
             PlayZeroSumGames = false;
+            MandatoryDouble = false;
             Top107 = false;
             Calculate107Separately = true;
             HlasConsidered = HlasConsidered.Highest;

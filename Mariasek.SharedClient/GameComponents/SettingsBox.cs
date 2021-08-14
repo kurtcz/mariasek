@@ -12,11 +12,11 @@ namespace Mariasek.SharedClient.GameComponents
     {
         //offsety puvodnich stranek
         public const int page2Offset = 420;
-        public const int page3Offset = 960;
-        public const int page4Offset = 1380;
-        public const int page5Offset = 1860;
-        public const int page6Offset = 2280;
-        public const int boundsRectHeight = 2700;
+        public const int page3Offset = 1020;
+        public const int page4Offset = 1440;
+        public const int page5Offset = 1920;
+        public const int page6Offset = 2340;
+        public const int boundsRectHeight = 2760;
         //nove tematicke offsety zacinaji na ruznych mistech puvodnich stranek
         public readonly int[] TopicOffsets = new [] { 0, page2Offset, page4Offset - 300, page6Offset };
 
@@ -29,6 +29,7 @@ namespace Mariasek.SharedClient.GameComponents
         private Label _baseBet;
         private Label _kiloCounting;
         private Label _playZeroSumGames;
+        private Label _mandatoryDouble;
         private Label _fakeSeven;
         private Label _fake107;
         private Label _top107;
@@ -76,6 +77,7 @@ namespace Mariasek.SharedClient.GameComponents
         private LeftRightSelector _baseBetSelector;
         private LeftRightSelector _kiloCountingSelector;
         private LeftRightSelector _playZeroSumGamesSelector;
+        private LeftRightSelector _mandatoryDoubleSelector;
         private LeftRightSelector _fakeSevenSelector;
         private LeftRightSelector _fake107Selector;
         private LeftRightSelector _top107Selector;
@@ -494,10 +496,34 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _playZeroSumGamesSelector.SelectedIndex = 0;
             }
-
-            _fakeSeven = new Label(this)
+            _mandatoryDouble = new Label(this)
             {
                 Position = new Vector2(200, page2Offset + 430),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Povinný flek při trháku",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle,
+                UseCommonScissorRect = true
+            };
+            _mandatoryDoubleSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 430),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Ne", false }, { "Ano", true } },
+                UseCommonScissorRect = true
+            };
+            _mandatoryDoubleSelector.SelectedIndex = _mandatoryDoubleSelector.Items.FindIndex(Game.Settings.MandatoryDouble);
+            _mandatoryDoubleSelector.SelectionChanged += MandatoryDoubleChanged;
+            if (_mandatoryDoubleSelector.SelectedIndex < 0)
+            {
+                _mandatoryDoubleSelector.SelectedIndex = 0;
+            }
+            _fakeSeven = new Label(this)
+            {
+                Position = new Vector2(200, page2Offset + 490),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -508,7 +534,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _fakeSevenSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 430),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 490),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Zakázáno", false }, { "Povoleno", true } },
@@ -527,7 +553,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _fake107 = new Label(this)
             {
-                Position = new Vector2(200, page2Offset + 490),
+                Position = new Vector2(200, page2Offset + 550),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -538,7 +564,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _fake107Selector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 490),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 550),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Zakázáno", false }, { "Povoleno", true } },
@@ -1495,6 +1521,15 @@ namespace Mariasek.SharedClient.GameComponents
             var selector = sender as LeftRightSelector;
 
             Game.Settings.PlayZeroSumGames = (bool)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        void MandatoryDoubleChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.MandatoryDouble = (bool)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }

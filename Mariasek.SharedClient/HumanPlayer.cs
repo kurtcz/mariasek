@@ -460,6 +460,15 @@ namespace Mariasek.SharedClient
             }
             var bd = _scene.GetBidsAndDoubles(bidding.Clone());
 
+            if ((bidding.Bids & Hra.Hra) != 0 &&
+                _g.MandatoryDouble &&
+                TeamMateIndex != -1 &&
+                bidding.GameMultiplier < 2 &&
+                (Hand.HasK(_g.trump.Value) ||
+                 Hand.HasQ(_g.trump.Value)))
+            {
+                bd &= ~Hra.Hra;
+            }
             if ((_g.GameType & Hra.Sedma) != 0) //pokud je hlasena sedma, pak tlacitko [7] znamena flek na sedmu, ne sedmu proti
             {
                 bd &= ~Hra.SedmaProti;

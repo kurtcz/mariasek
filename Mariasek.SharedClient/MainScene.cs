@@ -1050,6 +1050,21 @@ namespace Mariasek.SharedClient
             var bids = _bidding.Bids;
 
             flekBtn.IsEnabled = (bids & (Hra.Hra | Hra.Kilo | Hra.Betl | Hra.Durch)) != 0;
+            if ((bids & Hra.Hra) != 0 &&
+                g.MandatoryDouble &&
+                g.players[0].TeamMateIndex != -1 &&
+                bidding.GameMultiplier < 2 &&
+                (g.players[0].Hand.HasK(g.trump.Value) ||
+                 g.players[0].Hand.HasQ(g.trump.Value)))
+            {
+                flekBtn.IsEnabled = false;
+                flekBtn.IsSelected = true;
+            }
+            else
+            {
+                flekBtn.IsSelected = false;
+            }
+
             sedmaBtn.IsEnabled = ((bids & Hra.Sedma) != 0) ||
                                  (((bids & Hra.SedmaProti) != 0) &&
                                   (bidding.SevenAgainstLastBidder == null ||
@@ -1348,6 +1363,7 @@ namespace Mariasek.SharedClient
                          CalculationStyle = Game.Settings.CalculationStyle,
                          Top107 = Game.Settings.Top107,
                          PlayZeroSumGames = Game.Settings.PlayZeroSumGames,
+                         MandatoryDouble = Game.Settings.MandatoryDouble,
                          Calculate107Separately = Game.Settings.Calculate107Separately,
                          HlasConsidered = Game.Settings.HlasConsidered,
                          AutoDisable100Against = Game.Settings.AutoDisable100Against,
@@ -3213,6 +3229,7 @@ namespace Mariasek.SharedClient
                             MinimalBidsForSeven = Game.Settings.MinimalBidsForSeven,
                             CalculationStyle = Game.Settings.CalculationStyle,
                             PlayZeroSumGames = Game.Settings.PlayZeroSumGames,
+                            MandatoryDouble = Game.Settings.MandatoryDouble,
                             Top107 = Game.Settings.Top107,
                             Calculate107Separately = Game.Settings.Calculate107Separately,
                             HlasConsidered = Game.Settings.HlasConsidered,
