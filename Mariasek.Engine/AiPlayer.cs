@@ -2854,15 +2854,14 @@ namespace Mariasek.Engine
                 var avgPointsWon = 90 - _avgBasicPointsLost + kqScore;
                 DebugInfo.AvgSimulatedPointsWon = (int)avgPointsWon;
                 if (Settings.CanPlayGameType[Hra.Sedma] &&
-                    ((!Hand.Has7(_trump.Value) &&                      
-                      ((_g.AllowFakeSeven &&
+                    (((_g.AllowFakeSeven &&
                         (gameType & Hra.Hra) != 0 &&  //pri hre
                         avgPointsWon >= 110) ||
                        (_g.AllowFake107 &&
                         _g.Calculate107Separately &&
                         _g.Top107 &&
                         (gameType & Hra.Kilo) != 0 &&  //pri kilu
-                        avgPointsWon >= 140))) ||
+                        avgPointsWon >= 140)) ||
                      (Hand.Has7(_trump.Value) &&
                       _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0 &&
                       (!IsSevenTooRisky() ||                  //sedmu hlas pokud neni riskantni nebo pokud nelze uhrat hru (doufej ve flek na hru a konec)
