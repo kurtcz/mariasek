@@ -520,7 +520,7 @@ namespace Mariasek.SharedClient
             }
             catch(Exception ex)
             {
-                if (!!MessageBox.IsVisible)
+                if (!MessageBox.IsVisible)
                 {
                     _ = MessageBox.Show("Chyba", ex.Message, new string[] { "OK" });
                 }

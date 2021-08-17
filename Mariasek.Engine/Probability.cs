@@ -184,10 +184,7 @@ namespace Mariasek.Engine
                 }
             }
             clone._myHand = new Hand((List<Card>)_myHand);
-            if (generatedHands != null)
-            {
-                clone.generatedHands = new List<Hand[]>(generatedHands);
-            }
+            clone.generatedHands = generatedHands != null ? new List<Hand[]>(generatedHands) : null; //not a truly deep clone (that would be too slow)
             clone._playerWeights = new List<int>(_playerWeights);
             clone._gameBidders = new List<int>(_gameBidders);
 

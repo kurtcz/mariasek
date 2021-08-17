@@ -2185,7 +2185,8 @@ namespace Mariasek.Engine
 
             if (trumpCount > 5 ||
                 (trumpCount >= 4 &&
-                 hiTrumps >= 2 &&
+                 (hiTrumps >= 2 ||
+                  hand.CardCount(Hodnota.Eso) >= 3) &&
                  (hand.HasA(trump.Value) ||
                   (hand.HasX(trump.Value) &&
                    ((PlayerIndex == _g.GameStartingPlayerIndex &&

@@ -2908,7 +2908,7 @@ namespace Mariasek.SharedClient
                              Game.Settings.ShowRatingOffer.Value) &&
                             Game.Money.Count >= 500 &&
                             Game.Money.Count % 100 == 0 &&
-                            !!MessageBox.IsVisible)
+                            !MessageBox.IsVisible)
                         {
 #if __IOS__
                             var buttonIndex = await MessageBox.Show("Prosba autora:", "Rád bych Vás požádal o ohodnocení Mariášku v AppStore", new[] { "Ano", "Později", "Ne, děkuji" });
