@@ -2249,15 +2249,16 @@ namespace Mariasek.Engine
 
         public bool IsSevenTooRisky(List<Card> hand = null)
         {
-            hand = hand ?? Hand;
+            hand = hand ?? Hand;            
             var result = hand.CardCount(_trump.Value) < 4 ||                      //1.  mene nez 4 trumfy
                          (hand.CardCount(_trump.Value) == 4 &&
                           TeamMateIndex != -1 &&
                           (!_teamMateDoubledGame ||
                            _g.MandatoryDouble)) ||
                          (hand.CardCount(_trump.Value) <= 4 &&
-                          (!_teamMateDoubledGame ||
-                           _g.MandatoryDouble) &&
+                          (TeamMateIndex == -1 ||
+                           (!_teamMateDoubledGame ||
+                            _g.MandatoryDouble)) &&
                           (!hand.HasA(_trump.Value) ||
                            !hand.HasX(_trump.Value)) &&
                           !(hand.HasK(_trump.Value) &&
@@ -2276,8 +2277,9 @@ namespace Mariasek.Engine
                             hand.Where(i => i.Suit != _trump.Value)
                                 .Count(i => i.Value == Hodnota.Eso) >= 2)) ||
                          (hand.CardCount(_trump.Value) == 4 &&                    //2.  nebo 4 trumfy a jedno z
-                          (!_teamMateDoubledGame ||
-                           _g.MandatoryDouble) &&
+                          (TeamMateIndex == -1 ||
+                           (!_teamMateDoubledGame ||
+                            _g.MandatoryDouble)) &&
                           (hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||      //2a. mene nez 3 vysoke karty celkem
                            (hand.Count(i => i.Value == Hodnota.Eso) +              //2b. nebo mene nez 2 (resp. 3) uhratelne A, X
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -2290,7 +2292,8 @@ namespace Mariasek.Engine
                                 .Where(b => b != _trump.Value)
                                 .All(b => hand.CardCount(b) < 4)) ||              //   (vyjma pripadu kdy mam dlouhou netrumfovou tlacnou barvu)
                            (hand.Select(i => i.Suit).Distinct().Count() < 4 &&   //2c. nebo nevidim do nejake barvy
-                           !((hand.HasA(_trump.Value) &&                          //    (vyjma pripadu kdy mam trumfove eso a max. 2 neodstranitelne netrumfove diry)
+                           !(((hand.HasA(_trump.Value) ||                             //    (vyjma pripadu kdy mam trumfove A nebo X a max. 2 neodstranitelne netrumfove diry)
+                               hand.HasX(_trump.Value)) &&
                               GetTotalHoles(Hand, false, false) <= 2) ||                //    (nebo vyjma pripadu kdy mam X,K,Q trumfove a k tomu netrumfove eso
                              (hand.HasX(_trump.Value) &&
                               hand.HasK(_trump.Value) &&
@@ -2301,8 +2304,9 @@ namespace Mariasek.Engine
                                               hand.HasSuit(b))
                                   .Any(b => hand.HasA(b))))))) ||
                          (hand.CardCount(_trump.Value) == 5 &&                    //3.  5 trumfu a nemam trumfove A+K+S
-                          (!_teamMateDoubledGame ||
-                           _g.MandatoryDouble) &&
+                          (TeamMateIndex == -1 ||
+                           (!_teamMateDoubledGame ||
+                            _g.MandatoryDouble)) &&
                           hand.Count(i => i.Suit == _trump.Value &&
                                           i.Value >= Hodnota.Svrsek) < 3 &&
                           ((hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 &&
