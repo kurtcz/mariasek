@@ -872,8 +872,8 @@ namespace Mariasek.Engine
             var lossPerPointsLost = Enumerable.Range(0, 10)
                                               .ToDictionary(k => 100 + k * 10,
                                                             v => (_g.CalculationStyle == CalculationStyle.Adding
-                                                                  ? (v + 1) * _g.HundredValue
-                                                                  : _g.HundredValue * (1 << v)) *
+                                                                  ? (v + 2) * _g.QuietHundredValue
+                                                                  : _g.QuietHundredValue * (1 << (v + 1))) *
                                                                  (PlayerIndex == _g.GameStartingPlayerIndex &&
                                                                   TrumpCard.Suit == Barva.Cerveny
                                                                   ? 2
