@@ -3207,6 +3207,11 @@ namespace Mariasek.Engine
                       Hand.HasQ(_g.trump.Value)) &&
                       bestCaseNonTrumpScore >= 20) ||          //a aspon 2 netrumfove desitky
                      ((Hand.HasK(_g.trump.Value) ||            //nebo mam trhak
+                      Hand.HasQ(_g.trump.Value)) &&
+                      Hand.CardCount(_g.trump.Value) >= 2 &&   //a aspon dva trumfy
+                      kqScore >= 20 &&                         //a aspon 1 hlasku
+                      bestCaseNonTrumpScore >= 30) ||          //a aspon 3 netrumfove desitky
+                     ((Hand.HasK(_g.trump.Value) ||            //nebo mam trhak
                        Hand.HasQ(_g.trump.Value)) &&             
                       Hand.CardCount(_g.trump.Value) >= 2 &&   //a aspon dva trumfy
                       kqScore >= 20 &&                         //a aspon 1 netrumfovou desitku
