@@ -1654,31 +1654,33 @@ namespace Mariasek.Engine
                                                          .ToList();
 
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
-                                                                    i.Value != Hodnota.Eso &&
-                                                                    i.Suit != _trump &&
-                                                                    !_bannedSuits.Contains(i.Suit) &&
-                                                                    (!hands[MyIndex].HasA(i.Suit) ||
-                                                                     myInitialHand.CardCount(_trump) <= 2) &&
-                                                                    _probabilities.SuitHigherThanCardExceptAXProbability(TeamMateIndex, i, RoundNumber) > 1 - RiskFactor &&
-                                                                    (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0f ||
-                                                                     _preferredSuits.Contains(i.Suit)) &&
-                                                                    _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0f &&
-                                                                    (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0f ||
-                                                                     _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0f) &&
-                                                                    (_gameType & (Hra.Kilo | Hra.KiloProti)) == 0 &&
-                                                                    ((_gameType == (Hra.Hra | Hra.Sedma) &&
-                                                                      SevenValue > GameValue) ||
-                                                                     (_probabilities.LikelyCards(player2).Any(j => j.Suit == i.Suit) &&
-                                                                      _probabilities.LikelyCards(player2).Where(j => j.Suit == i.Suit)
-                                                                                                         .Any(j => j.Value > i.Value &&
-                                                                                                                   j.Value < Hodnota.Desitka)) ||
-                                                                     !Enum.GetValues(typeof(Barva)).Cast<Barva>()   //pokud neni barva na kterou by kolega mohl namazat
-                                                                          .Where(b => b != _trump)
-                                                                          .Any(b => _probabilities.SuitProbability(player3, b, RoundNumber) == 1 &&
-                                                                                    (b == i.Suit ||
-                                                                                     (topCards.HasSuit(b) &&
-                                                                                      _probabilities.SuitProbability(player3, b, RoundNumber) > 0 &&
-                                                                                      _probabilities.SuitProbability(player2, b, RoundNumber) == 0)))));
+                                                                                i.Value != Hodnota.Eso &&
+                                                                                i.Suit != _trump &&
+                                                                                !_bannedSuits.Contains(i.Suit) &&
+                                                                                (!hands[MyIndex].HasA(i.Suit) ||
+                                                                                 myInitialHand.CardCount(_trump) <= 2) &&
+                                                                                _probabilities.SuitHigherThanCardExceptAXProbability(TeamMateIndex, i, RoundNumber) > 1 - RiskFactor &&
+                                                                                (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0f ||
+                                                                                 _preferredSuits.Contains(i.Suit)) &&
+                                                                                _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0f &&
+                                                                                (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0f ||
+                                                                                 _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0f) &&
+                                                                                (_gameType & (Hra.Kilo | Hra.KiloProti)) == 0 &&
+                                                                                ((_gameType == (Hra.Hra | Hra.Sedma) &&
+                                                                                  SevenValue > GameValue) ||
+                                                                                 (_probabilities.LikelyCards(player2).Any(j => j.Suit == i.Suit) &&
+                                                                                  _probabilities.LikelyCards(player2).Where(j => j.Suit == i.Suit)
+                                                                                                                     .Any(j => j.Value > i.Value &&
+                                                                                                                               j.Value < Hodnota.Desitka)) ||
+                                                                                 (_probabilities.PotentialCards(player2).Where(j => j.Suit == i.Suit)   //pokud kolega nemuze mit ostrou v barve
+                                                                                                                        .All(j => j.Value < Hodnota.Desitka) &&
+                                                                                  !Enum.GetValues(typeof(Barva)).Cast<Barva>()   //pokud neni barva na kterou by kolega mohl namazat
+                                                                                       .Where(b => b != _trump)
+                                                                                       .Any(b => _probabilities.SuitProbability(player3, b, RoundNumber) == 1 &&
+                                                                                                 (b == i.Suit ||
+                                                                                                  (topCards.HasSuit(b) &&
+                                                                                                   _probabilities.SuitProbability(player3, b, RoundNumber) > 0 &&
+                                                                                                   _probabilities.SuitProbability(player2, b, RoundNumber) == 0))))));
                             if (!cardsToPlay.Any())
                             {
                                 cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
@@ -1696,13 +1698,15 @@ namespace Mariasek.Engine
                                                                                      _probabilities.PotentialCards(player2).Where(j => j.Suit == i.Suit)
                                                                                                                            .Any(j => j.Value > i.Value &&
                                                                                                                                      j.Value < Hodnota.Desitka) ||
-                                                                                     !Enum.GetValues(typeof(Barva)).Cast<Barva>()   //pokud neni barva na kterou by kolega mohl namazat
-                                                                                          .Where(b => b != _trump)
-                                                                                          .Any(b => _probabilities.SuitProbability(player3, b, RoundNumber) == 1 &&
-                                                                                                    (b == i.Suit ||
-                                                                                                     (topCards.HasSuit(b) &&
-                                                                                                      _probabilities.SuitProbability(player3, b, RoundNumber) > 0 &&
-                                                                                                      _probabilities.SuitProbability(player2, b, RoundNumber) == 0)))
+                                                                                     (_probabilities.PotentialCards(player2).Where(j => j.Suit == i.Suit)   //pokud kolega nemuze mit ostrou v barve
+                                                                                                                            .All(j => j.Value < Hodnota.Desitka) &&
+                                                                                      !Enum.GetValues(typeof(Barva)).Cast<Barva>()   //pokud neni barva na kterou by kolega mohl namazat
+                                                                                           .Where(b => b != _trump)
+                                                                                           .Any(b => _probabilities.SuitProbability(player3, b, RoundNumber) == 1 &&
+                                                                                                     (b == i.Suit ||
+                                                                                                      (topCards.HasSuit(b) &&
+                                                                                                       _probabilities.SuitProbability(player3, b, RoundNumber) > 0 &&
+                                                                                                       _probabilities.SuitProbability(player2, b, RoundNumber) == 0))))
                                                                                           ));
                                 if (cardsToPlay.Any() &&
                                     cardsToPlay.All(i => i.Value >= Hodnota.Desitka) &&
@@ -1723,13 +1727,15 @@ namespace Mariasek.Engine
                                                                                        _probabilities.LikelyCards(player2).Where(j => j.Suit == i.Suit)
                                                                                                                           .Any(j => j.Value > i.Value &&
                                                                                                                                     j.Value < Hodnota.Desitka)) ||
-                                                                                      !Enum.GetValues(typeof(Barva)).Cast<Barva>()   //pokud neni barva na kterou by kolega mohl namazat
-                                                                                           .Where(b => b != _trump)
-                                                                                           .Any(b => _probabilities.SuitProbability(player3, b, RoundNumber) == 1 &&
-                                                                                                     (b == i.Suit ||
-                                                                                                      (topCards.HasSuit(b) &&
-                                                                                                       _probabilities.SuitProbability(player3, b, RoundNumber) > 0 &&
-                                                                                                       _probabilities.SuitProbability(player2, b, RoundNumber) == 0)))));
+                                                                                      (_probabilities.PotentialCards(player2).Where(j => j.Suit == i.Suit)   //pokud kolega nemuze mit ostrou v barve
+                                                                                                                             .All(j => j.Value < Hodnota.Desitka) &&
+                                                                                       !Enum.GetValues(typeof(Barva)).Cast<Barva>()   //pokud neni barva na kterou by kolega mohl namazat
+                                                                                            .Where(b => b != _trump)
+                                                                                            .Any(b => _probabilities.SuitProbability(player3, b, RoundNumber) == 1 &&
+                                                                                                      (b == i.Suit ||
+                                                                                                       (topCards.HasSuit(b) &&
+                                                                                                        _probabilities.SuitProbability(player3, b, RoundNumber) > 0 &&
+                                                                                                        _probabilities.SuitProbability(player2, b, RoundNumber) == 0))))));
                                     if (temp.Any())
                                     {
                                         cardsToPlay = temp;
@@ -1885,13 +1891,15 @@ namespace Mariasek.Engine
                                                                                   _probabilities.LikelyCards(player3).Where(j => j.Suit == i.Suit)
                                                                                                                      .Any(j => j.Value > i.Value &&
                                                                                                                                j.Value < Hodnota.Desitka)) ||
-                                                                                 !Enum.GetValues(typeof(Barva)).Cast<Barva>()   //pokud neni barva na kterou by kolega mohl namazat
-                                                                                      .Where(b => b != _trump)
-                                                                                      .Any(b => _probabilities.SuitProbability(player2, b, RoundNumber) == 1 &&
-                                                                                                (b == i.Suit ||
-                                                                                                 (topCards.HasSuit(b) &&
-                                                                                                  _probabilities.SuitProbability(player2, b, RoundNumber) > 0 &&
-                                                                                                  _probabilities.SuitProbability(player3, b, RoundNumber) == 0)))));
+                                                                                 (_probabilities.LikelyCards(player3).Where(j => j.Suit == i.Suit)
+                                                                                                                     .All(j => j.Value < Hodnota.Desitka) &&
+                                                                                  !Enum.GetValues(typeof(Barva)).Cast<Barva>()   //pokud neni barva na kterou by kolega mohl namazat
+                                                                                       .Where(b => b != _trump)
+                                                                                       .Any(b => _probabilities.SuitProbability(player2, b, RoundNumber) == 1 &&
+                                                                                                 (b == i.Suit ||
+                                                                                                  (topCards.HasSuit(b) &&
+                                                                                                   _probabilities.SuitProbability(player2, b, RoundNumber) > 0 &&
+                                                                                                   _probabilities.SuitProbability(player3, b, RoundNumber) == 0))))));
                             if (!cardsToPlay.Any())
                             {
                                 cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
@@ -1910,13 +1918,15 @@ namespace Mariasek.Engine
                                                                                       _probabilities.LikelyCards(player3).Where(j => j.Suit == i.Suit)
                                                                                                                          .Any(j => j.Value > i.Value &&
                                                                                                                                    j.Value < Hodnota.Desitka)) ||
-                                                                                     !Enum.GetValues(typeof(Barva)).Cast<Barva>()   //pokud neni barva na kterou by kolega mohl namazat
-                                                                                          .Where(b => b != _trump)
-                                                                                          .Any(b => _probabilities.SuitProbability(player2, b, RoundNumber) == 1 &&
-                                                                                                    (b == i.Suit ||
-                                                                                                     (topCards.HasSuit(b) &&
+                                                                                     (_probabilities.LikelyCards(player3).Where(j => j.Suit == i.Suit)
+                                                                                                                         .All(j => j.Value < Hodnota.Desitka) &&
+                                                                                      !Enum.GetValues(typeof(Barva)).Cast<Barva>()   //pokud neni barva na kterou by kolega mohl namazat
+                                                                                           .Where(b => b != _trump)
+                                                                                           .Any(b => _probabilities.SuitProbability(player2, b, RoundNumber) == 1 &&
+                                                                                                     (b == i.Suit ||
+                                                                                                      (topCards.HasSuit(b) &&
                                                                                                       _probabilities.SuitProbability(player2, b, RoundNumber) > 0 &&
-                                                                                                      _probabilities.SuitProbability(player3, b, RoundNumber) == 0)))));
+                                                                                                      _probabilities.SuitProbability(player3, b, RoundNumber) == 0))))));
                                 if (cardsToPlay.Any() &&
                                     cardsToPlay.All(i => i.Value >= Hodnota.Desitka) &&
                                     _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0f)
@@ -1933,13 +1943,15 @@ namespace Mariasek.Engine
                                                                                       _probabilities.LikelyCards(player3).Where(j => j.Suit == i.Suit)
                                                                                                                          .Any(j => j.Value > i.Value &&
                                                                                                                                    j.Value < Hodnota.Desitka) ||
-                                                                                      !Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                                                                           .Where(b => b != _trump)
-                                                                                           .Any(b => _probabilities.SuitProbability(player2, b, RoundNumber) == 1 &&
-                                                                                                     (b == i.Suit ||
-                                                                                                      (topCards.HasSuit(b) &&
-                                                                                                       _probabilities.SuitProbability(player2, b, RoundNumber) > 0 &&
-                                                                                                       _probabilities.SuitProbability(player3, b, RoundNumber) == 0)))));
+                                                                                      (_probabilities.LikelyCards(player3).Where(j => j.Suit == i.Suit)
+                                                                                                                          .All(j => j.Value < Hodnota.Desitka) &&
+                                                                                       !Enum.GetValues(typeof(Barva)).Cast<Barva>()   //pokud neni barva na kterou by kolega mohl namazat
+                                                                                            .Where(b => b != _trump)
+                                                                                            .Any(b => _probabilities.SuitProbability(player2, b, RoundNumber) == 1 &&
+                                                                                                      (b == i.Suit ||
+                                                                                                       (topCards.HasSuit(b) &&
+                                                                                                        _probabilities.SuitProbability(player2, b, RoundNumber) > 0 &&
+                                                                                                        _probabilities.SuitProbability(player3, b, RoundNumber) == 0))))));
                                     if (temp.Any())
                                     {
                                         cardsToPlay = temp;
