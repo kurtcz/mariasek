@@ -3113,6 +3113,10 @@ namespace Mariasek.Engine
                     !Is100AgainstPossible(110)) ||
                    (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
                     Hand.CardCount(_trump.Value) >= 4 &&
+                    kqScore >= 20 &&
+                    !Is100AgainstPossible(110)) ||
+                   (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
+                    Hand.CardCount(_trump.Value) >= 4 &&
                     (bidding.Bids & Hra.SedmaProti) == 0 &&
                     kqScore >= kqMaxOpponentScore) ||
                    (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
@@ -3128,6 +3132,7 @@ namespace Mariasek.Engine
                      Hand.HasQ(_g.trump.Value)) &&
                     axCount >= 3 &&
                     Hand.CardCount(Hodnota.Eso) >= 2 &&
+                    kqMaxOpponentScore <= 40 &&
                     !Is100AgainstPossible()))) ||
                  //nebo jsem nevolil a:
                  (TeamMateIndex != -1 &&                  
@@ -3183,6 +3188,11 @@ namespace Mariasek.Engine
                      (axCount >= 5 &&                           //aspon 5 desitek a es a
                       Hand.HasA(_g.trump.Value) &&              //k tomu trumfove AX
                       Hand.HasX(_g.trump.Value)) ||             //nebo
+                     (axCount >= 4 &&                           //aspon 4 desitky a esa a
+                      Hand.HasA(_g.trump.Value) &&              //k tomu trumfove AX
+                      Hand.HasX(_g.trump.Value) &&
+                      Hand.CardCount(_g.trump.Value) >= 3 &&    //a aspon 3 trumfy a vidis do 3 hlasek
+                      kqMaxOpponentScore <= 40) ||              //nebo
                      (kqMaxOpponentScore == 0 ||                //vidim do vsech hlasek
                       kqScore >= 60 ||
                       (kqScore >= 40 &&

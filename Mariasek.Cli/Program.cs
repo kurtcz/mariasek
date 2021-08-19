@@ -416,6 +416,7 @@ namespace Mariasek.Cli
 
         private static void PopulateAiConfig()
         {
+            LoadGameSettings();
             _aiSettings = new AiPlayerSettings()
             {
                 Cheat = Settings.AiCheating.HasValue && Settings.AiCheating.Value,
