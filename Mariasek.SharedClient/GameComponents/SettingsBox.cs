@@ -13,12 +13,12 @@ namespace Mariasek.SharedClient.GameComponents
         //offsety puvodnich stranek
         public const int page2Offset = 420;
         public const int page3Offset = 1020;
-        public const int page4Offset = 1440;
-        public const int page5Offset = 1980;
-        public const int page6Offset = 2400;
-        public const int boundsRectHeight = 2820;
+        public const int page4Offset = 1500;
+        public const int page5Offset = 2040;
+        public const int page6Offset = 2460;
+        public const int boundsRectHeight = 2880;
         //nove tematicke offsety zacinaji na ruznych mistech puvodnich stranek
-        public readonly int[] TopicOffsets = new [] { 0, page2Offset, page4Offset - 300, page6Offset };
+        public readonly int[] TopicOffsets = new [] { 0, page2Offset, page4Offset - 360, page6Offset };
 
         private Tuple<string, int, int>[] _locales;
         private Label _hint;
@@ -70,6 +70,7 @@ namespace Mariasek.SharedClient.GameComponents
         //private Label _showStatusBar;
         private Label _bgImage;
         private Label _aiMayGiveUp;
+        private Label _playerMayGiveUp;
         private ToggleButton _hintBtn;
         private ToggleButton _soundBtn;
         private ToggleButton _bgsoundBtn;
@@ -100,6 +101,7 @@ namespace Mariasek.SharedClient.GameComponents
         //private LeftRightSelector _showStatusBarSelector;
         private LeftRightSelector _bgImageSelector;
         private LeftRightSelector _aiMayGiveUpSelector;
+        private LeftRightSelector _playerMayGiveUpSelector;
         private LeftRightSelector _gameValueSelector;
         private LeftRightSelector _quietSevenValueSelector;
         private LeftRightSelector _sevenValueSelector;
@@ -685,9 +687,35 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _aiMayGiveUpSelector.SelectedIndex = 0;
             }
-            _allowAIAutoFinish = new Label(this)
+            _playerMayGiveUp = new Label(this)
             {
                 Position = new Vector2(200, page3Offset + 250),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Text = "Hráč může hru zahodit",
+                Group = 1,
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle,
+                UseCommonScissorRect = true
+            };
+            _playerMayGiveUpSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 250),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Ano", true }, { "Ne", false } },
+                UseCommonScissorRect = true
+            };
+            _playerMayGiveUpSelector.SelectedIndex = _aiMayGiveUpSelector.Items.FindIndex(Game.Settings.PlayerMayGiveUp);
+            _playerMayGiveUpSelector.SelectionChanged += PlayerMayGiveUpChanged;
+            if (_playerMayGiveUpSelector.SelectedIndex < 0)
+            {
+                _playerMayGiveUpSelector.SelectedIndex = 0;
+            }
+
+            _allowAIAutoFinish = new Label(this)
+            {
+                Position = new Vector2(200, page3Offset + 310),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "AI ložené hry",
@@ -698,7 +726,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _allowAIAutoFinishSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 250),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 310),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Nedohrává", true }, { "Dohrává", false } },
@@ -712,7 +740,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _allowPlayerAutoFinish = new Label(this)
             {
-                Position = new Vector2(200, page3Offset + 310),
+                Position = new Vector2(200, page3Offset + 370),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Hráč ložené hry",
@@ -723,7 +751,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _allowPlayerAutoFinishSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 310),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 370),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Nedohrává", true }, { "Dohrává", false } },
@@ -737,7 +765,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _whenToShuffle = new Label(this)
             {
-                Position = new Vector2(200, page3Offset + 370),
+                Position = new Vector2(200, page3Offset + 430),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Karty míchat",
@@ -748,7 +776,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _whenToShuffleSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 370),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 430),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Nikdy", ShuffleTrigger.Never }, { "Po ložené hrře", ShuffleTrigger.AfterAutomaticVictory }, { "Po každé hře", ShuffleTrigger.Always } },
@@ -1665,6 +1693,15 @@ namespace Mariasek.SharedClient.GameComponents
             var selector = sender as LeftRightSelector;
 
             Game.Settings.AiMayGiveUp = (bool)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        void PlayerMayGiveUpChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.PlayerMayGiveUp = (bool)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }

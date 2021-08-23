@@ -285,7 +285,7 @@ namespace Mariasek.SharedClient
                             }
                         }, _cancellationTokenSource.Token);
                     }
-                    _gameType = _scene.ChooseGameType(validGameTypes, true);
+                    _gameType = _scene.ChooseGameType(validGameTypes);
                     _givenUp = _gameType == 0;
                     CancelAiTask();
                     _g.ThrowIfCancellationRequested();
@@ -394,7 +394,7 @@ namespace Mariasek.SharedClient
                     }
                 }, _cancellationTokenSource.Token);
             }
-            var gt = _scene.ChooseGameType(validGameTypes, true);
+            var gt = _scene.ChooseGameType(validGameTypes);
 
             CancelAiTask();
             _g.ThrowIfCancellationRequested();

@@ -2167,7 +2167,7 @@ namespace Mariasek.SharedClient
 			return _gameFlavourChosen;
         }
 
-        private void ChooseGameTypeInternal(Hra validGameTypes, bool showGiveUpButton)
+        private void ChooseGameTypeInternal(Hra validGameTypes)
         {
             g.ThrowIfCancellationRequested();
 			_state = GameState.ChooseGameType;
@@ -2187,9 +2187,13 @@ namespace Mariasek.SharedClient
                     gtButton.IsEnabled = ((Hra)gtButton.Tag & validGameTypes) == (Hra)gtButton.Tag;
                     gtButton.Show();
                 }
-                if (showGiveUpButton)
+                if (Game.Settings.PlayerMayGiveUp)
                 {
                     giveUpButton.Show();
+                }
+                else
+                {
+                    giveUpButton.Hide();
                 }
                 if (!Game.Settings.HintEnabled || !_msgLabel.IsVisible) //abych neprepsal napovedu
                 {
@@ -2198,7 +2202,7 @@ namespace Mariasek.SharedClient
             });
         }
 
-        public Hra ChooseGameType(Hra validGameTypes, bool showGiveUpButton = false)
+        public Hra ChooseGameType(Hra validGameTypes)
         {
 			EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
@@ -2207,7 +2211,7 @@ namespace Mariasek.SharedClient
             _canSortTrump = true;
             RunOnUiThread(() =>
             {
-                ChooseGameTypeInternal(validGameTypes, showGiveUpButton);
+                ChooseGameTypeInternal(validGameTypes);
             });
             WaitForUIThread();
 
@@ -3753,6 +3757,17 @@ namespace Mariasek.SharedClient
             }
             else if (_state != GameState.GameFinished && g != null)
             {
+                if (_state == GameState.ChooseGameType)
+                {
+                    if (Game.Settings.PlayerMayGiveUp)
+                    {
+                        giveUpButton.Show();
+                    }
+                    else
+                    {
+                        giveUpButton.Hide();
+                    }
+                }
                 SortHand(null);
             }
 

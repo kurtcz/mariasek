@@ -94,6 +94,7 @@ namespace Mariasek.SharedClient
         public int MaxHistoryLength { get; set; }
         public DirectionOfPlay DirectionOfPlay { get; set; }
         public bool AiMayGiveUp { get; set; }
+        public bool PlayerMayGiveUp { get; set; }
         public bool KeepScreenOn { get; set; }                  //xml-only
         public CalculationStyle CalculationStyle { get; set; }
         public int GameTypeSimulationsPerSecond { get; set; }
@@ -206,6 +207,7 @@ namespace Mariasek.SharedClient
             AllowPlayerAutoFinish = true;
             ShowStatusBar = false;
             AiMayGiveUp = true;
+            PlayerMayGiveUp = true;
             ShowScoreDuringGame = true;
             WhiteScore = false;
             AutoDisable100Against = true;
