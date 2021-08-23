@@ -69,6 +69,7 @@ namespace Mariasek.SharedClient
         public int BgMusicMaxDelayMs { get; set; }
         public string[] PlayerNames { get; set; }
         public SortMode SortMode { get; set; }
+        public bool NaturalSort { get; set; }
         public ShuffleTrigger WhenToShuffle { get; set; }
         public bool AutoSort { get; set; }
         public bool AutoPlaySingletonCard { get; set; }
@@ -170,6 +171,7 @@ namespace Mariasek.SharedClient
             BgMusicMinDelayMs = 60000;
             BgMusicMaxDelayMs = 120000;
             SortMode = SortMode.Descending;
+            NaturalSort = false;
             WhenToShuffle = ShuffleTrigger.AfterAutomaticVictory;
             AutoSort = true;
             AutoPlaySingletonCard = false;

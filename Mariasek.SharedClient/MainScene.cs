@@ -3982,7 +3982,9 @@ namespace Mariasek.SharedClient
 
                 if (Game.Settings.SortMode != SortMode.None)
                 {
-                    var badGameSorting = (g.GameType == 0 && _gameFlavourChosen == GameFlavour.Bad) || ((g.GameType & (Hra.Betl | Hra.Durch)) != 0);
+                    var badGameSorting = (g.GameType == 0 && _gameFlavourChosen == GameFlavour.Bad) ||
+                                         ((g.GameType & (Hra.Betl | Hra.Durch)) != 0) ||
+                                         Game.Settings.NaturalSort;
 
                     if (numberOfCardsToSort == 12)
                     {

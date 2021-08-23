@@ -505,7 +505,7 @@ namespace Mariasek.SharedClient
 
                             if (i > 0)
                             {
-                                hand.Sort(Game.Settings.SortMode);
+                                hand.Sort(Game.Settings.SortMode, Game.Settings.NaturalSort);
                             }
                             cards.AddRange(hand);
                         }

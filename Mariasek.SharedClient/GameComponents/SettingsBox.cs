@@ -14,9 +14,9 @@ namespace Mariasek.SharedClient.GameComponents
         public const int page2Offset = 420;
         public const int page3Offset = 1020;
         public const int page4Offset = 1440;
-        public const int page5Offset = 1920;
-        public const int page6Offset = 2340;
-        public const int boundsRectHeight = 2760;
+        public const int page5Offset = 1980;
+        public const int page6Offset = 2400;
+        public const int boundsRectHeight = 2820;
         //nove tematicke offsety zacinaji na ruznych mistech puvodnich stranek
         public readonly int[] TopicOffsets = new [] { 0, page2Offset, page4Offset - 300, page6Offset };
 
@@ -26,6 +26,7 @@ namespace Mariasek.SharedClient.GameComponents
         private Label _bgsounds;
         private Label _handSorting;
         private Label _autoSorting;
+        private Label _naturalSorting;
         private Label _baseBet;
         private Label _kiloCounting;
         private Label _playZeroSumGames;
@@ -74,6 +75,7 @@ namespace Mariasek.SharedClient.GameComponents
         private ToggleButton _bgsoundBtn;
         private LeftRightSelector _handSortingSelector;
         private LeftRightSelector _autoSortingSelector;
+        private LeftRightSelector _naturalSortingSelector;
         private LeftRightSelector _baseBetSelector;
         private LeftRightSelector _kiloCountingSelector;
         private LeftRightSelector _playZeroSumGamesSelector;
@@ -835,9 +837,34 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _handSortingSelector.SelectedIndex = 0;
             }
-            _autoSorting = new Label(this)
+            _naturalSorting = new Label(this)
             {
                 Position = new Vector2(200, page4Offset + 190),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Přirozené řazeni desítky",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle,
+                UseCommonScissorRect = true
+            };
+            _naturalSortingSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 190),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Při špatné barvě", false }, { "Vždy", true } },
+                UseCommonScissorRect = true
+            };
+            _naturalSortingSelector.SelectedIndex = _naturalSortingSelector.Items.FindIndex(Game.Settings.NaturalSort);
+            _naturalSortingSelector.SelectionChanged += NaturalSortChanged;
+            if (_naturalSortingSelector.SelectedIndex < 0)
+            {
+                _naturalSortingSelector.SelectedIndex = 0;
+            }
+            _autoSorting = new Label(this)
+            {
+                Position = new Vector2(200, page4Offset + 250),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -848,7 +875,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _autoSortingSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 190),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 250),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Automaticky", true }, { "Poklepem", false } },
@@ -862,7 +889,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _autoFinishRounds = new Label(this)
             {
-                Position = new Vector2(200, page4Offset + 250),
+                Position = new Vector2(200, page4Offset + 310),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -873,7 +900,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _autoFinishRoundsSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 250),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 310),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Automaticky", true }, { "Dotykem", false } },
@@ -887,7 +914,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _roundFinishedWaitTime = new Label(this)
             {
-                Position = new Vector2(200, page4Offset + 310),
+                Position = new Vector2(200, page4Offset + 370),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -898,7 +925,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _roundFinishedWaitTimeSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 310),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 370),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Krátká", 1000 }, { "Dlouhá", 2000 } },
@@ -912,7 +939,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _autoFinishLastRound = new Label(this)
             {
-                Position = new Vector2(200, page4Offset + 370),
+                Position = new Vector2(200, page4Offset + 430),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -923,7 +950,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _autoFinishLastRoundSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 370),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 430),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Automaticky", true }, { "Ručně", false } },
@@ -937,7 +964,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _autoPlaySingletonCard = new Label(this)
             {
-                Position = new Vector2(200, page4Offset + 430),
+                Position = new Vector2(200, page4Offset + 490),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -948,7 +975,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _autoPlaySingletonCardSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 430),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 490),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Automaticky", true }, { "Ručně", false } },
@@ -1411,6 +1438,15 @@ namespace Mariasek.SharedClient.GameComponents
             var selector = sender as LeftRightSelector;
 
             Game.Settings.SortMode = (SortMode)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        void NaturalSortChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.NaturalSort = (bool)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
