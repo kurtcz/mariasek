@@ -868,12 +868,15 @@ namespace Mariasek.Engine
 
                 return flavour;
             }
-            //zpocitej ztraty v pripade kila proti
+            //zpocitej ztraty v pripade kila (pro aktera)
+            //pro obrance pocitame ztraty v pripade fleku na hru a ticheho kila proti
+            //obe hodnoty jsou stejne, takze staci jeden vzorecek
             var lossPerPointsLost = Enumerable.Range(0, 10)
-                                              .ToDictionary(k => 100 + k * 10,
+                                              .Select(i => 100 + i * 10)
+                                              .ToDictionary(k => k,
                                                             v => (_g.CalculationStyle == CalculationStyle.Adding
-                                                                  ? (v + 2) * _g.QuietHundredValue
-                                                                  : _g.QuietHundredValue * (1 << (v + 1))) *
+                                                                  ? (v - 90) / 10 * _g.HundredValue
+                                                                  : (1 << (v - 100) / 10) * _g.HundredValue) *
                                                                  (PlayerIndex == _g.GameStartingPlayerIndex &&
                                                                   TrumpCard.Suit == Barva.Cerveny
                                                                   ? 2
@@ -904,6 +907,7 @@ namespace Mariasek.Engine
                     //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
                     //Zapamatujeme si vysledek a pouzijeme ho i v ChooseGameFlavour() a ChooseGameType()
                     RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, true);
+                    _initialSimulation = false;
                     if (Settings.CanPlayGameType[Hra.Durch] && 
                         _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
                         _durchSimulations > 0 &&
@@ -932,7 +936,7 @@ namespace Mariasek.Engine
                                ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                                  lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold) ||
                                 (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
-                                 _avgBasicPointsLost > 60)))))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
+                                 _avgBasicPointsLost >= 50)))))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
                     {
                         if (_talon == null || !_talon.Any())
                         {
@@ -2540,7 +2544,8 @@ namespace Mariasek.Engine
                           (!hand.HasA(_trump.Value) ||    //a mam pet nebo mene trumfu
                            !hand.HasX(_trump.Value)) &&
                           hand.CardCount(_trump.Value) <= 6 &&
-                          !(hand.HasX(_trump.Value) &&   //a nemam jednu z trumfovych X, K, F
+                          !(//hand.HasX(_trump.Value) &&   //a nemam jednu z trumfovych X, K, F
+                            hand.CardCount(_trump.Value) >= 4 &&
                             hand.HasK(_trump.Value) &&
                             hand.HasQ(_trump.Value))) ||
 			             (n > 2 &&                        //pokud mam vic nez 2 neodstranitelne diry
@@ -2555,7 +2560,8 @@ namespace Mariasek.Engine
                           !hand.HasA(_trump.Value) &&     //nemam trumfove eso
                           !(hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
                             hand.HasQ(_trump.Value)));
-
+            System.Diagnostics.Debug.WriteLine(n);
+            System.Diagnostics.Debug.WriteLine(nn);
             DebugInfo.HundredTooRisky = result;
 
             return result;
@@ -3152,6 +3158,9 @@ namespace Mariasek.Engine
                        (kqScore >= 20 &&                        //nebo aspon 20 bodu v hlasech a 20 bodu odhadem k tomu
                         estimatedFinalBasicScore >= 20 &&
                         !_g.MandatoryDouble))) ||
+                     (_teamMateDoubledGame &&
+                      estimatedFinalBasicScore >= 40 &&
+                      !_g.MandatoryDouble) ||
                      (Hand.CardCount(_g.trump.Value) >= 4 &&    //nebo mam aspon 4 trumfy
                       Hand.HasA(_g.trump.Value) &&              //eso, trhak
                       (Hand.HasK(_g.trump.Value) ||              //a aspon 50 bodu
@@ -3223,10 +3232,10 @@ namespace Mariasek.Engine
                       bestCaseNonTrumpScore >= 30) ||          //a aspon 3 netrumfove desitky
                      ((Hand.HasK(_g.trump.Value) ||            //nebo mam trhak
                        Hand.HasQ(_g.trump.Value)) &&             
-                      Hand.CardCount(_g.trump.Value) >= 2 &&   //a aspon dva trumfy
                       kqScore >= 20 &&                         //a aspon 1 netrumfovou desitku
                       kqMaxOpponentScore <= 20 &&              //a vidim aspon do tri hlasu
-                      estimatedFinalBasicScore >= 20) ||       //a odhaduju ze uhraju aspon 20 bodu v desitkach
+                      estimatedFinalBasicScore >= 10 &&
+                      axCount >= 2) ||       //a odhaduju ze uhraju aspon 20 bodu v desitkach
                      (Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
                       kqScore >= 40 &&                         //40 bodu v hlasech
                       estimatedFinalBasicScore >= 40) ||       //a odhaduju ze uhraju aspon 40 bodu v desitkach
