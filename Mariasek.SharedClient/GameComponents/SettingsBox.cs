@@ -1466,6 +1466,8 @@ namespace Mariasek.SharedClient.GameComponents
             var selector = sender as LeftRightSelector;
 
             Game.Settings.SortMode = (SortMode)selector.SelectedValue;
+            _naturalSortingSelector.IsEnabled = Game.Settings.SortMode == SortMode.Ascending ||
+                                                Game.Settings.SortMode == SortMode.Descending;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
