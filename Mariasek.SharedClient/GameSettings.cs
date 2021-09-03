@@ -127,6 +127,7 @@ namespace Mariasek.SharedClient
         public bool AutoDisable100Against { get; set; }
         public float CardScaleFactor { get; set; }
         public BackgroundImage BackgroundImage { get; set; }
+        public bool InvertedToggleButton { get; set; }
         public string DefaultTextRgba { get; set; }             //xml-only
         public Color DefaultTextColor { get { return FromRgbaString(DefaultTextRgba); } }
         public string HighlightedTextRgba { get; set; }         //xml-only
@@ -155,6 +156,8 @@ namespace Mariasek.SharedClient
         public Color PressedButtonColor { get { return FromRgbaString(PressedButtonRgba); } }
         public string SelectedButtonRgba { get; set; }          //xml-only
         public Color SelectedButtonColor { get { return FromRgbaString(SelectedButtonRgba); } }
+        public string SelectedButtonTextRgba { get; set; }             //xml-only
+        public Color SelectedButtonTextColor { get { return FromRgbaString(SelectedButtonTextRgba); } }
         public string ReviewPtsWonRgba { get; set; }            //xml-only
         public Color ReviewPtsWonColor { get { return FromRgbaString(ReviewPtsWonRgba); } }
         public string ReviewPtsLostRgba { get; set; }           //xml-only
@@ -213,6 +216,7 @@ namespace Mariasek.SharedClient
             AutoDisable100Against = true;
             CardScaleFactor = 0.6f;
             BackgroundImage = BackgroundImage.Default;
+            InvertedToggleButton = false;
             GameValue = 1;
             QuietSevenValue = 1;
             SevenValue = 2;
@@ -235,6 +239,7 @@ namespace Mariasek.SharedClient
             ButtonRgba = "603010";
             PressedButtonRgba = "994d1a";
             SelectedButtonRgba = "006400";
+            SelectedButtonTextRgba = "ffffff";
             ReviewPtsWonRgba = "90ee90";
             ReviewPtsLostRgba = "ff90a0";
             ResetThresholds();

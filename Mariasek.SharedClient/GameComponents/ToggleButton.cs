@@ -27,6 +27,7 @@ namespace Mariasek.SharedClient.GameComponents
             set { _origBorderColor = value; base.BorderColor = value; }
         }
         public Color SelectedBackgroundColor { get; set; }
+        public Color SelectedTextColor { get; set; }
 
         public bool IsSelected
         { 
@@ -42,8 +43,8 @@ namespace Mariasek.SharedClient.GameComponents
                         _origBorderColor = _buttonShape.BorderColors[0];
                         if (_origBgColor != Color.Transparent)
                         {
-                            _buttonShape.BackgroundColors[0] = SelectedBackgroundColor;
-                            _buttonText.TextColor = Game.Settings.DefaultTextColor;
+                            _buttonShape.BackgroundColors[0] = Game.Settings.InvertedToggleButton ? SelectedTextColor : SelectedBackgroundColor;
+                            _buttonText.TextColor = Game.Settings.InvertedToggleButton ? SelectedBackgroundColor : SelectedTextColor;
                         }
                         else
                         {
@@ -51,7 +52,7 @@ namespace Mariasek.SharedClient.GameComponents
                         }
                         if (_origBorderColor != Color.Transparent)
                         {
-                            _buttonShape.BorderColors[0] = Color.White;
+                            _buttonShape.BorderColors[0] = Game.Settings.InvertedToggleButton ? SelectedBackgroundColor : SelectedTextColor;
                         }
                         ClickSound = Game.OnSound;
                     }
@@ -72,8 +73,9 @@ namespace Mariasek.SharedClient.GameComponents
         {
             _origBgColor = base.BackgroundColor;
             SelectedBackgroundColor = Game.Settings.SelectedButtonColor;
+            SelectedTextColor = Game.Settings.SelectedButtonTextColor;
         }
-            
+
         protected override void OnTouchDown(TouchLocation tl)
         {
             IsSelected = !IsSelected;
@@ -82,7 +84,11 @@ namespace Mariasek.SharedClient.GameComponents
 
             if (_origBorderColor != Color.Transparent)
             {
-                _buttonShape.BackgroundColors[0] = IsSelected ? Game.Settings.SelectedButtonColor : _origButtonColor;
+                _buttonShape.BackgroundColors[0] = IsSelected
+                                                    ? Game.Settings.InvertedToggleButton
+                                                        ? Game.Settings.SelectedButtonTextColor
+                                                        : Game.Settings.SelectedButtonColor
+                                                    : _origButtonColor;
                 _buttonShape.UpdateTexture();
             }
         }
@@ -93,7 +99,11 @@ namespace Mariasek.SharedClient.GameComponents
 
             if (_origBorderColor != Color.Transparent)
             {
-                _buttonShape.BackgroundColors[0] = IsSelected ? Game.Settings.SelectedButtonColor : _origButtonColor;
+                _buttonShape.BackgroundColors[0] = IsSelected
+                                                    ? Game.Settings.InvertedToggleButton
+                                                        ? Game.Settings.SelectedButtonTextColor
+                                                        : Game.Settings.SelectedButtonColor
+                                                    : _origButtonColor;
                 _buttonShape.UpdateTexture();
             }
         }

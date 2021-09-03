@@ -39,6 +39,7 @@ namespace Mariasek.SharedClient
         public HistoryScene(MariasekMonoGame game)
             : base(game)
         {
+            Game.SettingsChanged += SettingsChanged;
         }
 
         /// <summary>
@@ -404,6 +405,11 @@ namespace Mariasek.SharedClient
             //        }
             //    });
             //}
+        }
+
+        private void SettingsChanged(object sender, SettingsChangedEventArgs e)
+        {
+            Game.MainScene.UpdateToggleButtons(this);
         }
 
         private void ChartButtonClicked(object sender)

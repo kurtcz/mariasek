@@ -14,9 +14,9 @@ namespace Mariasek.SharedClient.GameComponents
         public const int page2Offset = 420;
         public const int page3Offset = 1020;
         public const int page4Offset = 1500;
-        public const int page5Offset = 2040;
-        public const int page6Offset = 2460;
-        public const int boundsRectHeight = 2880;
+        public const int page5Offset = 2100;
+        public const int page6Offset = 2520;
+        public const int boundsRectHeight = 2940;
         //nove tematicke offsety zacinaji na ruznych mistech puvodnich stranek
         public readonly int[] TopicOffsets = new [] { 0, page2Offset, page4Offset - 360, page6Offset };
 
@@ -69,6 +69,7 @@ namespace Mariasek.SharedClient.GameComponents
         private Label _maxWin;
         //private Label _showStatusBar;
         private Label _bgImage;
+        private Label _invertedToggleButton;
         private Label _aiMayGiveUp;
         private Label _playerMayGiveUp;
         private ToggleButton _hintBtn;
@@ -100,6 +101,7 @@ namespace Mariasek.SharedClient.GameComponents
         private LeftRightSelector _maxWinSelector;
         //private LeftRightSelector _showStatusBarSelector;
         private LeftRightSelector _bgImageSelector;
+        private LeftRightSelector _invertedToggleButtonSelector;
         private LeftRightSelector _aiMayGiveUpSelector;
         private LeftRightSelector _playerMayGiveUpSelector;
         private LeftRightSelector _gameValueSelector;
@@ -815,9 +817,34 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _bgImageSelector.SelectedIndex = 0;
             }
-            _cardSize = new Label(this)
+            _invertedToggleButton = new Label(this)
             {
                 Position = new Vector2(200, page4Offset + 70),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Text = "Barva zvoleného tlačítka",
+                Group = 1,
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle,
+                UseCommonScissorRect = true
+            };
+            _invertedToggleButtonSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 70),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Výchozí", false }, { "Kontrastní", true } },
+                UseCommonScissorRect = true
+            };
+            _invertedToggleButtonSelector.SelectedIndex = _invertedToggleButtonSelector.Items.FindIndex(Game.Settings.InvertedToggleButton);
+            _invertedToggleButtonSelector.SelectionChanged += InvertedToggleButtonChanged;
+            if (_invertedToggleButtonSelector.SelectedIndex < 0)
+            {
+                _invertedToggleButtonSelector.SelectedIndex = 0;
+            }
+            _cardSize = new Label(this)
+            {
+                Position = new Vector2(200, page4Offset + 130),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Velikost karet",
@@ -828,7 +855,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _cardSizeSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 70),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 130),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Standardní", 0.6f }, { "Větší", 0.7f }, { "Menší", 0.5f } },
@@ -842,7 +869,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _handSorting = new Label(this)
             {
-                Position = new Vector2(200, page4Offset + 130),
+                Position = new Vector2(200, page4Offset + 190),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -853,7 +880,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _handSortingSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 130),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 190),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Vzestupně", SortMode.Ascending }, { "Sestupně", SortMode.Descending }, { "Jen barvy", SortMode.SuitsOnly }, { "Vůbec", SortMode.None } },
@@ -867,7 +894,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _naturalSorting = new Label(this)
             {
-                Position = new Vector2(200, page4Offset + 190),
+                Position = new Vector2(200, page4Offset + 250),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -878,7 +905,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _naturalSortingSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 190),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 250),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Při špatné barvě", false }, { "Vždy", true } },
@@ -892,7 +919,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _autoSorting = new Label(this)
             {
-                Position = new Vector2(200, page4Offset + 250),
+                Position = new Vector2(200, page4Offset + 310),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -903,7 +930,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _autoSortingSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 250),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 310),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Automaticky", true }, { "Poklepem", false } },
@@ -917,7 +944,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _autoFinishRounds = new Label(this)
             {
-                Position = new Vector2(200, page4Offset + 310),
+                Position = new Vector2(200, page4Offset + 370),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -928,7 +955,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _autoFinishRoundsSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 310),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 370),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Automaticky", true }, { "Dotykem", false } },
@@ -942,7 +969,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _roundFinishedWaitTime = new Label(this)
             {
-                Position = new Vector2(200, page4Offset + 370),
+                Position = new Vector2(200, page4Offset + 430),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -953,7 +980,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _roundFinishedWaitTimeSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 370),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 430),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Krátká", 1000 }, { "Dlouhá", 2000 } },
@@ -967,7 +994,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _autoFinishLastRound = new Label(this)
             {
-                Position = new Vector2(200, page4Offset + 430),
+                Position = new Vector2(200, page4Offset + 490),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -978,7 +1005,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _autoFinishLastRoundSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 430),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 490),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Automaticky", true }, { "Ručně", false } },
@@ -992,7 +1019,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _autoPlaySingletonCard = new Label(this)
             {
-                Position = new Vector2(200, page4Offset + 490),
+                Position = new Vector2(200, page4Offset + 550),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -1003,7 +1030,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _autoPlaySingletonCardSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 490),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 550),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Automaticky", true }, { "Ručně", false } },
@@ -1744,6 +1771,15 @@ namespace Mariasek.SharedClient.GameComponents
             Game.OnSettingsChanged();
         }
 
+        void InvertedToggleButtonChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.InvertedToggleButton = (bool)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
         void MinBidsForGameChanged(object sender)
         {
             var selector = sender as LeftRightSelector;
@@ -1879,6 +1915,10 @@ namespace Mariasek.SharedClient.GameComponents
 
         async void ChangePlayerName(object sender)
         {
+            if (KeyboardInput.IsVisible)
+            {
+                return;
+            }
             const int MaxNameLength = 12;
             var button = sender as Button;
             var playerIndex = (int)button.Tag;

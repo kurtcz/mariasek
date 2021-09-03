@@ -192,11 +192,12 @@ namespace Mariasek.SharedClient
                                     : Game.CardTextures3;
 
             foreach(var c in _cards.Where(i => i != null &&
-                                                    i.Sprite != null &&
-                                                    i.Sprite.Texture != Game.CardTextures))
+                                               i.Sprite != null &&
+                                               i.Sprite.Texture != Game.CardTextures))
             {
                 c.Sprite.Texture = newTextures;
             }
+            Game.MainScene.UpdateToggleButtons(this);
         }
 
         private void SendBtnClicked(object sender)
@@ -537,6 +538,10 @@ namespace Mariasek.SharedClient
 
         private async void SaveGameClicked(object sender)
         {
+            if (KeyboardInput.IsVisible)
+            {
+                return;
+            }
             const int MaxNameLength = 25;
             var filename = await KeyboardInput.Show("Uložit hru", "Zadej jméno hry", _filename ?? "Moje hra");
 
@@ -624,7 +629,7 @@ namespace Mariasek.SharedClient
             }
             catch (Exception ex)
             {
-                //ShowMsgLabel(string.Format("Error loading game:\n{0}", ex.Message), false);
+                _fileLabel.Text = ex.Message;
                 return;
             }
         }

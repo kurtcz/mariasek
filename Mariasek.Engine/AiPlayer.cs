@@ -1166,6 +1166,7 @@ namespace Mariasek.Engine
             var totalGameSimulations = (simulateGoodGames ? 2 * Settings.SimulationsPerGameType : 0) +
                                        (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
             var progress = 0;
+            var maxSimulationsPerGameType = 1000;
 
             OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 1, Message = "Generuju karty"});
 
@@ -1194,8 +1195,8 @@ namespace Mariasek.Engine
                     _debugString.Append("Simulating good games\n");
                     try
                     {
-                        Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, Settings.SimulationsPerGameType), options, (hh, loopState) =>
-                        //foreach (var hh in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, Settings.SimulationsPerGameType))
+                        Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hh, loopState) =>
+                        //foreach (var hh in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType))
                         {
                             ThrowIfCancellationRequested();
                             try
@@ -1374,8 +1375,8 @@ namespace Mariasek.Engine
                         var exceptions = new ConcurrentQueue<Exception>();
                         try
                         {
-                            Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, Settings.SimulationsPerGameType), options, (hh, loopState) =>
-                            //foreach (var hh in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, Settings.SimulationsPerGameType))
+                            Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hh, loopState) =>
+                            //foreach (var hh in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType))
                             {
                                 ThrowIfCancellationRequested();
                                 try
@@ -1439,7 +1440,7 @@ namespace Mariasek.Engine
 				{
 					Interlocked.Add(ref progress, Settings.SimulationsPerGameType);
 				}
-				totalGameSimulations = (simulateGoodGames ? Settings.SimulationsPerGameType : 0) +
+				totalGameSimulations = (simulateGoodGames ? _gameSimulations + _sevenSimulations : 0) +
                     (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
 				OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0 });
                 if (source == null && tempSource.Any())
@@ -1464,7 +1465,7 @@ namespace Mariasek.Engine
                     else
                     {
                         _debugString.AppendFormat("Simulating durch. fast guess: {0}\n", ShouldChooseDurch());
-                        Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, Settings.SimulationsPerGameType), (hands, loopState) =>
+                        Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), (hands, loopState) =>
                         {
                             try
                             {

@@ -3723,6 +3723,7 @@ namespace Mariasek.SharedClient
                 Game.ScreenManager.SetKeepScreenOnFlag(Game.Settings.KeepScreenOn);
             });
             UpdateBackground();
+            UpdateToggleButtons(this);
             var newBackSideRect = Game.Settings.CardDesign == CardFace.Pikety
                                     ? CardBackSide.Pikety.ToTextureRect()
                                     : Game.Settings.CardBackSide.ToTextureRect();
@@ -4351,6 +4352,20 @@ namespace Mariasek.SharedClient
             if (g != null)
             {
                 AmendCardScaleFactor();
+            }
+        }
+
+        public void UpdateToggleButtons(GameComponent parent)
+        {
+            foreach(var child in parent.ChildElements)
+            {
+                var tb = child as ToggleButton;
+
+                if (tb != null && tb.IsSelected)
+                {
+                    tb.IsSelected = !tb.IsSelected;
+                    tb.IsSelected = !tb.IsSelected;
+                }
             }
         }
 
