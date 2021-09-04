@@ -936,7 +936,11 @@ namespace Mariasek.Engine
                                !AdvisorMode &&
                                !Settings.AiMayGiveUp &&
                                ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
-                                 lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold) ||
+                                 lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
+                                (!_trump.HasValue ||
+                                 (!Hand.HasK(_trump.Value) &&
+                                  !Hand.HasQ(_trump.Value)) ||
+                                 Hand.CardCount(_trump.Value) <= 3)) ||
                                 (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
                                  _avgBasicPointsLost >= 50)))))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
                     {
@@ -1059,7 +1063,11 @@ namespace Mariasek.Engine
                         !AdvisorMode &&
                         !Settings.AiMayGiveUp &&
                         lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
-                        lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold) ||
+                        lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
+                        (!_trump.HasValue ||
+                         (!Hand.HasK(_trump.Value) &&
+                          !Hand.HasQ(_trump.Value)) ||
+                         Hand.CardCount(_trump.Value) <= 3)) ||
                        (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
                         _avgBasicPointsLost >= 50)))
                 {
@@ -2327,6 +2335,9 @@ namespace Mariasek.Engine
                             _g.MandatoryDouble)) &&
                           hand.Count(i => i.Suit == _trump.Value &&
                                           i.Value >= Hodnota.Svrsek) < 3 &&
+                          !(hand.HasA(_trump.Value) &&
+                            (hand.HasK(_trump.Value) ||
+                             hand.HasQ(_trump.Value))) &&
                           ((hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 &&
                             hand.Count(i => i.Value >= Hodnota.Spodek) < 4) ||    //3a. mene nez 3 (resp. 4) vysoke karty celkem (plati pro aktera i protihrace)
                            (hand.Select(i => i.Suit).Distinct().Count() < 4 &&    //3b. nebo nevidim do nejake barvy a zaroven mam 4 a vice netrumfovych der
