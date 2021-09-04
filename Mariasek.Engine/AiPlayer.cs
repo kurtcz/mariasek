@@ -13,6 +13,7 @@ using Mariasek.Engine.Schema;
 using System.IO;
 using System.Globalization;
 using System.Runtime.InteropServices.ComTypes;
+using System.Data;
 
 namespace Mariasek.Engine
 {
@@ -1915,7 +1916,7 @@ namespace Mariasek.Engine
                                                    .All(h => Probabilities.CardProbability((PlayerIndex + 1) % Game.NumPlayers, new Card(i.Suit, h)) == 0 &&
                                                              Probabilities.CardProbability((PlayerIndex + 2) % Game.NumPlayers, new Card(i.Suit, h)) == 0))
                                    .ToList();
-                if (holesPerSuit.All(i => i.Value == 0 || 
+                if (holesPerSuit.All(i => i.Value == 0 ||
                                           hiHolePerSuit[i.Key].BadValue <= minHole.BadValue ||
                                           (topCards.Count(j => j.Suit == i.Key) > 0 &&              //barva ve ktere mam o 2 mene nejvyssich karet nez der 
                                            topCards.Count(j => j.Suit == i.Key) + 2 >= i.Value &&  //doufam v dobrou rozlozenost (simulace ukaze)
@@ -1924,7 +1925,14 @@ namespace Mariasek.Engine
                                           (topCards.Count(j => j.Suit == i.Key) > 0 &&
                                            Hand.CardCount(i.Key) == 2 &&
                                            Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.CardCount(b) == 2 &&
-                                                                                                  Hand.HasA(b)) <= 1)))
+                                                                                                  Hand.HasA(b) &&
+                                                                                                  topCards.Count(j => j.Suit == b) + 2 < holesPerSuit[b]) <= 1) ||
+                                          (topCards.Count(j => j.Suit == i.Key) > 0 &&
+                                           Hand.CardCount(i.Key) >= 3 &&
+                                           Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.CardCount(b) >= 3 &&
+                                                                                                  Hand.HasA(b) &&
+                                                                                                  Hand.HasQ(b) &&
+                                                                                                  topCards.Count(j => j.Suit == b) + 2 < holesPerSuit[b]) <= 1)))
                 {
                     return true;
                 }
