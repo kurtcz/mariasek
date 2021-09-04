@@ -877,9 +877,10 @@ namespace Mariasek.Engine
                                                             v => (_g.CalculationStyle == CalculationStyle.Adding
                                                                   ? (v - 90) / 10 * _g.HundredValue
                                                                   : (1 << (v - 100) / 10) * _g.HundredValue) *
-                                                                 (PlayerIndex == _g.GameStartingPlayerIndex &&
-                                                                  TrumpCard.Suit == Barva.Cerveny
-                                                                  ? 2
+                                                                 (PlayerIndex == _g.GameStartingPlayerIndex //ztrata pro aktera je dvojnasobna (plati obema souperum)
+                                                                  ? TrumpCard.Suit == Barva.Cerveny
+                                                                    ? 4
+                                                                    : 2
                                                                   : 1));
             var tempTalon = Hand.Count == 12 ? ChooseNormalTalon(Hand, TrumpCard) : new List<Card>();
             var tempHand = new List<Card>(Hand.Where(i => !tempTalon.Contains(i)));
@@ -1059,7 +1060,7 @@ namespace Mariasek.Engine
                         lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                         lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold) ||
                        (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
-                        _avgBasicPointsLost > 60)))
+                        _avgBasicPointsLost >= 50)))
                 {
                     if ((_betlSimulations > 0 && 
                          (!Settings.CanPlayGameType[Hra.Durch] ||
