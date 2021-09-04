@@ -940,7 +940,9 @@ namespace Mariasek.Engine
                                 (!_trump.HasValue ||
                                  (!Hand.HasK(_trump.Value) &&
                                   !Hand.HasQ(_trump.Value)) ||
-                                 Hand.CardCount(_trump.Value) <= 3)) ||
+                                  (!(Hand.HasK(_trump.Value) &&
+                                     Hand.HasQ(_trump.Value)) &&
+                                   Hand.CardCount(_trump.Value) <= 3))) ||
                                 (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
                                  _avgBasicPointsLost >= 50)))))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
                     {
@@ -1067,7 +1069,9 @@ namespace Mariasek.Engine
                         (!_trump.HasValue ||
                          (!Hand.HasK(_trump.Value) &&
                           !Hand.HasQ(_trump.Value)) ||
-                         Hand.CardCount(_trump.Value) <= 3)) ||
+                         (!(Hand.HasK(_trump.Value) &&
+                            Hand.HasQ(_trump.Value)) &&
+                          Hand.CardCount(_trump.Value) <= 3))) ||
                        (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
                         _avgBasicPointsLost >= 50)))
                 {
