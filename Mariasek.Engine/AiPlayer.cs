@@ -1919,7 +1919,11 @@ namespace Mariasek.Engine
                                           (topCards.Count(j => j.Suit == i.Key) > 0 &&              //barva ve ktere mam o 2 mene nejvyssich karet nez der 
                                            topCards.Count(j => j.Suit == i.Key) + 2 >= i.Value &&  //doufam v dobrou rozlozenost (simulace ukaze)
                                            Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.CardCount(b) == 1 &&
-                                                                                                  !Hand.HasA(b)) <= 1)))
+                                                                                                  !Hand.HasA(b)) <= 1) ||
+                                          (topCards.Count(j => j.Suit == i.Key) > 0 &&
+                                           Hand.CardCount(i.Key) == 2 &&
+                                           Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.CardCount(b) == 2 &&
+                                                                                                  Hand.HasA(b)) <= 1)))
                 {
                     return true;
                 }
