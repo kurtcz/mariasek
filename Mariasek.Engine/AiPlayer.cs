@@ -2340,7 +2340,8 @@ namespace Mariasek.Engine
                           hand.Count(i => i.Suit == _trump.Value &&
                                           i.Value >= Hodnota.Svrsek) < 3 &&
                           !(hand.HasA(_trump.Value) &&
-                            (hand.HasK(_trump.Value) ||
+                            (hand.HasX(_trump.Value) ||
+                             hand.HasK(_trump.Value) ||
                              hand.HasQ(_trump.Value))) &&
                           ((hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 &&
                             hand.Count(i => i.Value >= Hodnota.Spodek) < 4) ||    //3a. mene nez 3 (resp. 4) vysoke karty celkem (plati pro aktera i protihrace)
