@@ -531,9 +531,26 @@ namespace Mariasek.SharedClient
                 //        return validCards.First();
                 //    }
                 //}
+                var myPlayedCards = _g.rounds.Where(rr => rr != null && rr.c3 != null)
+                                      .Select(rr =>
+                                       {
+                                           if (rr.player1.PlayerIndex == PlayerIndex)
+                                           {
+                                               return rr.c1;
+                                           }
+                                           else if (rr.player2.PlayerIndex == PlayerIndex)
+                                           {
+                                               return rr.c2;
+                                           }
+                                           else
+                                           {
+                                               return rr.c3;
+                                           }
+                                       }).ToList();
                 card = _scene.PlayCard(validationState);
-                if (card == null)
+                if (card == null || myPlayedCards.Contains(card))
                 {
+                    validationState = Renonc.Ok;
                     continue;
                 }
                 if (r.c2 != null)
