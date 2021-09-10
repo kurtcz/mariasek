@@ -1036,7 +1036,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Items = new SelectorItems() { { "Automaticky", true }, { "Ručně", false } },
                 UseCommonScissorRect = true
             };
-            _autoPlaySingletonCardSelector.SelectedIndex = _autoPlaySingletonCardSelector.Items.FindIndex(Game.Settings.AutoFinish);
+            _autoPlaySingletonCardSelector.SelectedIndex = _autoPlaySingletonCardSelector.Items.FindIndex(Game.Settings.AutoPlaySingletonCard);
             _autoPlaySingletonCardSelector.SelectionChanged += AutoPlaySingletonCardChanged;
             if (_autoPlaySingletonCardSelector.SelectedIndex < 0)
             {
