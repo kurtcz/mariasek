@@ -262,7 +262,7 @@ namespace Mariasek.SharedClient
                                     }
     							}
                                 if (_aiPlayer.DebugInfo.TotalRuleCount > 0 ||
-                                    gameType == Hra.Betl)
+                                    (gameType & (Hra.Betl | Hra.Durch)) != 0)
                                 {
                                     _scene.SuggestGameType(gameType.ToDescription(_trump, true), msg.ToString().TrimEnd(), _t1 - _t0);
                                     _scene.SuggestGameTypeNew(gameType);
