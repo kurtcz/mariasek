@@ -217,7 +217,7 @@ namespace Mariasek.Engine
         }
 
         private List<Card> ChooseBetlTalonImpl(List<Card> hand, Card trumpCard)
-        { 
+        {
             //nedavej do talonu karty v barve kde mam 7 karet vcetne esa a sedmy
             var bannedSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                   .Where(b => hand.CardCount(b) == 7 &&
@@ -353,26 +353,6 @@ namespace Mariasek.Engine
 									   	  .Select(i => i.Item1)						//Card
 									   	  .ToList());
             }
-            //pokud to jde najdi nizsi karty se stejnymi parametry (abych souperi stizil pripadneho durcha)
-            //var cardsToReplace = new List<Card>();
-            //foreach (var card in talon)
-            //{
-            //    var cardToReplace = holesByCard.Where(i => !cardsToReplace.Contains(i.Item1) &&
-            //                                               i.Item2 < 7 &&
-            //                                               i.Item1.Suit == card.Suit &&
-            //                                               i.Item1.BadValue < card.BadValue &&
-            //                                               i.Item3 <= holesByCard.First(j => j.Item1 == card).Item3 &&
-            //                                               i.Item4 <= holesByCard.First(j => j.Item1 == card).Item4)
-            //                                   .OrderBy(i => i.Item1.BadValue)
-            //                                   .Select(i => i.Item1)
-            //                                   .FirstOrDefault();
-            //    if (cardToReplace != null)
-            //    {
-            //        cardsToReplace.Add(cardToReplace);
-            //    }
-            //}
-            //talon = cardsToReplace.Concat(talon).Take(2).ToList();
-
             //pokud je potreba, doplnime o nejake nizke karty (abych zhorsil talon na durcha)
             if (talon.Count < 2)
             {
@@ -381,8 +361,42 @@ namespace Mariasek.Engine
                                    .OrderBy(i => i.BadValue)
                                    .Take(2 - talon.Count));
             }
-
-			if (talon == null || talon.Distinct().Count() != 2)
+            //pokud to jde najdi nizsi karty se stejnymi parametry (abych souperi stizil pripadneho durcha)
+            var cardsToReplace = new List<Card>();
+            foreach (var card in talon)
+            {
+                var cardToReplace = holesByCard.Where(i => !cardsToReplace.Contains(i.Item1) &&
+                                                           i.Item2 < 7 &&
+                                                           i.Item1.Suit == card.Suit &&
+                                                           i.Item1.BadValue < card.BadValue &&
+                                                           i.Item3 <= holesByCard.First(j => j.Item1 == card).Item3 &&
+                                                           i.Item4 <= holesByCard.First(j => j.Item1 == card).Item4)
+                                               .OrderBy(i => i.Item1.BadValue)
+                                               .Select(i => i.Item1)
+                                               .FirstOrDefault();
+                if (cardToReplace != null)
+                {
+                    cardsToReplace.Add(cardToReplace);
+                }
+            }
+            talon = cardsToReplace.Concat(talon).Distinct().Take(2).ToList();
+            if (holesByCard.Count() <= 2)
+            {
+                //jen dve nebo jedna karta ma diru
+                //jednu si necham na ruce (s tou betla zacnu) a do talonu dam misto ni neco nizkeho
+                cardsToReplace = hand.Where(i => !talon.Contains(i) &&
+                                                 !holesByCard.Select(j => j.Item1).Contains(i))
+                                     .OrderByDescending(i => hand.CardCount(i.Suit))
+                                     .ThenBy(i => i.BadValue)
+                                     .Take(1)
+                                     .ToList();
+                talon = cardsToReplace.Concat(talon)
+                                      .OrderBy(i => holesByCard.Select(j => j.Item1).Contains(i) ? 1 : 0)
+                                      .Distinct()
+                                      .Take(2)
+                                      .ToList();
+            }
+            if (talon == null || talon.Distinct().Count() != 2)
 			{
                 var msg = talon == null ? "(null)" : string.Format("Count: {0}\nHand: {1}", talon.Distinct().Count(), new Hand(hand));
 				throw new InvalidOperationException("Bad talon: " + msg);
