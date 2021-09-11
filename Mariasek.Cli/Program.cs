@@ -421,6 +421,7 @@ namespace Mariasek.Cli
             {
                 Cheat = Settings.AiCheating.HasValue && Settings.AiCheating.Value,
                 AiMayGiveUp = Settings.AiMayGiveUp,
+                PlayerMayGiveUp = Game.Settings.PlayerMayGiveUp,
                 RoundsToCompute = 1,
                 CardSelectionStrategy = CardSelectionStrategy.MaxCount,
                 SimulationsPerGameType = 1000,

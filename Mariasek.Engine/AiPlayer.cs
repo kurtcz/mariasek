@@ -966,8 +966,10 @@ namespace Mariasek.Engine
                                !(_hundredOverBetl &&
                                  !IsHundredTooRisky(tempHand))) ||
                               (Settings.SafetyBetlThreshold > 0 &&
-                               !AdvisorMode &&
-                               !Settings.AiMayGiveUp &&
+                               ((!AdvisorMode &&
+                                 !Settings.AiMayGiveUp) ||
+                                (AdvisorMode &&
+                                 !Settings.PlayerMayGiveUp)) &&
                                ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                                  lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
                                 (!_trump.HasValue ||
@@ -1095,8 +1097,10 @@ namespace Mariasek.Engine
                         !(_hundredOverBetl &&
                           !IsHundredTooRisky(tempHand))))) ||
                        (Settings.SafetyBetlThreshold > 0 &&
-                        !AdvisorMode &&
-                        !Settings.AiMayGiveUp &&
+                        ((!AdvisorMode &&
+                          !Settings.AiMayGiveUp) ||
+                         (AdvisorMode &&
+                          !Settings.PlayerMayGiveUp)) &&
                         lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                         lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
                         (!_trump.HasValue ||
@@ -2909,8 +2913,10 @@ namespace Mariasek.Engine
                     DebugInfo.TotalRuleCount = _hundredSimulations;
                 }
                 else if (Settings.CanPlayGameType[Hra.Hra] &&
-                         ((!Settings.AiMayGiveUp &&
-                           !AdvisorMode) ||
+                         (((!Settings.AiMayGiveUp &&
+                            !AdvisorMode) ||
+                           (!Settings.PlayerMayGiveUp &&
+                            AdvisorMode)) ||
                           ((_gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0) ||
                            //estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore + 40 ||
                            (estimatedFinalBasicScore >= 10 &&

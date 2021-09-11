@@ -164,6 +164,7 @@ namespace Mariasek.SharedClient
             {
                 Cheat = Game.Settings.AiCheating.HasValue && Game.Settings.AiCheating.Value,
                 AiMayGiveUp = Game.Settings.AiMayGiveUp,
+                PlayerMayGiveUp = Game.Settings.PlayerMayGiveUp,
                 RoundsToCompute = 1,
                 CardSelectionStrategy = CardSelectionStrategy.MaxCount,
                 SimulationsPerGameType = 1000,
