@@ -261,7 +261,8 @@ namespace Mariasek.SharedClient
                                         msg.AppendFormat(string.Format("{0}{1}", debugInfo.Rule, (k++) % 2 == 1 ? "\n" : "\t"));
                                     }
     							}
-                                if (_aiPlayer.DebugInfo.TotalRuleCount > 0)
+                                if (_aiPlayer.DebugInfo.TotalRuleCount > 0 ||
+                                    gameType == Hra.Betl)
                                 {
                                     _scene.SuggestGameType(gameType.ToDescription(_trump, true), msg.ToString().TrimEnd(), _t1 - _t0);
                                     _scene.SuggestGameTypeNew(gameType);

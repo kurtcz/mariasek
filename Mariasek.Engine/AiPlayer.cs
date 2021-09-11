@@ -918,7 +918,8 @@ namespace Mariasek.Engine
                                                                   : 1));
             var tempTalon = Hand.Count == 12 ? ChooseNormalTalon(Hand, TrumpCard) : new List<Card>();
             var tempHand = new List<Card>(Hand.Where(i => !tempTalon.Contains(i)));
-            var estimatedPointsLost = _trump != null ? EstimateTotalPointsLost(tempHand, tempTalon) : 0;
+            var estimatedPointsWon = _trump != null ? EstimateFinalBasicScore(tempHand) : 0;
+            var estimatedPointsLost = _trump != null ? EstimateTotalPointsLost(tempHand, tempTalon) : 0; 
             if (_initialSimulation || AdvisorMode)
             {
                 var bidding = new Bidding(_g);
@@ -970,14 +971,15 @@ namespace Mariasek.Engine
                                  !Settings.AiMayGiveUp) ||
                                 (AdvisorMode &&
                                  !Settings.PlayerMayGiveUp)) &&
+                               Settings.MinimalBidsForGame <= 1 &&
                                ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                                  lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
-                                (!_trump.HasValue ||
-                                 (!Hand.HasK(_trump.Value) &&
-                                  !Hand.HasQ(_trump.Value)) ||
-                                  (!(Hand.HasK(_trump.Value) &&
-                                     Hand.HasQ(_trump.Value)) &&
-                                   Hand.CardCount(_trump.Value) <= 3))) ||
+                                 (!_trump.HasValue ||
+                                  (!Hand.HasK(_trump.Value) &&
+                                   !Hand.HasQ(_trump.Value) &&
+                                   !(Hand.HasA(_trump.Value) &&
+                                     Hand.CardCount(_trump.Value) >= 5 &&
+                                     estimatedPointsWon >= 50)))) ||
                                 (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
                                  _avgBasicPointsLost >= 50)))))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
                     {
@@ -1101,24 +1103,33 @@ namespace Mariasek.Engine
                           !Settings.AiMayGiveUp) ||
                          (AdvisorMode &&
                           !Settings.PlayerMayGiveUp)) &&
-                        lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
-                        lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
-                        (!_trump.HasValue ||
-                         (!Hand.HasK(_trump.Value) &&
-                          !Hand.HasQ(_trump.Value)) ||
-                         (!(Hand.HasK(_trump.Value) &&
-                            Hand.HasQ(_trump.Value)) &&
-                          Hand.CardCount(_trump.Value) <= 3))) ||
-                       (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
-                        _avgBasicPointsLost >= 50)))
+                        Settings.MinimalBidsForGame <= 1 &&
+                        ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
+                          lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
+                          (!_trump.HasValue ||
+                           (!Hand.HasK(_trump.Value) &&
+                            !Hand.HasQ(_trump.Value) &&
+                            !(Hand.HasA(_trump.Value) &&
+                              Hand.CardCount(_trump.Value) >= 5 &&
+                              estimatedPointsWon >= 50)))) ||
+                         (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
+                          _avgBasicPointsLost >= 50)))))
                 {
                     if ((_betlSimulations > 0 && 
                          (!Settings.CanPlayGameType[Hra.Durch] ||
                           _durchSimulations == 0 || 
                           (float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations)) ||
                         (Settings.SafetyBetlThreshold > 0 &&
-                         lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
-                         lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold))
+                         ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
+                           lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
+                          (!_trump.HasValue ||
+                           (!Hand.HasK(_trump.Value) &&
+                            !Hand.HasQ(_trump.Value) &&
+                            !(Hand.HasA(_trump.Value) &&
+                              Hand.CardCount(_trump.Value) >= 5 &&
+                              estimatedPointsWon >= 50)))) ||
+                          (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
+                           _avgBasicPointsLost >= 50))))
                     {
                         _gameType = Hra.Betl;   //toto zajisti, ze si umysl nerozmysli po odhozeni talonu na betla
                                                 //(odhadovane skore se muze zmenit a s tim i odhodlani hrat betla,
@@ -2917,6 +2928,7 @@ namespace Mariasek.Engine
                             !AdvisorMode) ||
                            (!Settings.PlayerMayGiveUp &&
                             AdvisorMode)) ||
+                          Settings.MinimalBidsForGame > 1 ||
                           ((_gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0) ||
                            //estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore + 40 ||
                            (estimatedFinalBasicScore >= 10 &&
