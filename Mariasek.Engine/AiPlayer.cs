@@ -352,10 +352,29 @@ namespace Mariasek.Engine
 									   	  .Take(2 - talon.Count)
 									   	  .Select(i => i.Item1)						//Card
 									   	  .ToList());
-			}
-            
+            }
+            //pokud to jde najdi nizsi karty se stejnymi parametry (abych souperi stizil pripadneho durcha)
+            //var cardsToReplace = new List<Card>();
+            //foreach (var card in talon)
+            //{
+            //    var cardToReplace = holesByCard.Where(i => !cardsToReplace.Contains(i.Item1) &&
+            //                                               i.Item2 < 7 &&
+            //                                               i.Item1.Suit == card.Suit &&
+            //                                               i.Item1.BadValue < card.BadValue &&
+            //                                               i.Item3 <= holesByCard.First(j => j.Item1 == card).Item3 &&
+            //                                               i.Item4 <= holesByCard.First(j => j.Item1 == card).Item4)
+            //                                   .OrderBy(i => i.Item1.BadValue)
+            //                                   .Select(i => i.Item1)
+            //                                   .FirstOrDefault();
+            //    if (cardToReplace != null)
+            //    {
+            //        cardsToReplace.Add(cardToReplace);
+            //    }
+            //}
+            //talon = cardsToReplace.Concat(talon).Take(2).ToList();
+
             //pokud je potreba, doplnime o nejake nizke karty (abych zhorsil talon na durcha)
-            if(talon.Count < 2)
+            if (talon.Count < 2)
             {
                 talon.AddRange(hand.Where(i => !bannedSuits.Contains(i.Suit) &&
                                                !talon.Contains(i))
@@ -1389,8 +1408,8 @@ namespace Mariasek.Engine
                         var exceptions = new ConcurrentQueue<Exception>();
                         try
                         {
-                            Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hh, loopState) =>
-                            //foreach (var hh in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType))
+                            //Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hh, loopState) =>
+                            foreach (var hh in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType))
                             {
                                 ThrowIfCancellationRequested();
                                 try
@@ -1429,13 +1448,13 @@ namespace Mariasek.Engine
                                 if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                                 {
                                     Probabilities.StopGeneratingHands();
-                                    loopState.Stop();
+                                    break;// loopState.Stop();
                                 }
 
                                 var val = Interlocked.Increment(ref progress);
                                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju betl" });
                                 ThrowIfCancellationRequested();
-                            });
+                            }//);
                         }
                         catch (OperationCanceledException ex)
                         {
@@ -3444,6 +3463,7 @@ namespace Mariasek.Engine
                 (_g.MinimalBidsForSeven == 0 || //pokud by akter mohl uhrat 130 a zaroven se sedma nehraje bez fleku, je lepsi neflekovat a snizit tak ztratu
                  (_teamMateDoubledGame &&
                   !_g.MandatoryDouble) ||
+                 (bidding.Bids & Hra.Kilo) != 0 ||
                  !Is100AgainstPossible(130)))
             {
                 bid |= bidding.Bids & Hra.Sedma;
