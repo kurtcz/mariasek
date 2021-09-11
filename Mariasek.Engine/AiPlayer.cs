@@ -918,6 +918,11 @@ namespace Mariasek.Engine
                                                                   : 1));
             var tempTalon = Hand.Count == 12 ? ChooseNormalTalon(Hand, TrumpCard) : new List<Card>();
             var tempHand = new List<Card>(Hand.Where(i => !tempTalon.Contains(i)));
+            var kqScore = _g.trump.HasValue
+                ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                      .Where(b => Hand.HasK(b) && Hand.HasQ(b))
+                      .Sum(b => b == _g.trump.Value ? 40 : 20)
+                : 0;
             var estimatedPointsWon = _trump != null ? EstimateFinalBasicScore(tempHand) : 0;
             var estimatedPointsLost = _trump != null ? EstimateTotalPointsLost(tempHand, tempTalon) : 0; 
             if (_initialSimulation || AdvisorMode)
@@ -977,9 +982,10 @@ namespace Mariasek.Engine
                                  (!_trump.HasValue ||
                                   (!Hand.HasK(_trump.Value) &&
                                    !Hand.HasQ(_trump.Value) &&
-                                   !(Hand.HasA(_trump.Value) &&
-                                     Hand.CardCount(_trump.Value) >= 5 &&
-                                     estimatedPointsWon >= 50)))) ||
+                                   !(Hand.CardCount(_trump.Value) >= 5 &&
+                                     (Hand.HasA(_trump.Value) &&                                     
+                                      estimatedPointsWon >= 50) ||
+                                     estimatedPointsWon >= 70)))) ||
                                 (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
                                  _avgBasicPointsLost >= 50)))))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
                     {
@@ -1109,9 +1115,10 @@ namespace Mariasek.Engine
                           (!_trump.HasValue ||
                            (!Hand.HasK(_trump.Value) &&
                             !Hand.HasQ(_trump.Value) &&
-                            !(Hand.HasA(_trump.Value) &&
-                              Hand.CardCount(_trump.Value) >= 5 &&
-                              estimatedPointsWon >= 50)))) ||
+                            !(Hand.CardCount(_trump.Value) >= 5 &&
+                              (Hand.HasA(_trump.Value) &&                              
+                               estimatedPointsWon >= 50) ||
+                              estimatedPointsWon >= 70)))) ||
                          (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
                           _avgBasicPointsLost >= 50)))))
                 {
@@ -1125,9 +1132,10 @@ namespace Mariasek.Engine
                           (!_trump.HasValue ||
                            (!Hand.HasK(_trump.Value) &&
                             !Hand.HasQ(_trump.Value) &&
-                            !(Hand.HasA(_trump.Value) &&
-                              Hand.CardCount(_trump.Value) >= 5 &&
-                              estimatedPointsWon >= 50)))) ||
+                            !(Hand.CardCount(_trump.Value) >= 5 &&
+                              (Hand.HasA(_trump.Value) &&                              
+                               estimatedPointsWon >= 50) ||
+                              estimatedPointsWon >= 70)))) ||
                           (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
                            _avgBasicPointsLost >= 50))))
                     {
