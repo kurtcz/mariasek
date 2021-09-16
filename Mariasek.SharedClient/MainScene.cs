@@ -166,6 +166,7 @@ namespace Mariasek.SharedClient
                 AiMayGiveUp = Game.Settings.AiMayGiveUp,
                 PlayerMayGiveUp = Game.Settings.PlayerMayGiveUp,
                 MinimalBidsForGame = Game.Settings.MinimalBidsForGame,
+                MaxDegreeOfParallelism = Game.Settings.MaxDegreeOfParallelism,
                 RoundsToCompute = 1,
                 CardSelectionStrategy = CardSelectionStrategy.MaxCount,
                 SimulationsPerGameType = 1000,

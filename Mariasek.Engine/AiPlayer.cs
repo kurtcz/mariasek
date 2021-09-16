@@ -980,6 +980,7 @@ namespace Mariasek.Engine
                                ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                                  lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
                                  (!_trump.HasValue ||
+                                  estimatedPointsWon <= 20 ||
                                   (!Hand.HasK(_trump.Value) &&
                                    !Hand.HasQ(_trump.Value) &&
                                    !(Hand.CardCount(_trump.Value) >= 5 &&
@@ -1113,6 +1114,7 @@ namespace Mariasek.Engine
                         ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                           lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
                           (!_trump.HasValue ||
+                           estimatedPointsWon <= 20 ||
                            (!Hand.HasK(_trump.Value) &&
                             !Hand.HasQ(_trump.Value) &&
                             !(Hand.CardCount(_trump.Value) >= 5 &&
@@ -1130,6 +1132,7 @@ namespace Mariasek.Engine
                          ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                            lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
                           (!_trump.HasValue ||
+                           estimatedPointsWon <= 20 ||
                            (!Hand.HasK(_trump.Value) &&
                             !Hand.HasQ(_trump.Value) &&
                             !(Hand.CardCount(_trump.Value) >= 5 &&
@@ -1246,6 +1249,7 @@ namespace Mariasek.Engine
                 : null;
             var tempSource = new ConcurrentQueue<Hand[]>();
 
+            options.MaxDegreeOfParallelism = Settings.MaxDegreeOfParallelism > 0 ? Settings.MaxDegreeOfParallelism : -1;
             //pokud volim hru tak se ted rozhoduju jaky typ hry hrat (hra, betl, durch)
             //pokud nevolim hru, tak bud simuluju betl a durch nebo konkretni typ hry
             //tak ci tak nevim co je/bude v talonu
@@ -1445,8 +1449,8 @@ namespace Mariasek.Engine
                         var exceptions = new ConcurrentQueue<Exception>();
                         try
                         {
-                            //Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hh, loopState) =>
-                            foreach (var hh in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType))
+                            Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hh, loopState) =>
+                            //foreach (var hh in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType))
                             {
                                 ThrowIfCancellationRequested();
                                 try
@@ -1485,13 +1489,13 @@ namespace Mariasek.Engine
                                 if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                                 {
                                     Probabilities.StopGeneratingHands();
-                                    break;// loopState.Stop();
+                                    loopState.Stop();
                                 }
 
                                 var val = Interlocked.Increment(ref progress);
                                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju betl" });
                                 ThrowIfCancellationRequested();
-                            }//);
+                            });
                         }
                         catch (OperationCanceledException ex)
                         {
@@ -1535,7 +1539,7 @@ namespace Mariasek.Engine
                     else
                     {
                         _debugString.AppendFormat("Simulating durch. fast guess: {0}\n", ShouldChooseDurch());
-                        Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), (hands, loopState) =>
+                        Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hands, loopState) =>
                         {
                             try
                             {
@@ -4130,9 +4134,10 @@ namespace Mariasek.Engine
 
             try
             {
+                options.MaxDegreeOfParallelism = Settings.MaxDegreeOfParallelism > 0 ? Settings.MaxDegreeOfParallelism : -1;
                 //source = new[] { _g.players.Select(i => new Hand(i.Hand)).ToArray() };
                 //foreach (var hands in source)
-                Parallel.ForEach(source, (hands, loopState) =>
+                Parallel.ForEach(source, options, (hands, loopState) =>
                 {
                     ThrowIfCancellationRequested();
                     try

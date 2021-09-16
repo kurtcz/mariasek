@@ -121,6 +121,7 @@ namespace Mariasek.SharedClient
         public bool Top107 { get; set; }
         public bool Calculate107Separately { get; set; }
         public HlasConsidered HlasConsidered { get; set; }
+        public int MaxDegreeOfParallelism { get; set; }
         public bool ShowStatusBar { get; set; }                 //xml-only
         public bool ShowScoreDuringGame { get; set; }
         public bool WhiteScore { get; set; }
@@ -208,6 +209,7 @@ namespace Mariasek.SharedClient
             AllowTrumpTalon = true;
             AllowAIAutoFinish = true;
             AllowPlayerAutoFinish = true;
+            MaxDegreeOfParallelism = -1;
             ShowStatusBar = false;
             AiMayGiveUp = true;
             PlayerMayGiveUp = true;

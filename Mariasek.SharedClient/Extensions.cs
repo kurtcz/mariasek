@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Audio;
 using GameEngine = Mariasek.Engine;
 using Mariasek.SharedClient.GameComponents;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace Mariasek.SharedClient
 {

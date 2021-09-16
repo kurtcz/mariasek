@@ -14,9 +14,9 @@ namespace Mariasek.SharedClient.GameComponents
         public const int page2Offset = 420;
         public const int page3Offset = 1020;
         public const int page4Offset = 1500;
-        public const int page5Offset = 2100;
-        public const int page6Offset = 2520;
-        public const int boundsRectHeight = 2940;
+        public const int page5Offset = 2160;
+        public const int page6Offset = 2580;
+        public const int boundsRectHeight = 3000;
         //nove tematicke offsety zacinaji na ruznych mistech puvodnich stranek
         public readonly int[] TopicOffsets = new [] { 0, page2Offset, page4Offset - 360, page6Offset };
 
@@ -43,6 +43,7 @@ namespace Mariasek.SharedClient.GameComponents
         private Label _autoFinishRounds;
         private Label _autoFinishLastRound;
         private Label _autoPlaySingletonCard;
+        private Label _maxDegreeOfParallelism;
         private Label _autoDisable100Against;
         private Label _showScoreDuringGame;
         private Label _cardSize;
@@ -94,6 +95,7 @@ namespace Mariasek.SharedClient.GameComponents
         private LeftRightSelector _autoFinishRoundsSelector;
         private LeftRightSelector _autoFinishLastRoundSelector;
         private LeftRightSelector _autoPlaySingletonCardSelector;
+        private LeftRightSelector _maxDegreeOfParallelismSelector;
         private LeftRightSelector _autoDisable100AgainstSelector;
         private LeftRightSelector _showScoreDuringGameSelector;
         private LeftRightSelector _cardSizeSelector;
@@ -1042,6 +1044,31 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _autoPlaySingletonCardSelector.SelectedIndex = 0;
             }
+            _maxDegreeOfParallelism = new Label(this)
+            {
+                Position = new Vector2(200, page4Offset + 610),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Počet paralelních simulací",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle,
+                UseCommonScissorRect = true
+            };
+            _maxDegreeOfParallelismSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 610),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Automatický", -1 }, { "1", 1 }, { "2", 2 }, { "3", 3 }, { "4", 4 }, { "5", 5 }, { "6", 6 }, { "7", 7 }, { "8", 8 } },
+                UseCommonScissorRect = true
+            };
+            _maxDegreeOfParallelismSelector.SelectedIndex = _maxDegreeOfParallelismSelector.Items.FindIndex(Game.Settings.MaxDegreeOfParallelism);
+            _maxDegreeOfParallelismSelector.SelectionChanged += MaxDegreeOfParallelismChanged;
+            if (_maxDegreeOfParallelismSelector.SelectedIndex < 0)
+            {
+                _maxDegreeOfParallelismSelector.SelectedIndex = 0;
+            }
             #endregion
             #region Page 5
             _player1 = new Label(this)
@@ -1596,6 +1623,15 @@ namespace Mariasek.SharedClient.GameComponents
             var selector = sender as LeftRightSelector;
 
             Game.Settings.AutoPlaySingletonCard = (bool)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        void MaxDegreeOfParallelismChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.MaxDegreeOfParallelism = (int)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }

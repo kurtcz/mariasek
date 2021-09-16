@@ -423,6 +423,7 @@ namespace Mariasek.Cli
                 AiMayGiveUp = Settings.AiMayGiveUp,
                 PlayerMayGiveUp = Settings.PlayerMayGiveUp,
                 MinimalBidsForGame = Settings.MinimalBidsForGame,
+                MaxDegreeOfParallelism = Settings.MaxDegreeOfParallelism,
                 RoundsToCompute = 1,
                 CardSelectionStrategy = CardSelectionStrategy.MaxCount,
                 SimulationsPerGameType = 1000,

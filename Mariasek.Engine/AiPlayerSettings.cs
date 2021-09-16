@@ -30,6 +30,7 @@ namespace Mariasek.Engine
         public bool AiMayGiveUp { get; set; }
         public bool PlayerMayGiveUp { get; set; }
         public int MinimalBidsForGame { get; set; }
+        public int MaxDegreeOfParallelism { get; set; }
         public CardSelectionStrategy CardSelectionStrategy { get; set; }
         public int SimulationsPerGameType { get; set; }
         public int SimulationsPerGameTypePerSecond { get; set; }
