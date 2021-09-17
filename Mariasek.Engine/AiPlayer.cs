@@ -369,8 +369,7 @@ namespace Mariasek.Engine
                                                            i.Item2 < 7 &&
                                                            i.Item1.Suit == card.Suit &&
                                                            i.Item1.BadValue < card.BadValue &&
-                                                           i.Item3 <= holesByCard.First(j => j.Item1 == card).Item3 &&
-                                                           i.Item4 <= holesByCard.First(j => j.Item1 == card).Item4)
+                                                           i.Item4 == holesByCard.First(j => j.Item1 == card).Item4)
                                                .OrderBy(i => i.Item1.BadValue)
                                                .Select(i => i.Item1)
                                                .FirstOrDefault();
@@ -380,18 +379,25 @@ namespace Mariasek.Engine
                 }
             }
             talon = cardsToReplace.Concat(talon).Distinct().Take(2).ToList();
-            if (holesByCard.Count() <= 2)
+            var lowHoles = holesByCard.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                      .Select(h => new Card(i.Item1.Suit, h))
+                                                      .Where(j => j.BadValue > i.Item1.BadValue)
+                                                      .Any(j => !hand.Contains(j)))
+                                      .Select(i => i.Item1)
+                                      .ToList();
+            if (lowHoles.Count >= 1 &&
+                lowHoles.Count <= 2)
             {
                 //jen dve nebo jedna karta ma diru
                 //jednu si necham na ruce (s tou betla zacnu) a do talonu dam misto ni neco nizkeho
                 cardsToReplace = hand.Where(i => !talon.Contains(i) &&
-                                                 !holesByCard.Select(j => j.Item1).Contains(i))
+                                                 !lowHoles.Contains(i))
                                      .OrderByDescending(i => hand.CardCount(i.Suit))
                                      .ThenBy(i => i.BadValue)
                                      .Take(1)
                                      .ToList();
                 talon = cardsToReplace.Concat(talon)
-                                      .OrderBy(i => holesByCard.Select(j => j.Item1).Contains(i) ? 1 : 0)
+                                      .OrderBy(i => lowHoles.Contains(i) ? 1 : 0)
                                       .Distinct()
                                       .Take(2)
                                       .ToList();
