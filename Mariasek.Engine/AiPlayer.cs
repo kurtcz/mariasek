@@ -122,9 +122,9 @@ namespace Mariasek.Engine
                 RiskFactorSevenDefense = 0.5f,
                 SolitaryXThreshold = 0.13f,
                 SolitaryXThresholdDefense = 0.5f,
-                SafetyGameThreshold = 80,
+                SafetyGameThreshold = 40,
                 SafetyHundredThreshold = 80,
-                SafetyBetlThreshold = 64
+                SafetyBetlThreshold = g.CalculationStyle == CalculationStyle.Adding ? 32 : 64
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
@@ -3184,6 +3184,9 @@ namespace Mariasek.Engine
                    Hand.HasQ(_g.trump.Value) ||
                    Settings.SafetyGameThreshold == 0 ||
                    _maxMoneyLost >= -Settings.SafetyGameThreshold) &&   //nebo pokud netrhas ale v zadne simulaci nevysla vysoka prohra
+                  ((bidding.Bids & Hra.SedmaProti) == 0 ||
+                   (Hand.HasA(_g.trump.Value) &&
+                    axCount >= 5)) &&
                   (((Hand.HasK(_g.trump.Value) ||
                      Hand.HasQ(_g.trump.Value) ||
                      kqScore >= 40) &&
@@ -3204,7 +3207,7 @@ namespace Mariasek.Engine
                       (bidding.Bids & Hra.SedmaProti) == 0 &&
                       !Is100AgainstPossible(110)))) ||
                    (kqScore >= 20 &&                            //davam si re kdyz mam aspon jeden hlas
-                    Hand.CardCount(_trump.Value) >= 4 &&        //4 trumfy 
+                    Hand.CardCount(_g.trump.Value) >= 4 &&        //4 trumfy 
                     totalHoles <= 4 &&                          //a max 4 diry (tj. jinak same vysoke karty), netreba trhat trumfovou hlasku
                     (bidding.Bids & Hra.SedmaProti) == 0 &&
                     estimatedFinalBasicScore >= 40) || 
@@ -3214,24 +3217,24 @@ namespace Mariasek.Engine
                     (bidding.Bids & Hra.SedmaProti) == 0 &&
                     !Is100AgainstPossible(110)) ||              //ze uhraju vic bodu i bez trhaka a ze souper neuhraje kilo (110 - kilo jeste risknu)
                    (estimatedFinalBasicScore >= 60 &&           //pokud mam dost trumfu, bude kriterium mekci
-                    Hand.CardCount(_trump.Value) >= 4 &&
+                    Hand.CardCount(_g.trump.Value) >= 4 &&
                     !Is100AgainstPossible(110)) ||
                    (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
-                    Hand.CardCount(_trump.Value) >= 4 &&
+                    Hand.CardCount(_g.trump.Value) >= 4 &&
                     kqScore >= 20 &&
                     !Is100AgainstPossible(110)) ||
                    (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
-                    Hand.CardCount(_trump.Value) >= 4 &&
+                    Hand.CardCount(_g.trump.Value) >= 4 &&
                     (bidding.Bids & Hra.SedmaProti) == 0 &&
                     kqScore >= kqMaxOpponentScore) ||
                    (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
-                    Hand.CardCount(_trump.Value) >= 5 &&
+                    Hand.CardCount(_g.trump.Value) >= 5 &&
                     (Hand.HasK(_g.trump.Value) ||
                      Hand.HasQ(_g.trump.Value) ||
                      axCount >= 4) &&
                     !Is100AgainstPossible(110)) ||
                    (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
-                    Hand.CardCount(_trump.Value) >= 4 &&
+                    Hand.CardCount(_g.trump.Value) >= 4 &&
                     Hand.HasA(_g.trump.Value) &&
                     (Hand.HasK(_g.trump.Value) ||
                      Hand.HasQ(_g.trump.Value)) &&

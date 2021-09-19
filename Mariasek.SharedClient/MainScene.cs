@@ -999,7 +999,11 @@ namespace Mariasek.SharedClient
                     gt = "durch";
                 }
             }
-            return string.Format("{0:0000}-{1}.{2}", count, gt, DateTime.Now.ToString("yyyyMMdd"));
+            if (count < 10000)
+            {
+                return string.Format("{0:0000}-{1}.{2}", count, gt, DateTime.Now.ToString("yyyyMMdd"));
+            }
+            return string.Format("{0}-{1}.{2}", count, gt, DateTime.Now.ToString("yyyyMMdd"));
         }
 
         public int ArchiveGame()

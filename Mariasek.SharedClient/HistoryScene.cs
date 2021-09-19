@@ -315,7 +315,7 @@ namespace Mariasek.SharedClient
             foreach (var historyItem in Game.Money)
             {
                 sb.AppendFormat(" {0:D4}\t{1}\t{2}\t{3}\t{4}\n",
-                                (historyItem.GameIdSpecified ? historyItem.GameId.ToString("D4") : "-----"),
+                                (historyItem.GameIdSpecified ? (historyItem.GameId % 10000).ToString("D4") : "-----"),
                                 (string.IsNullOrWhiteSpace(historyItem.GameTypeString) ? "?" : historyItem.GameTypeString),
                                 (historyItem.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", numFormat),
                                 (historyItem.MoneyWon[1] * Game.Settings.BaseBet).ToString("C", numFormat),
