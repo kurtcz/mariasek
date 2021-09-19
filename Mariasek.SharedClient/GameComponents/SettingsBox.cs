@@ -13,12 +13,12 @@ namespace Mariasek.SharedClient.GameComponents
         //offsety puvodnich stranek
         public const int page2Offset = 420;
         public const int page3Offset = 1020;
-        public const int page4Offset = 1500;
+        public const int page4Offset = 1560;
         public const int page5Offset = 2160;
         public const int page6Offset = 2580;
         public const int boundsRectHeight = 3000;
         //nove tematicke offsety zacinaji na ruznych mistech puvodnich stranek
-        public readonly int[] TopicOffsets = new [] { 0, page2Offset, page4Offset - 360, page6Offset };
+        public readonly int[] TopicOffsets = new [] { 0, page2Offset, page4Offset - 420, page6Offset };
 
         private Tuple<string, int, int>[] _locales;
         private Label _hint;
@@ -641,9 +641,34 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _allowTrumpTalonSelector.SelectedIndex = 0;
             }
-            _autoDisable100Against = new Label(this)
+            _maxDegreeOfParallelism = new Label(this)
             {
                 Position = new Vector2(200, page3Offset + 130),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Počet paralelních simulací",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle,
+                UseCommonScissorRect = true
+            };
+            _maxDegreeOfParallelismSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 130),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Automatický", -1 }, { "1", 1 }, { "2", 2 }, { "3", 3 }, { "4", 4 }, { "5", 5 }, { "6", 6 }, { "7", 7 }, { "8", 8 } },
+                UseCommonScissorRect = true
+            };
+            _maxDegreeOfParallelismSelector.SelectedIndex = _maxDegreeOfParallelismSelector.Items.FindIndex(Game.Settings.MaxDegreeOfParallelism);
+            _maxDegreeOfParallelismSelector.SelectionChanged += MaxDegreeOfParallelismChanged;
+            if (_maxDegreeOfParallelismSelector.SelectedIndex < 0)
+            {
+                _maxDegreeOfParallelismSelector.SelectedIndex = 0;
+            }
+            _autoDisable100Against = new Label(this)
+            {
+                Position = new Vector2(200, page3Offset + 190),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Hlásit kilo proti lze",
@@ -654,7 +679,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _autoDisable100AgainstSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 130),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 190),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Jen s hlasem", true }, { "Vždy", false } },
@@ -668,7 +693,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _aiMayGiveUp = new Label(this)
             {
-                Position = new Vector2(200, page3Offset + 190),
+                Position = new Vector2(200, page3Offset + 250),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "AI může hru zahodit",
@@ -679,7 +704,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _aiMayGiveUpSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 190),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 250),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Ano", true }, { "Ne", false } },
@@ -693,7 +718,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _playerMayGiveUp = new Label(this)
             {
-                Position = new Vector2(200, page3Offset + 250),
+                Position = new Vector2(200, page3Offset + 310),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Hráč může hru zahodit",
@@ -704,7 +729,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _playerMayGiveUpSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 250),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 310),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Ano", true }, { "Ne", false } },
@@ -719,7 +744,7 @@ namespace Mariasek.SharedClient.GameComponents
 
             _allowAIAutoFinish = new Label(this)
             {
-                Position = new Vector2(200, page3Offset + 310),
+                Position = new Vector2(200, page3Offset + 370),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "AI ložené hry",
@@ -730,7 +755,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _allowAIAutoFinishSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 310),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 370),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Nedohrává", true }, { "Dohrává", false } },
@@ -744,7 +769,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _allowPlayerAutoFinish = new Label(this)
             {
-                Position = new Vector2(200, page3Offset + 370),
+                Position = new Vector2(200, page3Offset + 430),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Hráč ložené hry",
@@ -755,7 +780,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _allowPlayerAutoFinishSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 370),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 430),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Nedohrává", true }, { "Dohrává", false } },
@@ -769,7 +794,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _whenToShuffle = new Label(this)
             {
-                Position = new Vector2(200, page3Offset + 430),
+                Position = new Vector2(200, page3Offset + 490),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Karty míchat",
@@ -780,7 +805,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _whenToShuffleSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 430),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 490),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Nikdy", ShuffleTrigger.Never }, { "Po ložené hrře", ShuffleTrigger.AfterAutomaticVictory }, { "Po každé hře", ShuffleTrigger.Always } },
@@ -1043,31 +1068,6 @@ namespace Mariasek.SharedClient.GameComponents
             if (_autoPlaySingletonCardSelector.SelectedIndex < 0)
             {
                 _autoPlaySingletonCardSelector.SelectedIndex = 0;
-            }
-            _maxDegreeOfParallelism = new Label(this)
-            {
-                Position = new Vector2(200, page4Offset + 610),
-                Width = (int)Game.VirtualScreenWidth / 2 - 150,
-                Height = 50,
-                Group = 1,
-                Text = "Počet paralelních simulací",
-                HorizontalAlign = HorizontalAlignment.Center,
-                VerticalAlign = VerticalAlignment.Middle,
-                UseCommonScissorRect = true
-            };
-            _maxDegreeOfParallelismSelector = new LeftRightSelector(this)
-            {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 610),
-                Width = 270,
-                Group = 1,
-                Items = new SelectorItems() { { "Automatický", -1 }, { "1", 1 }, { "2", 2 }, { "3", 3 }, { "4", 4 }, { "5", 5 }, { "6", 6 }, { "7", 7 }, { "8", 8 } },
-                UseCommonScissorRect = true
-            };
-            _maxDegreeOfParallelismSelector.SelectedIndex = _maxDegreeOfParallelismSelector.Items.FindIndex(Game.Settings.MaxDegreeOfParallelism);
-            _maxDegreeOfParallelismSelector.SelectionChanged += MaxDegreeOfParallelismChanged;
-            if (_maxDegreeOfParallelismSelector.SelectedIndex < 0)
-            {
-                _maxDegreeOfParallelismSelector.SelectedIndex = 0;
             }
             #endregion
             #region Page 5
