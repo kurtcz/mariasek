@@ -124,7 +124,7 @@ namespace Mariasek.Engine
                 SolitaryXThresholdDefense = 0.5f,
                 SafetyGameThreshold = 40,
                 SafetyHundredThreshold = 80,
-                SafetyBetlThreshold = g.CalculationStyle == CalculationStyle.Adding ? 32 : 64
+                SafetyBetlThreshold = g.CalculationStyle == CalculationStyle.Adding ? 48 : 64
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
@@ -386,7 +386,7 @@ namespace Mariasek.Engine
                                       .Select(i => i.Item1)
                                       .ToList();
             if (lowHoles.Count >= 1 &&
-                lowHoles.Count <= 2)
+                holesByCard.Count() <= 2)
             {
                 //jen dve nebo jedna karta ma diru
                 //jednu si necham na ruce (s tou betla zacnu) a do talonu dam misto ni neco nizkeho
