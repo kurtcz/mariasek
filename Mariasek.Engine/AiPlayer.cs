@@ -922,8 +922,8 @@ namespace Mariasek.Engine
                                                                     ? 4
                                                                     : 2
                                                                   : 1));
-            var tempTalon = Hand.Count == 12 ? ChooseNormalTalon(Hand, TrumpCard) : new List<Card>();
-            var tempHand = new List<Card>(Hand.Where(i => !tempTalon.Contains(i)));
+            var tempTalon = Hand.Count == 12 ? ChooseNormalTalon(Hand, TrumpCard) : _talon ?? new List<Card>();
+            var tempHand = Hand.Where(i => !tempTalon.Contains(i)).ToList();
             var kqScore = _g.trump.HasValue
                 ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
                       .Where(b => Hand.HasK(b) && Hand.HasQ(b))
