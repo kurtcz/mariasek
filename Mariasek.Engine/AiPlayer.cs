@@ -124,7 +124,7 @@ namespace Mariasek.Engine
                 SolitaryXThresholdDefense = 0.5f,
                 SafetyGameThreshold = 40,
                 SafetyHundredThreshold = 80,
-                SafetyBetlThreshold = g.CalculationStyle == CalculationStyle.Adding ? 48 : 64
+                SafetyBetlThreshold = g.CalculationStyle == CalculationStyle.Adding ? 64 : 128
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
