@@ -252,7 +252,9 @@ namespace Mariasek.Engine
                     SkipSimulations = true,
                     ChooseCard1 = () =>
                     {
-                        var cardsToPlay = hands[MyIndex].Where(i => hands[MyIndex].CardCount(i.Suit) == 7 &&
+                        const int talonIndex = 3;
+                        var cardsToPlay = hands[MyIndex].Where(i => hands[MyIndex].CardCount(i.Suit) +
+                                                                    _probabilities.CertainCards(talonIndex).CardCount(i.Suit) == 7 &&
                                                                     hands[MyIndex].Has7(i.Suit) &&
                                                                     hands[MyIndex].HasA(i.Suit) &&
                                                                     Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
@@ -272,7 +274,9 @@ namespace Mariasek.Engine
                     SkipSimulations = true,
                     ChooseCard1 = () =>
                     {
-                        var cardsToPlay = hands[MyIndex].Where(i => hands[MyIndex].CardCount(i.Suit) == 6 &&
+                        const int talonIndex = 3;
+                        var cardsToPlay = hands[MyIndex].Where(i => hands[MyIndex].CardCount(i.Suit) +
+                                                                    _probabilities.CertainCards(talonIndex).CardCount(i.Suit) == 6 &&
                                                                     (hands[MyIndex].HasA(i.Suit) ||
                                                                      hands[MyIndex].HasK(i.Suit)) &&
                                                                     Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
