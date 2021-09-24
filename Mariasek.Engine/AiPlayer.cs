@@ -4138,7 +4138,7 @@ namespace Mariasek.Engine
                                                        }
                                                    }).ToList();
             var estimatedCombinations = (int)Probabilities.EstimateTotalCombinations(roundNumber);
-            var maxtime = Math.Max(2000, 2 * Settings.MaxSimulationTimeMs);
+            var maxtime = 3 * Settings.MaxSimulationTimeMs;
             var exceptionOccured = false;
 
             try
