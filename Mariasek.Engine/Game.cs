@@ -1940,6 +1940,10 @@ namespace Mariasek.Engine
             if (players[playerIndex].TeamMateIndex == -1 && GameType != Hra.Durch)
             {
                 BiddingDebugInfo.AppendFormat("\nMaximální bodová ztráta: {0}", players[playerIndex].DebugInfo.MaxEstimatedPointsLost);
+                if (players[playerIndex].DebugInfo.MaxEstimatedMoneyLost < 0)
+                {
+                    BiddingDebugInfo.AppendFormat("\nMaximální odhadovaná prohra: {0}", players[playerIndex].DebugInfo.MaxEstimatedMoneyLost);
+                }
                 BiddingDebugInfo.AppendFormat("\nPrůměrný simulovaný bodový zisk: {0}", players[playerIndex].DebugInfo.AvgSimulatedPointsWon);
                 if (players[playerIndex].DebugInfo.MaxSimulatedLoss < 0)
                 {

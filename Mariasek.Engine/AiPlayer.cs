@@ -930,7 +930,12 @@ namespace Mariasek.Engine
                       .Sum(b => b == _g.trump.Value ? 40 : 20)
                 : 0;
             var estimatedPointsWon = _trump != null ? EstimateFinalBasicScore(tempHand) : 0;
-            var estimatedPointsLost = _trump != null ? EstimateTotalPointsLost(tempHand, tempTalon) : 0; 
+            var estimatedPointsLost = _trump != null ? EstimateTotalPointsLost(tempHand, tempTalon) : 0;
+            
+            DebugInfo.MaxEstimatedMoneyLost = _trump != null &&
+                                              lossPerPointsLost.ContainsKey(estimatedPointsLost)
+                                                ? -lossPerPointsLost[estimatedPointsLost]
+                                                : 0;
             if (_initialSimulation || AdvisorMode)
             {
                 var bidding = new Bidding(_g);

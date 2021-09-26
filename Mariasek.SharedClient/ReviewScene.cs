@@ -266,6 +266,7 @@ namespace Mariasek.SharedClient
                     for (var i = 0; i < Mariasek.Engine.Game.NumPlayers; i++)
                     {
                         var playerName = string.Format("Player {0}", i + 1);
+
                         biddingInfo[i] = string.Join(" ", g.BiddingDebugInfo.ToString()
                                                            .Split('\n')
                                                            .Select(j => j.Split(':')
@@ -275,7 +276,8 @@ namespace Mariasek.SharedClient
                                                                        j[0] == playerName &&
                                                                        !j[1].StartsWith("Dobr") &&
                                                                        !j[1].StartsWith("Špatn"))
-                                                           .Select(j => j[1]));
+                                                           .Select(j => j[1])
+                                                           .Distinct());
                     }
                     _review.Names[0].Text = string.Format("{0}: {1}{2}", Game.Settings.PlayerNames[g.GameStartingPlayerIndex],
                                                                          Game.MainScene.AmendSuitNameIfNeeded(biddingInfo[g.GameStartingPlayerIndex]),
