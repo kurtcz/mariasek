@@ -2980,7 +2980,7 @@ namespace Mariasek.Engine
                        _g.Calculate107Separately &&
                        _g.Top107 &&
                        (gameType & Hra.Kilo) != 0 &&  //pri kilu
-                       avgPointsWon >= 140)) ||
+                       _avgWinForHundred > 2 * (_g.DurchValue + 2 * _g.SevenValue))) ||
                      (Hand.Has7(_trump.Value) &&
                       _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0 &&
                       (!IsSevenTooRisky() ||                  //sedmu hlas pokud neni riskantni nebo pokud nelze uhrat hru (doufej ve flek na hru a konec)
