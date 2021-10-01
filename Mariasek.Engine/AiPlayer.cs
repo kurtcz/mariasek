@@ -3185,6 +3185,7 @@ namespace Mariasek.Engine
                 //nebo ho netrham a mam aspon hlas a nehrozi kilo proti
                 //nebo to vypada, ze muzu uhrajat vic nez souperi a nehrozi kilo proti
                 ((TeamMateIndex == -1 &&
+                  (_gameType & Hra.KiloProti) == 0 &&                   //nedavej si re pokud je kilo proti
                   (Hand.HasK(_g.trump.Value) ||                         //davej si re jen pokud trhas trumfovou hlasku
                    Hand.HasQ(_g.trump.Value) ||
                    Settings.SafetyGameThreshold == 0 ||
