@@ -1787,6 +1787,19 @@ namespace Mariasek.Engine
                                     {
                                         cardsToPlay = temp;
                                     }
+                                    //nezbavuj se zbytecne ostrych karet, pokud muzes hrat nejakou nizkou
+                                    if ((_gameType & (Hra.Sedma | Hra.Kilo | Hra.KiloProti)) == 0 &&
+                                        _hands[MyIndex].Any(i => i.Suit != _trump &&
+                                                                 !_bannedSuits.Contains(i.Suit) &&
+                                                                 i.Value < Hodnota.Desitka &&
+                                                                 _probabilities.PotentialCards(player2).Where(j => j.Suit == i.Suit)
+                                                                                                       .Any(j => j.Value > i.Value &&
+                                                                                                                 j.Value < Hodnota.Desitka) &&
+                                                                 _probabilities.LikelyCards(player3).Where(j => j.Suit == i.Suit)
+                                                                                                    .All(j => j.Value < Hodnota.Desitka)))
+                                    {
+                                        cardsToPlay = null;
+                                    }
                                 }
                             }
 						}
