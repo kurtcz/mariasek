@@ -1798,7 +1798,7 @@ namespace Mariasek.Engine
                                                                  _probabilities.LikelyCards(player3).Where(j => j.Suit == i.Suit)
                                                                                                     .All(j => j.Value < Hodnota.Desitka)))
                                     {
-                                        cardsToPlay = null;
+                                        cardsToPlay = Enumerable.Empty<Card>();
                                     }
                                 }
                             }
