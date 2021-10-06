@@ -236,6 +236,13 @@ namespace Mariasek.Engine
                                                                                 .Distinct().Count();//celkovy pocet nejistych trumfu pro vsechny
                             var currentExpectedTrumps = 0f;
 
+                            if (ii != talonIndex &&
+                                _cardsPlayedByPlayer[ii].Where(j => j.Suit == b)
+                                                        .Any(j => _cardProbabilityForPlayer[ii][b][j.Value] == 1))
+                            {
+                                //pokud hrac vyjel trumfem v aktualnim kole tak je karta zapocitana i v playedTrumps i v certainTrumps, proto musime playedTrumps snizit
+                                playedTrumps--;
+                            }
                             if (ii == _gameStarterIndex)
                             {
                                 currentExpectedTrumps = _initialExpectedTrumps[ii] - certainTrumps - playedTrumps;

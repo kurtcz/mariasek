@@ -5205,7 +5205,8 @@ namespace Mariasek.Engine
                                                                            //))) &&
                                                                          !(c1.Value == Hodnota.Desitka &&   //nemaz pokud prvni hrac vyjel desitkou a nevim kdo ma eso (nebylo-li jeste hrano)
                                                                            (_gameType & Hra.Kilo) == 0 &&   //(neplati pri kilu)
-                                                                           _probabilities.PotentialCards(player3).Count(j => j.Suit == c1.Suit) > 2 &&
+                                                                           (_probabilities.PotentialCards(player3).CardCount(c1.Suit) > 2 ||
+                                                                            _probabilities.PotentialCards(player1).CardCount(c1.Suit) <= 2) &&
                                                                            _probabilities.CardProbability(player3, new Card(c1.Suit, Hodnota.Eso)) > _epsilon &&
                                                                            _probabilities.CardProbability(player3, new Card(c1.Suit, Hodnota.Eso)) < 1 - _epsilon &&
                                                                            _probabilities.CardProbability(player1, new Card(c1.Suit, Hodnota.Eso)) > _epsilon) &&

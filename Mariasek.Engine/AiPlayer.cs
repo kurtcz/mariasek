@@ -2089,7 +2089,7 @@ namespace Mariasek.Engine
             //nebo max jedna barva s hodne vysokymi kartami ale prave jednou dirou (musim mit sedmu v dane barve)
             //nebo pokud mam max 2 vysoke karty
             if (//hh.Count(i => i.BadValue >= spodek.BadValue) <= 2 ||
-                (hiCardsPerSuit.Sum(i => i.Value) <= 4 && hiCardsPerSuit.All(i => i.Value <= 2)) ||
+                (hiCardsPerSuit.Sum(i => i.Value) <= 4 && hiCardsPerSuit.All(i => i.Value <= 3)) ||
                 (hiCardsPerSuit.Count(i => i.Value > 2 &&
                                            holesPerSuit[i.Key] <= 2 &&
                                            (hh.Has7(i.Key) ||
@@ -3421,6 +3421,16 @@ namespace Mariasek.Engine
             {
                 bid |= bidding.Bids & Hra.Hra;
                 //minRuleCount = Math.Min(minRuleCount, _gamesBalance);
+                DebugInfo.RuleCount = _gamesBalance;
+                DebugInfo.TotalRuleCount = _gameSimulations;
+            }
+            if ((bidding.Bids & Hra.Hra) != 0 &&
+                TeamMateIndex == -1 &&
+                ((_gameType & Hra.Sedma) != 0 &&
+                  !Hand.Has7(_g.trump.Value)) &&
+                bidding.GameMultiplier < 2)
+            {
+                bid |= bidding.Bids & Hra.Hra;
                 DebugInfo.RuleCount = _gamesBalance;
                 DebugInfo.TotalRuleCount = _gameSimulations;
             }
