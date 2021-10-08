@@ -1472,6 +1472,16 @@ namespace Mariasek.Engine
                     {
                         return null;
                     }
+                    if (TeamMateIndex != -1 &&
+                        (_gameType & Hra.Kilo) != 0 &&
+                        _hands[MyIndex].CardCount(_trump) <= 2 &&
+                        _hands[MyIndex].Any(i => i.Suit != _trump &&
+                                                 i.Value >= Hodnota.Desitka) &&
+                        _probabilities.SuitProbability(opponent, _trump, RoundNumber) >= 1 - RiskFactor)
+                    {
+                        //pokud hrajes proti kilu a mas malo trumfu a k tomu co namazat tak pravidlo nehraj
+                        return null;
+                    }
                     if (TeamMateIndex == -1)
                     {
                         //: c--
