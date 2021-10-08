@@ -267,8 +267,16 @@ namespace Mariasek.Engine
 				}
 
 				return new Tuple<Card, int, int, int, int>(i, hand.CardCount(i.Suit), holesDelta, holes, higherCards);
-            }).Where(i => !bannedSuits.Contains(i.Item1.Suit) && i.Item4 > 0);
+            }).Where(i => i.Item4 > 0);
 
+            if (holesByCard.Count(i => !bannedSuits.Contains(i.Item1.Suit)) > 2)
+            {
+                holesByCard = holesByCard.Where(i => !bannedSuits.Contains(i.Item1.Suit));
+            }
+            else
+            {
+                bannedSuits.Clear();
+            }
             //nejprve vem karty ktere jsou ve hre nejvyssi a tudiz nejvice rizikove (A, K)
             var talon = holesByCard.Where(i => (i.Item2 < 6 &&
                                                 i.Item5 == 0) ||
@@ -359,6 +367,7 @@ namespace Mariasek.Engine
                 talon.AddRange(hand.Where(i => !bannedSuits.Contains(i.Suit) &&
                                                !talon.Contains(i))
                                    .OrderBy(i => i.BadValue)
+                                   .ThenByDescending(i => hand.CardCount(i.Suit))
                                    .Take(2 - talon.Count));
             }
             //pokud to jde najdi nizsi karty se stejnymi parametry (abych souperi stizil pripadneho durcha)
