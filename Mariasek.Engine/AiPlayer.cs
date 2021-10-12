@@ -2669,7 +2669,17 @@ namespace Mariasek.Engine
                          (n == 1 &&                       //nebo pokud mam jednu diru
                           !hand.HasA(_trump.Value) &&     //nemam trumfove eso
                           !(hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
-                            hand.HasQ(_trump.Value)));
+                            hand.HasQ(_trump.Value))) ||
+                         (n >= 1 &&                       //pokud mam nejake diry
+                          !(hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku
+                            hand.HasQ(_trump.Value)) &&
+                          hand.Any(i => i.Value == Hodnota.Desitka &&   //a mam desitku bez esa
+                                        !hand.HasA(i.Suit) &&
+                                        hand.CardCount(i.Suit) +
+                                        _talon?.CardCount(i.Suit) >= 4 &&  //od delsi barvy (souper muze mit eso i vsechny zbyle trumfy)
+                                        hand.CardCount(_trump.Value) < 8 &&
+                                        hand.CardCount(Hodnota.Eso) +
+                                        hand.CardCount(Hodnota.Desitka) < 7));
             System.Diagnostics.Debug.WriteLine(n);
             System.Diagnostics.Debug.WriteLine(nn);
             DebugInfo.HundredTooRisky = result;
