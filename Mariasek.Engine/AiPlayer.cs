@@ -3526,22 +3526,22 @@ namespace Mariasek.Engine
                 DebugInfo.RuleCount = _sevensBalance;
                 DebugInfo.TotalRuleCount = _sevenSimulations;
             }
-            else if ((bidding.Bids & Hra.Sedma) != 0 &&
-                     (bidding.Bids & Hra.Kilo) == 0 &&
-                     ((bid & Hra.Hra) != 0 ||
-                      (_teamMateDoubledGame &&
-                       !_g.MandatoryDouble)) &&
-                     Settings.CanPlayGameType[Hra.Sedma] &&
-                     TeamMateIndex != -1 &&
-                     bidding._sevenFlek == 1 &&                         //flekni krome hry i sedmu i kdyz v simulacich nevysla
-                     ((kqScore >= 40 &&                                 //pokud je sance uhrat tichych 110 proti
-                       estimatedFinalBasicScore + kqScore >= 90)))      //90 bodu uhraju sam a zbytek snad bude mit kolega
-            {
-                bid |= bidding.Bids & Hra.Sedma;
-                //minRuleCount = Math.Min(minRuleCount, _sevensBalance);
-                DebugInfo.RuleCount = _sevensBalance;
-                DebugInfo.TotalRuleCount = _sevenSimulations;
-            }
+            //else if ((bidding.Bids & Hra.Sedma) != 0 &&
+            //         (bidding.Bids & Hra.Kilo) == 0 &&
+            //         ((bid & Hra.Hra) != 0 ||
+            //          (_teamMateDoubledGame &&
+            //           !_g.MandatoryDouble)) &&
+            //         Settings.CanPlayGameType[Hra.Sedma] &&
+            //         TeamMateIndex != -1 &&
+            //         bidding._sevenFlek == 1 &&                         //flekni krome hry i sedmu i kdyz v simulacich nevysla
+            //         ((kqScore >= 40 &&                                 //pokud je sance uhrat tichych 110 proti
+            //           estimatedFinalBasicScore + kqScore >= 90)))      //90 bodu uhraju sam a zbytek snad bude mit kolega
+            //{
+            //    bid |= bidding.Bids & Hra.Sedma;
+            //    //minRuleCount = Math.Min(minRuleCount, _sevensBalance);
+            //    DebugInfo.RuleCount = _sevensBalance;
+            //    DebugInfo.TotalRuleCount = _sevenSimulations;
+            //}
 
             if ((bidding.Bids & Hra.Sedma) != 0 &&
                 Settings.CanPlayGameType[Hra.Sedma] &&
