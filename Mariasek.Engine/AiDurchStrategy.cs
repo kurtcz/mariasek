@@ -307,6 +307,12 @@ namespace Mariasek.Engine
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
                 {
+                    var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0);
+
+                    if (cardsToPlay.Any())
+                    {
+                        return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+                    }
                     if (!hands[MyIndex].HasSuit(c1.Suit) &&
                         (cardsToKeep.Any() ||
                          Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -317,8 +323,8 @@ namespace Mariasek.Engine
                                                                    .Where(j => j.BadValue < i.BadValue)
                                                                    .All(j => _probabilities.CardProbability(player1, j) == 0)))))
                     {
-                        var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => cardsToKeep.SelectMany(j => j.Value)
-                                                                                               .All(j => i != j));
+                        cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => cardsToKeep.SelectMany(j => j.Value)
+                                                                                           .All(j => i != j));
                         if (cardsToPlay.Any(i => !cardsToKeep.ContainsKey(i.Suit)))
                         {
                             cardsToPlay = cardsToPlay.Where(i => !cardsToKeep.ContainsKey(i.Suit));
@@ -659,6 +665,12 @@ namespace Mariasek.Engine
                 SkipSimulations = true,
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
+                    var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0);
+
+                    if (cardsToPlay.Any())
+                    {
+                        return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+                    }
                     if (!hands[MyIndex].HasSuit(c1.Suit) &&
                         (cardsToKeep.Any() ||
                          Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -669,8 +681,8 @@ namespace Mariasek.Engine
                                                                    .Where(j => j.BadValue < i.BadValue)
                                                                    .All(j => _probabilities.CardProbability(player1, j) == 0)))))
                     {
-                        var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => cardsToKeep.SelectMany(j => j.Value)
-                                                                                                   .All(j => i != j));
+                        cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => cardsToKeep.SelectMany(j => j.Value)
+                                                                                               .All(j => i != j));
                         if (cardsToPlay.Any(i => !cardsToKeep.ContainsKey(i.Suit)))
                         {
                             cardsToPlay = cardsToPlay.Where(i => !cardsToKeep.ContainsKey(i.Suit));
