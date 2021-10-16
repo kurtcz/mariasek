@@ -262,7 +262,12 @@ namespace Mariasek.SharedClient
                                     }
     							}
                                 if (_aiPlayer.DebugInfo.TotalRuleCount > 0 ||
-                                    (gameType & (Hra.Betl | Hra.Durch)) != 0)
+                                    (gameType & (Hra.Betl | Hra.Durch)) != 0 ||
+                                    (!Hand.Has7(_g.trump.Value) &&
+                                     ((gameType == (Hra.Kilo | Hra.Sedma) &&
+                                       _g.AllowFake107) ||
+                                      (gameType & Hra.Sedma) != 0 &&
+                                       _g.AllowFakeSeven)))
                                 {
                                     _scene.SuggestGameType(gameType.ToDescription(_trump, true), msg.ToString().TrimEnd(), _t1 - _t0);
                                     _scene.SuggestGameTypeNew(gameType);
