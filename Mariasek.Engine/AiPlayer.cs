@@ -2364,7 +2364,13 @@ namespace Mariasek.Engine
                          (hand.CardCount(_trump.Value) == 4 &&
                           TeamMateIndex != -1 &&
                           (!_teamMateDoubledGame ||
-                           _g.MandatoryDouble)) ||
+                           _g.MandatoryDouble) &&
+                          !(hand.HasA(_trump.Value) &&
+                            hand.HasX(_trump.Value) &&
+                            hand.SuitCount() == 4 &&
+                            hand.Count(i => i.Value == Hodnota.Eso ||
+                                            (i.Value == Hodnota.Desitka &&
+                                             hand.HasA(i.Suit))) >= 4)) ||
                          (hand.CardCount(_trump.Value) <= 4 &&
                           (TeamMateIndex == -1 ||
                            (!_teamMateDoubledGame ||
