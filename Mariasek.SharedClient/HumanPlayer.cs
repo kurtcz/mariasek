@@ -266,7 +266,7 @@ namespace Mariasek.SharedClient
                                     (!Hand.Has7(_g.trump.Value) &&
                                      ((gameType == (Hra.Kilo | Hra.Sedma) &&
                                        _g.AllowFake107) ||
-                                      (gameType & Hra.Sedma) != 0 &&
+                                      (gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
                                        _g.AllowFakeSeven)))
                                 {
                                     _scene.SuggestGameType(gameType.ToDescription(_trump, true), msg.ToString().TrimEnd(), _t1 - _t0);

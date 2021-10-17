@@ -2366,7 +2366,9 @@ namespace Mariasek.Engine
                           (!_teamMateDoubledGame ||
                            _g.MandatoryDouble) &&
                           !(hand.HasA(_trump.Value) &&
-                            hand.HasX(_trump.Value) &&
+                            (hand.HasX(_trump.Value) ||
+                             (hand.HasK(_trump.Value) &&
+                              hand.HasQ(_trump.Value)) &&
                             hand.SuitCount() == 4 &&
                             hand.Count(i => i.Value == Hodnota.Eso ||
                                             (i.Value == Hodnota.Desitka &&
@@ -2438,7 +2440,7 @@ namespace Mariasek.Engine
                                             hand.Count(i => i.Suit == b &
                                                             i.Value >= Hodnota.Svrsek) <
                                             hand.Count(i => i.Suit == b &&
-                                                            i.Value <= Hodnota.Spodek)) > 1)));
+                                                            i.Value <= Hodnota.Spodek)) > 1))));
 
             return result;
         }
@@ -3316,7 +3318,7 @@ namespace Mariasek.Engine
                       (estimatedFinalBasicScore >= 30 ||        //a aspon 30 nebo 20+20 bodu na ruce
                        (estimatedFinalBasicScore >= 10 &&
                         kqScore >= 20) &&
-                       kqMaxOpponentScore <= 20)) ||          //nebo
+                       kqMaxOpponentScore <= 40)) ||            //nebo
                      (Hand.CardCount(_g.trump.Value) >= 3 &&    //aspon 3 trumfy a trhaka
                       (Hand.HasK(_g.trump.Value) ||             //a aspon 3 ostre karty
                        Hand.HasQ(_g.trump.Value)) &&            //a aspon jedno eso
