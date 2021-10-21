@@ -288,8 +288,8 @@ namespace Mariasek.SharedClient
                 {
                     GameType = Hra.SedmaProti,
                     Use = true,
-                    MaxBidCount = 0,
-                    Thresholds = "50|80|95|100"
+                    MaxBidCount = 2,
+                    Thresholds = "50|65|75|80"
                 },
                 new BidThresholdSettings
                 {
