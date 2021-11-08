@@ -561,6 +561,9 @@ namespace Mariasek.Engine
                             cardsToPlay = hands[MyIndex].Where(i => i.Suit == preferredSuits.First() &&
                                                                     _probabilities.SuitProbability(opponent, i.Suit, RoundNumber) > 0 &&
                                                                     (_probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) == 0 ||
+                                                                     (_probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) < 1 - RiskFactor &&
+                                                                      _probabilities.PotentialCards(opponent).Any(j => j.Suit == i.Suit &&
+                                                                                                                       j.BadValue > i.BadValue)) ||
                                                                      _probabilities.PotentialCards(opponent).Count(j => j.Suit == i.Suit &&
                                                                                                                         j.BadValue > i.BadValue) > 2));
 
@@ -569,9 +572,21 @@ namespace Mariasek.Engine
                                 return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                             }
                         }
-                        cardsToPlay = hands[MyIndex].Where(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) == 0 &&
+                        else if (RoundNumber > 2 &&
+                            preferredSuits.Any() &&
+                            !cardsToPlay.Any())
+                        {
+                            cardsToPlay = hands[MyIndex].Where(i => i.Suit == preferredSuits.First() &&
+                                                                    _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) < 1 - RiskFactor &&
+                                                                    _probabilities.PotentialCards(opponent).Any(j => j.Suit == i.Suit &&
+                                                                                                                     j.BadValue > i.BadValue));
+                        }
+                        if (!cardsToPlay.Any())
+                        {
+                            cardsToPlay = hands[MyIndex].Where(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) == 0 &&
                                                                 _probabilities.PotentialCards(opponent).Any(j => j.Suit == i.Suit &&
                                                                                                                  j.BadValue > i.BadValue));
+                        }
                         if (cardsToPlay.Any())
                         {
                             return cardsToPlay.OrderBy(i => i.BadValue).First();
