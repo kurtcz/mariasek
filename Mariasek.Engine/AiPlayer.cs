@@ -990,7 +990,9 @@ namespace Mariasek.Engine
                              ((_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && 
                                _betlSimulations > 0 &&
                                !(_hundredOverBetl &&
-                                 !IsHundredTooRisky(tempHand))) ||
+                                 !IsHundredTooRisky(tempHand)) &&
+                               !(_betlBalance < Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations &&
+                                 _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)) ||
                               (Settings.SafetyBetlThreshold > 0 &&
                                ((!AdvisorMode &&
                                  !Settings.AiMayGiveUp) ||
@@ -1124,7 +1126,9 @@ namespace Mariasek.Engine
                          GetBetlHoles() <= 3)) ||
                        (TeamMateIndex == -1 &&
                         !(_hundredOverBetl &&
-                          !IsHundredTooRisky(tempHand))))) ||
+                          !IsHundredTooRisky(tempHand)) &&
+                        !(_betlBalance < Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations &&
+                          _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)))) ||
                        (Settings.SafetyBetlThreshold > 0 &&
                         ((!AdvisorMode &&
                           !Settings.AiMayGiveUp) ||
@@ -2927,7 +2931,9 @@ namespace Mariasek.Engine
                 }
                 else if (Settings.CanPlayGameType[Hra.Betl] && 
                          _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && _betlSimulations > 0 &&
-                         !_hundredOverBetl)
+                         !_hundredOverBetl &&
+                         !(_betlBalance < Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations &&
+                           _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0))
                 {
                     gameType = Hra.Betl;
                     DebugInfo.RuleCount = _betlBalance;
@@ -3246,7 +3252,8 @@ namespace Mariasek.Engine
                     estimatedFinalBasicScore >= 40) || 
                    ((estimatedFinalBasicScore > 60 ||            //pokud si davam re a nethram, musim mit velkou jistotu
                      (estimatedFinalBasicScore >= 60 &&
-                      kqScore >= 20)) &&
+                      kqScore >= 20 &&
+                      !Is100AgainstPossible(110))) &&
                     (bidding.Bids & Hra.SedmaProti) == 0 &&
                     !Is100AgainstPossible(110)) ||              //ze uhraju vic bodu i bez trhaka a ze souper neuhraje kilo (110 - kilo jeste risknu)
                    (estimatedFinalBasicScore >= 60 &&           //pokud mam dost trumfu, bude kriterium mekci
@@ -3337,7 +3344,9 @@ namespace Mariasek.Engine
                       Hand.HasX(_g.trump.Value) &&
                       Hand.CardCount(_g.trump.Value) >= 3 &&    //a aspon 3 trumfy a vidis do 3 hlasek
                       kqMaxOpponentScore <= 40) ||              //nebo
-                     (kqMaxOpponentScore == 0 ||                //vidim do vsech hlasek
+                     ((kqMaxOpponentScore == 0 &&               //vidim do vsech hlasek
+                       axCount >= 2 &&
+                       estimatedFinalBasicScore >= 20) ||
                       kqScore >= 60 ||
                       (kqScore >= 40 &&
                        kqMaxOpponentScore <= 20 &&

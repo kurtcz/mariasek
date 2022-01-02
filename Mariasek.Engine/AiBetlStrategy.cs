@@ -1174,16 +1174,26 @@ namespace Mariasek.Engine
                                               topCards.Where(i => i.Suit == b)
                                                       .Any(i => i.BadValue > Card.GetBadValue(Hodnota.Devitka))))
                             {
-                                hiCards = hiCards.Where(i => topCards.CardCount(i.Item1.Suit) > 0 &&
-                                                             topCards.CardCount(i.Item1.Suit) <= 2 &&
+                                hiCards = hiCards.Where(i => (hands[MyIndex].CardCount(i.Item1.Suit) <= 3 ||
+                                                              (topCards.CardCount(i.Item1.Suit) > 0 &&
+                                                               topCards.CardCount(i.Item1.Suit) <= 2)) &&
                                                              topCards.Where(j => j.Suit == i.Item1.Suit)
                                                                      .Any(j => j.BadValue > Card.GetBadValue(Hodnota.Devitka)))
                                                  .ToList();
                             }
                             //setrid pote podle poctu der a nakonec podle velikosti
-                            cardsToPlay = hiCards.OrderByDescending(i => i.Item2)
+                            cardsToPlay = hiCards.Where(i => i.Item2 > 0 &&
+                                                             (i.Item2 <= 3 ||
+                                                              hands[MyIndex].CardCount(i.Item1.Suit) <= 3))
+                                                 .OrderByDescending(i => i.Item2)
                                                  .ThenByDescending(i => i.Item1.BadValue)
                                                  .Select(i => i.Item1);
+                            if (!cardsToPlay.Any())
+                            {
+                                cardsToPlay = hiCards.OrderByDescending(i => i.Item2)
+                                                     .ThenByDescending(i => i.Item1.BadValue)
+                                                     .Select(i => i.Item1);
+                            }
                         }
                         //pokud muzes, tak hraj stejnou barvu jako v minulem kole
                         if (RoundNumber > 1 &&
