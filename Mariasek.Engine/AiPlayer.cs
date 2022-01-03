@@ -1204,6 +1204,18 @@ namespace Mariasek.Engine
                 {
                     return GameFlavour.Good107;
                 }
+                //falesnych 107
+                if (PlayerIndex == _g.GameStartingPlayerIndex &&
+                    _g.AllowFake107 &&
+                    _g.Calculate107Separately &&
+                    _g.Top107 &&
+                    _hundredSimulations > 0 &&
+                    _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&
+                    !IsHundredTooRisky(tempHand) &&
+                    _avgWinForHundred > 2 * (_g.DurchValue + 2 * _g.SevenValue))
+                {
+                    return GameFlavour.Good107;
+                }
                 return GameFlavour.Good;
             }
         }
