@@ -329,6 +329,12 @@ namespace Mariasek.Engine
                         {
                             cardsToPlay = cardsToPlay.Where(i => !cardsToKeep.ContainsKey(i.Suit));
                         }
+                        if (cardsToPlay.Any(i => i.BadValue <= Card.GetBadValue(Hodnota.Devitka) &&
+                                                 hands[MyIndex].CardCount(i.Suit) == 1))
+                        {
+                            cardsToPlay = cardsToPlay.Where(i => i.BadValue <= Card.GetBadValue(Hodnota.Devitka) &&
+                                                                 hands[MyIndex].CardCount(i.Suit) == 1);
+                        }
 
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
