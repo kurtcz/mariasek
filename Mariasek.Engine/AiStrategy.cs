@@ -5405,7 +5405,9 @@ namespace Mariasek.Engine
                                                                            c1.IsLowerThan(i, _trump));
                         var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
                                                                                     _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon &&
-                                                                                    !hiCards.Any() &&                   //spoluhrac hral nejvyssi kartu co ve hre zbyva
+                                                                                    (!hiCards.Any() ||                   //spoluhrac hral nejvyssi kartu co ve hre zbyva
+                                                                                     (c1.Suit == _trump &&                  //kolega by byl blazen kdyby se zbavoval trumfove desitky a nemel i eso
+                                                                                      c1.Value == Hodnota.Desitka)) &&
                                                                                     i.Suit != _trump)
                                                                         .ToList();
 
@@ -5424,14 +5426,20 @@ namespace Mariasek.Engine
                         //{
                         //    return cardsToPlay.RandomOneOrDefault();
                         //}
-                        cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&               //1. karta je nejvetsi
+                        cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value >= Hodnota.Desitka &&               //1. karta je nejvetsi
                                                                                 i.Suit != _trump &&                     //a pokud moje A neni trumfove
+                                                                                c1.IsHigherThan(i, _trump) &&
                                                                                 _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon &&
-                                                                                _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0 &&
+                                                                                (_probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0 ||
+                                                                                 (c1.Suit == _trump &&                  //kolega by byl blazen kdyby se zbavoval trumfove desitky a nemel i eso
+                                                                                  c1.Value == Hodnota.Desitka)) &&
                                                                                 _probabilities.NoSuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1 - RiskFactor &&
                                                                                 (_probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor ||
                                                                                  _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor)).ToList();
-
+                        if (cardsToPlay.Any(i => i.Value == Hodnota.Eso))
+                        {
+                            cardsToPlay = cardsToPlay.Where(i => i.Value == Hodnota.Eso).ToList();
+                        }
                         cardsToPlay = cardsToPlay.Where(i => !(_probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0 &&
                                                                      _probabilities.PotentialCards(player3)
                                                                                    .Where(j => j.Suit == i.Suit)

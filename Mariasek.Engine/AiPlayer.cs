@@ -2529,7 +2529,8 @@ namespace Mariasek.Engine
             if (nn == 0 &&
                 Hand.CardCount(_trump.Value) >= 5 &&
                 Hand.HasK(_trump.Value) &&
-                Hand.HasQ(_trump.Value))
+                Hand.HasQ(_trump.Value) &&
+                Hand.CardCount(Hodnota.Eso) >= 3)
             {
                 return false;
             }
