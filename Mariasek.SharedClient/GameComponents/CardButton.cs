@@ -23,6 +23,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
+        public bool FatFingers { get; set; }
 		private bool _isSelected;
 		public bool IsSelected
         { 
@@ -233,11 +234,13 @@ namespace Mariasek.SharedClient.GameComponents
 		public override bool CollidesWithPosition(Vector2 position)
 		{
             var polygon = Sprite.SpriteRectangle.Rotate(Sprite.RotationOrigin, Sprite.RotationAngle);
+            var proportionalAreaX = Game.Settings.FatFingers ? 0.5f : 1f;
+            const float proportionalAreaY = 1f;
 
 			for (var i = 0; i < polygon.Length; i++)
 			{
 				polygon[i] = Vector2.Subtract(polygon[i], Sprite.RotationOrigin);
-                polygon[i] = polygon[i].Scale(new Vector2(0.5f * Sprite.Scale.X, 1f * Sprite.Scale.Y));   //aby neslo klikat na okraje karty, kde jsou prekryvy
+                polygon[i] = polygon[i].Scale(new Vector2(proportionalAreaX * Sprite.Scale.X, proportionalAreaY * Sprite.Scale.Y));   //aby neslo klikat na okraje karty, kde jsou prekryvy
 				polygon[i] = Vector2.Add(polygon[i], Position);
 			}
 

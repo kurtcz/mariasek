@@ -5186,17 +5186,17 @@ namespace Mariasek.Engine
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
                 {
-                    if (TeamMateIndex == -1 &&
-                        c1.Suit != _trump &&
-                        hands[MyIndex].CardCount(c1.Suit) == 2 &&
-                        ValidCards(c1, hands[MyIndex]).HasX(c1.Suit) &&
-                        _probabilities.PotentialCards(player3).CardCount(c1.Suit) > 1 &&
-                        _probabilities.PotentialCards(player3).HasA(c1.Suit) &&
-                        !_probabilities.LikelyCards(player3).HasA(c1.Suit))
-                    {
-                        return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Suit == c1.Suit &&
-                                                                                  i.Value == Hodnota.Desitka);
-                    }
+                    //if (TeamMateIndex == -1 &&
+                    //    c1.Suit != _trump &&
+                    //    hands[MyIndex].CardCount(c1.Suit) == 2 &&
+                    //    ValidCards(c1, hands[MyIndex]).HasX(c1.Suit) &&
+                    //    _probabilities.PotentialCards(player3).CardCount(c1.Suit) > 1 &&
+                    //    _probabilities.PotentialCards(player3).HasA(c1.Suit) &&
+                    //    !_probabilities.LikelyCards(player3).HasA(c1.Suit))
+                    //{
+                    //    return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Suit == c1.Suit &&
+                    //                                                              i.Value == Hodnota.Desitka);
+                    //}
 
                     return null;
                 }

@@ -127,6 +127,7 @@ namespace Mariasek.SharedClient
         public bool WhiteScore { get; set; }
         public bool AutoDisable100Against { get; set; }
         public float CardScaleFactor { get; set; }
+        public bool FatFingers { get; set; }
         public BackgroundImage BackgroundImage { get; set; }
         public bool InvertedToggleButton { get; set; }
         public string DefaultTextRgba { get; set; }             //xml-only
@@ -163,6 +164,7 @@ namespace Mariasek.SharedClient
         public Color ReviewPtsWonColor { get { return FromRgbaString(ReviewPtsWonRgba); } }
         public string ReviewPtsLostRgba { get; set; }           //xml-only
         public Color ReviewPtsLostColor { get { return FromRgbaString(ReviewPtsLostRgba); } }
+
         [Preserve]
         public GameSettings()
         {
@@ -217,6 +219,7 @@ namespace Mariasek.SharedClient
             WhiteScore = false;
             AutoDisable100Against = true;
             CardScaleFactor = 0.6f;
+            FatFingers = false;
             BackgroundImage = BackgroundImage.Default;
             InvertedToggleButton = false;
             GameValue = 1;

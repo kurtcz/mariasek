@@ -213,24 +213,24 @@ namespace Mariasek.SharedClient
             {
                 new []
                 {
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy11", ZIndex = 1 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy12", ZIndex = 2 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy13", ZIndex = 3 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy14", ZIndex = 4 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = Game.BackSideRect, FatFingers = Game.Settings.FatFingers, IsEnabled = false, Name="Hlasy11", ZIndex = 1 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = Game.BackSideRect, FatFingers = Game.Settings.FatFingers, IsEnabled = false, Name="Hlasy12", ZIndex = 2 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = Game.BackSideRect, FatFingers = Game.Settings.FatFingers, IsEnabled = false, Name="Hlasy13", ZIndex = 3 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, Game.VirtualScreenHeight / 2f + 20), ReverseSpriteRectangle = Game.BackSideRect, FatFingers = Game.Settings.FatFingers, IsEnabled = false, Name="Hlasy14", ZIndex = 4 },
                 },
                 new []
                 {
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(100, 130), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy21", ZIndex = 1 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(150, 130), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy22", ZIndex = 2 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(200, 130), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy23", ZIndex = 3 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(250, 130), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy24", ZIndex = 4 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(100, 130), ReverseSpriteRectangle = Game.BackSideRect, FatFingers = Game.Settings.FatFingers, IsEnabled = false, Name="Hlasy21", ZIndex = 1 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(150, 130), ReverseSpriteRectangle = Game.BackSideRect, FatFingers = Game.Settings.FatFingers, IsEnabled = false, Name="Hlasy22", ZIndex = 2 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(200, 130), ReverseSpriteRectangle = Game.BackSideRect, FatFingers = Game.Settings.FatFingers, IsEnabled = false, Name="Hlasy23", ZIndex = 3 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(250, 130), ReverseSpriteRectangle = Game.BackSideRect, FatFingers = Game.Settings.FatFingers, IsEnabled = false, Name="Hlasy24", ZIndex = 4 },
                 },
                 new []
                 {
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, 130), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy31", ZIndex = 1 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, 130), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy32", ZIndex = 2 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, 130), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy33", ZIndex = 3 },
-                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, 130), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, Name="Hlasy34", ZIndex = 4 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 100, 130), ReverseSpriteRectangle = Game.BackSideRect, FatFingers = Game.Settings.FatFingers, IsEnabled = false, Name="Hlasy31", ZIndex = 1 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 150, 130), ReverseSpriteRectangle = Game.BackSideRect, FatFingers = Game.Settings.FatFingers, IsEnabled = false, Name="Hlasy32", ZIndex = 2 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 200, 130), ReverseSpriteRectangle = Game.BackSideRect, FatFingers = Game.Settings.FatFingers, IsEnabled = false, Name="Hlasy33", ZIndex = 3 },
+                    new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor }) { Position = new Vector2(Game.VirtualScreenWidth - 250, 130), ReverseSpriteRectangle = Game.BackSideRect, FatFingers = Game.Settings.FatFingers, IsEnabled = false, Name="Hlasy34", ZIndex = 4 },
                 }
             };
             _hlasy[0][0].Click += TrumpCardClicked;
@@ -266,9 +266,9 @@ namespace Mariasek.SharedClient
             };
             _stychy = new[]
             {
-                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy1", SpriteRectangle = Rectangle.Empty }) { Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f + 40), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, ZIndex = 10 },
-                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy2", SpriteRectangle = Rectangle.Empty }) { Position = new Vector2(60, 90), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, ZIndex = 10 },
-                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy3", SpriteRectangle = Rectangle.Empty }) { Position = new Vector2(Game.VirtualScreenWidth - 60, 90), ReverseSpriteRectangle = Game.BackSideRect, IsEnabled = false, ZIndex = 10 }
+                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy1", SpriteRectangle = Rectangle.Empty }) { Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f + 40), ReverseSpriteRectangle = Game.BackSideRect, FatFingers = Game.Settings.FatFingers, IsEnabled = false, ZIndex = 10 },
+                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy2", SpriteRectangle = Rectangle.Empty }) { Position = new Vector2(60, 90), ReverseSpriteRectangle = Game.BackSideRect, FatFingers = Game.Settings.FatFingers, IsEnabled = false, ZIndex = 10 },
+                new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = Game.CardScaleFactor, Name="Stychy3", SpriteRectangle = Rectangle.Empty }) { Position = new Vector2(Game.VirtualScreenWidth - 60, 90), ReverseSpriteRectangle = Game.BackSideRect, FatFingers = Game.Settings.FatFingers, IsEnabled = false, ZIndex = 10 }
             };
             _cardsPlayed = new[]
             {
