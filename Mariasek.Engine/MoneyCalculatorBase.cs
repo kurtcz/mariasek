@@ -628,12 +628,18 @@ namespace Mariasek.Engine
                         break;
                 }
 
+                if ((_gameType & (Hra.KiloProti | Hra.SedmaProti)) != 0 &&
+                    !Calculate107Separately &&
+                    //HundredAgainstMoneyWon * SevenAgainstMoneyWon > 0 &&
+                    (gt == Hra.KiloProti ||
+                     gt == Hra.SedmaProti))
+                {
+                    continue;
+                }
                 if (!Calculate107Separately &&
-                    ((_gameType == (Hra.Kilo | Hra.Sedma) &&
+                    _gameType == (Hra.Kilo | Hra.Sedma) &&
                     (gt == Hra.Kilo ||
-                     gt == Hra.Sedma)) ||
-                    ((_gameType & Hra.KiloProti) != 0 &&
-                     (_gameType & Hra.SedmaProti) != 0)))
+                     gt == Hra.Sedma))
                 {
                     continue;
                 }
@@ -688,9 +694,9 @@ namespace Mariasek.Engine
                     score);
                 items++;
             }
-            if ((_gameType & Hra.KiloProti) != 0 &&
-                (_gameType & Hra.SedmaProti) != 0 &&
-                HundredAgainstMoneyWon * SevenAgainstMoneyWon > 0) //pokud jsem bud oboje vyhral nebo oboje prohral
+            if ((_gameType & (Hra.KiloProti | Hra.SedmaProti)) != 0 &&
+                !Calculate107Separately)
+                //HundredAgainstMoneyWon * SevenAgainstMoneyWon > 0) //pokud jsem bud oboje vyhral nebo oboje prohral
             {
                 var won = HundredAgainstWon;
                 var multiplier = _bidding.HundredAgainstMultiplier;
