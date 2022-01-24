@@ -3373,10 +3373,10 @@ namespace Mariasek.Engine
                        Hand.HasQ(_g.trump.Value) ||
                        kqScore >= 40) &&
                       (estimatedFinalBasicScore >= 30 ||        //a aspon 30 nebo 20+20 bodu na ruce
-                       (estimatedFinalBasicScore >= 10 &&
+                       (estimatedFinalBasicScore >= 20 &&
                         kqScore >= 20) &&
                        kqMaxOpponentScore <= 40)) ||            //nebo
-                     (Hand.CardCount(_g.trump.Value) >= 3 &&    //aspon 3 trumfy a trhaka
+                     (Hand.CardCount(_g.trump.Value) >= 2 &&    //aspon 2 trumfy a trhaka
                       (Hand.HasK(_g.trump.Value) ||             //a aspon 3 ostre karty
                        Hand.HasQ(_g.trump.Value)) &&            //a aspon jedno eso
                       axCount >= 3 &&

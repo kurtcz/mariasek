@@ -38,15 +38,24 @@
     <OutputPath>bin\iPhone\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile></DocumentationFile>
     <ConsolePause>false</ConsolePause>
     <MtouchArch>ARMv7, ARM64</MtouchArch>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
     <MtouchFloat32>true</MtouchFloat32>
-    <CodesignKey>iPhone Distribution: Tomas Nemec (9C7QRTBTDQ)</CodesignKey>
+    <CodesignKey>iPhone Distribution</CodesignKey>
     <MtouchUseLlvm>true</MtouchUseLlvm>
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
     <AssemblyName>Mariasek.iOS</AssemblyName>
     <MtouchLink>Full</MtouchLink>
+    <ExternalConsole>false</ExternalConsole>
+    <CodesignProvision></CodesignProvision>
+    <IOSDebugOverWiFi></IOSDebugOverWiFi>
+    <MtouchProfiling></MtouchProfiling>
+    <CrashReportingApiKey></CrashReportingApiKey>
+    <MtouchI18n></MtouchI18n>
+    <OptimizePNGs></OptimizePNGs>
+    <NoStdLib>false</NoStdLib>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>full</DebugType>
