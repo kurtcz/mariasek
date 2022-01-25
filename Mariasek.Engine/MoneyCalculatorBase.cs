@@ -628,7 +628,8 @@ namespace Mariasek.Engine
                         break;
                 }
 
-                if ((_gameType & (Hra.KiloProti | Hra.SedmaProti)) != 0 &&
+                if ((_gameType & Hra.KiloProti) != 0 &&
+                    (_gameType & Hra.SedmaProti) != 0 &&
                     !Calculate107Separately &&
                     //HundredAgainstMoneyWon * SevenAgainstMoneyWon > 0 &&
                     (gt == Hra.KiloProti ||
@@ -694,7 +695,8 @@ namespace Mariasek.Engine
                     score);
                 items++;
             }
-            if ((_gameType & (Hra.KiloProti | Hra.SedmaProti)) != 0 &&
+            if ((_gameType & Hra.KiloProti) != 0 &&
+                (_gameType & Hra.SedmaProti) != 0 &&
                 !Calculate107Separately)
                 //HundredAgainstMoneyWon * SevenAgainstMoneyWon > 0) //pokud jsem bud oboje vyhral nebo oboje prohral
             {
