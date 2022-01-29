@@ -952,7 +952,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
-                Text = "Přirozené řazeni desítky",
+                Text = "Přirozené řazení desítky",
                 HorizontalAlign = HorizontalAlignment.Center,
                 VerticalAlign = VerticalAlignment.Middle,
                 UseCommonScissorRect = true
