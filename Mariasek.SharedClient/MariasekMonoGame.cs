@@ -675,7 +675,14 @@ namespace Mariasek.SharedClient
             _textRenderer = FontRenderers["BM2Font"];
             _textPosition = new Vector2(VirtualScreenWidth / 2f, VirtualScreenHeight / 2f);
 
-            AmbientSound = Assets?.GetSoundEffect("tavern-ambience-looping")?.CreateInstance();
+            try
+            {
+                AmbientSound = Assets?.GetSoundEffect("tavern-ambience-looping")?.CreateInstance();
+            }
+            catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+            }
             if (AmbientSound != null && !AmbientSound.IsDisposed)
             {
                 AmbientSound.IsLooped = true;
@@ -820,6 +827,8 @@ namespace Mariasek.SharedClient
                     }
                     catch(Exception ex)
                     {
+                        System.Diagnostics.Debug.WriteLine(ex.Message);
+                        return;
                     }
                 });
                 await Task.Delay(_random.Next(Settings.BgMusicMinDelayMs, Settings.BgMusicMaxDelayMs));

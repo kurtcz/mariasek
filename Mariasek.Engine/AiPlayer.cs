@@ -700,7 +700,7 @@ namespace Mariasek.Engine
                                   (i.Value == Hodnota.Kral &&
                                    !hand.HasQ(i.Suit)) ||
                                   (i.Value == Hodnota.Svrsek &&
-                                   !hand.HasK(i.Suit)))) <= 1 &&
+                                   !hand.HasK(i.Suit)))) <= 2 &&
                 talon.Where(i => i.Suit != trumpCard.Suit &&
                                  i.Value < Hodnota.Svrsek &&
                                  hand.HasX(i.Suit) &&       //pokud je jen jedna
@@ -2431,6 +2431,8 @@ namespace Mariasek.Engine
                                 .Where(b => b != _trump &&
                                             hand.HasSuit(b))
                                 .Any(b => hand.CardCount(b) >= 5) ||
+                            hand.Where(i => i.Suit != _trump)
+                                .All(i => i.Value >= Hodnota.Svrsek) ||
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump &&
                                             hand.HasSuit(b))
@@ -3271,6 +3273,7 @@ namespace Mariasek.Engine
                    Hand.HasQ(_g.trump.Value) ||
                    Settings.SafetyGameThreshold == 0 ||
                    (_maxMoneyLost >= -Settings.SafetyGameThreshold &&
+                    estimatedFinalBasicScore + kqScore >= 70 &&
                     !Is100AgainstPossible())) &&   //nebo pokud netrhas ale v zadne simulaci nevysla vysoka prohra
                   ((bidding.Bids & Hra.SedmaProti) == 0 ||
                    (Hand.HasA(_g.trump.Value) &&
@@ -3279,18 +3282,20 @@ namespace Mariasek.Engine
                      Hand.HasQ(_g.trump.Value) ||
                      kqScore >= 40) &&
                     ((kqScore >= 20 &&
-                      estimatedFinalBasicScore >= 40 &&
+                      estimatedFinalBasicScore >= 30 &&
                       axCount >= 4 &&
                       (bidding.Bids & Hra.SedmaProti) == 0 &&
                       !Is100AgainstPossible()) ||
                      (kqScore >= 40 &&
-                      estimatedFinalBasicScore >= 30 &&
+                      estimatedFinalBasicScore >= 20 &&
                       axCount >= 3 &&
                       !Is100AgainstPossible(110)) ||
                      (kqScore >= 60 &&
-                      estimatedFinalBasicScore >= 20 &&
+                      estimatedFinalBasicScore >= 10 &&
                       axCount >= 2 &&
                       !Is100AgainstPossible(120)) ||
+                     (kqScore >= 80 &&
+                      !Is100AgainstPossible(110)) ||
                      estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqMaxOpponentScore ||
                      (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + 10 &&
                       (bidding.Bids & Hra.SedmaProti) == 0 &&

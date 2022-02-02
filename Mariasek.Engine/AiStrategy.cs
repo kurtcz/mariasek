@@ -2510,7 +2510,7 @@ namespace Mariasek.Engine
                                                                                    !opponentPotentialCards.HasA(i.Suit))) &&
                                                                                  _probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0 &&
                                                                                  _probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 &&
-                                                                                 opponentPotentialCards.CardCount(i.Suit) >= 2)
+                                                                                 opponentPotentialCards.CardCount(i.Suit) >= 3)
                                                                      .ToList();
                             if (cardsToPlay.Any())
                             {
@@ -4293,6 +4293,13 @@ namespace Mariasek.Engine
                         var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                 i.Value != Hodnota.Eso &&
                                                                                 i.Value != Hodnota.Desitka &&
+                                                                                (!((_gameType & Hra.Kilo) == 0 &&
+                                                                                   (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
+                                                                                   hands[MyIndex].CardCount(i.Suit) == 1) || //samotne karty se mely hrat v "odmazat si barvu"
+                                                                                 Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                                                     .Where(b => b != _trump &&
+                                                                                                 hands[MyIndex].HasSuit(b))
+                                                                                     .All(b => hands[MyIndex].CardCount(b) == 1)) &&
                                                                                 !(hands[MyIndex].HasX(i.Suit) &&
                                                                                   hands[MyIndex].CardCount(i.Suit) == 2) &&
                                                                                 !topCards.Contains(i)).ToList();
@@ -4399,6 +4406,13 @@ namespace Mariasek.Engine
                                 cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                     i.Value != Hodnota.Eso &&
                                                                                     i.Value != Hodnota.Desitka &&
+                                                                                    (!((_gameType & Hra.Kilo) == 0 &&
+                                                                                       (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
+                                                                                       hands[MyIndex].CardCount(i.Suit) == 1) || //samotne karty se mely hrat v "odmazat si barvu"
+                                                                                     Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                                                         .Where(b => b != _trump &&
+                                                                                                     hands[MyIndex].HasSuit(b))
+                                                                                         .All(b => hands[MyIndex].CardCount(b) == 1)) &&
                                                                                     topCards.Contains(i))
                                                                         .OrderByDescending(i => i.Value)
                                                                         .Take(1)
