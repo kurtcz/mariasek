@@ -272,7 +272,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 310),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Krátce", 750 }, { "Středně", 1500 }, { "Dlouho", 2500 } },
+                Items = new SelectorItems() { { "Velmi krátce", 350 }, { "Krátce", 750 }, { "Středně", 1500 }, { "Dlouho", 2500 } },
                 UseCommonScissorRect = true
             };
             _thinkingTimeSelector.SelectedIndex = _thinkingTimeSelector.Items.FindIndex(Game.Settings.ThinkingTimeMs);
@@ -1212,7 +1212,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Position = new Vector2(Game.VirtualScreenWidth - 300, page5Offset + 250),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Rychlá", 500 }, { "Střední", 1000 }, { "Pomalá", 2000 } },
+                Items = new SelectorItems() { { "Velmi rychlá", 350 }, { "Rychlá", 500 }, { "Střední", 1000 }, { "Pomalá", 2000 } },
                 UseCommonScissorRect = true
             };
             _bubbleTimeSelector.SelectedIndex = _bubbleTimeSelector.Items.FindIndex(Game.Settings.BubbleTimeMs);

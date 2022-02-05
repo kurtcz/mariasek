@@ -2548,7 +2548,7 @@ namespace Mariasek.SharedClient
                             UpdateHand(); //trumfy dame doleva
                         }
                     })
-                    .Wait(500)
+                    .Wait(Math.Min(500, Game.Settings.BubbleTimeMs))
                     .Invoke(() =>
                     {
                         _bubbleAutoHide[e.GameStartingPlayerIndex] = true;
@@ -2565,7 +2565,7 @@ namespace Mariasek.SharedClient
                     //{
                     //    _evt.Set(); //v GetBidsAndDoubles() je _evt.WaitOne()
                     //})
-                    .Wait(1500)
+                    .Wait(Math.Min(1500, Game.Settings.BubbleTimeMs))
                     .Invoke(() =>
                     {
                         _bubbles[e.GameStartingPlayerIndex].Hide();
