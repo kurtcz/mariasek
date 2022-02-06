@@ -366,7 +366,10 @@ namespace Mariasek.Engine
             if (talon.Count < 2)
             {
                 talon.AddRange(hand.Where(i => !bannedSuits.Contains(i.Suit) &&
-                                               !talon.Contains(i))
+                                               !talon.Contains(i) &&
+                                               !(hand.CardCount(i.Suit) == 7 &&
+                                                 !hand.Has8(i.Suit) &&
+                                                 i.Value == Hodnota.Sedma))
                                    .OrderBy(i => i.BadValue)
                                    .ThenByDescending(i => hand.CardCount(i.Suit))
                                    .Take(2 - talon.Count));
