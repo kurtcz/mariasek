@@ -124,7 +124,7 @@ namespace Mariasek.Engine
                 SolitaryXThresholdDefense = 0.5f,
                 SafetyGameThreshold = 40,
                 SafetyHundredThreshold = 80,
-                SafetyBetlThreshold = g.CalculationStyle == CalculationStyle.Adding ? 64 : 128
+                SafetyBetlThreshold = g.CalculationStyle == CalculationStyle.Adding ? 48 : 128
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
@@ -782,6 +782,8 @@ namespace Mariasek.Engine
                                                  i.Value > Hodnota.Spodek &&
                                                  hand.HasJ(i.Suit)).ToList())
             {
+                var cardIndex = Math.Max(0, talon.IndexOf(card));
+
                 if (!talon.HasJ(card.Suit) ||
                     (talon.HasJ(card.Suit) &&
                      talon.CardCount(card.Suit) > 2))
@@ -790,7 +792,7 @@ namespace Mariasek.Engine
                 }
                 if (!talon.HasJ(card.Suit))
                 {
-                    talon.Insert(0, new Card(card.Suit, Hodnota.Spodek));
+                    talon.Insert(cardIndex, new Card(card.Suit, Hodnota.Spodek));
                 }
             }
             if (talon.Count > 2 &&
@@ -3276,8 +3278,9 @@ namespace Mariasek.Engine
                    Hand.HasQ(_g.trump.Value) ||
                    Settings.SafetyGameThreshold == 0 ||
                    (_maxMoneyLost >= -Settings.SafetyGameThreshold &&
-                    estimatedFinalBasicScore + kqScore >= 70 &&
-                    !Is100AgainstPossible())) &&   //nebo pokud netrhas ale v zadne simulaci nevysla vysoka prohra
+                    ((estimatedFinalBasicScore + kqScore >= 70 &&
+                      !Is100AgainstPossible()) ||
+                     estimatedFinalBasicScore + kqScore >= 90))) &&   //nebo pokud netrhas ale v zadne simulaci nevysla vysoka prohra
                   ((bidding.Bids & Hra.SedmaProti) == 0 ||
                    (Hand.HasA(_g.trump.Value) &&
                     axCount >= 5)) &&
