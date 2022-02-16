@@ -25,7 +25,7 @@ namespace Mariasek.Engine
 #endif   
         private new Barva _trump { get { return base._trump.Value; } } //dirty
         protected HlasConsidered _hlasConsidered;
-        private List<Barva> _bannedSuits = new List<Barva>();
+        public List<Barva> _bannedSuits = new List<Barva>();
         private List<Barva> _preferredSuits = new List<Barva>();
         public float RiskFactor { get; set; }
         public float RiskFactorSevenDefense { get; set; }
@@ -105,7 +105,8 @@ namespace Mariasek.Engine
                 foreach (var r in _rounds.Where(i => i != null && i.c3 != null))
                 {
                     //nehraj barvy ktere tlaci z kolegy trumfy
-                    if (r.player2.PlayerIndex == TeamMateIndex &&
+                    if ((_gameType & Hra.Kilo) == 0 &&
+                        r.player2.PlayerIndex == TeamMateIndex &&
                         r.c2.Suit != r.c1.Suit &&
                         r.c2.Suit == _trump)
                     {
@@ -126,7 +127,7 @@ namespace Mariasek.Engine
                     }
                     if ((_gameType & Hra.Kilo) == 0 &&
                         r.player1.TeamMateIndex == -1 &&
-                        _hands[MyIndex].CardCount(r.c1.Suit) > 1 &&   //pokud mam jen jednu kartu v barve, dovol mi ji odmazat
+                        _hands[MyIndex].CardCount(r.c1.Suit) > 2 &&   //pokud mam jen jednu kartu v barve, dovol mi ji odmazat
                         _probabilities.SuitProbability(r.player1.PlayerIndex, r.c1.Suit, RoundNumber) > 0 &&  //pouze pokud akter barvu zna, jinak je barva bezpecna
                         Enum.GetValues(typeof(Barva)).Cast<Barva>()
                             .Where(b => _hands[MyIndex].HasSuit(b) &&
@@ -193,6 +194,7 @@ namespace Mariasek.Engine
                                                                   _probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Desitka)) > _epsilon))
                                                .ToList();
                     if (teamMatesLikelyAXSuits.Count == 1 &&
+                        _hands[MyIndex].CardCount(teamMatesLikelyAXSuits.First()) > 1 &&
                         !(SevenValue > GameValue &&
                           (PlayerBids[TeamMateIndex] & Hra.Sedma) != 0))
                     {
@@ -1731,6 +1733,13 @@ namespace Mariasek.Engine
                             //v osmem kole pokud hraju sedmu proti a mam posl. dva trumfy setri trumfy nakonec
                             return null;
                         }
+                        if ((_gameType & Hra.SedmaProti) != 0 &&
+                            hands[MyIndex].Has7(_trump) &&
+                            SevenValue > GameValue)
+                        {
+                            //pokud hraju sedmu proti setri trumfy nakonec
+                            return null;
+                        }
                         if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Any(b => _hands[MyIndex].HasA(b) &&
                                           _probabilities.HasSolitaryX(player3, b, RoundNumber) >= 1 - _epsilon))
@@ -1973,6 +1982,13 @@ namespace Mariasek.Engine
                              hands[MyIndex].CardCount(_trump) == 2)
                         {
                             //v osmem kole pokud hraju sedmu proti a mam posl. dva trumfy setri trumfy nakonec
+                            return null;
+                        }
+                        if ((_gameType & Hra.SedmaProti) != 0 &&
+                            hands[MyIndex].Has7(_trump) &&
+                            SevenValue > GameValue)
+                        {
+                            //pokud hraju sedmu proti setri trumfy nakonec
                             return null;
                         }
                         if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -2361,6 +2377,17 @@ namespace Mariasek.Engine
                     }
                     //nehraj pokud mas hodne trumfu
                     if (hands[MyIndex].CardCount(_trump) >= 5)
+                    {
+                        return null;
+                    }
+                    //nehraj pokud si muzes odmazat trumfy a pozdeji ostre namazat
+                    if (TeamMateIndex != -1 &&
+                        PlayerBids[MyIndex] == 0 &&
+                        SevenValue < GameValue &&
+                        hands[MyIndex].SuitCount == 2 &&
+                        hands[MyIndex].CardCount(_trump) <= 2 &&
+                        !hands[MyIndex].HasA(_trump) &&
+                        !hands[MyIndex].HasX(_trump))
                     {
                         return null;
                     }
@@ -3478,9 +3505,11 @@ namespace Mariasek.Engine
                                                                         (TeamMateIndex == player3 ||                                    //pokud je kolega player2 
                                                                          !_probabilities.PotentialCards(TeamMateIndex).HasX(i.Suit) ||  //nechci z nej nahodou vytlacit 
                                                                          !_probabilities.PotentialCards(opponentIndex).HasA(i.Suit)) && //pripadnou trumfovou x
-                                                                        hands[MyIndex].CardCount(_trump) <= 1 &&
+                                                                        ((hands[MyIndex].CardCount(_trump) <= 1 &&
+                                                                          hands[MyIndex].SuitCount < Game.NumSuits) ||
+                                                                         (hands[MyIndex].CardCount(_trump) <= 2 &&
+                                                                          hands[MyIndex].SuitCount == 2)) &&
                                                                         !hands[MyIndex].HasX(_trump) &&
-                                                                        hands[MyIndex].SuitCount < Game.NumSuits &&
                                                                         (Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                                                              .Where(b => b != _trump)
                                                                              .Any(b => (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Eso)) >= 1 - _epsilon ||
@@ -3498,7 +3527,9 @@ namespace Mariasek.Engine
                                                                                                                                                j.Value < Hodnota.Desitka))).ToList();
                                 }
                                 if (!cardsToPlay.Any() &&
-                                    hands[MyIndex].CardCount(_trump) == 1 &&
+                                    (hands[MyIndex].CardCount(_trump) == 1 ||
+                                     (hands[MyIndex].CardCount(_trump) <= 2 &&
+                                      hands[MyIndex].SuitCount == 2)) &&
                                     (_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 &&
                                     Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                         .Where(b => b != _trump)
@@ -3954,10 +3985,10 @@ namespace Mariasek.Engine
                                                                             Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                                 .Where(h => h > i.Value)
                                                                                 .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0) &&
-                                                                            (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0 ||
-                                                                             _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&  //netahat zbytecne trumfy ze spoluhrace
-                                                                            (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 ||
-                                                                             _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
+                                                                            (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0 ||  //netahat zbytecne trumfy ze spoluhrace
+                                                                             _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&
+                                                                            (_probabilities.CertainCards(player3).HasSuit(i.Suit) ||
+                                                                             !_probabilities.PotentialCards(player3).HasSuit(_trump)) &&
                                                                             !(_probabilities.CertainCards(player3).Any(j => j.Suit == i.Suit &&      //nehraj pokud ma akter jiste nizke karty v barve
                                                                                                                             j.Value < i.Value) &&
                                                                               _probabilities.PotentialCards(player3).HasSuit(_trump) &&             //a navic jeste trumf
@@ -3975,8 +4006,8 @@ namespace Mariasek.Engine
                                                                                 .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0) &&
                                                                             (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 ||  //netahat zbytecne trumfy ze spoluhrace
                                                                              _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
-                                                                            (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 1 ||
-                                                                             _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&
+                                                                            (_probabilities.CertainCards(player2).HasSuit(i.Suit) ||
+                                                                             !_probabilities.PotentialCards(player2).HasSuit(_trump)) &&
                                                                             !(_probabilities.CertainCards(player2).Any(j => j.Suit == i.Suit &&      //nehraj pokud ma akter jiste nizke karty v barve
                                                                                                                             j.Value < i.Value) &&
                                                                               _probabilities.PotentialCards(player2).HasSuit(_trump) &&             //a navic jeste trumf
@@ -4041,8 +4072,8 @@ namespace Mariasek.Engine
                                                                                  .All(b => topCards.Any(j => j.Suit == b))) &&
                                                                             (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0 ||  //netahat zbytecne trumfy ze spoluhrace
                                                                              _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&
-                                                                            (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 ||
-                                                                             _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
+                                                                            (_probabilities.CertainCards(player3).HasSuit(i.Suit) ||
+                                                                             !_probabilities.PotentialCards(player3).HasSuit(_trump)) &&
                                                                             !(_probabilities.CertainCards(player3).Any(j => j.Suit == i.Suit &&      //nehraj pokud ma akter jiste nizke karty v barve
                                                                                                                             j.Value < i.Value) &&
                                                                               _probabilities.PotentialCards(player3).HasSuit(_trump) &&             //a navic jeste trumf
@@ -4067,8 +4098,8 @@ namespace Mariasek.Engine
                                                                                  .All(b => topCards.Any(j => j.Suit == b))) &&
                                                                             (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 ||  //netahat zbytecne trumfy ze spoluhrace
                                                                              _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
-                                                                            (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 1 ||
-                                                                             _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&
+                                                                            (_probabilities.CertainCards(player2).HasSuit(i.Suit) ||
+                                                                             !_probabilities.PotentialCards(player2).HasSuit(_trump)) &&
                                                                             !(_probabilities.CertainCards(player2).Any(j => j.Suit == i.Suit &&      //nehraj pokud ma akter jiste nizke karty v barve
                                                                                                                             j.Value < i.Value) &&
                                                                               _probabilities.PotentialCards(player2).HasSuit(_trump) &&             //a navic jeste trumf

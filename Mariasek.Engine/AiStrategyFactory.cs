@@ -49,7 +49,7 @@ namespace Mariasek.Engine
                         GameValue = ((gameType.HasValue ? gameType.Value : g.GameType) & Hra.Hra) != 0
                                     ? bidding.GameMultiplier * gameValue
                                     : bidding.GameMultiplier * hundredValue,
-                        SevenValue = bidding.SevenMultiplier * sevenValue
+                        SevenValue = bidding.SevenMultiplier * sevenValue + bidding.SevenAgainstMultiplier * sevenValue
                     };
             }
         }

@@ -14,6 +14,7 @@ namespace Mariasek.SharedClient
         private Dictionary<string, Texture2D> _textures;
         private Dictionary<string, SoundEffect> _soundEffects;
         private Dictionary<string, Song> _songs;
+        private List<string> _errors;
 
         public int TotalCount => _textures.Count() + _soundEffects.Count() + _songs.Count();
 
@@ -21,12 +22,15 @@ namespace Mariasek.SharedClient
         {
             get
             {
-                return _textures.All(i => i.Value != null &&
-                                          !i.Value.IsDisposed) &&
-                       _soundEffects.All(i => i.Value != null &&
-                                              !i.Value.IsDisposed) &&
-                       _songs.All(i => i.Value != null &&
-                                       !i.Value.IsDisposed);
+                return _textures.All(i => _errors.Contains(i.Key) ||
+                                          (i.Value != null &&
+                                           !i.Value.IsDisposed)) &&
+                       _soundEffects.All(i => _errors.Contains(i.Key) ||
+                                              (i.Value != null &&
+                                               !i.Value.IsDisposed)) &&
+                       _songs.All(i => _errors.Contains(i.Key) ||
+                                       (i.Value != null &&
+                                        !i.Value.IsDisposed));
             }
         }
 
@@ -36,6 +40,7 @@ namespace Mariasek.SharedClient
             _textures = new Dictionary<string, Texture2D>(textures.Select(i => new KeyValuePair<string, Texture2D>(i, null)));
             _soundEffects = new Dictionary<string, SoundEffect>(soundEffects.Select(i => new KeyValuePair<string, SoundEffect>(i, null)));
             _songs = new Dictionary<string, Song>(songs.Select(i => new KeyValuePair<string, Song>(i, null)));
+            _errors = new List<string>();
         }
 
         //returns true if an asset was loaded, false if there are no more assets to be loaded remaining
@@ -50,7 +55,8 @@ namespace Mariasek.SharedClient
             }
             else
             {
-                var kvp2 = _soundEffects.FirstOrDefault(i => i.Value == null || i.Value.IsDisposed);
+                var kvp2 = _soundEffects.FirstOrDefault(i => !_errors.Contains(i.Key) &&
+                                                             (i.Value == null || i.Value.IsDisposed));
                 found = kvp2.Key != null;
 
                 if (found)
@@ -61,12 +67,14 @@ namespace Mariasek.SharedClient
                     }
                     catch(Exception ex)
                     {
+                        _errors.Add(kvp2.Key);
                         return false;
                     }
                 }
                 else
                 {
-                    var kvp3 = _songs.FirstOrDefault(i => i.Value == null || i.Value.IsDisposed);
+                    var kvp3 = _songs.FirstOrDefault(i => !_errors.Contains(i.Key) &&
+                                                          (i.Value == null || i.Value.IsDisposed));
                     found = kvp3.Key != null;
 
                     if (found)
@@ -77,6 +85,7 @@ namespace Mariasek.SharedClient
                         }
                         catch(Exception ex)
                         {
+                            _errors.Add(kvp3.Key);
                             return false;
                         }
                     }

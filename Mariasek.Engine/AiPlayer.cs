@@ -5249,6 +5249,12 @@ namespace Mariasek.Engine
             _log.DebugFormat("Round {0}. Finished simulation for {1}. Card/rule to play: {2} - {3}, expected score in the end: {4}/{5}/{6}\n",
                 _g.RoundNumber, _g.players[PlayerIndex].Name, result.CardToPlay, result.Rule.Description, result.Score[0], result.Score[1], result.Score[2]);
 
+            if ((_g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+                (aiStrategy as AiStrategy)._bannedSuits.Any())
+            {
+                result.Rule.Description += "\n" + string.Join(" ", (aiStrategy as AiStrategy)._bannedSuits.ToArray());
+                result.Rule.Description = "\n" + result.Rule.Description;
+            }
             return result;
         }
 
