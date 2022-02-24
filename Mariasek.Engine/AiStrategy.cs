@@ -2590,9 +2590,10 @@ namespace Mariasek.Engine
                         //pokud mam malo trumfu a mam v barve A nebo A,X a souperi maji ve stejne barve max 3 resp. 4 karty,
                         //tak zkus stesti, pokud to nevyjde, stejne by uhrat nesly
                         if ((_gameType & Hra.Kilo) == 0 &&
-                            (myInitialHand.CardCount(_trump) <= 3 ||
-                             (myInitialHand.CardCount(_trump) <= 4 &&
-                              !myInitialHand.HasA(_trump))) &&
+                            myInitialHand.CardCount(_trump) <= 3 &&
+                            //(myInitialHand.CardCount(_trump) <= 3 ||
+                            // (myInitialHand.CardCount(_trump) <= 4 &&
+                            //  !myInitialHand.HasA(_trump))) &&
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump)
                                 .Any(b => (_probabilities.SuitProbability(player2, b, RoundNumber) > 0 ||
@@ -2668,7 +2669,8 @@ namespace Mariasek.Engine
                                                                             ((i.Value == Hodnota.Eso &&
                                                                               ((_probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) == 0 &&
                                                                                 _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) == 0) ||
-                                                                               myInitialHand.CardCount(i.Suit) >= 4 ||
+                                                                               (myInitialHand.CardCount(i.Suit) >= 4 &&
+                                                                                myInitialHand.CardCount(_trump) <= 3) ||
                                                                                (RoundNumber >= 7 &&
                                                                                 hands[MyIndex].HasA(_trump) &&
                                                                                 hands[MyIndex].Has7(_trump)))) ||
@@ -2703,6 +2705,7 @@ namespace Mariasek.Engine
                         var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                 !_bannedSuits.Contains(i.Suit) &&
                                                                                 _probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 &&
+                                                                                myInitialHand.CardCount(_trump) <= 3 &&
                                                                                 ((i.Value == Hodnota.Eso &&
                                                                                   _probabilities.MaxCardCount(player3, i.Suit) >= 3 &&
                                                                                   (_probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Desitka)) == 0 ||//<= _epsilon ||
@@ -2811,6 +2814,7 @@ namespace Mariasek.Engine
                         var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                 !_bannedSuits.Contains(i.Suit) &&
                                                                                 _probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0 &&
+                                                                                myInitialHand.CardCount(_trump) <= 3 &&
                                                                                 ((i.Value == Hodnota.Eso &&
                                                                                   (_probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) == 0 ||
                                                                                    ((_gameType & (Hra.Kilo | Hra.KiloProti | Hra.SedmaProti)) != 0 &&

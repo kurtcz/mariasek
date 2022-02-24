@@ -520,9 +520,8 @@ namespace Mariasek.Engine
                                                            j.Value != Hodnota.Eso) <= 2 &&
                                            !hand.HasX(i.Suit) &&                   //v barve kde neznam X ani nemam hlas
                                            !(hand.HasK(i.Suit) && hand.HasQ(i.Suit)))
-                               .OrderBy(i => hand.CardCount(i.Suit))    //vybirej od nejkratsich barev
-                               .ThenBy(i => hand.Count(j => j.Suit == i.Suit &&    //v pripade stejne delky barev
-                                                            j.Value == Hodnota.Eso))             //dej prednost barve s esem
+                               .OrderBy(i => hand.CardCount(i.Suit))               //vybirej od nejkratsich barev
+                               .ThenBy(i => hand.HasA(i.Suit) ? 0 : 1)             //v pripade stejne delky barev dej prednost barve s esem
                                .ThenBy(i=> i.Suit));
 
             //potom zkus vzit plivy od barvy kde mam A + X + plivu
@@ -692,7 +691,10 @@ namespace Mariasek.Engine
             }
             //dej trumf do talonu pokud bys jinak prisel o hlas
             if (_g.AllowTrumpTalon &&
-                hand.CardCount(trumpCard.Suit) >= 5 &&
+                //hand.CardCount(trumpCard.Suit) >= 5 &&
+                hand.Any(i => i != trumpCard &&
+                              i.Suit == trumpCard.Suit &&
+                              i.Value < Hodnota.Svrsek) &&
                 talon.Count > 2 &&
                 talon.Count(i => i.Suit != trumpCard.Suit &&
                                  ((i.Value < Hodnota.Svrsek &&
@@ -717,13 +719,17 @@ namespace Mariasek.Engine
                 var trumpTalon = talon.Where(i => (i.Value < Hodnota.Svrsek &&
                                                    !(hand.HasX(i.Suit) &&
                                                      !hand.HasA(i.Suit) &&
-                                                     hand.CardCount(i.Suit) <= 3)) ||
+                                                     hand.CardCount(i.Suit) <= 3) &&
+                                                    !(hand.HasX(i.Suit) &&
+                                                      hand.CardCount(i.Suit) == 2)) ||
                                                   (i.Suit != trumpCard.Suit &&
                                                    (i.Value > Hodnota.Kral ||
-                                                    (i.Value == Hodnota.Kral &&
-                                                     !hand.HasQ(i.Suit)) ||
-                                                    (i.Value == Hodnota.Svrsek &&
-                                                     !hand.HasK(i.Suit)))))
+                                                    (!(hand.HasX(i.Suit) &&
+                                                       hand.CardCount(i.Suit) == 2) &&
+                                                     ((i.Value == Hodnota.Kral &&
+                                                       !hand.HasQ(i.Suit)) ||
+                                                      (i.Value == Hodnota.Svrsek &&
+                                                       !hand.HasK(i.Suit)))))))
                                       .OrderBy(i => i.Suit == trumpCard.Suit
                                                      ? 1 : 0)
                                       .ThenBy(i => i.Value)
@@ -3323,7 +3329,7 @@ namespace Mariasek.Engine
                    (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
                     Hand.CardCount(_g.trump.Value) >= 4 &&
                     kqScore >= 20 &&
-                    !Is100AgainstPossible()) ||
+                    !Is100AgainstPossible(110)) ||
                    (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
                     Hand.CardCount(_g.trump.Value) >= 4 &&
                     (bidding.Bids & Hra.SedmaProti) == 0 &&
@@ -3342,7 +3348,7 @@ namespace Mariasek.Engine
                     axCount >= 3 &&
                     Hand.CardCount(Hodnota.Eso) >= 2 &&
                     kqMaxOpponentScore <= 40 &&
-                    !Is100AgainstPossible()))) ||
+                    !Is100AgainstPossible(110)))) ||
                  //nebo jsem nevolil a:
                  (TeamMateIndex != -1 &&                  
                   ((bidding.GameMultiplier > 2 &&               //Tutti:
@@ -5249,12 +5255,12 @@ namespace Mariasek.Engine
             _log.DebugFormat("Round {0}. Finished simulation for {1}. Card/rule to play: {2} - {3}, expected score in the end: {4}/{5}/{6}\n",
                 _g.RoundNumber, _g.players[PlayerIndex].Name, result.CardToPlay, result.Rule.Description, result.Score[0], result.Score[1], result.Score[2]);
 
-            if ((_g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
-                (aiStrategy as AiStrategy)._bannedSuits.Any())
-            {
-                result.Rule.Description += "\n" + string.Join(" ", (aiStrategy as AiStrategy)._bannedSuits.ToArray());
-                result.Rule.Description = "\n" + result.Rule.Description;
-            }
+            //if ((_g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+            //    (aiStrategy as AiStrategy)._bannedSuits.Any())
+            //{
+            //    result.Rule.Description += "\n" + string.Join(" ", (aiStrategy as AiStrategy)._bannedSuits.ToArray());
+            //    result.Rule.Description = "\n" + result.Rule.Description;
+            //}
             return result;
         }
 
