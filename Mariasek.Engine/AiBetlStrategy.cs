@@ -424,6 +424,7 @@ namespace Mariasek.Engine
                                         _rounds[i].c1.Suit == _rounds[i].c2.Suit &&
                                         _rounds[i].c1.Suit == _rounds[i].c3.Suit &&
                                         _rounds[i].c1.BadValue > _rounds[i].c2.BadValue &&
+                                        _rounds[i].c1.Value != Hodnota.Eso &&
                                         hands[MyIndex].Any(j => j.Suit == _rounds[i].c2.Suit &&
                                                                 _probabilities.PotentialCards(opponent).HasSuit(j.Suit)))
                                     {
@@ -432,7 +433,8 @@ namespace Mariasek.Engine
                                     else if (_rounds[i].player3.PlayerIndex == TeamMateIndex &&
                                              _rounds[i].c1.Suit == _rounds[i].c2.Suit &&
                                              _rounds[i].c1.Suit == _rounds[i].c3.Suit &&
-                                             (_rounds[i].c1.BadValue > _rounds[i].c3.BadValue ||
+                                             ((_rounds[i].c1.BadValue > _rounds[i].c3.BadValue &&
+                                               _rounds[i].c1.Value != Hodnota.Eso) ||
                                               (_rounds[i].c2.BadValue > _rounds[i].c3.BadValue &&
                                                _rounds[i].c2.Value != Hodnota.Eso)) &&
                                              hands[MyIndex].Any(j => j.Suit == _rounds[i].c3.Suit &&
