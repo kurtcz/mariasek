@@ -922,16 +922,7 @@ namespace Mariasek.SharedClient
                 }
                 if (!string.IsNullOrEmpty(_fileBeingMigrated))
                 {
-                    SpriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, MainScaleMatrix);
-                    SpriteBatch.Draw(DefaultBackground, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
-                    _textRenderer.DrawText(
-                        SpriteBatch,
-                        $"Importuji soubor {_fileBeingMigrated} ...",
-                        _textPosition,
-                        1f,
-                        Color.White,
-                        Alignment.MiddleCenter);
-                    SpriteBatch.End();
+                    DrawText($"Importuji soubor {_fileBeingMigrated} ...");
                 }
 
                 if (CurrentScene == null)
@@ -1030,6 +1021,20 @@ namespace Mariasek.SharedClient
             {                
             }
 		}
-	}
+
+        private void DrawText(string text)
+        {
+            SpriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, MainScaleMatrix);
+            SpriteBatch.Draw(DefaultBackground, new Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), Color.White);
+            _textRenderer.DrawText(
+                SpriteBatch,
+                text,
+                _textPosition,
+                1f,
+                Color.White,
+                Alignment.MiddleCenter);
+            SpriteBatch.End();
+        }
+    }
 }
 

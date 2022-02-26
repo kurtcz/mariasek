@@ -17,6 +17,7 @@ namespace Mariasek.SharedClient
         private List<string> _errors;
 
         public int TotalCount => _textures.Count() + _soundEffects.Count() + _songs.Count();
+        public string ErrorMessage { get; private set; }
 
         public bool ContentLoaded
         {
@@ -68,6 +69,10 @@ namespace Mariasek.SharedClient
                     catch(Exception ex)
                     {
                         _errors.Add(kvp2.Key);
+                        if (string.IsNullOrEmpty(ErrorMessage))
+                        {
+                            ErrorMessage = $"Chyba při inicializaci zvukového efektu \"{kvp2.Key}\":\n{ex.Message}";
+                        }
                         return false;
                     }
                 }
@@ -86,6 +91,10 @@ namespace Mariasek.SharedClient
                         catch(Exception ex)
                         {
                             _errors.Add(kvp3.Key);
+                            if (string.IsNullOrEmpty(ErrorMessage))
+                            {
+                                ErrorMessage = $"Chyba při inicializaci zvukové stopy \"{kvp3.Key}\":\n{ex.Message}";
+                            }
                             return false;
                         }
                     }

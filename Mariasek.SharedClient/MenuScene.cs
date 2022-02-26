@@ -211,6 +211,10 @@ namespace Mariasek.SharedClient
                 FontScaleFactor = Game.RealScreenGeometry == ScreenGeometry.Wide ? 0.9f : 0.75f
             };
             //ShowWarningIfNeeded();
+            if (!string.IsNullOrEmpty(Game.Assets.ErrorMessage))
+            {
+                ShowWarning(Game.Assets.ErrorMessage);
+            }
             try
             {
                 SoundEffect.MasterVolume = Game.Settings.SoundEnabled ? 1f : 0f;
@@ -261,6 +265,12 @@ namespace Mariasek.SharedClient
         //    _settingsButton.Wait(3000)
         //                   .Invoke(() => ShowWarningIfNeeded());
         //}
+
+        private void ShowWarning(string message)
+        {
+            _warning.Text = message;
+            _warning.Show();
+        }
 
         void PermissionsButtonClicked(object sender)
         {
