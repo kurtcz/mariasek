@@ -3569,6 +3569,10 @@ namespace Mariasek.Engine
                                        (Hand.HasK(b) &&
                                         Hand.HasQ(b) &&
                                         Hand.HasJ(b))) >= 3) ||
+                      (Hand.Count(i => i.Value >= Hodnota.Kral) >= 6 &&
+                       Hand.Count(i => i.Value >= Hodnota.Kral &&
+                                       i.Suit == _g.trump.Value) >= 2 &&
+                       Hand.SuitCount() == Game.NumSuits) ||
                       (Hand.CardCount(Hodnota.Eso) >= 2 &&
                        ((axCount >= 4 &&
                          Enum.GetValues(typeof(Barva)).Cast<Barva>()
