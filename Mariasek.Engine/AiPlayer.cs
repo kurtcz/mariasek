@@ -4191,6 +4191,7 @@ namespace Mariasek.Engine
                         {
                             cardToPlay = cardsToPlay.OrderBy(i => i.Value).First();
                         }
+                        DebugInfo.Card = cardToPlay;
                     }
                     else if (((TeamMateIndex == -1 &&
                                (_gameType & Hra.Kilo) != 0) ||
@@ -4223,6 +4224,7 @@ namespace Mariasek.Engine
 
                             cardToPlay = cardsToPlay.First(i => i.Value == Hodnota.Svrsek &&
                                                                 i.Suit == _trump.Value);
+                            DebugInfo.Card = cardToPlay;
                         }
                     }
                 }
