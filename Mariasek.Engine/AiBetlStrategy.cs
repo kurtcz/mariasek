@@ -92,7 +92,7 @@ namespace Mariasek.Engine
                         var minPossibleOpponentCardInSuit = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                 .Select(h => new Card(_rounds[i].c1.Suit, h))
                                                                 .Where(c => !playedCards.Contains(c) &&
-                                                                            !_hands[MyIndex].Any(j => j.Suit == c.Suit &&
+                                                                            !hands[MyIndex].Any(j => j.Suit == c.Suit &&
                                                                                                       j.Value == c.Value))
                                                                 .OrderBy(c => c.BadValue)
                                                                 .FirstOrDefault()
@@ -104,7 +104,7 @@ namespace Mariasek.Engine
                             if (_rounds[i].c1.Suit == _rounds[i].c3.Suit &&
                                 _rounds[i].c1.BadValue > _rounds[i].c3.BadValue &&
                                 _rounds[i].c3.BadValue == minPossibleOpponentCardInSuit.BadValue &&
-                                _hands[MyIndex].Where(j => j.Suit == _rounds[i].c1.Suit &&
+                                hands[MyIndex].Where(j => j.Suit == _rounds[i].c1.Suit &&
                                                            j.BadValue < Card.GetBadValue(Hodnota.Spodek))
                                                .All(j => _probabilities.SuitHigherThanCardProbability(_rounds[i].player3.PlayerIndex, j, RoundNumber) == 0))
                             {
@@ -117,7 +117,7 @@ namespace Mariasek.Engine
                             if (_rounds[i].c1.Suit == _rounds[i].c2.Suit &&
                                 _rounds[i].c1.BadValue > _rounds[i].c2.BadValue &&
                                 _rounds[i].c2.BadValue == minPossibleOpponentCardInSuit.BadValue &&
-                                _hands[MyIndex].Where(j => j.Suit == _rounds[i].c1.Suit &&
+                                hands[MyIndex].Where(j => j.Suit == _rounds[i].c1.Suit &&
                                                            j.BadValue < Card.GetBadValue(Hodnota.Spodek))
                                                .All(j => _probabilities.SuitHigherThanCardProbability(_rounds[i].player2.PlayerIndex, j, RoundNumber) == 0))
                             {

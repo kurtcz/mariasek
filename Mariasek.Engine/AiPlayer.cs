@@ -2301,7 +2301,9 @@ namespace Mariasek.Engine
             if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
                     .All(b => !hand.HasA(b) &&
                               !(hand.HasX(b) &&
-                                hand.HasK(b))))
+                                (hand.HasK(b) ||
+                                 (hand.HasQ(b) &&
+                                  hand.CardCount(b) >= 3)))))
             {
                 emptySuits = 0;
                 aceOnlySuits = 0;
@@ -3286,6 +3288,7 @@ namespace Mariasek.Engine
                    (_maxMoneyLost >= -Settings.SafetyGameThreshold &&
                     ((estimatedFinalBasicScore + kqScore >= 70 &&
                       !Is100AgainstPossible()) ||
+                     estimatedFinalBasicScore >= 80 ||
                      estimatedFinalBasicScore + kqScore >= 90))) &&   //nebo pokud netrhas ale v zadne simulaci nevysla vysoka prohra
                   ((bidding.Bids & Hra.SedmaProti) == 0 ||
                    (Hand.HasA(_g.trump.Value) &&
@@ -3316,8 +3319,12 @@ namespace Mariasek.Engine
                     Hand.CardCount(_g.trump.Value) >= 4 &&        //4 trumfy 
                     totalHoles <= 4 &&                          //a max 4 diry (tj. jinak same vysoke karty), netreba trhat trumfovou hlasku
                     (bidding.Bids & Hra.SedmaProti) == 0 &&
-                    estimatedFinalBasicScore >= 40) || 
-                   ((estimatedFinalBasicScore > 60 ||            //pokud si davam re a nethram, musim mit velkou jistotu
+                    estimatedFinalBasicScore >= 40) ||
+                   (estimatedFinalBasicScore >= 80 &&
+                    axCount >= 4 &&
+                    Hand.CardCount(_trump.Value) >= 4 &&
+                    !Is100AgainstPossible(120)) ||
+                   ((estimatedFinalBasicScore >= 70 ||            //pokud si davam re a nethram, musim mit velkou jistotu
                      (estimatedFinalBasicScore >= 60 &&
                       kqScore >= 20 &&
                       !Is100AgainstPossible(110))) &&
@@ -3334,6 +3341,13 @@ namespace Mariasek.Engine
                     Hand.CardCount(_g.trump.Value) >= 4 &&
                     (bidding.Bids & Hra.SedmaProti) == 0 &&
                     kqScore >= kqMaxOpponentScore) ||
+                   (estimatedFinalBasicScore >= 40 &&           //pokud mam dost trumfu, bude kriterium mekci
+                    Hand.CardCount(_g.trump.Value) >= 5 &&
+                    (Hand.HasK(_g.trump.Value) ||
+                     Hand.HasQ(_g.trump.Value)) &&
+                    kqScore >= 40 &&
+                    axCount >= 2 &&
+                    !Is100AgainstPossible(100)) ||
                    (estimatedFinalBasicScore >= 50 &&           //pokud mam dost trumfu, bude kriterium mekci
                     Hand.CardCount(_g.trump.Value) >= 5 &&
                     (Hand.HasK(_g.trump.Value) ||
