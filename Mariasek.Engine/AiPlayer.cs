@@ -955,8 +955,8 @@ namespace Mariasek.Engine
                                               .Select(i => 100 + i * 10)
                                               .ToDictionary(k => k,
                                                             v => (_g.CalculationStyle == CalculationStyle.Adding
-                                                                  ? (v - 90) / 10 * _g.HundredValue
-                                                                  : (1 << (v - 100) / 10) * _g.HundredValue) *
+                                                                  ? (v - 90) / 10 * Math.Max(_g.HundredValue, 2 * _g.QuietHundredValue)
+                                                                  : (1 << (v - 100) / 10) * Math.Max(_g.HundredValue, 2 * _g.QuietHundredValue)) *
                                                                  (PlayerIndex == _g.GameStartingPlayerIndex //ztrata pro aktera je dvojnasobna (plati obema souperum)
                                                                   ? TrumpCard.Suit == Barva.Cerveny
                                                                     ? 4
