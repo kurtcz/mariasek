@@ -749,6 +749,7 @@ namespace Mariasek.SharedClient
                 _safetyGameSelector.SelectedIndex = _safetyGameSelector.Items.FindIndex(Game.Settings.SafetyGameThreshold);
                 _safetyHundredSelector.SelectedIndex = _safetyHundredSelector.Items.FindIndex(Game.Settings.SafetyHundredThreshold);
                 _safetyBetlSelector.SelectedIndex = _safetyBetlSelector.Items.FindIndex(Game.Settings.SafetyBetlThreshold);
+                _safetyBetlSelector.IsEnabled = !Game.Settings.AiMayGiveUp;
                 _riskFactorSelector.SelectedIndex = _riskFactorSelector.Items.FindIndex(Game.Settings.RiskFactor);
                 _riskFactorAgainstSevenSelector.SelectedIndex = _riskFactorAgainstSevenSelector.Items.FindIndex(Game.Settings.RiskFactorSevenDefense);
                 _solitaryXSelector.SelectedIndex = _solitaryXSelector.Items.FindIndex(Game.Settings.SolitaryXThreshold);
