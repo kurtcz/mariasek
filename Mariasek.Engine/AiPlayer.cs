@@ -2298,6 +2298,14 @@ namespace Mariasek.Engine
                                                      (_talon == null ||
                                                       (!_talon.HasA(i.Key)) &&
                                                        !_talon.HasX(i.Key)));
+            var singleLowSuits = cardsPerSuit.Count(i => i.Value == 1 &&
+                                                         i.Key != trump.Value &&
+                                                         !hand.HasA(i.Key) &&
+                                                         !hand.HasX(i.Key) &&
+                                                         !hand.HasK(i.Key) &&
+                                                         !hand.HasQ(i.Key) &&
+                                                         (_talon == null ||
+                                                          !_talon.HasX(i.Key))); //zapocitame desitku pokud mame od barvy jen eso a desitka neni v talonu
             if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
                     .All(b => !hand.HasA(b) &&
                               !(hand.HasX(b) &&
@@ -2307,9 +2315,11 @@ namespace Mariasek.Engine
             {
                 emptySuits = 0;
                 aceOnlySuits = 0;
+                singleLowSuits = 0;
             }
             var axPotentialDeduction = GetTotalHoles(hand, false) / 3;
-            var axWinPotential = Math.Min(2 * emptySuits + aceOnlySuits, (int)Math.Ceiling(hand.CardCount(trump.Value) / 2f)); // ne kazdym trumfem prebiju a nebo x
+            var axWinPotential = Math.Min(2 * emptySuits + aceOnlySuits + (trumpCount >= 4 ? singleLowSuits : 0),
+                                          trumpCount == 4 ? 3 : (int)Math.Ceiling(trumpCount / 2f)); // ne kazdym trumfem prebiju a nebo x
 
             if (PlayerIndex == _g.GameStartingPlayerIndex &&    //mam-li malo trumfu, tak ze souperu moc A,X nedostanu
                 (trumpCount <= 3 ||
@@ -2329,6 +2339,7 @@ namespace Mariasek.Engine
                     axWinPotential = 0;
                 }
                 else if (cardsPerSuit.Count(i => i.Value > 0) == 3 &&
+                         trumpCount < 4 &&
                          axWinPotential > 1)
                 {
                     axWinPotential = 1;
