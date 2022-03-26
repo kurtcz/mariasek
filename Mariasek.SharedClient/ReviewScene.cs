@@ -13,7 +13,7 @@ namespace Mariasek.SharedClient
 	public class ReviewScene : Scene
     {
         private string _savedGameFilePath = Path.Combine(MariasekMonoGame.RootPath, "_temp.hra");
-        private string _screenPath = Path.Combine(MariasekMonoGame.RootPath, "screen.png");
+        private string _screenPath = Path.Combine(MariasekMonoGame.RootPath, "screen.jpg");
 
         Button _backButton;
         Button _replayButton;
@@ -384,16 +384,16 @@ namespace Mariasek.SharedClient
         {
             if (Game.EmailSender != null)
             {
-#if !__IOS__
                 using (var fs = Game.MainScene.GetFileStream(Path.GetFileName(_screenPath)))
                 {
                     var target = _review.SaveTexture();
-                    target.SaveAsPng(fs, target.Width, target.Height);
-                }
+#if !__IOS__
+                    target.SaveAsJpeg(fs, target.Width, target.Height);
 #endif
+                }
 
                 var subject = $"Mariášek: komentář v{MariasekMonoGame.Version} ({MariasekMonoGame.Platform})";
-                Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře\n:",
+                Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Sem napište svůj komentář k této hře\n:",
                                            new[] { _screenPath, _newGamePath, _endGamePath, SettingsScene._settingsFilePath });
             }
         }

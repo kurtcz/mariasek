@@ -297,7 +297,8 @@ namespace Mariasek.SharedClient.GameComponents
 		public RenderTarget2D SaveTexture()
 		{
 			var target = new RenderTarget2D(Game.SpriteBatch.GraphicsDevice,
-											(int)(ScaleMatrix.M41 + (Position.X + BoundsRect.Width) * ScaleMatrix.M11),
+                                            Game.Graphics.PreferredBackBufferWidth,
+                                            //(int)(ScaleMatrix.M41 + (Position.X + BoundsRect.Width) * ScaleMatrix.M11),
                                             (int)(ScaleMatrix.M42 + (Position.Y + BoundsRect.Height) * ScaleMatrix.M22));
 			Game.SpriteBatch.GraphicsDevice.SetRenderTarget(target);
             Game.SpriteBatch.GraphicsDevice.Clear(Color.DimGray);

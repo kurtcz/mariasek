@@ -649,12 +649,12 @@ namespace Mariasek.Engine
                     if ((_gameType & Hra.KiloProti) == 0 ||
                         HundredAgainstMoneyWon * SevenAgainstMoneyWon < 0)
                     {
-                        if (_bidding.PlayerBids.Any(i => (i & Hra.SedmaProti) != 0))
+                        if (_bidding.AllPlayerBids.Any(i => (i & Hra.SedmaProti) != 0))
                         {
-                            var playerIndex = _bidding.PlayerBids.Select((i, idx) => new { value = i, idx = idx })
-                                                                 .Where(i => (i.value & Hra.SedmaProti) != 0)
-                                                                 .Select(i => i.idx)
-                                                                 .FirstOrDefault();
+                            var playerIndex = _bidding.AllPlayerBids.Select((i, idx) => new { value = i, idx = idx })
+                                                                    .Where(i => (i.value & Hra.SedmaProti) != 0)
+                                                                    .Select(i => i.idx)
+                                                                    .FirstOrDefault();
                             if (playerIndex == _gameStartingPlayerIndex)
                             {
                                 playerIndex = (playerIndex + 1) % Game.NumPlayers;  //sedmu proti nemohl hlasit akter

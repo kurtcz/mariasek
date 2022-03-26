@@ -331,6 +331,7 @@ namespace Mariasek.AndroidClient
                 //Intent that only email apps can handle:
                 var email = new Intent(Intent.ActionSendto);
                 email.SetData(Android.Net.Uri.Parse("mailto:"));
+                email.SetType("text/plain");
                 email.PutExtra(Android.Content.Intent.ExtraEmail, "");
                 email.PutExtra(Android.Content.Intent.ExtraSubject, "");
 
@@ -354,15 +355,18 @@ namespace Mariasek.AndroidClient
 
         public void SendEmail(string[] recipients, string subject, string body, string[] attachments)
         {
-            var email = new Intent(Android.Content.Intent.ActionSendMultiple);
+            var selector = new Intent(Intent.ActionSendto);
+            selector.SetData(Android.Net.Uri.Parse("mailto:"));
+            
+            var email = new Intent(Intent.ActionSendMultiple);
             var uris = new List<Android.Net.Uri>();
 
             try
             {
-                email.SetType("text/plain");
-                email.PutExtra(Android.Content.Intent.ExtraEmail, recipients);
-                email.PutExtra(Android.Content.Intent.ExtraSubject, subject);
-                email.PutExtra(Android.Content.Intent.ExtraText, body);
+                email.Selector = selector;
+                email.PutExtra(Intent.ExtraEmail, recipients);
+                email.PutExtra(Intent.ExtraSubject, subject);
+                email.PutExtra(Intent.ExtraText, body);
                 foreach (var attachment in attachments)
                 {
                     //copy attachment to external storage where an email application can have access to it
@@ -394,14 +398,22 @@ namespace Mariasek.AndroidClient
                     }
                 }
                 email.PutParcelableArrayListExtra(Intent.ExtraStream, uris.ToArray());
-
-                var chooser = Intent.CreateChooser(email, "Jakou aplikací odeslat email?");
-                var emailApps = GetEmailApps();
-                if (emailApps.Length > 0)
+                if (email.ResolveActivity(Application.Context.PackageManager) != null)
                 {
-                    chooser.PutExtra(Intent.ExtraInitialIntents, emailApps);
+                    StartActivity(email);
                 }
-                StartActivity(chooser);
+                else
+                {
+                    email.Selector = null;
+                    email.SetType("text/plain");
+                    var chooser = Intent.CreateChooser(email, "Jakou aplikací odeslat email?");
+                    var emailApps = GetEmailApps();
+                    if (emailApps.Length > 0)
+                    {
+                        chooser.PutExtra(Intent.ExtraInitialIntents, emailApps);
+                    }
+                    StartActivity(chooser);
+                }
             }
             catch (Exception ex)
             {
