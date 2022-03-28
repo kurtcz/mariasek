@@ -652,7 +652,8 @@ namespace Mariasek.Engine
                         if (_bidding.AllPlayerBids.Any(i => (i & Hra.SedmaProti) != 0))
                         {
                             var playerIndex = _bidding.AllPlayerBids.Select((i, idx) => new { value = i, idx = idx })
-                                                                    .Where(i => (i.value & Hra.SedmaProti) != 0)
+                                                                    .Where(i => (i.value & Hra.SedmaProti) != 0 &&
+                                                                                i.idx != _gameStartingPlayerIndex)
                                                                     .Select(i => i.idx)
                                                                     .FirstOrDefault();
                             if (playerIndex == _gameStartingPlayerIndex)
@@ -671,7 +672,8 @@ namespace Mariasek.Engine
                         if (_bidding.PlayerBids.Any(i => (i & Hra.KiloProti) != 0))
                         {
                             var playerIndex = _bidding.PlayerBids.Select((i, idx) => new { value = i, idx = idx })
-                                                                 .Where(i => (i.value & Hra.KiloProti) != 0)
+                                                                 .Where(i => (i.value & Hra.KiloProti) != 0 &&
+                                                                             i.idx != _gameStartingPlayerIndex)
                                                                  .Select(i => i.idx)
                                                                  .FirstOrDefault();
                             if (playerIndex == _gameStartingPlayerIndex)
