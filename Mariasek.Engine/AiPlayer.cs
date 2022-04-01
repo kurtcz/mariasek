@@ -3296,7 +3296,7 @@ namespace Mariasek.Engine
                   (Hand.HasK(_g.trump.Value) ||                         //davej si re jen pokud trhas trumfovou hlasku
                    Hand.HasQ(_g.trump.Value) ||
                    Settings.SafetyGameThreshold == 0 ||
-                   (_maxMoneyLost >= -Settings.SafetyGameThreshold &&
+                   (_maxMoneyLost * 2 >= -Settings.SafetyGameThreshold && //x2 za dalsi flek
                     ((estimatedFinalBasicScore + kqScore >= 70 &&
                       !Is100AgainstPossible()) ||
                      estimatedFinalBasicScore >= 80 ||
@@ -3438,13 +3438,15 @@ namespace Mariasek.Engine
                       kqMaxOpponentScore <= 40) ||              //nebo
                      ((kqMaxOpponentScore == 0 &&               //vidim do vsech hlasek
                        axCount >= 2 &&
-                       estimatedFinalBasicScore >= 20) ||
+                       estimatedFinalBasicScore >= 20 &&
+                       (bidding.Bids & Hra.Sedma) == 0) ||
                       kqScore >= 60 ||
                       (kqScore >= 40 &&
                        kqMaxOpponentScore <= 20 &&
                        estimatedFinalBasicScore >= 20) ||
                       (estimatedFinalBasicScore >= 30 &&        //nebo vidim do tri hlasek a mam aspon 30 bodu
-                       kqMaxOpponentScore <= 20)) ||            //nebo
+                       kqMaxOpponentScore <= 20 &&
+                       (bidding.Bids & Hra.Sedma) == 0)) ||            //nebo
                      ((Hand.HasK(_g.trump.Value) ||             //pouze trhak a 40 bodu v hlasech na ruce
                        Hand.HasQ(_g.trump.Value)) &&
                       kqScore >= 40) ||                         //nebo

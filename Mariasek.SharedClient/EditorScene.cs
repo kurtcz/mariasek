@@ -208,7 +208,7 @@ namespace Mariasek.SharedClient
                 var subject = $"Mariášek: komentář v{MariasekMonoGame.Version} ({MariasekMonoGame.Platform})";
 
                 SaveGame(saveGamePath);
-                Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Sdělte mi prosím své dojmy nebo komentář ke konkrétní hře\n:",
+                Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Napište svůj komentář k této hře\n:",
                                             new[] { saveGamePath, SettingsScene._settingsFilePath });
             }
         }
