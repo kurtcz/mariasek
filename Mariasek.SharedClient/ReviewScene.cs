@@ -393,7 +393,7 @@ namespace Mariasek.SharedClient
                 }
 
                 var subject = $"Mariášek: komentář v{MariasekMonoGame.Version} ({MariasekMonoGame.Platform})";
-                Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Sem napište svůj komentář k této hře\n:",
+                Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Napište svůj komentář k této hře\n:",
                                            new[] { _screenPath, _newGamePath, _endGamePath, SettingsScene._settingsFilePath });
             }
         }

@@ -846,7 +846,7 @@ namespace Mariasek.SharedClient
                     Game.StorageAccessor.GetStorageAccess();
                     using (var fs = File.Open(_historyFilePath, FileMode.Open))
                     {
-                        Game.Money = (List<MoneyCalculatorBase>)xml.Deserialize(fs);
+                        Game.Money = (SynchronizedCollection<MoneyCalculatorBase>)xml.Deserialize(fs);
                     }
                 }
                 catch (Exception ex)

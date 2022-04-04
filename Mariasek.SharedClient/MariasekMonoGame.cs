@@ -250,7 +250,7 @@ namespace Mariasek.SharedClient
 		public IStorageAccessor StorageAccessor { get; private set; }
         public Vector2 CardScaleFactor { get; set; }
 
-        public List<MoneyCalculatorBase> Money = new List<MoneyCalculatorBase>();
+        public SynchronizedCollection<MoneyCalculatorBase> Money = new SynchronizedCollection<MoneyCalculatorBase>();
 
         private Stopwatch sw = new Stopwatch();
         public MariasekMonoGame()
