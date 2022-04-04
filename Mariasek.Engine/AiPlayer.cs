@@ -161,10 +161,19 @@ namespace Mariasek.Engine
 
             if (count > 1)
             {
-                if (hand.HasK(b))
-                    score += 20;
-                if (hand.HasQ(b))
-                    score += 20;
+                if (hand.HasK(b) &&
+                    hand.HasQ(b) &&
+                    count == 2)
+                {
+                    score += 30;
+                }
+                else
+                {
+                    if (hand.HasK(b))
+                        score += 20;
+                    if (hand.HasQ(b))
+                        score += 20;
+                }
                 if (hand.HasA(b))
                     score += 10;
                 if (hand.HasX(b))
@@ -3600,6 +3609,12 @@ namespace Mariasek.Engine
                        Hand.Count(i => i.Value >= Hodnota.Kral &&
                                        i.Suit == _g.trump.Value) >= 2 &&
                        Hand.SuitCount() == Game.NumSuits) ||
+                      //(Hand.Count(i => i.Suit == _g.trump.Value &&
+                      //                 i.Value >= Hodnota.Svrsek) >= 3 &&
+                      // handSuits == Game.NumSuits &&
+                      // Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                      //     .All(b => Hand.Any(i => i.Suit == b &&
+                      //                             i.Value >= Hodnota.Kral))) ||
                       (Hand.CardCount(Hodnota.Eso) >= 2 &&
                        ((axCount >= 4 &&
                          Enum.GetValues(typeof(Barva)).Cast<Barva>()

@@ -3690,7 +3690,7 @@ namespace Mariasek.SharedClient
                     var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
 
                     _trumpLabels[i].Text = string.Format("{0}\n{1}",
-                                             GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
+                                             g?.players?[i] != null ? GetTrumpLabelForPlayer(g.players[i].PlayerIndex) : Game.Settings.PlayerNames[i],
                                              Game.Settings.ShowScoreDuringGame
                                              ? sum.ToString("C", Game.CurrencyFormat)
                                              : string.Empty);
