@@ -110,7 +110,17 @@ namespace Mariasek.Engine
                         (_gameType & Hra.Sedma) != 0 &&
                         (_gameType & Hra.Hra) != 0)
                     {
-                        _bannedSuits.Add(r.c1.Suit);
+                        //neplati pokud mas od dane barvy nejvyssi karty
+                        if (!((_probabilities.SuitProbability(TeamMateIndex, r.c1.Suit, RoundNumber) > 0 ||
+                               _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) == 0) &&
+                              hands[MyIndex].Where(i => i.Suit == r.c1.Suit)
+                                            .Count(i => _probabilities.SuitProbability(opponent, i.Suit, RoundNumber) > 0 &&
+                                                        _probabilities.PotentialCards(opponent)
+                                                                      .Where(j => j.Suit == i.Suit)
+                                                                      .All(j => j.Value < i.Value)) >= _probabilities.PotentialCards(opponent).CardCount(r.c1.Suit)))
+                        {
+                            _bannedSuits.Add(r.c1.Suit);
+                        }
                     }
                     //nehraj barvy ktere tlaci z kolegy trumfy
                     if ((_gameType & Hra.Kilo) == 0 &&
@@ -118,8 +128,9 @@ namespace Mariasek.Engine
                         r.c2.Suit != r.c1.Suit &&
                         r.c2.Suit == _trump)
                     {
-                        //neplati pokud tak jiste vytlacis ze soupere ostrou kartu
-                        if (_probabilities.HasAOrXAndNothingElse(r.player3.PlayerIndex, r.c1.Suit, RoundNumber) < 1)
+                        //neplati pokud kolega uz nema trumfy nebo tak jiste vytlacis ze soupere ostrou kartu
+                        if (_probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) > 0 &&
+                            _probabilities.HasAOrXAndNothingElse(r.player3.PlayerIndex, r.c1.Suit, RoundNumber) < 1)
                         {
                             _bannedSuits.Add(r.c1.Suit);
                         }
@@ -128,7 +139,8 @@ namespace Mariasek.Engine
                         r.c3.Suit != r.c1.Suit &&
                         r.c3.Suit == _trump)
                     {
-                        if (_probabilities.HasAOrXAndNothingElse(r.player2.PlayerIndex, r.c1.Suit, RoundNumber) < 1)
+                        if (_probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) > 0 &&
+                            _probabilities.HasAOrXAndNothingElse(r.player2.PlayerIndex, r.c1.Suit, RoundNumber) < 1)
                         {
                             _bannedSuits.Add(r.c1.Suit);
                         }
@@ -137,6 +149,10 @@ namespace Mariasek.Engine
                         r.player1.TeamMateIndex == -1 &&
                         hands[MyIndex].CardCount(r.c1.Suit) > 2 &&   //pokud mam jen jednu kartu v barve, dovol mi ji odmazat
                         _probabilities.SuitProbability(r.player1.PlayerIndex, r.c1.Suit, RoundNumber) > 0 &&  //pouze pokud akter barvu zna, jinak je barva bezpecna
+                        !(hands[MyIndex].Where(i => i.Suit == r.c1.Suit)              //bezpecna je i pokud mam nejvyssi karty v barve ja
+                                        .Count(i => _probabilities.PotentialCards(opponent)
+                                                                  .Where(j => j.Suit == i.Suit)
+                                                                  .All(j => j.Value < i.Value)) >= _probabilities.PotentialCards(opponent).CardCount(r.c1.Suit)) &&
                         Enum.GetValues(typeof(Barva)).Cast<Barva>()
                             .Where(b => hands[MyIndex].HasSuit(b) &&
                                         b != _trump &&
