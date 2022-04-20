@@ -685,7 +685,7 @@ namespace Mariasek.Engine
                                .ThenBy(i => i.Value));                            //vybirej od nejmensich karet
 
             talon = talon.Distinct().ToList();
-
+            
             //pokud to vypada na sedmu se 4 kartama, tak se snaz mit vsechny barvy na ruce
             if (hand.Has7(trumpCard.Suit) &&
                 hand.CardCount(trumpCard.Suit) == 4 &&
@@ -717,6 +717,11 @@ namespace Mariasek.Engine
                               i.Suit == trumpCard.Suit &&
                               i.Value < Hodnota.Svrsek) &&
                 talon.Count > 2 &&
+                talon.Any(i => i.Suit != trumpCard.Suit &&
+                               ((i.Value == Hodnota.Kral &&
+                                 hand.HasQ(i.Suit)) ||
+                                (i.Value == Hodnota.Svrsek &&
+                                 hand.HasK(i.Suit)))) &&
                 talon.Count(i => i.Suit != trumpCard.Suit &&
                                  ((i.Value < Hodnota.Svrsek &&
                                    !(hand.HasX(i.Suit) &&   //ignoruj barvu kde mam X+2 plivy
