@@ -877,7 +877,7 @@ namespace Mariasek.Engine
                 {
                     var bidding = new Bidding(_g);
                     Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null,
-                                                    _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                                    _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
                                                     _g.CancellationToken, _stringLoggerFactory, new List<Card>())
                     {
                         ExternalDebugString = _debugString,
@@ -965,7 +965,7 @@ namespace Mariasek.Engine
                     flavour = GameFlavour.Good;
                 }
                 Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), TrumpCard?.Suit,
-                                               _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                               _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
                                                _g.CancellationToken, _stringLoggerFactory, _talon)
                 {
                     ExternalDebugString = _debugString,
@@ -1014,7 +1014,7 @@ namespace Mariasek.Engine
                 }
                 var probabilities = Probabilities;
                 Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null,
-                                                _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                                _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
                                                 _g.CancellationToken, _stringLoggerFactory, _talon)
 				{
 					ExternalDebugString = _debugString
@@ -2627,6 +2627,14 @@ namespace Mariasek.Engine
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
+            if ((!hand.HasK(_trump.Value) ||
+                 !hand.HasQ(_trump.Value)) &&
+                hand.Any(i => i.Value < Hodnota.Desitka &&
+                              !hand.HasA(i.Suit) &&
+                              !hand.HasX(i.Suit)))
+            {
+                return true;
+            }
             if (!hand.HasA(_trump.Value) &&
                 !hand.HasX(_trump.Value) &&
                 Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -3487,7 +3495,7 @@ namespace Mariasek.Engine
                      ((Hand.HasK(_g.trump.Value) ||             //trhak a vidim do vsech hlasek (u sedmy jeste pokud mam vic bodu nez souper)
                        Hand.HasQ(_g.trump.Value)) &&
                        ((bidding.Bids & Hra.Sedma) == 0 ||
-                        estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore) &&
+                        estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + Math.Min(20, kqMaxOpponentScore)) &&
                       !Is100AgainstPossible()) ||
                      ((Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&
@@ -3512,8 +3520,13 @@ namespace Mariasek.Engine
                       estimatedFinalBasicScore >= 10 &&
                       axCount >= 2) ||       //a odhaduju ze uhraju aspon 20 bodu v desitkach
                      (Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
-                      kqScore >= 40 &&                         //40 bodu v hlasech
+                      kqScore >= 40 &&                         //a 40 bodu v hlasech
                       estimatedFinalBasicScore >= 40) ||       //a odhaduju ze uhraju aspon 40 bodu v desitkach
+                     (Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
+                      Hand.CardCount(Hodnota.Eso) >= 2 &&      //a k tomu aspon jeste jedno dalsi eso
+                      axCount >= 4 &&                          //a dve dalsi desitky
+                      kqScore >= 20 &&                         //a 20 bodu v hlasech
+                      estimatedFinalBasicScore >= 50) ||       //a odhaduju ze uhraju aspon 50 bodu v desitkach
                      ((Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&           //nebo mam trhaka
                       Hand.CardCount(_g.trump.Value) >= 4 &&   //a aspon 4 trumfy
@@ -3579,7 +3592,7 @@ namespace Mariasek.Engine
                         estimatedFinalBasicScore >= 40))) ||  //nebo mam aspon jeden hlas, dost trumfu a dost bodu na ruce a akter nemuze uhrat kilo
                      (kqScore >= 20 &&
                       Hand.CardCount(_g.trump.Value) >= 4 &&
-                      estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
+                      estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + Math.Min(20, kqMaxOpponentScore) &&
                       estimatedOpponentFinalBasicScore + kqMaxOpponentScore < 100) ||
                      ((Hand.HasK(_g.trump.Value) ||            //nebo mam trhak, aspon 2 desitky, aspon ctyri trumfy a souper ma max. 40 bodu v hlasech
                        Hand.HasQ(_g.trump.Value)) &&
@@ -3996,7 +4009,7 @@ namespace Mariasek.Engine
                 _talon = new List<Card>(_g.talon); //TODO: tohle by se melo delat v Game.LoadGame()!
 			}
             Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump,
-                                            _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                            _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
                                             _g.CancellationToken, _stringLoggerFactory, _talon)
 			{
 				ExternalDebugString = _debugString
@@ -4034,7 +4047,7 @@ namespace Mariasek.Engine
             if (PlayerIndex != _g.GameStartingPlayerIndex || Probabilities == null) //Probabilities == null by nemelo nastat, ale ...
             {
                 Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump,
-                                                _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                                _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
                                                 _g.CancellationToken, _stringLoggerFactory, _talon)
 				{
 					ExternalDebugString = _debugString
@@ -5154,11 +5167,11 @@ namespace Mariasek.Engine
             //prob.UseDebugString = false;    //otherwise we are being really slooow
 
             const int talonIndex = Game.NumPlayers;
-            var prob1 = 0 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(0, player1, hands[0], trump, _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 0 == PlayerIndex ? (List<Card>)hands[talonIndex] : null);
+            var prob1 = 0 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(0, player1, hands[0], trump, _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 0 == PlayerIndex ? (List<Card>)hands[talonIndex] : null);
             prob1.UseDebugString = false;
-            var prob2 = 1 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(1, player1, hands[1], trump, _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 1 == PlayerIndex ? (List<Card>)hands[talonIndex] : null);
+            var prob2 = 1 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(1, player1, hands[1], trump, _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 1 == PlayerIndex ? (List<Card>)hands[talonIndex] : null);
             prob2.UseDebugString = false;
-            var prob3 = 2 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(2, player1, hands[2], trump, _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 2 == PlayerIndex ? (List<Card>)hands[talonIndex] : null);
+            var prob3 = 2 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(2, player1, hands[2], trump, _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 2 == PlayerIndex ? (List<Card>)hands[talonIndex] : null);
             prob3.UseDebugString = false;
 
             if (Settings.Cheat)

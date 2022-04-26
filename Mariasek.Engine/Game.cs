@@ -1543,7 +1543,8 @@ namespace Mariasek.Engine
                     validGameTypes |= Hra.Kilo; //aby neslo omylem hlasit kilo bez hlasky
                 }
                 if(player.Hand.Has7(trump.Value) ||
-                   AllowFakeSeven)
+                   AllowFakeSeven ||
+                   AllowFake107)
                 {
                     validGameTypes |= Hra.Sedma;
                 }

@@ -58,7 +58,7 @@ namespace Mariasek.SharedClient
             _trumpCard = null;
             firstTimeChoosingFlavour = true;
             Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump,
-                                            _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                            _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
                                             _g.CancellationToken, _stringLoggerFactory, _g.talon);
             _cancellationTokenSource = new CancellationTokenSource();
             if (_aiPlayer != null)
@@ -181,7 +181,7 @@ namespace Mariasek.SharedClient
             if (_aiPlayer != null)
             {
                 _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump,
-                                                          _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                                          _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
                                                           _g.CancellationToken, _stringLoggerFactory, _talon)
                 {
                     ExternalDebugString = _aiPlayer._debugString
@@ -218,6 +218,11 @@ namespace Mariasek.SharedClient
                     if (Enum.GetValues(typeof(Barva)).Cast<Barva>().Any(b => Hand.HasK(b) && Hand.HasQ(b)))
                     {
                         validGameTypes |= Hra.Kilo;
+
+                        if (_g.AllowFake107)
+                        {
+                            validGameTypes |= Hra.Sedma;
+                        }
                     }
                     if (_aiPlayer != null)
                         
@@ -277,7 +282,7 @@ namespace Mariasek.SharedClient
                                 if (_talon != null)
                                 {
                                     _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump,
-                                                                              _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                                                              _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
                                                                               _g.CancellationToken, _stringLoggerFactory, _aiPlayer._talon)
 							        {
 								        ExternalDebugString = _aiPlayer._debugString
@@ -331,7 +336,7 @@ namespace Mariasek.SharedClient
                         if (_talon != null)
                         {
                             _aiPlayer.Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump,
-                                                                      _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                                                      _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
                                                                       _g.CancellationToken, _stringLoggerFactory, _talon)
                             {
                                 ExternalDebugString = _aiPlayer._debugString
@@ -604,7 +609,7 @@ namespace Mariasek.SharedClient
             {
                 _aiPlayer.Probabilities = new Probability(PlayerIndex, e.GameStartingPlayerIndex, new Hand(Hand), 
                                                           e.TrumpCard != null ? e.TrumpCard.Suit : (Barva?)null,
-                                                          _g.AllowFakeSeven, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                                          _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
                                                           _g.CancellationToken, _stringLoggerFactory, _talon)
                 {
                     ExternalDebugString = _aiPlayer._debugString
