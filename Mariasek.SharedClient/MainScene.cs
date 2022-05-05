@@ -841,7 +841,7 @@ namespace Mariasek.SharedClient
                 System.Diagnostics.Debug.WriteLine("Cannot load CSV history\n{0}", e.Message);
                 try
                 {
-                    var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
+                    var xml = new XmlSerializer(typeof(SynchronizedCollection<MoneyCalculatorBase>));
 
                     Game.StorageAccessor.GetStorageAccess();
                     using (var fs = File.Open(_historyFilePath, FileMode.Open))
@@ -892,7 +892,7 @@ namespace Mariasek.SharedClient
                 System.Diagnostics.Debug.WriteLine("Cannot save CSV history\n{0}", e.Message);
                 try
                 {
-                    var xml = new XmlSerializer(typeof(List<MoneyCalculatorBase>));
+                    var xml = new XmlSerializer(typeof(SynchronizedCollection<MoneyCalculatorBase>));
 
                     Game.StorageAccessor.GetStorageAccess();
                     CreateDirectoryForFilePath(_historyFilePath);
@@ -1533,7 +1533,7 @@ namespace Mariasek.SharedClient
                      //}
                      for (var i = 0; i < _trumpLabels.Count(); i++)
                      {
-                         var sum = new List<MoneyCalculatorBase>(Game.Money).Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
+                         var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
                          //_trumpLabels[i].Text = g.players[i].Name;
                          _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                                   GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
@@ -2408,7 +2408,7 @@ namespace Mariasek.SharedClient
                                                      g.players[_gameFlavourChosenEventArgs.Player.PlayerIndex].Name,
                                                      _gameFlavourChosenEventArgs.AXTalon ? " Ostrá v talonu" : string.Empty,
                                                      Game.Settings.ShowScoreDuringGame
-                                                     ? (new List<MoneyCalculatorBase>(Game.Money).Sum(j => j.MoneyWon[_gameFlavourChosenEventArgs.Player.PlayerIndex]) * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat)
+                                                     ? (Game.Money.Sum(j => j.MoneyWon[_gameFlavourChosenEventArgs.Player.PlayerIndex]) * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat)
                                                      : string.Empty);
                         }
                         if (g.GameStartingPlayerIndex != 2)
@@ -2431,7 +2431,7 @@ namespace Mariasek.SharedClient
                                                                                  g.players[_gameFlavourChosenEventArgs.Player.PlayerIndex].Name,
                                                                                  _gameFlavourChosenEventArgs.AXTalon ? " Ostrá v talonu" : string.Empty,
                                                                                  Game.Settings.ShowScoreDuringGame
-                                                                                 ? (new List<MoneyCalculatorBase>(Game.Money).Sum(j => j.MoneyWon[_gameFlavourChosenEventArgs.Player.PlayerIndex]) * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat)
+                                                                                 ? (Game.Money.Sum(j => j.MoneyWon[_gameFlavourChosenEventArgs.Player.PlayerIndex]) * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat)
                                                                                  : string.Empty);
                         }
                         ShowThinkingMessage((_gameFlavourChosenEventArgs.Player.PlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers);
@@ -2525,7 +2525,7 @@ namespace Mariasek.SharedClient
                     {
                         _trumpLabels[i].Text = string.Format("{0}\n{1}", GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
                                                                          Game.Settings.ShowScoreDuringGame
-                                                                         ? (new List<MoneyCalculatorBase>(Game.Money).Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat)
+                                                                         ? (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat)
                                                                          : string.Empty);
                     }
                 });
@@ -3417,7 +3417,7 @@ namespace Mariasek.SharedClient
                         }
                         for (var i = 0; i < _trumpLabels.Count(); i++)
                         {
-                            var sum = new List<MoneyCalculatorBase>(Game.Money).Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
+                            var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
                             //_trumpLabels[i].Text = g.players[i].Name;
                             _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                                      GetTrumpLabelForPlayer(g.players[i].PlayerIndex),

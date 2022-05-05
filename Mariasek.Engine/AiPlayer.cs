@@ -2901,7 +2901,7 @@ namespace Mariasek.Engine
 
                 n += GetTotalHoles(hand, b);
             }
-            _debugString.AppendFormat("TotalHoles: {0}\n", n);
+            _debugString.Append($"TotalHoles: {n}\n");
             DebugInfo.TotalHoles = n;
 
             return n;

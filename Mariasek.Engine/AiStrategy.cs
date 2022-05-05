@@ -6187,13 +6187,14 @@ namespace Mariasek.Engine
                         else if (TeamMateIndex == player1)
                         {
                             //: o-c
-                            if (c2.IsHigherThan(c1, _trump) &&
+                            if (c1.IsHigherThan(c1, _trump) &&
                                 ValidCards(c1, c2, hands[MyIndex]).Any(i => i.Suit != _trump &&
                                                                             (i.Value == Hodnota.Eso ||
                                                                              i.Value == Hodnota.Desitka)))
                             {
                                 return null;    //pouzijeme pravidlo o namazani
                             }
+
                             cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i =>
                             {
                                 var i2 = hands[player1].First(l => l != c1);

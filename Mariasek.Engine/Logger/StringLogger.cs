@@ -26,7 +26,14 @@ public class StringLogger : IStringLogger
     {
         if (_doLog)
         {
-            _sb.Append(s);
+            try
+            {
+                _sb.Append(s);
+            }
+            catch
+            {
+                _doLog = false;
+            }
         }
     }
 
@@ -34,7 +41,14 @@ public class StringLogger : IStringLogger
     {
         if (_doLog)
         {
-            _sb.AppendLine(s);
+            try
+            {
+                _sb.AppendLine(s);
+            }
+            catch
+            {
+                _doLog = false;
+            }
         }
     }
 
@@ -42,7 +56,14 @@ public class StringLogger : IStringLogger
     {
         if (_doLog)
         {
-            _sb.AppendFormat(format, args);
+            try
+            {
+                _sb.AppendFormat(format, args);
+            }
+            catch
+            {
+                _doLog = false;
+            }
         }
     }
 
@@ -50,12 +71,19 @@ public class StringLogger : IStringLogger
     {
         if (_doLog)
         {
-            _sb.Clear();
+            try
+            {
+                _sb.Clear();
+            }
+            catch
+            {
+                _doLog = false;
+            }
         }
     }
 
     public override string ToString()
     {
-        return _doLog ? _sb.ToString() : string.Empty;
+        return _doLog ? _sb?.ToString() ?? string.Empty : string.Empty;
     }
 }
