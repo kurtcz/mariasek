@@ -1624,8 +1624,11 @@ namespace Mariasek.Engine
                                                              _probabilities.CardProbability(player3, new Card(_trump, h)) > 0);
 
                         if (opponentTrumps > 0 &&
+                            hands[MyIndex].CardCount(_trump) > 1 &&
                             hands[MyIndex].All(i => (i.Suit != _trump &&
-                                                     !holesPerSuit[i.Suit].Any()) ||
+                                                     !holesPerSuit[i.Suit].Any() &&
+                                                     _probabilities.PotentialCards(player2).CardCount(i.Suit) > 1 &&
+                                                     _probabilities.PotentialCards(player3).CardCount(i.Suit) > 1) ||
                                                     (i.Suit == _trump &&
                                                      lowCards.Contains(i))))
                         {
@@ -1679,7 +1682,10 @@ namespace Mariasek.Engine
                                                      i.Suit == _trump) ||
                              (hands[MyIndex].All(i => i.Suit == _trump ||
                                                       topCards.Contains(i)) &&
-                              !topCards.HasSuit(_trump))) &&
+                              !topCards.HasSuit(_trump) &&
+                              (hands[MyIndex].CardCount(_trump) > 1 ||
+                               topCards.All(i => _probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 1 &&
+                                                 _probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1)))) &&
                             hands[MyIndex].CardCount(_trump) > opponentTrumps && 
                             opponentTrumps > 0)
                         {
@@ -1995,7 +2001,8 @@ namespace Mariasek.Engine
                         if (!cardsToPlay.Any() &&
                             opponentTrumps > 0 &&
                             (hands[MyIndex].CardCount(_trump) > opponentTrumps ||
-                             (hands[MyIndex].CardCount(_trump) == opponentTrumps) &&
+                             (hands[MyIndex].CardCount(_trump) == opponentTrumps &&
+                              hands[MyIndex].CardCount(_trump) > 1) &&
                               hands[MyIndex].Any(i => i.Suit == _trump &&
                                                       Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                           .Where(h => h > i.Value)
@@ -2210,7 +2217,8 @@ namespace Mariasek.Engine
 													i.Value == Hodnota.Desitka ||
 													i.Suit == _trump) &&
                             (hands[MyIndex].CardCount(_trump) > opponentTrumps ||
-                             (hands[MyIndex].CardCount(_trump) == opponentTrumps) &&
+                             (hands[MyIndex].CardCount(_trump) == opponentTrumps &&
+                              hands[MyIndex].CardCount(_trump) > 1) &&
                               hands[MyIndex].Any(i => i.Suit == _trump &&
                                                       Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                           .Where(h => h > i.Value)

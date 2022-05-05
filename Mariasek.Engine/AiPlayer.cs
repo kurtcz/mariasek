@@ -3454,10 +3454,12 @@ namespace Mariasek.Engine
                       (estimatedFinalBasicScore >= 30 ||        //a aspon 30 nebo 20+20 bodu na ruce
                        (estimatedFinalBasicScore >= 20 &&
                         kqScore >= 20) &&
+                       (bidding.Bids & Hra.Sedma) == 0 &&
                        kqMaxOpponentScore <= 40)) ||            //nebo
                      (Hand.CardCount(_g.trump.Value) >= 2 &&    //aspon 2 trumfy a trhaka
                       (Hand.HasK(_g.trump.Value) ||             //a aspon 3 ostre karty
                        Hand.HasQ(_g.trump.Value)) &&            //a aspon jedno eso
+                      (bidding.Bids & Hra.Sedma) == 0 &&
                       axCount >= 3 &&
                       Hand.CardCount(Hodnota.Eso) >= 1) ||
                      (Hand.CardCount(_g.trump.Value) >= 2 &&    //aspon 2 trumfy
@@ -3499,7 +3501,8 @@ namespace Mariasek.Engine
                       !Is100AgainstPossible()) ||
                      ((Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&
-                      DebugInfo.Tygrovo >= 15) ||
+                      DebugInfo.Tygrovo >= 15 &&
+                      (bidding.Bids & Hra.Sedma) == 0) ||
                      ((Hand.HasA(_g.trump.Value) ||            //nebo mam trumfove eso
                        Hand.HasX(_g.trump.Value)) &&           //popr. desitku
                       (Hand.HasK(_g.trump.Value) ||            //a k tomu trhak
@@ -3641,13 +3644,16 @@ namespace Mariasek.Engine
                       Hand.CardCount(Hodnota.Eso) >= 2)) ||           //ctyri a vice trumfu nebo
                     (Hand.CardCount(_g.trump.Value) >= 3 &&          //tri trumfy 3-3-2-2                     
                      ((kqScore >= 60 &&
-                       Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                           .Count(b => Hand.HasA(b) ||
-                                       (Hand.HasX(b) &&
-                                        Hand.HasK(b)) ||
-                                       (Hand.HasK(b) &&
-                                        Hand.HasQ(b) &&
-                                        Hand.HasJ(b))) >= 3) ||
+                       ((Hand.HasA(_g.trump.Value) &&
+                         estimatedFinalBasicScore >= 40 &&
+                         axCount >= 2) ||
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            .Count(b => Hand.HasA(b) ||
+                                        (Hand.HasX(b) &&
+                                         Hand.HasK(b)) ||
+                                        (Hand.HasK(b) &&
+                                         Hand.HasQ(b) &&
+                                         Hand.HasJ(b))) >= 3)) ||
                       (Hand.Count(i => i.Value >= Hodnota.Kral) >= 6 &&
                        Hand.Count(i => i.Value >= Hodnota.Kral &&
                                        i.Suit == _g.trump.Value) >= 2 &&
