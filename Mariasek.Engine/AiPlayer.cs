@@ -1787,7 +1787,14 @@ namespace Mariasek.Engine
             _maxBasicPointsLost = moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0)
                                                    .DefaultIfEmpty()
                                                    .Max(i => (float)(i?.BasicPointsLost ?? 0));
-            _maxMoneyLost = moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0)
+            //_maxMoneyLost rozhoduje o tom jestli utect na betla
+            //proto u aktera do max ztrat pocitam jen hru (s tichym kilem proti)
+            //ale u obrancu beru vsechny simulace vcetne kila
+            //_maxMoneyLost = moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0)
+            _maxMoneyLost = moneyCalculations.Where(i => (TeamMateIndex == -1 &&            
+                                                          (i.GameType & Hra.Hra) != 0) ||
+                                                         (TeamMateIndex != -1 &&
+                                                          (i.GameType & (Hra.Betl | Hra.Durch)) == 0))
                                              .DefaultIfEmpty()
                                              .Min(i => i?.MoneyWon?[PlayerIndex] ?? 0);
             _hundredOverBetl = _avgWinForHundred >= 2 * _g.BetlValue;
@@ -2455,7 +2462,18 @@ namespace Mariasek.Engine
                                 .Where(b => hand.HasSuit(b))
                                 .All(b => hand.HasA(b) ||
                                           (hand.HasX(b) &&
-                                           hand.HasK(b)))) &&
+                                           (hand.HasK(b) ||
+                                            (hand.HasQ(b) &&
+                                             hand.CardCount(b) >= 3))))) &&
+                          !(hand.HasK(_trump.Value) &&
+                            hand.HasQ(_trump.Value) &&
+                            hand.SuitCount() == 4 &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => hand.HasSuit(b) &&
+                                            b != _trump.Value)
+                                .All(b => hand.CardCount(b) >= 2 &&
+                                          hand.Any(i => i.Suit == b &&
+                                                        i.Value >= Hodnota.Desitka))) &&
                           !(hand.HasA(_trump.Value) &&
                             (hand.HasX(_trump.Value) ||
                              hand.HasK(_trump.Value) ||
@@ -2472,7 +2490,8 @@ namespace Mariasek.Engine
                                 .Where(b => hand.HasSuit(b))
                                 .All(b => hand.HasA(b) ||
                                           (hand.HasX(b) &&
-                                           hand.HasK(b)))) &&
+                                           (hand.HasK(b) ||
+                                            hand.CardCount(b) > 2)))) &&
                           (!hand.HasA(_trump.Value) ||                          //nemam trumfove A nebo X a
                            !hand.HasX(_trump.Value)) &&
                           !(hand.HasK(_trump.Value) &&                          //nevidim do trumfoveho hlasu a
@@ -2503,7 +2522,16 @@ namespace Mariasek.Engine
                                            (hand.HasK(b) ||
                                             hand.CardCount(b) > 2)))) &&
                           (hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||    //3a. mene nez 3 vysoke karty celkem
-                           (hand.Count(i => i.Value == Hodnota.Eso) +           //3b. nebo mene nez 2 (resp. 3) uhratelne A, X
+                           (!(hand.HasK(_trump.Value) &&
+                              hand.HasQ(_trump.Value) &&
+                              hand.SuitCount() == 4 &&
+                              Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => hand.HasSuit(b) &&
+                                            b != _trump.Value)
+                                .All(b => hand.CardCount(b) >= 2 &&
+                                          hand.Any(i => i.Suit == b &&
+                                                        i.Value >= Hodnota.Desitka))) &&
+                            hand.Count(i => i.Value == Hodnota.Eso) +           //3b. nebo mene nez 2 (resp. 3) uhratelne A, X
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Count(b => (hand.HasX(b) &&
                                              (hand.HasK(b) ||
