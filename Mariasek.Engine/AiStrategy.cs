@@ -6156,9 +6156,17 @@ namespace Mariasek.Engine
                         {
                             return null;
                         }
+                        var opponent = TeamMateIndex != -1 ? TeamMateIndex == player1 ? player2 : player1 : player1;
+                        
                         if (hands[MyIndex].CardCount(_trump) == 2 &&
                             (_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 &&
                             hands[MyIndex].Has7(_trump) &&
+                            !(hands[MyIndex].HasX(_trump) &&
+                              ((TeamMateIndex == -1 &&
+                                (_probabilities.PotentialCards(player1).HasA(_trump) ||
+                                 _probabilities.PotentialCards(player2).HasA(_trump))) ||
+                               (TeamMateIndex != -1 &&
+                                _probabilities.PotentialCards(opponent).HasA(_trump)))) &&
                             Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                 .Count(h => ((c1.Suit != _trump || c1.Value != h) &&
                                              _probabilities.CardProbability(player1, new Card(_trump, h)) > 0) ||

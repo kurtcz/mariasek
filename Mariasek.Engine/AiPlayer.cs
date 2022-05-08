@@ -1059,7 +1059,7 @@ namespace Mariasek.Engine
                                ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                                  lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
                                  (!_trump.HasValue ||
-                                  estimatedPointsWon <= 20 ||
+                                  estimatedPointsWon <= 40 ||
                                   (!Hand.HasK(_trump.Value) &&
                                    !Hand.HasQ(_trump.Value) &&
                                    !(Hand.CardCount(_trump.Value) >= 5 &&
@@ -1800,12 +1800,18 @@ namespace Mariasek.Engine
             _hundredOverBetl = _avgWinForHundred >= 2 * _g.BetlValue;
             _hundredOverDurch = _avgWinForHundred >= 2 * _g.DurchValue;
             _gamesBalance = PlayerIndex == gameStartingPlayerIndex
-                            ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0 &&
-                                                           (i.GameType & Hra.Sedma) == 0).Count(i => i.GameWon)
+                            ? moneyCalculations.Any(i => (i.GameType & Hra.Hra) != 0 &&
+                                                         (i.GameType & Hra.Sedma) == 0)
+                              ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0 &&
+                                                             (i.GameType & Hra.Sedma) == 0).Count(i => i.GameWon)
+                              : moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => i.GameWon)
                             : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.GameWon);
             _gameSimulations = PlayerIndex == gameStartingPlayerIndex
-                                ? moneyCalculations.Count(i => (i.GameType & Hra.Hra) != 0 &&
-                                                               (i.GameType & Hra.Sedma) == 0)
+                                ? moneyCalculations.Any(i => (i.GameType & Hra.Hra) != 0 &&
+                                                             (i.GameType & Hra.Sedma) == 0)
+                                  ? moneyCalculations.Count(i => (i.GameType & Hra.Hra) != 0 &&
+                                                                 (i.GameType & Hra.Sedma) == 0)
+                                  : moneyCalculations.Count(i => (i.GameType & Hra.Hra) != 0)
                                 : moneyCalculations.Count(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0);
             _hundredsBalance =  PlayerIndex == gameStartingPlayerIndex
                                 ? moneyCalculations.Where(i => (i.GameType & Hra.Kilo) != 0).Count(i => i.HundredWon)
@@ -2344,7 +2350,10 @@ namespace Mariasek.Engine
                               !(hand.HasX(b) &&
                                 (hand.HasK(b) ||
                                  (hand.HasQ(b) &&
-                                  hand.CardCount(b) >= 3)))))
+                                  hand.CardCount(b) >= 3)))) &&
+                !(hand.CardCount(trump.Value) >= 5 &&
+                  hand.HasK(trump.Value) &&
+                  hand.HasQ(trump.Value)))
             {
                 emptySuits = 0;
                 aceOnlySuits = 0;
@@ -2650,6 +2659,22 @@ namespace Mariasek.Engine
             {
                 return false;
             }
+            if (Hand.HasA(_trump.Value) &&
+                Hand.HasX(_trump.Value) &&
+                Hand.HasK(_trump.Value) &&
+                Hand.HasQ(_trump.Value) &&
+                Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                    .Where(b => Hand.HasSuit(b) &&
+                                b != _trump.Value)
+                    .All(b => (Hand.CardCount(b) == 2 ||
+                               Hand.Count == 12) &&
+                              Hand.Any(i => i.Suit == b &&
+                                            i.Value >= Hodnota.Desitka) &&
+                              Hand.Any(i => i.Suit == b &&
+                                            i.Value >= Hodnota.Spodek)))
+            {
+                return false;
+            }
             if (hand.CardCount(_trump.Value) <= 3)
             {
                 DebugInfo.HundredTooRisky = true;
@@ -2742,7 +2767,7 @@ namespace Mariasek.Engine
             //    }
             //}
             //Pokud nevidis do vsech barev a mas barvu s vic nez 2 nizkyma kartama bez A nebo X tak kilo nehraj. Souperi by si mohli uhrat desitky
-            if (hand.Select(i => i.Suit).Distinct().Count() < 4 &&
+            if (hand.SuitCount() < Game.NumSuits &&
                 n > 3 &&
                 Enum.GetValues(typeof(Barva)).Cast<Barva>()
                     .Where(b => b != _trump.Value)
@@ -3341,7 +3366,7 @@ namespace Mariasek.Engine
                                         : 0;
             var totalHoles = GetTotalHoles();
             var handSuits = Hand.SuitCount();
-           
+
             if ((bidding.Bids & Hra.Hra) != 0 &&                //pokud byla zvolena hra (nebo hra a sedma]
                 Settings.CanPlayGameType[Hra.Hra] &&
                 bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Hra] &&
@@ -3363,7 +3388,8 @@ namespace Mariasek.Engine
                     ((estimatedFinalBasicScore + kqScore >= 70 &&
                       !Is100AgainstPossible()) ||
                      estimatedFinalBasicScore >= 80 ||
-                     estimatedFinalBasicScore + kqScore >= 90))) &&   //nebo pokud netrhas ale v zadne simulaci nevysla vysoka prohra
+                     (estimatedFinalBasicScore + kqScore >= 80 &&
+                      !Is100AgainstPossible(110))))) &&   //nebo pokud netrhas ale v zadne simulaci nevysla vysoka prohra
                   ((bidding.Bids & Hra.SedmaProti) == 0 ||
                    (Hand.HasA(_g.trump.Value) &&
                     axCount >= 5)) &&
@@ -3549,6 +3575,7 @@ namespace Mariasek.Engine
                       kqScore >= 20 &&                         //a aspon 1 netrumfovou desitku
                       kqMaxOpponentScore <= 20 &&              //a vidim aspon do tri hlasu
                       estimatedFinalBasicScore >= 10 &&
+                      (bidding.Bids & Hra.Sedma) == 0 &&
                       axCount >= 2) ||       //a odhaduju ze uhraju aspon 20 bodu v desitkach
                      (Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
                       kqScore >= 40 &&                         //a 40 bodu v hlasech
@@ -3667,9 +3694,13 @@ namespace Mariasek.Engine
                 bidding._sevenFlek <= Settings.MaxDoubleCountForGameType[Hra.Sedma] &&
                 ((TeamMateIndex != -1 &&
                   (_gameType & Hra.Kilo) == 0 &&
-                  (((Hand.CardCount(_g.trump.Value) >= 4 &&
+                  (((Hand.CardCount(_g.trump.Value) >= 4 &&           //ctyri a vice trumfu nebo
                      (Hand.HasA(_g.trump.Value) ||
-                      Hand.CardCount(Hodnota.Eso) >= 2)) ||           //ctyri a vice trumfu nebo
+                      Hand.CardCount(Hodnota.Eso) >= 2 ||
+                      (Hand.HasX(_g.trump.Value) &&
+                       Hand.HasK(_g.trump.Value) &&
+                       Hand.HasQ(_g.trump.Value) &&
+                       Hand.SuitCount() == Game.NumSuits))) ||
                     (Hand.CardCount(_g.trump.Value) >= 3 &&          //tri trumfy 3-3-2-2                     
                      ((kqScore >= 60 &&
                        ((Hand.HasA(_g.trump.Value) &&
@@ -3815,7 +3846,15 @@ namespace Mariasek.Engine
                 ((bidding._sevenAgainstFlek == 0 &&                                  //nez poprve zahlasime sedmu proti zjistime jestli to neni riskantni
                   !IsSevenTooRisky()) ||
                  (bidding._sevenAgainstFlek > 0 &&                                  //flek na sedmu proti dam jen kdyz mam sam dost trumfu
-                  Hand.CardCount(_g.trump.Value) >= 4)) &&
+                  (Hand.CardCount(_g.trump.Value) >= 4 ||
+                   (Hand.CardCount(_g.trump.Value) >= 3 &&
+                    (Hand.HasA(_g.trump.Value) ||
+                     Hand.HasX(_g.trump.Value)) &&
+                    Hand.Count(i => i.Suit == _g.trump.Value &&
+                                    i.Value >= Hodnota.Svrsek) >= 2 &&
+                    Hand.Where(i => i.Suit != _g.trump.Value)
+                        .CardCount(Hodnota.Eso) >= 2 &&
+                    Hand.SuitCount() == Game.NumSuits)))) &&
                 _gameSimulations > 0 && _sevensAgainstBalance / (float)_gameSimulations >= sevenAgainstThreshold)
             {
                 bid |= bidding.Bids & Hra.SedmaProti;
