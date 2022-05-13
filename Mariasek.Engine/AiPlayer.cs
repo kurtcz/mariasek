@@ -367,9 +367,20 @@ namespace Mariasek.Engine
 				               		   	  .OrderByDescending(i => top2HolesDeltaPerSuit[i.Item1.Suit])//i.Item3)			//holesDelta
 				               			  .ThenByDescending(i => i.Item4)			//holes
 									   	  .ThenByDescending(i => i.Item1.BadValue)
-									   	  .Take(2 - talon.Count)
 									   	  .Select(i => i.Item1)						//Card
 									   	  .ToList());
+                //pokud bys mel dat do talonu dve karty stejne barvy a muzes misto jedne dat jinou barvu, tak si radsi nech jednu z dvojice na vynos
+                if(talon.Count > 2 &&
+                   talon[0].Suit == talon[1].Suit &&
+                   hand.CardCount(talon[0].Suit) == 2 &&
+                   top2HolesDeltaPerSuit.Count(kvp => kvp.Value > 0) > 1 &&
+                   !talon.Skip(2).Any(i => i.Suit != talon[0].Suit &&
+                                           i.Value > Hodnota.Sedma &&
+                                           hand.CardCount(i.Suit) == 1))
+                {
+                    talon.RemoveAt(1);
+                }
+                talon = talon.Take(2).ToList();
             }
             //pokud je potreba, doplnime o nejake nizke karty (abych zhorsil talon na durcha)
             if (talon.Count < 2)
@@ -384,23 +395,29 @@ namespace Mariasek.Engine
                                    .Take(2 - talon.Count));
             }
             //pokud to jde najdi nizsi karty se stejnymi parametry (abych souperi stizil pripadneho durcha)
-            var cardsToReplace = new List<Card>();
+            var cardsToReplaceDict = new Dictionary<int, Card>();
             foreach (var card in talon)
             {
-                var cardToReplace = holesByCard.Where(i => !cardsToReplace.Contains(i.Item1) &&
+                var cardToReplace = holesByCard.Where(i => !cardsToReplaceDict.Values.Contains(i.Item1) &&
                                                            i.Item2 < 7 &&
                                                            i.Item1.Suit == card.Suit &&
                                                            i.Item1.BadValue < card.BadValue &&
                                                            i.Item4 == holesByCard.First(j => j.Item1 == card).Item4)
                                                .OrderBy(i => i.Item1.BadValue)
-                                               .Select(i => i.Item1)
+                                               .Select(i => new KeyValuePair<int, Card>(talon.IndexOf(card), i.Item1))
                                                .FirstOrDefault();
-                if (cardToReplace != null)
+                if (cardToReplace.Value != null)
                 {
-                    cardsToReplace.Add(cardToReplace);
+                    cardsToReplaceDict.Add(cardToReplace.Key, cardToReplace.Value);
                 }
             }
-            talon = cardsToReplace.Concat(talon).Distinct().Take(2).ToList();
+            foreach (var kvp in cardsToReplaceDict)
+            {
+                talon.RemoveAt(kvp.Key);
+                talon.Insert(kvp.Key, kvp.Value);
+            }
+            talon = talon.Distinct().Take(2).ToList();
+            var cardsToReplace = new List<Card>();
             var lowHoles = holesByCard.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                       .Select(h => new Card(i.Item1.Suit, h))
                                                       .Where(j => j.BadValue > i.Item1.BadValue)
