@@ -406,7 +406,8 @@ namespace Mariasek.Engine
                                                .OrderBy(i => i.Item1.BadValue)
                                                .Select(i => new KeyValuePair<int, Card>(talon.IndexOf(card), i.Item1))
                                                .FirstOrDefault();
-                if (cardToReplace.Value != null)
+                if (cardToReplace.Value != null &&
+                    talon.IndexOf(cardToReplace.Value) > 1)
                 {
                     cardsToReplaceDict.Add(cardToReplace.Key, cardToReplace.Value);
                 }
