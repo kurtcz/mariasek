@@ -1531,29 +1531,32 @@ namespace Mariasek.SharedClient
                      //    SortHand(null, 7);
                      //    _hand.Hide();
                      //}
-                     for (var i = 0; i < _trumpLabels.Count(); i++)
+                     lock (Game.Money.SyncRoot)
                      {
-                         var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
-                         //_trumpLabels[i].Text = g.players[i].Name;
-                         _trumpLabels[i].Text = string.Format("{0}\n{1}",
-                                                  GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
-                                                  Game.Settings.ShowScoreDuringGame
-                                                  ? sum.ToString("C", Game.CurrencyFormat)
-                                                  : string.Empty);
-                         _trumpLabels[i].Height = 60;
-                         if (Game.Settings.WhiteScore)
+                         for (var i = 0; i < _trumpLabels.Count(); i++)
                          {
-                             _trumpLabels[i].HighlightColor = Game.Settings.DefaultTextColor;
+                             var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
+                             //_trumpLabels[i].Text = g.players[i].Name;
+                             _trumpLabels[i].Text = string.Format("{0}\n{1}",
+                                                      GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
+                                                      Game.Settings.ShowScoreDuringGame
+                                                      ? sum.ToString("C", Game.CurrencyFormat)
+                                                      : string.Empty);
+                             _trumpLabels[i].Height = 60;
+                             if (Game.Settings.WhiteScore)
+                             {
+                                 _trumpLabels[i].HighlightColor = Game.Settings.DefaultTextColor;
+                             }
+                             else
+                             {
+                                 _trumpLabels[i].HighlightColor = sum > 0
+                                 ? Game.Settings.PositiveScoreColor
+                                 : sum < 0
+                                 ? Game.Settings.NegativeScoreColor
+                                 : Game.Settings.DefaultTextColor;
+                             }
+                             _trumpLabels[i].Show();
                          }
-                         else
-                         {
-                             _trumpLabels[i].HighlightColor = sum > 0
-                             ? Game.Settings.PositiveScoreColor
-                             : sum < 0
-                             ? Game.Settings.NegativeScoreColor
-                             : Game.Settings.DefaultTextColor;
-                         }
-                         _trumpLabels[i].Show();
                      }
                      _hlasy[0][0].Position = new Vector2(Game.VirtualScreenWidth - 100, Game.VirtualScreenHeight / 2f + 20);
                      try
@@ -2404,12 +2407,15 @@ namespace Mariasek.SharedClient
 
                             _bubbles[_gameFlavourChosenEventArgs.Player.PlayerIndex].Height = _gameFlavourChosenEventArgs.AXTalon ? 80 : 50;
                             ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, str);
-                            _trumpLabels[_gameFlavourChosenEventArgs.Player.PlayerIndex].Text = string.Format("{0}: Barva?{1}\n{2}",
+                            lock (Game.Money.SyncRoot)
+                            {
+                                _trumpLabels[_gameFlavourChosenEventArgs.Player.PlayerIndex].Text = string.Format("{0}: Barva?{1}\n{2}",
                                                      g.players[_gameFlavourChosenEventArgs.Player.PlayerIndex].Name,
                                                      _gameFlavourChosenEventArgs.AXTalon ? " Ostrá v talonu" : string.Empty,
                                                      Game.Settings.ShowScoreDuringGame
                                                      ? (Game.Money.Sum(j => j.MoneyWon[_gameFlavourChosenEventArgs.Player.PlayerIndex]) * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat)
                                                      : string.Empty);
+                            }
                         }
                         if (g.GameStartingPlayerIndex != 2)
                         {
@@ -2427,12 +2433,15 @@ namespace Mariasek.SharedClient
 
                             _bubbles[_gameFlavourChosenEventArgs.Player.PlayerIndex].Height = _gameFlavourChosenEventArgs.AXTalon ? 80 : 50;
                             ShowBubble(_gameFlavourChosenEventArgs.Player.PlayerIndex, str);
-                            _trumpLabels[_gameFlavourChosenEventArgs.Player.PlayerIndex].Text = string.Format("{0}: Barva?{1}\n{2}",
+                            lock (Game.Money.SyncRoot)
+                            {
+                                _trumpLabels[_gameFlavourChosenEventArgs.Player.PlayerIndex].Text = string.Format("{0}: Barva?{1}\n{2}",
                                                                                  g.players[_gameFlavourChosenEventArgs.Player.PlayerIndex].Name,
                                                                                  _gameFlavourChosenEventArgs.AXTalon ? " Ostrá v talonu" : string.Empty,
                                                                                  Game.Settings.ShowScoreDuringGame
                                                                                  ? (Game.Money.Sum(j => j.MoneyWon[_gameFlavourChosenEventArgs.Player.PlayerIndex]) * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat)
                                                                                  : string.Empty);
+                            }
                         }
                         ShowThinkingMessage((_gameFlavourChosenEventArgs.Player.PlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers);
                     }
@@ -2521,12 +2530,15 @@ namespace Mariasek.SharedClient
                 };
                 this.Invoke(() =>
                 {
-                    for (var i = 0; i < _trumpLabels.Count(); i++)
+                    lock (Game.Money.SyncRoot)
                     {
-                        _trumpLabels[i].Text = string.Format("{0}\n{1}", GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
-                                                                         Game.Settings.ShowScoreDuringGame
-                                                                         ? (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat)
-                                                                         : string.Empty);
+                        for (var i = 0; i < _trumpLabels.Count(); i++)
+                        {
+                            _trumpLabels[i].Text = string.Format("{0}\n{1}", GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
+                                                                             Game.Settings.ShowScoreDuringGame
+                                                                             ? (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat)
+                                                                             : string.Empty);
+                        }
                     }
                 });
 
@@ -3044,26 +3056,30 @@ namespace Mariasek.SharedClient
                 _reviewGameToggleBtn.IsEnabled = false;
                 HideInvisibleClickableOverlay();
                 HideThinkingMessage();
-                var totalWon = Game.Money.Sum(i => i.MoneyWon[0]) * Game.Settings.BaseBet;
-                _totalBalance.Text = string.Format("Celkem jsem {0}: {1}", totalWon >= 0 ? "vyhrál" : "prohrál", totalWon.ToString("C", Game.CurrencyFormat));
-                for (var i = 0; i < _trumpLabels.Count(); i++)
+                lock (Game.Money.SyncRoot)
                 {
-                    var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
+                    var totalWon = Game.Money.Sum(i => i.MoneyWon[0]) * Game.Settings.BaseBet;
+                    _totalBalance.Text = string.Format("Celkem jsem {0}: {1}", totalWon >= 0 ? "vyhrál" : "prohrál", totalWon.ToString("C", Game.CurrencyFormat));
 
-                    _trumpLabels[i].Text = string.Format("{0}\n{1}",
-                                             GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
-                                             sum.ToString("C", Game.CurrencyFormat));
-                    if (Game.Settings.WhiteScore)
+                    for (var i = 0; i < _trumpLabels.Count(); i++)
                     {
-                        _trumpLabels[i].HighlightColor = Game.Settings.DefaultTextColor;
-                    }
-                    else
-                    {
-                        _trumpLabels[i].HighlightColor = sum > 0
-                                                           ? Game.Settings.PositiveScoreColor
-                                                           : sum < 0
-                                                               ? Game.Settings.NegativeScoreColor
-                                                               : Game.Settings.DefaultTextColor;
+                        var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
+
+                        _trumpLabels[i].Text = string.Format("{0}\n{1}",
+                                                 GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
+                                                 sum.ToString("C", Game.CurrencyFormat));
+                        if (Game.Settings.WhiteScore)
+                        {
+                            _trumpLabels[i].HighlightColor = Game.Settings.DefaultTextColor;
+                        }
+                        else
+                        {
+                            _trumpLabels[i].HighlightColor = sum > 0
+                                                               ? Game.Settings.PositiveScoreColor
+                                                               : sum < 0
+                                                                   ? Game.Settings.NegativeScoreColor
+                                                                   : Game.Settings.DefaultTextColor;
+                        }
                     }
                 }
                 if (!results.GamePlayed || results.MoneyWon[0] == 0)
@@ -3415,29 +3431,32 @@ namespace Mariasek.SharedClient
                                 hlasy3++;
                             }
                         }
-                        for (var i = 0; i < _trumpLabels.Count(); i++)
+                        lock (Game.Money.SyncRoot)
                         {
-                            var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
-                            //_trumpLabels[i].Text = g.players[i].Name;
-                            _trumpLabels[i].Text = string.Format("{0}\n{1}",
-                                                     GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
-                                                     Game.Settings.ShowScoreDuringGame
-                                                     ? sum.ToString("C", Game.CurrencyFormat)
-                                                     : string.Empty);
-                            _trumpLabels[i].Height = 60;
-                            if (Game.Settings.WhiteScore)
+                            for (var i = 0; i < _trumpLabels.Count(); i++)
                             {
-                                _trumpLabels[i].HighlightColor = Game.Settings.DefaultTextColor;
+                                var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
+                                //_trumpLabels[i].Text = g.players[i].Name;
+                                _trumpLabels[i].Text = string.Format("{0}\n{1}",
+                                                         GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
+                                                         Game.Settings.ShowScoreDuringGame
+                                                         ? sum.ToString("C", Game.CurrencyFormat)
+                                                         : string.Empty);
+                                _trumpLabels[i].Height = 60;
+                                if (Game.Settings.WhiteScore)
+                                {
+                                    _trumpLabels[i].HighlightColor = Game.Settings.DefaultTextColor;
+                                }
+                                else
+                                {
+                                    _trumpLabels[i].HighlightColor = sum > 0
+                                                                       ? Game.Settings.PositiveScoreColor
+                                                                       : sum < 0
+                                                                           ? Game.Settings.NegativeScoreColor
+                                                                           : Game.Settings.DefaultTextColor;
+                                }
+                                _trumpLabels[i].Show();
                             }
-                            else
-                            {
-                                _trumpLabels[i].HighlightColor = sum > 0
-                                                                   ? Game.Settings.PositiveScoreColor
-                                                                   : sum < 0
-                                                                       ? Game.Settings.NegativeScoreColor
-                                                                       : Game.Settings.DefaultTextColor;
-                            }
-                            _trumpLabels[i].Show();
                         }
                         try
                         {
@@ -3685,26 +3704,29 @@ namespace Mariasek.SharedClient
                 g.BetlValue = Game.Settings.BetlValue;
                 g.DurchValue = Game.Settings.DurchValue;
                 g.Locale = Game.Settings.Locale;
-                for (var i = 0; i < _trumpLabels.Count(); i++)
+                lock (Game.Money.SyncRoot)
                 {
-                    var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
+                    for (var i = 0; i < _trumpLabels.Count(); i++)
+                    {
+                        var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
 
-                    _trumpLabels[i].Text = string.Format("{0}\n{1}",
-                                             g?.players?[i] != null ? GetTrumpLabelForPlayer(g.players[i].PlayerIndex) : Game.Settings.PlayerNames[i],
-                                             Game.Settings.ShowScoreDuringGame
-                                             ? sum.ToString("C", Game.CurrencyFormat)
-                                             : string.Empty);
-                    if (Game.Settings.WhiteScore)
-                    {
-                        _trumpLabels[i].HighlightColor = Game.Settings.DefaultTextColor;
-                    }
-                    else
-                    {
-                        _trumpLabels[i].HighlightColor = sum > 0
-                                                           ? Game.Settings.PositiveScoreColor
-                                                           : sum < 0
-                                                               ? Game.Settings.NegativeScoreColor
-                                                               : Game.Settings.DefaultTextColor;
+                        _trumpLabels[i].Text = string.Format("{0}\n{1}",
+                                                 g?.players?[i] != null ? GetTrumpLabelForPlayer(g.players[i].PlayerIndex) : Game.Settings.PlayerNames[i],
+                                                 Game.Settings.ShowScoreDuringGame
+                                                 ? sum.ToString("C", Game.CurrencyFormat)
+                                                 : string.Empty);
+                        if (Game.Settings.WhiteScore)
+                        {
+                            _trumpLabels[i].HighlightColor = Game.Settings.DefaultTextColor;
+                        }
+                        else
+                        {
+                            _trumpLabels[i].HighlightColor = sum > 0
+                                                               ? Game.Settings.PositiveScoreColor
+                                                               : sum < 0
+                                                                   ? Game.Settings.NegativeScoreColor
+                                                                   : Game.Settings.DefaultTextColor;
+                        }
                     }
                 }
             }
