@@ -650,6 +650,12 @@ namespace Mariasek.Engine
                 return epsilon;
             }
 
+            if (_cardProbabilityForPlayer[playerIndex][suit][Hodnota.Desitka] >= 1 - epsilon &&
+                _cardProbabilityForPlayer[playerIndex][suit].All(i => i.Key == Hodnota.Desitka ||
+                                                                      i.Value <= epsilon))
+            {
+                return _cardProbabilityForPlayer[playerIndex][suit][Hodnota.Desitka];
+            }
             return AnyOfTheseCardsButNothingElseInSuitProbability(playerIndex, suit, roundNumber, Hodnota.Desitka);
         }
 
