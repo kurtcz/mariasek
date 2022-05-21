@@ -1739,8 +1739,8 @@ namespace Mariasek.SharedClient
         {
             var player = sender as AbstractPlayer;
 
-            _progressBars[player.PlayerIndex].Progress = e.Current;
             _progressBars[player.PlayerIndex].Max = e.Max;
+            _progressBars[player.PlayerIndex].Progress = e.Current;
 #if DEBUG_PROGRESS
             if (!string.IsNullOrEmpty(e.Message))
             {
