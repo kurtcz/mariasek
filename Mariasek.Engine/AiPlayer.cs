@@ -2700,7 +2700,13 @@ namespace Mariasek.Engine
                 (n >= 3 ||
                  !(hand.HasK(_trump.Value) &&
                    hand.HasQ(_trump.Value) &&
-                   hand.CardCount(Hodnota.Eso) == hand.SuitCount())))
+                   (hand.HasA(_trump.Value) ||
+                    hand.HasX(_trump.Value)) &&
+                   //hand.CardCount(Hodnota.Eso) == hand.SuitCount()
+                   Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                       .Where(b => b != _trump &&
+                                   hand.HasSuit(b))
+                       .All(b => hand.HasA(b)))))
             {
                 DebugInfo.HundredTooRisky = true;
                 return true;
@@ -2733,7 +2739,8 @@ namespace Mariasek.Engine
             //	return true;
             //}
             if ((hand.CardCount(_trump.Value) < 4 &&
-                 !hand.HasA(_trump.Value)) ||
+                 !hand.HasA(_trump.Value) &&                 
+                  n >= 3) ||
 				(hand.CardCount(_trump.Value) == 4 &&
                  (!hand.HasA(_trump.Value) ||
 				  !hand.HasX(_trump.Value)) &&
