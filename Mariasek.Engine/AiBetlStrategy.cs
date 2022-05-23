@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -279,6 +280,11 @@ namespace Mariasek.Engine
                         const int talonIndex = 3;
                         var cardsToPlay = hands[MyIndex].Where(i => hands[MyIndex].CardCount(i.Suit) +
                                                                     _probabilities.CertainCards(talonIndex).CardCount(i.Suit) == 6 &&
+                                                                    hands[MyIndex].Any(j => j.Suit == i.Suit &&
+                                                                                            (_probabilities.PotentialCards(player2).Any(k => k.Suit == j.Suit &&
+                                                                                                                                             k.BadValue < j.BadValue) ||
+                                                                                             _probabilities.PotentialCards(player3).Any(k => k.Suit == j.Suit &&
+                                                                                                                                             k.BadValue < j.BadValue))) &&
                                                                     (hands[MyIndex].HasA(i.Suit) ||
                                                                      hands[MyIndex].HasK(i.Suit) ||
                                                                      hands[talonIndex].HasA(i.Suit) ||
