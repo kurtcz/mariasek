@@ -766,7 +766,10 @@ namespace Mariasek.Engine
                 var trumpTalon = talon.Where(i => (i.Value < Hodnota.Svrsek &&
                                                    !(hand.HasX(i.Suit) &&
                                                      !hand.HasA(i.Suit) &&
-                                                     hand.CardCount(i.Suit) <= 3) &&
+                                                     (hand.CardCount(i.Suit) <= 3 ||
+                                                      (hand.CardCount(i.Suit) <= 4 &&
+                                                       hand.HasK(i.Suit) &&
+                                                       hand.HasQ(i.Suit)))) &&
                                                     !(hand.HasX(i.Suit) &&
                                                       hand.CardCount(i.Suit) == 2)) ||
                                                   (i.Suit != trumpCard.Suit &&
@@ -790,7 +793,19 @@ namespace Mariasek.Engine
                                            .OrderBy(i => i.Value)
                                            .ToList();
                 }
-                if (trumpTalon.Count >= 2)
+                var problemCount = talon.Take(2)
+                                        .Count(i => i.Suit != trumpCard.Suit &&
+                                                    (i.Value > Hodnota.Kral ||
+                                                     (hand.HasX(i.Suit) &&
+                                                      !hand.HasA(i.Suit) &&
+                                                      !hand.HasK(i.Suit) &&
+                                                      hand.CardCount(i.Suit) == 2) ||
+                                                      (i.Value == Hodnota.Kral &&
+                                                       hand.HasQ(i.Suit)) ||
+                                                      (i.Value == Hodnota.Svrsek &&
+                                                       hand.HasK(i.Suit))));
+                if (trumpTalon.Count >= 2 &&
+                    problemCount == 2)
                 {
                     talon = trumpTalon;
                 }
