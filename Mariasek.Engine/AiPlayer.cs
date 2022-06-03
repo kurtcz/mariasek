@@ -3422,7 +3422,9 @@ namespace Mariasek.Engine
                  PlayerIndex == 0 || 
                  _teamMateDoubledGame) &&
                 _gameSimulations > 0 &&                         //pokud v simulacich vysla dost casto
-                _gamesBalance / (float)_gameSimulations >= gameThreshold &&
+                (_gamesBalance / (float)_gameSimulations >= gameThreshold ||
+                 (_teamMateDoubledGame &&
+                  kqScore >= 40)) &&
                 //pokud jsem volil (re a vys) a:
                 //trham trumfovy hlas
                 //nebo ho netrham a mam aspon hlas a nehrozi kilo proti
