@@ -1031,7 +1031,7 @@ namespace Mariasek.Engine
                       .Where(b => Hand.HasK(b) && Hand.HasQ(b))
                       .Sum(b => b == _g.trump.Value ? 40 : 20)
                 : 0;
-            var estimatedPointsWon = _trump != null ? EstimateFinalBasicScore(tempHand) : 0;
+            var estimatedPointsWon = _trump != null ? EstimateFinalBasicScore(tempHand, tempTalon) : 0;
             var estimatedPointsLost = _trump != null ? EstimateTotalPointsLost(tempHand, tempTalon) : 0;
             
             DebugInfo.MaxEstimatedMoneyLost = _trump != null &&
@@ -2346,9 +2346,10 @@ namespace Mariasek.Engine
             return score;
         }
 
-        public int EstimateFinalBasicScore(List<Card> hand = null)
+        public int EstimateFinalBasicScore(List<Card> hand = null, List<Card> talon = null)
         {
             hand = hand ?? Hand;
+            talon = talon ?? _talon;
 
             var trump = _trump ?? _g.trump;
             var axCount = hand.Count(i => i.Value == Hodnota.Eso ||         //pocitej vsechny esa
@@ -2367,20 +2368,20 @@ namespace Mariasek.Engine
             var cardsPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>().ToDictionary(b => b, b => hand.CardCount(b));
             var aceOnlySuits = cardsPerSuit.Count(i => i.Value == 1 && 
                                                        hand.HasA(i.Key) &&
-                                                       (_talon == null ||
-                                                        !_talon.HasX(i.Key))); //zapocitame desitku pokud mame od barvy jen eso a desitka neni v talonu
+                                                       (talon == null ||
+                                                        !talon.HasX(i.Key))); //zapocitame desitku pokud mame od barvy jen eso a desitka neni v talonu
             var emptySuits = cardsPerSuit.Count(i => i.Value == 0 &&
-                                                     (_talon == null ||
-                                                      (!_talon.HasA(i.Key)) &&
-                                                       !_talon.HasX(i.Key)));
+                                                     (talon == null ||
+                                                      (!talon.HasA(i.Key)) &&
+                                                       !talon.HasX(i.Key)));
             var singleLowSuits = cardsPerSuit.Count(i => i.Value == 1 &&
                                                          i.Key != trump.Value &&
                                                          !hand.HasA(i.Key) &&
                                                          !hand.HasX(i.Key) &&
                                                          !hand.HasK(i.Key) &&
                                                          !hand.HasQ(i.Key) &&
-                                                         (_talon == null ||
-                                                          !_talon.HasX(i.Key))); //zapocitame desitku pokud mame od barvy jen eso a desitka neni v talonu
+                                                         (talon == null ||
+                                                          !talon.HasX(i.Key))); //zapocitame desitku pokud mame od barvy jen eso a desitka neni v talonu
             if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
                     .All(b => !hand.HasA(b) &&
                               !(hand.HasX(b) &&
@@ -2486,7 +2487,7 @@ namespace Mariasek.Engine
                                              (!talon.HasK(b) &&
                                               !talon.HasQ(b))));
             var estimatedKQPointsLost = noKQSuits.Sum(b => b == _trump ? 40 : 20);
-            var estimatedBasicPointsLost = 90 - EstimateFinalBasicScore(hand);
+            var estimatedBasicPointsLost = 90 - EstimateFinalBasicScore(hand, talon);
             var estimatedPointsLost = estimatedBasicPointsLost + estimatedKQPointsLost;
 
             DebugInfo.MaxEstimatedPointsLost = estimatedPointsLost;
