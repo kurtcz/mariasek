@@ -946,12 +946,16 @@ namespace Mariasek.Engine
                     for (var i = 0; i < RoundNumber - 1; i++)
                     {
                         if (_rounds[i].player2.TeamMateIndex == -1 &&
-                            _rounds[i].c2.Suit != _rounds[i].c1.Suit)
+                            _rounds[i].c2.Suit != _rounds[i].c1.Suit &&
+                                 hands[MyIndex].Any(j => j.Suit == _rounds[i].c2.Suit &&
+                                                         j.BadValue > _rounds[i].c2.BadValue))
                         {
                             preferredSuits.Add(_rounds[i].c2.Suit);
                         }
                         else if (_rounds[i].player3.TeamMateIndex == -1 &&
-                                 _rounds[i].c3.Suit != _rounds[i].c1.Suit)
+                                 _rounds[i].c3.Suit != _rounds[i].c1.Suit &&
+                                 hands[MyIndex].Any(j => j.Suit == _rounds[i].c3.Suit &&
+                                                         j.BadValue > _rounds[i].c3.BadValue))
                         {
                             preferredSuits.Add(_rounds[i].c3.Suit);
                         }
@@ -967,13 +971,17 @@ namespace Mariasek.Engine
                         {
                             if (_rounds[i].player2.TeamMateIndex == -1 &&
                                 (_rounds[i].c2.BadValue > _rounds[i].c1.BadValue ||
-                                 _rounds[i].c2.BadValue > _rounds[i].c3.BadValue))
+                                 _rounds[i].c2.BadValue > _rounds[i].c3.BadValue) &&
+                                hands[MyIndex].Any(j => j.Suit == _rounds[i].c2.Suit &&
+                                                        j.BadValue > _rounds[i].c2.BadValue))
                             {
                                 preferredSuits.Add(_rounds[i].c2.Suit);
                             }
                             else if (_rounds[i].player3.TeamMateIndex == -1 &&
                                 (_rounds[i].c3.BadValue > _rounds[i].c1.BadValue ||
-                                 _rounds[i].c3.BadValue > _rounds[i].c2.BadValue))
+                                 _rounds[i].c3.BadValue > _rounds[i].c2.BadValue) &&
+                                hands[MyIndex].Any(j => j.Suit == _rounds[i].c3.Suit &&
+                                                        j.BadValue > _rounds[i].c3.BadValue))
                             {
                                 preferredSuits.Add(_rounds[i].c3.Suit);
                             }
@@ -1209,13 +1217,15 @@ namespace Mariasek.Engine
                         {
                             if (_rounds[RoundNumber - 2].player2.PlayerIndex == MyIndex &&
                                 _rounds[RoundNumber - 2].c2.Suit != _rounds[RoundNumber - 2].c1.Suit &&
-                                cardsToPlay.Any(i => i.Suit == _rounds[RoundNumber - 2].c2.Suit))
+                                cardsToPlay.Any(i => i.BadValue > Card.GetBadValue(Hodnota.Devitka) &&
+                                                     i.Suit == _rounds[RoundNumber - 2].c2.Suit))
                             {
                                 cardsToPlay = cardsToPlay.Where(i => i.Suit == _rounds[RoundNumber - 2].c2.Suit);
                             }
                             else if (_rounds[RoundNumber - 2].player3.PlayerIndex == MyIndex &&
                                      _rounds[RoundNumber - 2].c3.Suit != _rounds[RoundNumber - 2].c1.Suit &&
-                                     cardsToPlay.Any(i => i.Suit == _rounds[RoundNumber - 2].c3.Suit))
+                                     cardsToPlay.Any(i => i.BadValue > Card.GetBadValue(Hodnota.Devitka) &&
+                                                          i.Suit == _rounds[RoundNumber - 2].c3.Suit))
                             {
                                 cardsToPlay = cardsToPlay.Where(i => i.Suit == _rounds[RoundNumber - 2].c3.Suit);
                             }
@@ -1289,12 +1299,16 @@ namespace Mariasek.Engine
                     for (var i = 0; i < RoundNumber - 1; i++)
                     {
                         if (_rounds[i].player2.TeamMateIndex == -1 &&
-                            _rounds[i].c2.Suit != _rounds[i].c1.Suit)
+                            _rounds[i].c2.Suit != _rounds[i].c1.Suit &&
+                                 hands[MyIndex].Any(j => j.Suit == _rounds[i].c2.Suit &&
+                                                         j.BadValue > _rounds[i].c2.BadValue))
                         {
                             preferredSuits.Add(_rounds[i].c2.Suit);
                         }
                         else if (_rounds[i].player3.TeamMateIndex == -1 &&
-                                 _rounds[i].c3.Suit != _rounds[i].c1.Suit)
+                                 _rounds[i].c3.Suit != _rounds[i].c1.Suit &&
+                                 hands[MyIndex].Any(j => j.Suit == _rounds[i].c3.Suit &&
+                                                         j.BadValue > _rounds[i].c3.BadValue))
                         {
                             preferredSuits.Add(_rounds[i].c3.Suit);
                         }
@@ -1310,13 +1324,17 @@ namespace Mariasek.Engine
                         {
                             if (_rounds[i].player2.TeamMateIndex == -1 &&
                                 (_rounds[i].c2.BadValue > _rounds[i].c1.BadValue ||
-                                 _rounds[i].c2.BadValue > _rounds[i].c3.BadValue))
+                                 _rounds[i].c2.BadValue > _rounds[i].c3.BadValue) &&
+                                hands[MyIndex].Any(j => j.Suit == _rounds[i].c2.Suit &&
+                                                        j.BadValue > _rounds[i].c2.BadValue))
                             {
                                 preferredSuits.Add(_rounds[i].c2.Suit);
                             }
                             else if (_rounds[i].player3.TeamMateIndex == -1 &&
                                 (_rounds[i].c3.BadValue > _rounds[i].c1.BadValue ||
-                                 _rounds[i].c3.BadValue > _rounds[i].c2.BadValue))
+                                 _rounds[i].c3.BadValue > _rounds[i].c2.BadValue) &&
+                                hands[MyIndex].Any(j => j.Suit == _rounds[i].c3.Suit &&
+                                                        j.BadValue > _rounds[i].c3.BadValue))
                             {
                                 preferredSuits.Add(_rounds[i].c3.Suit);
                             }
