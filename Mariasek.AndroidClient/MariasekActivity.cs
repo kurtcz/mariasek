@@ -46,7 +46,7 @@ namespace Mariasek.AndroidClient
 
         protected override void OnCreate(Bundle bundle)
         {
-            System.Diagnostics.Debug.WriteLine("OnCreate()");
+            MariasekMonoGame.Log("OnCreate()");
             sw.Start();
 
             //handle unobserved task exceptions
@@ -96,7 +96,7 @@ namespace Mariasek.AndroidClient
                 //g.ExitedEventHandler += ExitedEventHandler;
 
                 sw.Stop();
-                System.Diagnostics.Debug.WriteLine("OnCreate sw {0}", sw.ElapsedMilliseconds);
+                MariasekMonoGame.Log($"OnCreate sw {sw.ElapsedMilliseconds}");
                 g.Run();
             }
             catch (Exception ex)
@@ -150,7 +150,7 @@ namespace Mariasek.AndroidClient
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("OnConfigurationChanged()");
+                MariasekMonoGame.Log("OnConfigurationChanged()");
                 base.OnConfigurationChanged(newConfig);
 
                 //prevent the current game to be restarted due to changes defined in ActivityAttribute.ConfigurationChanges
@@ -174,7 +174,7 @@ namespace Mariasek.AndroidClient
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("OnStart()");
+                MariasekMonoGame.Log("OnStart()");
                 base.OnStart();
                 g.OnStart();
             }
@@ -188,7 +188,7 @@ namespace Mariasek.AndroidClient
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("OnPause()");
+                MariasekMonoGame.Log("OnPause()");
                 base.OnPause();
                 g.OnPaused();
             }
@@ -202,7 +202,7 @@ namespace Mariasek.AndroidClient
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("OnResume()");
+                MariasekMonoGame.Log("OnResume()");
                 base.OnResume();
                 g.OnResume();
             }
@@ -216,7 +216,7 @@ namespace Mariasek.AndroidClient
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("OnStop()");
+                MariasekMonoGame.Log("OnStop()");
                 base.OnStop();
                 g.OnStop();
             }
@@ -230,7 +230,7 @@ namespace Mariasek.AndroidClient
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("OnDestroy()");
+                MariasekMonoGame.Log("OnDestroy()");
                 base.OnDestroy();
                 g.Dispose();
             }
@@ -244,7 +244,7 @@ namespace Mariasek.AndroidClient
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("OnRestart()");
+                MariasekMonoGame.Log("OnRestart()");
                 base.OnRestart();
                 g.OnRestart();
             }
@@ -258,7 +258,7 @@ namespace Mariasek.AndroidClient
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("OnSaveInstanceState()");
+                MariasekMonoGame.Log("OnSaveInstanceState()");
                 base.OnSaveInstanceState(outState);
                 g.OnSaveInstanceState();
             }
@@ -270,19 +270,19 @@ namespace Mariasek.AndroidClient
 
         private void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs args)
         {
-            System.Diagnostics.Debug.WriteLine("OnUnobservedTaskException()");
+            MariasekMonoGame.Log("OnUnobservedTaskException()");
             HandleException(args.Exception as Exception);
         }
 
         private void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
         {
-            System.Diagnostics.Debug.WriteLine("OnUnhandledException()");
+            MariasekMonoGame.Log("OnUnhandledException()");
             HandleException(args.ExceptionObject as Exception);
         }
 
         private void OnUnhandledExceptionRaiser(object sender, RaiseThrowableEventArgs e)
         {
-            System.Diagnostics.Debug.WriteLine("OnUnhandledExceptionRaiser()");
+            MariasekMonoGame.Log("OnUnhandledExceptionRaiser()");
             HandleException(e.Exception);
         }
 
@@ -417,7 +417,7 @@ namespace Mariasek.AndroidClient
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Cannot send email: {ex.Message}\n{ex.StackTrace}");
+                MariasekMonoGame.Log($"Cannot send email: {ex.Message}\n{ex.StackTrace}");
             }
         }
 

@@ -47,11 +47,14 @@ namespace Mariasek.SharedClient
         //returns true if an asset was loaded, false if there are no more assets to be loaded remaining
         public bool LoadOneAsset()
         {
+            MariasekMonoGame.Log("LoadOneAsset()");
+
             var kvp1 = _textures.FirstOrDefault(i => i.Value == null || i.Value.IsDisposed);
             var found = kvp1.Key != null;
 
             if (found)
             {
+                MariasekMonoGame.Log($"Loading { kvp1.Key}");
                 _textures[kvp1.Key] = _content.Load<Texture2D>(kvp1.Key);
             }
             else
@@ -62,6 +65,7 @@ namespace Mariasek.SharedClient
 
                 if (found)
                 {
+                    MariasekMonoGame.Log($"Loading { kvp2.Key}");
                     try
                     {
                         _soundEffects[kvp2.Key] = _content.Load<SoundEffect>(kvp2.Key);
@@ -84,6 +88,7 @@ namespace Mariasek.SharedClient
 
                     if (found)
                     {
+                        MariasekMonoGame.Log($"Loading { kvp3.Key}");
                         try
                         {
                             _songs[kvp3.Key] = _content.Load<Song>(kvp3.Key);
@@ -99,6 +104,10 @@ namespace Mariasek.SharedClient
                         }
                     }
                 }
+            }
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                MariasekMonoGame.Log(ErrorMessage);
             }
 
             return !ContentLoaded;

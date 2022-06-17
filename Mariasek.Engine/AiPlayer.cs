@@ -1066,7 +1066,7 @@ namespace Mariasek.Engine
                         _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
                         _durchSimulations > 0 &&
                         !(_hundredOverDurch &&
-                          !IsHundredTooRisky(tempHand)))
+                          !IsHundredTooRisky(tempHand, tempTalon)))
                     {
                         if (_talon == null || !_talon.Any())
                         {
@@ -1083,7 +1083,7 @@ namespace Mariasek.Engine
                              ((_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && 
                                _betlSimulations > 0 &&
                                !(_hundredOverBetl &&
-                                 !IsHundredTooRisky(tempHand)) &&
+                                 !IsHundredTooRisky(tempHand, tempTalon)) &&
                                !(_betlBalance < Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations &&
                                  _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)) ||
                               (Settings.SafetyBetlThreshold > 0 &&
@@ -1219,7 +1219,7 @@ namespace Mariasek.Engine
                          GetBetlHoles() <= 3)) ||
                        (TeamMateIndex == -1 &&
                         !(_hundredOverBetl &&
-                          !IsHundredTooRisky(tempHand)) &&
+                          !IsHundredTooRisky(tempHand, tempTalon)) &&
                         !(_betlBalance < Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations &&
                           _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)))) ||
                        (Settings.SafetyBetlThreshold > 0 &&
@@ -1304,7 +1304,7 @@ namespace Mariasek.Engine
                     _g.Top107 &&
                     _hundredSimulations > 0 &&
                     _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&
-                    !IsHundredTooRisky(tempHand) &&
+                    !IsHundredTooRisky(tempHand, tempTalon) &&
                     _avgWinForHundred > 2 * (_g.DurchValue + 2 * _g.SevenValue))
                 {
                     return GameFlavour.Good107;
@@ -1496,7 +1496,8 @@ namespace Mariasek.Engine
                                         {
                                             UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
                                         }
-                                        var gt = !IsHundredTooRisky(hands[PlayerIndex]) &&
+                                        const int talonIndex = 3;
+                                        var gt = !IsHundredTooRisky(hands[PlayerIndex], hands[talonIndex]) &&
                                                  Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                                      .Any(b => hands[PlayerIndex].HasK(b) && hands[PlayerIndex].HasQ(b))
                                                      ? Hra.Kilo
@@ -2666,16 +2667,22 @@ namespace Mariasek.Engine
             return !isDurchTooRisky;
         }
 
-        public bool IsHundredTooRisky(List<Card> hand = null)
+        public bool IsHundredTooRisky(List<Card> hand = null, List<Card> talon = null)
         {
             hand = hand ?? Hand;
+            talon = talon ?? _talon ?? new List<Card>();
 
-			var n = GetTotalHoles(hand);
+            var n = GetTotalHoles(hand);
             var nn = GetTotalHoles(hand, false);
             var sh = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                          .Where(b => GetTotalHoles(hand, b) > 0)
                          .ToList();
             var axCount = hand.Count(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka);
+            var noKQsuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Count(b => !hand.HasK(b) &&
+                                            !hand.HasQ(b) &&
+                                            !talon.HasK(b) &&
+                                            !talon.HasQ(b));
 
             if (Settings.SafetyHundredThreshold > 0 &&
                 _minWinForHundred <= -Settings.SafetyHundredThreshold)
@@ -2871,7 +2878,8 @@ namespace Mariasek.Engine
                          (n > 3 &&
                           (nn > 3 ||
                            (nn == 3 &&
-                            sh.Count > 2))) ||
+                            sh.Count > 2) ||
+                           noKQsuits == 3)) ||
                          (n == 3 &&                       //nebo u 3 neodstranitelnych der pokud nemam trumfove eso
                           (!hand.HasA(_trump.Value) ||    //a mam pet nebo mene trumfu
                            !hand.HasX(_trump.Value)) &&

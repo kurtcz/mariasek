@@ -54,6 +54,8 @@ namespace Mariasek.SharedClient
         public static string RootPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 #endif
         public static string _settingsFilePath = Path.Combine(RootPath, "Mariasek.settings");
+        public static string _logFilePath = Path.Combine(RootPath, "Mariasek.log");
+        const int MaxLogSize = 65536;
 
         private int _loadProgress;
         private int _maxProgress;
@@ -258,15 +260,39 @@ namespace Mariasek.SharedClient
         {
         }
 
+        private static object _sync = new object();
+        public static void Log(string str, bool create = false)
+        {
+            lock (_sync)
+            {
+                using (var sw = create ? File.CreateText(_logFilePath) : File.AppendText(_logFilePath))
+                {
+                    sw.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")} {str}");
+                }
+            }
+        }
+
 		public MariasekMonoGame(IEmailSender emailSender, IWebNavigate navigator, IScreenManager screenManager, IStorageAccessor storageAccessor)
         {
-            System.Diagnostics.Debug.WriteLine("MariasekMonoGame()");
+            StorageAccessor = storageAccessor;
+            StorageAccessor.GetStorageAccess();
+            var create = true;
+
+            if (File.Exists(_logFilePath))
+            {
+                var fi = new FileInfo(_logFilePath);
+
+                if (fi.Length < MaxLogSize)
+                {
+                    create = false;
+                }
+            }
+            Log("*** Application starting ***", create);
             sw.Start();
             Graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsFixedTimeStep = false;
-			StorageAccessor = storageAccessor;
-            LoadGameSettings(true);
+			LoadGameSettings(true);
             Graphics.IsFullScreen = !Settings.ShowStatusBar;
             //make sure SupportedOrientations is set accordingly to ActivityAttribute.ScreenOrientation
             Graphics.SupportedOrientations = DisplayOrientation.LandscapeRight |
@@ -331,7 +357,7 @@ namespace Mariasek.SharedClient
         /// </summary>
         protected override void Initialize ()
 		{
-            System.Diagnostics.Debug.WriteLine("Initialize()");
+            Log("Initialize()");
 
             SetupScaleMatrices();
             _loadProgress = 1;
@@ -430,8 +456,8 @@ namespace Mariasek.SharedClient
         /// </summary>
         protected override void LoadContent ()
         {            
-            System.Diagnostics.Debug.WriteLine("LoadContent()");
-            System.Diagnostics.Debug.WriteLine("sw {0}", sw.ElapsedMilliseconds);
+            Log("LoadContent()");
+            Log($"sw {sw.ElapsedMilliseconds}");
             var canvas = new Texture2D(GraphicsDevice, 1, 1);
             canvas.SetData(new[] { Color.DarkGreen });
             var dark = new Texture2D(GraphicsDevice, 1, 1);
@@ -443,7 +469,7 @@ namespace Mariasek.SharedClient
             DarkBackground = dark;
 
             //Assets are loaded via AssetLoader class in the Update() loop
-            System.Diagnostics.Debug.WriteLine("LoadContent finished sw {0}", sw.ElapsedMilliseconds);
+            Log($"LoadContent finished sw {sw.ElapsedMilliseconds}");
         }
 
         public delegate void ResumedEventHandler();
@@ -557,7 +583,7 @@ namespace Mariasek.SharedClient
             }
             catch (Exception e)
 			{
-				System.Diagnostics.Debug.WriteLine(string.Format("Cannot load settings\n{0}", e.Message));
+				Log(string.Format("Cannot load settings\n{0}", e.Message));
                 Settings = new GameSettings();
                 Settings.CurrentStartingPlayerIndex = currentStartingPlayerIndex;
             }
@@ -656,7 +682,7 @@ namespace Mariasek.SharedClient
 			}
 			catch (Exception e)
 			{
-				System.Diagnostics.Debug.WriteLine(string.Format("Cannot save settings\n{0}", e.Message));
+				Log(string.Format("Cannot save settings\n{0}", e.Message));
 			}
 			LoadGameSettings(false);
 		}
@@ -666,6 +692,8 @@ namespace Mariasek.SharedClient
 
         private void ContentLoaded()
         {
+            Log($"ContentLoaded");
+
             FontRenderers = new Dictionary<string, FontRenderer>
                         {
                             { "BMFont", FontRenderer.GetFontRenderer(this, 5, 8, "BMFont.fnt", "BMFont_0", "BMFont_1") },
@@ -681,7 +709,7 @@ namespace Mariasek.SharedClient
             }
             catch(Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
+                Log(ex.Message);
             }
             if (AmbientSound != null && !AmbientSound.IsDisposed)
             {
@@ -694,7 +722,7 @@ namespace Mariasek.SharedClient
                 await Task.Delay(_random.Next(Settings.BgMusicMinDelayMs) / 2);
                 PlayBackgroundMusic();
             });
-            System.Diagnostics.Debug.WriteLine("update sw {0}", sw.ElapsedMilliseconds);
+            Log($"update sw {sw.ElapsedMilliseconds}");
 
             //MigrateFilesIfNeeded();
             if (!SettingsLoaded)
@@ -827,7 +855,7 @@ namespace Mariasek.SharedClient
                     }
                     catch(Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine(ex.Message);
+                        Log(ex.Message);
                         return;
                     }
                 });
@@ -847,6 +875,7 @@ namespace Mariasek.SharedClient
             {
                 if (_loadingFinished && CurrentScene == null)
                 {
+                    Log("Calling MenuScene.SetActive()");
                     MenuScene.SetActive();
                     MainScene.ResumeGame();
                 }
@@ -880,7 +909,7 @@ namespace Mariasek.SharedClient
 #endif
                     if (gameTime.ElapsedGameTime.TotalMilliseconds > 500)
                     {
-                        System.Diagnostics.Debug.WriteLine(string.Format("!!!!! Update called after {0} ms", gameTime.ElapsedGameTime.TotalMilliseconds));
+                        Log(string.Format("!!!!! Update called after {0} ms", gameTime.ElapsedGameTime.TotalMilliseconds));
                     }
                     TouchCollection = TouchPanel.GetState();
                     // TODO: Add your update logic here

@@ -255,18 +255,21 @@ namespace Mariasek.SharedClient
                                 //var e = _g.Bidding.GetEventArgs(_aiPlayer, gameType, 0);
                                 var msg = new StringBuilder();
                                 var k = 0;
-                                foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(j => j.RuleCount > 0))
-    							{
-                                    if (debugInfo.TotalRuleCount > 0)
+                                if (_aiPlayer.DebugInfo != null)
+                                {
+                                    foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(j => j.RuleCount > 0))
                                     {
-                                        msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (k++) % 2 == 1 ? "\n" : "\t"));
+                                        if (debugInfo.TotalRuleCount > 0)
+                                        {
+                                            msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (k++) % 2 == 1 ? "\n" : "\t"));
+                                        }
+                                        else
+                                        {
+                                            msg.AppendFormat(string.Format("{0}{1}", debugInfo.Rule, (k++) % 2 == 1 ? "\n" : "\t"));
+                                        }
                                     }
-                                    else
-                                    {
-                                        msg.AppendFormat(string.Format("{0}{1}", debugInfo.Rule, (k++) % 2 == 1 ? "\n" : "\t"));
-                                    }
-    							}
-                                if (_aiPlayer.DebugInfo.TotalRuleCount > 0 ||
+                                }
+                                if (_aiPlayer.DebugInfo?.TotalRuleCount > 0 ||
                                     (gameType & (Hra.Betl | Hra.Durch)) != 0 ||
                                     (!Hand.Has7(_g.trump.Value) &&
                                      ((gameType == (Hra.Kilo | Hra.Sedma) &&
@@ -326,7 +329,7 @@ namespace Mariasek.SharedClient
                     {
                         _t1 = Environment.TickCount;
                         var flavour = _aiPlayer.ChooseGameFlavour();
-                        var msg = _aiPlayer.DebugInfo.TotalRuleCount > 0
+                        var msg = _aiPlayer.DebugInfo?.TotalRuleCount > 0
                                            ? string.Format("{0} ({1}%)\n", flavour.Description(), 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount)
                                            : string.Format("{0}\n", flavour.Description());
 
@@ -382,18 +385,21 @@ namespace Mariasek.SharedClient
                         //var msg = new StringBuilder(string.Format("{0} ({1}%)\n", e.Description, _aiPlayer.DebugInfo.TotalRuleCount > 0 ? 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1));
                         var msg = new StringBuilder();
                         var k = 0;
-                        foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(i => i.RuleCount > 0))
+                        if (_aiPlayer.DebugInfo != null)
                         {
-                            if (debugInfo.TotalRuleCount > 0)
+                            foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(i => i.RuleCount > 0))
                             {
-                                msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (k++) % 2 == 1 ? "\n" : "\t"));
-                            }
-                            else
-                            {
-                                msg.AppendFormat(string.Format("{0}{1}", debugInfo.Rule, (k++) % 2 == 1 ? "\n" : "\t"));
+                                if (debugInfo.TotalRuleCount > 0)
+                                {
+                                    msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (k++) % 2 == 1 ? "\n" : "\t"));
+                                }
+                                else
+                                {
+                                    msg.AppendFormat(string.Format("{0}{1}", debugInfo.Rule, (k++) % 2 == 1 ? "\n" : "\t"));
+                                }
                             }
                         }
-                        if (_aiPlayer.DebugInfo.TotalRuleCount > 0)
+                        if (_aiPlayer.DebugInfo?.TotalRuleCount > 0)
                         {
                             _scene.SuggestGameType(gameType.ToDescription(_trump, true), msg.ToString().TrimEnd(), _t1 - _t0);
                             _scene.SuggestGameTypeNew(gameType);
@@ -434,25 +440,28 @@ namespace Mariasek.SharedClient
                         temp.SetLastBidder(_aiPlayer, bid);                         //nasimulovat reakci (tato operace manipuluje s vnitrnim stavem - proto pracujeme s kopii)
                         var e = temp.GetEventArgs(_aiPlayer, bid, _previousBid);    //a zformatovat ji do stringu
 
-                        BidConfidence = _aiPlayer.DebugInfo.TotalRuleCount > 0 ? (float)_aiPlayer.DebugInfo.RuleCount / (float)_aiPlayer.DebugInfo.TotalRuleCount : -1;
+                        BidConfidence = _aiPlayer.DebugInfo?.TotalRuleCount > 0 ? (float)_aiPlayer.DebugInfo.RuleCount / (float)_aiPlayer.DebugInfo.TotalRuleCount : -1;
                         var msg = new StringBuilder();
 #if DEBUG
                         var k = 0;
-                        foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(i => i.RuleCount > 0 &&
-                                                                                            (i.Rule != Hra.KiloProti.ToString() ||
-                                                                                             (bid & Hra.KiloProti) != 0)))
+                        if (_aiPlayer.DebugInfo != null)
                         {
-                            if (debugInfo.TotalRuleCount > 0)
+                            foreach (var debugInfo in _aiPlayer.DebugInfo.AllChoices.Where(i => i.RuleCount > 0 &&
+                                                                                                (i.Rule != Hra.KiloProti.ToString() ||
+                                                                                                 (bid & Hra.KiloProti) != 0)))
                             {
-                                msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (k++) % 2 == 1 ? "\n" : "\t"));
-                            }
-                            else
-                            {
-                                msg.AppendFormat(string.Format("{0}{1}", debugInfo.Rule, (k++) % 2 == 1 ? "\n" : "\t"));
+                                if (debugInfo.TotalRuleCount > 0)
+                                {
+                                    msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (k++) % 2 == 1 ? "\n" : "\t"));
+                                }
+                                else
+                                {
+                                    msg.AppendFormat(string.Format("{0}{1}", debugInfo.Rule, (k++) % 2 == 1 ? "\n" : "\t"));
+                                }
                             }
                         }
 #endif
-                        if (_aiPlayer.DebugInfo.TotalRuleCount > 0)
+                        if (_aiPlayer.DebugInfo?.TotalRuleCount > 0)
                         {
                             _scene.SuggestGameType(string.Format("{0} ({1}%)", e.Description, 100 * _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount),
                                                        msg.ToString(), _t1 - _t0);
@@ -519,8 +528,8 @@ namespace Mariasek.SharedClient
                         }
                         var cardToplay = _aiPlayer.PlayCard(r);
 
-                        _scene.SimulatedSuccessRate = _aiPlayer.DebugInfo.TotalRuleCount > 0 ? _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1;
-                        if (_aiPlayer.DebugInfo.TotalRuleCount > 0)
+                        _scene.SimulatedSuccessRate = _aiPlayer.DebugInfo?.TotalRuleCount > 0 ? _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1;
+                        if (_aiPlayer.DebugInfo?.TotalRuleCount > 0)
                         {
                             _scene.SuggestCardToPlay(_aiPlayer.DebugInfo.Card, _aiPlayer.DebugInfo.Card.ToString(), _aiPlayer.DebugInfo.Rule, _t1 - _t0);
                         }

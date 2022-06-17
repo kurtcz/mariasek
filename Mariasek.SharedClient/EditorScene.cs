@@ -290,7 +290,10 @@ namespace Mariasek.SharedClient
                 try
                 {
                     Game.StorageAccessor.GetStorageAccess();
-                    MainScene.CreateDirectoryForFilePath(_editorPath);
+                    if (!Directory.Exists(_editorPath))
+                    {
+                        Directory.CreateDirectory(_editorPath);
+                    }
                     var fileInfos = Directory.GetFiles(_editorPath, "*.hra")
                                              .Select(i => new FileInfo(i))
                                              .OrderBy(i => i.CreationTime)
