@@ -55,7 +55,7 @@ namespace Mariasek.SharedClient
 #endif
         public static string _settingsFilePath = Path.Combine(RootPath, "Mariasek.settings");
         public static string _logFilePath = Path.Combine(RootPath, "Mariasek.log");
-        const int MaxLogSize = 65536;
+        const int MaxLogSize = 32768;
 
         private int _loadProgress;
         private int _maxProgress;

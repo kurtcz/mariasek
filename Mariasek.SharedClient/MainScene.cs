@@ -18,6 +18,7 @@ using Mariasek.SharedClient.GameComponents;
 using Mariasek.Engine;
 using CsvHelper;
 using Microsoft.Xna.Framework.Input;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Mariasek.SharedClient
 {
@@ -762,6 +763,7 @@ namespace Mariasek.SharedClient
             Task.Run(() =>
             {
                 LoadHistory();
+                TryFixGameIdsIfNeeded();
                 Game.LoadGameSettings(false);
                 SettingsChanged(this, new SettingsChangedEventArgs() { Settings = Game.Settings });
                 BackgroundTint = Color.DimGray;
@@ -856,6 +858,76 @@ namespace Mariasek.SharedClient
             }
         }
 
+        private void TryFixGameIdsIfNeeded()
+        {
+            if (Game.Money.Max(i => i.GameId) == 10000 &&
+                Game.Money.Count(i => i.GameId == 10000) > 1)
+            {
+                try
+                {
+                    Game.StorageAccessor.GetStorageAccess();
+
+                    var badGames = Game.Money.Select((i, idx) => new { game = i, idx = idx }).Where(i => i.game.GameId == 10000).ToArray();
+                    var newGames = Directory.GetFiles(_archivePath, "10000-*.????????.def.hra").Select(i => new FileInfo(i)).OrderBy(i => i.LastWriteTime).Select(i => i.Name).ToArray();
+                    var endGames = Directory.GetFiles(_archivePath, "10000-*.????????.end.hra").Select(i => new FileInfo(i)).OrderBy(i => i.LastWriteTime).Select(i => i.Name).ToArray();
+
+                    if (newGames.Length != badGames.Length || endGames.Length!= badGames.Length)
+                    {
+                        return;
+                    }
+                    var badPaths1 = new List<string>();
+                    var badPaths2 = new List<string>();
+                    var fixedPaths1 = new List<string>();
+                    var fixedPaths2 = new List<string>();
+                    var fixedGameIds = new List<Tuple<int, int>>();
+
+                    for (var i = 1; i < badGames.Count(); i++)
+                    {
+                        var gameType1 = newGames[i].Substring(6, newGames[i].IndexOf('.') - 6);
+                        var gameType2 = newGames[i].Substring(6, endGames[i].IndexOf('.') - 6);
+                        var badGameType = badGames[i].game.GameTypeString.ToLower();
+
+                        if (gameType1 != badGameType || gameType2 != badGameType)
+                        {
+                            return;
+                        }
+
+                        fixedGameIds.Add(new Tuple<int, int>(badGames[i].idx, 10000 + i));
+
+                        var newGameFixed = string.Format("{0}{1}", 10000 + i, newGames[i].Substring(5));
+                        var endGameFixed = string.Format("{0}{1}", 10000 + i, endGames[i].Substring(5));
+
+                        var badPath1 = Path.Combine(_archivePath, newGames[i]);
+                        var badPath2 = Path.Combine(_archivePath, endGames[i]);
+                        var fixedPath1 = Path.Combine(_archivePath, newGameFixed);
+                        var fixedPath2 = Path.Combine(_archivePath, endGameFixed);
+
+                        badPaths1.Add(badPath1);
+                        badPaths2.Add(badPath2);
+                        fixedPaths1.Add(fixedPath1);
+                        fixedPaths2.Add(fixedPath2);
+                    }
+                    for (var i = 0; i < badPaths1.Count(); i++)
+                    {
+                        File.Move(badPaths1[i], fixedPaths1[i]);
+                        File.Move(badPaths2[i], fixedPaths2[i]);
+                    }
+                    lock (Game.Money.SyncRoot)
+                    {
+                        foreach (var fixedGameId in fixedGameIds)
+                        {
+                            Game.Money[fixedGameId.Item1].GameId = fixedGameId.Item2;
+                        }
+                    }
+                    SaveHistory();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Error in FixGameIdsIfNeeded\n{0}", ex.Message);
+                }
+            }
+        }
+
         public void SaveHistory()
         {
             try
@@ -945,16 +1017,35 @@ namespace Mariasek.SharedClient
             }
         }
 
+        private int ParseIntPrefix(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return 0;
+            }
+
+            var prefixLength = 0;
+
+            for(var i = 0; i < text.Length; i++)
+            {
+                if (!Char.IsDigit(text[i]))
+                {
+                    break;
+                }
+                prefixLength++;
+            }
+
+            return int.Parse(text.Substring(0, prefixLength));
+        }
+
         private int GetGameCount(string path)
         {
             try
             {
-                var lastFile1 = Path.GetFileName(Directory.GetFiles(path, "*.????????.def.hra").OrderBy(i => i).Last());
-                var lastFile2 = Path.GetFileName(Directory.GetFiles(path, "*.????????.end.hra").OrderBy(i => i).Last());
-                var countString1 = lastFile1.Substring(0, lastFile1.IndexOf('-'));
-                var countString2 = lastFile2.Substring(0, lastFile2.IndexOf('-'));
+                var lastIndex1 = Directory.GetFiles(path, "*.????????.def.hra").Select(i => ParseIntPrefix(i)).OrderBy(i => i).Last();
+                var lastIndex2 = Directory.GetFiles(path, "*.????????.end.hra").Select(i => ParseIntPrefix(i)).OrderBy(i => i).Last();
 
-                return Math.Max(int.Parse(countString1), int.Parse(countString2));
+                return Math.Max(lastIndex1, lastIndex2);
             }
             catch (Exception e)
             {
