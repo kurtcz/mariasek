@@ -176,96 +176,102 @@ namespace Mariasek.SharedClient.GameComponents
                 dy -= boundsRect.Height / 2f;
             }
 
-            int lineNumber = 0;
+            FontChar fc;
+            if (_characterMap.TryGetValue('X', out fc))
+            {
+                lineHeight = fc.Height + fc.YOffset;
+            }
+
+            var screenRect = new Rectangle(0, 0, (int)_game.VirtualScreenWidth, (int)_game.VirtualScreenHeight);
+            var lineNumber = 0;
             foreach (var line in lines)
             {
-                var wordWidths = new List<int>();
-                var lineRect = GetBoundsRect(new [] { line }, scaleFactor, wordWidths);
-                FontChar fc;
-
-                for (var i = 0; i < wordWidths.Count; i++)
-                {
-                    wordWidths[i] = (int)wordWidths[i];
-                }
-                if (((HorizontalAlignment)alignment & HorizontalAlignment.Right) != 0)
-                {
-                    dx -= lineRect.Width;
-                }
-                else if (((HorizontalAlignment)alignment & HorizontalAlignment.Center) != 0)
-                {
-                    dx -= lineRect.Width / 2f;
-                }
-                if (_characterMap.TryGetValue('X', out fc))
-                {
-                    lineHeight = fc.Height + fc.YOffset;
-                }
-                var wordNumber = 0;
-                var tabNumber = 0;
-                var prev = ' ';
-
                 //nezdrzovat se s vykreslovanim radku mimo obrazovku
-                if (renderOffscreen ||
-                    new Rectangle(0, 0,(int)_game.VirtualScreenWidth, (int)_game.VirtualScreenHeight).Intersects(
-                    new Rectangle((int)dx, (int)dy, lineRect.Width, lineRect.Height)))
+                if (renderOffscreen || (dy + lineHeight >= screenRect.Top && dy <= screenRect.Bottom))
                 {
-                    foreach (char c in line)
+                    var wordWidths = new List<int>();
+                    var lineRect = GetBoundsRect(new[] { line }, scaleFactor, wordWidths);
+
+                    for (var i = 0; i < wordWidths.Count; i++)
                     {
-                        if (_characterMap.TryGetValue(c, out fc))
-                        {
-                            var sourceRectangle = new Rectangle(fc.X, fc.Y, fc.Width, fc.Height);
-                            var charPosition = new Vector2(dx + fc.XOffset * scaleFactor, dy + fc.YOffset * scaleFactor);
-                            var color = colors != null && colors.Length > 0
-                                        ? colors[lineNumber % colors.Length]
-                                        : Color.White;
-
-                            //spriteBatch.Draw(_textures[fc.Page], charPosition, sourceRectangle, color);
-                            spriteBatch.Draw(_textures[fc.Page], charPosition, sourceRectangle, color, 0f, Vector2.Zero, scaleFactor, SpriteEffects.None, 0);
-                            //lineHeight = Math.Max(fc.YOffset + fc.Height, lineHeight);
-                            dx += fc.XAdvance * scaleFactor;
-                            if (char.IsWhiteSpace(c) && !char.IsWhiteSpace(prev))
-                            {
-                                wordNumber++;
-                            }
-                        }
-                        else if (c == '\t')
-                        {
-                            if (!char.IsWhiteSpace(prev))
-                            {
-                                wordNumber++;
-                            }
-                            _characterMap.TryGetValue('X', out fc);
-
-                            var tabWidth = _tabWidthChars * fc.XAdvance * scaleFactor;
-
-                            if (tabs == null || tabNumber >= tabs.Length)   //simple tabs
-                            {
-                                var nextTab = dx + tabWidth - dx % tabWidth;
-
-                                dx = nextTab;
-                            }
-                            else                                            //explicit tabs
-                            {
-                                var nextTab = tabs[tabNumber].TabPosition;
-
-                                switch (tabs[tabNumber].TabAlignment)
-                                {
-                                    case HorizontalAlignment.Left:
-                                        dx = nextTab;
-                                        break;
-                                    case HorizontalAlignment.Center:
-                                        dx = nextTab - wordWidths[wordNumber] / 2f;
-                                        break;
-                                    case HorizontalAlignment.Right:
-                                        dx = nextTab - wordWidths[wordNumber];
-                                        break;
-                                }
-                                tabNumber++;
-                            }
-                        }
-                        prev = c;
+                        wordWidths[i] = (int)wordWidths[i];
                     }
+                    if (((HorizontalAlignment)alignment & HorizontalAlignment.Right) != 0)
+                    {
+                        dx -= lineRect.Width;
+                    }
+                    else if (((HorizontalAlignment)alignment & HorizontalAlignment.Center) != 0)
+                    {
+                        dx -= lineRect.Width / 2f;
+                    }
+                    var wordNumber = 0;
+                    var tabNumber = 0;
+                    var prev = ' ';
+
+                    //nezdrzovat se s vykreslovanim radku mimo obrazovku
+                    if (renderOffscreen ||
+                        screenRect.Intersects(
+                        new Rectangle((int)dx, (int)dy, lineRect.Width, lineRect.Height)))
+                    {
+                        foreach (char c in line)
+                        {
+                            if (_characterMap.TryGetValue(c, out fc))
+                            {
+                                var sourceRectangle = new Rectangle(fc.X, fc.Y, fc.Width, fc.Height);
+                                var charPosition = new Vector2(dx + fc.XOffset * scaleFactor, dy + fc.YOffset * scaleFactor);
+                                var color = colors != null && colors.Length > 0
+                                            ? colors[lineNumber % colors.Length]
+                                            : Color.White;
+
+                                //spriteBatch.Draw(_textures[fc.Page], charPosition, sourceRectangle, color);
+                                spriteBatch.Draw(_textures[fc.Page], charPosition, sourceRectangle, color, 0f, Vector2.Zero, scaleFactor, SpriteEffects.None, 0);
+                                //lineHeight = Math.Max(fc.YOffset + fc.Height, lineHeight);
+                                dx += fc.XAdvance * scaleFactor;
+                                if (char.IsWhiteSpace(c) && !char.IsWhiteSpace(prev))
+                                {
+                                    wordNumber++;
+                                }
+                            }
+                            else if (c == '\t')
+                            {
+                                if (!char.IsWhiteSpace(prev))
+                                {
+                                    wordNumber++;
+                                }
+                                _characterMap.TryGetValue('X', out fc);
+
+                                var tabWidth = _tabWidthChars * fc.XAdvance * scaleFactor;
+
+                                if (tabs == null || tabNumber >= tabs.Length)   //simple tabs
+                                {
+                                    var nextTab = dx + tabWidth - dx % tabWidth;
+
+                                    dx = nextTab;
+                                }
+                                else                                            //explicit tabs
+                                {
+                                    var nextTab = tabs[tabNumber].TabPosition;
+
+                                    switch (tabs[tabNumber].TabAlignment)
+                                    {
+                                        case HorizontalAlignment.Left:
+                                            dx = nextTab;
+                                            break;
+                                        case HorizontalAlignment.Center:
+                                            dx = nextTab - wordWidths[wordNumber] / 2f;
+                                            break;
+                                        case HorizontalAlignment.Right:
+                                            dx = nextTab - wordWidths[wordNumber];
+                                            break;
+                                    }
+                                    tabNumber++;
+                                }
+                            }
+                            prev = c;
+                        }
+                    }
+                    dx = position.X;
                 }
-                dx = position.X;
                 dy += (lineHeight + _lineSpacing) * scaleFactor;
                 lineNumber++;
             }
