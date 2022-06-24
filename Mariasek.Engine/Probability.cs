@@ -398,7 +398,7 @@ namespace Mariasek.Engine
 
             var totalCards = 10 - roundNumber + 1;
 
-            if (n == 0)
+            if (n == 0 || totalCards < certainCards)
             {
                 //no uncertain cardsin other suits, however
                 //the result is based on assumed cards, not on actual game play

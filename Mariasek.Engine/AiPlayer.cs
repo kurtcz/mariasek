@@ -3444,6 +3444,7 @@ namespace Mariasek.Engine
                    Settings.SafetyGameThreshold == 0 ||
                    (_maxMoneyLost * 2 >= -Settings.SafetyGameThreshold && //x2 za dalsi flek
                     ((estimatedFinalBasicScore + kqScore >= 70 &&
+                      estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqMaxOpponentScore &&
                       !Is100AgainstPossible()) ||
                      estimatedFinalBasicScore >= 80 ||
                      (estimatedFinalBasicScore + kqScore >= 80 &&
