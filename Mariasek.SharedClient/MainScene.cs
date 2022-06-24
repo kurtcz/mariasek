@@ -1042,8 +1042,8 @@ namespace Mariasek.SharedClient
         {
             try
             {
-                var lastIndex1 = Directory.GetFiles(path, "*.????????.def.hra").Select(i => ParseIntPrefix(i)).OrderBy(i => i).Last();
-                var lastIndex2 = Directory.GetFiles(path, "*.????????.end.hra").Select(i => ParseIntPrefix(i)).OrderBy(i => i).Last();
+                var lastIndex1 = Directory.GetFiles(path, "*.????????.def.hra").Select(i => ParseIntPrefix(Path.GetFileName(i))).OrderBy(i => i).Last();
+                var lastIndex2 = Directory.GetFiles(path, "*.????????.end.hra").Select(i => ParseIntPrefix(Path.GetFileName(i))).OrderBy(i => i).Last();
 
                 return Math.Max(lastIndex1, lastIndex2);
             }
