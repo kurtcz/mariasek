@@ -2082,7 +2082,7 @@ namespace Mariasek.Engine
 		{
 			var holesPerSuit = new Dictionary<Barva, int>();
 			var hiHolePerSuit = new Dictionary<Barva, Card>();
-            var dummyTalon = TeamMateIndex == -1 ? ChooseDurchTalon(Hand, _trumpCard) : Enumerable.Empty<Card>();
+            var dummyTalon = TeamMateIndex == -1 ? _talon ?? ChooseDurchTalon(Hand, _trumpCard) : Enumerable.Empty<Card>();
 
 			foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
 			{
@@ -2183,7 +2183,7 @@ namespace Mariasek.Engine
 
         public bool ShouldChooseBetl()
 		{
-            var talon = TeamMateIndex == -1 ? ChooseBetlTalon(Hand, null) : new List<Card>();                //nasimuluj talon
+            var talon = TeamMateIndex == -1 ? _talon ?? ChooseBetlTalon(Hand, null) : new List<Card>();                //nasimuluj talon
             var hh = Hand.Where(i => !talon.Contains(i)).ToList();
             var holesPerSuit = new Dictionary<Barva, int>();
             var hiCardsPerSuit = new Dictionary<Barva, int>();
