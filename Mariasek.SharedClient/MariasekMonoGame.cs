@@ -395,7 +395,7 @@ namespace Mariasek.SharedClient
                                          {
                                              "na pankraci"
                                          });
-
+            Assets.Initialize();
             _maxProgress = Assets.TotalCount;
             _progressBar = new Texture2D(GraphicsDevice, 1, 1);
             _progressBar.SetData<Color>(new[] { Color.White });

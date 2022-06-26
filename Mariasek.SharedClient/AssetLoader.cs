@@ -44,6 +44,18 @@ namespace Mariasek.SharedClient
             _errors = new List<string>();
         }
 
+        public void Initialize()
+        {
+            try
+            {
+                SoundEffect.Initialize();
+            }
+            catch(Exception ex)
+            {
+                ErrorMessage = $"Chyba při inicialiaci zvukového modulu\n{ex.Message}";
+            }
+        }
+
         //returns true if an asset was loaded, false if there are no more assets to be loaded remaining
         public bool LoadOneAsset()
         {
