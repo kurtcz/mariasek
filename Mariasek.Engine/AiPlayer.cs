@@ -3610,7 +3610,9 @@ namespace Mariasek.Engine
                      ((Hand.HasK(_g.trump.Value) ||             //trhak a vidim do vsech hlasek (u sedmy jeste pokud mam vic bodu nez souper)
                        Hand.HasQ(_g.trump.Value)) &&
                        ((bidding.Bids & Hra.Sedma) == 0 ||
-                        estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + Math.Min(20, kqMaxOpponentScore)) &&
+                        ((bidding.Bids & Hra.Sedma) != 0 &&
+                         !Hand.Has7(_g.trump.Value) &&
+                         estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + Math.Min(20, kqMaxOpponentScore))) &&
                       !Is100AgainstPossible()) ||
                      ((Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&
@@ -3619,7 +3621,7 @@ namespace Mariasek.Engine
                      ((Hand.HasA(_g.trump.Value) ||            //nebo mam trumfove eso
                        Hand.HasX(_g.trump.Value)) &&           //popr. desitku
                       (Hand.HasK(_g.trump.Value) ||            //a k tomu trhak
-                      Hand.HasQ(_g.trump.Value)) &&
+                      Hand.HasQ(_g.trump.Value)) &&                      
                       (bestCaseNonTrumpScore >= 20 ||          //a aspon 2 netrumfove desitky
                        (bestCaseNonTrumpScore >= 10 &&         //popr. 1 numtrumfovou desitku a aspon 3 trumfy
                         Hand.CardCount(_g.trump.Value) >= 3 &&
@@ -3638,12 +3640,16 @@ namespace Mariasek.Engine
                       axCount >= 2) ||       //a odhaduju ze uhraju aspon 20 bodu v desitkach
                      (Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
                       kqScore >= 40 &&                         //a 40 bodu v hlasech
-                      estimatedFinalBasicScore >= 40) ||       //a odhaduju ze uhraju aspon 40 bodu v desitkach
+                      estimatedFinalBasicScore >= 40 &&
+                      !((bidding.Bids & Hra.Sedma) != 0 &&
+                         Hand.Has7(_g.trump.Value))) ||       //a odhaduju ze uhraju aspon 40 bodu v desitkach
                      (Hand.HasA(_g.trump.Value) &&             //nebo mam aspon trumfove eso
                       Hand.CardCount(Hodnota.Eso) >= 2 &&      //a k tomu aspon jeste jedno dalsi eso
                       axCount >= 4 &&                          //a dve dalsi desitky
                       kqScore >= 20 &&                         //a 20 bodu v hlasech
-                      estimatedFinalBasicScore >= 50) ||       //a odhaduju ze uhraju aspon 50 bodu v desitkach
+                      estimatedFinalBasicScore >= 50 &&       //a odhaduju ze uhraju aspon 50 bodu v desitkach
+                      !((bidding.Bids & Hra.Sedma) != 0 &&
+                         Hand.Has7(_g.trump.Value))) ||
                      ((Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&           //nebo mam trhaka
                       Hand.CardCount(_g.trump.Value) >= 4 &&   //a aspon 4 trumfy
@@ -3673,6 +3679,8 @@ namespace Mariasek.Engine
                        Hand.CardCount(_g.trump.Value) >= 3) &&
                       estimatedFinalBasicScore >= 40 &&         //a aspon 40 bodu v desitkach a 20 v hlasech
                       axCount >= 4 &&
+                      !((bidding.Bids & Hra.Sedma) != 0 &&
+                         Hand.Has7(_g.trump.Value)) &&
                       (estimatedFinalBasicScore + kqScore >= 60 ||
                        (estimatedFinalBasicScore >= 50 &&
                         axCount >= 5)) &&       //nebo aspon 50 bodu
