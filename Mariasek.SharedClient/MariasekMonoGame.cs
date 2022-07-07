@@ -15,6 +15,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using CsvHelper;
 using System.Globalization;
+using System.Linq.Expressions;
 //using Android.Views;
 #if __IOS__
 using Foundation;
@@ -265,9 +266,15 @@ namespace Mariasek.SharedClient
         {
             lock (_sync)
             {
-                using (var sw = create ? File.CreateText(_logFilePath) : File.AppendText(_logFilePath))
+                try
                 {
-                    sw.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")} {str}");
+                    using (var sw = create ? File.CreateText(_logFilePath) : File.AppendText(_logFilePath))
+                    {
+                        sw.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")} {str}");
+                    }
+                }
+                catch (Exception ex)
+                {
                 }
             }
         }

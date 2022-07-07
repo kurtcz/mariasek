@@ -46,7 +46,6 @@ namespace Mariasek.AndroidClient
 
         protected override void OnCreate(Bundle bundle)
         {
-            MariasekMonoGame.Log("OnCreate()");
             sw.Start();
 
             //handle unobserved task exceptions
@@ -57,6 +56,13 @@ namespace Mariasek.AndroidClient
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
             //handle unhandled Java thread exceptions
             Java.Lang.Thread.DefaultUncaughtExceptionHandler = new UncaughtExceptionEventHandler(this);
+
+            try
+            {
+                GetStorageAccess();
+                MariasekMonoGame.Log("OnCreate()");
+            }
+            catch { }
             try
             {
                 base.OnCreate(bundle);

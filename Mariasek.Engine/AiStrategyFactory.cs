@@ -35,7 +35,7 @@ namespace Mariasek.Engine
                         RiskFactor = riskFactor
                     };
                 default:
-                    return new AiStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, teamMatesSuits, g.HlasConsidered, probabilities)
+                    return new AiStrategy(trump, gameType.HasValue ? gameType.Value : g.GameType, hands, rounds, teamMatesSuits, g.HlasConsidered, g.CalculationStyle, probabilities)
                     {
                         MyIndex = playerIndex,
                         MyName = name,

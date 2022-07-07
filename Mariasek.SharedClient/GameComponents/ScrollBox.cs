@@ -136,7 +136,7 @@ namespace Mariasek.SharedClient.GameComponents
             if (BoundsRect.Height > Height)
             {
                 //create a scrollbar texture
-                var scrollBarHeight = Height * Height / BoundsRect.Height;
+                var scrollBarHeight = Math.Max(1, Height * Height / BoundsRect.Height);
 
                 if (scrollBarHeight != _scrollBarHeight)
                 {

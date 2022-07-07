@@ -34,12 +34,15 @@ namespace Mariasek.Engine
         public Hra[] PlayerBids { get; set; }
         public int GameValue { get; set; }
         public int SevenValue { get; set; }
+        protected CalculationStyle _calculationStyle;
+
         private const float _epsilon = 0.01f;
 
-        public AiStrategy(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, HlasConsidered hlasConsidered, Probability probabilities)
+        public AiStrategy(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, HlasConsidered hlasConsidered, CalculationStyle calculationStyle, Probability probabilities)
             : base(trump, gameType, hands, rounds, teamMatesSuits, probabilities)
         {
             _hlasConsidered = hlasConsidered;
+            _calculationStyle = calculationStyle;
             if (!trump.HasValue)
             {
                 throw new InvalidOperationException("AiStrategy2: trump is null");
@@ -2537,7 +2540,12 @@ namespace Mariasek.Engine
                         return null;
                     }
                     //nehraj pokud mas hodne trumfu
-                    if (hands[MyIndex].CardCount(_trump) >= 5)
+                    if (hands[MyIndex].CardCount(_trump) >= 5 ||
+                        (TeamMateIndex != -1 &&
+                         (_gameType & Hra.Kilo) == 0 &&
+                         SevenValue < GameValue &&
+                         hands[MyIndex].CardCount(_trump) >= 2 &&
+                         hands[MyIndex].HasA(_trump)))
                     {
                         return null;
                     }
@@ -3722,6 +3730,9 @@ namespace Mariasek.Engine
                                                 .CardCount(Hodnota.Desitka) +
                                   hands[MyIndex].Where(i => i.Suit != _trump).ToList()
                                                 .CardCount(Hodnota.Eso) >= 2)) &&
+                               !(hands[MyIndex].CardCount(_trump) == 2 &&
+                                 hands[MyIndex].HasX(_trump) &&
+                                 _probabilities.PotentialCards(opponent).HasA(_trump)) &&
                                GameValue > SevenValue &&
                                (PlayerBids[TeamMateIndex] & Hra.Sedma) == 0 &&
                                (TeamMateIndex == player3 ||
@@ -3766,6 +3777,9 @@ namespace Mariasek.Engine
                                GameValue > SevenValue &&
                                (PlayerBids[MyIndex] & Hra.Sedma) == 0 &&
                                (PlayerBids[TeamMateIndex] & Hra.Sedma) == 0 &&
+                               !(hands[MyIndex].CardCount(_trump) == 2 &&
+                                 hands[MyIndex].HasX(_trump) &&
+                                 _probabilities.PotentialCards(opponent).HasA(_trump)) &&
                                !(hands[MyIndex].Any(i => i.Suit != _trump &&    //neodmazavej pokud muzes ze soupere vytlacit trumf necim jinym
                                                          i.Value < Hodnota.Desitka &&
                                                          !_probabilities.PotentialCards(TeamMateIndex).HasA(i.Suit) &&
@@ -3801,7 +3815,11 @@ namespace Mariasek.Engine
                                                                                                                                                j.Value > i.Value &&
                                                                                                                                                j.Value < Hodnota.Desitka))).ToList();
                                 }
+                                
                                 if (!cardsToPlay.Any() &&
+                                    !(hands[MyIndex].CardCount(_trump) == 2 &&
+                                      hands[MyIndex].HasX(_trump) &&
+                                      _probabilities.PotentialCards(opponent).HasA(_trump)) &&
                                     ((hands[MyIndex].CardCount(_trump) == 1 &&
                                      hands[MyIndex].SuitCount < Game.NumSuits) ||     //neodmazavej trumf pokud znas vsechny barvy
                                      (hands[MyIndex].CardCount(_trump) <= 2 &&
@@ -4810,7 +4828,7 @@ namespace Mariasek.Engine
                 ChooseCard1 = () =>
                 {
                     if (TeamMateIndex != -1 &&
-                        (_gameType & Hra.Sedma) != 0 &&
+                        (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
                         (_gameType & Hra.Hra) != 0 &&
                         SevenValue > GameValue)
                     {
@@ -5876,9 +5894,10 @@ namespace Mariasek.Engine
                                                                           (i.Value == Hodnota.Eso &&        //eso namaz jen kdyz nemuzu chytit desitku nebo pri kilu (proti)
                                                                            (_probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon ||
                                                                             ((_gameType & Hra.Kilo) != 0 &&
-                                                                             _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) < 1 &&
+                                                                             _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Desitka)) < 1 - _epsilon &&
                                                                              _probabilities.SuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1 - RiskFactor &&
-                                                                             (pointsWonSoFar >= 20 ||
+                                                                             (_calculationStyle == CalculationStyle.Multiplying ||
+                                                                              pointsWonSoFar >= 20 ||
                                                                               hands[MyIndex].HasX(i.Suit)))))) &&
                                                                            //))) &&
                                                                          !(c1.Value == Hodnota.Desitka &&   //nemaz pokud prvni hrac vyjel desitkou a nevim kdo ma eso (nebylo-li jeste hrano)
