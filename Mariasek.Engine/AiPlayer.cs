@@ -2397,7 +2397,7 @@ namespace Mariasek.Engine
                 aceOnlySuits = 0;
                 singleLowSuits = 0;
             }
-            var axPotentialDeduction = GetTotalHoles(hand, false) / 3;
+            var axPotentialDeduction = GetTotalHoles(hand, false) / 2;
             var axWinPotential = Math.Min(2 * emptySuits + aceOnlySuits + (trumpCount >= 4 ? singleLowSuits : 0),
                                           trumpCount == 4 ? 3 : (int)Math.Ceiling(trumpCount / 2f)); // ne kazdym trumfem prebiju a nebo x
 
@@ -3444,7 +3444,7 @@ namespace Mariasek.Engine
                    Hand.HasQ(_g.trump.Value) ||
                    Settings.SafetyGameThreshold == 0 ||
                    (_maxMoneyLost * 2 >= -Settings.SafetyGameThreshold && //x2 za dalsi flek
-                    ((estimatedFinalBasicScore + kqScore >= 70 &&
+                    ((estimatedFinalBasicScore + kqScore >= 60 &&
                       estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqMaxOpponentScore &&
                       !Is100AgainstPossible()) ||
                      estimatedFinalBasicScore >= 80 ||
@@ -3484,7 +3484,7 @@ namespace Mariasek.Engine
                     axCount >= 4 &&
                     Hand.CardCount(_trump.Value) >= 4 &&
                     !Is100AgainstPossible(120)) ||
-                   ((estimatedFinalBasicScore >= 70 ||            //pokud si davam re a nethram, musim mit velkou jistotu
+                   ((estimatedFinalBasicScore >= 80 ||            //pokud si davam re a nethram, musim mit velkou jistotu
                      (estimatedFinalBasicScore >= 60 &&
                       kqScore >= 20 &&
                       !Is100AgainstPossible(110))) &&

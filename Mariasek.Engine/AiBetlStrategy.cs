@@ -407,7 +407,7 @@ namespace Mariasek.Engine
                     SkipSimulations = true,
                     ChooseCard1 = () =>
                     {
-                        var cardsToPlay = hands[MyIndex].Where(i => _probabilities.PotentialCards(opponent).HasSuit(i.Suit) &&
+                        var cardsToPlay = hands[MyIndex].Where(i => _probabilities.PotentialCards(opponent).CardCount(i.Suit) > 1 &&
                                                                     _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) == 0);
 
                         if (cardsToPlay.Any(i => _probabilities.PotentialCards(opponent).Any(j => j.Suit == i.Suit && j.BadValue > i.BadValue)))
@@ -432,7 +432,7 @@ namespace Mariasek.Engine
                                         _rounds[i].c1.BadValue > _rounds[i].c2.BadValue &&
                                         _rounds[i].c1.Value != Hodnota.Eso &&
                                         hands[MyIndex].Any(j => j.Suit == _rounds[i].c2.Suit &&
-                                                                _probabilities.PotentialCards(opponent).HasSuit(j.Suit)))
+                                                                _probabilities.PotentialCards(opponent).CardCount(j.Suit) > 1))
                                     {
                                         prefSuits.Add(_rounds[i].c2.Suit);
                                     }
@@ -444,7 +444,7 @@ namespace Mariasek.Engine
                                               (_rounds[i].c2.BadValue > _rounds[i].c3.BadValue &&
                                                _rounds[i].c2.Value != Hodnota.Eso)) &&
                                              hands[MyIndex].Any(j => j.Suit == _rounds[i].c3.Suit &&
-                                                                    _probabilities.PotentialCards(opponent).HasSuit(j.Suit)))
+                                                                     _probabilities.PotentialCards(opponent).CardCount(j.Suit) > 1))
                                     {
                                         prefSuits.Add(_rounds[i].c3.Suit);
                                     }
