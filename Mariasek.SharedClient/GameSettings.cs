@@ -213,8 +213,8 @@ namespace Mariasek.SharedClient
             AllowPlayerAutoFinish = true;
             MaxDegreeOfParallelism = -1;
             ShowStatusBar = false;
-            AiMayGiveUp = true;
-            PlayerMayGiveUp = true;
+            AiMayGiveUp = false;
+            PlayerMayGiveUp = false;
             ShowScoreDuringGame = true;
             WhiteScore = false;
             AutoDisable100Against = true;
