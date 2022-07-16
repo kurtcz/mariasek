@@ -2876,8 +2876,8 @@ namespace Mariasek.Engine
             //}
             var result = n > 4 ||                         //u vice nez 4 neodstranitelnych der kilo urcite neuhraju
                          (n > 3 &&
-                          (nn > 3 ||
-                           (nn == 3 &&
+                          (//nn > 3 ||
+                           (nn >= 3 &&//nn == 3 &&
                             sh.Count > 2) ||
                            noKQsuits == 3)) ||
                          (n == 3 &&                       //nebo u 3 neodstranitelnych der pokud nemam trumfove eso
