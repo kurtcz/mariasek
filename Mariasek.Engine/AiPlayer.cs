@@ -3580,7 +3580,8 @@ namespace Mariasek.Engine
                       (Hand.HasA(_g.trump.Value) ||             //z toho aspon jeden A nebo X
                        Hand.HasX(_g.trump.Value)) &&
                       Hand.CardCount(Hodnota.Eso) >= 2 &&       //a aspon 2 eso celkem
-                      axCount >= 6) ||                          //a dohromady aspon 6 desitek a es nebo
+                      axCount >= 6 &&                          //a dohromady aspon 6 desitek a es nebo
+                      kqMaxOpponentScore <= 40) ||
                      (axCount >= 5 &&                           //aspon 5 desitek a es a
                       Hand.HasA(_g.trump.Value) &&              //k tomu trumfove AX
                       Hand.HasX(_g.trump.Value)) ||             //nebo
