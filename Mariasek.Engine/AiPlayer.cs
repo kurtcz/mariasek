@@ -784,9 +784,22 @@ namespace Mariasek.Engine
                                                      ? 1 : 0)
                                       .ThenBy(i => i.Value)
                                       .ToList();
+
                 //pokud mam trumfovou sedmu, tak dam do talonu druhy nejnizsi trumf
                 if (talon.Has7(trumpCard.Suit) &&
-                    talon.CardCount(trumpCard.Suit) > 1)
+                    talon.CardCount(trumpCard.Suit) > 2 &&
+                    (_g.AllowFakeSeven ||
+                     _g.AllowFake107))
+                {
+                    trumpTalon = trumpTalon.Where(i => i.Suit != trumpCard.Suit ||
+                                                       i.Value != Hodnota.Sedma)
+                                           .OrderBy(i => i.Value)
+                                           .ToList();
+                }
+                if (talon.Has7(trumpCard.Suit) &&
+                    talon.CardCount(trumpCard.Suit) > 1 &&
+                    !_g.AllowFakeSeven &&
+                    !_g.AllowFake107)
                 {
                     trumpTalon = trumpTalon.Where(i => i.Suit != trumpCard.Suit ||
                                                        i.Value != Hodnota.Sedma)
