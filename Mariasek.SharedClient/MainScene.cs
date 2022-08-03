@@ -1232,7 +1232,26 @@ namespace Mariasek.SharedClient
 
         public void ReviewGameBtnClicked(object sender)
         {
-            if (g.IsRunning &&
+            if (_state == GameState.ChooseGameType &&
+                _talon != null &&
+                _talon.Any())
+            {
+                if (_reviewGameToggleBtn.IsSelected)
+                {
+                    ShowTalonOrLastTrick(0, _talon);
+                    _poslStych[0][0].Invoke(() =>
+                    {
+                        _reviewGameToggleBtn.IsSelected = false;
+                    });
+                }
+                else
+                {
+                    _reviewGameToggleBtn.IsSelected = false;
+                }
+                return;
+            }
+            if ((_state == GameState.Play ||
+                 _state == GameState.RoundFinished) &&
                 (!Game.Settings.TestMode.HasValue || !Game.Settings.TestMode.Value))
             {
                 if (_reviewGameToggleBtn.IsSelected)
@@ -1244,7 +1263,7 @@ namespace Mariasek.SharedClient
                     _reviewGameToggleBtn.IsSelected = false;
                 }
                 return;
-            }
+            }            
 
             var origPosition = new Vector2(160, 45);
             var hiddenPosition = new Vector2(160, 45 + Game.VirtualScreenHeight);
@@ -2301,6 +2320,7 @@ namespace Mariasek.SharedClient
                 {
                     ShowMsgLabel("Co budeš hrát?", false);
                 }
+                _reviewGameToggleBtn.IsEnabled = true;
             });
         }
 
