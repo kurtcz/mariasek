@@ -75,6 +75,7 @@ namespace Mariasek.Engine
         public bool AllowTrumpTalon { get; set; }
         public bool AllowAIAutoFinish { get; set; }
         public bool AllowPlayerAutoFinish { get; set; }
+        public bool SmartPlayerAutoFinish { get; set; }
         public bool SkipBidding { get; set; }
         public float BaseBet { get; set; }
         public string Locale { get; set; }
@@ -1494,8 +1495,8 @@ namespace Mariasek.Engine
                 {
                     return false;
                 }
-				//return player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => Round.WinningCard(i, j, k, trump) == i)));
-				var holesPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                //return player.Hand.All(i => players[player2].Hand.All(j => players[player3].Hand.All(k => Round.WinningCard(i, j, k, trump) == i)));
+                var holesPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                        .Where(b => hand1.Any(i => i.Suit == b))
                                        .ToDictionary(b => b,
                                                      b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
@@ -1518,6 +1519,15 @@ namespace Mariasek.Engine
                                                .SelectMany(i => i)
                                                .ToList() 
                                      : new List<Card>();
+
+                if (!SmartPlayerAutoFinish)
+                {
+                    return topCards.All(g => holesPerSuit[g.Key] == 0) &&
+                           hand1.All(i => topCards.Any(g => i.Suit == g.Key)) &&        //nesmi existovat barva kde nemam nejvyssi karty
+                           (!trump.HasValue ||
+                            topTrumps.Count() >= hand2.CardCount(trump.Value) +
+                                                 hand3.CardCount(trump.Value));
+                }
 
                 return topCards.All(g => holesPerSuit[g.Key] == 0 ||                //pokud mam v barve diru, musim mit vic
                                          g.Count() >= hand2.CardCount(g.Key) +      //nejvyssich karet nez maji ostatni hraci

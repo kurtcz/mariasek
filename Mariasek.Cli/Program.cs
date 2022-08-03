@@ -86,7 +86,8 @@ namespace Mariasek.Cli
                     AllowAXTalon = Settings.AllowAXTalon,
                     AllowTrumpTalon = Settings.AllowTrumpTalon,
                     AllowAIAutoFinish = Settings.AllowAIAutoFinish,
-                    AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish,
+                    AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish
+                    SmartPlayerAutoFinish = Settings.SmartPlayerAutoFinish,
                     CurrencyFormat = nfi
                 };
                 g.RegisterPlayers(
@@ -201,6 +202,7 @@ namespace Mariasek.Cli
                         AllowTrumpTalon = Settings.AllowTrumpTalon,
                         AllowAIAutoFinish = Settings.AllowAIAutoFinish,
                         AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish,
+                        SmartPlayerAutoFinish = Settings.SmartPlayerAutoFinish,
                         CurrencyFormat = nfi
                     };
                     g.RegisterPlayers(
@@ -264,6 +266,7 @@ namespace Mariasek.Cli
                 AllowTrumpTalon = Settings.AllowTrumpTalon,
                 AllowAIAutoFinish = Settings.AllowAIAutoFinish,
                 AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish,
+                SmartPlayerAutoFinish = Settings.SmartPlayerAutoFinish,
                 CurrencyFormat = nfi
             };
             g.RegisterPlayers(

@@ -13,12 +13,12 @@ namespace Mariasek.SharedClient.GameComponents
         //offsety puvodnich stranek
         public const int page2Offset = 420;
         public const int page3Offset = 1020;
-        public const int page4Offset = 1560;
-        public const int page5Offset = 2220;
-        public const int page6Offset = 2640;
-        public const int boundsRectHeight = 3060;
+        public const int page4Offset = 1620;
+        public const int page5Offset = 2280;
+        public const int page6Offset = 2700;
+        public const int boundsRectHeight = 3120;
         //nove tematicke offsety zacinaji na ruznych mistech puvodnich stranek
-        public readonly int[] TopicOffsets = new [] { 0, page2Offset, page4Offset - 420, page6Offset };
+        public readonly int[] TopicOffsets = new [] { 0, page2Offset, page3Offset + 120, page6Offset };
 
         private Tuple<string, int, int>[] _locales;
         private Label _hint;
@@ -62,6 +62,7 @@ namespace Mariasek.SharedClient.GameComponents
         private Label _allowTrumpTalon;
         private Label _allowAIAutoFinish;
         private Label _allowPlayerAutoFinish;
+        private Label _smartPlayerAutoFinish;
         private Label _minBidsForGame;
         private Label _minBidsForSeven;
         private Label _whenToShuffle;
@@ -122,6 +123,7 @@ namespace Mariasek.SharedClient.GameComponents
         private LeftRightSelector _allowTrumpTalonSelector;
         private LeftRightSelector _allowAIAutoFinishSelector;
         private LeftRightSelector _allowPlayerAutoFinishSelector;
+        private LeftRightSelector _smartPlayerAutoFinishSelector;
         private LeftRightSelector _minBidsForGameSelector;
         private LeftRightSelector _minBidsForSevenSelector;
         private LeftRightSelector _whenToShuffleSelector;
@@ -794,9 +796,34 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _allowPlayerAutoFinishSelector.SelectedIndex = 0;
             }
-            _whenToShuffle = new Label(this)
+            _smartPlayerAutoFinish = new Label(this)
             {
                 Position = new Vector2(200, page3Offset + 490),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Text = "Ložené hry posuzovat",
+                Group = 1,
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle,
+                UseCommonScissorRect = true
+            };
+            _smartPlayerAutoFinishSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 490),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Optimisticky", true }, { "Striktně", false } },
+                UseCommonScissorRect = true
+            };
+            _smartPlayerAutoFinishSelector.SelectedIndex = _smartPlayerAutoFinishSelector.Items.FindIndex(Game.Settings.SmartPlayerAutoFinish);
+            _smartPlayerAutoFinishSelector.SelectionChanged += SmartPlayerAutoFinishChanged;
+            if (_smartPlayerAutoFinishSelector.SelectedIndex < 0)
+            {
+                _smartPlayerAutoFinishSelector.SelectedIndex = 0;
+            }
+            _whenToShuffle = new Label(this)
+            {
+                Position = new Vector2(200, page3Offset + 550),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Karty míchat",
@@ -807,7 +834,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _whenToShuffleSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 490),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 550),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Nikdy", ShuffleTrigger.Never }, { "Po ložené hře", ShuffleTrigger.AfterAutomaticVictory }, { "Po každé hře", ShuffleTrigger.Always } },
@@ -1979,6 +2006,15 @@ namespace Mariasek.SharedClient.GameComponents
             var selector = sender as LeftRightSelector;
 
             Game.Settings.AllowPlayerAutoFinish = (bool)selector.SelectedValue;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+        
+        private void SmartPlayerAutoFinishChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.SmartPlayerAutoFinish = (bool)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }

@@ -475,7 +475,8 @@ namespace Mariasek.SharedClient
                         AllowAXTalon = Game.Settings.AllowAXTalon,
                         AllowTrumpTalon = Game.Settings.AllowTrumpTalon,
                         AllowAIAutoFinish = Game.Settings.AllowAIAutoFinish,
-                        AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish
+                        AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish,
+                        SmartPlayerAutoFinish = Game.Settings.SmartPlayerAutoFinish
                     };
                     g.RegisterPlayers(new Engine.AbstractPlayer[]
                                       {
@@ -605,7 +606,8 @@ namespace Mariasek.SharedClient
                     AllowAXTalon = Game.Settings.AllowAXTalon,
                     AllowTrumpTalon = Game.Settings.AllowTrumpTalon,
                     AllowAIAutoFinish = Game.Settings.AllowAIAutoFinish,
-                    AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish
+                    AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish,
+                    SmartPlayerAutoFinish = Game.Settings.SmartPlayerAutoFinish
                 };
                 g.RegisterPlayers(new Engine.AbstractPlayer[]
                                   {

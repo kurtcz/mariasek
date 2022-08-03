@@ -1501,6 +1501,7 @@ namespace Mariasek.SharedClient
                          AllowTrumpTalon = Game.Settings.AllowTrumpTalon,
                          AllowAIAutoFinish = Game.Settings.AllowAIAutoFinish,
                          AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish,
+                         SmartPlayerAutoFinish = Game.Settings.SmartPlayerAutoFinish,
                          PreGameHook = () => _preGameEvent.WaitOne(),
                          CurrencyFormat = Game.CurrencyFormat
                      };
@@ -3389,6 +3390,7 @@ namespace Mariasek.SharedClient
                             AllowTrumpTalon = Game.Settings.AllowTrumpTalon,
                             AllowAIAutoFinish = Game.Settings.AllowAIAutoFinish,
                             AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish,
+                            SmartPlayerAutoFinish = Game.Settings.SmartPlayerAutoFinish,
                             CurrencyFormat = Game.CurrencyFormat
                         };
                         g.RegisterPlayers(
