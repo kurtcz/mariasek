@@ -194,6 +194,7 @@ namespace Mariasek.SharedClient
                         MinimalBidsForGame = Game.Settings.MinimalBidsForGame,
                         MinimalBidsForSeven = Game.Settings.MinimalBidsForSeven,
                         CalculationStyle = Game.Settings.CalculationStyle,
+                        CountHlasAgainst = Game.Settings.CountHlasAgainst,
                         PlayZeroSumGames = Game.Settings.PlayZeroSumGames,
                         MandatoryDouble = Game.Settings.MandatoryDouble,
                         Top107 = Game.Settings.Top107,

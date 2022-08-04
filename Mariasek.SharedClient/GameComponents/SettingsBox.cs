@@ -12,11 +12,11 @@ namespace Mariasek.SharedClient.GameComponents
     {
         //offsety puvodnich stranek
         public const int page2Offset = 420;
-        public const int page3Offset = 1020;
-        public const int page4Offset = 1620;
-        public const int page5Offset = 2280;
-        public const int page6Offset = 2700;
-        public const int boundsRectHeight = 3120;
+        public const int page3Offset = 1080;
+        public const int page4Offset = 1680;
+        public const int page5Offset = 2340;
+        public const int page6Offset = 2760;
+        public const int boundsRectHeight = 3180;
         //nove tematicke offsety zacinaji na ruznych mistech puvodnich stranek
         public readonly int[] TopicOffsets = new [] { 0, page2Offset, page3Offset + 120, page6Offset };
 
@@ -29,6 +29,7 @@ namespace Mariasek.SharedClient.GameComponents
         private Label _naturalSorting;
         private Label _baseBet;
         private Label _kiloCounting;
+        private Label _hlasAgainstCounting;
         private Label _playZeroSumGames;
         private Label _mandatoryDouble;
         private Label _fakeSeven;
@@ -83,6 +84,7 @@ namespace Mariasek.SharedClient.GameComponents
         private LeftRightSelector _naturalSortingSelector;
         private LeftRightSelector _baseBetSelector;
         private LeftRightSelector _kiloCountingSelector;
+        private LeftRightSelector _hlasAgainstCountingSelector;
         private LeftRightSelector _playZeroSumGamesSelector;
         private LeftRightSelector _mandatoryDoubleSelector;
         private LeftRightSelector _fakeSevenSelector;
@@ -383,34 +385,9 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _minBidsForSevenSelector.SelectedIndex = 0;
             }
-            _kiloCounting = new Label(this)
-            {
-                Position = new Vector2(200, page2Offset + 130),
-                Width = (int)Game.VirtualScreenWidth / 2 - 150,
-                Height = 50,
-                Group = 1,
-                Text = "Počítání peněz u kila",
-                HorizontalAlign = HorizontalAlignment.Center,
-                VerticalAlign = VerticalAlignment.Middle,
-                UseCommonScissorRect = true
-            };
-            _kiloCountingSelector = new LeftRightSelector(this)
-            {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 130),
-                Width = 270,
-                Group = 1,
-                Items = new SelectorItems() { { "Sčítat", CalculationStyle.Adding }, { "Násobit", CalculationStyle.Multiplying } },
-                UseCommonScissorRect = true
-            };
-            _kiloCountingSelector.SelectedIndex = _kiloCountingSelector.Items.FindIndex(Game.Settings.CalculationStyle);
-            _kiloCountingSelector.SelectionChanged += KiloCountingChanged;
-            if (_kiloCountingSelector.SelectedIndex < 0)
-            {
-                _kiloCountingSelector.SelectedIndex = 0;
-            }
             _top107 = new Label(this)
             {
-                Position = new Vector2(200, page2Offset + 190),
+                Position = new Vector2(200, page2Offset + 130),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -421,7 +398,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _top107Selector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 190),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 130),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Ne", false }, { "Ano", true } },
@@ -433,9 +410,59 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _top107Selector.SelectedIndex = 0;
             }
-            _calculate107Separately = new Label(this)
+            _kiloCounting = new Label(this)
+            {
+                Position = new Vector2(200, page2Offset + 190),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Počítání peněz u kila",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle,
+                UseCommonScissorRect = true
+            };
+            _kiloCountingSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 190),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Sčítat", CalculationStyle.Adding }, { "Násobit", CalculationStyle.Multiplying } },
+                UseCommonScissorRect = true
+            };
+            _kiloCountingSelector.SelectedIndex = _kiloCountingSelector.Items.FindIndex(Game.Settings.CalculationStyle);
+            _kiloCountingSelector.SelectionChanged += KiloCountingChanged;
+            if (_kiloCountingSelector.SelectedIndex < 0)
+            {
+                _kiloCountingSelector.SelectedIndex = 0;
+            }
+            _hlasAgainstCounting = new Label(this)
             {
                 Position = new Vector2(200, page2Offset + 250),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Hlasy proti do prohr. kila",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle,
+                UseCommonScissorRect = true
+            };
+            _hlasAgainstCountingSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 250),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Započítávat", true }, { "Nezapočítávat", false } },
+                UseCommonScissorRect = true
+            };
+            _hlasAgainstCountingSelector.SelectedIndex = _hlasAgainstCountingSelector.Items.FindIndex(Game.Settings.CountHlasAgainst);
+            _hlasAgainstCountingSelector.SelectionChanged += HlasAgainstCountingChanged;
+            if (_hlasAgainstCountingSelector.SelectedIndex < 0)
+            {
+                _hlasAgainstCountingSelector.SelectedIndex = 0;
+            }            
+            _calculate107Separately = new Label(this)
+            {
+                Position = new Vector2(200, page2Offset + 310),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -446,7 +473,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _calculate107Selector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 250),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 310),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Zvlášť", true }, { "Dohromady", false } },
@@ -460,7 +487,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _hlasConsidered = new Label(this)
             {
-                Position = new Vector2(200, page2Offset + 310),
+                Position = new Vector2(200, page2Offset + 370),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Jaký hlas počítat do kila",
@@ -471,7 +498,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _hlasSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 310),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 370),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Největší", HlasConsidered.Highest }, { "První", HlasConsidered.First }, { "Každý", HlasConsidered.Each } },
@@ -485,7 +512,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _playZeroSumGames = new Label(this)
             {
-                Position = new Vector2(200, page2Offset + 370),
+                Position = new Vector2(200, page2Offset + 430),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -496,7 +523,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _playZeroSumGamesSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 370),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 430),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Nehraje", false }, { "Hraje", true } },
@@ -510,7 +537,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _mandatoryDouble = new Label(this)
             {
-                Position = new Vector2(200, page2Offset + 430),
+                Position = new Vector2(200, page2Offset + 490),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -521,7 +548,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _mandatoryDoubleSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 430),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 490),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Ne", false }, { "Ano", true } },
@@ -535,7 +562,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _fakeSeven = new Label(this)
             {
-                Position = new Vector2(200, page2Offset + 490),
+                Position = new Vector2(200, page2Offset + 550),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -546,7 +573,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _fakeSevenSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 490),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 550),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Zakázáno", false }, { "Povoleno", true } },
@@ -565,7 +592,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _fake107 = new Label(this)
             {
-                Position = new Vector2(200, page2Offset + 550),
+                Position = new Vector2(200, page2Offset + 610),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -576,7 +603,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _fake107Selector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 550),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 610),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Zakázáno", false }, { "Povoleno", true } },
@@ -1641,6 +1668,20 @@ namespace Mariasek.SharedClient.GameComponents
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
+
+        void HlasAgainstCountingChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.CountHlasAgainst = (bool)selector.SelectedValue;
+            if (Game.Settings.Default.HasValue &&
+                Game.Settings.Default.Value)
+            {
+                Game.Settings.ResetThresholds();
+            }
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }        
 
         void CardFaceChanged(object sender)
         {

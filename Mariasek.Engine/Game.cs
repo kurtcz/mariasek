@@ -89,6 +89,7 @@ namespace Mariasek.Engine
         public int FirstMinMaxRound { get; set; }
         public HlasConsidered HlasConsidered { get; set; }
         public CalculationStyle CalculationStyle { get; set; }
+        public bool CountHlasAgainst { get; set; }
         public bool IsRunning { get; private set; }
         public Hra GameType { get; private set; }
         public bool GivenUp { get; private set; }

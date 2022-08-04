@@ -32,8 +32,8 @@ namespace Mariasek.Engine
         }
 
         public MultiplyingMoneyCalculator(Hra gameType, Barva? trump, int gameStartingPlayerIndex, Bidding bidding, IGameTypeValues values,
-            bool calculate107Separately, HlasConsidered hlasConsidered, GameComputationResult res)
-            :base(gameType, trump, gameStartingPlayerIndex, bidding, values, calculate107Separately, hlasConsidered, res)
+            bool calculate107Separately, HlasConsidered hlasConsidered, bool countHlasAgainst, GameComputationResult res)
+            :base(gameType, trump, gameStartingPlayerIndex, bidding, values, calculate107Separately, hlasConsidered, countHlasAgainst, res)
         {
         }
 
@@ -172,7 +172,7 @@ namespace Mariasek.Engine
                     else
                     {
                         var mojeBody = BasicPointsWon + MaxHlasWon;
-                        var hlasyProti = PointsLost - BasicPointsLost;
+                        var hlasyProti = CountHlasAgainst ? PointsLost - BasicPointsLost : 0;
 
                         //pokud se pocita stosedm dohromady a neuhral jsem sedmu, ale uhral kilo, tak pocitej kilo jako tesne prohrane
                         if (mojeBody >= 100 &&

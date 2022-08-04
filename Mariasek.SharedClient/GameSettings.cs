@@ -98,6 +98,7 @@ namespace Mariasek.SharedClient
         public bool PlayerMayGiveUp { get; set; }
         public bool KeepScreenOn { get; set; }                  //xml-only
         public CalculationStyle CalculationStyle { get; set; }
+        public bool CountHlasAgainst { get; set; }
         public int GameTypeSimulationsPerSecond { get; set; }
         public int RoundSimulationsPerSecond { get; set; }
         public int CurrentStartingPlayerIndex { get; set; }
@@ -187,6 +188,7 @@ namespace Mariasek.SharedClient
             Locale = "cs-CZ";
 			MaxWin = 500;
             CalculationStyle = CalculationStyle.Adding;
+            CountHlasAgainst = true;
             CurrentStartingPlayerIndex = 0;
             BubbleTimeMs = 1000;
             ThinkingTimeMs = 1500;

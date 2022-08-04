@@ -41,6 +41,7 @@ namespace Mariasek.Engine
 
         public HlasConsidered HlasConsidered { get; private set; }
         public bool Calculate107Separately { get; private set; }
+        public bool CountHlasAgainst { get; private set; }
 
         public bool GamePlayed { get; private set; }
         public bool GivenUp { get; private set; }
@@ -197,6 +198,7 @@ namespace Mariasek.Engine
             BetlValue = g.BetlValue;
             DurchValue = g.DurchValue;
             Calculate107Separately = g.Calculate107Separately;
+            CountHlasAgainst = g.CountHlasAgainst;
             HlasConsidered = g.HlasConsidered;
 
             if (nfi == null)
@@ -365,13 +367,13 @@ namespace Mariasek.Engine
         }
 
         protected MoneyCalculatorBase(Game g, Bidding bidding, GameComputationResult res)
-            : this(g.GameType, g.trump, g.GameStartingPlayerIndex, bidding, g, g.Calculate107Separately, g.HlasConsidered, res)
+            : this(g.GameType, g.trump, g.GameStartingPlayerIndex, bidding, g, g.Calculate107Separately, g.HlasConsidered, g.CountHlasAgainst, res)
         {
         }
 
         //vola se na konci simulace
         protected MoneyCalculatorBase(Hra gameType, Barva? trump, int gameStartingPlayerIndex, Bidding bidding, IGameTypeValues values, 
-        bool calculate107Separately, HlasConsidered hlasConsidered, GameComputationResult res)
+        bool calculate107Separately, HlasConsidered hlasConsidered, bool countHlasAgainst, GameComputationResult res)
             : this()
         {
             _gameType = gameType;
@@ -388,6 +390,7 @@ namespace Mariasek.Engine
             BetlValue = values.BetlValue;
             DurchValue = values.DurchValue;
             Calculate107Separately = calculate107Separately;
+            CountHlasAgainst = countHlasAgainst;
             HlasConsidered = hlasConsidered;
             GamePlayed = true;
 
@@ -515,7 +518,7 @@ namespace Mariasek.Engine
                                                       HlasPointsWasted == 0
                                                       ? string.Empty
                                                       : string.Format("\nPropadlé hlasy: {0} bodů", HlasPointsWasted),
-                                                      PointsLost == BasicPointsLost
+                                                      PointsLost == BasicPointsLost || !CountHlasAgainst
                                                       ? string.Empty
                                                       : string.Format("\nHlasy proti: {0} bodů", PointsLost - BasicPointsLost)));
                 sb.AppendFormat("{0}: {1} {2}{3}{4}\t{5}\n{6}",
@@ -574,7 +577,7 @@ namespace Mariasek.Engine
                                                               HlasPointsWasted == 0
                                                               ? string.Empty
                                                               : string.Format("\nPropadlé hlasy: {0} bodů", HlasPointsWasted),
-                                                              PointsLost == BasicPointsLost
+                                                              PointsLost == BasicPointsLost || !CountHlasAgainst
                                                               ? string.Empty
                                                               : string.Format("\nHlasy proti: {0} bodů", PointsLost - BasicPointsLost)));
                         break;
@@ -598,7 +601,7 @@ namespace Mariasek.Engine
                                                   HlasPointsWasted == 0
                                                   ? string.Empty
                                                   : string.Format("\nPropadlé hlasy: {0} bodů", HlasPointsWasted),
-                                                  PointsWon == BasicPointsWon
+                                                  PointsWon == BasicPointsWon || !CountHlasAgainst
                                                   ? string.Empty
                                                   : string.Format("\nHlasy proti: {0} bodů", PointsWon - BasicPointsWon));
                         break;
@@ -715,7 +718,7 @@ namespace Mariasek.Engine
                                           HlasPointsWasted == 0
                                           ? string.Empty
                                           : string.Format("\nPropadlé hlasy: {0} bodů", HlasPointsWasted),
-                                          PointsWon == BasicPointsWon
+                                          PointsWon == BasicPointsWon || !CountHlasAgainst
                                           ? string.Empty
                                           : string.Format("\nHlasy proti: {0} bodů", PointsWon - BasicPointsWon));
                 sb.AppendFormat("{0} {1}{2}{3}\t{4}\n{5}",
