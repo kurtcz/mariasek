@@ -842,7 +842,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Items = new SelectorItems() { { "Optimisticky", true }, { "Striktně", false } },
                 UseCommonScissorRect = true
             };
-            _smartPlayerAutoFinishSelector.SelectedIndex = _smartPlayerAutoFinishSelector.Items.FindIndex(Game.Settings.SmartPlayerAutoFinish);
+            _smartPlayerAutoFinishSelector.SelectedIndex = _smartPlayerAutoFinishSelector.Items.FindIndex(Game.Settings.OptimisticAutoFinish);
             _smartPlayerAutoFinishSelector.SelectionChanged += SmartPlayerAutoFinishChanged;
             if (_smartPlayerAutoFinishSelector.SelectedIndex < 0)
             {
@@ -2055,7 +2055,7 @@ namespace Mariasek.SharedClient.GameComponents
         {
             var selector = sender as LeftRightSelector;
 
-            Game.Settings.SmartPlayerAutoFinish = (bool)selector.SelectedValue;
+            Game.Settings.OptimisticAutoFinish = (bool)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }

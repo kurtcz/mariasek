@@ -75,7 +75,7 @@ namespace Mariasek.Engine
         public bool AllowTrumpTalon { get; set; }
         public bool AllowAIAutoFinish { get; set; }
         public bool AllowPlayerAutoFinish { get; set; }
-        public bool SmartPlayerAutoFinish { get; set; }
+        public bool OptimisticAutoFinish { get; set; }
         public bool SkipBidding { get; set; }
         public float BaseBet { get; set; }
         public string Locale { get; set; }
@@ -1521,7 +1521,7 @@ namespace Mariasek.Engine
                                                .ToList() 
                                      : new List<Card>();
 
-                if (!SmartPlayerAutoFinish)
+                if (!OptimisticAutoFinish)
                 {
                     return topCards.All(g => holesPerSuit[g.Key] == 0) &&
                            hand1.All(i => topCards.Any(g => i.Suit == g.Key)) &&        //nesmi existovat barva kde nemam nejvyssi karty

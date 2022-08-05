@@ -89,7 +89,7 @@ namespace Mariasek.SharedClient
         public bool AllowTrumpTalon { get; set; }
         public bool AllowAIAutoFinish { get; set; }
         public bool AllowPlayerAutoFinish { get; set; }
-        public bool SmartPlayerAutoFinish { get; set; }
+        public bool OptimisticAutoFinish { get; set; }
         public int ThinkingTimeMs { get; set; }
         public int BubbleTimeMs { get; set; }
         public int MaxHistoryLength { get; set; }
@@ -214,7 +214,7 @@ namespace Mariasek.SharedClient
             AllowTrumpTalon = true;
             AllowAIAutoFinish = true;
             AllowPlayerAutoFinish = true;
-            SmartPlayerAutoFinish = true;
+            OptimisticAutoFinish = true;
             MaxDegreeOfParallelism = -1;
             ShowStatusBar = false;
             AiMayGiveUp = false;
