@@ -1854,7 +1854,7 @@ namespace Mariasek.Engine
                         }
                         if ((_gameType & Hra.SedmaProti) != 0 &&
                             hands[MyIndex].Has7(_trump) &&
-                            SevenValue > GameValue)
+                            SevenValue >= GameValue)
                         {
                             //pokud hraju sedmu proti setri trumfy nakonec
                             return null;
@@ -5760,6 +5760,11 @@ namespace Mariasek.Engine
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
                 {
+                    if (TeamMateIndex == -1 &&
+                        (_gameType & Hra.Kilo) != 0)
+                    {
+                        return null;
+                    }
                     //pokud ma oponent jen jednu neznamou kartu a na zadnou z jeho znamych karet nemuzu pozdeji namazat
                     if (TeamMateIndex == player1)
                     {
@@ -6223,6 +6228,7 @@ namespace Mariasek.Engine
                             if (preferredSuit.HasValue)
                             {
                                 cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == preferredSuit.Value &&
+                                                                                        i.Value < Hodnota.Desitka &&
                                                                                         (hands[MyIndex].CardCount(i.Suit) == 1 ||
                                                                                          !hands[MyIndex].Where(j => j.Suit == i.Suit)
                                                                                                         .All(j => j.Value <= i.Value)))
