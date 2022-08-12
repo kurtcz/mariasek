@@ -3968,7 +3968,8 @@ namespace Mariasek.Engine
 
             //kilo proti flekuju jen pokud jsem hlasil sam kilo proti a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem volil trumf a je nemozne aby meli protihraci kilo (nemaji hlas)
-            if ((bidding.Bids & Hra.KiloProti) != 0 &&                
+            if ((bidding.Bids & Hra.KiloProti) != 0 &&
+                (bid & Hra.Sedma) == 0 &&
                 ((Settings.CanPlayGameType[Hra.KiloProti] &&
                   estimatedFinalBasicScore >= 60 &&
                   (bidding._hundredAgainstFlek <= Settings.MaxDoubleCountForGameType[Hra.KiloProti] ||
