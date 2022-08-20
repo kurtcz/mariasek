@@ -14,9 +14,9 @@ namespace Mariasek.SharedClient.GameComponents
         public const int page2Offset = 420;
         public const int page3Offset = 1080;
         public const int page4Offset = 1680;
-        public const int page5Offset = 2340;
-        public const int page6Offset = 2760;
-        public const int boundsRectHeight = 3180;
+        public const int page5Offset = 2400;
+        public const int page6Offset = 2820;
+        public const int boundsRectHeight = 3240;
         //nove tematicke offsety zacinaji na ruznych mistech puvodnich stranek
         public readonly int[] TopicOffsets = new [] { 0, page2Offset, page3Offset + 120, page6Offset };
 
@@ -25,6 +25,7 @@ namespace Mariasek.SharedClient.GameComponents
         private Label _sounds;
         private Label _bgsounds;
         private Label _handSorting;
+        private Label _trumpSorting;
         private Label _autoSorting;
         private Label _naturalSorting;
         private Label _baseBet;
@@ -80,6 +81,7 @@ namespace Mariasek.SharedClient.GameComponents
         private ToggleButton _soundBtn;
         private ToggleButton _bgsoundBtn;
         private LeftRightSelector _handSortingSelector;
+        private LeftRightSelector _trumpSortingSelector;
         private LeftRightSelector _autoSortingSelector;
         private LeftRightSelector _naturalSortingSelector;
         private LeftRightSelector _baseBetSelector;
@@ -1025,9 +1027,36 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _naturalSortingSelector.SelectedIndex = 0;
             }
-            _autoSorting = new Label(this)
+
+            _trumpSorting = new Label(this)
             {
                 Position = new Vector2(200, page4Offset + 370),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Trumfy řadit",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle,
+                UseCommonScissorRect = true
+            };
+            _trumpSortingSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 370),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Náhodně", TrumpSorting.Random}, { "Vlevo", TrumpSorting.Left }, { "Vpravo", TrumpSorting.Right } },
+                UseCommonScissorRect = true
+            };
+            _trumpSortingSelector.SelectedIndex = _trumpSortingSelector.Items.FindIndex(Game.Settings.TrumpSort);
+            _trumpSortingSelector.SelectionChanged += TrumpSortChanged;
+            if (_trumpSortingSelector.SelectedIndex < 0)
+            {
+                _trumpSortingSelector.SelectedIndex = 0;
+            }
+
+            _autoSorting = new Label(this)
+            {
+                Position = new Vector2(200, page4Offset + 430),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -1038,7 +1067,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _autoSortingSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 370),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 430),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Automaticky", true }, { "Poklepem", false } },
@@ -1052,7 +1081,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _autoFinishRounds = new Label(this)
             {
-                Position = new Vector2(200, page4Offset + 430),
+                Position = new Vector2(200, page4Offset + 490),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -1063,7 +1092,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _autoFinishRoundsSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 430),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 490),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Automaticky", true }, { "Dotykem", false } },
@@ -1077,7 +1106,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _roundFinishedWaitTime = new Label(this)
             {
-                Position = new Vector2(200, page4Offset + 490),
+                Position = new Vector2(200, page4Offset + 550),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -1088,7 +1117,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _roundFinishedWaitTimeSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 490),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 550),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Krátká", 1000 }, { "Dlouhá", 2000 } },
@@ -1102,7 +1131,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _autoFinishLastRound = new Label(this)
             {
-                Position = new Vector2(200, page4Offset + 550),
+                Position = new Vector2(200, page4Offset + 610),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -1113,7 +1142,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _autoFinishLastRoundSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 550),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 610),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Automaticky", true }, { "Ručně", false } },
@@ -1127,7 +1156,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _autoPlaySingletonCard = new Label(this)
             {
-                Position = new Vector2(200, page4Offset + 610),
+                Position = new Vector2(200, page4Offset + 670),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -1138,7 +1167,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _autoPlaySingletonCardSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 610),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page4Offset + 670),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Automaticky", true }, { "Ručně", false } },
@@ -1612,6 +1641,15 @@ namespace Mariasek.SharedClient.GameComponents
             Game.Settings.SortMode = (SortMode)selector.SelectedValue;
             _naturalSortingSelector.IsEnabled = Game.Settings.SortMode == SortMode.Ascending ||
                                                 Game.Settings.SortMode == SortMode.Descending;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        void TrumpSortChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.TrumpSort = (TrumpSorting)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }

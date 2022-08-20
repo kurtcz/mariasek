@@ -1197,7 +1197,10 @@ namespace Mariasek.Engine
                         }
                     }
 
-                    return cardsToPlay.OrderByDescending(i => cardsToPlay.CardCount(i.Suit))
+                    return cardsToPlay.OrderBy(i => hands[MyIndex].HasA(i.Suit) &&
+                                                    !myInitialHand .HasX(i.Suit)
+                                                    ? 1 : 0)
+                                      .ThenByDescending(i => cardsToPlay.CardCount(i.Suit))
                                       .ThenBy(i => i.Value)
                                       .FirstOrDefault();
                 }

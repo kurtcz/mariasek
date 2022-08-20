@@ -50,14 +50,15 @@ namespace Mariasek.Engine
             }
 
             var shuffledSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>().Shuffle().ToArray();
+            var currentSuitOrder = hand.Select(i => i.Suit).Distinct().ToArray();
 
             hand.Sort((c1, c2) =>
             {
                 var sign = sortMode == SortMode.Ascending ? -1 : sortMode == SortMode.Descending ? 1 : 0;
-                int s1 = shuffleSuits ? Array.IndexOf(shuffledSuits, c1.Suit) : Convert.ToInt16(c1.Suit);
-                int s2 = shuffleSuits ? Array.IndexOf(shuffledSuits, c2.Suit) : Convert.ToInt16(c2.Suit);
-
-                if (!shuffleSuits)
+                int s1 = shuffleSuits ? Array.IndexOf(shuffledSuits, c1.Suit) : Array.IndexOf(currentSuitOrder, c1.Suit);
+                int s2 = shuffleSuits ? Array.IndexOf(shuffledSuits, c2.Suit) : Array.IndexOf(currentSuitOrder, c2.Suit);
+                
+                //if (!shuffleSuits)
                 {
                     if (lastSuit.HasValue)
                     {

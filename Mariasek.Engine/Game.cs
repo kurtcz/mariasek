@@ -801,12 +801,12 @@ namespace Mariasek.Engine
                 }
                 if (RoundNumber > 0)
                 {
-                    hands[GameStartingPlayerIndex].Sort();
+                    hands[GameStartingPlayerIndex].Sort(SortMode.SuitsOnly);
                 }
                 if (!saveFromEditor)
                 {
-                    hands[(GameStartingPlayerIndex + 1) % NumPlayers].Sort();
-                    hands[(GameStartingPlayerIndex + 2) % NumPlayers].Sort();
+                    hands[(GameStartingPlayerIndex + 1) % NumPlayers].Sort(SortMode.SuitsOnly);
+                    hands[(GameStartingPlayerIndex + 2) % NumPlayers].Sort(SortMode.SuitsOnly);
                 }
                 var gameDto = new GameDto
                 {
@@ -1258,9 +1258,9 @@ namespace Mariasek.Engine
                 var hand3 = new List<Card>(players[2].Hand).Shuffle().ToList();
 
                 //setridime zbyle karty hracu v ruce, aby se barvy slozily k sobe
-                hand1.Sort(SortMode == SortMode.None ? SortMode.SuitsOnly : SortMode, trump == null, shuffleSuits: true);
-                hand2.Sort(SortMode == SortMode.None ? SortMode.SuitsOnly : SortMode, trump == null, shuffleSuits: true);
-                hand3.Sort(SortMode == SortMode.None ? SortMode.SuitsOnly : SortMode, trump == null, shuffleSuits: true);
+                hand1.Sort(SortMode.SuitsOnly, shuffleSuits: true);
+                hand2.Sort(SortMode.SuitsOnly, shuffleSuits: true);
+                hand3.Sort(SortMode.SuitsOnly, shuffleSuits: true);
 
                 //do balicku budeme karty pridavat odzadu
                 hand1.Reverse();

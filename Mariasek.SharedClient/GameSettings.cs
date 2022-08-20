@@ -44,6 +44,13 @@ namespace Mariasek.SharedClient
         Counterclockwise
     }
 
+    public enum TrumpSorting
+    {
+        Random,
+        Left,
+        Right
+    }
+
     public class BidThresholdSettings
     {
         public Hra GameType { get; set; }
@@ -69,6 +76,7 @@ namespace Mariasek.SharedClient
         public int BgMusicMaxDelayMs { get; set; }
         public string[] PlayerNames { get; set; }
         public SortMode SortMode { get; set; }
+        public TrumpSorting TrumpSort { get; set; }
         public bool NaturalSort { get; set; }
         public ShuffleTrigger WhenToShuffle { get; set; }
         public bool AutoSort { get; set; }
@@ -180,6 +188,7 @@ namespace Mariasek.SharedClient
             BgMusicMinDelayMs = 60000;
             BgMusicMaxDelayMs = 120000;
             SortMode = SortMode.Descending;
+            TrumpSort = TrumpSorting.Left;
             NaturalSort = false;
             WhenToShuffle = ShuffleTrigger.AfterAutomaticVictory;
             AutoSort = true;

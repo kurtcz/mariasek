@@ -2635,6 +2635,7 @@ namespace Mariasek.SharedClient
             }
             g.ThrowIfCancellationRequested();
             _canSortTrump = e.TrumpCard != null;
+            _trumpCardChosen = e.TrumpCard;
             //trumfovou kartu otocime az zmizi vsechny bubliny
             RunOnUiThread(() =>
             {
@@ -4140,6 +4141,7 @@ namespace Mariasek.SharedClient
             if (_canSort)
             {
                 var unsorted = new List<Card>(g.players[0].Hand);
+                List<Card> sortedList;
 
                 if (Game.Settings.SortMode != SortMode.None)
                 {
@@ -4149,13 +4151,31 @@ namespace Mariasek.SharedClient
 
                     if (numberOfCardsToSort == 12)
                     {
-                        g.players[0].Hand.Sort(Game.Settings.SortMode, badGameSorting, _canSortTrump ? g.trump : null);
+                        g.players[0].Hand.Sort(Game.Settings.SortMode,
+                                               badGameSorting,
+                                               _canSortTrump
+                                                ? Game.Settings.TrumpSort == TrumpSorting.Left
+                                                    ? _trumpCardChosen?.Suit
+                                                    : null
+                                               : null,
+                                               _canSortTrump
+                                                ? Game.Settings.TrumpSort == TrumpSorting.Right
+                                                    ? _trumpCardChosen?.Suit
+                                                    : null
+                                                : null);
                     }
                     else
                     {
-                        var sortedList = g.players[0].Hand.Take(numberOfCardsToSort).ToList();
+                        sortedList = g.players[0].Hand.Take(numberOfCardsToSort).ToList();
 
-                        sortedList.Sort(Game.Settings.SortMode, badGameSorting, g.trump);
+                        sortedList.Sort(Game.Settings.SortMode,
+                                        badGameSorting,
+                                        Game.Settings.TrumpSort == TrumpSorting.Left
+                                            ? _trumpCardChosen?.Suit
+                                            : null,
+                                        Game.Settings.TrumpSort == TrumpSorting.Right
+                                            ? _trumpCardChosen?.Suit
+                                            : null);
                         g.players[0].Hand = sortedList.Concat(g.players[0].Hand.Skip(numberOfCardsToSort).Take(12)).ToList();
                     }
                 }
