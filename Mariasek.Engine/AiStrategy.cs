@@ -2535,9 +2535,10 @@ namespace Mariasek.Engine
                     {
                         return null;
                     }
-                    //nehraj pravidlo pokud spoluhrac hlasil sedmu proti - bodovane karty budeme mazat
+                    //nehraj pravidlo pokud spoluhrac hlasil sedmu proti nebo flekoval - bodovane karty budeme mazat
                     if (TeamMateIndex != -1 &&
-                        (_gameType & Hra.SedmaProti) != 0 &&
+                        (PlayerBids[TeamMateIndex] != 0 ||
+                         (_gameType & Hra.SedmaProti) != 0) &&
                         _probabilities.CardProbability(TeamMateIndex, new Card(_trump, Hodnota.Sedma)) == 1)
                     {
                         return null;
@@ -6250,15 +6251,13 @@ namespace Mariasek.Engine
                                                         i.Value != Hodnota.Sedma &&
                                                         i.Value <= Hodnota.Spodek))
                             {
-                                cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Sedma ||
-                                                                     i.Suit != _trump).ToList();
+                                cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Sedma).ToList();
                             }
                             else if (cardsToPlay.Has7(_trump) &&
                                      hands[MyIndex].CardCount(_trump) > 1 &&
                                      opponentTrumps.Count() + 1 < hands[MyIndex].CardCount(_trump))
                             {
-                                cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Sedma ||
-                                                                     i.Suit == _trump).ToList();
+                                cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Sedma).ToList();
                             }
                             if (cardsToPlay.HasSuit(_trump) ||
                                 cardsToPlay.All(i => i.Suit != c1.Suit) ||
@@ -6293,8 +6292,7 @@ namespace Mariasek.Engine
                                                     i.Value != Hodnota.Sedma &&
                                                     i.Value <= Hodnota.Spodek))
                         {
-                            cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Sedma ||
-                                                                 i.Suit != _trump).ToList();
+                            cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Sedma).ToList();
                         }
                         if (cardsToPlay.HasSuit(_trump) ||
                             cardsToPlay.All(i => i.Suit != c1.Suit) ||
@@ -7022,15 +7020,13 @@ namespace Mariasek.Engine
                                                     i.Value != Hodnota.Sedma &&
                                                     i.Value <= Hodnota.Spodek))
                         {
-                            cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Sedma ||
-                                                                 i.Suit != _trump).ToList();
+                            cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Sedma).ToList();
                         }
                         else if (cardsToPlay.Has7(_trump) &&
                                  hands[MyIndex].CardCount(_trump) > 1 &&
                                  opponentTrumps.Count() + 1 < hands[MyIndex].CardCount(_trump))
                         {
-                            cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Sedma ||
-                                                                 i.Suit == _trump).ToList();
+                            cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Sedma).ToList();
                         }
                         if (cardsToPlay.HasSuit(_trump) ||
                             cardsToPlay.All(i => i.Suit != c1.Suit) ||
@@ -7059,8 +7055,7 @@ namespace Mariasek.Engine
                                                 i.Value != Hodnota.Sedma &&
                                                 i.Value <= Hodnota.Svrsek))
                     {
-                        cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Sedma ||
-                                                             i.Suit != _trump).ToList();
+                        cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Sedma).ToList();
                     }
                     if (cardsToPlay.HasSuit(_trump) ||
                         cardsToPlay.All(i => i.Suit != c1.Suit) ||
@@ -7167,15 +7162,13 @@ namespace Mariasek.Engine
                                                         i.Value != Hodnota.Sedma &&
                                                         i.Value <= Hodnota.Svrsek))
                             {
-                                cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Sedma ||
-                                                                     i.Suit != _trump).ToList();
+                                cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Sedma).ToList();
                             }
                             else if (cardsToPlay.Has7(_trump) &&
                                      hands[MyIndex].CardCount(_trump) > 1 &&
                                      opponentTrumps.Count() + 1 < hands[MyIndex].CardCount(_trump))
                             {
-                                cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Sedma ||
-                                                                     i.Suit == _trump).ToList();
+                                cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Sedma).ToList();
                             }
                             if (cardsToPlay.Any())
                             {
