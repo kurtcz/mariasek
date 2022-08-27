@@ -2928,7 +2928,8 @@ namespace Mariasek.SharedClient
                                 var roundWinnerIndex = r.roundWinner.PlayerIndex;
 
                                 //pokud hrajeme hru v barve a sebereme nekomu desitku nebo eso, tak se zasmej
-                                if ((g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+                                if (Game.Settings.CheerAndBooSoundEnabled &&
+                                    (g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
                                     ((r.player1.PlayerIndex != roundWinnerIndex && r.player1.TeamMateIndex != roundWinnerIndex && (r.c1.Value == Hodnota.Eso || r.c1.Value == Hodnota.Desitka)) ||
                                      (r.player2.PlayerIndex != roundWinnerIndex && r.player2.TeamMateIndex != roundWinnerIndex && (r.c2.Value == Hodnota.Eso || r.c2.Value == Hodnota.Desitka)) ||
                                      (r.player3.PlayerIndex != roundWinnerIndex && r.player3.TeamMateIndex != roundWinnerIndex && (r.c3.Value == Hodnota.Eso || r.c3.Value == Hodnota.Desitka))))
@@ -3229,17 +3230,20 @@ namespace Mariasek.SharedClient
                 //tohle zpusobi prekresleni nekterych ui prvku, je treba volat z UI threadu
                 Game.UpdateSettings();
 
-                if (results.GamePlayed && results.MoneyWon[0] > 0)
+                if (Game.Settings.CheerAndBooSoundEnabled)
                 {
-                    Game.ClapSound?.PlaySafely();
-                }
-                else if (results.GamePlayed && results.MoneyWon[0] < 0)
-                {
-                    Game.BooSound?.PlaySafely();
-                }
-                else
-                {
-                    Game.CoughSound?.PlaySafely();
+                    if (results.GamePlayed && results.MoneyWon[0] > 0)
+                    {
+                        Game.ClapSound?.PlaySafely();
+                    }
+                    else if (results.GamePlayed && results.MoneyWon[0] < 0)
+                    {
+                        Game.BooSound?.PlaySafely();
+                    }
+                    else
+                    {
+                        Game.CoughSound?.PlaySafely();
+                    }
                 }
                 _newGameBtn.Show();
                 _repeatGameBtn.IsEnabled = true; //Game.StorageAccessor.CheckStorageAccess();

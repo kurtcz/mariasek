@@ -72,6 +72,7 @@ namespace Mariasek.SharedClient
         public bool HintEnabled { get; set; }
         public bool SoundEnabled { get; set; }
         public bool BgSoundEnabled { get; set; }
+        public bool CheerAndBooSoundEnabled { get; set; }
         public int BgMusicMinDelayMs { get; set; }
         public int BgMusicMaxDelayMs { get; set; }
         public string[] PlayerNames { get; set; }
@@ -185,6 +186,7 @@ namespace Mariasek.SharedClient
             HintEnabled = true;
             SoundEnabled = true;
             BgSoundEnabled = true;
+            CheerAndBooSoundEnabled = true;
             BgMusicMinDelayMs = 60000;
             BgMusicMaxDelayMs = 120000;
             SortMode = SortMode.Descending;

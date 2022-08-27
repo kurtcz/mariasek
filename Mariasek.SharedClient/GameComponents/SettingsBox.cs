@@ -11,12 +11,12 @@ namespace Mariasek.SharedClient.GameComponents
     public class SettingsBox : ScrollBox
     {
         //offsety puvodnich stranek
-        public const int page2Offset = 420;
-        public const int page3Offset = 1080;
-        public const int page4Offset = 1680;
-        public const int page5Offset = 2400;
-        public const int page6Offset = 2820;
-        public const int boundsRectHeight = 3240;
+        public const int page2Offset = 480;
+        public const int page3Offset = 1140;
+        public const int page4Offset = 1740;
+        public const int page5Offset = 2460;
+        public const int page6Offset = 2880;
+        public const int boundsRectHeight = 3300;
         //nove tematicke offsety zacinaji na ruznych mistech puvodnich stranek
         public readonly int[] TopicOffsets = new [] { 0, page2Offset, page3Offset + 120, page6Offset };
 
@@ -24,6 +24,7 @@ namespace Mariasek.SharedClient.GameComponents
         private Label _hint;
         private Label _sounds;
         private Label _bgsounds;
+        private Label _cheerAndBooSounds;
         private Label _handSorting;
         private Label _trumpSorting;
         private Label _autoSorting;
@@ -80,6 +81,7 @@ namespace Mariasek.SharedClient.GameComponents
         private ToggleButton _hintBtn;
         private ToggleButton _soundBtn;
         private ToggleButton _bgsoundBtn;
+        private ToggleButton _cheerAndBooSoundBtn;
         private LeftRightSelector _handSortingSelector;
         private LeftRightSelector _trumpSortingSelector;
         private LeftRightSelector _autoSortingSelector;
@@ -161,6 +163,17 @@ namespace Mariasek.SharedClient.GameComponents
                 VerticalAlign = VerticalAlignment.Middle,
                 UseCommonScissorRect = true
             };
+            _cheerAndBooSounds = new Label(this)
+            {
+                Position = new Vector2(200, 130),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Group = 1,
+                Text = "Zvuky jásotu a posměchu",
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle,
+                UseCommonScissorRect = true
+            };
             _soundBtn = new ToggleButton(this)
             {
                 Position = new Vector2(Game.VirtualScreenWidth - 300, 10),
@@ -187,9 +200,22 @@ namespace Mariasek.SharedClient.GameComponents
                 UseCommonScissorRect = true
             };
             _bgsoundBtn.Click += BgSoundBtnClick;
+            _cheerAndBooSoundBtn = new ToggleButton(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 130),
+                Width = 270,
+                Height = 50,
+                Group = 1,
+                Text = Game.Settings.BgSoundEnabled ? "Zapnuté" : "Vypnuté",
+                BorderColor = Color.Transparent,
+                BackgroundColor = Color.Transparent,
+                IsSelected = Game.Settings.BgSoundEnabled,
+                UseCommonScissorRect = true
+            };
+            _cheerAndBooSoundBtn.Click += CheerAndBooSoundBtnClick;
             _hint = new Label(this)
             {
-                Position = new Vector2(200, 130),
+                Position = new Vector2(200, 190),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -200,7 +226,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _hintBtn = new ToggleButton(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, 130),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 190),
                 Width = 270,
                 Height = 50,
                 Group = 1,
@@ -213,7 +239,7 @@ namespace Mariasek.SharedClient.GameComponents
             _hintBtn.Click += HintBtnClick;
             _cardFace = new Label(this)
             {
-                Position = new Vector2(200, 190),
+                Position = new Vector2(200, 250),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -224,7 +250,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _cardFaceSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, 190),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 250),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Jednohlavé", CardFace.Single }, { "Dvouhlavé", CardFace.Double }, { "Pikety", CardFace.Pikety } },
@@ -238,7 +264,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _cardBack = new Label(this)
             {
-                Position = new Vector2(200, 250),
+                Position = new Vector2(200, 310),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -249,7 +275,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _cardBackSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, 250),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 310),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Káro", CardBackSide.Tartan }, { "Koník", CardBackSide.Horse }, { "Krajka", CardBackSide.Lace } },
@@ -264,7 +290,7 @@ namespace Mariasek.SharedClient.GameComponents
             _cardBackSelector.IsEnabled = Game.Settings.CardDesign != CardFace.Pikety;
             _thinkingTime = new Label(this)
             {
-                Position = new Vector2(200, 310),
+                Position = new Vector2(200, 370),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -275,7 +301,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _thinkingTimeSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, 310),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 370),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "Velmi krátce", 350 }, { "Krátce", 750 }, { "Středně", 1500 }, { "Dlouho", 2500 } },
@@ -289,7 +315,7 @@ namespace Mariasek.SharedClient.GameComponents
             }
             _baseBet = new Label(this)
             {
-                Position = new Vector2(200, 370),
+                Position = new Vector2(200, 430),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Group = 1,
@@ -305,7 +331,7 @@ namespace Mariasek.SharedClient.GameComponents
 #if __IOS__
             _baseBetSelector = new LeftRightSelector(this)
 			{
-				Position = new Vector2(Game.VirtualScreenWidth - 300, 370),
+				Position = new Vector2(Game.VirtualScreenWidth - 300, 430),
 				Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "0,01", 0.01f}, { "0,02", 0.02f}, { "0,05", 0.05f}, { "0,10", 0.1f}, { "0,20", 0.2f}, { "0,50", 0.5f }, { "1", 1f }, { "2", 2f}, { "5", 5f}, { "10", 10f} },
@@ -319,7 +345,7 @@ namespace Mariasek.SharedClient.GameComponents
 #else
             _baseBetSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, 370),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, 430),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "0,10 Kč", 0.1f}, { "0,20 Kč", 0.2f}, { "0,50 Kč", 0.5f }, { "1 Kč", 1f }, { "2 Kč", 2f}, { "5 Kč", 5f}, { "10 Kč", 10f},
@@ -1630,6 +1656,16 @@ namespace Mariasek.SharedClient.GameComponents
 
             Game.Settings.BgSoundEnabled = btn.IsSelected;
             _bgsoundBtn.Text = Game.Settings.BgSoundEnabled ? "Zapnutý" : "Vypnutý";
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        void CheerAndBooSoundBtnClick(object sender)
+        {
+            var btn = sender as ToggleButton;
+
+            Game.Settings.CheerAndBooSoundEnabled = btn.IsSelected;
+            _cheerAndBooSoundBtn.Text = Game.Settings.CheerAndBooSoundEnabled ? "Zapnuté" : "Vypnuté";
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
