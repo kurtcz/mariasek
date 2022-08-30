@@ -1073,9 +1073,11 @@ namespace Mariasek.Engine
                 {
                     var cardsToPlay = new List<Card>();
 
-                    if (TeamMateIndex == -1 && RoundNumber <= 5)
+                    if (//TeamMateIndex == -1 &&
+                        RoundNumber <= 5)
                     {
-                        if ((_gameType & Hra.Kilo) == 0 &&
+                        if (TeamMateIndex == -1 &&
+                            (_gameType & Hra.Kilo) == 0 &&
                             myInitialHand.CardCount(_trump) > 0 &&
                             myInitialHand.CardCount(_trump) <= 4)
                         {

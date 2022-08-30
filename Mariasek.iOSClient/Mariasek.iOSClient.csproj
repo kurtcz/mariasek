@@ -31,6 +31,7 @@
 <AssemblyName>Mariasek.iOS</AssemblyName>
 <MtouchProfiling>true</MtouchProfiling>
 <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
+<CodesignProvision>Automatic</CodesignProvision>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType></DebugType>
@@ -49,13 +50,14 @@
     <AssemblyName>Mariasek.iOS</AssemblyName>
     <MtouchLink>Full</MtouchLink>
     <ExternalConsole>false</ExternalConsole>
-    <CodesignProvision></CodesignProvision>
+    <CodesignProvision>Automatic</CodesignProvision>
     <IOSDebugOverWiFi></IOSDebugOverWiFi>
     <MtouchProfiling></MtouchProfiling>
     <CrashReportingApiKey></CrashReportingApiKey>
     <MtouchI18n></MtouchI18n>
     <OptimizePNGs></OptimizePNGs>
     <NoStdLib>false</NoStdLib>
+    <DelaySign>false</DelaySign>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>full</DebugType>
@@ -87,12 +89,13 @@
     <MtouchFloat32>true</MtouchFloat32>
     <MtouchDebug>true</MtouchDebug>
     <DeviceSpecificBuild>true</DeviceSpecificBuild>
-    <CodesignKey>Apple Development: Tomas Nemec (9TS4RT5F7W)</CodesignKey>
+    <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchExtraArgs>-v -v -v</MtouchExtraArgs>
     <IpaPackageName>
     </IpaPackageName>
     <MtouchLink>Full</MtouchLink>
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
+    <CodesignProvision></CodesignProvision>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
