@@ -709,7 +709,10 @@ namespace Mariasek.Engine
             
             //pokud to vypada na sedmu se 4 kartama, tak se snaz mit vsechny barvy na ruce
             if (hand.Has7(trumpCard.Suit) &&
-                hand.CardCount(trumpCard.Suit) == 4 &&
+                (hand.CardCount(trumpCard.Suit) == 4 ||
+                 (hand.CardCount(trumpCard.Suit) == 5 &&
+                  !hand.HasA(trumpCard.Suit) &&
+                  !hand.HasX(trumpCard.Suit))) &&
                 hand.Select(i => i.Suit).Distinct().Count() == Game.NumSuits &&
                 hand.Where(i => !talon.Take(2).Contains(i))
                     .Select(i => i.Suit).Distinct().Count() < Game.NumSuits)

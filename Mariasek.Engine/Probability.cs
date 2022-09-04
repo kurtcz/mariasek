@@ -1773,6 +1773,44 @@ namespace Mariasek.Engine
 					_cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] = 1 - epsilon;
 				}
             }
+
+            //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
+            //druhy hrac priznal barvu, sel vejs, a hral esem, tak
+            //druhy hrac pravdepodobne nema v barve zadne karty vyssi nez c1
+            if (_trump.HasValue &&
+                roundStarterIndex == _gameStarterIndex &&
+                c1.Suit != _trump &&
+                c1.Suit == c2.Suit &&
+                c2.Value > c1.Value &&
+                c2.Value == Hodnota.Eso)
+            {
+                foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => h > c1.Value && h < Hodnota.Desitka))
+                {
+                    if (_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] > 0 &&
+                        _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] < 1)
+                    {
+                        _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] = epsilon;
+                        if (_myIndex == roundStarterIndex)
+                        {
+                            if (_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][h] > 0 &&
+                                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][h] < 1)
+                            {
+                                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][h] = 1 - epsilon;
+                            }
+                        }
+                        else
+                        {
+                            if (_cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] > 0 &&
+                                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] < 1)
+                            {
+                                var x = (h == Hodnota.Kral || h == Hodnota.Svrsek) ? epsilon : 0.5f;
+
+                                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] = 1 - x;
+                            }
+                        }
+                    }
+                }
+            }
             //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
             //druhy hrac priznal barvu, sel vejs, ale nehral eso a
             //vim, ze nikdo nema desitku, tak
@@ -1917,6 +1955,45 @@ namespace Mariasek.Engine
 					_cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] = 1 - epsilon;
 				}
             }
+
+            //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
+            //druhy hrac priznal barvu, sel vejs, a hral esem, tak
+            //druhy hrac pravdepodobne nema v barve zadne karty vyssi nez c1
+            if (_trump.HasValue &&
+                roundStarterIndex == _gameStarterIndex &&
+                c1.Suit != _trump &&
+                c2.Suit != _trump &&
+                c1.Suit == c3.Suit &&
+                c3.Value == Hodnota.Eso)
+            {
+                foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => h > c1.Value && h < Hodnota.Desitka))
+                {
+                    if (_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][h] > 0 &&
+                        _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][h] < 1)
+                    {
+                        _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][h] = epsilon;
+                        if (_myIndex == roundStarterIndex)
+                        {
+                            if (_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] > 0 &&
+                                _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] < 1)
+                            {
+                                _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] = 1 - epsilon;
+                            }
+                        }
+                        else
+                        {
+                            if (_cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] > 0 &&
+                                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] < 1)
+                            {
+                                var x = (h == Hodnota.Kral || h == Hodnota.Svrsek) ? epsilon : 0.5f;
+
+                                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] = 1 - x;
+                            }
+                        }
+                    }
+                }
+            }
+
             //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
             //treti hrac priznal barvu, sel vejs, ale nehral eso a
             //vim, ze nikdo nema desitku, tak
