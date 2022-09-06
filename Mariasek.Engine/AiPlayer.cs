@@ -3219,12 +3219,13 @@ namespace Mariasek.Engine
                            (!Settings.PlayerMayGiveUp &&
                             AdvisorMode)) ||
                           Settings.MinimalBidsForGame > 1 ||
-                          ((_gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0 &&
-                            _maxMoneyLost > -Settings.SafetyBetlThreshold) ||
+                          ((_gamesBalance > 0 &&
+                            _gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0 &&
+                            _maxMoneyLost >= -Settings.SafetyBetlThreshold) ||
                            //estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore + 40 ||
                            (estimatedFinalBasicScore >= 10 &&
                             estimatedFinalBasicScore + kqScore >= 40 &&
-                            _maxMoneyLost > -Settings.SafetyBetlThreshold) ||
+                            _maxMoneyLost >= -Settings.SafetyBetlThreshold) ||
                            (estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore &&
                             (Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value))))))
                 {
