@@ -713,19 +713,20 @@ namespace Mariasek.Engine
                  (hand.CardCount(trumpCard.Suit) == 5 &&
                   !hand.HasA(trumpCard.Suit) &&
                   !hand.HasX(trumpCard.Suit))) &&
-                hand.Select(i => i.Suit).Distinct().Count() == Game.NumSuits &&
+                hand.SuitCount() >= 3 &&
                 hand.Where(i => !talon.Take(2).Contains(i))
-                    .Select(i => i.Suit).Distinct().Count() < Game.NumSuits)
+                    .Select(i => i.Suit).Distinct().Count() < hand.SuitCount())
             {
                 var topCardPerSuit = hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                          .Where(h => h > i.Value)
                                                          .All(h => !hand.Contains(new Card(i.Suit, h))))
-                                         .ToDictionary(k => k.Suit, v => new { TopCard = v, SuitCount = hand.CardCount(v.Suit) });
+                                         .ToDictionary(k => k.Suit, v => new { TopCard = v, CardCount = hand.CardCount(v.Suit) });
 
                 //u barvy kde mam dve karty se snaz si nechat tu nizsi
-                var reducedTalon = talon.Where(i => topCardPerSuit[i.Suit].SuitCount > 2 ||
-                                                    (topCardPerSuit[i.Suit].SuitCount == 2 &&
+                var reducedTalon = talon.Where(i => topCardPerSuit[i.Suit].CardCount > 2 ||
+                                                    (topCardPerSuit[i.Suit].CardCount == 2 &&
                                                      topCardPerSuit[i.Suit].TopCard != i))
+                                        .OrderByDescending(i => hand.CardCount(i.Suit))
                                         .ToList();
                 //pouze pokud mi po odebrani v talonu zustane dost karet
                 if (reducedTalon.Count >= 2 &&
@@ -2881,6 +2882,13 @@ namespace Mariasek.Engine
                 return true;
             }
 
+            if (axCount <= 2 &&
+                hand.CardCount(_trump.Value) == 7 &&
+                n >= 3)
+            {
+                DebugInfo.HundredTooRisky = true;
+                return true;
+            }
             //Pokud ve vice nez jedne barve mas diru vetsi nez 2 a mas od ni A ani X+K 
             //if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
             //        .Count(b => dict[b].Item1 > 2 ||

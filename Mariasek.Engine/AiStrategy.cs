@@ -2830,10 +2830,10 @@ namespace Mariasek.Engine
                         //pokud mam malo trumfu a mam v barve A nebo A,X a souperi maji ve stejne barve max 3 resp. 4 karty,
                         //tak zkus stesti, pokud to nevyjde, stejne by uhrat nesly
                         if ((_gameType & Hra.Kilo) == 0 &&
-                            myInitialHand.CardCount(_trump) <= 3 &&
-                            //(myInitialHand.CardCount(_trump) <= 3 ||
-                            // (myInitialHand.CardCount(_trump) <= 4 &&
-                            //  !myInitialHand.HasA(_trump))) &&
+                            //myInitialHand.CardCount(_trump) <= 3 &&
+                            (myInitialHand.CardCount(_trump) <= 3 ||
+                             (myInitialHand.CardCount(_trump) <= 4 &&
+                              SevenValue > GameValue)) &&
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump)
                                 .Any(b => (_probabilities.SuitProbability(player2, b, RoundNumber) > 0 ||
