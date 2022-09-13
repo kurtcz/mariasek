@@ -713,6 +713,10 @@ namespace Mariasek.Engine
                  (hand.CardCount(trumpCard.Suit) == 5 &&
                   !hand.HasA(trumpCard.Suit) &&
                   !hand.HasX(trumpCard.Suit))) &&
+                !(Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                      .Where(b => hand.HasSuit(b) &&
+                                  b != _trump)
+                      .Count(b => !hand.HasA(b)) == 1) &&
                 hand.SuitCount() >= 3 &&
                 hand.Where(i => !talon.Take(2).Contains(i))
                     .Select(i => i.Suit).Distinct().Count() < hand.SuitCount())
@@ -2381,7 +2385,9 @@ namespace Mariasek.Engine
                                              (hand.HasA(i.Suit) ||          //(pokud jsem akter, mam v barve hodne karet a malo trumfu, tak asi X neuhraju)
                                               hand.HasK(i.Suit) ||          //netrumfovou desitku pocitej jen pokud ma k sobe A, K nebo filka+1
                                               (hand.HasQ(i.Suit) &&
-                                               hand.CardCount(i.Suit) > 2))))));
+                                               hand.CardCount(i.Suit) > 2) ||
+                                              (hand.HasJ(i.Suit) &&
+                                               hand.CardCount(i.Suit) > 3))))));
             var trumpCount = hand.CardCount(trump.Value);
             var cardsPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>().ToDictionary(b => b, b => hand.CardCount(b));
             var aceOnlySuits = cardsPerSuit.Count(i => i.Value == 1 && 
