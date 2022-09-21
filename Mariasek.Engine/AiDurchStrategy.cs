@@ -116,12 +116,16 @@ namespace Mariasek.Engine
                                                         {
                                                             if (r.c2.Suit == b &&
                                                                 r.c2.BadValue > spodek.BadValue &&
+                                                                r.c1.Suit != r.c2.Suit &&
                                                                 myInitialHand.CardCount(r.c2.Suit) <= 4)    //pokud mam sam hodne karet, tak se o chytaka nejedna
                                                             {
                                                                 return r.c2;
                                                             }
                                                             if (r.c3.Suit == b &&
+                                                                r.c1.Suit != r.c3.Suit &&
                                                                 r.c3.BadValue > spodek.BadValue &
+                                                                teamMatesCardsPlayed.Where(i => i.BadValue <= spodek.BadValue)  //pokud hral v barve kolega driv nizkou nez vysokou, tak se o chytaka nejedna
+                                                                                    .All(i => teamMatesCardsPlayed.IndexOf(i) > teamMatesCardsPlayed.IndexOf(r.c3)) &&
                                                                 myInitialHand.CardCount(r.c3.Suit) <= 4)    //pokud mam sam hodne karet, tak se o chytaka nejedna
                                                             {
                                                                 return r.c3;
@@ -479,13 +483,17 @@ namespace Mariasek.Engine
                                                         if (r != null && r.c2 != null)
                                                         {
                                                             if (r.c2.Suit == b &&
+                                                                r.c1.Suit != r.c2.Suit &&
                                                                 r.c2.BadValue >= svrsek.BadValue &&
+                                                                teamMatesCardsPlayed.Where(i => i.BadValue < svrsek.BadValue) //pokud hral kolega driv nizkou nez vysokou, tak se o chytaka nejedna
+                                                                                    .All(i => teamMatesCardsPlayed.IndexOf(i) > teamMatesCardsPlayed.IndexOf(r.c2)) &&
                                                                 myInitialHand.CardCount(r.c2.Suit) <= 4)    //pokud mam sam hodne karet, tak se o chytaka nejedna
                                                             {
                                                                 return r.c2;
                                                             }
                                                             if (r.c3 != null &&
                                                                 r.c3.Suit == b &&
+                                                                r.c1.Suit != r.c3.Suit &&
                                                                 r.c3.BadValue >= svrsek.BadValue &&
                                                                 myInitialHand.CardCount(r.c3.Suit) <= 4)    //pokud mam sam hodne karet, tak se o chytaka nejedna
                                                             {
