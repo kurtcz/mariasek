@@ -64,31 +64,31 @@
 #begin boo.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:boo.wav
 
 #begin clap.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:clap.wav
 
 #begin click.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:click.wav
 
 #begin cough.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:cough.wav
 
 #begin laugh.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:laugh.wav
 
 #begin logo_hracikarty.png
@@ -154,19 +154,19 @@
 #begin na pankraci.mp3
 /importer:Mp3Importer
 /processor:SongProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:na pankraci.mp3
 
 #begin off.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:off.wav
 
 #begin on.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:on.wav
 
 #begin revers.png
@@ -220,13 +220,13 @@
 #begin tavern-ambience-looping.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:tavern-ambience-looping.wav
 
 #begin watch-tick.wav
 /importer:WavImporter
 /processor:SoundEffectProcessor
-/processorParam:Quality=Low
+/processorParam:Quality=Best
 /build:watch-tick.wav
 
 #begin wood2.jpg

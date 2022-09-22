@@ -6077,6 +6077,18 @@ namespace Mariasek.Engine
                                                                                                    j.Value < Hodnota.Desitka)))
                                                                         .OrderBy(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber))    //namaz v barve kterou souper nema
                                                                         .ToList();
+                        if (RoundNumber >= 6 &&
+                            (_gameType & Hra.Kilo) != 0 &&
+                            !cardsToPlay.Any())
+                        {
+                            cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                    i.Value >= Hodnota.Desitka &&
+                                                                                    c1.Suit != _trump &&
+                                                                                    c1.Suit != i.Suit &&
+                                                                                    _probabilities.PotentialCards(player3).Any(j => j.Suit == c1.Suit &&
+                                                                                                                                    j.Value > c1.Value))
+                                                                        .ToList();
+                        }
                         var cardToPlay = cardsToPlay.FirstOrDefault();
 
                         if (cardToPlay != null &&
