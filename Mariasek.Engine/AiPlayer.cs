@@ -706,10 +706,11 @@ namespace Mariasek.Engine
                                .ThenBy(i => i.Value));                            //vybirej od nejmensich karet
 
             talon = talon.Distinct().ToList();
-            
-            //pokud to vypada na sedmu se 4 kartama, tak se snaz mit vsechny barvy na ruce
+
+            //pokud to vypada na sedmu se 4 kartama nebo na slabou sedmu s 5 kartama, tak se snaz mit vsechny barvy na ruce
             if (hand.Has7(trumpCard.Suit) &&
-                (hand.CardCount(trumpCard.Suit) == 4 ||
+                (hand.Count(i => i.Value >= Hodnota.Desitka) <= 2 ||
+                 hand.CardCount(trumpCard.Suit) == 4 ||
                  (hand.CardCount(trumpCard.Suit) == 5 &&
                   !hand.HasA(trumpCard.Suit) &&
                   !hand.HasX(trumpCard.Suit))) &&
@@ -727,9 +728,10 @@ namespace Mariasek.Engine
                                          .ToDictionary(k => k.Suit, v => new { TopCard = v, CardCount = hand.CardCount(v.Suit) });
 
                 //u barvy kde mam dve karty se snaz si nechat tu nizsi
-                var reducedTalon = talon.Where(i => topCardPerSuit[i.Suit].CardCount > 2 ||
-                                                    (topCardPerSuit[i.Suit].CardCount == 2 &&
-                                                     topCardPerSuit[i.Suit].TopCard != i))
+                var reducedTalon = talon.Where(i => i.Suit != trumpCard.Suit &&
+                                                    (topCardPerSuit[i.Suit].CardCount > 2 ||
+                                                     (topCardPerSuit[i.Suit].CardCount == 2 &&
+                                                      topCardPerSuit[i.Suit].TopCard != i)))
                                         .OrderByDescending(i => hand.CardCount(i.Suit))
                                         .ToList();
                 //pouze pokud mi po odebrani v talonu zustane dost karet
@@ -3479,6 +3481,11 @@ namespace Mariasek.Engine
                       estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqMaxOpponentScore &&
                       !Is100AgainstPossible()) ||
                      estimatedFinalBasicScore >= 80 ||
+                     (estimatedFinalBasicScore >= 70 &&
+                      Hand.HasA(_g.trump.Value) &&
+                      Hand.CardCount(_g.trump.Value) >= 5 &&
+                      axCount >= 4 &&
+                      !Is100AgainstPossible(110)) ||
                      (estimatedFinalBasicScore + kqScore >= 80 &&
                       !Is100AgainstPossible(110))))) &&   //nebo pokud netrhas ale v zadne simulaci nevysla vysoka prohra
                   ((bidding.Bids & Hra.SedmaProti) == 0 ||
@@ -3694,6 +3701,11 @@ namespace Mariasek.Engine
                       estimatedFinalBasicScore + kqScore >= 50 &&
                       axCount >= 3 &&
                       !Is100AgainstPossible()) ||
+                     (Hand.HasA(_g.trump.Value) &&
+                      Hand.HasX(_g.trump.Value) &&              //nebo trumfove A a X
+                      estimatedFinalBasicScore >= 40 &&
+                      axCount >= 3 &&                           //a jeste aspon jednu desitku
+                      !Is100AgainstPossible(130)) ||
                      ((Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&           //nebo trumfove K nebo Q
                       Hand.CardCount(_g.trump.Value) >= 2 &&   //a aspon 2 trumfy
@@ -3723,19 +3735,9 @@ namespace Mariasek.Engine
                        Hand.HasX(_g.trump.Value) ||
                        Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&
-                      estimatedFinalBasicScore >= 50 &&       //a aspon 50 bodu
-                      !Is100AgainstPossible(110)) ||
-                     (Hand.CardCount(_g.trump.Value) >= 5 &&   //nebo mam aspon 5 trumfu
                       estimatedFinalBasicScore >= 40 &&       //a aspon 40 bodu
-                      !Is100AgainstPossible(110)) ||
-                     (Hand.CardCount(_g.trump.Value) >= 5 &&   //nebo mam aspon 5 trumfu vcetne A,X
-                      Hand.HasA(_g.trump.Value) &&
-                      Hand.HasX(_g.trump.Value) &&
-                      (kqScore >= 40 ||
-                       bestCaseNonTrumpScore >= 20)) ||
-                     (Hand.CardCount(_g.trump.Value) >= 5 &&   //nebo mam aspon 5 trumfu a trhaka
-                      (Hand.HasK(_g.trump.Value) &&
-                       Hand.HasQ(_g.trump.Value))) ||
+                      !Is100AgainstPossible(130)) ||
+                     Hand.CardCount(_g.trump.Value) >= 5 ||   //nebo mam aspon 5 trumfu
                      (Hand.CardCount(_g.trump.Value) >= 4 &&   //nebo mam aspon 4 trumfy
                       (Hand.HasK(_g.trump.Value) ||            //a trhak a bud A nebo X trumfovou
                        Hand.HasQ(_g.trump.Value)) &&

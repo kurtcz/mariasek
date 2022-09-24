@@ -1185,7 +1185,8 @@ namespace Mariasek.Engine
                             !myInitialHand.HasA(_trump) &&
                             myInitialHand.HasX(_trump) &&
                             lowCards.Any(i => i.Suit != _trump) &&
-                            lowCards.Count(i => i.Suit != _trump) <= 2)
+                            (lowCards.Count(i => i.Suit != _trump) <= 2 ||
+                             (_gameType & Hra.Kilo) != 0))
                         {
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                 lowCards.Contains(i))
@@ -2816,8 +2817,8 @@ namespace Mariasek.Engine
                             (myInitialHand.CardCount(_trump) <= 4 ||
                              ((_gameType & Hra.Sedma) != 0 &&//SevenValue > GameValue &&
                               hands[MyIndex].CardCount(_trump) <= 5 &&
-                              hands[MyIndex].CardCount(Hodnota.Eso) >= 1)) &&
-                            !myInitialHand.HasA(_trump) &&
+                              hands[MyIndex].CardCount(Hodnota.Eso) >= 1) &&
+                              !myInitialHand.HasA(_trump)) &&
                             !Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                  .Where(b => b != _trump)
                                  .Any(b => hands[MyIndex].HasX(b) &&
