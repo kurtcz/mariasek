@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 //using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
@@ -6832,24 +6833,32 @@ namespace Mariasek.Engine
                               (_probabilities.CardProbability(player1, new Card(c1.Suit, Hodnota.Eso)) == 0 ||
                                (c1.Value == Hodnota.Eso &&
                                 c1.IsLowerThan(c2, _trump))))) &&
-                            ((_probabilities.PotentialCards(player1)
+                            ((_probabilities.SuitProbability(player2, c1.Suit, RoundNumber) == 0 &&
+                              _probabilities.PotentialCards(player1)
                                             .Where(j => j.Suit == c1.Suit)
                                             .Count(j => j != c1 &&
                                                         j != c2 &&
                                                         j.Value < c1.Value) > 2) ||
-                            (c1.IsLowerThan(c2, _trump) &&
-                             _probabilities.PotentialCards(player1)
-                                           .Where(j => j.Suit == c1.Suit)
-                                           .Count(j => j != c1 &&
-                                                       j != c2 &&
-                                                       j.Value < Hodnota.Desitka) > 2) ||
+                             (_probabilities.SuitProbability(player2, c1.Suit, RoundNumber) == 0 &&
+                              c1.IsLowerThan(c2, _trump) &&
+                              _probabilities.PotentialCards(player1)
+                                            .Where(j => j.Suit == c1.Suit)
+                                            .Count(j => j != c1 &&
+                                                        j != c2 &&
+                                                        j.Value < Hodnota.Desitka) > 2) ||
                              _probabilities.CertainCards(player1)
                                            .Where(j => j.Suit == c1.Suit)
                                            .Any(j => j != c1 &&
                                                      j != c2 &&
                                                      j.Value < c1.Value) ||
-                            (_probabilities.LikelyCards(player1).HasK(c1.Suit) ||
-                             _probabilities.LikelyCards(player1).HasQ(c1.Suit))))
+                             (_probabilities.LikelyCards(player1)
+                                            .Where(i => i != c1 &&
+                                                        i != c2)
+                                            .HasK(c1.Suit) ||
+                              _probabilities.LikelyCards(player1)
+                                            .Where(i => i != c1 &&
+                                                        i != c2)
+                                            .HasQ(c1.Suit))))
                         {
                             return null;
                         }
@@ -7271,7 +7280,10 @@ namespace Mariasek.Engine
                                                                                                          j.Value != Hodnota.Desitka));
                         if (catchCardsPerSuitNoAX.Any())
                         {
-                            var preferredSuit = catchCardsPerSuitNoAX.Where(i => !_bannedSuits.Contains(i.Key))
+                            var preferredSuit = catchCardsPerSuitNoAX.Where(i => !_bannedSuits.Contains(i.Key) &&
+                                                                                 !(hands[MyIndex].HasX(i.Key) &&
+                                                                                   !hands[MyIndex].HasA(i.Key) &&
+                                                                                   hands[MyIndex].CardCount(i.Key) == 2))
                                                                      .OrderBy(i => i.Value)
                                                                      .Select(i => (Barva?)i.Key)
                                                                      .FirstOrDefault();
