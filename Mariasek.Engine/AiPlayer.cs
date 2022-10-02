@@ -3649,6 +3649,8 @@ namespace Mariasek.Engine
                       kqScore >= 40) ||                         //nebo
                      ((Hand.HasK(_g.trump.Value) ||             //trhak a vidim do vsech hlasek (u sedmy jeste pokud mam vic bodu nez souper)
                        Hand.HasQ(_g.trump.Value)) &&
+                       estimatedFinalBasicScore >= 30 &&
+                       axCount >= 2 &&
                        ((bidding.Bids & Hra.Sedma) == 0 ||
                         ((bidding.Bids & Hra.Sedma) != 0 &&
                          !Hand.Has7(_g.trump.Value) &&
@@ -3735,7 +3737,8 @@ namespace Mariasek.Engine
                        Hand.HasX(_g.trump.Value) ||
                        Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&
-                      estimatedFinalBasicScore >= 40 &&       //a aspon 40 bodu
+                      estimatedFinalBasicScore >= 30 &&       //a aspon 30 bodu
+                      axCount >= 3 &&
                       !Is100AgainstPossible(130)) ||
                      Hand.CardCount(_g.trump.Value) >= 5 ||   //nebo mam aspon 5 trumfu
                      (Hand.CardCount(_g.trump.Value) >= 4 &&   //nebo mam aspon 4 trumfy
@@ -3807,6 +3810,14 @@ namespace Mariasek.Engine
                        Hand.HasK(_g.trump.Value) &&
                        Hand.HasQ(_g.trump.Value) &&
                        Hand.SuitCount() == Game.NumSuits))) ||
+                    (Hand.CardCount(_g.trump.Value) >= 3 &&         //tri trumfy vcetne esa a jeste jednoho velkeho trumfu
+                     Hand.HasA(_g.trump.Value) &&
+                     (Hand.HasX(_g.trump.Value) ||
+                      Hand.HasK(_g.trump.Value) ||
+                      Hand.HasQ(_g.trump.Value)) &&
+                     Hand.CardCount(Hodnota.Eso) >= 2 &&            //navic jeste aspon jedno dalsi eso
+                     Enum.GetValues(typeof(Barva)).Cast<Barva>()    //a k tomu nejaka dlouha barva
+                         .Any(b => Hand.CardCount(b) >= 5)) ||
                     (Hand.CardCount(_g.trump.Value) >= 3 &&          //tri trumfy 3-3-2-2                     
                      ((kqScore >= 60 &&
                        ((Hand.HasA(_g.trump.Value) &&
