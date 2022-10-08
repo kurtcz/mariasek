@@ -3720,6 +3720,7 @@ namespace Mariasek.Engine
                     var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
 
                     if (TeamMateIndex != -1 &&
+                        PlayerBids[MyIndex] == 0 &&
                         hands[MyIndex].HasSuit(_trump) &&
                         (topTrumps.Any() ||
                          (!hands[MyIndex].HasX(_trump) &&
@@ -3846,6 +3847,7 @@ namespace Mariasek.Engine
                                  hands[MyIndex].HasX(_trump) &&
                                  _probabilities.PotentialCards(opponent).HasA(_trump)) &&
                                GameValue > SevenValue &&
+                               PlayerBids[MyIndex] == 0 &&
                                (PlayerBids[TeamMateIndex] & Hra.Sedma) == 0 &&
                                (TeamMateIndex == player3 ||
                                 (_gameType & Hra.Kilo) != 0 ||
@@ -3887,7 +3889,7 @@ namespace Mariasek.Engine
                             }
                             if (!cardsToPlay.Any() &&
                                GameValue > SevenValue &&
-                               (PlayerBids[MyIndex] & Hra.Sedma) == 0 &&
+                               PlayerBids[MyIndex] == 0 &&
                                (PlayerBids[TeamMateIndex] & Hra.Sedma) == 0 &&
                                !(hands[MyIndex].CardCount(_trump) == 2 &&
                                  hands[MyIndex].HasX(_trump) &&
@@ -3931,6 +3933,7 @@ namespace Mariasek.Engine
                                 }
 
                                 if (!cardsToPlay.Any() &&
+                                    PlayerBids[MyIndex] == 0 &&
                                     myInitialHand.CardCount(_trump) <= 2 &&
                                     !(hands[MyIndex].CardCount(_trump) == 2 &&
                                       hands[MyIndex].HasX(_trump) &&

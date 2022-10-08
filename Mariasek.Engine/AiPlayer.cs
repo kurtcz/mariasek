@@ -2596,8 +2596,12 @@ namespace Mariasek.Engine
                                            (hand.HasK(b) ||
                                             hand.CardCount(b) > 2)))) &&
                           (hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||    //3a. mene nez 3 vysoke karty celkem
-                           (!(hand.HasK(_trump.Value) &&
-                              hand.HasQ(_trump.Value) &&
+                           (!(((hand.HasA(_trump.Value) &&
+                                (hand.HasX(_trump.Value) ||
+                                 hand.HasK(_trump.Value) ||
+                                 hand.HasQ(_trump.Value))) ||
+                               (hand.HasK(_trump.Value) &&
+                                hand.HasQ(_trump.Value))) &&
                               hand.SuitCount() == 4 &&
                               Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => hand.HasSuit(b) &&
