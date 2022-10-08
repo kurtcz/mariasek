@@ -709,7 +709,9 @@ namespace Mariasek.Engine
 
             //pokud to vypada na sedmu se 4 kartama nebo na slabou sedmu s 5 kartama, tak se snaz mit vsechny barvy na ruce
             if (hand.Has7(trumpCard.Suit) &&
-                (hand.Count(i => i.Value >= Hodnota.Desitka) <= 2 ||
+                ((hand.CardCount(trumpCard.Suit) <= 5 &&
+                  hand.Count(i => i.Value >= Hodnota.Desitka) <= 2 &&
+                  !hand.HasA(trumpCard.Suit)) ||
                  hand.CardCount(trumpCard.Suit) == 4 ||
                  (hand.CardCount(trumpCard.Suit) == 5 &&
                   !hand.HasA(trumpCard.Suit) &&
@@ -3603,8 +3605,8 @@ namespace Mariasek.Engine
                       (Hand.HasK(_g.trump.Value) ||             //a k tomu trhak nebo 2 hlasy
                        Hand.HasQ(_g.trump.Value) ||
                        kqScore >= 40) &&
-                      (estimatedFinalBasicScore >= 30 ||        //a aspon 30 nebo 20+20 bodu na ruce
-                       (estimatedFinalBasicScore >= 20 &&
+                      (estimatedFinalBasicScore >= 30 ||        //a aspon 30 nebo 10+20 bodu na ruce
+                       (estimatedFinalBasicScore >= 10 &&
                         kqScore >= 20) &&
                        (bidding.Bids & Hra.Sedma) == 0 &&
                        kqMaxOpponentScore <= 40)) ||            //nebo
