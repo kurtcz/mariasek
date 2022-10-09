@@ -60,7 +60,7 @@ namespace Mariasek.SharedClient
         private Button _repeatGameAsPlayer3Btn;
         private Button _reviewGameBtn;
         private Button _editGameBtn;
-        private ToggleButton _reviewGameToggleBtn;
+        private ToggleButton _infoBtn;
         private Button _okBtn;
         private Button[] gtButtons, gfButtons, bidButtons;
         private Button gtHraButton;
@@ -391,7 +391,7 @@ namespace Mariasek.SharedClient
                 Width = 50
             };
             _sendBtn.Click += SendBtnClicked;
-            _reviewGameToggleBtn = new ToggleButton(this)
+            _infoBtn = new ToggleButton(this)
             {
                 Text = "i",
                 Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 90),
@@ -400,8 +400,8 @@ namespace Mariasek.SharedClient
                 Width = 50
             };
             //_reviewGameToggleBtn.Hide();
-            _reviewGameToggleBtn.IsEnabled = false;
-            _reviewGameToggleBtn.Click += ReviewGameBtnClicked;
+            _infoBtn.IsEnabled = false;
+            _infoBtn.Click += ReviewGameBtnClicked;
             _hintBtn = new Button(this)
             {
                 Text = "?",
@@ -1232,21 +1232,17 @@ namespace Mariasek.SharedClient
 
         public void ReviewGameBtnClicked(object sender)
         {
-            if (_state == GameState.ChooseGameType &&
+            if (g.RoundNumber == 0 &&
                 _talon != null &&
                 _talon.Any())
             {
-                if (_reviewGameToggleBtn.IsSelected)
+                if (_infoBtn.IsSelected)
                 {
                     ShowTalonOrLastTrick(0, _talon);
                     _poslStych[0][0].Invoke(() =>
                     {
-                        _reviewGameToggleBtn.IsSelected = false;
+                        _infoBtn.IsSelected = false;
                     });
-                }
-                else
-                {
-                    _reviewGameToggleBtn.IsSelected = false;
                 }
                 return;
             }
@@ -1254,16 +1250,18 @@ namespace Mariasek.SharedClient
                  _state == GameState.RoundFinished) &&
                 (!Game.Settings.TestMode.HasValue || !Game.Settings.TestMode.Value))
             {
-                if (_reviewGameToggleBtn.IsSelected)
+                if (_infoBtn.IsSelected)
                 {
                     ShowLastTrick();
                 }
-                else
-                {
-                    _reviewGameToggleBtn.IsSelected = false;
-                }
                 return;
             }            
+
+            if (sender == _infoBtn) // tlacitko [i] nesmi nikdy zobrazit karty hracu - to je povolene az po konci hry pres _reviewGameToggleBtn
+            {
+                _infoBtn.IsSelected = false;
+                return;
+            }
 
             var origPosition = new Vector2(160, 45);
             var hiddenPosition = new Vector2(160, 45 + Game.VirtualScreenHeight);
@@ -1570,9 +1568,9 @@ namespace Mariasek.SharedClient
                      ClearTable(true);
                      HideMsgLabel();
                      _reviewGameBtn.Hide();
-                     _reviewGameToggleBtn.Show();
-                     _reviewGameToggleBtn.IsSelected = false;
-                     _reviewGameToggleBtn.IsEnabled = Game.Settings.TestMode.HasValue && Game.Settings.TestMode.Value;
+                     _infoBtn.Show();
+                     _infoBtn.IsSelected = false;
+                     _infoBtn.IsEnabled = Game.Settings.TestMode.HasValue && Game.Settings.TestMode.Value;
                      _editGameBtn.Hide();
 
                      if (_review != null)
@@ -2322,7 +2320,7 @@ namespace Mariasek.SharedClient
                 {
                     ShowMsgLabel("Co budeš hrát?", false);
                 }
-                _reviewGameToggleBtn.IsEnabled = true;
+                _infoBtn.IsEnabled = true;
             });
         }
 
@@ -2908,7 +2906,7 @@ namespace Mariasek.SharedClient
             _stychy[r.player2.PlayerIndex].ZIndex = (r.number - 1) * 3 + 2;
             _stychy[r.player3.PlayerIndex].ZIndex = (r.number - 1) * 3 + 3;
 
-            _reviewGameToggleBtn.IsEnabled = (Game.Settings.TestMode.HasValue && Game.Settings.TestMode.Value) ||
+            _infoBtn.IsEnabled = (Game.Settings.TestMode.HasValue && Game.Settings.TestMode.Value) ||
                                              r.number > 1;
         }
 
@@ -3169,7 +3167,7 @@ namespace Mariasek.SharedClient
                     rightMessage = rightMessage.Replace("\n\n", "\n");
                 }
                 giveUpButton.Hide();
-                _reviewGameToggleBtn.IsEnabled = false;
+                _infoBtn.IsEnabled = false;
                 HideInvisibleClickableOverlay();
                 HideThinkingMessage();
                 lock (Game.Money.SyncRoot)
@@ -3464,9 +3462,9 @@ namespace Mariasek.SharedClient
                         HideMsgLabel();
                         _reviewGameBtn.Hide();
                         _editGameBtn.Hide();
-                        _reviewGameToggleBtn.Show();
-                        _reviewGameToggleBtn.IsSelected = false;
-                        _reviewGameToggleBtn.IsEnabled = (Game.Settings.TestMode.HasValue && 
+                        _infoBtn.Show();
+                        _infoBtn.IsSelected = false;
+                        _infoBtn.IsEnabled = (Game.Settings.TestMode.HasValue && 
                                                           Game.Settings.TestMode.Value) || 
                                                          (g.CurrentRound != null && g.RoundNumber > 1);
 
@@ -4277,12 +4275,12 @@ namespace Mariasek.SharedClient
                 ShowTalonOrLastTrick(prevRound.roundWinner.PlayerIndex, new List<Card>() { prevRound.c1, prevRound.c2, prevRound.c3 });
                 _poslStych[prevRound.roundWinner.PlayerIndex][0].Invoke(() =>
                 {
-                    _reviewGameToggleBtn.IsSelected = false;
+                    _infoBtn.IsSelected = false;
                 });
             }
             else
             {
-                _reviewGameToggleBtn.IsSelected = false;
+                _infoBtn.IsSelected = false;
             }
         }
 
