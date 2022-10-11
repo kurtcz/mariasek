@@ -1792,6 +1792,15 @@ namespace Mariasek.Engine
                         //                                                        i.Suit == _trump);
                         //}
 
+                        //zkus vytlacit trumf trumfem pokud pri sedme nemam dlouhou netrumfovou barvu
+                        if (!cardsToPlay.Any() &&
+                            SevenValue >= GameValue &&
+                            !longSuits.Any() &&
+                            myInitialHand.CardCount(_trump) >= 4)
+                        {
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value < Hodnota.Desitka &&
+                                                                                i.Suit == _trump);
+                        }
                         if (!cardsToPlay.Any() &&
                             lowCards.Any(i => i.Suit != _trump &&
                                               i.Value < Hodnota.Desitka &&
@@ -1922,7 +1931,8 @@ namespace Mariasek.Engine
                                                                   !_probabilities.PotentialCards(player3).HasX(i.Suit)) ||
                                                                  myInitialHand.CardCount(_trump) <= 2) &&
                                                                 (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0f ||
-                                                                 _preferredSuits.Contains(i.Suit)) &&
+                                                                 (PlayerBids[MyIndex] == 0 &&
+                                                                  _preferredSuits.Contains(i.Suit))) &&
                                                                 _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0f &&
                                                                 ((_probabilities.SuitProbability(player2, _trump, RoundNumber) == 0f &&
                                                                   _probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0f) ||
@@ -1951,7 +1961,8 @@ namespace Mariasek.Engine
                                                                                  myInitialHand.CardCount(_trump) <= 2) &&
                                                                                 _probabilities.SuitHigherThanCardExceptAXProbability(TeamMateIndex, i, RoundNumber) > 1 - RiskFactor &&
                                                                                 (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0f ||
-                                                                                 _preferredSuits.Contains(i.Suit)) &&
+                                                                                 (PlayerBids[MyIndex] == 0 &&
+                                                                                  _preferredSuits.Contains(i.Suit))) &&
                                                                                 _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0f &&
                                                                                 (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0f ||
                                                                                  _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0f) &&
@@ -1980,7 +1991,8 @@ namespace Mariasek.Engine
                                                                                       !_probabilities.PotentialCards(player3).HasX(i.Suit)) ||
                                                                                      myInitialHand.CardCount(_trump) <= 2) &&
                                                                                     (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0f ||
-                                                                                     _preferredSuits.Contains(i.Suit)) &&
+                                                                                     (PlayerBids[MyIndex] == 0 &&
+                                                                                      _preferredSuits.Contains(i.Suit))) &&
                                                                                     _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0f &&
                                                                                     (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0f ||
                                                                                      _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0f) &&
@@ -2016,7 +2028,8 @@ namespace Mariasek.Engine
                                                                                        !_probabilities.PotentialCards(player3).HasX(i.Suit)) ||
                                                                                       myInitialHand.CardCount(_trump) <= 2) &&
                                                                                      (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0f ||
-                                                                                      _preferredSuits.Contains(i.Suit)) &&
+                                                                                      (PlayerBids[MyIndex] == 0 &&
+                                                                                       _preferredSuits.Contains(i.Suit))) &&
                                                                                      (_gameType & (Hra.Kilo | Hra.KiloProti)) == 0 &&
                                                                                      ((_gameType == (Hra.Hra | Hra.Sedma) &&
                                                                                        SevenValue > GameValue) ||
@@ -2188,7 +2201,8 @@ namespace Mariasek.Engine
                                                                 i.Suit != _trump &&
                                                                 !_bannedSuits.Contains(i.Suit) &&
                                                                 (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0f ||
-                                                                 _preferredSuits.Contains(i.Suit)) &&
+                                                                 (PlayerBids[MyIndex] == 0 &&
+                                                                  _preferredSuits.Contains(i.Suit))) &&
                                                                 _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0f &&
                                                                 ((_probabilities.SuitProbability(player3, _trump, RoundNumber) == 0f &&
                                                                   _probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0f) ||
@@ -2212,7 +2226,8 @@ namespace Mariasek.Engine
                                                                                 i.Suit != _trump &&
                                                                                 !_bannedSuits.Contains(i.Suit) &&
                                                                                 (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0f ||
-                                                                                 _preferredSuits.Contains(i.Suit)) &&
+                                                                                 (PlayerBids[MyIndex] == 0 &&
+                                                                                  _preferredSuits.Contains(i.Suit))) &&
                                                                                 _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0f &&
                                                                                 (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0f ||
                                                                                  _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0f) &&
@@ -2239,7 +2254,8 @@ namespace Mariasek.Engine
                                                                                     i.Suit != _trump &&
                                                                                     !_bannedSuits.Contains(i.Suit) &&
                                                                                     (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0f ||
-                                                                                     _preferredSuits.Contains(i.Suit)) &&
+                                                                                     (PlayerBids[MyIndex] == 0 &&
+                                                                                      _preferredSuits.Contains(i.Suit))) &&
                                                                                     _probabilities.SuitProbability(player2, _trump, RoundNumber) > 0f &&
                                                                                     (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0f ||
                                                                                      _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0f) &&
@@ -2268,7 +2284,8 @@ namespace Mariasek.Engine
                                                                                      i.Suit != _trump &&
                                                                                      !_bannedSuits.Contains(i.Suit) &&
                                                                                      (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0f ||
-                                                                                      _preferredSuits.Contains(i.Suit)) &&
+                                                                                      (PlayerBids[MyIndex] == 0 &&
+                                                                                       _preferredSuits.Contains(i.Suit))) &&
                                                                                      ((_gameType & (Hra.Kilo | Hra.KiloProti)) == 0 ||
                                                                                       hands[MyIndex].CardCount(_trump) >= _probabilities.PotentialCards(opponent).CardCount(_trump)) &&
                                                                                      ((_gameType == (Hra.Hra | Hra.Sedma) &&
@@ -2706,7 +2723,8 @@ namespace Mariasek.Engine
                         }
 
                         //pokud nemuzes eso namazat a lze ho teoreticky uhrat, tak do toho jdi
-                        if (hands[MyIndex].CardCount(_trump) > 1 &&
+                        if (//hands[MyIndex].CardCount(_trump) > 1 &&
+                            hands[MyIndex].HasSuit(_trump) &&
                             (SevenValue > GameValue ||                      //pri sedme vzdy
                              (_gameType & Hra.Sedma) != 0 ||
                               (Enum.GetValues(typeof(Barva)).Cast<Barva>()    //pri hre jen kdyz nemas nejakou plonkovou barvu
