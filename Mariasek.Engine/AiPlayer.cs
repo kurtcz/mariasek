@@ -3984,7 +3984,9 @@ namespace Mariasek.Engine
                     Hand.SuitCount() == Game.NumSuits)))) &&
                 ((_gameSimulations > 0 && _sevensAgainstBalance / (float)_gameSimulations >= sevenAgainstThreshold) ||
                  (_avgBasicPointsLost + kqScore >= 110 &&
-                  (Hand.Has7(_g.trump.Value) || _g.AllowFakeSeven))))
+                  (Hand.Has7(_g.trump.Value) ||
+                   (bidding._sevenAgainstFlek < 2 &&
+                    _g.AllowFakeSeven)))))
             {
                 bid |= bidding.Bids & Hra.SedmaProti;
                 //minRuleCount = Math.Min(minRuleCount, _sevensAgainstBalance);
