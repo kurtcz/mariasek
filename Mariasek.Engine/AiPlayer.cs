@@ -701,7 +701,15 @@ namespace Mariasek.Engine
             talon.AddRange(hand.Where(i => !(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
                                              i.Suit == trumpCard.Suit) &&
                                            Game.IsValidTalonCard(i.Value, i.Suit, _trumpCard.Suit, _g.AllowAXTalon, _g.AllowTrumpTalon))
-                               .OrderByDescending(i => i.Suit == trumpCard.Suit
+                               .OrderBy(i => 0)
+                                             //i.Value == Hodnota.Sedma &&
+                                             //i.Suit == trumpCard.Suit
+                                             //? 2 : (i.Value == Hodnota.Svrsek &&
+                                             //       hand.HasK(i.Suit)) ||
+                                             //      (i.Value == Hodnota.Kral &&
+                                             //       hand.HasQ(i.Suit))                                             
+                                             //      ? 1 : 0)
+                               .ThenByDescending(i => i.Suit == trumpCard.Suit
                                                        ? -1 : (int)trumpCard.Suit)//nejdriv zkus jine nez trumfy
                                .ThenBy(i => i.Value));                            //vybirej od nejmensich karet
 
@@ -775,7 +783,8 @@ namespace Mariasek.Engine
                      .Count() <= 1)
             {
                 //vezmi nizke karty nebo K, S od netrumfove barvy pokud v barve nemam hlasku
-                var trumpTalon = talon.Where(i => (i.Value < Hodnota.Svrsek &&
+                var trumpTalon = talon.Where(i => !talon.Take(2).Contains(i) &&
+                                                  (i.Value < Hodnota.Svrsek &&
                                                    !(hand.HasX(i.Suit) &&
                                                      !hand.HasA(i.Suit) &&
                                                      (hand.CardCount(i.Suit) <= 3 ||
