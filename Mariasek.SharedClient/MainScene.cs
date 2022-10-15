@@ -2197,6 +2197,10 @@ namespace Mariasek.SharedClient
 			_cardClicked = null;
             _talon = new List<Card>();
 			_evt.Reset();
+            if (_gameFlavourChosen == GameFlavour.Bad)
+            {
+                _infoBtn.IsEnabled = false;
+            }
             RunOnUiThread(() =>
             {
                 ShowMsgLabel("Vyber si talon", false);
@@ -2506,6 +2510,10 @@ namespace Mariasek.SharedClient
 
             _gameFlavourChosenEventArgs = e;
             _gameFlavourChosen = _gameFlavourChosenEventArgs.Flavour;
+            if (e.Flavour == GameFlavour.Bad)
+            {
+                _infoBtn.IsEnabled = false;
+            }
             if (_firstTimeGameFlavourChosen)
             {
                 if (g.GameStartingPlayerIndex != 0)
@@ -2634,6 +2642,7 @@ namespace Mariasek.SharedClient
             g.ThrowIfCancellationRequested();
             _canSortTrump = e.TrumpCard != null;
             _trumpCardChosen = e.TrumpCard;
+            _infoBtn.IsEnabled = e.GameStartingPlayerIndex == 0;
             //trumfovou kartu otocime az zmizi vsechny bubliny
             RunOnUiThread(() =>
             {
