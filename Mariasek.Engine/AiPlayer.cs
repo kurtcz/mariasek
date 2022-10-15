@@ -4151,7 +4151,9 @@ namespace Mariasek.Engine
                     TotalRuleCount = _sevenSimulations
                 });
             }
-            if ((bidding.Bids & Hra.SedmaProti) != 0)
+            if ((bidding.Bids & Hra.SedmaProti) != 0 &&
+                (TeamMateIndex == -1 ||
+                 Hand.Has7(_g.trump.Value)))
             {
                 allChoices.Add(new RuleDebugInfo
                 {
@@ -4169,7 +4171,11 @@ namespace Mariasek.Engine
                     TotalRuleCount = _hundredSimulations
                 });
             }
-            if ((bidding.Bids & Hra.KiloProti) != 0)
+            if ((bidding.Bids & Hra.KiloProti) != 0 &&
+                (TeamMateIndex == -1 ||
+                 Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                     .Any(b => Hand.HasK(b) &&
+                               Hand.HasQ(b))))
             {
                 allChoices.Add(new RuleDebugInfo
                 {
