@@ -3274,12 +3274,12 @@ namespace Mariasek.Engine
                 DebugInfo.AvgSimulatedPointsWon = (int)avgPointsWon;
                 if (Settings.CanPlayGameType[Hra.Sedma] &&
                     (((_g.AllowFakeSeven &&
-                       (gameType & Hra.Hra) != 0 &&  //pri hre
-                       avgPointsWon >= 110) ||
+                       (gameType & Hra.Hra) != 0 && //pri hre
+                       avgPointsWon >= 115) ||      //110 bodu = plichta, 120+ = vyhra
                       (_g.AllowFake107 &&
                        _g.Calculate107Separately &&
                        _g.Top107 &&
-                       (gameType & Hra.Kilo) != 0 &&  //pri kilu
+                       (gameType & Hra.Kilo) != 0 && //pri kilu
                        _avgWinForHundred > 2 * (_g.DurchValue + 2 * _g.SevenValue))) ||
                      (Hand.Has7(_trump.Value) &&
                       _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0 &&

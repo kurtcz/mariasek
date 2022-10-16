@@ -1419,7 +1419,7 @@ namespace Mariasek.Engine
                             return null;
                         }
                         //pouzivam 0 misto epsilon protoze jinak bych mohl hrat trumfovou x a myslet si ze souper nema eso a on by ho zrovna mel!
-                        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player3, new Card(_trump, h)) > _epsilon).ToList();
+                        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player3, new Card(_trump, h)) > (h == Hodnota.Eso ? 0 : _epsilon)).ToList();
                         var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
                         var lowCards = hands[MyIndex].Where(i => i.Suit != _trump &&
                                                                  Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
@@ -1511,7 +1511,7 @@ namespace Mariasek.Engine
                         }
 
                         //pouzivam 0 misto epsilon protoze jinak bych mohl hrat trumfovou x a myslet si ze souper nema eso a on by ho zrovna mel!
-                        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > _epsilon).ToList();
+                        var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _probabilities.CardProbability(player2, new Card(_trump, h)) > (h == Hodnota.Eso ? 0 : _epsilon)).ToList();
                         var topTrumps = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump && holes.All(h => h < i.Value)).ToList();
                         var lowCards = hands[MyIndex].Where(i => i.Suit != _trump &&
                                                                  Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
