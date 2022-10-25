@@ -873,8 +873,13 @@ namespace Mariasek.Engine
                     if (TeamMateIndex != -1)
                     {
                         var cardsToPlay = hands[MyIndex].Where(i =>
-                                                       !bannedSuits.Contains(i.Suit) &&
+                                                       !bannedSuits.Contains(i.Suit)  &&
                                                        _probabilities.SuitHigherThanCardProbability(TeamMateIndex, i, RoundNumber, false) > 0);   //seskup podle barev
+
+                        if (!cardsToPlay.Any())
+                        {
+                            cardsToPlay = hands[MyIndex].Where(i => _probabilities.SuitHigherThanCardProbability(TeamMateIndex, i, RoundNumber, false) > 0);   //seskup podle barev
+                        }
 
                         return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault(); //nejmensi karta
                     }
