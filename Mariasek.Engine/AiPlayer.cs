@@ -68,6 +68,7 @@ namespace Mariasek.Engine
 		}
         public Func<IStringLogger> _stringLoggerFactory { get; set; }
 		public IStringLogger _debugString { get; set; }
+        public string _minMaxDebugString { get; set; }
         public Probability Probabilities { get; set; }
         public AiPlayerSettings Settings { get; set; }
         
@@ -4700,6 +4701,53 @@ namespace Mariasek.Engine
                                                       (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
                 winCount.Add(card, likelyResults.Where(i => i.Item1 == card)
                                                 .Count(i => i.Item2.MoneyWon[PlayerIndex] >= 0));
+            }
+
+            if (roundNumber == _g.FirstMinMaxRound)
+            {
+                var sb = new StringBuilder();
+
+                sb.Append($"Karta,");
+                sb.Append($"Hráč1,Hráč2,Hráč3,");
+                sb.Append($"Skóre1,Skóre2,Skóre3,");
+                sb.Append($"Výhra1,Výhra2,Výhra3,");
+                sb.Append($"Začíná8,");
+                sb.Append($"Vyhrál8,");
+                sb.Append($"Karta1,Karta2,Karta3,");
+                sb.Append($"Začíná9,");
+                sb.Append($"Vyhrál9,");
+                sb.Append($"Karta1,Karta2,Karta3,");
+                sb.Append($"Začíná10,");
+                sb.Append($"Vyhrál10,");
+                sb.Append($"Karta1,Karta2,Karta3,");
+                sb.Append("\n");
+
+                foreach (var r in results)
+                {
+                    sb.Append($"{r.Item1},");
+                    sb.Append($"{r.Item4[0]},{r.Item4[1]},{r.Item4[2]},");
+                    sb.Append($"{r.Item3.Score[0]},{r.Item3.Score[1]},{r.Item3.Score[2]},");
+                    sb.Append($"{r.Item2.MoneyWon[0]},{r.Item2.MoneyWon[1]},{r.Item2.MoneyWon[2]},");
+                    sb.Append($"Hráč{r.Item3.Rounds[7].RoundStarterIndex + 1},");
+                    sb.Append($"Hráč{r.Item3.Rounds[7].RoundWinnerIndex + 1},");
+                    sb.Append($"{r.Item3.Rounds[7].c1},{r.Item3.Rounds[7].c2},{r.Item3.Rounds[7].c3},");
+                    sb.Append($"Hráč{r.Item3.Rounds[8].RoundStarterIndex + 1},");
+                    sb.Append($"Hráč{r.Item3.Rounds[8].RoundWinnerIndex + 1},");
+                    sb.Append($"{r.Item3.Rounds[8].c1},{r.Item3.Rounds[8].c2},{r.Item3.Rounds[8].c3},");
+                    sb.Append($"Hráč{r.Item3.Rounds[9].RoundStarterIndex + 1},");
+                    sb.Append($"Hráč{r.Item3.Rounds[9].RoundWinnerIndex + 1},");
+                    sb.Append($"{r.Item3.Rounds[9].c1},{r.Item3.Rounds[9].c2},{r.Item3.Rounds[9].c3},");
+                    sb.Append("\n");
+                }
+                _minMaxDebugString = sb.ToString();
+#if PORTABLE
+                using (var fs = _g.GetFileStream("_minmax.csv"))
+                {
+                    var bytes = Encoding.Default.GetBytes(_minMaxDebugString);
+
+                    fs.Write(bytes, 0, bytes.Length);
+                }
+#endif
             }
 
             Card cardToPlay;

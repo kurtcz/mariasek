@@ -18,7 +18,6 @@ using Mariasek.SharedClient.GameComponents;
 using Mariasek.Engine;
 using CsvHelper;
 using Microsoft.Xna.Framework.Input;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace Mariasek.SharedClient
 {
@@ -116,6 +115,7 @@ namespace Mariasek.SharedClient
         private string _archivePath = Path.Combine(MariasekMonoGame.RootPath, "Archive");
         private string _historyFilePath = Path.Combine(MariasekMonoGame.RootPath, "Mariasek.history");
         private string _deckFilePath = Path.Combine(MariasekMonoGame.RootPath, "Mariasek.deck");
+        private string _minMaxFilePath = Path.Combine(MariasekMonoGame.RootPath, "_minmax.csv");
         private string _savedGameFilePath = Path.Combine(MariasekMonoGame.RootPath, "_temp.hra");
         private string _newGameFilePath = Path.Combine(MariasekMonoGame.RootPath, "_def.hra");
         private string _screenPath = Path.Combine(MariasekMonoGame.RootPath, "screen.png");
@@ -1681,6 +1681,10 @@ namespace Mariasek.SharedClient
                          {
                              File.Delete(_savedGameFilePath);
                          }
+                         if (File.Exists(_minMaxFilePath))
+                         {
+                             File.Delete(_minMaxFilePath);
+                         }
                      }
                      catch (Exception e)
                      {
@@ -1892,7 +1896,7 @@ namespace Mariasek.SharedClient
                 else
                 {
                     Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Napište svůj komentář k této hře\n:",
-                                               new[] { _screenPath, _newGameFilePath, _endGameFilePath, SettingsScene._settingsFilePath });
+                                               new[] { _screenPath, _newGameFilePath, _endGameFilePath, _minMaxFilePath, SettingsScene._settingsFilePath });
                 }
             }
         }
@@ -3592,6 +3596,10 @@ namespace Mariasek.SharedClient
                             if (File.Exists(_savedGameFilePath))
                             {
                                 File.Delete(_savedGameFilePath);
+                            }
+                            if (File.Exists(_minMaxFilePath))
+                            {
+                                File.Delete(_minMaxFilePath);
                             }
                         }
                         catch (Exception e)
