@@ -4559,30 +4559,8 @@ namespace Mariasek.Engine
             var n = 0;
             var start = DateTime.Now;
             var prematureStop = false;
-            var uncertainTalonTrumps = _g.trump.HasValue
-                                       ? Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                             .Select(h => new Card(_g.trump.Value, h))
-                                             .Where(i => Probabilities.CardProbability(talonIndex, i) > 0)
-                                             .ToList()
-                                       : Enumerable.Empty<Card>();
             var gameStartingHand = new List<Card>();
 
-            var gameStartedInitialCards = _g.rounds.Where(r => r != null && r.c3 != null)
-                                                   .Select(r =>
-                                                   {
-                                                       if (r.player1.PlayerIndex == _g.GameStartingPlayerIndex)
-                                                       {
-                                                           return r.c1;
-                                                       }
-                                                       else if (r.player2.PlayerIndex == _g.GameStartingPlayerIndex)
-                                                       {
-                                                           return r.c2;
-                                                       }
-                                                       else
-                                                       {
-                                                           return r.c3;
-                                                       }
-                                                   }).ToList();
             var estimatedCombinations = (int)Probabilities.EstimateTotalCombinations(roundNumber);
             var maxtime = 3 * Settings.MaxSimulationTimeMs;
             var exceptionOccured = false;
@@ -4603,28 +4581,38 @@ namespace Mariasek.Engine
                             loopState.Stop();
                             //break;
                         }
-                        //List<Card> talon = null;
-                        //if (PlayerIndex != _g.GameStartingPlayerIndex)
-                        //{
-                        //    var initialHand = gameStartedInitialCards.Concat((List<Card>)hands[_g.GameStartingPlayerIndex]).Concat((List<Card>)hands[talonIndex]).ToList();
-                        //    switch (_g.GameType)
-                        //    {
-                        //        case Hra.Betl:
-                        //            talon = ChooseBetlTalon(initialHand, _g.TrumpCard);
-                        //            break;
-                        //        case Hra.Durch:
-                        //            talon = ChooseDurchTalon(initialHand, _g.TrumpCard);
-                        //            break;
-                        //        default:
-                        //            talon = ChooseNormalTalon(initialHand, _g.TrumpCard);
-                        //            break;
-                        //    }
-                        //}
+                        var gameStartedInitialCards = _g.rounds.Where(r => r != null && r.c3 != null)
+                                                               .Select(r =>
+                                                               {
+                                                                   if (r.player1.PlayerIndex == _g.GameStartingPlayerIndex)
+                                                                   {
+                                                                       return r.c1;
+                                                                   }
+                                                                   else if (r.player2.PlayerIndex == _g.GameStartingPlayerIndex)
+                                                                   {
+                                                                       return r.c2;
+                                                                   }
+                                                                   else
+                                                                   {
+                                                                       return r.c3;
+                                                                   }
+                                                               }).ToList();
+                        var initialHand = gameStartedInitialCards.Concat((List<Card>)hands[_g.GameStartingPlayerIndex]).Concat((List<Card>)hands[3]).ToList();
+                        var gameStarterPlayedCards = _g.rounds.Where(r => r != null && r.player1.PlayerIndex == _g.GameStartingPlayerIndex)
+                                                              .Select(r => r.c1).ToList();
+                        var maxPlayedSuitLength = gameStarterPlayedCards.Max(i => initialHand.CardCount(i.Suit));
+                        var longUnplayedSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                    .Where(b => b != _trump &&
+                                                                !gameStarterPlayedCards.HasSuit(b) &&
+                                                                initialHand.CardCount(b) > maxPlayedSuitLength);
+                        var talon = ChooseNormalTalon(initialHand, _g.TrumpCard);
                         var hh = new[] {
                             new Hand((List<Card>)hands[0]),
                             new Hand((List<Card>)hands[1]),
-                            new Hand((List<Card>)hands[2])
-                            };
+                            new Hand((List<Card>)hands[2]),
+                            new Hand((List<Card>)hands[3]),
+                            new Hand(initialHand),
+                            new Hand(talon)};
                         var result = ComputeMinMax(new List<Round>(_g.rounds.Where(i => i?.c3 != null)), hh, roundNumber);
 
                         foreach (var res in result)
@@ -4649,14 +4637,11 @@ namespace Mariasek.Engine
                                      Probabilities.CardProbability(TeamMateIndex, new Card(_g.trump.Value, Hodnota.Svrsek)) > 0) &&
                                     (!hands[TeamMateIndex].HasK(_g.trump.Value) &&
                                      !hands[TeamMateIndex].HasQ(_g.trump.Value))) &&
-                                    !(Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                          .Any(b => hands[TeamMateIndex].HasK(b) &&
-                                                    hands[TeamMateIndex].HasQ(b))) &&
-                                    //!hands[_g.GameStartingPlayerIndex].Any(i => talon != null &&
-                                    //                                           talon.Contains(i) &&
-                                    uncertainTalonTrumps.All(i => hands[0].Any(j => i == j) ||
-                                                                  hands[1].Any(j => i == j) ||
-                                                                  hands[2].Any(j => i == j)))))
+                                  !(Enum.GetValues(typeof(Barva)).Cast<Barva>()     //hlasku kolegy nepocitej pokud ji do ted neukazal
+                                        .Any(b => hands[TeamMateIndex].HasK(b) &&
+                                                  hands[TeamMateIndex].HasQ(b))) &&
+                                  !longUnplayedSuits.Any() &&                       //pokud ma akter dlouhou barvu kterou nehral, asi barvu nezna
+                                  IsLikelyTalonForHand(hands))))
                             {
                                 likelyResults.Enqueue(new Tuple<Card, MoneyCalculatorBase, GameComputationResult, Hand[]>(res.Item1, res.Item2, res.Item3, hh));
                             }
@@ -4708,7 +4693,9 @@ namespace Mariasek.Engine
                 var sb = new StringBuilder();
 
                 sb.Append($"Karta,");
-                sb.Append($"Hráč1,Hráč2,Hráč3,");
+                sb.Append($"Hráč1,Hráč2,Hráč3,Talon,");
+                sb.Append($"VolbaTalonuZ,SimTalon,");
+                sb.Append($"Váha,");
                 sb.Append($"Skóre1,Skóre2,Skóre3,");
                 sb.Append($"Výhra1,Výhra2,Výhra3,");
                 sb.Append($"Začíná8,");
@@ -4725,7 +4712,9 @@ namespace Mariasek.Engine
                 foreach (var r in results)
                 {
                     sb.Append($"{r.Item1},");
-                    sb.Append($"{r.Item4[0]},{r.Item4[1]},{r.Item4[2]},");
+                    sb.Append($"{r.Item4[0]},{r.Item4[1]},{r.Item4[2]},{r.Item4[3]},");
+                    sb.Append($"{r.Item4[4]},{r.Item4[5]},");
+                    sb.Append($"{((!likelyResults.Any() || likelyResults.Contains(r)) ? "Vysoká" : "Nízká")},");
                     sb.Append($"{r.Item3.Score[0]},{r.Item3.Score[1]},{r.Item3.Score[2]},");
                     sb.Append($"{r.Item2.MoneyWon[0]},{r.Item2.MoneyWon[1]},{r.Item2.MoneyWon[2]},");
                     sb.Append($"Hráč{r.Item3.Rounds[7].RoundStarterIndex + 1},");
@@ -4793,6 +4782,87 @@ namespace Mariasek.Engine
             OnGameComputationProgress(new GameComputationProgressEventArgs { Current = estimatedCombinations, Max = estimatedCombinations, Message = "Generuju karty" });
 
             return cardToPlay;
+        }
+
+        private bool IsLikelyTalonForHand(Hand[] hands)
+        {
+            const int talonIndex = 3;
+
+            if (_talon != null && _talon.Any() && hands[talonIndex].Any(i => !_talon.Contains(i)))
+            {
+                return false;
+            }
+
+            if (Probabilities.CertainCards(talonIndex).Any() &&
+                hands[talonIndex].All(i => !Probabilities.CertainCards(talonIndex).Contains(i)))
+            {
+                return false;
+            }
+            var gameStartedInitialCards = _g.rounds.Where(r => r != null && r.c3 != null)
+                                                   .Select(r =>
+                                                   {
+                                                       if (r.player1.PlayerIndex == _g.GameStartingPlayerIndex)
+                                                       {
+                                                           return r.c1;
+                                                       }
+                                                       else if (r.player2.PlayerIndex == _g.GameStartingPlayerIndex)
+                                                       {
+                                                           return r.c2;
+                                                       }
+                                                       else
+                                                       {
+                                                           return r.c3;
+                                                       }
+                                                   }).ToList();
+            List<Card> talon = null;
+
+            var initialHand = gameStartedInitialCards.Concat((List<Card>)hands[_g.GameStartingPlayerIndex]).Concat((List<Card>)hands[talonIndex]).ToList();
+            switch (_g.GameType)
+            {
+                case Hra.Betl:
+                    talon = ChooseBetlTalon(initialHand, _g.TrumpCard);
+                    break;
+                case Hra.Durch:
+                    talon = ChooseDurchTalon(initialHand, _g.TrumpCard);
+                    break;
+                default:
+                    talon = ChooseNormalTalon(initialHand, _g.TrumpCard);
+                    break;
+            }
+
+            //if (hands[talonIndex].HasK(Barva.Zaludy) &&
+            //    hands[talonIndex].HasJ(Barva.Zeleny) &&
+            //    talon.HasJ(Barva.Zaludy) &&
+            //    talon.HasJ(Barva.Zeleny))
+            //{
+            //    var x = !hands[_g.GameStartingPlayerIndex].Any(i => talon != null && talon.Contains(i));
+            //    var y = hands[talonIndex].All(i => talon.Contains(i));
+            //}
+
+            var talonCandidates = initialHand.Where(i => (i.Suit != _g.TrumpCard.Suit &&
+                                                          ((!initialHand.HasX(i.Suit) &&
+                                                            initialHand.CardCount(i.Suit) - hands[talonIndex].CardCount(i.Suit) == 1) ||
+                                                           !initialHand.HasSuit(i.Suit))) &&
+                                                         (i.Value <= Hodnota.Spodek ||
+                                                           (i.Value == Hodnota.Svrsek &&
+                                                            !initialHand.HasK(i.Suit)) ||
+                                                           (i.Value == Hodnota.Kral &&
+                                                            !initialHand.HasQ(i.Suit) &&
+                                                            (!initialHand.HasX(i.Suit) ||
+                                                             initialHand.HasA(i.Suit)))));
+
+            if ((_g.GameType & (Hra.Betl | Hra.Durch)) != 0 ||
+                ((!hands[talonIndex].HasSuit(_g.TrumpCard.Suit) ||
+                  talon.HasSuit(_g.TrumpCard.Suit)) &&
+                 (talonCandidates.Count() < 2 &&
+                  talonCandidates.All(i => ((List<Card>)hands[talonIndex]).Contains(i))) ||
+                 (talonCandidates.Count() >= 2 &&
+                  hands[talonIndex].All(i => talonCandidates.Contains(i)))))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private IEnumerable<Tuple<Card, MoneyCalculatorBase, GameComputationResult>> ComputeMinMax(List<Round> previousRounds, Hand[] hands, int currentRound)
