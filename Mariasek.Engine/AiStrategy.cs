@@ -6903,6 +6903,16 @@ namespace Mariasek.Engine
                                                                                           hands[MyIndex].Has7(_trump) &&
                                                                                           hands[MyIndex].CardCount(_trump) <= opHiTrumps + 2)))) &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) == i);
+                        if(cardToPlay == null &&
+                           hands[MyIndex].HasX(_trump) &&
+                           hands[MyIndex].Has7(_trump) &&
+                           hands[MyIndex].SuitCount == 1 &&
+                           !_probabilities.PotentialCards(player1).HasSuit(_trump) &&
+                           !_probabilities.PotentialCards(player2).HasSuit(_trump))
+                        {
+                            cardToPlay = ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Desitka &&
+                                                                                                i.Suit == _trump);
+                        }
                         return cardToPlay;
                     }
                     else if (TeamMateIndex == player1)
@@ -6954,6 +6964,16 @@ namespace Mariasek.Engine
                                                                                           hands[MyIndex].Has7(_trump) &&
                                                                                           hands[MyIndex].CardCount(_trump) <= opHiTrumps + 2)))) &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) != c2);
+                        if (cardToPlay == null &&
+                           hands[MyIndex].HasX(_trump) &&
+                           hands[MyIndex].Has7(_trump) &&
+                           hands[MyIndex].SuitCount == 1 &&
+                           !_probabilities.PotentialCards(player1).HasSuit(_trump) &&
+                           !_probabilities.PotentialCards(player2).HasSuit(_trump))
+                        {
+                            cardToPlay = ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Desitka &&
+                                                                                                i.Suit == _trump);
+                        }
                         if (cardToPlay != null &&
                             ValidCards(c1, c2, hands[MyIndex]).HasA(cardToPlay.Suit))
                         {
@@ -7055,6 +7075,16 @@ namespace Mariasek.Engine
                                                                                           hands[MyIndex].Has7(_trump) &&
                                                                                           hands[MyIndex].CardCount(_trump) <= opHiTrumps + 2)))) &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) != c1);
+                        if (cardToPlay == null &&
+                           hands[MyIndex].HasX(_trump) &&
+                           hands[MyIndex].Has7(_trump) &&
+                           hands[MyIndex].SuitCount == 1 &&
+                           !_probabilities.PotentialCards(player1).HasSuit(_trump) &&
+                           !_probabilities.PotentialCards(player2).HasSuit(_trump))
+                        {
+                            cardToPlay = ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Desitka &&
+                                                                                                i.Suit == _trump);
+                        }
                         if (cardToPlay != null &&
                             ValidCards(c1, c2, hands[MyIndex]).HasA(cardToPlay.Suit))
                         {
@@ -7076,7 +7106,7 @@ namespace Mariasek.Engine
                     if (TeamMateIndex == -1)
                     {
                         //--c
-                        return ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
+                        var cardToPlay = ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                       i.Suit != _trump &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) == i &&
                                                                                       ((c1.Suit == i.Suit &&
@@ -7089,6 +7119,18 @@ namespace Mariasek.Engine
                                                                                         _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) <= _epsilon ||
                                                                                        (((_gameType & Hra.KiloProti) != 0) &&
                                                                                         _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Desitka)) < 1 - _epsilon)));
+
+                        if (cardToPlay == null &&
+                           hands[MyIndex].HasA(_trump) &&
+                           hands[MyIndex].Has7(_trump) &&
+                           hands[MyIndex].SuitCount == 1 &&
+                           !_probabilities.PotentialCards(player1).HasSuit(_trump) &&
+                           !_probabilities.PotentialCards(player2).HasSuit(_trump))
+                        {
+                            cardToPlay = ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
+                                                                                                i.Suit == _trump);
+                        }
+                        return cardToPlay;
                     }
                     else if (TeamMateIndex == player1)
                     {
@@ -7112,7 +7154,7 @@ namespace Mariasek.Engine
                         {
                             return null;
                         }
-                        return ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
+                        var cardToPlay = ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                       i.Suit != _trump &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) != c2 &&
                                                                                       ((c2.Suit == i.Suit &&
@@ -7129,6 +7171,17 @@ namespace Mariasek.Engine
                                                                                                       .Where(j => j.Suit == i.Suit)
                                                                                                       .Count(j => j != c1 &&
                                                                                                                   j != c2) > (hands[MyIndex].HasX(i.Suit) ? 1 : 0)));
+                        if (cardToPlay == null &&
+                           hands[MyIndex].HasA(_trump) &&
+                           hands[MyIndex].Has7(_trump) &&
+                           hands[MyIndex].SuitCount == 1 &&
+                           !_probabilities.PotentialCards(player1).HasSuit(_trump) &&
+                           !_probabilities.PotentialCards(player2).HasSuit(_trump))
+                        {
+                            cardToPlay = ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
+                                                                                                i.Suit == _trump);
+                        }
+                        return cardToPlay;
                     }
                     else
                     {
@@ -7150,7 +7203,7 @@ namespace Mariasek.Engine
                         {
                             return null;
                         }
-                        return ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
+                        var cardToPlay = ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
                                                                                       i.Suit != _trump &&
                                                                                       Round.WinningCard(c1, c2, i, _trump) != c1 &&
                                                                                       ((c1.Suit == i.Suit &&
@@ -7165,6 +7218,17 @@ namespace Mariasek.Engine
                                                                                         _probabilities.CertainCards(player1)
                                                                                                       .Where(j => j.Suit == i.Suit)
                                                                                                       .Count(j => j != c1) > (hands[MyIndex].HasX(i.Suit) ? 1 : 0)));
+                        if (cardToPlay == null &&
+                           hands[MyIndex].HasA(_trump) &&
+                           hands[MyIndex].Has7(_trump) &&
+                           hands[MyIndex].SuitCount == 1 &&
+                           !_probabilities.PotentialCards(player1).HasSuit(_trump) &&
+                           !_probabilities.PotentialCards(player2).HasSuit(_trump))
+                        {
+                            cardToPlay = ValidCards(c1, c2, hands[MyIndex]).FirstOrDefault(i => i.Value == Hodnota.Eso &&
+                                                                                                i.Suit == _trump);
+                        }
+                        return cardToPlay;
                     }
                 }
             };
