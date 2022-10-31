@@ -3624,6 +3624,10 @@ namespace Mariasek.Engine
                         kqScore >= 20) &&
                        (bidding.Bids & Hra.Sedma) == 0 &&
                        kqMaxOpponentScore <= 40)) ||            //nebo
+                      ((estimatedFinalBasicScore >= 20 ||        //a aspon 20 bodu na ruce
+                        kqScore >= 20) &&
+                       (bidding.Bids & Hra.Sedma) == 0 &&
+                       kqMaxOpponentScore <= 20) ||            //nebo
                      (Hand.CardCount(_g.trump.Value) >= 2 &&    //aspon 2 trumfy a trhaka
                       (Hand.HasK(_g.trump.Value) ||             //a aspon 3 ostre karty
                        Hand.HasQ(_g.trump.Value)) &&            //a aspon jedno eso
@@ -3711,7 +3715,7 @@ namespace Mariasek.Engine
                      ((Hand.HasK(_g.trump.Value) ||
                        Hand.HasQ(_g.trump.Value)) &&           //nebo mam trhaka
                       Hand.CardCount(_g.trump.Value) >= 4 &&   //a aspon 4 trumfy
-                      (!Is100AgainstPossible(130) ||
+                      (axCount >= 2 ||
                        kqScore >= 20)) ||                      //a pripadne jeste hlas
                      ((Hand.HasA(_g.trump.Value) ||
                        Hand.HasX(_g.trump.Value)) &&           //nebo trumfove A nebo X
@@ -4606,6 +4610,7 @@ namespace Mariasek.Engine
                                                                 !gameStarterPlayedCards.HasSuit(b) &&
                                                                 initialHand.CardCount(b) > maxPlayedSuitLength);
                         var talon = ChooseNormalTalon(initialHand, _g.TrumpCard);
+                        var isLikelyTalonForHand = IsLikelyTalonForHand(hands);
                         var hh = new[] {
                             new Hand((List<Card>)hands[0]),
                             new Hand((List<Card>)hands[1]),
@@ -4641,7 +4646,7 @@ namespace Mariasek.Engine
                                         .Any(b => hands[TeamMateIndex].HasK(b) &&
                                                   hands[TeamMateIndex].HasQ(b))) &&
                                   !longUnplayedSuits.Any() &&                       //pokud ma akter dlouhou barvu kterou nehral, asi barvu nezna
-                                  IsLikelyTalonForHand(hands))))
+                                  isLikelyTalonForHand)))
                             {
                                 likelyResults.Enqueue(new Tuple<Card, MoneyCalculatorBase, GameComputationResult, Hand[]>(res.Item1, res.Item2, res.Item3, hh));
                             }
