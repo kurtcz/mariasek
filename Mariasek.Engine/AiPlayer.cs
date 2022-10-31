@@ -4819,21 +4819,8 @@ namespace Mariasek.Engine
                                                            return r.c3;
                                                        }
                                                    }).ToList();
-            List<Card> talon = null;
 
             var initialHand = gameStartedInitialCards.Concat((List<Card>)hands[_g.GameStartingPlayerIndex]).Concat((List<Card>)hands[talonIndex]).ToList();
-            switch (_g.GameType)
-            {
-                case Hra.Betl:
-                    talon = ChooseBetlTalon(initialHand, _g.TrumpCard);
-                    break;
-                case Hra.Durch:
-                    talon = ChooseDurchTalon(initialHand, _g.TrumpCard);
-                    break;
-                default:
-                    talon = ChooseNormalTalon(initialHand, _g.TrumpCard);
-                    break;
-            }
 
             //if (hands[talonIndex].HasK(Barva.Zaludy) &&
             //    hands[talonIndex].HasJ(Barva.Zeleny) &&
@@ -4857,8 +4844,15 @@ namespace Mariasek.Engine
                                                              initialHand.HasA(i.Suit)))));
 
             if ((_g.GameType & (Hra.Betl | Hra.Durch)) != 0 ||
-                ((!hands[talonIndex].HasSuit(_g.TrumpCard.Suit) ||
-                  talon.HasSuit(_g.TrumpCard.Suit)) &&
+                (!hands[talonIndex].HasSuit(_g.TrumpCard.Suit) &&
+                 (talonCandidates.Count() < 2 &&
+                  talonCandidates.All(i => ((List<Card>)hands[talonIndex]).Contains(i))) ||
+                 (talonCandidates.Count() >= 2 &&
+                  hands[talonIndex].All(i => talonCandidates.Contains(i)))) ||
+                (hands[talonIndex].HasSuit(_g.TrumpCard.Suit) &&
+                 initialHand.CardCount(_g.TrumpCard.Suit) >= 5 &&
+                 initialHand.HasA(_g.TrumpCard.Suit) &&
+                 ChooseNormalTalon(initialHand, _g.TrumpCard).HasSuit(_g.TrumpCard.Suit) &&
                  (talonCandidates.Count() < 2 &&
                   talonCandidates.All(i => ((List<Card>)hands[talonIndex]).Contains(i))) ||
                  (talonCandidates.Count() >= 2 &&
