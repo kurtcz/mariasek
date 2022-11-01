@@ -4844,19 +4844,15 @@ namespace Mariasek.Engine
                                                              initialHand.HasA(i.Suit)))));
 
             if ((_g.GameType & (Hra.Betl | Hra.Durch)) != 0 ||
-                (!hands[talonIndex].HasSuit(_g.TrumpCard.Suit) &&
-                 (talonCandidates.Count() < 2 &&
-                  talonCandidates.All(i => ((List<Card>)hands[talonIndex]).Contains(i))) ||
-                 (talonCandidates.Count() >= 2 &&
-                  hands[talonIndex].All(i => talonCandidates.Contains(i)))) ||
-                (hands[talonIndex].HasSuit(_g.TrumpCard.Suit) &&
-                 initialHand.CardCount(_g.TrumpCard.Suit) >= 5 &&
-                 initialHand.HasA(_g.TrumpCard.Suit) &&
-                 ChooseNormalTalon(initialHand, _g.TrumpCard).HasSuit(_g.TrumpCard.Suit) &&
-                 (talonCandidates.Count() < 2 &&
-                  talonCandidates.All(i => ((List<Card>)hands[talonIndex]).Contains(i))) ||
-                 (talonCandidates.Count() >= 2 &&
-                  hands[talonIndex].All(i => talonCandidates.Contains(i)))))
+                (((talonCandidates.Count() < 2 &&
+                   talonCandidates.All(i => ((List<Card>)hands[talonIndex]).Contains(i))) ||
+                  (talonCandidates.Count() >= 2 &&
+                   hands[talonIndex].All(i => talonCandidates.Contains(i)))) &&
+                 (!hands[talonIndex].HasSuit(_g.TrumpCard.Suit) ||
+                  (hands[talonIndex].HasSuit(_g.TrumpCard.Suit) &&
+                   initialHand.CardCount(_g.TrumpCard.Suit) >= 5 &&
+                   initialHand.HasA(_g.TrumpCard.Suit) &&
+                   ChooseNormalTalon(initialHand, _g.TrumpCard).HasSuit(_g.TrumpCard.Suit)))))
             {
                 return true;
             }
