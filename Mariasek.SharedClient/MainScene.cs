@@ -2078,10 +2078,14 @@ namespace Mariasek.SharedClient
             {
                 TrumpCardTakenBack = true;
                 _talon.Clear();
-                _okBtn.IsEnabled = false;
                 button.Hide();
 				button.Position = origPosition;
-				UpdateHand();
+                _okBtn.IsEnabled = false;
+                foreach (var btn in gtButtons.Where(i => (((Hra)i.Tag) & (Hra.Betl | Hra.Durch)) == 0))
+                {
+                    btn.IsEnabled = false;
+                }
+                UpdateHand();
 
                 _msgLabelSmall.Text = "\n\nBez trumfů musíš hrát betl nebo durch";
                 _msgLabelSmall.Show();
@@ -2169,8 +2173,9 @@ namespace Mariasek.SharedClient
 			EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
 			_state = GameState.ChooseTrump;
+            _hlasy[0][0].CanDrag = true;
             //_hand.IsEnabled = false;
-			_cardClicked = null;
+            _cardClicked = null;
 			_evt.Reset();
             RunOnUiThread(() =>
             {
@@ -2638,6 +2643,7 @@ namespace Mariasek.SharedClient
 
         public void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
         {
+            _hlasy[0][0].CanDrag = false;
             //pokud se hrac vzdal, tak nic neukazujeme
             if (e.GameType == 0)
             {
