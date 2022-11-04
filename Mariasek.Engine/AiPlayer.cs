@@ -325,14 +325,15 @@ namespace Mariasek.Engine
                                                                  temp.Any(j => j.BadValue < i.Item1.BadValue))
                                                      .Select(i => i.Item1)          //Card
                                                      .ToList();
-                    if (higherSoloCards.Any())
+                    if (higherSoloCards.Count > 1)
                     {
-                        temp = temp.Concat(higherSoloCards)
-                                   .OrderByDescending(i => i.BadValue)
-                                   .Take(2 - talon.Count)
-                                   .ToList();
-                        talon.AddRange(temp);
+                        var temp2 = temp.Concat(higherSoloCards)
+                                        .OrderByDescending(i => i.BadValue)
+                                        .Take(Math.Min(2 - talon.Count, higherSoloCards.Count - 1))
+                                        .ToList();
+                        talon.AddRange(temp2);
                     }
+                    talon.AddRange(temp);
                 }
                 else
                 {
