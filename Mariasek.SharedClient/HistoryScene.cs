@@ -307,11 +307,13 @@ namespace Mariasek.SharedClient
                     _historyChart.GridInterval = new Vector2(1, gridInterval);
                 }
             }
-            _historyChart.Data = series;
-            if (_historyChart.Data[0].Length > _historyChart.Width)
+            if (series[0].Length > _historyChart.Width)
             {
-                _historyChart.DataMarkerSize = 0;
+                _historyChart.LineThickness = 2;
+                _historyChart.DataMarkerSize = 5;
+                _historyChart.TickMarkLength = 10;
             }
+            _historyChart.Data = series;
             //_historyChart.Click += (sender) => 
             //{
             //    _historyChart.MaxValue = new Vector2(_historyChart.Data[0].Length, maxWon);
