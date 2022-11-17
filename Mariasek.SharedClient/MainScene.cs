@@ -749,6 +749,10 @@ namespace Mariasek.SharedClient
                 };
                 _shuffledCards[i].Hide();
             }
+            if (Game.Settings.WhenToShuffle == ShuffleTrigger.AfterRestart)
+            {
+                _shouldShuffle = true;
+            }
             _review = new GameReview(this, 200)
             {
                 Position = new Vector2(160, 45),

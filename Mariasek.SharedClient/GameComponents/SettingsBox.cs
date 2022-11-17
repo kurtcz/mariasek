@@ -892,7 +892,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Position = new Vector2(Game.VirtualScreenWidth - 300, page3Offset + 550),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Nikdy", ShuffleTrigger.Never }, { "Po ložené hře", ShuffleTrigger.AfterAutomaticVictory }, { "Po každé hře", ShuffleTrigger.Always } },
+                Items = new SelectorItems() { { "Nikdy", ShuffleTrigger.Never }, { "Po ložené hře", ShuffleTrigger.AfterAutomaticVictory }, { "Po restartu", ShuffleTrigger.AfterRestart }, { "Po každé hře", ShuffleTrigger.Always } },
                 UseCommonScissorRect = true
             };
             _whenToShuffleSelector.SelectedIndex = _whenToShuffleSelector.Items.FindIndex(Game.Settings.WhenToShuffle);

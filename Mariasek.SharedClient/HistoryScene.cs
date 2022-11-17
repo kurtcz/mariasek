@@ -308,6 +308,10 @@ namespace Mariasek.SharedClient
                 }
             }
             _historyChart.Data = series;
+            if (_historyChart.Data[0].Length > _historyChart.Width)
+            {
+                _historyChart.DataMarkerSize = 0;
+            }
             //_historyChart.Click += (sender) => 
             //{
             //    _historyChart.MaxValue = new Vector2(_historyChart.Data[0].Length, maxWon);
