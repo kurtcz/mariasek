@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.tnemec.mariasek.android" android:installLocation="auto" android:versionName="1.5.223" android:versionCode="223">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.tnemec.mariasek.android" android:installLocation="auto" android:versionName="1.5.224" android:versionCode="224">
 	<uses-sdk android:minSdkVersion="19" android:targetSdkVersion="33" />
 	<!-- Tell the system this app requires OpenGL ES 2.0. -->
 	<uses-feature android:glEsVersion="0x00020000" android:required="true" />

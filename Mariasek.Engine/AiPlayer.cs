@@ -317,6 +317,45 @@ namespace Mariasek.Engine
                                   .Take(2 - talon.Count)
                                   .Select(i => i.Item1)                     //Card
                                   .ToList();
+                //pokud jsou jen 2 karty s dirou, tak se zbav jedne z nich
+                //zbyvajici druhou kartou potom betl zahajis a bude lozeny
+                //pritom se zhorsi talon na pripadneho durcha
+                if (holesByCard.Count() == 2)
+                {
+                    temp = holesByCard.Where(i => !talon.Contains(i.Item1))
+                                      .OrderByDescending(i => i.Item4)
+                                      .ThenBy(i => i.Item1.BadValue)
+                                      .Take(1)
+                                      .Select(i => i.Item1)
+                                      .ToList();
+                }
+                //pokud jsou jen 3 karty s dirou ve dvou barvach, tak se zbav dvou karet stejne barvy
+                //zbyvajici treti kartou potom betl zahajis a bude lozeny
+                //pritom se zhorsi talon na pripadneho durcha
+                if (holesByCard.Count() == 3 &&
+                    holesByCard.Select(i => i.Item1).SuitCount() == 2)
+                {
+                    temp = holesByCard.Where(i => !talon.Contains(i.Item1) &&
+                                                  holesByCard.Select(j => j.Item1)
+                                                             .CardCount(i.Item1.Suit) == 2)
+                                      .Select(j => j.Item1)
+                                      .ToList();
+                }
+                //pokud jsou jen 4 karty s dirou ve max trech barvach
+                //a jen max. 3 karty s vic nez jednou dirou, tak se zbav dvou karet stejne barvy
+                //zbyvajici treti kartou potom betl zahajis a bude skoro lozeny - zbyde jen osmicka
+                //pritom se zhorsi talon na pripadneho durcha
+                if (holesByCard.Count() == 4 &&
+                    holesByCard.Select(i => i.Item1).SuitCount() <= 3 &&
+                    holesByCard.Count(i => i.Item4 > 1) <= 3)
+                {
+                    temp = holesByCard.Where(i => !talon.Contains(i.Item1) &&
+                                                  holesByCard.Select(j => j.Item1)
+                                                             .CardCount(i.Item1.Suit) >= 2)
+                                      .Select(i => i.Item1)
+                                      .OrderByDescending(i => i.BadValue)
+                                      .ToList();
+                }
                 //pokud mas nejake vyssi plonky, tak pouzij radsi ty
                 if (temp.Count > 1)
                 {
@@ -1464,7 +1503,8 @@ namespace Mariasek.Engine
                                         UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
                                     }
 
-                                    var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : (Hra.Hra | Hra.SedmaProti), 10, 1);
+                                    //var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : (Hra.Hra | Hra.SedmaProti), 10, 1);
+                                    var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, (Hra.Hra | Hra.SedmaProti), 10, 1);
                                     gameComputationResults.Enqueue(gameComputationResult);
                                 }
                             }
@@ -1800,7 +1840,6 @@ namespace Mariasek.Engine
                 var calc = GetMoneyCalculator(Hra.Hra, _trump ?? _g.trump, gameStartingPlayerIndex, gameBidding, i);
 
                 calc.CalculateMoney();
-
                 //_gameStrings.Add(GetComputationResultString(i, calc));
 
                 return calc;
@@ -1994,7 +2033,6 @@ namespace Mariasek.Engine
             gameComputationResults = null;
             moneyCalculations = null;
             scores = null;
-            _runSimulations = false;
             GC.Collect();
         }
 
@@ -2484,6 +2522,10 @@ namespace Mariasek.Engine
             {
                 n += 10;
             }
+            var kqScore = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                              .Where(b => Hand.HasK(b) && Hand.HasQ(b))
+                              .Sum(b => b == trump.Value ? 40 : 20);
+
             //if (trumpCount <= 4 &&
             //    PlayerIndex == _g.GameStartingPlayerIndex &&
             //    !hand.HasA(trump.Value))
@@ -2494,7 +2536,7 @@ namespace Mariasek.Engine
             //{
             //    n -= 10;
             //}
-            if (n >= 60 && emptySuits > 0)  //pokud to vypada na kilo, odecti body za diry na ktere si souperi muzou namazat
+            if (n >= 60 && emptySuits > 0 && kqScore > 0)  //pokud to vypada na kilo, odecti body za diry na ktere si souperi muzou namazat
             {
                 n -= axPotentialDeduction * 10;
             }
@@ -2572,12 +2614,16 @@ namespace Mariasek.Engine
                           (TeamMateIndex == -1 ||
                            (!_teamMateDoubledGame ||
                             _g.MandatoryDouble)) &&
+                           hand.SuitCount() >= 3 &&
                           !(Enum.GetValues(typeof(Barva)).Cast<Barva>()         //aspon v jedne barve nemam A nebo X+K a
                                 .Where(b => hand.HasSuit(b))
                                 .All(b => hand.HasA(b) ||
                                           (hand.HasX(b) &&
                                            (hand.HasK(b) ||
-                                            hand.CardCount(b) > 2)))) &&
+                                            hand.CardCount(b) > 2))) ||
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()         //aspon v jedne barve nemam A nebo X+K a
+                                .Where(b => hand.HasA(b))
+                                .Sum(b => hand.Count(i => i.Value >= Hodnota.Kral)) <= 4) &&
                           (!hand.HasA(_trump.Value) ||                          //nemam trumfove A nebo X a
                            !hand.HasX(_trump.Value)) &&
                           !(hand.HasK(_trump.Value) &&                          //nevidim do trumfoveho hlasu a
@@ -3420,6 +3466,10 @@ namespace Mariasek.Engine
             var betlThreshold = bidding._betlDurchFlek < Settings.GameThresholdsForGameType[Hra.Betl].Length ? Settings.GameThresholdsForGameType[Hra.Betl][bidding._betlDurchFlek] : 1f;
             var durchThreshold = bidding._betlDurchFlek < Settings.GameThresholdsForGameType[Hra.Durch].Length ? Settings.GameThresholdsForGameType[Hra.Durch][bidding._betlDurchFlek] : 1f;
 
+            if (AdvisorMode && TeamMateIndex == -1)
+            {
+                _runSimulations = true;
+            }
             if (_runSimulations)
             {
                 //mame flekovat hru
@@ -3577,7 +3627,18 @@ namespace Mariasek.Engine
                       Hand.HasQ(_g.trump.Value)) &&
                      Hand.CardCount(Hodnota.Eso) >= 2 &&            //navic jeste aspon jedno dalsi eso
                      Enum.GetValues(typeof(Barva)).Cast<Barva>()    //a k tomu nejaka dlouha barva
-                         .Any(b => Hand.CardCount(b) >= 5)) ||
+                         .Any(b => b != _trump &&
+                                   Hand.CardCount(b) >= 5)) ||
+                    (Hand.CardCount(_g.trump.Value) >= 3 &&         //tri trumfy vcetne esa a jeste jednoho velkeho trumfu
+                     Hand.HasA(_g.trump.Value) &&
+                     (Hand.HasX(_g.trump.Value) ||
+                      Hand.HasK(_g.trump.Value) ||
+                      Hand.HasQ(_g.trump.Value)) &&
+                     Hand.CardCount(Hodnota.Eso) >= 3 &&            //navic jeste dalsi dve esa
+                     Enum.GetValues(typeof(Barva)).Cast<Barva>()    //z nichz jedno eso je od delsi barvy
+                         .Any(b => b != _trump &&
+                                   Hand.HasA(b) &&
+                                   Hand.CardCount(b) >= 4)) ||
                     (Hand.CardCount(_g.trump.Value) >= 3 &&
                      Hand.HasA(_g.trump.Value) &&
                      Hand.SuitCount() == Game.NumSuits &&
