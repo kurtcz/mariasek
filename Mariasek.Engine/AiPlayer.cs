@@ -3537,14 +3537,24 @@ namespace Mariasek.Engine
                  _teamMateDoubledGame) &&
                 _gameSimulations > 0 &&                         //pokud v simulacich vysla dost casto
                 _gamesBalance / (float)_gameSimulations >= gameThreshold &&
-                ((TeamMateIndex != -1 &&                        //Tutti: 50+ bodu na ruce
+                ((TeamMateIndex != -1 &&                        //Tutti: 50+ bodu na ruce                  
                   bidding.GameMultiplier > 2 &&
                   estimatedFinalBasicScore + kqScore >= 50 &&
                   (kqScore >= 60 ||
                    (kqScore >= 40 &&
                     axCount >= 1) ||
                    (kqScore >= 20 &&
-                    axCount >= 3))) ||
+                    axCount >= 3)) &&
+                  (_teamMateDoubledGame ||
+                   estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore +
+                                                        (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                             .Count(b => !Hand.HasK(b) &&
+                                                                         !Hand.HasQ(b) &&
+                                                                         (_talon == null ||
+                                                                          (!_talon.HasK(b) &&
+                                                                           !_talon.HasQ(b)))) <= 1
+                                                         ? kqMaxOpponentScore
+                                                         : kqMaxOpponentScore - 20))) ||
                   (TeamMateIndex == -1 &&                       //Re: pokud mam vic nez souperi s Min(1, n-1) z moznych hlasek a
                    bidding.GameMultiplier == 2 &&
                    estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore +
@@ -3566,7 +3576,10 @@ namespace Mariasek.Engine
                        axCount >= 1 &&
                        estimatedFinalBasicScore >= 10) ||
                       (axCount >= 2 &&                          //aspon 20 bodu v ostrych nebo
-                       estimatedFinalBasicScore >= 20))) ||
+                       estimatedFinalBasicScore >= 10) ||
+                      (Hand.CardCount(_trumpCard.Suit) >= 4 &&
+                       (Hand.HasA(_trumpCard.Suit) ||             //pokud trham a
+                        Hand.HasX(_trumpCard.Suit))))) ||
                     (!Hand.HasK(_trumpCard.Suit) &&             //netrham a
                      !Hand.HasQ(_trumpCard.Suit) &&
                      Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
@@ -3574,7 +3587,7 @@ namespace Mariasek.Engine
                       Hand.CardCount(_trumpCard.Suit) >= 4) &&
                      (Hand.CardCount(Hodnota.Eso) >= 2 ||       //aspon jeste jedno eso nebo
                       (axCount >= 4 &&                          //aspon jeste dve desitky a
-                       estimatedFinalBasicScore >= 40)) &&      //souper nemuze uhrat kilo proti
+                       estimatedFinalBasicScore >= 40)) &&      //akter nemuze uhrat kilo
                      !Is100AgainstPossible())))))
             {
                 bid |= bidding.Bids & Hra.Hra;
