@@ -1,13 +1,24 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using static Android.Renderscripts.Sampler;
 
 namespace Mariasek.SharedClient.GameComponents
 {
+    public enum AutosizeMode
+    {
+        Horizontal = 1,
+        Vertical = 2,
+        Both = Horizontal | Vertical
+    }
+
     public class Label : GameComponent
     {
+        private float? _origFontScaleFactor;
+        private string _text;
+
         public virtual int Width { get; set; }
         public virtual int Height { get; set; }
-        public virtual string Text { get; set; }
         public virtual Color TextColor { get; set; }
         public virtual Color ScrollBarBackgroundColor { get; set; }
         public virtual float FontScaleFactor { get; set; }
@@ -16,6 +27,42 @@ namespace Mariasek.SharedClient.GameComponents
         public virtual FontRenderer TextRenderer { get; set; }
         public bool UseCommonScissorRect { get; set; }
         public Tab[] Tabs { get; set; }
+        public bool AutosizeText { get; set; }
+        public AutosizeMode AutosizeMode { get; set; }
+        public int AutosizeHorizontalMargin { get; set; }
+        public int AutosizeVerticalMargin { get; set; }
+        public virtual string Text
+        {
+            get { return _text; }
+            set
+            {
+                _text = value;
+
+                var lineSeparators = new[] { '\r', '\n' };
+                var lines = value.Split(lineSeparators);
+
+                BoundsRect = TextRenderer.GetBoundsRect(lines, FontScaleFactor);
+
+                if (AutosizeText)
+                {
+                    var newScaleFactor = FontScaleFactor;
+                    var normalBoundsRect = TextRenderer.GetBoundsRect(lines, 1);
+
+                    if ((AutosizeMode & AutosizeMode.Horizontal) != 0 &&
+                        BoundsRect.Width > 0 && BoundsRect.Width > Width - 2 * AutosizeHorizontalMargin)
+                    {
+                        newScaleFactor = (Width - 2 * AutosizeHorizontalMargin) / (float)normalBoundsRect.Width;
+                    }
+                    if ((AutosizeMode & AutosizeMode.Vertical) != 0 &&
+                        BoundsRect.Height > 0 && BoundsRect.Height > Height - 2 * AutosizeVerticalMargin)
+                    {
+                        newScaleFactor = Math.Min(newScaleFactor, (Height - 2 * AutosizeVerticalMargin) / (float)normalBoundsRect.Height);
+                    }
+                    FontScaleFactor = newScaleFactor;
+                    BoundsRect = TextRenderer.GetBoundsRect(lines, FontScaleFactor);
+                }
+            }
+        }
 
         protected Rectangle BoundsRect;
 
@@ -31,6 +78,8 @@ namespace Mariasek.SharedClient.GameComponents
             Text = Name;
             Tabs = null;
             FontScaleFactor = 1f;
+            AutosizeText = false;
+            AutosizeMode = AutosizeMode.Horizontal;
         }
 
         public override void Draw(GameTime gameTime)

@@ -12,6 +12,7 @@ namespace Mariasek.SharedClient
 {
 	public class ReviewScene : Scene
     {
+        private const float OriginalDescriptionFontScaleFactor = 0.82f;
         private string _savedGameFilePath = Path.Combine(MariasekMonoGame.RootPath, "_temp.hra");
         private string _screenPath = Path.Combine(MariasekMonoGame.RootPath, "screen.jpg");
 
@@ -51,8 +52,10 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(10, 10),
                 Width = 200,
+                AutosizeText = true,
+                AutosizeMode = AutosizeMode.Vertical,
                 Height = (int)Game.VirtualScreenHeight - 190,
-                FontScaleFactor = 0.82f,
+                FontScaleFactor = OriginalDescriptionFontScaleFactor,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
                 HighlightColor = Game.Settings.HighlightedTextColor,
                 HighlightedLine = 2,
@@ -261,6 +264,7 @@ namespace Mariasek.SharedClient
                         description = description.Where(i => !string.IsNullOrWhiteSpace(i)).ToArray();
                     }
                     description = description.Where(i => !i.StartsWith("Celkem:")).ToArray();
+                    _description.FontScaleFactor = OriginalDescriptionFontScaleFactor;
                     _description.Text = string.Join("\n", description).Replace("V červenejch:", "V červenejch");
                     _review.UpdateReview(g);
 

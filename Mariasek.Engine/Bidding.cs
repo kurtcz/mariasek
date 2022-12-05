@@ -403,6 +403,19 @@ namespace Mariasek.Engine
                         break;
                 }
             }
+            else if ((e.BidMade & Hra.Sedma) != 0 &&
+                     (e.BidMade & Hra.SedmaProti) != 0)
+            {
+                switch (SevenAgainstMultiplier)
+                {
+                    case 1:
+                        e.Description = "Na sedmu a sedma proti";   //falesna sedma a sedma proti
+                        break;
+                    default:
+                        e.Description = "Na oboje vejš";
+                        break;
+                }
+            }
             else if ((e.BidMade & Hra.Sedma) != 0)
             {
                 switch (SevenMultiplier)
