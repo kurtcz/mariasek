@@ -800,11 +800,11 @@ namespace Mariasek.Engine
                               i.Suit == trumpCard.Suit &&
                               i.Value < Hodnota.Svrsek) &&
                 talon.Count > 2 &&
-                talon.Any(i => i.Suit != trumpCard.Suit &&
-                               ((i.Value == Hodnota.Kral &&
-                                 hand.HasQ(i.Suit)) ||
-                                (i.Value == Hodnota.Svrsek &&
-                                 hand.HasK(i.Suit)))) &&
+                talon.Take(2).Any(i => i.Suit != trumpCard.Suit &&
+                                       ((i.Value == Hodnota.Kral &&
+                                         hand.HasQ(i.Suit)) ||
+                                        (i.Value == Hodnota.Svrsek &&
+                                       hand.HasK(i.Suit)))) &&
                 talon.Count(i => i.Suit != trumpCard.Suit &&
                                  ((i.Value < Hodnota.Svrsek &&
                                    !(hand.HasX(i.Suit) &&   //ignoruj barvu kde mam X+2 plivy
@@ -3632,7 +3632,12 @@ namespace Mariasek.Engine
                       (Hand.HasX(_g.trump.Value) &&
                        Hand.HasK(_g.trump.Value) &&
                        Hand.HasQ(_g.trump.Value) &&
-                       Hand.SuitCount() == Game.NumSuits))) ||
+                       Hand.SuitCount() == Game.NumSuits) ||
+                      (Hand.HasX(_g.trump.Value) &&
+                       Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                           .All(b => Hand.CardCount(b) >= 2 &&
+                                     Hand.Any(i => i.Suit == b &&
+                                                   i.Value >= Hodnota.Kral))))) ||
                     (Hand.CardCount(_g.trump.Value) >= 3 &&         //tri trumfy vcetne esa a jeste jednoho velkeho trumfu
                      Hand.HasA(_g.trump.Value) &&
                      (Hand.HasX(_g.trump.Value) ||
