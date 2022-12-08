@@ -3825,6 +3825,7 @@ namespace Mariasek.Engine
                  PlayerIndex == 0 ||
                  (bidding.PlayerBids[0] & Hra.SedmaProti) != 0) &&
                 ((bidding._sevenAgainstFlek == 0 &&                                  //nez poprve zahlasime sedmu proti zjistime jestli to neni riskantni
+                  Hand.Has7(_g.trump.Value) &&
                   !IsSevenTooRisky()) ||
                  (bidding._sevenAgainstFlek > 0 &&                                  //flek na sedmu proti dam jen kdyz mam sam dost trumfu
                   (Hand.CardCount(_g.trump.Value) >= 4 ||
