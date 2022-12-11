@@ -1280,7 +1280,7 @@ namespace Mariasek.Engine
             else
             {
                 var betlThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Betl].Length - 1, 1);     //85%
-                var durchThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 1);    //85%
+                var durchThresholdIndex = 0;// PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 1);    //85%
                 if ((Settings.CanPlayGameType[Hra.Durch] &&
                      _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][durchThresholdIndex] * _durchSimulations &&
                      _durchSimulations > 0 &&
@@ -1389,16 +1389,16 @@ namespace Mariasek.Engine
             }
         }
 
-        private void UpdateGeneratedHandsByChoosingTalon(Hand[] hands, Func<List<Card>, Card, List<Card>> chooseTalonFunc, int GameStartingPlayerIndex)
+        private void UpdateGeneratedHandsByChoosingTalon(Hand[] hands, Func<List<Card>, Card, List<Card>> chooseTalonFunc, int gameStartingPlayerIndex)
         {
             const int talonIndex = 3;
 
             //volicimu hraci dame i to co je v talonu, aby mohl vybrat skutecny talon
-            hands[GameStartingPlayerIndex].AddRange(hands[talonIndex]);
+            hands[gameStartingPlayerIndex].AddRange(hands[talonIndex]);
 
-            var talon = chooseTalonFunc(hands[GameStartingPlayerIndex], TrumpCard);
+            var talon = chooseTalonFunc(hands[gameStartingPlayerIndex], TrumpCard);
 
-            hands[GameStartingPlayerIndex].RemoveAll(i => talon.Contains(i));
+            hands[gameStartingPlayerIndex].RemoveAll(i => talon.Contains(i));
             hands[talonIndex] = new Hand(talon);
         }
 
@@ -1758,8 +1758,13 @@ namespace Mariasek.Engine
                                 //nasimuluj ze volici hrac vybral trumfy a/nebo talon
                                 if (PlayerIndex != _g.GameStartingPlayerIndex)
                                 {
-                                    if (_g.GameType == Hra.Betl)
-                                    {   //pokud jsem volil ja tak v UpdateGeneratedHandsByChoosingTalon() pouziju skutecne zvoleny trumf
+                                    if (_g.GameType == Hra.Betl)                                        
+                                    {
+                                        if (_g.OriginalGameStartingPlayerIndex != _g.GameStartingPlayerIndex &&
+                                            PlayerIndex != _g.OriginalGameStartingPlayerIndex)
+                                        {
+                                            UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, _g.OriginalGameStartingPlayerIndex);
+                                        }
                                         UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, _g.GameStartingPlayerIndex);
                                     }
                                     else
@@ -2422,6 +2427,23 @@ namespace Mariasek.Engine
             return score;
         }
 
+        public int EstimateMinBasicPointsLost()
+        {
+            var minBasicPointsLost = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                         .Where(b => Hand.HasSuit(b))
+                                         .Sum(b => (Hand.HasA(b) ? 0 : 10) +
+                                                   (Hand.HasX(b) ? 0 : 10) +
+                                                   (Hand.HasSolitaryX(b) ||
+                                                    (Hand.HasX(b) &&
+                                                     Hand.CardCount(b) == 2 &&
+                                                     !Hand.HasA(b) &&
+                                                     !Hand.HasK(b)) ? 10 : 0));
+
+            DebugInfo.MinBasicPointsLost = minBasicPointsLost;
+
+            return minBasicPointsLost;
+        }
+
         public int EstimateFinalBasicScore(List<Card> hand = null, List<Card> talon = null)
         {
             hand = hand ?? Hand;
@@ -2586,7 +2608,8 @@ namespace Mariasek.Engine
                           TeamMateIndex != -1 &&
                           (!_teamMateDoubledGame ||
                            _g.MandatoryDouble) &&
-                          !(Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                          !(hand.HasA(_trump.Value) &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => hand.HasSuit(b))
                                 .All(b => hand.HasA(b) ||
                                           (hand.HasX(b) &&
@@ -3049,12 +3072,15 @@ namespace Mariasek.Engine
                         loCards = hand.CardCount(b) - hiCards;
                         opA++;
                     }
-                    else if (hiCards == 1 &&        //mame aspon X+S+1 - eso vytlacime svrskem a jeste jednou, cili pocitame, ze mame o diru mene
-                             hand.HasQ(b) &&
-                             hand.CardCount(b) > 2)
+                    else if (hiCards == 1 &&        //mame aspon X+S+s - eso vytlacime svrskem a jeste jednou, cili pocitame, ze mame o diru mene
+                             hand.HasQ(b))
                     {
                         loCards -= 2;
                         opA++;
+                        if (!hand.HasJ(b))          //mame X+S bez s - pravdepodobne prijdeme i o desitku
+                        {
+                            opA++; //zneuzijeme citac es i na desitku
+                        }
                     }
                     else if (hiCards == 0)
                     {
@@ -3106,8 +3132,11 @@ namespace Mariasek.Engine
 
                 n += GetTotalHoles(hand, b);
             }
-            _debugString.Append($"TotalHoles: {n}\n");
-            DebugInfo.TotalHoles = n;
+            if (includeTrumpSuit && includeAceSuits)
+            {
+                _debugString.Append($"TotalHoles: {n}\n");
+                DebugInfo.TotalHoles = n;
+            }
 
             return n;
         }
@@ -3283,6 +3312,7 @@ namespace Mariasek.Engine
                 var estimatedFinalBasicScore = _g.trump.HasValue ? EstimateFinalBasicScore() : 0;
                 var estimatefOpponentFinalBasicScore = 90 - estimatedFinalBasicScore;
                 var totalHoles = GetTotalHoles();
+                var minBasicPointsLost = EstimateMinBasicPointsLost();
 
                 if (Settings.CanPlayGameType[Hra.Kilo] && 
                     _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&
@@ -3676,47 +3706,44 @@ namespace Mariasek.Engine
                                          Hand.HasK(b)) ||
                                         (Hand.HasK(b) &&
                                          Hand.HasQ(b) &&
-                                         Hand.HasJ(b))) >= 3)) ||
-                      (Hand.Count(i => i.Value >= Hodnota.Kral) >= 6 &&
-                       Hand.Count(i => i.Value >= Hodnota.Kral &&
-                                       i.Suit == _g.trump.Value) >= 2 &&
-                       Hand.SuitCount() == Game.NumSuits) ||
+                                         Hand.HasJ(b))) >= 3)) //||
                       //(Hand.Count(i => i.Suit == _g.trump.Value &&
                       //                 i.Value >= Hodnota.Svrsek) >= 3 &&
                       // handSuits == Game.NumSuits &&
                       // Enum.GetValues(typeof(Barva)).Cast<Barva>()
                       //     .All(b => Hand.Any(i => i.Suit == b &&
                       //                             i.Value >= Hodnota.Kral))) ||
-                      ((Hand.CardCount(Hodnota.Eso) >= 2 ||
-                        (Hand.HasA(_g.trump.Value) &&
-                         kqScore >= 40)) &&
-                       ((axCount >= 4 &&
-                         Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                             .All(b => Hand.CardCount(b) >= 2)) ||
-                        (axCount >= 3 &&
-                         Hand.HasA(_g.trump.Value) &&
-                         Hand.HasK(_g.trump.Value) &&
-                         (Hand.HasX(_g.trump.Value) ||
-                          Hand.HasQ(_g.trump.Value)) &&
-                         (kqScore >= 40 ||
-                          Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                              .All(b => Hand.CardCount(b) >= 2))) ||
-                        (axCount >= 4 &&                               //hodne ostrych karet a vsechny barvy
-                         estimatedFinalBasicScore >= 40 &&
-                         handSuits == Game.NumSuits) //||
-                        //(Hand.Any(i => i.Suit == _trump.Value &&
-                        //               i.Value >= Hodnota.Svrsek) &&
-                        // Hand.Count(i => i.Value >= Hodnota.Svrsek) >= 6 &&
-                        // Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                        //     .Where(b => Hand.HasSuit(b))
-                        //     .All(b => Hand.CardCount(b) >= 2)) ||
-                        //(Hand.HasA(_trump.Value) &&                    //trumfove eso a desitka
-                        // Hand.HasX(_trump.Value) &&
-                        // Hand.CardCount(Hodnota.Eso) >= 2 &&           //aspon dve esa a
-                        // Enum.GetValues(typeof(Barva)).Cast<Barva>()   //jedna dlouha barva
-                        //     .Where(b => b != _trump.Value)
-                        //     .Any(b => Hand.CardCount(b) >= 4))
-                            ))))) ||
+                      //((Hand.CardCount(Hodnota.Eso) >= 2 ||
+                      //  (Hand.HasA(_g.trump.Value) &&
+                      //   kqScore >= 40)) &&
+                      // ((axCount >= 4 &&
+                      //   Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                      //       .All(b => Hand.CardCount(b) >= 2)) ||
+                      //  (axCount >= 3 &&
+                      //   Hand.HasA(_g.trump.Value) &&
+                      //   Hand.HasK(_g.trump.Value) &&
+                      //   (Hand.HasX(_g.trump.Value) ||
+                      //    Hand.HasQ(_g.trump.Value)) &&
+                      //   (kqScore >= 40 ||
+                      //    Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                      //        .All(b => Hand.CardCount(b) >= 2))) ||
+                      //  (axCount >= 4 &&                               //hodne ostrych karet a vsechny barvy
+                      //   estimatedFinalBasicScore >= 40 &&
+                      //   handSuits == Game.NumSuits) //||
+                      //  //(Hand.Any(i => i.Suit == _trump.Value &&
+                      //  //               i.Value >= Hodnota.Svrsek) &&
+                      //  // Hand.Count(i => i.Value >= Hodnota.Svrsek) >= 6 &&
+                      //  // Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                      //  //     .Where(b => Hand.HasSuit(b))
+                      //  //     .All(b => Hand.CardCount(b) >= 2)) ||
+                      //  //(Hand.HasA(_trump.Value) &&                    //trumfove eso a desitka
+                      //  // Hand.HasX(_trump.Value) &&
+                      //  // Hand.CardCount(Hodnota.Eso) >= 2 &&           //aspon dve esa a
+                      //  // Enum.GetValues(typeof(Barva)).Cast<Barva>()   //jedna dlouha barva
+                      //  //     .Where(b => b != _trump.Value)
+                      //  //     .Any(b => Hand.CardCount(b) >= 4))
+                      //      ))
+                            ))) ||
                    (_teamMateDoubledGame &&                          //nebo pokud kolega flekoval
                     !_g.MandatoryDouble &&
                     Hand.HasA(_trump.Value) &&                       //a ja mam aspon 3 trumfy a navic eso a neco velkeho a aspon 40 bodu
@@ -4146,20 +4173,184 @@ namespace Mariasek.Engine
             Probabilities.UpdateProbabilitiesAfterBidMade(e, _g.Bidding);
         }
 
-        private void CardPlayed(object sender, Round r)
+        private bool IsGameWinningRound(Round round, Round[] rounds, int playerIndex, int teamMateIndex, List<Card> hand, Probability prob)
         {
-            UpdateProbabilitiesAfterCardPlayed(Probabilities, r.number, r.player1.PlayerIndex, r.c1, r.c2, r.c3, r.hlas1, r.hlas2, r.hlas3, TeamMateIndex, _teamMatesSuits, _trump, _teamMateDoubledGame);
+            var basicPointsWonSoFar = 0;
+            var basicPointsWonThisRound = (round?.c1?.Value >= Hodnota.Desitka ? 10 : 0) +
+                                          (round?.c2?.Value >= Hodnota.Desitka ? 10 : 0) +
+                                          (round?.c3?.Value >= Hodnota.Desitka ? 10 : 0);
+            var basicPointsLost = 0;
+            var hlasPointsLost = 0;
+            var hlasPointsWon = 0;
+            var hlasPointsWonThisRound = 0;
+            var maxHlasPointsWon = 0;
+
+            foreach (var r in rounds.Where(r => r?.number < round?.number))
+            {
+                if (r.c1.Value >= Hodnota.Desitka)
+                {
+                    if (r.roundWinner.PlayerIndex == playerIndex ||
+                        r.roundWinner.PlayerIndex == teamMateIndex)
+                    {
+                        basicPointsWonSoFar += 10;
+                    }
+                    else
+                    {
+                        basicPointsLost += 10;
+                    }
+                }
+                if (r.c2.Value >= Hodnota.Desitka)
+                {
+                    if (r.roundWinner.PlayerIndex == playerIndex ||
+                        r.roundWinner.PlayerIndex == teamMateIndex)
+                    {
+                        basicPointsWonSoFar += 10;
+                    }
+                    else
+                    {
+                        basicPointsLost += 10;
+                    }
+                }
+                if (r.c3.Value >= Hodnota.Desitka)
+                {
+                    if (r.roundWinner.PlayerIndex == playerIndex ||
+                        r.roundWinner.PlayerIndex == teamMateIndex)
+                    {
+                        basicPointsWonSoFar += 10;
+                    }
+                    else
+                    {
+                        basicPointsLost += 10;
+                    }
+                }
+                hlasPointsWonThisRound = 0;
+                if (r.hlas1)
+                {
+                    if (r.player1.PlayerIndex == playerIndex ||
+                        r.player1.PlayerIndex == teamMateIndex)
+                    {
+                        hlasPointsWonThisRound = r.c1.Suit == _trump ? 40 : 20;
+                        hlasPointsWon += hlasPointsWonThisRound;
+                        maxHlasPointsWon = teamMateIndex == -1
+                                            ? _g.HlasConsidered == HlasConsidered.Highest
+                                                ? Math.Max(maxHlasPointsWon, hlasPointsWonThisRound)
+                                                : _g.HlasConsidered == HlasConsidered.First && maxHlasPointsWon == 0
+                                                    ? hlasPointsWonThisRound
+                                                    : _g.HlasConsidered == HlasConsidered.Each
+                                                        ? hlasPointsWon
+                                                        : 0
+                                            : 0;
+                    }
+                    else
+                    {
+                        hlasPointsLost += r.c1.Suit == _trump ? 40 : 20;
+                    }
+                }
+                if (r.hlas2)
+                {
+                    if (r.player2.PlayerIndex == playerIndex ||
+                        r.player2.PlayerIndex == teamMateIndex)
+                    {
+                        hlasPointsWonThisRound = r.c2.Suit == _trump ? 40 : 20;
+                        hlasPointsWon += hlasPointsWonThisRound;
+                        maxHlasPointsWon = teamMateIndex == -1
+                                            ? _g.HlasConsidered == HlasConsidered.Highest
+                                                ? Math.Max(maxHlasPointsWon, hlasPointsWonThisRound)
+                                                : _g.HlasConsidered == HlasConsidered.First && maxHlasPointsWon == 0
+                                                    ? hlasPointsWonThisRound
+                                                    : _g.HlasConsidered == HlasConsidered.Each
+                                                        ? hlasPointsWon
+                                                        : 0
+                                            : 0;
+                    }
+                    else
+                    {
+                        hlasPointsLost += r.c2.Suit == _trump ? 40 : 20;
+                    }
+                }
+                if (r.hlas3)
+                {
+                    if (r.player3.PlayerIndex == playerIndex ||
+                        r.player3.PlayerIndex == teamMateIndex)
+                    {
+                        hlasPointsWonThisRound = r.c3.Suit == _trump ? 40 : 20;
+                        hlasPointsWon += hlasPointsWonThisRound;
+                        maxHlasPointsWon = teamMateIndex == -1
+                                            ? _g.HlasConsidered == HlasConsidered.Highest
+                                                ? Math.Max(maxHlasPointsWon, hlasPointsWonThisRound)
+                                                : _g.HlasConsidered == HlasConsidered.First && maxHlasPointsWon == 0
+                                                    ? hlasPointsWonThisRound
+                                                    : _g.HlasConsidered == HlasConsidered.Each
+                                                        ? hlasPointsWon
+                                                        : 0
+                                            : 0;
+                    }
+                    else
+                    {
+                        hlasPointsLost += r.c3.Suit == _trump ? 40 : 20;
+                    }
+                }
+            }
+            var basicPointsLeft = 90 - basicPointsWonSoFar - basicPointsWonThisRound - basicPointsLost;
+            var player2 = (playerIndex + 1) % Game.NumPlayers;
+            var player3 = (playerIndex + 2) % Game.NumPlayers;
+            var opponent = teamMateIndex == player2 ? player3 : player2;
+            var kqScore = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                              .Sum(b => hand.HasK(b) &&
+                                        hand.HasQ(b)
+                                        ? b == _trump ? 40 : 20
+                                        : 0);
+            var hlasPointsLeft = teamMateIndex == -1
+                                 ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                       .Sum(b => (prob.PotentialCards(player2).HasK(b) &&
+                                                  prob.PotentialCards(player2).HasQ(b)) ||
+                                                 (prob.PotentialCards(player3).HasK(b) &&
+                                                  prob.PotentialCards(player3).HasQ(b))
+                                                  ? b == _trump ? 40 : 20
+                                                  : 0)
+                                 : Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                       .Sum(b => prob.PotentialCards(opponent).HasK(b) &&
+                                                 prob.PotentialCards(opponent).HasQ(b)
+                                                 ? b == _trump ? 40 : 20
+                                                 : 0);
+            var opponentPotentialPoints = basicPointsLost + hlasPointsLost + basicPointsLeft + hlasPointsLeft;
+            var gameWinningCard = false;
+
+            if ((_gameType & Hra.Kilo) != 0 &&
+                ((teamMateIndex == -1 &&
+                  basicPointsWonSoFar + maxHlasPointsWon <= 90 &&
+                  basicPointsWonSoFar + basicPointsWonThisRound + maxHlasPointsWon >= 100) ||
+                 (teamMateIndex != -1 &&
+                  basicPointsWonSoFar <= 30 &&
+                  basicPointsWonSoFar + basicPointsWonThisRound >= 40)))
+            {
+                gameWinningCard = true;
+            }
+            else if ((_gameType & Hra.Kilo) == 0 &&
+                        basicPointsWonSoFar + hlasPointsWon + kqScore <= opponentPotentialPoints &&
+                        basicPointsWonSoFar + basicPointsWonThisRound + hlasPointsWon + kqScore > opponentPotentialPoints)
+            {
+                gameWinningCard = true;
+            }
+
+            return gameWinningCard;
         }
 
-        private static void UpdateProbabilitiesAfterCardPlayed(Probability probabilities, int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas1, bool hlas2, bool hlas3, int teamMateIndex, List<Barva> teamMatesSuits, Barva? trump, bool teamMateDoubledGame)
+        private void CardPlayed(object sender, Round r)
+        {
+            var gameWinningRound = IsGameWinningRound(r, _g.rounds, PlayerIndex, TeamMateIndex, Hand, Probabilities);
+            UpdateProbabilitiesAfterCardPlayed(Probabilities, r.number, r.player1.PlayerIndex, r.c1, r.c2, r.c3, r.hlas1, r.hlas2, r.hlas3, TeamMateIndex, _teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound);
+        }
+
+        private static void UpdateProbabilitiesAfterCardPlayed(Probability probabilities, int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas1, bool hlas2, bool hlas3, int teamMateIndex, List<Barva> teamMatesSuits, Barva? trump, bool teamMateDoubledGame, bool gameWinningRound)
         {
             if (c3 != null)
             {
-                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, c2, c3, hlas3);
+                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, c2, c3, hlas3, gameWinningRound);
             }
             else if (c2 != null)
             {
-                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, c2, hlas2);
+                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, c2, hlas2, gameWinningRound);
             }
             else
             {
@@ -4443,7 +4634,7 @@ namespace Mariasek.Engine
                                                                    }
                                                                }).ToList();
                         var initialHand = gameStartedInitialCards.Concat((List<Card>)hands[_g.GameStartingPlayerIndex]).Concat((List<Card>)hands[3]).ToList();
-                        var gameStarterPlayedCards = _g.rounds.Where(r => r != null && r.player1.PlayerIndex == _g.GameStartingPlayerIndex)
+                        var gameStarterPlayedCards = _g.rounds.Where(r => r?.c1 != null && r.player1.PlayerIndex == _g.GameStartingPlayerIndex)
                                                               .Select(r => r.c1).ToList();
                         var maxPlayedSuitLength = gameStarterPlayedCards.Max(i => initialHand.CardCount(i.Suit));
                         var longUnplayedSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -4459,7 +4650,7 @@ namespace Mariasek.Engine
                             new Hand((List<Card>)hands[3]),
                             new Hand(initialHand),
                             new Hand(talon)};
-                        var result = ComputeMinMax(new List<Round>(_g.rounds.Where(i => i?.c3 != null)), hh, roundNumber);
+                        var result = ComputeMinMax(new List<Round>(_g.rounds.Where(r => r?.c3 != null)), hh, roundNumber);
 
                         foreach (var res in result)
                         {
@@ -5395,8 +5586,8 @@ namespace Mariasek.Engine
             _log.DebugFormat("Round {0}. Starting simulation for {1}", _g.RoundNumber, _g.players[PlayerIndex].Name);
             if (c1 != null) _log.DebugFormat("First card: {0}", c1);
             if (c2 != null) _log.DebugFormat("Second card: {0}", c2);
-            _log.TraceFormat("{0}: {1} cerveny, {2} zeleny, {3} kule, {4} zaludy", _g.players[player2].Name, hands[player2].Count(i => i.Suit == Barva.Cerveny), hands[player2].Count(i => i.Suit == Barva.Zeleny), hands[player2].Count(i => i.Suit == Barva.Kule), hands[player2].Count(i => i.Suit == Barva.Zaludy));
-            _log.TraceFormat("{0}: {1} cerveny, {2} zeleny, {3} kule, {4} zaludy", _g.players[player3].Name, hands[player3].Count(i => i.Suit == Barva.Cerveny), hands[player3].Count(i => i.Suit == Barva.Zeleny), hands[player3].Count(i => i.Suit == Barva.Kule), hands[player3].Count(i => i.Suit == Barva.Zaludy));
+            _log.DebugFormat("{0}: {1} cerveny, {2} zeleny, {3} kule, {4} zaludy", _g.players[player2].Name, hands[player2].Count(i => i.Suit == Barva.Cerveny), hands[player2].Count(i => i.Suit == Barva.Zeleny), hands[player2].Count(i => i.Suit == Barva.Kule), hands[player2].Count(i => i.Suit == Barva.Zaludy));
+            _log.DebugFormat("{0}: {1} cerveny, {2} zeleny, {3} kule, {4} zaludy", _g.players[player3].Name, hands[player3].Count(i => i.Suit == Barva.Cerveny), hands[player3].Count(i => i.Suit == Barva.Zeleny), hands[player3].Count(i => i.Suit == Barva.Kule), hands[player3].Count(i => i.Suit == Barva.Zaludy));
             for (initialRoundNumber = aiStrategy.RoundNumber;
                  aiStrategy.RoundNumber < initialRoundNumber + roundsToCompute;
                  //aiStrategy.RoundNumber++)
@@ -5471,8 +5662,8 @@ namespace Mariasek.Engine
                 {
                     simRounds[aiStrategy.RoundNumber - 1] = new Round(_g.players, trump, roundStarterIndex, c1, c2, c3, aiStrategy.RoundNumber);
                 }
-
-                _log.TraceFormat("Simulation round {2} won by {0}. Points won: {1}", _g.players[roundWinnerIndex].Name, roundScore, aiStrategy.RoundNumber);
+                _log.DebugFormat("{0}: {1}, {2}: {3}, {4}: {5}", _g.players[player1].Name, c1, _g.players[player2].Name, c2, _g.players[player3].Name, c3);
+                _log.DebugFormat("Simulation round {2} won by {0}. Points won: {1}", _g.players[roundWinnerIndex].Name, roundScore, aiStrategy.RoundNumber);
                 if (firstTime)
                 {
                     result.CardToPlay = c3;
@@ -5505,17 +5696,21 @@ namespace Mariasek.Engine
                     //UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
                     //UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
 
-                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
-                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
-                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
+                    var gameWinningRound1 = IsGameWinningRound(simRounds[aiStrategy.RoundNumber - 1], simRounds, 0, teamMateIndex1, hands[0], prob1);
+                    var gameWinningRound2 = IsGameWinningRound(simRounds[aiStrategy.RoundNumber - 1], simRounds, 0, teamMateIndex2, hands[1], prob2);
+                    var gameWinningRound3 = IsGameWinningRound(simRounds[aiStrategy.RoundNumber - 1], simRounds, 0, teamMateIndex3, hands[2], prob3);
 
-                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
-                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
-                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound1);
+                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound1);
+                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound1);
 
-                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
-                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
-                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame);
+                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound2);
+                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound2);
+                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound2);
+
+                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound3);
+                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound3);
+                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound3);
                 }
                 //aiStrategy.MyIndex = roundWinnerIndex;
                 //aiStrategy.TeamMateIndex = _g.players[roundWinnerIndex].TeamMateIndex;

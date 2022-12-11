@@ -11,6 +11,7 @@ namespace Mariasek.Engine
 		public TimeSpan ComputationTime { get; set; }
         public int EstimatedFinalBasicScore { get; set; }
         public int EstimatedFinalBasicScore2 { get; set; }
+        public int MinBasicPointsLost { get; set; }
         public int Tygrovo { get; set; }
         public int Strong { get; set; }
         public int MaxSimulatedLoss { get; set; }

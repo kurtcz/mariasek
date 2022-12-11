@@ -140,6 +140,10 @@ namespace Mariasek.Engine
 
         public bool IsHigherThan(Card second, Barva? trump)
         {
+            if (second == null)
+            {
+                second = second;
+            }
             if (Suit != second.Suit)
             {
                 //nepriznana barva. Je to trumf?

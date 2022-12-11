@@ -1944,14 +1944,27 @@ namespace Mariasek.Engine
                 {
                     BiddingDebugInfo.AppendFormat("+{0}", kqScore);
                 }
-                BiddingDebugInfo.AppendFormat("\nSkóre2: {0}", players[playerIndex].DebugInfo.EstimatedFinalBasicScore2);
-                BiddingDebugInfo.AppendFormat("\nTygrovo: {0}", players[playerIndex].DebugInfo.Tygrovo);
-                BiddingDebugInfo.AppendFormat("\nSilná: {0}", players[playerIndex].DebugInfo.Strong);
+                //BiddingDebugInfo.AppendFormat("\nSkóre2: {0}", players[playerIndex].DebugInfo.EstimatedFinalBasicScore2);
+                //BiddingDebugInfo.AppendFormat("\nTygrovo: {0}", players[playerIndex].DebugInfo.Tygrovo);
+                //BiddingDebugInfo.AppendFormat("\nSilná: {0}", players[playerIndex].DebugInfo.Strong);
                 BiddingDebugInfo.AppendFormat("\nPočet děr: {0}", players[playerIndex].DebugInfo.TotalHoles);
             }
             if (players[playerIndex].TeamMateIndex == -1 && GameType != Hra.Durch)
             {
-                BiddingDebugInfo.AppendFormat("\nMaximální bodová ztráta: {0}", players[playerIndex].DebugInfo.MaxEstimatedPointsLost);
+                var kqMaxOpponentScore = trump.HasValue
+                                            ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                  .Where(b => !players[playerIndex].Hand.HasK(b) &&
+                                                              !players[playerIndex].Hand.HasQ(b) &&
+                                                              !talon.HasK(b) &&
+                                                              !talon.HasQ(b))
+                                                  .Sum(b => b == trump.Value ? 40 : 20)
+                                            : 0;
+                BiddingDebugInfo.AppendFormat("\nMinimální bodová ztráta: {0}", players[playerIndex].DebugInfo.MinBasicPointsLost);
+                BiddingDebugInfo.AppendFormat("\nMaximální bodová ztráta: {0}", players[playerIndex].DebugInfo.MaxEstimatedPointsLost - kqMaxOpponentScore);
+                if (kqMaxOpponentScore > 0)
+                {
+                    BiddingDebugInfo.AppendFormat("+{0}", kqMaxOpponentScore);
+                }
                 if (players[playerIndex].DebugInfo.MaxEstimatedMoneyLost < 0)
                 {
                     BiddingDebugInfo.AppendFormat("\nMaximální odhadovaná prohra: {0}", players[playerIndex].DebugInfo.MaxEstimatedMoneyLost);

@@ -1715,7 +1715,7 @@ namespace Mariasek.Engine
             }
         }
 
-        public void UpdateProbabilities(int roundNumber, int roundStarterIndex, Card c1, Card c2, bool hlas2)
+        public void UpdateProbabilities(int roundNumber, int roundStarterIndex, Card c1, Card c2, bool hlas2, bool gameWinningRound)
         {
             if (UseDebugString)
             {
@@ -1779,6 +1779,7 @@ namespace Mariasek.Engine
             //druhy hrac pravdepodobne nema v barve zadne karty vyssi nez c1
             if (_trump.HasValue &&
                 roundStarterIndex == _gameStarterIndex &&
+                !gameWinningRound &&
                 c1.Suit != _trump &&
                 c1.Suit == c2.Suit &&
                 c2.Value > c1.Value &&
@@ -1894,7 +1895,7 @@ namespace Mariasek.Engine
             }
         }
 
-        public void UpdateProbabilities(int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas3)
+        public void UpdateProbabilities(int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas3, bool gameWinningRound)
         {
             if (UseDebugString)
             {
@@ -1957,10 +1958,11 @@ namespace Mariasek.Engine
             }
 
             //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
-            //druhy hrac priznal barvu, sel vejs, a hral esem, tak
-            //druhy hrac pravdepodobne nema v barve zadne karty vyssi nez c1
+            //treti hrac priznal barvu, sel vejs, a hral esem, tak
+            //treti hrac pravdepodobne nema v barve zadne karty vyssi nez c1
             if (_trump.HasValue &&
                 roundStarterIndex == _gameStarterIndex &&
+                !gameWinningRound &&
                 c1.Suit != _trump &&
                 c2.Suit != _trump &&
                 c1.Suit == c3.Suit &&

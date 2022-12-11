@@ -58,7 +58,7 @@ namespace Mariasek.SharedClient
             { Hra.Hra, "Prahy udávají jistotu, kterou AI potřebuje aby si dal flek.\nAI si nedá re pokud nevidí do hlasu a hrozí zobrazená prohra." },
             { Hra.Kilo, "AI kilo nevolí pokud na základě simulací\nhrozí zobrazená prohra." },
             { Hra.Betl, "AI používá práh pro Flek když nevolil a hlásí špatnou\nbarvu. AI hraje utíkáčka pokud hrozí zobrazená prohra." },
-            { Hra.Durch, "AI používá práh pro Flek když nevolil a hlásí\nšpatnou barvu. AI durch flekuje jen když nejde uhrát." },
+            { Hra.Durch, "AI durch flekuje jen když nejde uhrát." },
         };
         private const string _alternateBetlNote = "AI používá práh pro Flek když nevolil a hlásí špatnou\nbarvu. Dle nastavení smí AI hru zahodit, proto utíkáčka nehraje.";
 #endregion
