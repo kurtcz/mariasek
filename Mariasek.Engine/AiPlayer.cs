@@ -3570,7 +3570,8 @@ namespace Mariasek.Engine
                 ((TeamMateIndex != -1 &&                        //Tutti: 50+ bodu na ruce                  
                   bidding.GameMultiplier > 2 &&
                   estimatedFinalBasicScore + kqScore >= 50 &&
-                  (kqScore >= 60 ||
+                  (axCount >= 5 ||
+                   kqScore >= 60 ||
                    (kqScore >= 40 &&
                     axCount >= 1) ||
                    (kqScore >= 20 &&
