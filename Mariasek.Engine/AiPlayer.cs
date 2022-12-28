@@ -921,8 +921,30 @@ namespace Mariasek.Engine
                 replacementCards = replacementCards.Distinct().Take(cardsToRemove.Count).ToList();
                 talon = replacementCards.Concat(talon).Distinct().ToList();
             }
+            //u barev kde muzes dat do talonu aspon 3 karty vynechej tu nejnizsi a dale vybirej odspoda
+            foreach (var card in talon.Take(2)
+                                      .Where(i => i.Suit != trumpCard.Suit &&
+                                                  lowCardCountsPerSuit[i.Suit] >= 3 &&
+                                                  hand.Any(j => j.Suit == i.Suit &&
+                                                                j.Value < i.Value))
+                                      .ToList())
+            {
+                var cardIndex = Math.Max(0, talon.IndexOf(card));
+                var replacementCard = hand.Where(i => i.Suit == card.Suit &&
+                                                      i.Value < card.Value &&
+                                                      talon.IndexOf(i) > 1)
+                                          .OrderBy(i => i.Value)
+                                          .Skip(1)
+                                          .FirstOrDefault();
+                if (replacementCard != null)
+                {
+                    talon.Remove(card);
+                    talon.Remove(replacementCard);
+                    talon.Insert(cardIndex, replacementCard);
+                }
+            }
             //pokud je v talonu neco vyssiho nez spodek a mas i spodka, tak ho dej do talonu
-            foreach(var card in talon.Where(i => i.Suit != trumpCard.Suit &&
+            foreach (var card in talon.Where(i => i.Suit != trumpCard.Suit &&
                                                  i.Value > Hodnota.Spodek &&
                                                  hand.HasJ(i.Suit)).ToList())
             {
@@ -1108,11 +1130,11 @@ namespace Mariasek.Engine
                       .Sum(b => b == _g.trump.Value ? 40 : 20)
                 : 0;
             var estimatedPointsWon = _trump != null ? EstimateFinalBasicScore(tempHand, tempTalon) : 0;
-            var estimatedPointsLost = _trump != null ? EstimateTotalPointsLost(tempHand, tempTalon) : 0;
+            var estimatedMaxPointsLost = _trump != null ? EstimateMaxTotalPointsLost(tempHand, tempTalon) : 0;
             
             DebugInfo.MaxEstimatedMoneyLost = _trump != null &&
-                                              lossPerPointsLost.ContainsKey(estimatedPointsLost)
-                                                ? -lossPerPointsLost[estimatedPointsLost]
+                                              lossPerPointsLost.ContainsKey(estimatedMaxPointsLost)
+                                                ? -lossPerPointsLost[estimatedMaxPointsLost]
                                                 : 0;
             if (_initialSimulation || AdvisorMode)
             {
@@ -1168,8 +1190,8 @@ namespace Mariasek.Engine
                                 (AdvisorMode &&
                                  !Settings.PlayerMayGiveUp)) &&
                                Settings.MinimalBidsForGame <= 1 &&
-                               ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
-                                 lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
+                               ((lossPerPointsLost.ContainsKey(estimatedMaxPointsLost) &&
+                                 lossPerPointsLost[estimatedMaxPointsLost] >= Settings.SafetyBetlThreshold &&
                                  (!_trump.HasValue ||
                                   estimatedPointsWon <= 40 ||
                                   (!Hand.HasK(_trump.Value) &&
@@ -1304,8 +1326,8 @@ namespace Mariasek.Engine
                          (AdvisorMode &&
                           !Settings.PlayerMayGiveUp)) &&
                         Settings.MinimalBidsForGame <= 1 &&
-                        ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
-                          lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
+                        ((lossPerPointsLost.ContainsKey(estimatedMaxPointsLost) &&
+                          lossPerPointsLost[estimatedMaxPointsLost] >= Settings.SafetyBetlThreshold &&
                           (!_trump.HasValue ||
                            estimatedPointsWon <= 20 ||
                            (!Hand.HasK(_trump.Value) &&
@@ -1322,8 +1344,8 @@ namespace Mariasek.Engine
                           _durchSimulations == 0 || 
                           (float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations)) ||
                         (Settings.SafetyBetlThreshold > 0 &&
-                         ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
-                           lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
+                         ((lossPerPointsLost.ContainsKey(estimatedMaxPointsLost) &&
+                           lossPerPointsLost[estimatedMaxPointsLost] >= Settings.SafetyBetlThreshold &&
                           (!_trump.HasValue ||
                            estimatedPointsWon <= 20 ||
                            (!Hand.HasK(_trump.Value) &&
@@ -1503,7 +1525,6 @@ namespace Mariasek.Engine
                                         UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
                                     }
 
-                                    //var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, _gameType != null ? (_gameType | Hra.SedmaProti) : (Hra.Hra | Hra.SedmaProti), 10, 1);
                                     var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, (Hra.Hra | Hra.SedmaProti), 10, 1);
                                     gameComputationResults.Enqueue(gameComputationResult);
                                 }
@@ -2575,10 +2596,10 @@ namespace Mariasek.Engine
 
         public bool Is100AgainstPossible(int scoreToQuery = 100)
         {
-            return EstimateTotalPointsLost() >= scoreToQuery;
+            return EstimateMaxTotalPointsLost() >= scoreToQuery;
         }
 
-        public int EstimateTotalPointsLost(List<Card> hand = null, List<Card> talon = null)
+        public int EstimateMaxTotalPointsLost(List<Card> hand = null, List<Card> talon = null)
         {
             hand = hand ?? Hand;
             talon = talon ?? _talon;
@@ -2590,8 +2611,31 @@ namespace Mariasek.Engine
                                             (talon == null ||
                                              (!talon.HasK(b) &&
                                               !talon.HasQ(b))));
+            var opponentAXCount = 8 - hand.CardCount(Hodnota.Eso) - hand.CardCount(Hodnota.Desitka);
+            var weakXs = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => hand.HasX(b) &&
+                                            (b == _trump.Value &&
+                                             hand.CardCount(b) == 1) ||
+                                            (b != _trump.Value &&
+                                             !(hand.HasA(b) ||
+                                               hand.HasK(b) ||
+                                               (hand.HasQ(b) &&
+                                                hand.HasJ(b)))))
+                                .ToList();
             var estimatedKQPointsLost = noKQSuits.Sum(b => b == _trump ? 40 : 20);
-            var estimatedBasicPointsLost = 90 - EstimateFinalBasicScore(hand, talon);
+            var estimatedBasicPointsLost = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                               .Where(b => hand.HasSuit(b) &&
+                                                           GetTotalHoles(hand, b) > 0)
+                                               .Sum(b => (hand.HasA(b) ? 0 : 10) +
+                                                         (hand.HasX(b) &&
+                                                          weakXs.Contains(b) ? 10 : 0)) +
+                                            Math.Min(GetTotalHoles(hand), opponentAXCount + weakXs.Count) * 10;
+            estimatedBasicPointsLost = Math.Min(estimatedBasicPointsLost, (opponentAXCount + weakXs.Count) * 10);
+            if (estimatedBasicPointsLost >= 50 &&
+                hand.CardCount(_trump.Value) <= 4)
+            {
+                estimatedBasicPointsLost += 10;
+            }
             var estimatedPointsLost = estimatedBasicPointsLost + estimatedKQPointsLost;
 
             DebugInfo.MaxEstimatedPointsLost = estimatedPointsLost;
@@ -3548,6 +3592,16 @@ namespace Mariasek.Engine
                                                             !_talon.HasQ(b))))
                                               .Sum(b => b == _g.trump.Value ? 40 : 20)
                                         : 0;
+            var kqLikelyOpponentScore = _g.trump.HasValue
+                                        ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                              .Count(b => !Hand.HasK(b) &&
+                                                          !Hand.HasQ(b) &&
+                                                          (_talon == null ||
+                                                          (!_talon.HasK(b) &&
+                                                          !_talon.HasQ(b)))) <= 1
+                                            ? kqMaxOpponentScore
+                                            : kqMaxOpponentScore - 20
+                                        : 0;
             var estimatedFinalBasicScore = _g.trump.HasValue ? EstimateFinalBasicScore() : 0;
             var estimatedOpponentFinalBasicScore = 90 - estimatedFinalBasicScore;
             var bestCaseNonTrumpScore = _g.trump.HasValue
@@ -3577,27 +3631,11 @@ namespace Mariasek.Engine
                    (kqScore >= 20 &&
                     axCount >= 3)) &&
                   (_teamMateDoubledGame ||
-                   estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore +
-                                                        (Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                                             .Count(b => !Hand.HasK(b) &&
-                                                                         !Hand.HasQ(b) &&
-                                                                         (_talon == null ||
-                                                                          (!_talon.HasK(b) &&
-                                                                           !_talon.HasQ(b)))) <= 1
-                                                         ? kqMaxOpponentScore
-                                                         : kqMaxOpponentScore - 20))) ||
+                   estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqLikelyOpponentScore)) ||
                   (TeamMateIndex == -1 &&                       //Re: pokud mam vic nez souperi s Min(1, n-1) z moznych hlasek a
                    bidding.GameMultiplier == 2 &&
-                   estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore +
-                                                        (Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                                             .Count(b => !Hand.HasK(b) &&
-                                                                         !Hand.HasQ(b) &&
-                                                                         (_talon == null ||
-                                                                          (!_talon.HasK(b) &&
-                                                                           !_talon.HasQ(b)))) <= 1
-                                                         ? kqMaxOpponentScore
-                                                         : kqMaxOpponentScore - 20) &&
-                   !Is100AgainstPossible()) ||                  //souper nemuze uhrat kilo proti
+                   estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqLikelyOpponentScore &&
+                   estimatedOpponentFinalBasicScore + kqLikelyOpponentScore < 100) ||   //souper nemuze uhrat kilo proti s Min(1, n-1) z moznych hlasek
                   (TeamMateIndex != -1 &&                       //Flek:
                    bidding.GameMultiplier == 1 &&
                    (((Hand.HasK(_trumpCard.Suit) ||             //pokud trham a
@@ -5663,8 +5701,8 @@ namespace Mariasek.Engine
                 {
                     simRounds[aiStrategy.RoundNumber - 1] = new Round(_g.players, trump, roundStarterIndex, c1, c2, c3, aiStrategy.RoundNumber);
                 }
-                _log.DebugFormat("{0}: {1}, {2}: {3}, {4}: {5}", _g.players[player1].Name, c1, _g.players[player2].Name, c2, _g.players[player3].Name, c3);
-                _log.DebugFormat("Simulation round {2} won by {0}. Points won: {1}", _g.players[roundWinnerIndex].Name, roundScore, aiStrategy.RoundNumber);
+                _log.TraceFormat("{0}: {1}, {2}: {3}, {4}: {5}", _g.players[player1].Name, c1, _g.players[player2].Name, c2, _g.players[player3].Name, c3);
+                _log.TraceFormat("Simulation round {2} won by {0}. Points won: {1}", _g.players[roundWinnerIndex].Name, roundScore, aiStrategy.RoundNumber);
                 if (firstTime)
                 {
                     result.CardToPlay = c3;

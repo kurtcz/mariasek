@@ -1751,27 +1751,63 @@ namespace Mariasek.Engine
 
             //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
             //druhy hrac priznal barvu, sel vejs, ale nehral desitku ani eso, tak
-            //pokud jsem zacinal ja, ma desitku pravdepodobne treti hrac
-            //pokud jsem nezacinal ja, ma desitku pravdepodobne akter
+            //pokud jsem zacinal ja, ma desitku a vsechny nizke karty pravdepodobne treti hrac
+            //pokud jsem nezacinal ja, ma desitku a vsechny nizke karty pravdepodobne akter
             if (_trump.HasValue &&
                 c1.Suit != _trump &&
                 c1.Suit == c2.Suit &&
                 c2.Value > c1.Value &&
                 c2.Value != Hodnota.Desitka &&
                 c2.Value != Hodnota.Eso &&
-                _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] > 0 &&
-                _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] < 1 &&
+                !gameWinningRound &&
+                //_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] > 0 &&
+                //_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] < 1 &&
                 roundStarterIndex == _gameStarterIndex)
             {
-                _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] = epsilon;
+                if (_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] > 0 &&
+                    _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] < 1)
+                {
+                    _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] = epsilon;
+                }
+                foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                      .Where(h => h < c2.Value &&
+                                                  _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] > 0 &&
+                                                  _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] < 1))
+                {
+                    _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] = epsilon;
+                }
                 if (_myIndex == roundStarterIndex)
                 {
-					_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] = 1 - epsilon;
+                    if (_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] > 0 &&
+                        _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] < 1)
+                    {
+                        _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] = 1 - epsilon;
+                    }
+                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                          .Where(h => h < c2.Value &&
+                                                      _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][h] > 0 &&
+                                                      _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][h] < 1))
+                    {
+                        _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][h] = 1 - epsilon;
+                    }
 				}
                 else
                 {
-					_cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] = 1 - epsilon;
-				}
+                    if (_cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] > 0 &&
+                        _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] < 1)
+
+                    {
+                        _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] = 1 - epsilon;
+                    }
+                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                          .Where(h => h < c2.Value &&
+                                                      _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] > 0 &&
+                                                      _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] < 1))
+                    {
+                        _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] = 0.5f;
+                        _cardProbabilityForPlayer[talonIndex][c1.Suit][h] = 0.5f;
+                    }
+                }
             }
 
             //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
@@ -1815,30 +1851,65 @@ namespace Mariasek.Engine
             //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
             //druhy hrac priznal barvu, sel vejs, ale nehral eso a
             //vim, ze nikdo nema desitku, tak
-            //pokud jsem zacinal ja, ma eso pravdepodobne treti hrac
-            //pokud jsem nezacinal ja, ma eso pravdepodobne akter
+            //pokud jsem zacinal ja, ma eso a male karty pravdepodobne treti hrac
+            //pokud jsem nezacinal ja, ma eso a male karty pravdepodobne akter
             if (_trump.HasValue &&
 				c1.Suit != _trump &&
 				c1.Suit == c2.Suit &&
 				c2.Value > c1.Value &&
 				c2.Value != Hodnota.Eso &&
+                !gameWinningRound &&
                 _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] == 0 &&
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] == 0 &&
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] == 0 &&
-				_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Eso] > 0 &&
-				_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Eso] < 1 &&
+				//_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Eso] > 0 &&
+				//_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Eso] < 1 &&
 				roundStarterIndex == _gameStarterIndex)
 			{
-				_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Eso] = epsilon;
+                if (_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Eso] > 0 &&
+                    _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Eso] < 1)
+                {
+                    _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Eso] = epsilon;
+                }
+                foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                      .Where(h => h < c2.Value &&
+                                                  _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] > 0 &&
+                                                  _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] < 1))
+                {
+                    _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] = epsilon;
+                }
                 if (_myIndex == roundStarterIndex)
                 {
-					_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Eso] = 1 - epsilon;
-				}
+                    if (_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Eso] > 0 &&
+                        _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Eso] < 1)
+                    {
+                        _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Eso] = 1 - epsilon;
+                    }
+                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                          .Where(h => h < c2.Value &&
+                                                      _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][h] > 0 &&
+                                                      _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][h] < 1))
+                    {
+                        _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][h] = 1 - epsilon;
+                    }
+                }
                 else
                 {
-					_cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Eso] = 1 - epsilon;
-				}
-			}
+                    if (_cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Eso] > 0 &&
+                        _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Eso] < 1)
+                    {
+                        _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Eso] = 1 - epsilon;
+                    }
+                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                          .Where(h => h < c2.Value &&
+                                                      _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] > 0 &&
+                                                      _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] < 1))
+                    {
+                        _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] = 0.5f;
+                        _cardProbabilityForPlayer[talonIndex][c1.Suit][h] = 0.5f;
+                    }
+                }
+            }
             //pokud hrajeme v barve, zacinal akter a
             //druhy hrac nesel vejs, ale hral desitkou nebo esem
             //tak pravdepodobne uz v dane barve nema zadne nizke karty
@@ -1941,20 +2012,55 @@ namespace Mariasek.Engine
                 (c3.Value > c1.Value ||
                  (c1.Suit == c2.Suit &&
                   c2.Value > c1.Value)) &&
+                !gameWinningRound &&
                 c3.Value != Hodnota.Desitka &&
-                c3.Value != Hodnota.Eso &&
-                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] > 0 &&
-                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] < 1)
+                c3.Value != Hodnota.Eso) //&&
+                //_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] > 0 &&
+                //_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] < 1)
             {
-                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] = epsilon;
+                if (_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] > 0 &&
+                    _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] < 1)
+                {
+                    _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] = epsilon;
+                }
+                foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                      .Where(h => h < c3.Value &&
+                                                  _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][h] > 0 &&
+                                                  _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][h] < 1))
+                {
+                    _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][h] = epsilon;
+                }
                 if (_myIndex == roundStarterIndex)
                 {
-                    _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] = 1 - epsilon;
-				}
+                    if (_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] > 0 &&
+                        _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] < 1)
+                    {
+                        _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] = 1 - epsilon;
+                    }
+                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                          .Where(h => h < c3.Value &&
+                                                      _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][h] > 0 &&
+                                                      _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][h] < 1))
+                    {
+                        _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][h] = 1 - epsilon;
+                    }
+                }
                 else
                 {
-					_cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] = 1 - epsilon;
-				}
+                    if (_cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] > 0 &&
+                        _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] < 1)
+                    {
+                        _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] = 1 - epsilon;
+                    }
+                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                          .Where(h => h < c3.Value &&
+                                                      _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][h] > 0 &&
+                                                      _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][h] < 1))
+                    {
+                        _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][h] = 0.5f;
+                        _cardProbabilityForPlayer[talonIndex][c3.Suit][h] = 0.5f;
+                    }
+                }
             }
 
             //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
@@ -2006,22 +2112,57 @@ namespace Mariasek.Engine
 				c1.Suit == c3.Suit &&
 				c3.Value > c1.Value &&
 				c3.Value != Hodnota.Eso &&
+                !gameWinningRound &&
                 _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] == 0 &&
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] == 0 &&
-                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] == 0 &&
-				_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Eso] > 0 &&
-				_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Eso] < 1)
+                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] == 0) //&&
+				//_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Eso] > 0 &&
+				//_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Eso] < 1)
 			{
-				_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Eso] = epsilon;
+                if (_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Eso] > 0 &&
+                    _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Eso] < 1)
+                {
+                    _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Eso] = epsilon;
+                }
+                foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                      .Where(h => h < c3.Value &&
+                                                  _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][h] > 0 &&
+                                                  _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][h] < 1))
+                {
+                    _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][h] = epsilon;
+                }
                 if (_myIndex == roundStarterIndex)
                 {
-					_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Eso] = 1 - epsilon;
-				}
+                    if (_cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Eso] > 0 &&
+                        _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Eso] < 1)
+                    {
+                        _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Eso] = 1 - epsilon;
+                    }
+                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                          .Where(h => h < c3.Value &&
+                                                      _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][h] > 0 &&
+                                                      _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][h] < 1))
+                    {
+                        _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][h] = 1 - epsilon;
+                    }
+                }
                 else
                 {
-					_cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Eso] = 1 - epsilon;
-				}
-			}
+                    if (_cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Eso] > 0 &&
+                        _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Eso] < 1)
+                    {
+                        _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Eso] = 1 - epsilon;
+                    }
+                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                          .Where(h => h < c3.Value &&
+                                                      _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][h] > 0 &&
+                                                      _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][h] < 1))
+                    {
+                        _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][h] = 0.5f;
+                        _cardProbabilityForPlayer[talonIndex][c3.Suit][h] = 0.5f;
+                    }
+                }
+            }
             //pokud hrajeme v barve, zacinal akter a
             //druhy hrac (ja) jsem hral trumf a kolega
             //priznal akterovu barvu ale nehral desitku ani eso, tak ma akter pravdepodobne desitku (o esu nic nevim)
