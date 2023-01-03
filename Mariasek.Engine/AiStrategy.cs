@@ -8375,7 +8375,7 @@ namespace Mariasek.Engine
                     var holesPerSuit = new Dictionary<Barva, int>();
                     var hiCardsPerSuit = new Dictionary<Barva, int>();
                     var catchCardsPerSuit = new Dictionary<Barva, int>();
-
+                    
                     if (TeamMateIndex == -1)
                     {
                         //--c
