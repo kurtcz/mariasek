@@ -892,14 +892,7 @@ namespace Mariasek.Engine
                     if (//TeamMateIndex == -1 &&
                         RoundNumber <= 5)
                     {
-                        if (TeamMateIndex == -1 &&
-                            (_gameType & Hra.Kilo) == 0 &&
-                            myInitialHand.CardCount(_trump) > 0 &&
-                            myInitialHand.CardCount(_trump) <= 4)
-                        {
-                            return null;
-                        }
-                        //pokuud mas vsechny trumfy vyjma desitky, tak pravidlo nehraj a radsi vytahni trumfovou X
+                        //pokud mas vsechny trumfy vyjma desitky, tak pravidlo nehraj a radsi vytahni trumfovou X
                         if (hands[MyIndex].HasA(_trump) &&
                             _probabilities.PotentialCards(player2).CardCount(_trump) <= 1 &&
                             _probabilities.PotentialCards(player3).CardCount(_trump) <= 1 &&
@@ -925,6 +918,14 @@ namespace Mariasek.Engine
                         var lowCards = hands[MyIndex].Where(i => holesPerSuit[i.Suit].Any(j => j.Value > i.Value))
                                                      .ToList();
 
+                        if (TeamMateIndex == -1 &&
+                            (_gameType & Hra.Kilo) == 0 &&
+                            myInitialHand.CardCount(_trump) > 0 &&
+                            myInitialHand.CardCount(_trump) <= 4 &&
+                            lowCards.Count > 2)
+                        {
+                            return null;
+                        }
                         //pokud nemas v bocnich kartach neodstranitelnou diru, tak pravidlo nehraj
                         if (!Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                  .Where(b => hands[MyIndex].HasSuit(b) &&
@@ -952,12 +953,12 @@ namespace Mariasek.Engine
 
                         //pokud ti zbyva jen jedna nizka karta a mas dost vysokych trumfu, tak pravidlo nehraj a radsi vytahni trumfy
                         //nizkou kartu si nech na predposledni stych
-                        if (lowCards.Count == 1 &&
-                            myInitialHand.CardCount(_trump) >= 5 &&
-                            topCards.CardCount(_trump) >= holesPerSuit[_trump].Count)
-                        {
-                            return null;
-                        }
+                        //if (lowCards.Count == 1 &&
+                        //    myInitialHand.CardCount(_trump) >= 5 &&
+                        //    topCards.CardCount(_trump) >= holesPerSuit[_trump].Count)
+                        //{
+                        //    return null;
+                        //}
                         if (myInitialHand.CardCount(_trump) >= 4 &&
                             lowCards.Any() &&
                             (topCards.Count >= 4 ||
@@ -1055,13 +1056,25 @@ namespace Mariasek.Engine
                                                                     .ToList();
                         }
                     }
+                    //nejdrive zkusime nizke karty kde mam A a X, tim zustane teoreticka sance,
+                    //ze v dalsim stychu budu hrat nizkou kartu kde A,X nemam a souperi si nenamazou nebo si namazou mene
+                    if (cardsToPlay.Any(i => hands[MyIndex].HasA(i.Suit) &&
+                                             hands[MyIndex].HasX(i.Suit)))
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => hands[MyIndex].HasA(i.Suit) &&
+                                                             hands[MyIndex].HasX(i.Suit))
+                                                 .ToList();
+                    }
+                    //potom delam stejnou uvahu pro karty kde mam A ale ne X
+                    else if (cardsToPlay.Any(i => hands[MyIndex].HasA(i.Suit)))
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => hands[MyIndex].HasA(i.Suit))
+                                                 .ToList();
+                    }
 
                     return cardsToPlay.OrderBy(i => myInitialHand.CardCount(_trump) >= 5
                                                     ? hands[MyIndex].CardCount(i.Suit)
                                                     : 0)
-                                      .ThenBy(i => hands[MyIndex].HasA(i.Suit) &&
-                                                    !myInitialHand.HasX(i.Suit)
-                                                    ? 1 : 0)
                                       .ThenByDescending(i => cardsToPlay.CardCount(i.Suit))
                                       .ThenBy(i => hands[MyIndex].CardCount(i.Suit))
                                       .ThenBy(i => i.Value)
@@ -1349,22 +1362,6 @@ namespace Mariasek.Engine
                         {
                             return null;
                         }
-                        if (hands[MyIndex].Any(i => i.Value == Hodnota.Desitka &&
-                                                     myInitialHand.CardCount(i.Suit) == 1) &&
-                            !((_gameType & Hra.Kilo) != 0 &&
-                               hands[MyIndex].HasA(_trump) &&
-                               myInitialHand.HasX(_trump) &&
-                               myInitialHand.HasK(_trump) &&
-                               myInitialHand.HasQ(_trump) &&
-                               myInitialHand.CardCount(_trump) == 4 &&
-                               Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                   .Any(b => b != _trump &&
-                                             hands[MyIndex].HasA(b) &&
-                                             _probabilities.SuitProbability(player2, b, RoundNumber) > 0 &&
-                                             _probabilities.SuitProbability(player3, b, RoundNumber) > 0)))
-                        {
-                            return null;
-                        }
                         var topCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                       .Where(h => h > i.Value)
                                                                       .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0 &&
@@ -1381,6 +1378,24 @@ namespace Mariasek.Engine
                                                                                 _probabilities.CardProbability(player3, new Card(i.Suit, h)) > _epsilon)))
                                                      .ToList();
 
+                        if (hands[MyIndex].Any(i => i.Value == Hodnota.Desitka &&
+                                                    myInitialHand.CardCount(i.Suit) == 1) &&
+                            !(lowCards.Count == 1 &&
+                              topTrumps.Count >= opponentCards.CardCount(_trump)) &&
+                            !((_gameType & Hra.Kilo) != 0 &&
+                               hands[MyIndex].HasA(_trump) &&
+                               myInitialHand.HasX(_trump) &&
+                               myInitialHand.HasK(_trump) &&
+                               myInitialHand.HasQ(_trump) &&
+                               myInitialHand.CardCount(_trump) == 4 &&
+                               Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                   .Any(b => b != _trump &&
+                                             hands[MyIndex].HasA(b) &&
+                                             _probabilities.SuitProbability(player2, b, RoundNumber) > 0 &&
+                                             _probabilities.SuitProbability(player3, b, RoundNumber) > 0)))
+                        {
+                            return null;
+                        }
                         if (SevenValue >= GameValue &&
                             //(_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
                             //(_gameType & (Hra.Kilo | Hra.KiloProti)) == 0 &&
@@ -1417,8 +1432,8 @@ namespace Mariasek.Engine
                         //    .All(b => topCards.Any(i => i.Suit == b)))
                         {
                             return ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump)
-                                                              .OrderByDescending(i => i.Value)
-                                                              .FirstOrDefault();
+                                                             .OrderByDescending(i => i.Value)
+                                                             .FirstOrDefault();
                         }
                         var longSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                             .Where(b => b != _trump &&
@@ -1518,7 +1533,8 @@ namespace Mariasek.Engine
                                                                         .Where(h => h > i.Value)
                                                                         .Any(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) <= _epsilon &&
                                                                                   _probabilities.CardProbability(player3, new Card(i.Suit, h)) <= _epsilon)) &&
-                             lowCards.Count() < hands[MyIndex].CardCount(_trump)))))
+                              hands[MyIndex].CardCount(_trump) > opponentCards.CardCount(_trump) &&
+                              lowCards.Count() < hands[MyIndex].CardCount(_trump)))))
                         {
                             //nehraj trumfove eso, pokud maji souperi desitku ktera neni plonkova. Souperi by si mohli pozdeji zbytecne mazat.
                             if (topTrumps.Any(i => i.Value == Hodnota.Eso) &&
@@ -1733,6 +1749,47 @@ namespace Mariasek.Engine
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = Enumerable.Empty<Card>();
+                    
+                    if (hands[MyIndex].Any(i => i.Value == Hodnota.Desitka &&   //mas-li plonkovou X tak pravidlo nehraj
+                                                myInitialHand.CardCount(i.Suit) == 1) &&
+                        !((_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&    //neplati pri sedme pokud mas dost trumfu
+                          myInitialHand.Has7(_trump) &&                         //a netrumfy souperi maji a nejde jima tlacit trumf
+                          (myInitialHand.CardCount(_trump) >= 6 ||              //tak zkus vytlacit trumf trumfem
+                           (myInitialHand.CardCount(_trump) >= 5 &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => b != _trump &&
+                                            myInitialHand.HasSuit(b))
+                                .All(b => myInitialHand.CardCount(b) <= 3))) &&
+                          (_probabilities.PotentialCards(player2)
+                                         .HasSuit(_trump) ||
+                           _probabilities.PotentialCards(player3)
+                                         .HasSuit(_trump)) &&
+                          hands[MyIndex].CardCount(_trump) >
+                          _probabilities.PotentialCards(player2).Union(_probabilities.PotentialCards(player3))
+                                        .Distinct()
+                                        .CardCount(_trump) + 1 &&
+                          (TeamMateIndex != -1 ||
+                            hands[MyIndex].All(i => i.Suit == _trump ||
+                                                    (i.Value == Hodnota.Desitka &&
+                                                     hands[MyIndex].CardCount(i.Suit) == 1) ||
+                                                    (_probabilities.CertainCards(player2).HasSuit(i.Suit) &&
+                                                     !_probabilities.PotentialCards(player3).HasSuit(_trump)) ||
+                                                    (_probabilities.CertainCards(player3).HasSuit(i.Suit) &&
+                                                     !_probabilities.PotentialCards(player2).HasSuit(_trump))))) &&
+                        !((_gameType & Hra.Kilo) != 0 &&
+                           hands[MyIndex].HasA(_trump) &&
+                           myInitialHand.HasX(_trump) &&
+                           myInitialHand.HasK(_trump) &&
+                           myInitialHand.HasQ(_trump) &&
+                           myInitialHand.CardCount(_trump) == 4 &&
+                           Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                               .Any(b => b != _trump &&
+                                         hands[MyIndex].HasA(b) &&
+                                         _probabilities.SuitProbability(player2, b, RoundNumber) > 0 &&
+                                         _probabilities.SuitProbability(player3, b, RoundNumber) > 0)))
+                    {
+                        return null;
+                    }
 
                     //proti kilu zkus vytlacit netrumfovou hlasku pokud se hraje kilo na prvni hlas
                     var opponent = TeamMateIndex == player2 ? player3 : player2;
@@ -1785,15 +1842,21 @@ namespace Mariasek.Engine
                                                       i.Value >= Hodnota.Kral) >= 1 &&
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump)
-                                .Any(b => hands[MyIndex].CardCount(b) + hands[talonIndex].CardCount(b) >= 4 &&
+                                .Any(b => myInitialHand.CardCount(b) + hands[talonIndex].CardCount(b) >= 4 &&
                                           myInitialHand.HasA(b)))
                         {
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                 i.Value < Hodnota.Desitka &&
-                                                                                hands[MyIndex].CardCount(i.Suit) +
+                                                                                myInitialHand.CardCount(i.Suit) +
                                                                                 hands[talonIndex].CardCount(i.Suit) >= 4 &&
                                                                                 myInitialHand.HasA(i.Suit) &&
-                                                                                !hands[MyIndex].HasA(i.Suit));
+                                                                                !hands[MyIndex].HasA(i.Suit) &&
+                                                                                !((!_probabilities.PotentialCards(player2).HasSuit(_trump) &&
+                                                                                   !_probabilities.PotentialCards(player2).HasSuit(i.Suit) &&
+                                                                                   _probabilities.CertainCards(player3).HasSuit(i.Suit)) ||
+                                                                                  (!_probabilities.PotentialCards(player3).HasSuit(_trump) &&
+                                                                                   !_probabilities.PotentialCards(player3).HasSuit(i.Suit) &&
+                                                                                   _probabilities.CertainCards(player2).HasSuit(i.Suit))));
                             
                             return cardsToPlay.OrderByDescending(i => myInitialHand.CardCount(i.Suit))
                                               .ThenByDescending(i => i.Value)
@@ -1837,7 +1900,25 @@ namespace Mariasek.Engine
                              _probabilities.PotentialCards(player3).HasX(_trump)) &&
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump)
-                                .All(b => hands[MyIndex].CardCount(b) <= 4) &&
+                                .All(b => hands[MyIndex].CardCount(b) < 4 ||
+                                          (hands[MyIndex].CardCount(b) == 4 &&
+                                           !hands[MyIndex].HasA(b))) &&
+                            !hands[MyIndex].Any(i => i.Suit != _trump &&    //nehraj pravidlo pokud muzes tlacit trumf ze soupere bocni barvou
+                                                     i.Value < Hodnota.Desitka &&
+                                                     ((!_probabilities.PotentialCards(player2).HasSuit(i.Suit) &&
+                                                       _probabilities.PotentialCards(player2).HasSuit(_trump)) ||
+                                                      (!_probabilities.PotentialCards(player3).HasSuit(i.Suit) &&
+                                                       _probabilities.PotentialCards(player3).HasSuit(_trump)))))
+                        {
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&
+                                                                                i.Value < Hodnota.Desitka);
+                        }
+                        if (!cardsToPlay.Any() &&
+                            (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
+                            hands[MyIndex].CardCount(_trump) <= opponentTrumps.Count &&
+                            !Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                 .Where(b => b != _trump)
+                                 .Any(b => myInitialHand.CardCount(b) >= 4) &&
                             !hands[MyIndex].Any(i => i.Suit != _trump &&    //nehraj pravidlo pokud muzes tlacit trumf ze soupere bocni barvou
                                                      i.Value < Hodnota.Desitka &&
                                                      ((!_probabilities.PotentialCards(player2).HasSuit(i.Suit) &&
@@ -1850,7 +1931,8 @@ namespace Mariasek.Engine
                         }
                         //pokud mas dost trumfu a na ruce jen trumfy a nejvyssi karty, tak vytlac nejprve trumfy ze souperu a
                         //vysoke karty setri na pozdeji
-                        if (hands[MyIndex].CardCount(_trump) >= opponentTrumps.Count &&
+                        if (!cardsToPlay.Any() &&
+                            hands[MyIndex].CardCount(_trump) >= opponentTrumps.Count &&
                             (!Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                     .Where(b => hands[MyIndex].HasSuit(b) &&
                                                 b != _trump)
@@ -1861,7 +1943,11 @@ namespace Mariasek.Engine
                                                        _probabilities.PotentialCards(player2).HasSuit(_trump)) ||
                                                       (!_probabilities.PotentialCards(player3).HasSuit(i.Suit) &&
                                                        _probabilities.PotentialCards(player3).HasSuit(_trump)))) &&
-                            (SevenValue < GameValue ||
+                            ((SevenValue < GameValue &&
+                              (hands[MyIndex].CardCount(_trump) > opponentTrumps.Count ||
+                               (hands[MyIndex].CardCount(_trump) == opponentTrumps.Count &&
+                                _probabilities.PotentialCards(player2).HasSuit(_trump) &&
+                                _probabilities.PotentialCards(player3).HasSuit(_trump)))) ||
                              hands[MyIndex].CardCount(_trump) > opponentTrumps.Count + 1))
                         {
                             if (topCards.HasSuit(_trump))
@@ -2633,7 +2719,11 @@ namespace Mariasek.Engine
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
                                                                                 i.Suit == _trump &&
                                                                                 (_probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) > 0 ||
-                                                                                 _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) > 0));
+                                                                                 _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) > 0 ||
+                                                                                 Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                                                     .Where(b => b != _trump &&
+                                                                                                 hands[MyIndex].HasSuit(b))
+                                                                                     .All(b => hands[MyIndex].HasA(b))));
                         }
 
                         if (cardsToPlay.Any(i => _probabilities.CardProbability(TeamMateIndex, new Card(i.Suit, Hodnota.Desitka)) == 0))
@@ -2760,7 +2850,11 @@ namespace Mariasek.Engine
                             .Where(b => b != _trump &&
                                         hands[MyIndex].HasSuit(b))
                             .Any(b => myInitialHand.CardCount(b) >= 4 &&
-                                      myPlayedCards.HasA(b)))
+                                      myPlayedCards.HasA(b) &&
+                                      !((_probabilities.CertainCards(player2).HasSuit(b) &&          //neplati pokud jeden souper barvu zna 
+                                         !_probabilities.PotentialCards(player3).HasSuit(_trump)) || //a druhy nema trumfy
+                                        (_probabilities.CertainCards(player3).HasSuit(b) &&
+                                         !_probabilities.PotentialCards(player2).HasSuit(_trump)))))
                     {
                         return null;
                     }
@@ -2839,10 +2933,11 @@ namespace Mariasek.Engine
                     {
                         return null;
                     }
-                    //nehraj pokud mas hodne trumfu (neplati pri sedme na 5 karet bez esa, tehdy se pokusime uhrat netrumfove eso nebo desitku)
+                    //nehraj pokud mas hodne trumfu (neplati pri sedme na 5 karet bez esa nebo desitky, tehdy se pokusime uhrat netrumfove eso nebo desitku)
                     if ((hands[MyIndex].CardCount(_trump) >= 5 &&
                         !(SevenValue >= GameValue &&
-                          !hands[MyIndex].HasA(_trump) &&
+                          (!hands[MyIndex].HasA(_trump) ||
+                           !hands[MyIndex].HasX(_trump)) &&
                           hands[MyIndex].CardCount(Hodnota.Eso) +
                           hands[MyIndex].Where(i => i.Suit != _trump)
                                         .CardCount(Hodnota.Desitka) >= 1)) ||
@@ -2851,8 +2946,13 @@ namespace Mariasek.Engine
                          SevenValue < GameValue &&
                          hands[MyIndex].CardCount(_trump) >= 2 &&
                          hands[MyIndex].HasA(_trump) &&
-                         !Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                              .All(b => myInitialHand.HasA(b))))
+                         myInitialHand.CardCount(Hodnota.Eso) <= 2) &&    //pokud mas na zacatku 3 a vice es, tak zkus nejake uhrat
+                         !(hands[MyIndex].SuitCount == Game.NumPlayers &&
+                           hands[MyIndex].Any(i => i.Suit != _trump &&     //pokud mas v bocni barve AX a max 4 karty, tak zkus neco uhrat
+                                                  i.Value >= Hodnota.Desitka &&
+                                                  myInitialHand.HasA(i.Suit) &&
+                                                  myInitialHand.HasX(i.Suit) &&
+                                                  myInitialHand.CardCount(i.Suit) <= 4)))
                     {
                         return null;
                     }
@@ -3078,7 +3178,9 @@ namespace Mariasek.Engine
                             !Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                  .Where(b => b != _trump)
                                  .Any(b => hands[MyIndex].HasX(b) &&
-                                           hands[MyIndex].CardCount(b) > 1 &&
+                                           (hands[MyIndex].HasK(b) ||
+                                            (hands[MyIndex].HasQ(b) &&
+                                             hands[MyIndex].HasJ(b))) &&
                                            opponentPotentialCards.HasA(b)))
                         {
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
@@ -3113,17 +3215,7 @@ namespace Mariasek.Engine
                                 .Any(b => (_probabilities.SuitProbability(player2, b, RoundNumber) > 0 ||
                                            _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&
                                           (_probabilities.SuitProbability(player3, b, RoundNumber) > 0 ||
-                                           _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) //&&
-                                    ))
-                                          //opponentPotentialCards.Where(i => i.Suit == b)
-                                          //                      .Count() >= 2 &&
-                                          //opponentPotentialCards.Where(i => i.Suit == b)
-                                          //                      .Count() <= (hands[MyIndex].HasA(b) ? 1 : 0) +
-                                          //                                  (hands[MyIndex].HasX(b) &&
-                                          //                                   _probabilities.CardProbability(player2, new Card(b, Hodnota.Eso)) == 0 &&
-                                          //                                   _probabilities.CardProbability(player3, new Card(b, Hodnota.Eso)) == 0 ? 1 : 0) +
-                                          //                                  (_probabilities.SuitProbability(player2, b, RoundNumber) > 0 &&
-                                          //                                   _probabilities.SuitProbability(player3, b, RoundNumber) > 0 ? 2 : 0)))
+                                           _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0)))
                         {
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                 i.Value >= Hodnota.Desitka &&
@@ -3131,6 +3223,7 @@ namespace Mariasek.Engine
                                                                                  (hands[MyIndex].CardCount(i.Suit) > 1 ||
                                                                                   hands[MyIndex].All(j => j.Suit == _trump ||
                                                                                                           j.Value >= Hodnota.Desitka))) &&
+                                                                                myInitialHand.CardCount(i.Suit) <= 5 &&
                                                                                 _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0 &&
                                                                                 _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0 &&
                                                                                 (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0 ||
@@ -3139,17 +3232,7 @@ namespace Mariasek.Engine
                                                                                  _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
                                                                                 (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0 ||
                                                                                  _probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0 ||
-                                                                                 opponentPotentialCards.CardCount(i.Suit) > 1)
-                                                                          )
-                                                                                //opponentPotentialCards.Where(j => j.Suit == i.Suit)
-                                                                                //                      .Count() >= 2 &&
-                                                                                //opponentPotentialCards.Where(j => j.Suit == i.Suit)
-                                                                                //                      .Count() <= (hands[MyIndex].HasA(i.Suit) ? 1 : 0) +
-                                                                                //                                  (hands[MyIndex].HasX(i.Suit) &&
-                                                                                //                                   _probabilities.CardProbability(player2, new Card(i.Suit, Hodnota.Eso)) == 0 &&
-                                                                                //                                   _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0 ? 1 : 0) +
-                                                                                //                                  (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0 &&
-                                                                                //                                   _probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 ? 2 : 0))
+                                                                                 opponentPotentialCards.CardCount(i.Suit) > 1))
                                                                     .ToList();
                             //pokud to jde pokracuj v puvodni barve od esa desitkou
                             if (cardsToPlay.Any(i => i.Value == Hodnota.Desitka &&
@@ -3211,6 +3294,7 @@ namespace Mariasek.Engine
 
                         //TODO: hrat treba jen jednu ostrou kartu pokud jsem na zacatku mel 3 nebo 4 karty v barve?
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                            myInitialHand.CardCount(i.Suit) <= 5 &&
                                                                             ((i.Value == Hodnota.Eso &&
                                                                               (hands[MyIndex].CardCount(i.Suit) > 1 ||
                                                                                hands[MyIndex].All(j => j.Suit == _trump ||
@@ -3230,15 +3314,20 @@ namespace Mariasek.Engine
                                                                                                                       .Select(h => new Card(_trump, h))
                                                                                                                       .Count(j => _probabilities.PotentialCards(player2).Contains(j) ||
                                                                                                                                   _probabilities.PotentialCards(player3).Contains(j)) &&
-                                                                              (myInitialHand.CardCount(_trump) <= 4 ||
-                                                                               !myInitialHand.HasA(_trump)) &&
+                                                                              (myInitialHand.CardCount(_trump) <= 2 ||
+                                                                               (myInitialHand.CardCount(_trump) <= 3 &&
+                                                                                !myInitialHand.HasA(_trump)) ||
+                                                                               (myInitialHand.CardCount(_trump) <= 4 &&
+                                                                                (_gameType & Hra.Sedma) != 0 &&
+                                                                                !myInitialHand.HasA(_trump))) &&
                                                                               _probabilities.PotentialCards(player2).HasSuit(i.Suit) &&
                                                                               _probabilities.PotentialCards(player3).HasSuit(i.Suit) &&
-                                                                              _probabilities.PotentialCards(player2).Union(_probabilities.PotentialCards(player3))
-                                                                                            .Distinct().CardCount(i.Suit) >= 2) || //jinak se rid risk faktorem
-                                                                            ((_probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor ||
+                                                                              opponentPotentialCards.CardCount(i.Suit) >= 2) || //jinak se rid risk faktorem
+                                                                            (((_probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor &&
+                                                                               !_probabilities.UnlikelyCards(player2).HasSuit(i.Suit)) ||
                                                                               _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&
-                                                                             (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor ||
+                                                                             ((_probabilities.SuitProbability(player3, i.Suit, RoundNumber) >= 1 - RiskFactor &&
+                                                                               !_probabilities.UnlikelyCards(player3).HasSuit(i.Suit)) ||
                                                                               _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
                                                                              (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0 ||
                                                                               _probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0 ||
@@ -4120,18 +4209,17 @@ namespace Mariasek.Engine
                           (hands[MyIndex].SuitCount < Game.NumSuits ||     //neodmazavej trumf pokud znas vsechny barvy a nehrajes kilo
                            (_gameType & Hra.Kilo) != 0))) &&
                         hands[MyIndex].CardCount(_trump) <= 2 &&
-                        (_gameType & Hra.Kilo) != 0 &&
                         Enum.GetValues(typeof(Barva)).Cast<Barva>()
                             .Where(b => b != _trump &&
                                         hands[MyIndex].HasSuit(b))
                             .Any(b => hands[MyIndex].HasA(b) ||
                                       hands[MyIndex].HasX(b)) &&
                         !(hands[MyIndex].Any(i => i.Suit != _trump &&    //neodmazavej pokud muzes ze soupere vytlacit trumf necim jinym
-                                                         i.Value < Hodnota.Desitka &&
-                                                         !_probabilities.PotentialCards(TeamMateIndex).HasA(i.Suit) &&
-                                                         !_probabilities.PotentialCards(TeamMateIndex).HasX(i.Suit) &&
-                                                         !_probabilities.PotentialCards(opponent).HasSuit(i.Suit) &&
-                                                         _probabilities.PotentialCards(opponent).HasSuit(_trump))))
+                                                  i.Value < Hodnota.Desitka &&
+                                                  !_probabilities.PotentialCards(TeamMateIndex).HasA(i.Suit) &&
+                                                  !_probabilities.PotentialCards(TeamMateIndex).HasX(i.Suit) &&
+                                                  !_probabilities.PotentialCards(opponent).HasSuit(i.Suit) &&
+                                                  _probabilities.PotentialCards(opponent).HasSuit(_trump))))
                     {
                         var cardToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&
                                                                                i.Value < Hodnota.Desitka &&
@@ -4172,7 +4260,11 @@ namespace Mariasek.Engine
                         }
                         //odmazat si barvu pokud mam trumfy abych souperum mohl brat a,x
                         //pokud jsem volil sedmu tak si trumfy setrim
-                        if (TeamMateIndex == -1 && (_gameType & Hra.Sedma) == 0)
+                        if (TeamMateIndex == -1 &&
+                            (_gameType & Hra.Sedma) == 0 &&
+                            !Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                 .Where(b => b != _trump)
+                                 .Any(b => myInitialHand.CardCount(b) >= 4))
                         {
                             //c--
                             cardToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
@@ -4252,6 +4344,22 @@ namespace Mariasek.Engine
                                                                          .Where(i => _probabilities.CardProbability(opponentIndex, i) > _epsilon));
                             var opponentLoCards = opponentCards.Where(i => !hands[MyIndex].HasSuit(i.Suit) &&
                                                                            _probabilities.SuitHigherThanCardProbability(TeamMateIndex, i, RoundNumber) > 0);
+                            var teamMatePlayedCards = _rounds.Where(r => r != null && r.c3 != null)
+                                                             .Select(r =>
+                                                              {
+                                                                  if (r.player1.PlayerIndex == TeamMateIndex)
+                                                                  {
+                                                                      return r.c1;
+                                                                  }
+                                                                  else if (r.player2.PlayerIndex == TeamMateIndex)
+                                                                  {
+                                                                      return r.c2;
+                                                                  }
+                                                                  else
+                                                                  {
+                                                                      return r.c3;
+                                                                  }
+                                                              }).ToList();
 
                             //odmazat si trumf abych pozdeji mohl mazat 
                             //(musi existovat barva, kterou neznam a muj spoluhrac v ni doufejme ma vyssi karty nez akter)
@@ -4266,18 +4374,13 @@ namespace Mariasek.Engine
                                  hands[MyIndex].HasX(_trump) &&
                                  _probabilities.PotentialCards(opponent).HasA(_trump)) &&
                                GameValue > SevenValue &&
-                               PlayerBids[MyIndex] == 0 &&
                                (PlayerBids[TeamMateIndex] & Hra.Sedma) == 0 &&
-                               (TeamMateIndex == player3 ||
-                                (_gameType & Hra.Kilo) != 0 ||
-                                (hands[MyIndex].HasA(_trump) &&
-                                 RoundNumber >= 4)) &&
                                Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                    .Any(b => !hands[MyIndex].HasSuit(b) &&
+                                             teamMatePlayedCards.HasSuit(b) &&
                                              _probabilities.PotentialCards(TeamMateIndex).Any(i => i.Suit == b &&
-                                                                                                   i.Value >= Hodnota.Svrsek)) &&
-                               //((_gameType & Hra.Kilo) != 0 ||
-                               // _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) <= RiskFactor) &&
+                                                                                                   i.Value >= Hodnota.Svrsek) &&
+                                             _probabilities.PotentialCards(opponentIndex).CardCount(b) > 2) &&
                                opponentTrumps > 0 &&
                                //opponentTrumps <= 6 &&  //abych nehral trumfem hned ale az pozdeji
                                Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -4479,18 +4582,27 @@ namespace Mariasek.Engine
                     {
                         return null;
                     }
-                    //var topCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                    //                                             .Where(h => h > i.Value)
-                    //                                             .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0 &&
-                    //                                                       _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0))
-                    //                             .ToList();
-                    //if (TeamMateIndex != -1 &&
-                    //    Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                    //        .Where(b => hands[MyIndex].HasSuit(b))
-                    //        .All(b => topCards.HasSuit(b)))
-                    //{
-                    //    return null;
-                    //}
+                    var topCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                             .Where(h => h > i.Value)
+                                             .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0 &&
+                                                       _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0))
+                             .ToList();
+                    var holesPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                           .ToDictionary(k => k, v =>
+                                               Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                   .Select(h => new Card(v, h))
+                                                   .Where(i => _probabilities.CardProbability(player2, i) > 0 ||
+                                                               _probabilities.CardProbability(player3, i) > 0)
+                                                   .OrderBy(i => i.Value)
+                                                   .Skip(topCards.CardCount(v))
+                                                   .ToList());
+                    var lowCards = hands[MyIndex].Where(i => holesPerSuit[i.Suit].Any(j => j.Value > i.Value))
+                                                 .ToList();
+                    if (lowCards.Count == 1 &&
+                        !lowCards.HasSuit(_trump))
+                    {
+                        return null;
+                    }
                     //nehraj pravidlo pokud mas malo trumfu a nejaky esa, pokus se zustat ve stychu
                     if (TeamMateIndex == -1 &&
                         (_gameType & Hra.Kilo) == 0 &&
@@ -4499,7 +4611,9 @@ namespace Mariasek.Engine
                         myInitialHand.Count(i => i.Value == Hodnota.Eso &&
                                                  myInitialHand.CardCount(i.Suit) > 1) >= 2 && //jen pokud eso neni samotne (samotne eso neni dobre hrat)
                         hands[MyIndex].Any(i => i.Value == Hodnota.Eso &&
-                                                 hands[MyIndex].CardCount(i.Suit) > 1))
+                                                i.Suit != _trump &&
+                                                hands[MyIndex].CardCount(i.Suit) > 1 &&
+                                                hands[MyIndex].CardCount(i.Suit) < 6)) //pokud je barva hodne dlouha, hraj ji a tlac trumfy
                     {
                         return null;
                     }
@@ -4530,10 +4644,6 @@ namespace Mariasek.Engine
                     {
                         return null;
                     }
-                    var topCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                 .Where(h => h > i.Value)
-                                                                 .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0 &&
-                                                                           _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0));
                     //pokud mas same nejvyssi karty a trumfove eso bez desitky, tak pravidlo nehraj (zkus nejdriv vytahnout trumfy)
                     if (TeamMateIndex == -1 &&
                         hands[MyIndex].HasA(_trump) &&
@@ -4593,6 +4703,7 @@ namespace Mariasek.Engine
                               hands[MyIndex].CardCount(_trump) > 1) ||  //a dalsi karty pripadne hrat v ramci "hrat cokoli mimo A,X,trumf a dalsich"
                              (hands[MyIndex].CardCount(_trump) > 0)))   //to same pokud jsem volil, sedmu nehraju a uz nemam zadny trumf v ruce
                         {
+                            const int talonIndex = 3;
                             var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                             .OrderBy(b => hands[MyIndex].Count(i => i.Suit == b &&
                                                                                     (i.Value == Hodnota.Eso ||
@@ -4602,7 +4713,7 @@ namespace Mariasek.Engine
                                             .ThenBy(b => hands[MyIndex].CardCount(b))
                                             .Where(b => b != _trump &&
                                                         !_bannedSuits.Contains(b) &&
-                                                        myInitialHand.CardCount(b) > 3 &&
+                                                        myInitialHand.CardCount(b) + hands[talonIndex].CardCount(b) > 3 &&
                                                         ValidCards(hands[MyIndex]).Any(i => i.Suit == b &&
                                                                                             i.Value != Hodnota.Eso &&
                                                                                             i.Value != Hodnota.Desitka &&
@@ -4779,6 +4890,13 @@ namespace Mariasek.Engine
                 #region ChooseCard1 Rule13
                 ChooseCard1 = () =>
                 {
+                    if (TeamMateIndex == -1 &&
+                        RoundNumber < 9 &&
+                        (_gameType & Hra.Sedma) != 0 &&
+                              hands[MyIndex].CardCount(_trump) == 1)
+                    {
+                        return null;
+                    }
                     if ((TeamMateIndex == -1 &&
                          (((_gameType & Hra.Sedma) != 0 &&           //pokud jsem volil a hraju sedmu a mam ji jako posledni trumf, tak se pokusim uhrat A,X nize 
                            hands[MyIndex].CardCount(_trump) > 1) ||  //a dalsi karty pripadne hrat v ramci "hrat cokoli mimo A,X,trumf a dalsich"
@@ -4789,10 +4907,22 @@ namespace Mariasek.Engine
                            hands[MyIndex].CardCount(_trump) > 1) ||  //a dalsi karty pripadne hrat v ramci "hrat cokoli mimo A,X,trumf a dalsich"
                           (hands[MyIndex].CardCount(_trump) > 0))))  //to same pokud jsem volil, sedmu nehraju a uz nemam zadny trumf v ruce
                     {
-                        var topCards = hands[MyIndex].Count(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                        var topCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                      .Where(h => h > i.Value)
                                                                      .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0 &&
-                                                                               _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0));
+                                                                               _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0))
+                                                     .ToList();
+                        var holesPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                               .ToDictionary(k => k, v =>
+                                                   Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                       .Select(h => new Card(v, h))
+                                                       .Where(i => _probabilities.CardProbability(player2, i) > 0 ||
+                                                                   _probabilities.CardProbability(player3, i) > 0)
+                                                       .OrderBy(i => i.Value)
+                                                       .Skip(topCards.CardCount(v))
+                                                       .ToList());
+                        var lowCards = hands[MyIndex].Where(i => holesPerSuit[i.Suit].Any(j => j.Value > i.Value))
+                                                     .ToList();
                         var solitaryXs = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                              .Where(b => b != _trump &&
                                                          hands[MyIndex].HasSolitaryX(b) &&                                      //plonkova X
@@ -4815,9 +4945,11 @@ namespace Mariasek.Engine
                                                          .ToList();
                         var totalCards = 10 - RoundNumber + 1;
 
-                        if ((solitaryXs.Any() &&
-                             topCards == totalCards - solitaryXs.Count) ||
-                            (_gameType & Hra.Kilo) != 0)
+                        if (solitaryXs.Any() &&
+                            (topCards.Count == totalCards - solitaryXs.Count ||
+                             (lowCards.Count == 1 &&
+                              !lowCards.HasSuit(_trump)) ||
+                            (_gameType & Hra.Kilo) != 0))
                         {
                             if (prefSolitaryXs.Any())
                             {
@@ -6009,6 +6141,15 @@ namespace Mariasek.Engine
                         {
                             return null;
                         }
+                        //pokud muzes hrat viteznou desitku, tak pravidlo nehraj
+                        if (TeamMateIndex == player3 &&
+                            ValidCards(c1, hands[MyIndex]).Count > 1 &&
+                            ValidCards(c1, hands[MyIndex]).Any(i => i.Value == Hodnota.Desitka &&
+                                                                    !c1.IsHigherThan(i, _trump) &&
+                                                                    _probabilities.PotentialCards(player1).HasA(i.Suit)))
+                        {
+                            return null;
+                        }
                         //pri kilu pravidlo nehraj (pokusime se namazat, pokud je co)
                         if (TeamMateIndex != -1 &&
                             (_gameType & Hra.Kilo) != 0)
@@ -6660,17 +6801,6 @@ namespace Mariasek.Engine
                 SkipSimulations = true,
                 ChooseCard2 = (Card c1) =>
                 {
-                    //if (TeamMateIndex == -1 &&
-                    //    c1.Suit != _trump &&
-                    //    hands[MyIndex].CardCount(c1.Suit) == 2 &&
-                    //    ValidCards(c1, hands[MyIndex]).HasX(c1.Suit) &&
-                    //    _probabilities.PotentialCards(player3).CardCount(c1.Suit) > 1 &&
-                    //    _probabilities.PotentialCards(player3).HasA(c1.Suit) &&
-                    //    !_probabilities.LikelyCards(player3).HasA(c1.Suit))
-                    //{
-                    //    return ValidCards(c1, hands[MyIndex]).FirstOrDefault(i => i.Suit == c1.Suit &&
-                    //                                                              i.Value == Hodnota.Desitka);
-                    //}
                     if (TeamMateIndex == player1 &&
                         (_gameType & Hra.Sedma) != 0 &&
                         ValidCards(c1, hands[MyIndex]).HasA(c1.Suit) &&
@@ -6680,7 +6810,23 @@ namespace Mariasek.Engine
                         var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
                                                                                     i.Suit == c1.Suit).ToList();
 
-                        return cardsToPlay.FirstOrDefault();
+                        if (cardsToPlay.Any())
+                        {
+                            return cardsToPlay.FirstOrDefault();
+                        }
+                    }
+                    if (TeamMateIndex != player3 &&
+                        c1.Suit != _trump &&
+                        ValidCards(c1, hands[MyIndex]).HasX(_trump) &&
+                        ValidCards(c1, hands[MyIndex]).Count == 2 &&
+                        _probabilities.PotentialCards(player3).HasA(_trump) &&
+                        (_probabilities.LikelyCards(player3).HasSuit(c1.Suit) ||
+                         (RoundNumber >= 8 &&
+                          _probabilities.PotentialCards(player3).HasSuit(c1.Suit))))
+                    {
+                        return ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == _trump &&
+                                                                         i.Value == Hodnota.Desitka)
+                                                             .FirstOrDefault();
                     }
                     return null;
                 }
@@ -7486,6 +7632,32 @@ namespace Mariasek.Engine
                         if (TeamMateIndex != -1 &&
                             (_gameType & Hra.SedmaProti) != 0 &&
                              _probabilities.CardProbability(TeamMateIndex, new Card(_trump, Hodnota.Sedma)) == 1)
+                        {
+                            return null;
+                        }
+                        //pokud muzes hrat viteznou desitku, tak pravidlo nehraj
+                        if (TeamMateIndex == player1 &&
+                            ValidCards(c1, c2, hands[MyIndex]).Count > 1 &&
+                            ValidCards(c1, c2, hands[MyIndex]).Any(i => i.Value == Hodnota.Desitka &&
+                                                                        Round.WinningCard(c1, c2, i, _trump) != c2 &&
+                                                                        _probabilities.PotentialCards(player2).HasA(i.Suit)))
+                        {
+                            return null;
+                        }
+                        if (TeamMateIndex == player2 &&
+                            ValidCards(c1, c2, hands[MyIndex]).Count > 1 &&
+                            ValidCards(c1, c2, hands[MyIndex]).Any(i => i.Value == Hodnota.Desitka &&
+                                                                        Round.WinningCard(c1, c2, i, _trump) != c1 &&
+                                                                        _probabilities.PotentialCards(player1).HasA(i.Suit)))
+                        {
+                            return null;
+                        }
+                        if (TeamMateIndex == -1 &&
+                            ValidCards(c1, c2, hands[MyIndex]).Count > 1 &&
+                            ValidCards(c1, c2, hands[MyIndex]).Any(i => i.Value == Hodnota.Desitka &&
+                                                                        Round.WinningCard(c1, c2, i, _trump) == i &&
+                                                                        (_probabilities.PotentialCards(player1).HasA(i.Suit) ||
+                                                                         _probabilities.PotentialCards(player2).HasA(i.Suit))))
                         {
                             return null;
                         }

@@ -86,7 +86,7 @@ namespace Mariasek.Cli
                     AllowAXTalon = Settings.AllowAXTalon,
                     AllowTrumpTalon = Settings.AllowTrumpTalon,
                     AllowAIAutoFinish = Settings.AllowAIAutoFinish,
-                    AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish
+                    AllowPlayerAutoFinish = Settings.AllowPlayerAutoFinish,
                     OptimisticAutoFinish = Settings.OptimisticAutoFinish,
                     CurrencyFormat = nfi
                 };

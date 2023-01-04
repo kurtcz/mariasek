@@ -1840,7 +1840,10 @@ namespace Mariasek.Engine
                             if (_cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] > 0 &&
                                 _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] < 1)
                             {
-                                var x = (h == Hodnota.Kral || h == Hodnota.Svrsek) ? epsilon : 0.5f;
+                                var x = (h == Hodnota.Kral || h == Hodnota.Svrsek) &&
+                                        _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Kral] > epsilon &&
+                                        _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Svrsek] > epsilon
+                                        ? epsilon : 0.5f;
 
                                 _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] = 1 - x;
                             }
@@ -2093,7 +2096,10 @@ namespace Mariasek.Engine
                             if (_cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] > 0 &&
                                 _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] < 1)
                             {
-                                var x = (h == Hodnota.Kral || h == Hodnota.Svrsek) ? epsilon : 0.5f;
+                                var x = (h == Hodnota.Kral || h == Hodnota.Svrsek) &&
+                                        _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Kral] > epsilon &&
+                                        _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Svrsek] > epsilon
+                                        ? epsilon : 0.5f;
 
                                 _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] = 1 - x;
                             }
