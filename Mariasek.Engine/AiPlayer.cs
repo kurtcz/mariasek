@@ -581,6 +581,39 @@ namespace Mariasek.Engine
                                                i.Suit != trumpCard.Suit &&
                                                hand.HasSolitaryX(i.Suit)));
             }
+            //pokud jsi zvolil spatne a hrozi sedma proti ale ne kilo proti
+            if (hand.CardCount(trumpCard.Suit) <= 3 &&
+                !hand.Has7(trumpCard.Suit) &&
+                !hand.HasA(trumpCard.Suit) &&
+                hand.CardCount(Hodnota.Eso) + hand.CardCount(Hodnota.Desitka) <= 3 &&
+                Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                    .Where(b => b != trumpCard.Suit)
+                    .Any(b => hand.CardCount(b) >= 4))
+            {
+                var basicPointsLost = EstimateBasicPointsLost(hand, new List<Card>());
+                var totalPointsLost = EstimateMaxTotalPointsLost(hand, new List<Card>());
+                var kqScore = _g.trump.HasValue
+                                ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                      .Where(b => Hand.HasK(b) && Hand.HasQ(b))
+                                      .Sum(b => b == _g.trump.Value ? 40 : 20)
+                                : 0;
+                var noKQSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                    .Count(b => !hand.HasK(b) &&
+                                                !hand.HasQ(b));
+                if (90 - basicPointsLost + kqScore < basicPointsLost &&
+                    totalPointsLost < (noKQSuits <= 1 ? 100 :120))
+                {
+                    var longSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                       .Where(b => b != trumpCard.Suit &&
+                                                   hand.CardCount(b) >= 4)
+                                       .OrderByDescending(b => hand.CardCount(b))
+                                       .First();
+                    talon.AddRange(hand.Where(i => i.Suit == longSuit &&
+                                                   i.Value > Hodnota.Sedma &&
+                                                   i.Value < Hodnota.Svrsek)
+                                       .Take(2));
+                }
+            }
             //nejdriv zkus vzit karty v barve kde krom esa mam max 2 plivy (a nemam hlasku)
             talon.AddRange(hand.Where(i => i.Suit != trumpCard.Suit &&             //nevybirej trumfy
                                            i.Value != Hodnota.Eso &&               //ani esa
@@ -764,8 +797,9 @@ namespace Mariasek.Engine
                 if (hand.CardCount(trumpCard.Suit) >= 6)          //pri 6+ trumfech dej klidne 2 do talonu
                 {
                     talon.AddRange(hand.Where(i => i.Suit == trumpCard.Suit &&
-                                               i.Value > Hodnota.Sedma &&
-                                               i.Value < Hodnota.Svrsek)
+                                                   i != trumpCard &&
+                                                   i.Value > Hodnota.Sedma &&
+                                                   i.Value < Hodnota.Svrsek)
                                    .OrderBy(i => i.Value)
                                    .Take(2));
                 }
@@ -2575,8 +2609,12 @@ namespace Mariasek.Engine
                                                            hand.CardCount(b) == 1)
                                                           ? 0 : 10) +
                                                          (estimateMaxPointsLost &&
-                                                          hand.CardCount(b) >= 4            //a u delsi barvy pokud navic body ktere muzou souperi namazat
-                                                          ? 10 : 0));
+                                                          (hand.CardCount(b) >= 4 ||           //a u delsi barvy pokud navic body ktere muzou souperi namazat
+                                                           hand.CardCount(_trump.Value) >= 4)  //popr. pokud maji souperi malo trumfu tak muzou taky mazat
+                                                          ? 10 * hand.Count(i => i.Suit == b &&
+                                                                                 i.Value != Hodnota.Eso &&
+                                                                                 (i.Value != Hodnota.Desitka ||
+                                                                                  weakXs.Contains(i.Suit))) : 0));
             estimatedBasicPointsLost = Math.Min(estimatedBasicPointsLost, (opponentAXCount + weakXs.Count) * 10);//uprav maximum souperovych bodu
 
             if (estimateMaxPointsLost &&
@@ -2773,6 +2811,35 @@ namespace Mariasek.Engine
         {
             hand = hand ?? Hand;
             talon = talon ?? _talon ?? new List<Card>();
+
+            //var kqScore = _g.trump.HasValue
+            //                ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
+            //                      .Where(b => Hand.HasK(b) && Hand.HasQ(b))
+            //                      .Sum(b => b == _g.trump.Value ? 40 : 20)
+            //                : 0;
+
+            //if (kqScore == 0)
+            //{
+            //    DebugInfo.HundredTooRisky = true;
+            //    return true;
+            //}
+            //var basicPointsLost = EstimateBasicPointsLost(hand, talon);
+            //var result = basicPointsLost > (hand.HasK(_g.trump.Value) &&
+            //                                hand.HasQ(_g.trump.Value)
+            //                                ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
+            //                                      .Count(b => GetTotalHoles(hand.Union(talon).ToList(), b) > 0) > 2 ||
+            //                                  Enum.GetValues(typeof(Barva)).Cast<Barva>()
+            //                                      .Where(b => b != _g.trump.Value &&
+            //                                                  GetTotalHoles(hand.Union(talon).ToList(), b) > 0)
+            //                                      .Any(b => hand.CardCount(b) >= 5) || //u dlouhych barev s dirou je sance ze budou mazat
+            //                                  hand.CardCount(_g.trump.Value) >= 5 //maji-li souperi malo trumfu, je vetsi sance ze budou mazat
+            //                                      ? 30 : 40
+            //                                : 10);
+            ////mam-li trumf. hlas a diry v max 2 barvach tak 40 bodu proti risknu a uvidime jestli vyjde
+            //if (_g.HlasConsidered == HlasConsidered.Each)
+            //{
+            //    result = 90 - basicPointsLost + kqScore <= 90;
+            //}
 
             var handPlusTalon = hand.Concat(talon).ToList();
             var n = GetTotalHoles(handPlusTalon);

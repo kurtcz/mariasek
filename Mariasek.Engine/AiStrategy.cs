@@ -3195,6 +3195,26 @@ namespace Mariasek.Engine
                                                                                  (SevenValue >= GameValue &&
                                                                                   opponentPotentialCards.CardCount(i.Suit) >= 2)))
                                                                      .ToList();
+                            if (!cardsToPlay.Any())
+                            {
+                                //pokud ma jeden ze souperu stejne trumfu nebo vic nez ja
+                                //tak riskni A,X od delsi bocni barvy, pokud to nevyjde, stejne by uhrat nesly
+                                cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                    myInitialHand.CardCount(i.Suit) >= 3 &&
+                                                                                    myInitialHand.CardCount(i.Suit) <= 5 &&
+                                                                                    (i.Value == Hodnota.Eso ||
+                                                                                     (i.Value == Hodnota.Desitka &&
+                                                                                      !opponentPotentialCards.HasA(i.Suit))) &&
+                                                                                    ((_probabilities.CertainCards(player2).CardCount(_trump) >= 3 &&
+                                                                                      _probabilities.CertainCards(player2).CardCount(_trump) >= hands[MyIndex].CardCount(_trump)) ||
+                                                                                     (_probabilities.CertainCards(player3).CardCount(_trump) >= 3 &&
+                                                                                      _probabilities.CertainCards(player3).CardCount(_trump) >= hands[MyIndex].CardCount(_trump))) &&
+                                                                                    (!_probabilities.PotentialCards(player2).HasSuit(_trump) ||
+                                                                                     !_probabilities.PotentialCards(player3).HasSuit(_trump) ||
+                                                                                     (_probabilities.PotentialCards(player2).HasSuit(i.Suit) &&
+                                                                                      _probabilities.PotentialCards(player3).HasSuit(i.Suit) &&
+                                                                                      opponentPotentialCards.CardCount(i.Suit) >= 2))).ToList();
+                            }
                             if (cardsToPlay.Any())
                             {
                                 return cardsToPlay.OrderBy(i => hands[MyIndex].HasX(i.Suit) ? 0 : 1)
