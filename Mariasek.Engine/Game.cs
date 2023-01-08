@@ -1934,12 +1934,15 @@ namespace Mariasek.Engine
                 return;
             }
 
+            var kqScore = trump.HasValue
+                            ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                  .Where(b => players[playerIndex].Hand.HasK(b) && players[playerIndex].Hand.HasQ(b))
+                                   .Sum(b => b == trump.Value ? 40 : 20)
+                            : 0;
+
             if (trump.HasValue)
             {
                 BiddingDebugInfo.AppendFormat("Odhad skóre: {0}", players[playerIndex].DebugInfo.EstimatedFinalBasicScore);
-                var kqScore = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                  .Where(b => players[playerIndex].Hand.HasK(b) && players[playerIndex].Hand.HasQ(b))
-                                  .Sum(b => b == trump.Value ? 40 : 20);
                 if (kqScore > 0)
                 {
                     BiddingDebugInfo.AppendFormat("+{0}", kqScore);
@@ -1974,11 +1977,8 @@ namespace Mariasek.Engine
                 {
                     BiddingDebugInfo.AppendFormat("\nMaximální simulovaná prohra: {0}", players[playerIndex].DebugInfo.MaxSimulatedLoss);
                 }
-                //if ((GameType & Hra.Kilo) != 0 && players[playerIndex].DebugInfo.MaxSimulatedHundredLoss < 0)
-                //{
-                //    BiddingDebugInfo.AppendFormat("\nMaximální simulovaná prohra při kilu: {0}", players[playerIndex].DebugInfo.MaxSimulatedHundredLoss);
-                //}
-                if (players[playerIndex].DebugInfo.HundredTooRisky)
+                if (kqScore > 0 &&
+                    players[playerIndex].DebugInfo.HundredTooRisky)
                 {
                     BiddingDebugInfo.AppendFormat("\nPříliš riskantní na kilo");
                 }

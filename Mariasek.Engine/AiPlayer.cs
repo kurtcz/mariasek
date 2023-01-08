@@ -854,8 +854,8 @@ namespace Mariasek.Engine
                                         .ThenByDescending(i => i.Value)
                                         .ToList();
                 //pouze pokud mi po odebrani v talonu zustane dost karet
-                if (reducedTalon.Count >= 2 &&
-                    !IsSevenTooRisky(hand.Where(i => !reducedTalon.Take(2).Contains(i)).ToList()))  //reducedTalon.Take(2) je zjednoduseni, nize muzu nekdy vybrat i jine karty
+                if (reducedTalon.Count >= 2 &&  //reducedTalon.Take(2) je zjednoduseni, nize muzu nekdy vybrat i jine karty
+                    !IsSevenTooRisky(hand.Where(i => !reducedTalon.Take(2).Contains(i)).ToList(), reducedTalon.Take(2).ToList()))
                 {
                     talon = reducedTalon;
                 }
@@ -2312,6 +2312,7 @@ namespace Mariasek.Engine
                                    .ToList();
                 if (holesPerSuit.All(i => i.Value == 0 ||
                                           hiHolePerSuit[i.Key].BadValue <= minHole.BadValue ||
+                                          Hand.CardCount(i.Key) == 1 ||
                                           (topCards.Count(j => j.Suit == i.Key) > 0 &&              //barva ve ktere mam o 2 mene nejvyssich karet nez der 
                                            topCards.Count(j => j.Suit == i.Key) + 2 >= i.Value &&  //doufam v dobrou rozlozenost (simulace ukaze)
                                            Enum.GetValues(typeof(Barva)).Cast<Barva>().Count(b => Hand.CardCount(b) == 1 &&
@@ -2474,7 +2475,7 @@ namespace Mariasek.Engine
                 aceOnlySuits = 0;
                 singleLowSuits = 0;
             }
-            var axPotentialDeduction = GetTotalHoles(hand, false) / 2;
+            var axPotentialDeduction = GetTotalHoles(hand, talon, false) / 2;
             var axWinPotential = Math.Min(2 * emptySuits + aceOnlySuits + (trumpCount >= 4 ? singleLowSuits : 0),
                                           trumpCount == 4 ? 3 : (int)Math.Ceiling(trumpCount / 2f)); // ne kazdym trumfem prebiju a nebo x
 
@@ -2601,7 +2602,7 @@ namespace Mariasek.Engine
                                 .ToList();
             var estimatedBasicPointsLost = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                                .Where(b => hand.HasSuit(b) &&
-                                                           GetTotalHoles(hand, b) > 0)      //pro kazdou barvu kde mam diry souperum pricti
+                                                           GetTotalHoles(hand, talon, b) > 0)      //pro kazdou barvu kde mam diry souperum pricti
                                                .Sum(b => (hand.HasA(b) ? 0 : 10) +          //body za souperovo eso
                                                          ((hand.HasX(b) &&                  //body za souperovu desitku
                                                            !weakXs.Contains(b)) ||          //nebo za mou desitku kterou asi neuhraju
@@ -2619,8 +2620,9 @@ namespace Mariasek.Engine
 
             if (estimateMaxPointsLost &&
                 estimatedBasicPointsLost >= 50 &&   //mam-li malo trumfu a hodne prohranych bodu, asi neuhraju ani posledni stych
-                hand.CardCount(_trump.Value) <= 4 &&
-                !hand.HasA(_trump.Value))
+                (hand.CardCount(_trump.Value) <= 3 ||
+                 (hand.CardCount(_trump.Value) == 4 &&
+                  !hand.HasA(_trump.Value))))
             {
                 estimatedBasicPointsLost += 10;
             }
@@ -2628,9 +2630,11 @@ namespace Mariasek.Engine
             return estimatedBasicPointsLost;
         }
 
-        public bool IsSevenTooRisky(List<Card> hand = null)
+        public bool IsSevenTooRisky(List<Card> hand = null, List<Card> talon = null)
         {
-            hand = hand ?? Hand;            
+            hand = hand ?? Hand;
+            talon = talon ?? _talon ?? new List<Card>();
+
             var result = hand.CardCount(_trump.Value) < 4 ||                      //1.  mene nez 4 trumfy
                          (hand.CardCount(_trump.Value) == 4 &&
                           TeamMateIndex != -1 &&
@@ -2665,7 +2669,7 @@ namespace Mariasek.Engine
                           (TeamMateIndex == -1 ||
                            (!_teamMateDoubledGame ||
                             _g.MandatoryDouble)) &&
-                           hand.SuitCount() >= 3 &&
+                          hand.SuitCount() >= 3 &&
                           !(Enum.GetValues(typeof(Barva)).Cast<Barva>()         //aspon v jedne barve nemam A nebo X+K a
                                 .Where(b => hand.HasSuit(b))
                                 .All(b => hand.HasA(b) ||
@@ -2705,6 +2709,11 @@ namespace Mariasek.Engine
                                            (hand.HasK(b) ||
                                             hand.CardCount(b) > 2)))) &&
                           (hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||    //3a. mene nez 3 vysoke karty celkem
+                           (!hand.HasA(_trump.Value) ||                         //3a2.mam 4 trumfy bez esa a aspon jednu dalsi barvu bez esa
+                            (hand.SuitCount() == 2 ||
+                             (hand.SuitCount() == 3 &&
+                              Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                  .Any(b => !hand.HasA(b))))) ||
                            (!(((hand.HasA(_trump.Value) &&
                                 (hand.HasX(_trump.Value) ||
                                  hand.HasK(_trump.Value) ||
@@ -2731,7 +2740,7 @@ namespace Mariasek.Engine
                            (hand.Select(i => i.Suit).Distinct().Count() < 4 &&  //3c. nebo nevidim do nejake barvy
                            !(((hand.HasA(_trump.Value) ||                             //    (vyjma pripadu kdy mam trumfove A nebo X a max. 2 neodstranitelne netrumfove diry)
                                hand.HasX(_trump.Value)) &&
-                              GetTotalHoles(Hand, false, false) <= 2) ||                //    (nebo vyjma pripadu kdy mam X,K,Q trumfove a k tomu netrumfove eso
+                              GetTotalHoles(hand, talon, false, false) <= 2) ||                //    (nebo vyjma pripadu kdy mam X,K,Q trumfove a k tomu netrumfove eso
                              (hand.HasX(_trump.Value) &&
                               hand.HasK(_trump.Value) &&
                               (hand.HasQ(_trump.Value) ||
@@ -2812,18 +2821,17 @@ namespace Mariasek.Engine
             hand = hand ?? Hand;
             talon = talon ?? _talon ?? new List<Card>();
 
-            //var kqScore = _g.trump.HasValue
-            //                ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
-            //                      .Where(b => Hand.HasK(b) && Hand.HasQ(b))
-            //                      .Sum(b => b == _g.trump.Value ? 40 : 20)
-            //                : 0;
+            var kqScore = _g.trump.HasValue
+                            ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                  .Where(b => Hand.HasK(b) && Hand.HasQ(b))
+                                  .Sum(b => b == _g.trump.Value ? 40 : 20)
+                            : 0;
 
-            //if (kqScore == 0)
-            //{
-            //    DebugInfo.HundredTooRisky = true;
-            //    return true;
-            //}
-            //var basicPointsLost = EstimateBasicPointsLost(hand, talon);
+            if (kqScore == 0)
+            {
+                return true;
+            }
+            var basicPointsLost = EstimateBasicPointsLost(hand, talon);
             //var result = basicPointsLost > (hand.HasK(_g.trump.Value) &&
             //                                hand.HasQ(_g.trump.Value)
             //                                ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -2841,11 +2849,18 @@ namespace Mariasek.Engine
             //    result = 90 - basicPointsLost + kqScore <= 90;
             //}
 
+            if (basicPointsLost <= (hand.HasK(_g.trump.Value) &&
+                                    hand.HasQ(_g.trump.Value)
+                                    ? 30 : 10))
+            {
+                DebugInfo.HundredTooRisky = false;
+                return false;
+            }
             var handPlusTalon = hand.Concat(talon).ToList();
-            var n = GetTotalHoles(handPlusTalon);
-            var nn = GetTotalHoles(handPlusTalon, false);
+            var n = GetTotalHoles(hand, talon);
+            var nn = GetTotalHoles(hand, talon, false);
             var sh = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                         .Where(b => GetTotalHoles(hand, b) > 0)
+                         .Where(b => GetTotalHoles(hand, talon, b) > 0)
                          .ToList();
             var axCount = hand.Count(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka);
             var noKQsuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -2866,6 +2881,7 @@ namespace Mariasek.Engine
                                 b != _trump.Value)
                     .Any(b => hand.HasSolitaryX(b)))
             {
+                DebugInfo.HundredTooRisky = true;
                 return true;
             }
             if (axCount >= 6)
@@ -3009,7 +3025,10 @@ namespace Mariasek.Engine
                                 !hand.HasX(b)) ||
                                (hand.HasX(b) &&
                                 !hand.HasA(b) &&
-                                !hand.HasK(b)))))
+                                !hand.HasK(b)))) &&
+               !(n == 4 &&
+                 nn == 3 &&
+                 sh.Count == 2))
             {
                 DebugInfo.HundredTooRisky = true;
                 return true;
@@ -3102,19 +3121,23 @@ namespace Mariasek.Engine
             return result;
         }
 
-        public int GetTotalHoles(List<Card> hand, Barva b)
+        public int GetTotalHoles(List<Card> hand, List<Card> talon, Barva b)
         {
             hand = hand ?? Hand;
+            talon = talon ?? _talon ?? new List<Card>();
 
             var hiCards = hand.Count(i => i.Suit == b &&
                                           Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                               .Select(h => new Card(b, h))
                                               .All(j => j.Value < i.Value ||
-                                                        hand.Contains(j))); //pocet nejvyssich karet v barve
+                                                        hand.Contains(j) ||
+                                                        talon.Contains(j))); //pocet nejvyssich karet v barve
             var loCards = hand.CardCount(b) - hiCards;                      //pocet karet ktere maji nad sebou diru v barve
             var opCards = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()   //vsechny hodnoty ktere v dane barve neznam
                             .Where(h => !hand.Any(i => i.Suit == b &&
-                                                       i.Value == h))
+                                                       i.Value == h) &&
+                                        !talon.Any(i => i.Suit == b &&
+                                                        i.Value == h))
                             .ToList();
             var opA = 0;
             if (opCards.Count() >= hiCards)                                 //odstran tolik nejmensich hodnot kolik mam nejvyssich karet
@@ -3131,7 +3154,8 @@ namespace Mariasek.Engine
                                               .Where(h => h < Hodnota.Eso)
                                               .Select(h => new Card(b, h))
                                               .All(j => j.Value < i.Value ||
-                                                        hand.Contains(j)));
+                                                        hand.Contains(j) ||
+                                                        talon.Contains(j)));
                     opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
                     if (hiCards > 1) //mame aspon X a K - eso vytlacime kralem, cili pocitame, ze mame o trumf mene a o diru mene (nize)
                     {
@@ -3152,15 +3176,16 @@ namespace Mariasek.Engine
                     {
                         //spocitej nevyssi karty bez esa
                         hiCards = hand.Count(i => i.Suit == b &&
-                                              Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                  .Where(h => h < Hodnota.Desitka)
-                                                  .Select(h => new Card(b, h))
-                                                  .All(j => j.Value < i.Value ||
-                                                            hand.Contains(j)));
+                                                  Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                      .Where(h => h < Hodnota.Desitka)
+                                                      .Select(h => new Card(b, h))
+                                                      .All(j => j.Value < i.Value ||
+                                                                hand.Contains(j) ||
+                                                                talon.Contains(j)));
                         opCards = opCards.OrderBy(h => (int)h).Skip(hiCards).ToList();
                         if (hiCards > 2)    //mame aspon 2 nejvyssi karty na vytlaceni desitky a esa
                         {
-                            loCards = hand.CardCount(b) - hiCards;
+                            loCards = hand.CardCount(b) + talon.CardCount(b) - hiCards;
                             opA += 2;       //zneuzijeme citac es i na desitku
                         }
                     }
@@ -3176,9 +3201,10 @@ namespace Mariasek.Engine
             return Math.Min(holes, loCards + opA);
         }
 
-        public int GetTotalHoles(List<Card> hand = null, bool includeTrumpSuit = true, bool includeAceSuits = true)
+        public int GetTotalHoles(List<Card> hand = null, List<Card> talon = null, bool includeTrumpSuit = true, bool includeAceSuits = true)
         {
             hand = hand ?? Hand;
+            talon = talon ?? _talon ?? new List<Card>();
 
             //neodstranitelne diry jsou takove, ktere zbydou pokud zahraju nejvyssi karty od dane barvy
             //kdyz jich je moc, tak hrozi, ze se nedostanu do stychu a souperi ze me budou tahat trumfy
@@ -3196,7 +3222,7 @@ namespace Mariasek.Engine
                     continue;
                 }
 
-                n += GetTotalHoles(hand, b);
+                n += GetTotalHoles(hand, talon, b);
             }
             if (includeTrumpSuit && includeAceSuits)
             {
