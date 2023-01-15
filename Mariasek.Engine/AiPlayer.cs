@@ -356,8 +356,18 @@ namespace Mariasek.Engine
                                       .OrderByDescending(i => i.BadValue)
                                       .ToList();
                 }
+                //pokud mas vsechny karty s dirou v jedne barve, tak vezmi druhe dve nejvyssi (nejvyssi karty se zbavis v 1. kole)
+                if (holesByCard.Count() > 2 &&
+                    holesByCard.Select(i => i.Item1).SuitCount() == 1 &&
+                    holesByCard.All(i => i.Item5 > 0))
+                {
+                    talon.AddRange(holesByCard.Where(i => !talon.Contains(i.Item1))
+                                              .Select(i => i.Item1)
+                                              .OrderByDescending(i => i.BadValue)
+                                              .Skip(1));
+                }
                 //pokud mas nejake vyssi plonky, tak pouzij radsi ty
-                if (temp.Count > 1)
+                else if (temp.Count > 1)
                 {
                     var higherSoloCards = holesByCard.Where(i => !talon.Contains(i.Item1) &&
                                                                  i.Item2 == 1 &&    //CardCount
