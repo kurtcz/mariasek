@@ -1979,7 +1979,9 @@ namespace Mariasek.Engine
                             {
                                 cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump);
                             }
-                            else
+                            else if (!Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                          .Where(b => b != _trump)
+                                          .Any(b => hands[MyIndex].CardCount(b) >= 5))
                             {
                                 cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&
                                                                                     i.Value < Hodnota.Desitka);
@@ -1990,7 +1992,10 @@ namespace Mariasek.Engine
                                 hands[MyIndex].CardCount(_trump) == 2) &&
                             hands[MyIndex].CardCount(_trump) > 1 &&
                             !(hands[MyIndex].CardCount(_trump) <= opponentTrumps.Count &&
-                                opponentTrumps.Any(i => hands[MyIndex].All(j => i.IsHigherThan(j, _trump)))) &&
+                              opponentTrumps.Any(i => hands[MyIndex].All(j => i.IsHigherThan(j, _trump)))) &&
+                            !Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                          .Where(b => b != _trump)
+                                          .Any(b => hands[MyIndex].CardCount(b) >= 5) &&
                             hands[MyIndex].All(i => (i.Suit != _trump &&
                                                         !holesPerSuit[i.Suit].Any() &&
                                                         _probabilities.PotentialCards(player2).CardCount(i.Suit) > 1 &&

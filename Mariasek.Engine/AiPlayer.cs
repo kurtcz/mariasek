@@ -2622,10 +2622,7 @@ namespace Mariasek.Engine
                                                          (estimateMaxPointsLost &&
                                                           (hand.CardCount(b) >= 4 ||           //a u delsi barvy pokud navic body ktere muzou souperi namazat
                                                            hand.CardCount(_trump.Value) >= 4)  //popr. pokud maji souperi malo trumfu tak muzou taky mazat
-                                                          ? 10 * hand.Count(i => i.Suit == b &&
-                                                                                 i.Value != Hodnota.Eso &&
-                                                                                 (i.Value != Hodnota.Desitka ||
-                                                                                  weakXs.Contains(i.Suit))) : 0));
+                                                          ? 10 * GetTotalHoles(hand, talon, b) : 0));
             estimatedBasicPointsLost = Math.Min(estimatedBasicPointsLost, (opponentAXCount + weakXs.Count) * 10);//uprav maximum souperovych bodu
 
             if (estimateMaxPointsLost &&
