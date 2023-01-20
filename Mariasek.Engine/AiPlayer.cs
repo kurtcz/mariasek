@@ -2424,9 +2424,12 @@ namespace Mariasek.Engine
             return false;
 		}   
 
-        public int EstimateMinBasicPointsLost()
+        public int EstimateMinBasicPointsLost(List<Card> hand = null, List<Card> talon = null)
         {
-            var minBasicPointsLost = EstimateBasicPointsLost(estimateMaxPointsLost: false);
+            hand = hand ?? Hand;
+            talon = talon ?? _talon ?? new List<Card>();
+
+            var minBasicPointsLost = EstimateBasicPointsLost(hand, talon, estimateMaxPointsLost: false);
 
             DebugInfo.MinBasicPointsLost = minBasicPointsLost;
 
@@ -2610,18 +2613,17 @@ namespace Mariasek.Engine
                                                 (hand.HasQ(b) &&
                                                  hand.HasJ(b))))))
                                 .ToList();
+
             var estimatedBasicPointsLost = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                                .Where(b => hand.HasSuit(b) &&
-                                                           GetTotalHoles(hand, talon, b) > 0)      //pro kazdou barvu kde mam diry souperum pricti
-                                               .Sum(b => (hand.HasA(b) ? 0 : 10) +          //body za souperovo eso
-                                                         ((hand.HasX(b) &&                  //body za souperovu desitku
-                                                           !weakXs.Contains(b)) ||          //nebo za mou desitku kterou asi neuhraju
+                                                           GetTotalHoles(hand, talon, b) > 0)   //pro kazdou barvu kde mam diry souperum pricti
+                                               .Sum(b => (hand.HasA(b) ? 0 : 10) +              //body za souperovo eso
+                                                         ((hand.HasX(b) &&                      //body za souperovu desitku
+                                                           !weakXs.Contains(b)) ||              //nebo za mou desitku kterou asi neuhraju
                                                           (hand.HasA(b) &&
                                                            hand.CardCount(b) == 1)
                                                           ? 0 : 10) +
-                                                         (estimateMaxPointsLost &&
-                                                          (hand.CardCount(b) >= 4 ||           //a u delsi barvy pokud navic body ktere muzou souperi namazat
-                                                           hand.CardCount(_trump.Value) >= 4)  //popr. pokud maji souperi malo trumfu tak muzou taky mazat
+                                                         (estimateMaxPointsLost                 //body ktere souperi muzou namazat
                                                           ? 10 * GetTotalHoles(hand, talon, b) : 0));
             estimatedBasicPointsLost = Math.Min(estimatedBasicPointsLost, (opponentAXCount + weakXs.Count) * 10);//uprav maximum souperovych bodu
 
@@ -2828,17 +2830,22 @@ namespace Mariasek.Engine
             hand = hand ?? Hand;
             talon = talon ?? _talon ?? new List<Card>();
 
+            var minBasicPointsLost = EstimateMinBasicPointsLost(hand, talon);
+            var maxAllowedPointsLost = hand.HasK(_g.trump.Value) &&
+                                       hand.HasQ(_g.trump.Value)
+                                        ? 30 : 10;
             var kqScore = _g.trump.HasValue
-                            ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                  .Where(b => Hand.HasK(b) && Hand.HasQ(b))
-                                  .Sum(b => b == _g.trump.Value ? 40 : 20)
-                            : 0;
+                ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                      .Where(b => Hand.HasK(b) && Hand.HasQ(b))
+                      .Sum(b => b == _g.trump.Value ? 40 : 20)
+                : 0;
 
-            if (kqScore == 0)
+            if (kqScore == 0 ||                
+                minBasicPointsLost > maxAllowedPointsLost)
             {
                 return true;
             }
-            var basicPointsLost = EstimateBasicPointsLost(hand, talon);
+            var maxBasicPointsLost = EstimateBasicPointsLost(hand, talon);
             //var result = basicPointsLost > (hand.HasK(_g.trump.Value) &&
             //                                hand.HasQ(_g.trump.Value)
             //                                ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -2856,9 +2863,7 @@ namespace Mariasek.Engine
             //    result = 90 - basicPointsLost + kqScore <= 90;
             //}
 
-            if (basicPointsLost <= (hand.HasK(_g.trump.Value) &&
-                                    hand.HasQ(_g.trump.Value)
-                                    ? 30 : 10))
+            if (maxBasicPointsLost <= maxAllowedPointsLost)
             {
                 DebugInfo.HundredTooRisky = false;
                 return false;
@@ -2873,6 +2878,44 @@ namespace Mariasek.Engine
             var noKQsuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Count(b => !handPlusTalon.HasK(b) &&
                                             !handPlusTalon.HasQ(b));
+            var kqMaxOpponentScore = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                         .Where(b => !hand.HasK(b) &&
+                                                     !hand.HasQ(b) &&
+                                                     (!talon.HasK(b) &&
+                                                      !talon.HasQ(b)))
+                                         .Sum(b => b == _g.trump.Value ? 40 : 20);
+            var kqLikelyOpponentScore = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                            .Count(b => !hand.HasK(b) &&
+                                                        !hand.HasQ(b) &&
+                                                        !talon.HasK(b) &&
+                                                        !talon.HasQ(b)) <= 1
+                                        ? kqMaxOpponentScore
+                                        : kqMaxOpponentScore - 20;
+            var potentialBasicPointsLost = minBasicPointsLost + (hand.HasA(_g.trump.Value) ? 0 : 10);
+            var lossPerPointsLost = Enumerable.Range(1, maxAllowedPointsLost == 30 ? 17 : 19)
+                                              .Select(i => maxAllowedPointsLost + i * 10)
+                                              .ToDictionary(k => k,
+                                                            v => (_g.CalculationStyle == CalculationStyle.Adding
+                                                                  ? (v - maxAllowedPointsLost)/ 10 * _g.HundredValue
+                                                                  : (1 << (v - maxAllowedPointsLost - 10) / 10) * _g.HundredValue) *
+                                                                 (_g.trump.Value == Barva.Cerveny
+                                                                    ? 4
+                                                                    : 2));
+            //pokud hrozi vysoka prohra, tak do kila nejdi
+            if (lossPerPointsLost.ContainsKey(maxBasicPointsLost + kqLikelyOpponentScore) &&
+                 lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore] >= Settings.SafetyHundredThreshold)
+            {
+                DebugInfo.EstimatedHundredLoss = lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
+                DebugInfo.HundredTooRisky = true;
+                return true;
+            }
+            if (lossPerPointsLost.ContainsKey(potentialBasicPointsLost + kqMaxOpponentScore) &&
+                lossPerPointsLost[potentialBasicPointsLost + kqMaxOpponentScore] >= Settings.SafetyHundredThreshold)
+            {
+                DebugInfo.EstimatedHundredLoss = lossPerPointsLost[potentialBasicPointsLost + kqMaxOpponentScore];
+                DebugInfo.HundredTooRisky = true;
+                return true;
+            }
 
             if (Settings.SafetyHundredThreshold > 0 &&
                 _minWinForHundred <= -Settings.SafetyHundredThreshold)
@@ -3143,11 +3186,6 @@ namespace Mariasek.Engine
                               .Select(h => new KeyValuePair<Hodnota, bool>(h, hand.Any(j => j.Suit == b &&
                                                                                             j.Value == h)))
                               .ToList();
-            var talonCards = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                 .OrderByDescending(h => (int)h)
-                                 .Select(h => new KeyValuePair<Hodnota, bool>(h, talon.Any(j => j.Suit == b &&
-                                                                                                j.Value == h)))
-                                 .ToList();
             var opCards = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()   //vsechny hodnoty ktere v dane barve neznam
                               .OrderByDescending(h => (int)h)
                               .Select(h => new KeyValuePair<Hodnota, bool>(h, !hand.Any(i => i.Suit == b &&
@@ -3164,8 +3202,7 @@ namespace Mariasek.Engine
                         .Any(j => j.Value);      //ja nemam na ruce zadne dalsi karty
                  i++)
             {
-                if (myCards[i].Value ||
-                    talonCards[i].Value)
+                if (myCards[i].Value)
                 {
                     if (i > 0 &&
                         opCards.Take(i)
@@ -3360,6 +3397,15 @@ namespace Mariasek.Engine
                 var totalHoles = GetTotalHoles();
                 var minBasicPointsLost = EstimateMinBasicPointsLost();
 
+                var lossPerPointsLost = Enumerable.Range(0, 10)
+                                  .Select(i => 100 + i * 10)
+                                  .ToDictionary(k => k,
+                                                v => (_g.CalculationStyle == CalculationStyle.Adding
+                                                      ? (v - 90) / 10 * 2 * _g.QuietHundredValue
+                                                      : (1 << (v - 100) / 10) * 2 * _g.QuietHundredValue) * 2); //ztrata pro je dvojnasobna (plati obema souperum)
+
+                var estimatedPointsLost = _trump != null ? EstimateMaxTotalPointsLost(Hand, _talon) : 0;
+
                 if (Settings.CanPlayGameType[Hra.Kilo] && 
                     _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&
                     _hundredSimulations > 0 &&
@@ -3377,7 +3423,8 @@ namespace Mariasek.Engine
                           Settings.MinimalBidsForGame > 1 ||
                           ((_gamesBalance > 0 &&
                             _gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0 &&
-                            _maxMoneyLost >= -Settings.SafetyBetlThreshold) ||
+                            _maxMoneyLost > -Settings.SafetyBetlThreshold &&
+                            lossPerPointsLost[estimatedPointsLost] < Settings.SafetyBetlThreshold) ||
                            //estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore + 40 ||
                            (estimatedFinalBasicScore >= 10 &&
                             estimatedFinalBasicScore + kqScore >= 40 &&
@@ -3893,8 +3940,14 @@ namespace Mariasek.Engine
                  PlayerIndex == 0 ||
                  (bidding.PlayerBids[0] & Hra.SedmaProti) != 0) &&
                 ((bidding._sevenAgainstFlek == 0 &&                                  //nez poprve zahlasime sedmu proti zjistime jestli to neni riskantni
-                  Hand.Has7(_g.trump.Value) &&
-                  !IsSevenTooRisky()) ||
+                  ((Hand.Has7(_g.trump.Value) &&
+                    !IsSevenTooRisky()) ||
+                   (_g.AllowFakeSeven &&                                            //falesnou sedmu proti hlas jen pokud se bez re nehraje
+                    (_g.MinimalBidsForGame > 1 ||
+                     ((_g.GameStartingPlayerIndex == 0 &&                           //nebo kdyz muze akter hru zahodit
+                       Settings.PlayerMayGiveUp) ||
+                      (_g.GameStartingPlayerIndex != 0 &&
+                       Settings.AiMayGiveUp)))))) ||
                  (bidding._sevenAgainstFlek > 0 &&                                  //flek na sedmu proti dam jen kdyz mam sam dost trumfu
                   (Hand.CardCount(_g.trump.Value) >= 4 ||
                    (Hand.CardCount(_g.trump.Value) >= 3 &&
@@ -3915,9 +3968,17 @@ namespace Mariasek.Engine
                     _g.AllowFakeSeven)))))
             {
                 bid |= bidding.Bids & Hra.SedmaProti;
-                //minRuleCount = Math.Min(minRuleCount, _sevensAgainstBalance);
                 DebugInfo.RuleCount = _sevensAgainstBalance;
-                DebugInfo.TotalRuleCount = _gameSimulations;
+                if (TeamMateIndex == -1 &&
+                    (Hand.Has7(_g.trump.Value) ||
+                     _talon.Has7(_g.trump.Value)))
+                {
+                    DebugInfo.TotalRuleCount = _sevensAgainstBalance; //falesna 7 proti
+                }
+                else
+                {
+                    DebugInfo.TotalRuleCount = _gameSimulations;
+                }
             }
 
             if ((bidding.Bids & Hra.SedmaProti) != 0 &&
