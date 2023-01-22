@@ -948,16 +948,13 @@ namespace Mariasek.Engine
                 CancellationToken = cancellationToken;
                 LogHands();
                 //zahajeni hry
+                PreGameHook();
                 if (RoundNumber == 0)
                 {
                     GameType = Hra.Hra; //docasne nastavena nejaka minimalni hra
                     Bidding = new Bidding(this);
                     ChooseGame();
                     RoundNumber++;
-                }
-                else
-                {
-                    PreGameHook();
                 }
                 if (ShouldPlayGame() &&
                     (desiredGameType == null ||
@@ -1584,10 +1581,6 @@ namespace Mariasek.Engine
             var bidNumber = 0;
             var noMoreGameFlavourChoices = false;
 
-            if (GameStartingPlayerIndex != 0)
-            {
-                PreGameHook();
-            }
             gameTypeForPlayer[GameStartingPlayerIndex] = Hra.Hra;
             DebugString.AppendLine("ChooseGame()");
             DebugString.AppendFormat("Player {0} ChooseTrump()\n", GameStartingPlayer.PlayerIndex + 1);
@@ -1954,25 +1947,17 @@ namespace Mariasek.Engine
             }
             if (players[playerIndex].TeamMateIndex == -1 && GameType != Hra.Durch)
             {
-                var kqMaxOpponentScore = trump.HasValue
-                                            ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                                  .Where(b => !players[playerIndex].Hand.HasK(b) &&
-                                                              !players[playerIndex].Hand.HasQ(b) &&
-                                                              !talon.HasK(b) &&
-                                                              !talon.HasQ(b))
-                                                  .Sum(b => b == trump.Value ? 40 : 20)
-                                            : 0;
                 BiddingDebugInfo.AppendFormat("\nMinimální bodová ztráta: {0}", players[playerIndex].DebugInfo.MinBasicPointsLost);
-                BiddingDebugInfo.AppendFormat("\nMaximální bodová ztráta: {0}", players[playerIndex].DebugInfo.MaxEstimatedPointsLost - kqMaxOpponentScore);
-                if (kqMaxOpponentScore > 0)
+                BiddingDebugInfo.AppendFormat("\nMaximální bodová ztráta: {0}", players[playerIndex].DebugInfo.MaxEstimatedBasicPointsLost);
+                if (players[playerIndex].DebugInfo.MaxEstimatedHlasPointsLost > 0)
                 {
-                    BiddingDebugInfo.AppendFormat("+{0}", kqMaxOpponentScore);
+                    BiddingDebugInfo.AppendFormat("+{0}", players[playerIndex].DebugInfo.MaxEstimatedHlasPointsLost);
                 }
                 if (players[playerIndex].DebugInfo.MaxEstimatedMoneyLost < 0)
                 {
                     BiddingDebugInfo.AppendFormat("\nMaximální odhadovaná prohra: {0}", players[playerIndex].DebugInfo.MaxEstimatedMoneyLost);
                 }
-                if (players[playerIndex].DebugInfo.EstimatedHundredLoss > 0)
+                if (players[playerIndex].DebugInfo.EstimatedHundredLoss < 0)
                 {
                     BiddingDebugInfo.AppendFormat("\nOdhadovaná prohra při kilu: {0}", -players[playerIndex].DebugInfo.EstimatedHundredLoss);
                 }

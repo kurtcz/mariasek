@@ -1628,6 +1628,7 @@ namespace Mariasek.SharedClient
                              {
                                  SortHand(null, 7);
                                  _hand.Hide();
+                                 _preGameEvent.Set();
                              }
                              _shuffleEvent.Set();
                         });
@@ -3361,271 +3362,280 @@ namespace Mariasek.SharedClient
         public void LoadGame(string path, bool testGame, int impersonationPlayerIndex = 0)
         {
             _testGame = testGame;
-            //if (g == null)
+            if (!_gameSemaphore.Wait(0))
             {
-                if (!_gameSemaphore.Wait(0))
-                {
-                    return;
-                }
-                var gameTask = _gameTask;
+                return;
+            }
+            var gameTask = _gameTask;
 
-                _trumpLabel1.Hide();
-                _trumpLabel2.Hide();
-                _trumpLabel3.Hide();
-                _newGameBtn.Hide();
-                _repeatGameBtn.Hide();
-                _repeatGameOptionBtn.Hide();
-                _repeatGameAsPlayer2Btn.Hide();
-                _repeatGameAsPlayer3Btn.Hide();
-                SetActive();
-                var cancellationTokenSource = new CancellationTokenSource();
-                _gameTask = Task.Run(() => CancelRunningTask(gameTask))
-                                .ContinueWith(cancellationTask =>
+            _trumpLabel1.Hide();
+            _trumpLabel2.Hide();
+            _trumpLabel3.Hide();
+            _newGameBtn.Hide();
+            _repeatGameBtn.Hide();
+            _repeatGameOptionBtn.Hide();
+            _repeatGameAsPlayer2Btn.Hide();
+            _repeatGameAsPlayer3Btn.Hide();
+            SetActive();
+            var cancellationTokenSource = new CancellationTokenSource();
+            _gameTask = Task.Run(() => CancelRunningTask(gameTask))
+                            .ContinueWith(cancellationTask =>
+            {
+                _preGameEvent.Reset();
+                try
                 {
-                    _preGameEvent.Reset();
+                    _cancellationTokenSource = cancellationTokenSource;
+                    g = new Mariasek.Engine.Game()
+                    {
+                        BaseBet = Game.Settings.BaseBet,
+                        Locale = Game.Settings.Locale,
+                        MaxWin = Game.Settings.MaxWin,
+                        SkipBidding = false,
+                        MinimalBidsForGame = Game.Settings.MinimalBidsForGame,
+                        MinimalBidsForSeven = Game.Settings.MinimalBidsForSeven,
+                        CalculationStyle = Game.Settings.CalculationStyle,
+                        CountHlasAgainst = Game.Settings.CountHlasAgainst,
+                        PlayZeroSumGames = Game.Settings.PlayZeroSumGames,
+                        MandatoryDouble = Game.Settings.MandatoryDouble,
+                        Top107 = Game.Settings.Top107,
+                        Calculate107Separately = Game.Settings.Calculate107Separately,
+                        HlasConsidered = Game.Settings.HlasConsidered,
+                        AutoDisable100Against = Game.Settings.AutoDisable100Against,
+                        GetFileStream = GetFileStream,
+                        GetVersion = () => MariasekMonoGame.Version,
+                        GameValue = Game.Settings.GameValue,
+                        QuietSevenValue = Game.Settings.QuietSevenValue,
+                        SevenValue = Game.Settings.SevenValue,
+                        QuietHundredValue = Game.Settings.QuietHundredValue,
+                        HundredValue = Game.Settings.HundredValue,
+                        BetlValue = Game.Settings.BetlValue,
+                        DurchValue = Game.Settings.DurchValue,
+                        FirstMinMaxRound = Game.Settings.FirstMinMaxRound,
+                        AllowFakeSeven = Game.Settings.AllowFakeSeven,
+                        AllowFake107 = Game.Settings.AllowFake107,
+                        AllowAXTalon = Game.Settings.AllowAXTalon,
+                        AllowTrumpTalon = Game.Settings.AllowTrumpTalon,
+                        AllowAIAutoFinish = Game.Settings.AllowAIAutoFinish,
+                        AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish,
+                        OptimisticAutoFinish = Game.Settings.OptimisticAutoFinish,
+                        PreGameHook = () => _preGameEvent.WaitOne(),
+                        CurrencyFormat = Game.CurrencyFormat
+                    };
+                    g.RegisterPlayers(
+                        new HumanPlayer(g, _aiSettings, this, Game.Settings.HintEnabled) { Name = Game.Settings.PlayerNames[0] },
+                        new AiPlayer(g, _aiSettings) { Name = Game.Settings.PlayerNames[1] },
+                        new AiPlayer(g, _aiSettings) { Name = Game.Settings.PlayerNames[2] }
+                    );
+
                     try
                     {
-                        _cancellationTokenSource = cancellationTokenSource;
-                        g = new Mariasek.Engine.Game()
+                        //g.DoSort = Game.Settings.SortMode != SortMode.None;
+                        Game.StorageAccessor.GetStorageAccess();
+                        using (var fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
-                            BaseBet = Game.Settings.BaseBet,
-                            Locale = Game.Settings.Locale,
-                            MaxWin = Game.Settings.MaxWin,
-                            SkipBidding = false,
-                            MinimalBidsForGame = Game.Settings.MinimalBidsForGame,
-                            MinimalBidsForSeven = Game.Settings.MinimalBidsForSeven,
-                            CalculationStyle = Game.Settings.CalculationStyle,
-                            CountHlasAgainst = Game.Settings.CountHlasAgainst,
-                            PlayZeroSumGames = Game.Settings.PlayZeroSumGames,
-                            MandatoryDouble = Game.Settings.MandatoryDouble,
-                            Top107 = Game.Settings.Top107,
-                            Calculate107Separately = Game.Settings.Calculate107Separately,
-                            HlasConsidered = Game.Settings.HlasConsidered,
-                            AutoDisable100Against = Game.Settings.AutoDisable100Against,
-                            GetFileStream = GetFileStream,
-                            GetVersion = () => MariasekMonoGame.Version,
-                            GameValue = Game.Settings.GameValue,
-                            QuietSevenValue = Game.Settings.QuietSevenValue,
-                            SevenValue = Game.Settings.SevenValue,
-                            QuietHundredValue = Game.Settings.QuietHundredValue,
-                            HundredValue = Game.Settings.HundredValue,
-                            BetlValue = Game.Settings.BetlValue,
-                            DurchValue = Game.Settings.DurchValue,
-                            FirstMinMaxRound = Game.Settings.FirstMinMaxRound,
-                            AllowFakeSeven = Game.Settings.AllowFakeSeven,
-                            AllowFake107 = Game.Settings.AllowFake107,
-                            AllowAXTalon = Game.Settings.AllowAXTalon,
-                            AllowTrumpTalon = Game.Settings.AllowTrumpTalon,
-                            AllowAIAutoFinish = Game.Settings.AllowAIAutoFinish,
-                            AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish,
-                            OptimisticAutoFinish = Game.Settings.OptimisticAutoFinish,
-                            CurrencyFormat = Game.CurrencyFormat
-                        };
-                        g.RegisterPlayers(
-                            new HumanPlayer(g, _aiSettings, this, Game.Settings.HintEnabled) { Name = Game.Settings.PlayerNames[0] },
-                            new AiPlayer(g, _aiSettings) { Name = Game.Settings.PlayerNames[1] },
-                            new AiPlayer(g, _aiSettings) { Name = Game.Settings.PlayerNames[2] }
-                        );
+                            g.LoadGame(fs, impersonationPlayerIndex: impersonationPlayerIndex);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ShowMsgLabel(string.Format("Error loading game:\n{0}", ex.Message), false);
+                        return;
+                    }
+                    g.GameFlavourChosen += GameFlavourChosen;
+                    g.GameTypeChosen += GameTypeChosen;
+                    g.BidMade += BidMade;
+                    g.CardPlayed += CardPlayed;
+                    g.RoundStarted += RoundStarted;
+                    g.RoundFinished += RoundFinished;
+                    g.GameFinished += GameFinished;
+                    g.GameWonPrematurely += GameWonPrematurely;
+                    g.GameException += GameException;
+                    g.players[1].GameComputationProgress += GameComputationProgress;
+                    g.players[2].GameComputationProgress += GameComputationProgress;
 
-                        try
-                        {
-                            //g.DoSort = Game.Settings.SortMode != SortMode.None;
-                            Game.StorageAccessor.GetStorageAccess();
-                            using (var fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                            {
-                                g.LoadGame(fs, impersonationPlayerIndex: impersonationPlayerIndex);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            ShowMsgLabel(string.Format("Error loading game:\n{0}", ex.Message), false);
-                            return;
-                        }
-                        g.GameFlavourChosen += GameFlavourChosen;
-                        g.GameTypeChosen += GameTypeChosen;
-                        g.BidMade += BidMade;
-                        g.CardPlayed += CardPlayed;
-                        g.RoundStarted += RoundStarted;
-                        g.RoundFinished += RoundFinished;
-                        g.GameFinished += GameFinished;
-                        g.GameWonPrematurely += GameWonPrematurely;
-                        g.GameException += GameException;
-                        g.players[1].GameComputationProgress += GameComputationProgress;
-                        g.players[2].GameComputationProgress += GameComputationProgress;
+                    _canSort = Game.Settings.AutoSort || g.RoundNumber > 0;
+                    _canSortTrump = g.RoundNumber > 0;
+                    _firstTimeTalonCardClick = true;
+                    _firstTimeGameFlavourChosen = true;
+                    _trumpCardChosen = null;
+                    _cardClicked = null;
+                    _bid = 0;
+                    _gameTypeChosen = 0;
+                    _gameFlavourChosen = 0;
+                    TrumpCardTakenBack = false;
+                    _state = GameState.NotPlaying;
+                    _talon = g.GameStartingPlayerIndex == 0 && g.talon != null && g.talon.Any() ? new List<Card>(g.talon) : new List<Card>();
 
-                        _canSort = Game.Settings.AutoSort || g.RoundNumber > 0;
-                        _canSortTrump = g.RoundNumber > 0;
-                        _firstTimeTalonCardClick = true;
-                        if (g.GameStartingPlayerIndex == 0 && g.RoundNumber == 0)
-                        {
-                            SortHand(null, 7);
-                        }
-                        else
-                        {
-                            SortHand();
-                        }
+                    if (g.RoundNumber >= 1 && g.RoundNumber <= Mariasek.Engine.Game.NumRounds)
+                    {
+                        CurrentStartingPlayerIndex = g.GameStartingPlayerIndex;
+                        Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
+                        Game.SaveGameSettings();
+                    }
+                    ClearTable(true);
+                    HideMsgLabel();
+                    _reviewGameBtn.Hide();
+                    _editGameBtn.Hide();
+                    _infoBtn.Show();
+                    _infoBtn.IsSelected = false;
+                    _infoBtn.IsEnabled = (Game.Settings.TestMode.HasValue && 
+                                                        Game.Settings.TestMode.Value) || 
+                                                        (g.CurrentRound != null && g.RoundNumber > 1);
 
-                        _firstTimeGameFlavourChosen = true;
-                        _trumpCardChosen = null;
-                        _cardClicked = null;
-                        _bid = 0;
-                        _gameTypeChosen = 0;
-                        _gameFlavourChosen = 0;
-                        TrumpCardTakenBack = false;
-                        _state = GameState.NotPlaying;
-                        _talon = g.GameStartingPlayerIndex == 0 && g.talon != null && g.talon.Any() ? new List<Card>(g.talon) : new List<Card>();
-
-                        if (g.RoundNumber >= 1 && g.RoundNumber <= Mariasek.Engine.Game.NumRounds)
+                    if (_review != null)
+                    {
+                        _review.Hide();
+                    }
+                    foreach (var btn in gtButtons)
+                    {
+                        btn.BorderColor = Game.Settings.DefaultTextColor;
+                        btn.Hide();
+                    }
+                    giveUpButton.BorderColor = Game.Settings.DefaultTextColor;
+                    giveUpButton.Hide();
+                    foreach (var btn in gfButtons)
+                    {
+                        btn.BorderColor = Game.Settings.DefaultTextColor;
+                        btn.Hide();
+                    }
+                    foreach (var btn in bidButtons)
+                    {
+                        btn.BorderColor = Game.Settings.DefaultTextColor;
+                        btn.Hide();
+                    }
+                    foreach (var bubble in _bubbles)
+                    {
+                        bubble.Hide();
+                    }
+                    AmendCardScaleFactor();
+                    RunOnUiThread(() =>
+                    {
+                        _hand.ClearOperations();
+                        this.ClearOperations();
+                        _shuffledCards[0].Hide();
+                        _shuffledCards[1].Hide();
+                        _shuffledCards[2].Hide();
+                        if (_shouldShuffle)
                         {
-                            CurrentStartingPlayerIndex = g.GameStartingPlayerIndex;
-                            Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
-                            Game.SaveGameSettings();
+                            _shuffleEvent.Reset();
+                            ShowShuffleAnimation();
                         }
-                        ClearTable(true);
-                        HideMsgLabel();
-                        _reviewGameBtn.Hide();
-                        _editGameBtn.Hide();
-                        _infoBtn.Show();
-                        _infoBtn.IsSelected = false;
-                        _infoBtn.IsEnabled = (Game.Settings.TestMode.HasValue && 
-                                                          Game.Settings.TestMode.Value) || 
-                                                         (g.CurrentRound != null && g.RoundNumber > 1);
-
-                        if (_review != null)
+                        this.Invoke(() =>
                         {
-                            _review.Hide();
-                        }
-                        foreach (var btn in gtButtons)
-                        {
-                            btn.BorderColor = Game.Settings.DefaultTextColor;
-                            btn.Hide();
-                        }
-                        giveUpButton.BorderColor = Game.Settings.DefaultTextColor;
-                        giveUpButton.Hide();
-                        foreach (var btn in gfButtons)
-                        {
-                            btn.BorderColor = Game.Settings.DefaultTextColor;
-                            btn.Hide();
-                        }
-                        foreach (var btn in bidButtons)
-                        {
-                            btn.BorderColor = Game.Settings.DefaultTextColor;
-                            btn.Hide();
-                        }
-                        foreach (var bubble in _bubbles)
-                        {
-                            bubble.Hide();
-                        }
-                        AmendCardScaleFactor();
-                        RunOnUiThread(() =>
-                        {
-                            _hand.ClearOperations();
-                            this.ClearOperations();
-                        });
-                        _hintBtn.IsEnabled = false;
-                        _hintBtn.Show();
-                        if (g.GameStartingPlayerIndex != 0 || g.GameType != 0)
-                        {
-                            if (g.GameType == 0)
-                            {
-                                ShowThinkingMessage(g.GameStartingPlayerIndex);
-                            }
                             if (g.GameStartingPlayerIndex == 0 && g.RoundNumber == 0)
                             {
-                                UpdateHand(true, 7);
+                                SortHand(null, 7);
                             }
                             else
                             {
-                                UpdateHand(true);
+                                SortHand();
                             }
-                        }
-                        else
-                        {
                             _hand.Hide();
-                        }
-                        var hlasy1 = 0;
-                        var hlasy2 = 0;
-                        var hlasy3 = 0;
-                        foreach (var r in g.rounds.Where(i => i != null))
-                        {
-                            if (r.hlas1)
+                            if (g.GameStartingPlayerIndex != 0 || g.GameType != 0)
                             {
-                                var rect = r.c1.ToTextureRect();
-
-                                _hlasy[r.player1.PlayerIndex][hlasy1].Sprite.SpriteRectangle = rect;
-                                _hlasy[r.player1.PlayerIndex][hlasy1].Show();
-                                hlasy1++;
-                            }
-                            if (r.hlas2)
-                            {
-                                var rect = r.c1.ToTextureRect();
-
-                                _hlasy[r.player1.PlayerIndex][hlasy2].Sprite.SpriteRectangle = rect;
-                                _hlasy[r.player1.PlayerIndex][hlasy2].Show();
-                                hlasy2++;
-                            }
-                            if (r.hlas3)
-                            {
-                                var rect = r.c1.ToTextureRect();
-
-                                _hlasy[r.player1.PlayerIndex][hlasy3].Sprite.SpriteRectangle = rect;
-                                _hlasy[r.player1.PlayerIndex][hlasy3].Show();
-                                hlasy3++;
-                            }
-                        }
-                        lock (Game.Money.SyncRoot)
-                        {
-                            for (var i = 0; i < _trumpLabels.Count(); i++)
-                            {
-                                var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
-                                //_trumpLabels[i].Text = g.players[i].Name;
-                                _trumpLabels[i].Text = string.Format("{0}\n{1}",
-                                                         GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
-                                                         Game.Settings.ShowScoreDuringGame
-                                                         ? sum.ToString("C", Game.CurrencyFormat)
-                                                         : string.Empty);
-                                _trumpLabels[i].Height = 60;
-                                if (Game.Settings.WhiteScore)
+                                if (g.GameType == 0)
                                 {
-                                    _trumpLabels[i].HighlightColor = Game.Settings.DefaultTextColor;
+                                    ShowThinkingMessage(g.GameStartingPlayerIndex);
+                                }
+                                if (g.GameStartingPlayerIndex == 0 && g.RoundNumber == 0)
+                                {
+                                    UpdateHand(true, 7);
                                 }
                                 else
                                 {
-                                    _trumpLabels[i].HighlightColor = sum > 0
-                                                                       ? Game.Settings.PositiveScoreColor
-                                                                       : sum < 0
-                                                                           ? Game.Settings.NegativeScoreColor
-                                                                           : Game.Settings.DefaultTextColor;
+                                    UpdateHand(true);
                                 }
-                                _trumpLabels[i].Show();
                             }
-                        }
-                        try
-                        {
-                            Game.StorageAccessor.GetStorageAccess();
-                            if (File.Exists(_savedGameFilePath))
+                            else
                             {
-                                File.Delete(_savedGameFilePath);
+                                _preGameEvent.Set();
                             }
-                            if (File.Exists(_minMaxFilePath))
-                            {
-                                File.Delete(_minMaxFilePath);
-                            }
-                        }
-                        catch (Exception e)
-                        { }
-                    }
-                    finally
+                        });
+                    });
+                    _hintBtn.IsEnabled = false;
+                    _hintBtn.Show();
+                    var hlasy1 = 0;
+                    var hlasy2 = 0;
+                    var hlasy3 = 0;
+                    foreach (var r in g.rounds.Where(i => i != null))
                     {
-                        if (_gameSemaphore.CurrentCount == 0)
+                        if (r.hlas1)
                         {
-                            _gameSemaphore.Release();
+                            var rect = r.c1.ToTextureRect();
+
+                            _hlasy[r.player1.PlayerIndex][hlasy1].Sprite.SpriteRectangle = rect;
+                            _hlasy[r.player1.PlayerIndex][hlasy1].Show();
+                            hlasy1++;
+                        }
+                        if (r.hlas2)
+                        {
+                            var rect = r.c1.ToTextureRect();
+
+                            _hlasy[r.player1.PlayerIndex][hlasy2].Sprite.SpriteRectangle = rect;
+                            _hlasy[r.player1.PlayerIndex][hlasy2].Show();
+                            hlasy2++;
+                        }
+                        if (r.hlas3)
+                        {
+                            var rect = r.c1.ToTextureRect();
+
+                            _hlasy[r.player1.PlayerIndex][hlasy3].Sprite.SpriteRectangle = rect;
+                            _hlasy[r.player1.PlayerIndex][hlasy3].Show();
+                            hlasy3++;
                         }
                     }
-                    _lastGameWasLoaded = true;
-                    g.PlayGame(_cancellationTokenSource.Token);
-                }, cancellationTokenSource.Token);
-            }
+                    lock (Game.Money.SyncRoot)
+                    {
+                        for (var i = 0; i < _trumpLabels.Count(); i++)
+                        {
+                            var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
+                            //_trumpLabels[i].Text = g.players[i].Name;
+                            _trumpLabels[i].Text = string.Format("{0}\n{1}",
+                                                        GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
+                                                        Game.Settings.ShowScoreDuringGame
+                                                        ? sum.ToString("C", Game.CurrencyFormat)
+                                                        : string.Empty);
+                            _trumpLabels[i].Height = 60;
+                            if (Game.Settings.WhiteScore)
+                            {
+                                _trumpLabels[i].HighlightColor = Game.Settings.DefaultTextColor;
+                            }
+                            else
+                            {
+                                _trumpLabels[i].HighlightColor = sum > 0
+                                                                    ? Game.Settings.PositiveScoreColor
+                                                                    : sum < 0
+                                                                        ? Game.Settings.NegativeScoreColor
+                                                                        : Game.Settings.DefaultTextColor;
+                            }
+                            _trumpLabels[i].Show();
+                        }
+                    }
+                    try
+                    {
+                        Game.StorageAccessor.GetStorageAccess();
+                        if (File.Exists(_savedGameFilePath))
+                        {
+                            File.Delete(_savedGameFilePath);
+                        }
+                        if (File.Exists(_minMaxFilePath))
+                        {
+                            File.Delete(_minMaxFilePath);
+                        }
+                    }
+                    catch (Exception e)
+                    { }
+                }
+                finally
+                {
+                    if (_gameSemaphore.CurrentCount == 0)
+                    {
+                        _gameSemaphore.Release();
+                    }
+                }
+                _lastGameWasLoaded = true;
+                g.PlayGame(_cancellationTokenSource.Token);
+            }, cancellationTokenSource.Token);
         }
 
        public void SaveGame()

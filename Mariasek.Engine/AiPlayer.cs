@@ -2584,7 +2584,8 @@ namespace Mariasek.Engine
             var estimatedBasicPointsLost = EstimateBasicPointsLost(hand, talon);
             var estimatedPointsLost = estimatedBasicPointsLost + estimatedKQPointsLost;
 
-            DebugInfo.MaxEstimatedPointsLost = estimatedPointsLost;
+            DebugInfo.MaxEstimatedBasicPointsLost = estimatedBasicPointsLost;
+            DebugInfo.MaxEstimatedHlasPointsLost = estimatedKQPointsLost;
             _debugString.AppendFormat("MaxEstimatedLoss: {0} pts\n", estimatedPointsLost);
 
             return estimatedPointsLost;
@@ -2611,7 +2612,14 @@ namespace Mariasek.Engine
                                               !(hand.HasA(b) ||
                                                 hand.HasK(b) ||
                                                 (hand.HasQ(b) &&
-                                                 hand.HasJ(b))))))
+                                                 hand.HasJ(b)) ||
+                                                ((hand.HasQ(b) ||
+                                                  hand.HasJ(b)) &&
+                                                 hand.Has9(b) &&
+                                                 hand.Has8(b) &&
+                                                 hand.CardCount(_trump.Value) >= 3) ||
+                                                (hand.CardCount(b) >= 5 &&
+                                                 hand.CardCount(_trump.Value) >= 4)))))
                                 .ToList();
 
             var estimatedBasicPointsLost = Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -2892,7 +2900,7 @@ namespace Mariasek.Engine
                                         ? kqMaxOpponentScore
                                         : kqMaxOpponentScore - 20;
             var potentialBasicPointsLost = minBasicPointsLost + (hand.HasA(_g.trump.Value) ? 0 : 10);
-            var lossPerPointsLost = Enumerable.Range(1, maxAllowedPointsLost == 30 ? 17 : 19)
+            var lossPerPointsLost = Enumerable.Range(1, maxAllowedPointsLost == 30 ? 16 : 18)
                                               .Select(i => maxAllowedPointsLost + i * 10)
                                               .ToDictionary(k => k,
                                                             v => (_g.CalculationStyle == CalculationStyle.Adding
@@ -3402,7 +3410,7 @@ namespace Mariasek.Engine
                                   .ToDictionary(k => k,
                                                 v => (_g.CalculationStyle == CalculationStyle.Adding
                                                       ? (v - 90) / 10 * 2 * _g.QuietHundredValue
-                                                      : (1 << (v - 100) / 10) * 2 * _g.QuietHundredValue) * 2); //ztrata pro je dvojnasobna (plati obema souperum)
+                                                      : (1 << (v - 100) / 10) * 2 * _g.QuietHundredValue) * 2); //ztrata pro aktera je dvojnasobna (plati obema souperum)
 
                 var estimatedPointsLost = _trump != null ? EstimateMaxTotalPointsLost(Hand, _talon) : 0;
 
@@ -3424,7 +3432,8 @@ namespace Mariasek.Engine
                           ((_gamesBalance > 0 &&
                             _gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0 &&
                             _maxMoneyLost > -Settings.SafetyBetlThreshold &&
-                            lossPerPointsLost[estimatedPointsLost] < Settings.SafetyBetlThreshold) ||
+                            (!lossPerPointsLost.ContainsKey(estimatedPointsLost) ||
+                             lossPerPointsLost[estimatedPointsLost] < Settings.SafetyBetlThreshold)) ||
                            //estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore + 40 ||
                            (estimatedFinalBasicScore >= 10 &&
                             estimatedFinalBasicScore + kqScore >= 40 &&
