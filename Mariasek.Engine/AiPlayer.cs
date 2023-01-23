@@ -2594,15 +2594,14 @@ namespace Mariasek.Engine
         public int EstimateBasicPointsLost(List<Card> hand = null, List<Card> talon = null, bool estimateMaxPointsLost = true)
         {
             hand = hand ?? Hand;
-            talon = talon ?? _talon;
+            talon = talon ?? _talon ?? new List<Card>();
 
             var trump = _trump ?? _g.trump;
             var noKQSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => !hand.HasK(b) &&
                                             !hand.HasQ(b) &&
-                                            (talon == null ||
-                                             (!talon.HasK(b) &&
-                                              !talon.HasQ(b))));
+                                            !talon.HasK(b) &&
+                                            !talon.HasQ(b));
             var opponentAXCount = 8 - hand.CardCount(Hodnota.Eso) - hand.CardCount(Hodnota.Desitka);
             var weakXs = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => hand.HasX(b) &&
@@ -2628,8 +2627,8 @@ namespace Mariasek.Engine
                                                .Sum(b => (hand.HasA(b) ? 0 : 10) +              //body za souperovo eso
                                                          ((hand.HasX(b) &&                      //body za souperovu desitku
                                                            !weakXs.Contains(b)) ||              //nebo za mou desitku kterou asi neuhraju
-                                                          (hand.HasA(b) &&
-                                                           hand.CardCount(b) == 1)
+                                                          (hand.CardCount(b) == 1 &&            //mam-li jen jednu kartu v barve unikne mi jen jedna desitka
+                                                           !weakXs.Contains(b))                 //pokud to neni plonkova desitka
                                                           ? 0 : 10) +
                                                          (estimateMaxPointsLost                 //body ktere souperi muzou namazat
                                                           ? 10 * GetTotalHoles(hand, talon, b) : 0));
@@ -2983,6 +2982,7 @@ namespace Mariasek.Engine
                                    hand.HasSuit(b))
                        .All(b => hand.HasA(b)))))
             {
+                DebugInfo.EstimatedHundredLoss = lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -2992,6 +2992,7 @@ namespace Mariasek.Engine
                               !hand.HasA(i.Suit) &&
                               !hand.HasX(i.Suit)))
             {
+                DebugInfo.EstimatedHundredLoss = lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 return true;
             }
             if (!hand.HasA(_trump.Value) &&
@@ -3031,6 +3032,7 @@ namespace Mariasek.Engine
                                    (hand.HasA(i.Suit) ||
                                     hand.HasK(i.Suit))) >= 2)))
 			{
+                DebugInfo.EstimatedHundredLoss = lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
 			}
@@ -3038,6 +3040,7 @@ namespace Mariasek.Engine
                 (!hand.HasA(_trump.Value) ||
                  !hand.HasX(_trump.Value)))
 			{
+                DebugInfo.EstimatedHundredLoss = lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
 			}
@@ -3046,6 +3049,7 @@ namespace Mariasek.Engine
                 !hand.HasK(_trump.Value) &&
                 !hand.HasQ(_trump.Value))
             {
+                DebugInfo.EstimatedHundredLoss = lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -3088,6 +3092,7 @@ namespace Mariasek.Engine
                  nn == 3 &&
                  sh.Count == 2))
             {
+                DebugInfo.EstimatedHundredLoss = lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -3102,6 +3107,7 @@ namespace Mariasek.Engine
                                  !hand.HasA(b) &&
                                  !hand.HasK(b))) > 1)
             {
+                DebugInfo.EstimatedHundredLoss = lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -3116,6 +3122,7 @@ namespace Mariasek.Engine
                                 hand.CardCount(b) > 2 &&        //???
                                 hand.CardCount(b) < 5) > 1)
             {
+                DebugInfo.EstimatedHundredLoss = lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -3124,6 +3131,7 @@ namespace Mariasek.Engine
                 hand.CardCount(_trump.Value) == 7 &&
                 n >= 3)
             {
+                DebugInfo.EstimatedHundredLoss = lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -3175,6 +3183,7 @@ namespace Mariasek.Engine
             System.Diagnostics.Debug.WriteLine(n);
             System.Diagnostics.Debug.WriteLine(nn);
             DebugInfo.HundredTooRisky = result;
+            DebugInfo.EstimatedHundredLoss = result ? lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore] : 0;
 
             return result;
         }
