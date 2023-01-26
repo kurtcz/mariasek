@@ -857,6 +857,10 @@ namespace Mariasek.Engine
 
                 //u barvy kde mam dve karty se snaz si nechat tu nizsi
                 var reducedTalon = talon.Where(i => i.Suit != trumpCard.Suit &&
+                                                    !(hand.HasK(i.Suit) &&
+                                                      i.Value == Hodnota.Svrsek) &&
+                                                    !(hand.HasQ(i.Suit) &&
+                                                      i.Value == Hodnota.Kral) &&
                                                     (topCardPerSuit[i.Suit].CardCount > 2 ||
                                                      (topCardPerSuit[i.Suit].CardCount == 2 &&
                                                       topCardPerSuit[i.Suit].TopCard != i)))
@@ -2686,12 +2690,14 @@ namespace Mariasek.Engine
                            (!_teamMateDoubledGame ||
                             _g.MandatoryDouble)) &&
                           hand.SuitCount() >= 3 &&
-                          !(Enum.GetValues(typeof(Barva)).Cast<Barva>()         //aspon v jedne barve nemam A nebo X+K a
+                          !(Enum.GetValues(typeof(Barva)).Cast<Barva>()         //aspon v jedne barve nemam A nebo X+K nebo K+Q a
                                 .Where(b => hand.HasSuit(b))
                                 .All(b => hand.HasA(b) ||
                                           (hand.HasX(b) &&
                                            (hand.HasK(b) ||
-                                            hand.CardCount(b) > 2))) ||
+                                            hand.CardCount(b) > 2)) ||
+                                          (hand.HasK(b) &&
+                                           hand.HasQ(b))) ||
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()         //aspon v jedne barve nemam A nebo X+K a
                                 .Where(b => hand.HasA(b))
                                 .Sum(b => hand.Count(i => i.Value >= Hodnota.Kral)) <= 4) &&
@@ -2711,7 +2717,9 @@ namespace Mariasek.Engine
                                 .All(b => hand.HasA(b) ||
                                           (hand.HasX(b) &&
                                            (hand.HasK(b) ||
-                                            hand.CardCount(b) > 2))) ||
+                                            hand.CardCount(b) > 2)) ||
+                                          (hand.HasK(b) &&
+                                           hand.HasQ(b))) ||
                             hand.Where(i => i.Suit != _trump.Value)             //2d. aspon dve esa
                                 .Count(i => i.Value == Hodnota.Eso) >= 2)) ||
                          (hand.CardCount(_trump.Value) == 4 &&                  //3. nebo 4 trumfy a
@@ -2723,7 +2731,9 @@ namespace Mariasek.Engine
                                 .All(b => hand.HasA(b) ||
                                           (hand.HasX(b) &&
                                            (hand.HasK(b) ||
-                                            hand.CardCount(b) > 2)))) &&
+                                            hand.CardCount(b) > 2)) ||
+                                          (hand.HasK(b) &&
+                                           hand.HasQ(b)))) &&
                           (hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||    //3a. mene nez 3 vysoke karty celkem
                            (!hand.HasA(_trump.Value) ||                         //3a2.mam 4 trumfy bez esa a aspon jednu dalsi barvu bez esa
                             (hand.SuitCount() == 2 ||
