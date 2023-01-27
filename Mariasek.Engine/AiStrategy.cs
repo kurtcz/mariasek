@@ -1421,6 +1421,9 @@ namespace Mariasek.Engine
                             //(_gameType & (Hra.Kilo | Hra.KiloProti)) == 0 &&
                             myInitialHand.CardCount(_trump) <= 5 &&
                             topTrumps.Any() &&
+                            opponentCards.HasSuit(_trump) &&
+                            (!hands[MyIndex].Has7(_trump) ||
+                             hands[MyIndex].CardCount(_trump) > 2) &&
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump &&
                                             hands[MyIndex].HasSuit(b))

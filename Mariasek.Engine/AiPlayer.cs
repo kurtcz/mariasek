@@ -2639,10 +2639,11 @@ namespace Mariasek.Engine
             estimatedBasicPointsLost = Math.Min(estimatedBasicPointsLost, (opponentAXCount + weakXs.Count) * 10);//uprav maximum souperovych bodu
 
             if (estimateMaxPointsLost &&
-                estimatedBasicPointsLost >= 50 &&   //mam-li malo trumfu a hodne prohranych bodu, asi neuhraju ani posledni stych
-                (hand.CardCount(_trump.Value) <= 3 ||
-                 (hand.CardCount(_trump.Value) == 4 &&
-                  !hand.HasA(_trump.Value))))
+                ((estimatedBasicPointsLost >= 50 &&   //mam-li malo trumfu a hodne prohranych bodu, asi neuhraju ani posledni stych
+                  (hand.CardCount(_trump.Value) == 4 &&
+                   !hand.HasA(_trump.Value))) ||
+                 (estimatedBasicPointsLost >= 40 &&
+                  hand.CardCount(_trump.Value) <= 3)))
             {
                 estimatedBasicPointsLost += 10;
             }
@@ -4066,8 +4067,12 @@ namespace Mariasek.Engine
                   _betlBalance / (float)_betlSimulations >= certaintyThreshold)) &&
                 PlayerIndex == _g.GameStartingPlayerIndex &&
                 _betlBalance / (float)_betlSimulations >= betlThreshold &&
-                (TeamMateIndex != -1 || //pokud jsem volil betla, tak si dej re a vys jen kdyz ma max 1 diru (kterou vyjede)
-                 GetBetlHoles() <= 1))
+                (TeamMateIndex != -1 ||     //pokud jsem volil betla, tak si dej re a vys jen kdyz mas jedn jednu diru (kterou vyjedes)
+                 GetBetlHoles() <= 1 ||
+                 (GetBetlHoles() == 2 &&    //nebo pokud mas 2 diry z nichz jedna je samotna osmicka
+                  Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                      .Any(b => (Hand.Has8(b) &&
+                                 Hand.CardCount(b) == 1)))))
             {
                 bid |= bidding.Bids & Hra.Betl;
                 //minRuleCount = Math.Min(minRuleCount, _betlBalance);
