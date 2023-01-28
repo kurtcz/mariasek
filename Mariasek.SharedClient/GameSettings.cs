@@ -278,7 +278,7 @@ namespace Mariasek.SharedClient
             SolitaryXThresholdDefense = 0.5f; //v obrane musi mit prah vyssi hodnotu aby tahali jen kdyz je to skoro jiste
             RiskFactorSevenDefense = 0.5f; //pouziva se u pravidla bodovat nebo vytlacit trumf proti sedme
             SafetyGameThreshold = 40;
-            SafetyHundredThreshold = 80;
+            SafetyHundredThreshold = 56;
             SafetyBetlThreshold = CalculationStyle == CalculationStyle.Adding ? 40 : 64;
             Thresholds = new []
             {

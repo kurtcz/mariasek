@@ -623,6 +623,10 @@ namespace Mariasek.SharedClient
             {
                 Settings.FirstMinMaxRound = 8;
             }
+            if (Settings.SafetyHundredThreshold % 8 > 0)
+            {
+                Settings.SafetyHundredThreshold -= Settings.SafetyHundredThreshold % 8;
+            }
             if (Settings.SafetyBetlThreshold > 0 &&
                 Settings.SafetyBetlThreshold < 48)
             {

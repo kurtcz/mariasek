@@ -410,8 +410,9 @@ namespace Mariasek.SharedClient
             {
                 Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 - 175),
                 Width = (int)Game.VirtualScreenWidth / 2 - 190,
-                Items = new SelectorItems() { { "Žádné", 0 }, { "50x základ", 50 }, { "60x základ", 60 },
-                                              { "70x základ", 70 }, { "80x základ", 80 }, { "90x základ", 90 } }
+                Items = new SelectorItems() { { "Žádné", 0 }, { "40x základ", 40 }, { "48x základ", 48 },
+                                              { "56x základ", 56 }, { "64x základ", 64 }, { "72x základ", 72 },
+                                              { "80x základ", 80 }, { "88x základ", 88 }, { "96x základ", 96 } }
             };
             _safetyHundredSelector.SelectedIndex = 0;
             _safetyHundredSelector.SelectionChanged += SafetyHundredChanged;

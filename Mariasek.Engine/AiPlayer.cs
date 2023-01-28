@@ -2942,6 +2942,7 @@ namespace Mariasek.Engine
             if (Settings.SafetyHundredThreshold > 0 &&
                 _minWinForHundred <= -Settings.SafetyHundredThreshold)
             {
+                DebugInfo.EstimatedHundredLoss = lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -2953,6 +2954,7 @@ namespace Mariasek.Engine
                                 b != _trump.Value)
                     .Any(b => hand.HasSolitaryX(b)))
             {
+                DebugInfo.EstimatedHundredLoss = lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
