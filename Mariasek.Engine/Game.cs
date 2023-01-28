@@ -1959,7 +1959,7 @@ namespace Mariasek.Engine
                 }
                 if (players[playerIndex].DebugInfo.EstimatedHundredLoss < 0)
                 {
-                    BiddingDebugInfo.AppendFormat("\nOdhadovaná prohra při kilu: {0}", -players[playerIndex].DebugInfo.EstimatedHundredLoss);
+                    BiddingDebugInfo.AppendFormat("\nOdhadovaná prohra při kilu: {0}", players[playerIndex].DebugInfo.EstimatedHundredLoss);
                 }
                 BiddingDebugInfo.AppendFormat("\nPrůměrný simulovaný bodový zisk: {0}", players[playerIndex].DebugInfo.AvgSimulatedPointsWon);
                 if (players[playerIndex].DebugInfo.MaxSimulatedLoss < 0)
