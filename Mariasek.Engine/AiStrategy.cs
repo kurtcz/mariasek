@@ -6230,8 +6230,18 @@ namespace Mariasek.Engine
                         if (c1.Suit != _trump &&
                             TeamMateIndex == player3 &&
                             ValidCards(c1, hands[MyIndex]).Any(i => i.Suit != _trump &&
-                                                                  i.Value == Hodnota.Desitka) &&
+                                                                    i.Value == Hodnota.Desitka) &&
                             _probabilities.SuitProbability(TeamMateIndex, c1.Suit, RoundNumber) < 1 &&
+                            _probabilities.PotentialCards(player1).CardCount(_trump) > 2)
+                        {
+                            return null;
+                        }
+                        if (c1.Suit == _trump &&
+                            TeamMateIndex == player3 &&
+                            ValidCards(c1, hands[MyIndex]).Any(i => i.Suit != _trump &&
+                                                                    i.Value >= Hodnota.Desitka) &&
+                            _probabilities.PotentialCards(TeamMateIndex).Count(i => i.Suit == _trump &&
+                                                                                    i.Value > c1.Value) >= 1 &&
                             _probabilities.PotentialCards(player1).CardCount(_trump) > 2)
                         {
                             return null;
