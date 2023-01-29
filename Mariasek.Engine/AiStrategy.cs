@@ -5710,6 +5710,10 @@ namespace Mariasek.Engine
 
                     if (TeamMateIndex == player2)
                     {
+                        if (!_probabilities.PotentialCards(player3).HasSuit(_trump))
+                        {
+                            return null;
+                        }
                         //hraj trumf pokud jsou vsechny ostatni barvy zakazane a zaroven mas v nejake netrumfove barve eso
                         if (hands[MyIndex].HasSuit(_trump) &&
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -5753,10 +5757,21 @@ namespace Mariasek.Engine
                                                                             i.Value != Hodnota.Desitka &&
                                                                             !_bannedSuits.Contains(i.Suit))
                                                                 .ToList();
-
+                    if (cardsToPlay.Has7(_trump) &&
+                        cardsToPlay.Count > 1)
+                    {
+                        cardsToPlay = cardsToPlay.Where(i => i.Suit != _trump ||
+                                                             i.Value != Hodnota.Sedma)
+                                                 .ToList();
+                    }
                     if (TeamMateIndex != -1)
                     {
                         var opponent = TeamMateIndex == player2 ? player3 : player2;
+
+                        if (!_probabilities.PotentialCards(opponent).HasSuit(_trump))
+                        {
+                            return null;
+                        }
 
                         if (cardsToPlay.All(i => i.Suit == _trump) &&
                             ((_gameType & Hra.Kilo) != 0 ||
