@@ -296,7 +296,7 @@ namespace Mariasek.SharedClient
                     }
                     var fileInfos = Directory.GetFiles(_editorPath, "*.hra")
                                              .Select(i => new FileInfo(i))
-                                             .OrderBy(i => i.CreationTime.ToString("dd.MM.yyyy HH:mm:ss"))
+                                             .OrderBy(i => i.CreationTime)
                                              .ThenBy(i => i.Name)
                                              .ToArray();
 
