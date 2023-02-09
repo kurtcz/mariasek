@@ -2923,18 +2923,21 @@ namespace Mariasek.Engine
                                                                  (_g.trump.Value == Barva.Cerveny
                                                                     ? 4
                                                                     : 2));
+            if (lossPerPointsLost.ContainsKey(maxBasicPointsLost + kqLikelyOpponentScore))
+            {
+                DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
+            }
             //pokud hrozi vysoka prohra, tak do kila nejdi
             if (lossPerPointsLost.ContainsKey(maxBasicPointsLost + kqLikelyOpponentScore) &&
                  lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore] >= Settings.SafetyHundredThreshold)
             {
-                DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
             if (lossPerPointsLost.ContainsKey(potentialBasicPointsLost + kqMaxOpponentScore) &&
                 lossPerPointsLost[potentialBasicPointsLost + kqMaxOpponentScore] >= Settings.SafetyHundredThreshold)
             {
-                DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[potentialBasicPointsLost + kqMaxOpponentScore];
+                DebugInfo.EstimatedHundredLoss = Math.Min(DebugInfo.EstimatedHundredLoss, -lossPerPointsLost[potentialBasicPointsLost + kqMaxOpponentScore]);
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -2942,7 +2945,6 @@ namespace Mariasek.Engine
             if (Settings.SafetyHundredThreshold > 0 &&
                 _minWinForHundred <= -Settings.SafetyHundredThreshold)
             {
-                DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -2954,7 +2956,6 @@ namespace Mariasek.Engine
                                 b != _trump.Value)
                     .Any(b => hand.HasSolitaryX(b)))
             {
-                DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -2999,7 +3000,6 @@ namespace Mariasek.Engine
                                    hand.HasSuit(b))
                        .All(b => hand.HasA(b)))))
             {
-                DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -3009,7 +3009,6 @@ namespace Mariasek.Engine
                               !hand.HasA(i.Suit) &&
                               !hand.HasX(i.Suit)))
             {
-                DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 return true;
             }
             if (!hand.HasA(_trump.Value) &&
@@ -3022,7 +3021,6 @@ namespace Mariasek.Engine
                     .Count(b => !hand.HasK(b) &&
                                 !hand.HasQ(b)) > 1)
             {
-                DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -3050,7 +3048,6 @@ namespace Mariasek.Engine
                                    (hand.HasA(i.Suit) ||
                                     hand.HasK(i.Suit))) >= 2)))
 			{
-                DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
 			}
@@ -3058,7 +3055,6 @@ namespace Mariasek.Engine
                 (!hand.HasA(_trump.Value) ||
                  !hand.HasX(_trump.Value)))
 			{
-                DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
 			}
@@ -3067,7 +3063,6 @@ namespace Mariasek.Engine
                 !hand.HasK(_trump.Value) &&
                 !hand.HasQ(_trump.Value))
             {
-                DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -3110,7 +3105,6 @@ namespace Mariasek.Engine
                  nn == 3 &&
                  sh.Count == 2))
             {
-                DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -3125,7 +3119,6 @@ namespace Mariasek.Engine
                                  !hand.HasA(b) &&
                                  !hand.HasK(b))) > 1)
             {
-                DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -3140,7 +3133,6 @@ namespace Mariasek.Engine
                                 hand.CardCount(b) > 2 &&        //???
                                 hand.CardCount(b) < 5) > 1)
             {
-                DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -3149,7 +3141,6 @@ namespace Mariasek.Engine
                 hand.CardCount(_trump.Value) == 7 &&
                 n >= 3)
             {
-                DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -3201,7 +3192,6 @@ namespace Mariasek.Engine
             System.Diagnostics.Debug.WriteLine(n);
             System.Diagnostics.Debug.WriteLine(nn);
             DebugInfo.HundredTooRisky = result;
-            DebugInfo.EstimatedHundredLoss = result ? -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore] : 0;
 
             return result;
         }
