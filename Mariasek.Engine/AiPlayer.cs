@@ -3726,10 +3726,19 @@ namespace Mariasek.Engine
                    (((Hand.HasK(_trumpCard.Suit) ||             //pokud trham a
                       Hand.HasQ(_trumpCard.Suit)) &&
                      (kqScore >= 40 ||                          //mam aspon 40 bodu v hlaskach nebo
-                      (kqScore >= 20 &&                         //aspon 20 bodu v hlaskach a aspon 10 bodu v ostrych nebo
+                      ((bidding.Bids & Hra.Sedma) == 0 &&
+                       kqScore >= 20 &&                         //aspon 20 bodu v hlaskach a aspon 10 bodu v ostrych nebo
                        axCount >= 1 &&
                        estimatedFinalBasicScore >= 10) ||
-                      (axCount >= 2 &&                          //aspon 20 bodu v ostrych nebo
+                      ((bidding.Bids & Hra.Sedma) == 0 &&
+                       axCount >= 2 &&                          //aspon 2 ostre karty
+                       estimatedFinalBasicScore >= 10) ||
+                      ((bidding.Bids & Hra.Sedma) != 0 &&       //pri sedme
+                       axCount >= 3 &&                          //aspon 3 ostre karty
+                       estimatedFinalBasicScore >= 20) ||
+                      ((bidding.Bids & Hra.Sedma) != 0 &&       //pri sedme
+                       kqScore >= 20 &&                         //aspon 20 bodu v hlaskach a
+                       axCount >= 2 &&                          //aspon 2 ostre karty
                        estimatedFinalBasicScore >= 10) ||
                       (Hand.CardCount(_trumpCard.Suit) >= 4 &&
                        (Hand.HasA(_trumpCard.Suit) ||             //pokud trham a
