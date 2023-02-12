@@ -1200,20 +1200,37 @@ namespace Mariasek.Engine
 
                 return flavour;
             }
-            //zpocitej ztraty v pripade kila (pro aktera)
-            //pro obrance pocitame ztraty v pripade fleku na hru a ticheho kila proti
-            //obe hodnoty jsou stejne, takze staci jeden vzorecek
-            var lossPerPointsLost = Enumerable.Range(0, 10)
+            //zpocitej ztraty v pripade v pripade fleku na hru a ticheho kila
+            //pokud ma akter trumfovou hlasku, tak ber ztraty bez fleku (v pripade sedmy by se mohlo hrat i bez fleku)
+            var gameMultiplier = PlayerIndex == _g.GameStartingPlayerIndex
+                                 ? TrumpCard != null
+                                   ? Hand.HasK(TrumpCard.Suit) &&
+                                     Hand.HasQ(TrumpCard.Suit) &&
+                                     (Hand.HasA(TrumpCard.Suit) ||
+                                      Hand.HasX(TrumpCard.Suit) ||
+                                      Hand.CardCount(TrumpCard.Suit) >= 5)
+                                     ? 1 : 2
+                                   : 0
+                                 : 2;
+            var gameValue = PlayerIndex == _g.GameStartingPlayerIndex
+                            ? gameMultiplier * _g.QuietHundredValue
+                            : Math.Max(_g.HundredValue, gameMultiplier * _g.QuietHundredValue);
+            var lossPerPointsLost = TrumpCard != null
+                                    ? Enumerable.Range(0, 10)
                                               .Select(i => 100 + i * 10)
                                               .ToDictionary(k => k,
-                                                            v => (_g.CalculationStyle == CalculationStyle.Adding
-                                                                  ? (v - 90) / 10 * Math.Max(_g.HundredValue, 2 * _g.QuietHundredValue)
-                                                                  : (1 << (v - 100) / 10) * Math.Max(_g.HundredValue, 2 * _g.QuietHundredValue)) *
+                                                            v => ((_g.CalculationStyle == CalculationStyle.Adding
+                                                                   ? (v - 90) / 10 * gameValue
+                                                                   : (1 << (v - 100) / 10) * gameValue) -
+                                                                  (Hand.CardCount(TrumpCard.Suit) >= 5 &&
+                                                                   Hand.Has7(TrumpCard.Suit)
+                                                                    ? _g.SevenValue : 0)) *
                                                                  (PlayerIndex == _g.GameStartingPlayerIndex //ztrata pro aktera je dvojnasobna (plati obema souperum)
                                                                   ? TrumpCard.Suit == Barva.Cerveny
                                                                     ? 4
                                                                     : 2
-                                                                  : 1));
+                                                                  : 1))
+                                    : new Dictionary<int, int>();
             var tempTalon = Hand.Count == 12 ? ChooseNormalTalon(Hand, TrumpCard) : _talon ?? new List<Card>();
             var tempHand = Hand.Where(i => !tempTalon.Contains(i)).ToList();
             var kqScore = _g.trump.HasValue
@@ -2919,8 +2936,8 @@ namespace Mariasek.Engine
                                                                   ? (v - maxAllowedPointsLost)/ 10 * _g.HundredValue
                                                                   : (1 << (v - maxAllowedPointsLost - 10) / 10) * _g.HundredValue) *
                                                                  (_g.trump.Value == Barva.Cerveny
-                                                                    ? 4
-                                                                    : 2));
+                                                                  ? 4
+                                                                  : 2));
             if (lossPerPointsLost.ContainsKey(maxBasicPointsLost + kqLikelyOpponentScore))
             {
                 DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
@@ -3420,14 +3437,31 @@ namespace Mariasek.Engine
                 var totalHoles = GetTotalHoles();
                 var minBasicPointsLost = EstimateMinBasicPointsLost();
 
-                var lossPerPointsLost = Enumerable.Range(0, 10)
-                                  .Select(i => 100 + i * 10)
-                                  .ToDictionary(k => k,
-                                                v => (_g.CalculationStyle == CalculationStyle.Adding
-                                                      ? (v - 90) / 10 * 2 * _g.QuietHundredValue
-                                                      : (1 << (v - 100) / 10) * 2 * _g.QuietHundredValue) * 2); //ztrata pro aktera je dvojnasobna (plati obema souperum)
+                var gameMultiplier = _trump.HasValue
+                                     ? Hand.HasK(_trump.Value) &&
+                                       Hand.HasQ(_trump.Value) &&
+                                       (Hand.HasA(_trump.Value) ||
+                                        Hand.HasX(_trump.Value) ||
+                                        Hand.CardCount(_trump.Value) >= 5)
+                                       ? 1 : 2
+                                     : 0;
+                var gameValue = gameMultiplier * _g.QuietHundredValue;
+                var lossPerPointsLost = _trump.HasValue
+                                        ? Enumerable.Range(0, 10)
+                                                    .Select(i => 100 + i * 10)
+                                                    .ToDictionary(k => k,
+                                                                  v => ((_g.CalculationStyle == CalculationStyle.Adding
+                                                                         ? (v - 90) / 10 * gameValue 
+                                                                         : (1 << (v - 100) / 10) * gameValue) -
+                                                                        (Hand.CardCount(_trump.Value) >= 5 &&
+                                                                         Hand.Has7(_trump.Value)
+                                                                         ? _g.SevenValue : 0)) *
+                                                                        (_trump.Value == Barva.Cerveny
+                                                                         ? 4
+                                                                         : 2)) //ztrata pro aktera je dvojnasobna (plati obema souperum)
+                                        : new Dictionary<int, int>();
 
-                var estimatedPointsLost = _trump != null ? EstimateMaxTotalPointsLost(Hand, _talon) : 0;
+                var estimatedPointsLost = _trump.HasValue ? EstimateMaxTotalPointsLost(Hand, _talon) : 0;
 
                 if (Settings.CanPlayGameType[Hra.Kilo] && 
                     _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&

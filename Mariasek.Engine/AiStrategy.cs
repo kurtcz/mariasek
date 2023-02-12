@@ -1176,6 +1176,18 @@ namespace Mariasek.Engine
                         {
                             return null;
                         }
+                        if (SevenValue >= GameValue &&      //pri sedme pokud mas nejvyssi karty jen v trumfech
+                            topCards.SuitCount() == 1 &&    //a v kazde dalsi barve mas uhratelnou desitku
+                            topCards.HasSuit(_trump) &&     //tak nejdriv vytahni ze souperu trumfy a nezbavuj se tempa
+                            topCards.Count >= opponentTrumps.Count &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => b != _trump &&
+                                            hands[MyIndex].HasSuit(b))
+                                .All(b => hands[MyIndex].HasX(b) &&
+                                          hands[MyIndex].CardCount(b) > 1))
+                        {
+                            return null;
+                        }
                         var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                         .Where(b => b != _trump &&
                                                     hands[MyIndex].HasX(b) &&
