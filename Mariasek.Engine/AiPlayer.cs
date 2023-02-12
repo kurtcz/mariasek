@@ -2689,117 +2689,115 @@ namespace Mariasek.Engine
                             hand.SuitCount() == 4 &&
                             hand.Count(i => i.Value == Hodnota.Eso ||
                                             (i.Value == Hodnota.Desitka &&
-                                             hand.HasA(i.Suit))) >= 4)) ||
-                         (hand.CardCount(_trump.Value) <= 4 &&                  //2. nebo max. 4 trumfy a
-                          (TeamMateIndex == -1 ||
-                           (!_teamMateDoubledGame ||
-                            _g.MandatoryDouble)) &&
-                          hand.SuitCount() >= 3 &&
-                          !(Enum.GetValues(typeof(Barva)).Cast<Barva>()         //aspon v jedne barve nemam A nebo X+K nebo K+Q a
-                                .Where(b => hand.HasSuit(b))
-                                .All(b => hand.HasA(b) ||
-                                          (hand.HasX(b) &&
-                                           (hand.HasK(b) ||
-                                            hand.CardCount(b) > 2)) ||
-                                          (hand.HasK(b) &&
-                                           hand.HasQ(b))) ||
-                            Enum.GetValues(typeof(Barva)).Cast<Barva>()         //aspon v jedne barve nemam A nebo X+K a
-                                .Where(b => hand.HasA(b))
-                                .Sum(b => hand.Count(i => i.Value >= Hodnota.Kral)) <= 4) &&
-                          (!hand.HasA(_trump.Value) ||                          //nemam trumfove A nebo X a
-                           !hand.HasX(_trump.Value)) &&
-                          !(hand.HasK(_trump.Value) &&                          //nevidim do trumfoveho hlasu a
-                            hand.HasQ(_trump.Value)) &&
-                          !(//Enum.GetValues(typeof(Barva)).Cast<Barva>()       //neni pravda ze
-                            //    .Where(b => b != _trump &&                    //2a. mam dlouhou tlacnou barvu nebo
-                            //                hand.HasSuit(b))
-                            //    .Any(b => hand.CardCount(b) >= 5) ||
-                            hand.Where(i => i.Suit != _trump)                   //2b. mam vysoke netrumfove karty nebo
-                                .All(i => i.Value >= Hodnota.Svrsek) ||
-                            Enum.GetValues(typeof(Barva)).Cast<Barva>()         //2c. mam v kazde netrumfove barve A nebo X+K nebo X+2 nebo
-                                .Where(b => b != _trump &&
-                                            hand.HasSuit(b))
-                                .All(b => hand.HasA(b) ||
-                                          (hand.HasX(b) &&
-                                           (hand.HasK(b) ||
-                                            hand.CardCount(b) > 2)) ||
-                                          (hand.HasK(b) &&
-                                           hand.HasQ(b))) ||
-                            hand.Where(i => i.Suit != _trump.Value)             //2d. aspon dve esa
-                                .Count(i => i.Value == Hodnota.Eso) >= 2)) ||
-                         (hand.CardCount(_trump.Value) == 4 &&                  //3. nebo 4 trumfy a
-                          (TeamMateIndex == -1 ||
-                           (!_teamMateDoubledGame ||
-                            _g.MandatoryDouble)) &&
-                          !(Enum.GetValues(typeof(Barva)).Cast<Barva>()         //nemam v kazde netrumfove barve A nebo X+K nebo X+2 a jedno z
-                                .Where(b => hand.HasSuit(b))
-                                .All(b => hand.HasA(b) ||
-                                          (hand.HasX(b) &&
-                                           (hand.HasK(b) ||
-                                            hand.CardCount(b) > 2)) ||
-                                          (hand.HasK(b) &&
-                                           hand.HasQ(b)))) &&
-                          (hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||    //3a. mene nez 3 vysoke karty celkem
-                           (!hand.HasA(_trump.Value) ||                         //3a2.mam 4 trumfy bez esa a aspon jednu dalsi barvu bez esa
-                            (hand.SuitCount() == 2 ||
-                             (hand.SuitCount() == 3 &&
-                              Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                  .Any(b => !hand.HasA(b))))) ||
-                           (!(((hand.HasA(_trump.Value) &&
-                                (hand.HasX(_trump.Value) ||
-                                 hand.HasK(_trump.Value) ||
-                                 hand.HasQ(_trump.Value))) ||
-                               (hand.HasK(_trump.Value) &&
-                                hand.HasQ(_trump.Value))) &&
-                              hand.SuitCount() == 4 &&
-                              Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                .Where(b => hand.HasSuit(b) &&
-                                            b != _trump.Value)
-                                .All(b => hand.CardCount(b) >= 2 &&
-                                          hand.Any(i => i.Suit == b &&
-                                                        i.Value >= Hodnota.Desitka))) &&
-                            hand.Count(i => i.Value == Hodnota.Eso) +           //3b. nebo mene nez 2 (resp. 3) uhratelne A, X
-                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                .Count(b => (hand.HasX(b) &&
-                                             (hand.HasK(b) ||
-                                              hand.HasA(b) ||
-                                              (hand.HasQ(b) &&
-                                               hand.CardCount(b) > 2)))) < (TeamMateIndex == -1 ? 2 : 3) &&
-                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                .Where(b => b != _trump.Value)
-                                .All(b => hand.CardCount(b) < 4)) ||            //   (vyjma pripadu kdy mam dlouhou netrumfovou tlacnou barvu)
-                           (hand.Select(i => i.Suit).Distinct().Count() < 4 &&  //3c. nebo nevidim do nejake barvy
-                           !(((hand.HasA(_trump.Value) ||                             //    (vyjma pripadu kdy mam trumfove A nebo X a max. 2 neodstranitelne netrumfove diry)
-                               hand.HasX(_trump.Value)) &&
-                              GetTotalHoles(hand, talon, false, false) <= 2) ||                //    (nebo vyjma pripadu kdy mam X,K,Q trumfove a k tomu netrumfove eso
-                             (hand.HasX(_trump.Value) &&
-                              hand.HasK(_trump.Value) &&
-                              (hand.HasQ(_trump.Value) ||
-                               hand.HasJ(_trump.Value)) &&
-                              Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                  .Where(b => b != _trump.Value &&
-                                              hand.HasSuit(b))
-                                  .Any(b => hand.HasA(b))))))) ||
-                         (hand.CardCount(_trump.Value) == 5 &&                  //4.  5 trumfu a nemam trumfove A+K+S
-                          (TeamMateIndex == -1 ||
-                           (!_teamMateDoubledGame ||
-                            _g.MandatoryDouble)) &&
-                          hand.Count(i => i.Suit == _trump.Value &&
-                                          i.Value >= Hodnota.Svrsek) < 3 &&
-                          !(hand.HasA(_trump.Value) &&
+                                             hand.HasA(i.Suit))) >= 4));
+            result |= hand.CardCount(_trump.Value) <= 4 &&                  //2. nebo max. 4 trumfy a
+                      (TeamMateIndex == -1 ||
+                       (!_teamMateDoubledGame ||
+                        _g.MandatoryDouble)) &&
+                       hand.SuitCount() >= 3 &&
+                       !(Enum.GetValues(typeof(Barva)).Cast<Barva>()         //aspon v jedne barve nemam A nebo X+K nebo K+Q a
+                             .Where(b => hand.HasSuit(b))
+                             .All(b => hand.HasA(b) ||
+                                       (hand.HasX(b) &&
+                                        (hand.HasK(b) ||
+                                         hand.CardCount(b) > 2)) ||
+                                        (hand.HasK(b) &&
+                                         hand.HasQ(b))) ||
+                       Enum.GetValues(typeof(Barva)).Cast<Barva>()         //aspon v jedne barve nemam A nebo X+K a
+                           .Where(b => hand.HasA(b))
+                           .Sum(b => hand.Count(i => i.Value >= Hodnota.Kral)) <= 4) &&
+                       (!hand.HasA(_trump.Value) ||                          //nemam trumfove A nebo X a
+                        !hand.HasX(_trump.Value)) &&
+                       !(hand.HasK(_trump.Value) &&                          //nevidim do trumfoveho hlasu a
+                         hand.HasQ(_trump.Value)) &&
+                       !(//Enum.GetValues(typeof(Barva)).Cast<Barva>()       //neni pravda ze
+                        //    .Where(b => b != _trump &&                    //2a. mam dlouhou tlacnou barvu nebo
+                        //                hand.HasSuit(b))
+                        //    .Any(b => hand.CardCount(b) >= 5) ||
+                         hand.Where(i => i.Suit != _trump)                   //2b. mam vysoke netrumfove karty nebo
+                             .All(i => i.Value >= Hodnota.Svrsek) ||
+                         Enum.GetValues(typeof(Barva)).Cast<Barva>()         //2c. mam v kazde netrumfove barve A nebo X+K nebo X+2 nebo
+                             .Where(b => b != _trump &&
+                                         hand.HasSuit(b))
+                             .All(b => hand.HasA(b) ||
+                                       (hand.HasX(b) &&
+                                        (hand.HasK(b) ||
+                                         hand.CardCount(b) > 2)) ||
+                                        (hand.HasK(b) &&
+                                         hand.HasQ(b))) ||
+                         hand.Where(i => i.Suit != _trump.Value)             //2d. aspon dve esa
+                             .Count(i => i.Value == Hodnota.Eso) >= 2);
+            result |= hand.CardCount(_trump.Value) == 4 &&                  //3. nebo 4 trumfy a
+                      (TeamMateIndex == -1 ||
+                       (!_teamMateDoubledGame ||
+                        _g.MandatoryDouble)) &&
+                      !(Enum.GetValues(typeof(Barva)).Cast<Barva>()         //nemam v kazde netrumfove barve A nebo X+K nebo X+2 a jedno z
+                        .Where(b => hand.HasSuit(b))
+                        .All(b => hand.HasA(b) ||
+                                    (hand.HasX(b) &&
+                                    (hand.HasK(b) ||
+                                    hand.CardCount(b) > 2)) ||
+                                    (hand.HasK(b) &&
+                                    hand.HasQ(b)))) &&
+                      (hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||    //3a. mene nez 3 vysoke karty celkem
+                       (!hand.HasA(_trump.Value) &&                         //3a2.mam 4 trumfy bez esa a aspon jednu dalsi barvu bez esa
+                        hand.CardCount(Hodnota.Eso) < 2) ||
+                       (!(((hand.HasA(_trump.Value) &&
                             (hand.HasX(_trump.Value) ||
                              hand.HasK(_trump.Value) ||
-                             hand.HasQ(_trump.Value))) &&
-                          ((hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 &&
-                            hand.Count(i => i.Value >= Hodnota.Spodek) < 4) ||  //4a. mene nez 3 (resp. 4) vysoke karty celkem (plati pro aktera i protihrace)
-                           (hand.Select(i => i.Suit).Distinct().Count() < 4 &&  //4b. nebo nevidim do nejake barvy a zaroven mam 4 a vice netrumfovych der
+                             hand.HasQ(_trump.Value))) ||
+                           (hand.HasK(_trump.Value) &&
+                            hand.HasQ(_trump.Value)) ||
+                           GetTotalHoles(hand, talon, false) <= 3) &&
+                        hand.SuitCount() == 4 &&
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            .Where(b => hand.HasSuit(b) &&
+                                        b != _trump.Value)
+                            .All(b => hand.CardCount(b) >= 2 &&
+                                        hand.Any(i => i.Suit == b &&
+                                                    i.Value >= Hodnota.Desitka))) &&
+                        hand.Count(i => i.Value == Hodnota.Eso) +           //3b. nebo mene nez 2 (resp. 3) uhratelne A, X
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            .Count(b => (hand.HasX(b) &&
+                                            (hand.HasK(b) ||
+                                            hand.HasA(b) ||
+                                            (hand.HasQ(b) &&
+                                            hand.CardCount(b) > 2)))) < (TeamMateIndex == -1 ? 2 : 3) &&
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            .Where(b => b != _trump.Value)
+                            .All(b => hand.CardCount(b) < 4)) ||            //   (vyjma pripadu kdy mam dlouhou netrumfovou tlacnou barvu)
+                        (hand.Select(i => i.Suit).Distinct().Count() < 4 &&  //3c. nebo nevidim do nejake barvy
+                        !(((hand.HasA(_trump.Value) ||                             //    (vyjma pripadu kdy mam trumfove A nebo X a max. 2 neodstranitelne netrumfove diry)
+                            hand.HasX(_trump.Value)) &&
+                            GetTotalHoles(hand, talon, false, false) <= 2) ||                //    (nebo vyjma pripadu kdy mam X,K,Q trumfove a k tomu netrumfove eso
+                            (hand.HasX(_trump.Value) &&
+                            hand.HasK(_trump.Value) &&
+                            (hand.HasQ(_trump.Value) ||
+                            hand.HasJ(_trump.Value)) &&
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                .Where(b => b != _trump.Value)
-                                .Count(b => !hand.HasA(b) &&
-                                            hand.Count(i => i.Suit == b &
-                                                            i.Value >= Hodnota.Svrsek) <
-                                            hand.Count(i => i.Suit == b &&
-                                                            i.Value <= Hodnota.Spodek)) > 1)));
+                                .Where(b => b != _trump.Value &&
+                                            hand.HasSuit(b))
+                                .Any(b => hand.HasA(b))))));
+        result |= hand.CardCount(_trump.Value) == 5 &&                  //4.  5 trumfu a nemam trumfove A+K+S
+                  (TeamMateIndex == -1 ||
+                   (!_teamMateDoubledGame ||
+                    _g.MandatoryDouble)) &&
+                  hand.Count(i => i.Suit == _trump.Value &&
+                                  i.Value >= Hodnota.Svrsek) < 3 &&
+                  !(hand.HasA(_trump.Value) &&
+                    (hand.HasX(_trump.Value) ||
+                     hand.HasK(_trump.Value) ||
+                     hand.HasQ(_trump.Value))) &&
+                  ((hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 &&
+                    hand.Count(i => i.Value >= Hodnota.Spodek) < 4) ||  //4a. mene nez 3 (resp. 4) vysoke karty celkem (plati pro aktera i protihrace)
+                   (hand.Select(i => i.Suit).Distinct().Count() < 4 &&  //4b. nebo nevidim do nejake barvy a zaroven mam 4 a vice netrumfovych der
+                    Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                        .Where(b => b != _trump.Value)
+                        .Count(b => !hand.HasA(b) &&
+                                    hand.Count(i => i.Suit == b &
+                                                    i.Value >= Hodnota.Svrsek) <
+                                    hand.Count(i => i.Suit == b &&
+                                                    i.Value <= Hodnota.Spodek)) > 1));
 
             return result;
         }
