@@ -2744,6 +2744,9 @@ namespace Mariasek.Engine
                                          hand.HasQ(b))) ||
                          hand.Where(i => i.Suit != _trump.Value)             //2d. aspon dve esa
                              .Count(i => i.Value == Hodnota.Eso) >= 2);
+            result |= hand.CardCount(_trump.Value) <= 4 &&
+                      hand.SuitCount() == 3 &&
+                      hand.CardCount(Hodnota.Eso) <= 2;
             result |= hand.CardCount(_trump.Value) == 4 &&                  //3. nebo 4 trumfy a
                       (TeamMateIndex == -1 ||
                        (!_teamMateDoubledGame ||
