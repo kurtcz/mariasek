@@ -1062,6 +1062,28 @@ namespace Mariasek.Engine
                 talon = talon3.Where(i => hand.CardCount(i.Suit) == 2)
                               .ToList();
             }
+            //pokud davam do talonu 2 karty od barvy kde mam A a muzu dat do talonu stejne dlouhou barvu kde mam X, K tak to udelej
+            var talon2 = talon.Take(2).ToList();
+            if (talon2.SuitCount() == 1 &&
+                hand.HasA(talon2.First().Suit) &&
+                talon.Count(i => i.Suit != _trump &&
+                                 i.Value <= Hodnota.Spodek &&
+                                 hand.HasX(i.Suit) &&
+                                 hand.HasK(i.Suit) &&
+                                 !hand.HasA(i.Suit) &&
+                                 hand.CardCount(i.Suit) <= hand.CardCount(talon2.First().Suit)) >= 2)
+            {
+                talon = talon.Where(i => i.Suit != _trump &&
+                                         i.Value <= Hodnota.Spodek &&
+                                         hand.HasX(i.Suit) &&
+                                         hand.HasK(i.Suit) &&
+                                         !hand.HasA(i.Suit) &&
+                                         hand.CardCount(i.Suit) <= hand.CardCount(talon2.First().Suit))
+                             .OrderByDescending(i => i.Value)
+                             .Take(2)
+                             .ToList();
+            }
+
             talon = talon.Take(2).ToList();
 
 			if (talon == null || talon.Count != 2 || talon.Contains(trumpCard))

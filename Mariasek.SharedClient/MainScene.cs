@@ -3237,14 +3237,15 @@ namespace Mariasek.SharedClient
                 _msgLabelRight.Text = rightMessage.ToString();
                 ShowGameScore();
 
-                _shouldShuffle = (!_testGame &&
-                                  Game.Settings.WhenToShuffle == ShuffleTrigger.AfterAutomaticVictory && 
-                                  results.MoneyWon[g.GameStartingPlayerIndex] > 0 && 
-                                  results.GamePlayed && 
-                                  (g.RoundNumber == 1 ||
-                                   (g.Results.BetlWon &&
-                                    g.RoundNumber == 2))) ||
-                                 Game.Settings.WhenToShuffle == ShuffleTrigger.Always;
+                if (!_testGame)
+                {
+                    _shouldShuffle = Game.Settings.WhenToShuffle == ShuffleTrigger.AfterAutomaticVictory &&
+                                     results.MoneyWon[g.GameStartingPlayerIndex] > 0 &&
+                                     results.GamePlayed &&
+                                     (g.RoundNumber == 1 ||
+                                      (g.Results.BetlWon &&
+                                       g.RoundNumber == 2));
+                }
                 if (!_lastGameWasLoaded)
                 {
                     Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
@@ -3515,11 +3516,6 @@ namespace Mariasek.SharedClient
                         _shuffledCards[0].Hide();
                         _shuffledCards[1].Hide();
                         _shuffledCards[2].Hide();
-                        if (_shouldShuffle)
-                        {
-                            _shuffleEvent.Reset();
-                            ShowShuffleAnimation();
-                        }
                         this.Invoke(() =>
                         {
                             if (g.GameStartingPlayerIndex == 0 && g.RoundNumber == 0)
