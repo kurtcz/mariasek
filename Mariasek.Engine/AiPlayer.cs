@@ -3788,8 +3788,8 @@ namespace Mariasek.Engine
                        axCount >= 2 &&                          //aspon 2 ostre karty
                        estimatedFinalBasicScore >= 10) ||
                       (Hand.CardCount(_trumpCard.Suit) >= 4 &&
-                       (Hand.HasA(_trumpCard.Suit) ||             //pokud trham a
-                        Hand.HasX(_trumpCard.Suit))))) ||
+                       axCount >= 1 &&
+                       estimatedFinalBasicScore >= 10))) ||
                     (!Hand.HasK(_trumpCard.Suit) &&             //netrham a
                      !Hand.HasQ(_trumpCard.Suit) &&
                      Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
@@ -3798,7 +3798,12 @@ namespace Mariasek.Engine
                      (Hand.CardCount(Hodnota.Eso) >= 2 ||       //aspon jeste jedno eso nebo
                       (axCount >= 4 &&                          //aspon jeste dve desitky a
                        estimatedFinalBasicScore >= 40)) &&      //akter nemuze uhrat kilo
-                     !Is100AgainstPossible())))))
+                     !Is100AgainstPossible()) ||
+                    (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
+                     Hand.HasX(_trumpCard.Suit) &&
+                     kqScore >= 40 &&                           //mam aspon 40 bodu v hlasech
+                     axCount >= 4 &&                            //a aspon jeste dve dalsi desitky
+                     estimatedFinalBasicScore >= 40)))))
             {
                 bid |= bidding.Bids & Hra.Hra;
                 //minRuleCount = Math.Min(minRuleCount, _gamesBalance);
