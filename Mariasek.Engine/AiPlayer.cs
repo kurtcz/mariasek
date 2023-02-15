@@ -3744,6 +3744,27 @@ namespace Mariasek.Engine
                                         : 0;
             var totalHoles = GetTotalHoles();
             var handSuits = Hand.SuitCount();
+            var simulatedMultiplier = bidding.GameMultiplier < 2
+                                        ? 1
+                                        : 4; //pri re pocitej prohru jakoby se souperi jeste otocili na tutti
+            var gameValue = bidding.GameMultiplier < 2
+                            ? 2 * _g.QuietHundredValue  //pocitej prohru pokud si souper da flek
+                            : 8 * _g.QuietHundredValue; //pocitej prohru pokud by ses otocil na re a souper jeste na tutti
+            var lossPerPointsLost = _trump.HasValue
+                                    ? Enumerable.Range(0, 10)
+                                                .Select(i => 100 + i * 10)
+                                                .ToDictionary(k => k,
+                                                              v => ((_g.CalculationStyle == CalculationStyle.Adding
+                                                                     ? (v - 90) / 10 * gameValue
+                                                                     : (1 << (v - 100) / 10) * gameValue) -
+                                                                    (Hand.CardCount(_trump.Value) >= 5 &&
+                                                                     Hand.Has7(_trump.Value)
+                                                                     ? _g.SevenValue : 0)) *
+                                                                    (_trump.Value == Barva.Cerveny
+                                                                     ? 4
+                                                                     : 2)) //ztrata pro aktera je dvojnasobna (plati obema souperum)
+                                    : new Dictionary<int, int>();
+            var estimatedPointsLost = _trump.HasValue ? EstimateMaxTotalPointsLost(Hand, _talon) : 0;
 
             if ((bidding.Bids & Hra.Hra) != 0 &&                //pokud byla zvolena hra (nebo hra a sedma]
                 Settings.CanPlayGameType[Hra.Hra] &&
@@ -3767,7 +3788,10 @@ namespace Mariasek.Engine
                   (TeamMateIndex == -1 &&                       //Re: pokud mam vic nez souperi s Min(1, n-1) z moznych hlasek a
                    bidding.GameMultiplier == 2 &&
                    estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqLikelyOpponentScore &&
-                   estimatedOpponentFinalBasicScore + kqLikelyOpponentScore < 100) ||   //souper nemuze uhrat kilo proti s Min(1, n-1) z moznych hlasek
+                   estimatedOpponentFinalBasicScore + kqLikelyOpponentScore < 100 &&
+                   simulatedMultiplier * _maxMoneyLost >= -Settings.SafetyBetlThreshold &&
+                   (!lossPerPointsLost.ContainsKey(estimatedPointsLost) ||
+                    lossPerPointsLost[estimatedPointsLost] < Settings.SafetyBetlThreshold)) ||   //souper nemuze uhrat kilo proti s Min(1, n-1) z moznych hlasek
                   (TeamMateIndex != -1 &&                       //Flek:
                    bidding.GameMultiplier == 1 &&
                    (((Hand.HasK(_trumpCard.Suit) ||             //pokud trham a

@@ -19,6 +19,7 @@ namespace Mariasek.Engine
 
         public Hra[] PlayerBids { get; private set; }
         public Hra[] AllPlayerBids { get; private set; }
+        public bool GivenUp { get; private set; }
         /// <summary>
         /// When a AbstractPlayer.GetBidsAndDoubles() is called this property holds valid bids for that player.
         /// This property is set before each call to GetBidsAndDoubles() inside the StartBidding() method
@@ -83,6 +84,7 @@ namespace Mariasek.Engine
             _betlDurchFlek = 0;
             PlayerBids = new Hra[Game.NumPlayers];
             AllPlayerBids = new Hra[Game.NumPlayers];
+            GivenUp = _g.GivenUp;
             SetLastBidder(_g.GameStartingPlayer, _g.GameType);
         }
 
@@ -222,6 +224,11 @@ namespace Mariasek.Engine
                 var teamMate = _g.players[i].TeamMateIndex;
                 //pokud volici hrac mlci nebo pokud mlci druhy z protihracu pricemz prvni nic nerikal, tak muzeme flekovani ukoncit
                 if (bid == 0 && (teamMate == -1 || (teamMate == _g.players[(i + 2) % Game.NumPlayers].PlayerIndex && PlayerBids[teamMate] == 0)))
+                {
+                    break;
+                }
+                //pokud volici hrac vzdal, tak uz nepokracuj na Re
+                if (j == 2 && GivenUp && gameType == Hra.Hra)
                 {
                     break;
                 }
