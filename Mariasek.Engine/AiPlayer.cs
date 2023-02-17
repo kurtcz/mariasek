@@ -3825,7 +3825,8 @@ namespace Mariasek.Engine
                      !Is100AgainstPossible()) ||
                     (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
                      Hand.HasX(_trumpCard.Suit) &&
-                     kqScore >= 40 &&                           //mam aspon 40 bodu v hlasech
+                     (kqScore >= 40 ||                          //mam aspon 40 bodu v hlasech
+                      Hand.CardCount(_trumpCard.Suit) >= 4) &&  //nebo aspon 4 trumfy
                      axCount >= 4 &&                            //a aspon jeste dve dalsi desitky
                      estimatedFinalBasicScore >= 40)))))
             {
