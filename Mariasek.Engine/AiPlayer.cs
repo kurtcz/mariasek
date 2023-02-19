@@ -2061,12 +2061,14 @@ namespace Mariasek.Engine
             //proto u aktera do max ztrat pocitam jen hru (s tichym kilem proti)
             //ale u obrancu beru vsechny simulace vcetne kila
             //_maxMoneyLost = moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0)
-            _maxMoneyLost = moneyCalculations.Where(i => (TeamMateIndex == -1 &&            
+            _maxMoneyLost = moneyCalculations.Where(i => (TeamMateIndex == -1 &&
                                                           (i.GameType & Hra.Hra) != 0) ||
                                                          (TeamMateIndex != -1 &&
                                                           (i.GameType & (Hra.Betl | Hra.Durch)) == 0))
                                              .DefaultIfEmpty()
-                                             .Min(i => i?.MoneyWon?[PlayerIndex] ?? 0);
+                                             .Min(i => (TeamMateIndex == -1 &&
+                                                        (i.GameType & Hra.Sedma) == 0   //u hry predpokladam flek, u sedmy ne
+                                                        ? 2 : 1 ) * i?.MoneyWon?[PlayerIndex] ?? 0);
             _hundredOverBetl = _avgWinForHundred >= 2 * _g.BetlValue;
             _hundredOverDurch = _avgWinForHundred >= 2 * _g.DurchValue;
             _gamesBalance = PlayerIndex == gameStartingPlayerIndex
@@ -3505,13 +3507,15 @@ namespace Mariasek.Engine
                           Settings.MinimalBidsForGame > 1 ||
                           ((_gamesBalance > 0 &&
                             _gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0 &&
-                            _maxMoneyLost > -Settings.SafetyBetlThreshold &&
-                            (!lossPerPointsLost.ContainsKey(estimatedPointsLost) ||
+                            (Settings.SafetyBetlThreshold == 0 ||
+                             _maxMoneyLost > -Settings.SafetyBetlThreshold) &&
+                            (Settings.SafetyBetlThreshold == 0 ||
+                             !lossPerPointsLost.ContainsKey(estimatedPointsLost) ||
                              lossPerPointsLost[estimatedPointsLost] < Settings.SafetyBetlThreshold)) ||
-                           //estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore + 40 ||
                            (estimatedFinalBasicScore >= 10 &&
                             estimatedFinalBasicScore + kqScore >= 40 &&
-                            _maxMoneyLost >= -Settings.SafetyBetlThreshold) ||
+                            (Settings.SafetyBetlThreshold == 0 ||
+                             _maxMoneyLost >= -Settings.SafetyBetlThreshold)) ||
                            (estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore &&
                             (Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value))))))
                 {
@@ -3790,8 +3794,9 @@ namespace Mariasek.Engine
                    estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqLikelyOpponentScore &&
                    estimatedOpponentFinalBasicScore + kqLikelyOpponentScore < 100 &&
                    simulatedMultiplier * _maxMoneyLost >= -Settings.SafetyGameThreshold &&
-                   (!lossPerPointsLost.ContainsKey(estimatedPointsLost) ||
-                    lossPerPointsLost[estimatedPointsLost] < Settings.SafetyGameThreshold)) ||   //souper nemuze uhrat kilo proti s Min(1, n-1) z moznych hlasek
+                   (Settings.SafetyGameThreshold == 0 ||
+                    !lossPerPointsLost.ContainsKey(estimatedPointsLost) ||
+                    lossPerPointsLost[estimatedPointsLost] <= Settings.SafetyGameThreshold)) ||   //souper nemuze uhrat kilo proti s Min(1, n-1) z moznych hlasek
                   (TeamMateIndex != -1 &&                       //Flek:
                    bidding.GameMultiplier == 1 &&
                    (((Hand.HasK(_trumpCard.Suit) ||             //pokud trham a

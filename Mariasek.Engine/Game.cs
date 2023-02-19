@@ -1654,9 +1654,22 @@ namespace Mariasek.Engine
                         gameFlavour = GameFlavour.Good;
                     }
                     DebugString.AppendFormat("ChooseGameFlavour: {0}\n", gameFlavour);
-                    BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1} ({2}/{3})", nextPlayer.PlayerIndex + 1, gameFlavour.Description(), nextPlayer.DebugInfo.RuleCount, nextPlayer.DebugInfo.TotalRuleCount);
-                    BiddingDebugInfo.AppendFormat("\nBetl ({0}/{1})", nextPlayer.DebugInfo.AllChoices.FirstOrDefault(i => i.Rule == "Betl")?.RuleCount ?? -1, nextPlayer.DebugInfo.TotalRuleCount);
-                    BiddingDebugInfo.AppendFormat("\nDurch ({0}/{1})", nextPlayer.DebugInfo.AllChoices.FirstOrDefault(i => i.Rule == "Durch")?.RuleCount ?? -1, nextPlayer.DebugInfo.TotalRuleCount);
+                    BiddingDebugInfo.AppendFormat("\nPlayer {0}: {1} ({2}/{3})", nextPlayer.PlayerIndex + 1,
+                                                                                 gameFlavour.Description(),
+                                                                                 nextPlayer.DebugInfo.RuleCount,
+                                                                                 nextPlayer.DebugInfo.TotalRuleCount);
+                    var betl = nextPlayer.DebugInfo.AllChoices.FirstOrDefault(i => i.Rule == "Betl");
+                    if (betl?.TotalRuleCount > 0)
+                    {
+                        BiddingDebugInfo.AppendFormat("\nBetl ({0}/{1})", betl.RuleCount,
+                                                                          betl.TotalRuleCount);
+                    }
+                    var durch = nextPlayer.DebugInfo.AllChoices.FirstOrDefault(i => i.Rule == "Durch");
+                    if (durch?.TotalRuleCount > 0)
+                    {
+                        BiddingDebugInfo.AppendFormat("\nDurch ({0}/{1})", durch.RuleCount,
+                                                                           durch.TotalRuleCount);
+                    }
                     if (gameFlavour == GameFlavour.Bad)
                     {
 						GameStartingPlayerIndex = nextPlayer.PlayerIndex;
@@ -1978,7 +1991,7 @@ namespace Mariasek.Engine
 				BiddingDebugInfo.Append("DebugInfo.AllChoices == null");
 				return;
 			}
-			foreach (var choice in players[playerIndex].DebugInfo.AllChoices.Where(i => i != null))
+			foreach (var choice in players[playerIndex].DebugInfo.AllChoices.Where(i => i?.TotalRuleCount > 0))
             {
                 BiddingDebugInfo.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, choice.TotalRuleCount);
             }
