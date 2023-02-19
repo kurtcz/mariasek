@@ -623,14 +623,25 @@ namespace Mariasek.SharedClient
             {
                 Settings.FirstMinMaxRound = 8;
             }
+            if (Settings.SafetyGameThreshold % 8 > 0)
+            {
+                Settings.SafetyGameThreshold -= Settings.SafetyGameThreshold % 8;
+                if (Settings.SafetyGameThreshold < 32)
+                {
+                    Settings.SafetyGameThreshold = 32;
+                }
+            }
             if (Settings.SafetyHundredThreshold % 8 > 0)
             {
                 Settings.SafetyHundredThreshold -= Settings.SafetyHundredThreshold % 8;
             }
-            if (Settings.SafetyBetlThreshold > 0 &&
-                Settings.SafetyBetlThreshold < 48)
+            if (Settings.SafetyBetlThreshold % 8 > 0)
             {
-                Settings.SafetyBetlThreshold = 48;
+                Settings.SafetyBetlThreshold -= Settings.SafetyBetlThreshold % 8;
+                if (Settings.SafetyBetlThreshold < 48)
+                {
+                    Settings.SafetyBetlThreshold = 48;
+                }
             }
 
             CardScaleFactor = new Vector2(Settings.CardScaleFactor, Settings.CardScaleFactor);

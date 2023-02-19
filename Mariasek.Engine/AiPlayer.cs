@@ -3789,9 +3789,9 @@ namespace Mariasek.Engine
                    bidding.GameMultiplier == 2 &&
                    estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqLikelyOpponentScore &&
                    estimatedOpponentFinalBasicScore + kqLikelyOpponentScore < 100 &&
-                   simulatedMultiplier * _maxMoneyLost >= -Settings.SafetyBetlThreshold &&
+                   simulatedMultiplier * _maxMoneyLost >= -Settings.SafetyGameThreshold &&
                    (!lossPerPointsLost.ContainsKey(estimatedPointsLost) ||
-                    lossPerPointsLost[estimatedPointsLost] < Settings.SafetyBetlThreshold)) ||   //souper nemuze uhrat kilo proti s Min(1, n-1) z moznych hlasek
+                    lossPerPointsLost[estimatedPointsLost] < Settings.SafetyGameThreshold)) ||   //souper nemuze uhrat kilo proti s Min(1, n-1) z moznych hlasek
                   (TeamMateIndex != -1 &&                       //Flek:
                    bidding.GameMultiplier == 1 &&
                    (((Hand.HasK(_trumpCard.Suit) ||             //pokud trham a
