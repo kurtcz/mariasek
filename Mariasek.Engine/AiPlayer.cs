@@ -3818,7 +3818,12 @@ namespace Mariasek.Engine
                        estimatedFinalBasicScore >= 10) ||
                       (Hand.CardCount(_trumpCard.Suit) >= 4 &&
                        axCount >= 1 &&
-                       estimatedFinalBasicScore >= 10))) ||
+                       estimatedFinalBasicScore >= 10) ||
+                      (Hand.CardCount(_trumpCard.Suit) >= 3 &&
+                       (bidding.Bids & Hra.Sedma) == 0 &&
+                       axCount >= 1 &&
+                       estimatedFinalBasicScore >= 10 &&
+                       kqMaxOpponentScore <= 20))) ||
                     (!Hand.HasK(_trumpCard.Suit) &&             //netrham a
                      !Hand.HasQ(_trumpCard.Suit) &&
                      Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
@@ -3830,10 +3835,18 @@ namespace Mariasek.Engine
                      !Is100AgainstPossible()) ||
                     (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
                      Hand.HasX(_trumpCard.Suit) &&
-                     (kqScore >= 40 ||                          //mam aspon 40 bodu v hlasech
-                      Hand.CardCount(_trumpCard.Suit) >= 4) &&  //nebo aspon 4 trumfy
-                     axCount >= 4 &&                            //a aspon jeste dve dalsi desitky
-                     estimatedFinalBasicScore >= 40)))))
+                     ((kqScore >= 40 &&                          //mam aspon 40 bodu v hlasech
+                       axCount >= 4 &&                            //a aspon jeste dve dalsi desitky
+                       estimatedFinalBasicScore >= 40) ||
+                      (kqScore >= 20 &&                          //mam aspon 20 bodu v hlasech
+                       axCount >= 5 &&                            //a aspon jeste tri dalsi desitky
+                       estimatedFinalBasicScore >= 50)) ||
+                    (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
+                     Hand.HasX(_trumpCard.Suit) &&
+                     Hand.CardCount(_trumpCard.Suit) >= 4 &&    //a aspon 4 trumfy
+                     (kqScore >= 20 ||                          //mam aspon 20 bodu v hlasech
+                      (axCount >= 4 &&                          //a aspon 4 desitky celkem
+                       estimatedFinalBasicScore >= 50))))))))
             {
                 bid |= bidding.Bids & Hra.Hra;
                 //minRuleCount = Math.Min(minRuleCount, _gamesBalance);

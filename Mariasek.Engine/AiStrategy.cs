@@ -1142,7 +1142,8 @@ namespace Mariasek.Engine
                         }
                         else
                         {
-                            return cardsToPlay.Where(i => hands[MyIndex].CardCount(i.Suit) == 2 &&
+                            return cardsToPlay.Where(i => i.Value != Hodnota.Desitka &&
+                                                          hands[MyIndex].CardCount(i.Suit) == 2 &&
                                                           hands[MyIndex].HasX(i.Suit) &&
                                                           !myInitialHand.HasA(i.Suit))
                                               .OrderByDescending(i => i.Value)
