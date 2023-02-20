@@ -804,7 +804,11 @@ namespace Mariasek.Engine
                                  !hand.HasK(i.Suit) &&
                                  hand.CardCount(i.Suit) == 3)))))
             {
-                if (hand.CardCount(trumpCard.Suit) >= 6)          //pri 6+ trumfech dej klidne 2 do talonu
+                if (hand.CardCount(trumpCard.Suit) >= 6 &&          //pri 6+ trumfech dej klidne 2 do talonu
+                    !(hand.HasK(trumpCard.Suit) &&                  //neplati kdyz budu hrat sedmu a mam trumfovy flas
+                      hand.HasQ(trumpCard.Suit) &&                  //(cili nehrozi flek na hru)
+                      hand.Has7(trumpCard.Suit) &&                  //ale nemam dobiraky (esa) resp. mam max. jedno
+                      hand.CardCount(Hodnota.Eso) <= 1))
                 {
                     talon.AddRange(hand.Where(i => i.Suit == trumpCard.Suit &&
                                                    i != trumpCard &&
