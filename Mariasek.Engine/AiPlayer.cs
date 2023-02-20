@@ -2071,7 +2071,8 @@ namespace Mariasek.Engine
                                                           (i.GameType & (Hra.Betl | Hra.Durch)) == 0))
                                              .DefaultIfEmpty()
                                              .Min(i => (TeamMateIndex == -1 &&
-                                                        (i.GameType & Hra.Sedma) == 0   //u hry predpokladam flek, u sedmy ne
+                                                        (i?.GameType & Hra.Hra) != 0 &&
+                                                        (i?.GameType & Hra.Sedma) == 0   //u hry predpokladam flek, u sedmy ne
                                                         ? 2 : 1 ) * i?.MoneyWon?[PlayerIndex] ?? 0);
             _hundredOverBetl = _avgWinForHundred >= 2 * _g.BetlValue;
             _hundredOverDurch = _avgWinForHundred >= 2 * _g.DurchValue;
