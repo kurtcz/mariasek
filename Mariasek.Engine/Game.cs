@@ -1979,6 +1979,10 @@ namespace Mariasek.Engine
                 {
                     BiddingDebugInfo.AppendFormat("\nMaximální simulovaná prohra: {0}", players[playerIndex].DebugInfo.MaxSimulatedLoss);
                 }
+                if (players[playerIndex].DebugInfo.MaxSimulatedHundredLoss < 0)
+                {
+                    BiddingDebugInfo.AppendFormat("\nMaximální simulovaná prohra při kilu: {0}", players[playerIndex].DebugInfo.MaxSimulatedHundredLoss);
+                }
                 if (kqScore > 0 &&
                     players[playerIndex].DebugInfo.HundredTooRisky)
                 {

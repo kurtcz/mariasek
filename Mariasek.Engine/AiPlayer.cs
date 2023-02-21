@@ -1979,6 +1979,7 @@ namespace Mariasek.Engine
             {
                 gameBidding = new Bidding(_g);
                 gameBidding.SetLastBidder(_g.players[gameStartingPlayerIndex], Hra.Hra);
+                gameBidding.SetLastBidder(_g.players[(gameStartingPlayerIndex + 1) % Game.NumPlayers], Hra.Hra); //flek
                 sevenBidding = new Bidding(_g);
                 sevenBidding.SetLastBidder(_g.players[gameStartingPlayerIndex], Hra.Kilo | Hra.Sedma);
                 betlBidding = new Bidding(_g);
@@ -2070,10 +2071,7 @@ namespace Mariasek.Engine
                                                          (TeamMateIndex != -1 &&
                                                           (i.GameType & (Hra.Betl | Hra.Durch)) == 0))
                                              .DefaultIfEmpty()
-                                             .Min(i => (TeamMateIndex == -1 &&
-                                                        (i?.GameType & Hra.Hra) != 0 &&
-                                                        (i?.GameType & Hra.Sedma) == 0   //u hry predpokladam flek, u sedmy ne
-                                                        ? 2 : 1 ) * i?.MoneyWon?[PlayerIndex] ?? 0);
+                                             .Min(i => i?.MoneyWon?[PlayerIndex] ?? 0);
             _hundredOverBetl = _avgWinForHundred >= 2 * _g.BetlValue;
             _hundredOverDurch = _avgWinForHundred >= 2 * _g.DurchValue;
             _gamesBalance = PlayerIndex == gameStartingPlayerIndex
