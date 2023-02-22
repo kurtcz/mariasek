@@ -58,7 +58,7 @@ namespace Mariasek.Engine
         {
             _bannedSuits.Clear();
             _preferredSuits.Clear();
-            //u sedmy mi nevadi, kdyz se spoluhrace tlacim desitky a esa, snazim se hlavne hrat proti sedme
+            //u sedmy mi nevadi, kdyz ze spoluhrace tlacim desitky a esa, snazim se hlavne hrat proti sedme
             if (TeamMateIndex != -1)
             {
                 var opponent = TeamMateIndex == (MyIndex + 1) % Game.NumPlayers
@@ -92,12 +92,14 @@ namespace Mariasek.Engine
 
                 foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>().Where(b => b != _trump))
                 {
+                    //nehraj barvy kde ma kolega samotne AX a akter by bral barvu trumfem
                     if (_probabilities.HasAOrXAndNothingElse(TeamMateIndex, b, RoundNumber) >= 1 - RiskFactor &&
                         _probabilities.SuitProbability(opponent, b, RoundNumber) == 0 &&
                         _probabilities.SuitProbability(opponent, _trump, RoundNumber) > 0)
                     {
                         _bannedSuits.Add(b);
                     }
+                    //nehraj barvu kterou kolega nezna a akter ma jiste na ruce nizkou kartu v barve
                     if (_probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) == 0 &&
                         hands[MyIndex].Where(i => i.Suit == b)
                                        .Any(i => _probabilities.SuitLowerThanCardProbability(opponent, i, RoundNumber) == 1))
@@ -149,9 +151,11 @@ namespace Mariasek.Engine
                             _bannedSuits.Add(r.c1.Suit);
                         }
                     }
+                    //nehraj akterovu barvu pokud mam vic nez 2 karty v barve a akter barvu zna
+                    //a existuje jina barva kterou muzu hrat
                     if ((_gameType & Hra.Kilo) == 0 &&
                         r.player1.TeamMateIndex == -1 &&
-                        hands[MyIndex].CardCount(r.c1.Suit) > 2 &&   //pokud mam jen jednu kartu v barve, dovol mi ji odmazat
+                        hands[MyIndex].CardCount(r.c1.Suit) > 2 &&   //pokud mam jen jednu nebo dve karty v barve, dovol mi ji odmazat
                         _probabilities.SuitProbability(r.player1.PlayerIndex, r.c1.Suit, RoundNumber) > 0 &&  //pouze pokud akter barvu zna, jinak je barva bezpecna
                         !(hands[MyIndex].Where(i => i.Suit == r.c1.Suit)              //bezpecna je i pokud mam nejvyssi karty v barve ja
                                         .Count(i => _probabilities.PotentialCards(opponent)
@@ -202,6 +206,7 @@ namespace Mariasek.Engine
                                               _probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Desitka)) > _epsilon))
                            .ToList();
 
+                    //nehraj akterovu barvu pokud existuje jina barva kterou muzu hrat
                     if (r.player1.TeamMateIndex == -1 &&
                         RoundNumber <= 4 &&
                         Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -223,16 +228,17 @@ namespace Mariasek.Engine
                                                .ToList();
                     if (teamMatesLikelyAXSuits.Count == 1 &&
                         hands[MyIndex].CardCount(teamMatesLikelyAXSuits.First()) > 1 &&
-                        !(SevenValue >= GameValue &&
-                          (PlayerBids[TeamMateIndex] & (Hra.Sedma | Hra.SedmaProti)) != 0))
+                        teamMatesLikelyAXSuits.Any(b => !_teamMatesSuits.Contains(b)))
                     {
-                        _bannedSuits.Add(teamMatesLikelyAXSuits.First());
+                        _bannedSuits.Add(teamMatesLikelyAXSuits.First(b => !_teamMatesSuits.Contains(b)));
                     }
                 }
                 if (_gameType != (Hra.Hra | Hra.Sedma))
                 {
                     foreach (var r in _rounds.Where(i => i != null && i.c3 != null))
                     {
+                        //pokud kolega hral vejs esem nebo desitkou ale stych za nim nesel tak barvu nehraj
+
                         //if (r.player1.PlayerIndex == TeamMateIndex &&
                         //    (r.c1.Value == Hodnota.Eso ||
                         //     r.c1.Value == Hodnota.Desitka) &&
