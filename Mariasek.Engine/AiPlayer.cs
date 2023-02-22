@@ -997,12 +997,17 @@ namespace Mariasek.Engine
                 var replacementCards = new List<Card>();
                 foreach(var cardToRemove in cardsToRemove)
                 {
-                    replacementCards.AddRange(hand.Where(i => cardToRemove.Suit == i.Suit &&
-                                                              !replacementCards.Contains(i))
+                    replacementCards.AddRange(hand.Where(i => _g.IsValidTalonCard(i) &&
+                                                              cardToRemove.Suit == i.Suit &&
+                                                              !replacementCards.Contains(i) &&
+                                                              !talon.Take(2).Contains(i))
                                                   .OrderBy(i => i.Value)
                                                   .Take(Math.Min(2, hand.Count(i => i.Suit == cardToRemove.Suit &&
                                                                                     i.Value < Hodnota.Desitka) - 1)));
-                    talon.Remove(cardToRemove);
+                    if (replacementCards.Any())
+                    {
+                        talon.Remove(cardToRemove);
+                    }
                 }
                 replacementCards = replacementCards.Distinct().Take(cardsToRemove.Count).ToList();
                 talon = replacementCards.Concat(talon).Distinct().ToList();
@@ -1016,7 +1021,8 @@ namespace Mariasek.Engine
                                       .ToList())
             {
                 var cardIndex = Math.Max(0, talon.IndexOf(card));
-                var replacementCard = hand.Where(i => i.Suit == card.Suit &&
+                var replacementCard = hand.Where(i => _g.IsValidTalonCard(i) &&
+                                                      i.Suit == card.Suit &&
                                                       i.Value < card.Value &&
                                                       talon.IndexOf(i) > 1)
                                           .OrderBy(i => i.Value)
@@ -3843,13 +3849,13 @@ namespace Mariasek.Engine
                        estimatedFinalBasicScore >= 40) ||
                       (kqScore >= 20 &&                          //mam aspon 20 bodu v hlasech
                        axCount >= 5 &&                            //a aspon jeste tri dalsi desitky
-                       estimatedFinalBasicScore >= 50)) ||
+                       estimatedFinalBasicScore >= 50))) ||
                     (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
                      Hand.HasX(_trumpCard.Suit) &&
                      Hand.CardCount(_trumpCard.Suit) >= 4 &&    //a aspon 4 trumfy
                      (kqScore >= 20 ||                          //mam aspon 20 bodu v hlasech
                       (axCount >= 4 &&                          //a aspon 4 desitky celkem
-                       estimatedFinalBasicScore >= 50))))))))
+                       estimatedFinalBasicScore >= 50)))))))
             {
                 bid |= bidding.Bids & Hra.Hra;
                 //minRuleCount = Math.Min(minRuleCount, _gamesBalance);
