@@ -56,6 +56,23 @@ namespace Mariasek.Engine
 
         private void BeforeGetRules(Hand[] hands)
         {
+            void ban(Barva suit)
+            {
+                if (!_bannedSuits.Contains(suit) &&
+                    hands[MyIndex].SuitCount - 1 > _bannedSuits.Count)
+                {
+                    _bannedSuits.Add(suit);
+                }
+            }
+
+            void banRange(IEnumerable<Barva> suits)
+            {
+                foreach (var b in suits)
+                {
+                    ban(b);
+                }
+            }
+
             _bannedSuits.Clear();
             _preferredSuits.Clear();
             //u sedmy mi nevadi, kdyz ze spoluhrace tlacim desitky a esa, snazim se hlavne hrat proti sedme
@@ -72,7 +89,7 @@ namespace Mariasek.Engine
                                                  _probabilities.CardProbability(opponent, new Card(b, Hodnota.Desitka)) > _epsilon))// &&
                                                                                                                                     //_probabilities.HasSolitaryX(TeamMateIndex, b, RoundNumber) < SolitaryXThreshold))
                 {
-                    _bannedSuits.Add(b);
+                    ban(b);
                 }
 
                 //pokud se nehraje sedma (proti), tak nehraj barvu
@@ -86,7 +103,7 @@ namespace Mariasek.Engine
                 //                                      (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Eso)) >= 1 - _epsilon ||
                 //                                       _probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Desitka)) >= 1 - _epsilon)))
                 //    {
-                //        _bannedSuits.Add(b);
+                //        ban(b);
                 //    }
                 //}
 
@@ -97,14 +114,14 @@ namespace Mariasek.Engine
                         _probabilities.SuitProbability(opponent, b, RoundNumber) == 0 &&
                         _probabilities.SuitProbability(opponent, _trump, RoundNumber) > 0)
                     {
-                        _bannedSuits.Add(b);
+                        ban(b);
                     }
                     //nehraj barvu kterou kolega nezna a akter ma jiste na ruce nizkou kartu v barve
                     if (_probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) == 0 &&
                         hands[MyIndex].Where(i => i.Suit == b)
                                        .Any(i => _probabilities.SuitLowerThanCardProbability(opponent, i, RoundNumber) == 1))
                     {
-                        _bannedSuits.Add(b);
+                        ban(b);
                     }
                 }
 
@@ -125,7 +142,7 @@ namespace Mariasek.Engine
                                                                       .Where(j => j.Suit == i.Suit)
                                                                       .All(j => j.Value < i.Value)) >= _probabilities.PotentialCards(opponent).CardCount(r.c1.Suit)))
                         {
-                            _bannedSuits.Add(r.c1.Suit);
+                            ban(r.c1.Suit);
                         }
                     }
                     //nehraj barvy ktere tlaci z kolegy trumfy
@@ -138,7 +155,7 @@ namespace Mariasek.Engine
                         if (_probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) > 0 &&
                             _probabilities.HasAOrXAndNothingElse(r.player3.PlayerIndex, r.c1.Suit, RoundNumber) < 1)
                         {
-                            _bannedSuits.Add(r.c1.Suit);
+                            ban(r.c1.Suit);
                         }
                     }
                     else if (r.player3.PlayerIndex == TeamMateIndex &&
@@ -148,7 +165,7 @@ namespace Mariasek.Engine
                         if (_probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) > 0 &&
                             _probabilities.HasAOrXAndNothingElse(r.player2.PlayerIndex, r.c1.Suit, RoundNumber) < 1)
                         {
-                            _bannedSuits.Add(r.c1.Suit);
+                            ban(r.c1.Suit);
                         }
                     }
                     //nehraj akterovu barvu pokud mam vic nez 2 karty v barve a akter barvu zna
@@ -167,7 +184,7 @@ namespace Mariasek.Engine
                                         b != r.c1.Suit)
                             .Any(b => !_bannedSuits.Contains(b)))
                     {
-                        _bannedSuits.Add(r.c1.Suit);
+                        ban(r.c1.Suit);
                     }
                     if (r.player3.TeamMateIndex == -1 &&
                         (r.c3.Value == Hodnota.Eso ||
@@ -216,7 +233,7 @@ namespace Mariasek.Engine
                             .Any(b => !_bannedSuits.Contains(b) &&
                                       !teamMatesLikelyAXSuits.Contains(b)))
                     {
-                        _bannedSuits.Add(r.c1.Suit);
+                        ban(r.c1.Suit);
                     }
                 }
                 if (TeamMateIndex != -1)
@@ -230,7 +247,7 @@ namespace Mariasek.Engine
                         hands[MyIndex].CardCount(teamMatesLikelyAXSuits.First()) > 1 &&
                         teamMatesLikelyAXSuits.Any(b => !_teamMatesSuits.Contains(b)))
                     {
-                        _bannedSuits.Add(teamMatesLikelyAXSuits.First(b => !_teamMatesSuits.Contains(b)));
+                        ban(teamMatesLikelyAXSuits.First(b => !_teamMatesSuits.Contains(b)));
                     }
                 }
                 if (_gameType != (Hra.Hra | Hra.Sedma))
@@ -247,7 +264,7 @@ namespace Mariasek.Engine
                         //    r.roundWinner.PlayerIndex != TeamMateIndex &&
                         //    r.roundWinner.PlayerIndex != MyIndex)
                         //{
-                        //    _bannedSuits.Add(r.c1.Suit);
+                        //    ban(r.c1.Suit);
                         //}
                         //else 
                         if (r.player2.PlayerIndex == TeamMateIndex &&
@@ -259,7 +276,7 @@ namespace Mariasek.Engine
                                  r.roundWinner.PlayerIndex != TeamMateIndex &&
                                  r.roundWinner.PlayerIndex != MyIndex)
                         {
-                            _bannedSuits.Add(r.c2.Suit);
+                            ban(r.c2.Suit);
                         }
                         else if (r.player3.PlayerIndex == TeamMateIndex &&
                                  (r.c3.Value == Hodnota.Eso ||
@@ -270,7 +287,7 @@ namespace Mariasek.Engine
                                  r.roundWinner.PlayerIndex != TeamMateIndex &&
                                  r.roundWinner.PlayerIndex != MyIndex)
                         {
-                            _bannedSuits.Add(r.c3.Suit);
+                            ban(r.c3.Suit);
                         }
                         if (r.player3.TeamMateIndex == MyIndex &&
                             (r.c3.Value == Hodnota.Eso ||
@@ -278,7 +295,7 @@ namespace Mariasek.Engine
                             r.roundWinner.PlayerIndex != TeamMateIndex &&
                             r.roundWinner.PlayerIndex != MyIndex)
                         {
-                            _bannedSuits.Add(r.c3.Suit);
+                            ban(r.c3.Suit);
                         }
                     }
                 }
@@ -348,7 +365,7 @@ namespace Mariasek.Engine
                                                        .ToList();
                         var suits = ((List<Card>)hands[MyIndex]).Select(i => i.Suit).Distinct();
 
-                        _bannedSuits.AddRange(opponentXsuits);
+                        banRange(opponentXsuits);
                         if (!(SevenValue >= GameValue &&
                               (PlayerBids[TeamMateIndex] & Hra.Sedma) != 0))
                         {
@@ -356,32 +373,32 @@ namespace Mariasek.Engine
                                                  !_bannedSuits.Contains(i))
                                      .Any(i => !noAXsuits.Contains(i)))
                             {
-                                _bannedSuits.AddRange(noAXsuits);
+                                banRange(noAXsuits);
                             }
                             if (suits.Where(i => i != _trump &&
                                                  !_bannedSuits.Contains(i))
                                      .Any(i => !AKnoXsuits.Contains(i)))
                             {
-                                _bannedSuits.AddRange(AKnoXsuits);
+                                banRange(AKnoXsuits);
                             }
                             if (suits.Where(i => i != _trump &&
                                                  !_bannedSuits.Contains(i))
                                      .Any(i => !AnoXsuits.Contains(i)))
                             {
-                                _bannedSuits.AddRange(AnoXsuits);
+                                banRange(AnoXsuits);
                             }
                             //if (suits.Where(i => i != _trump &&
                             //                     !_bannedSuits.Contains(i))
                             //         .Any(i => !noAorXsuits.Contains(i)))
                             //{
-                            //    _bannedSuits.AddRange(noAorXsuits);
+                            //    banRange(noAorXsuits);
                             //}
                         }
                         if (suits.Where(i => i != _trump &&
                                              !_bannedSuits.Contains(i))
                                  .Any(i => !teamMateLackingSuits.Contains(i)))
                         {
-                            _bannedSuits.AddRange(teamMateLackingSuits);
+                            banRange(teamMateLackingSuits);
                         }
                     }
                     else
@@ -402,12 +419,12 @@ namespace Mariasek.Engine
                                                                    _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) > 0);
                         var suits = ((List<Card>)hands[MyIndex]).Select(i => i.Suit).Distinct();
 
-                        _bannedSuits.AddRange(opponentXsuits);
+                        banRange(opponentXsuits);
                         if (suits.Where(i => i != _trump &&
                                              !_bannedSuits.Contains(i))
                                  .Any(i => !teamMateLackingSuits.Contains(i)))
                         {
-                            _bannedSuits.AddRange(teamMateLackingSuits);
+                            banRange(teamMateLackingSuits);
                         }
                         // nehraj barvu kde mas A + neco ale ne X, pokud X muze mit akter
                         var AnoXsuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -422,13 +439,13 @@ namespace Mariasek.Engine
                                              !_bannedSuits.Contains(i))
                                  .Any(i => !AKnoXsuits.Contains(i)))
                         {
-                            _bannedSuits.AddRange(AKnoXsuits);
+                            banRange(AKnoXsuits);
                         }
                         if (suits.Where(i => i != _trump &&
                                              !_bannedSuits.Contains(i))
                                  .Any(i => !AnoXsuits.Contains(i)))
                         {
-                            _bannedSuits.AddRange(AnoXsuits);
+                            banRange(AnoXsuits);
                         }
                     }
                 }
@@ -450,7 +467,7 @@ namespace Mariasek.Engine
                             _probabilities.CardProbability(r.player3.PlayerIndex, new Card(r.c3.Suit, Hodnota.Desitka)) > _epsilon))) &&
                         r.roundWinner.PlayerIndex != MyIndex)
                     {
-                        _bannedSuits.Add(r.c1.Suit);
+                        ban(r.c1.Suit);
                     }
                     else if (r.player2.PlayerIndex == MyIndex &&
                         (r.c3.Suit != r.c1.Suit &&
@@ -461,7 +478,7 @@ namespace Mariasek.Engine
                            _probabilities.CardProbability(r.player3.PlayerIndex, new Card(r.c1.Suit, Hodnota.Desitka)) > _epsilon)) &&
                         r.roundWinner.PlayerIndex != MyIndex)
                     {
-                        _bannedSuits.Add(r.c1.Suit);
+                        ban(r.c1.Suit);
                     }
                     else if (r.player3.PlayerIndex == MyIndex &&
                         (r.c2.Suit != r.c1.Suit &&
@@ -472,7 +489,7 @@ namespace Mariasek.Engine
                            _probabilities.CardProbability(r.player2.PlayerIndex, new Card(r.c1.Suit, Hodnota.Desitka)) > _epsilon)) &&
                         r.roundWinner.PlayerIndex != MyIndex)
                     {
-                        _bannedSuits.Add(r.c1.Suit);
+                        ban(r.c1.Suit);
                     }
                     if (r.player3.TeamMateIndex != -1 &&
                         (r.c3.Value == Hodnota.Eso ||
@@ -490,10 +507,10 @@ namespace Mariasek.Engine
                     (_probabilities.CardProbability((MyIndex + 1) % Game.NumPlayers, new Card(b, Hodnota.Eso)) > 0 ||
                      _probabilities.CardProbability((MyIndex + 2) % Game.NumPlayers, new Card(b, Hodnota.Eso)) > 0))
                 {
-                    _bannedSuits.Add(b);
+                    ban(b);
                 }
             }
-            _bannedSuits = _bannedSuits.Distinct().ToList();
+            //_bannedSuits = _bannedSuits.Distinct().ToList();
             if (hands[MyIndex].Where(i => i.Suit != _trump &&
                                            i.Value < Hodnota.Desitka)
                                .All(i => _bannedSuits.Contains(i.Suit)))// &&
@@ -519,7 +536,7 @@ namespace Mariasek.Engine
                                                    .Distinct()
                                                    .ToList();
 
-                        _bannedSuits.AddRange(opponentSuits.Where(b => hands[MyIndex].HasSuit(b))
+                        banRange(opponentSuits.Where(b => hands[MyIndex].HasSuit(b))
                                                            .Take(nonTrumpSuitCount - 1)); //toto zajisti, ze zustane aspon jedna barva kterou muzu hrat
                     }
                     if (_bannedSuits.Count() <= 1) //pokud zustavaji jeste aspon 2 netrumfove barvy ktere nejsou zakazane
@@ -535,7 +552,7 @@ namespace Mariasek.Engine
                                                                  (_probabilities.CardProbability(_rounds[RoundNumber - 1].player3.PlayerIndex, new Card(b, Hodnota.Eso)) >= 1 - _epsilon ||
                                                                   _probabilities.CardProbability(_rounds[RoundNumber - 1].player3.PlayerIndex, new Card(b, Hodnota.Desitka)) >= 1 - _epsilon))
                                                      .ToList();
-                            _bannedSuits.AddRange(opponentXsuits.Take(nonTrumpSuitCount));
+                            banRange(opponentXsuits.Take(nonTrumpSuitCount));
                         }
                         else
                         {
@@ -547,7 +564,7 @@ namespace Mariasek.Engine
                                                                  (_probabilities.CardProbability(_rounds[RoundNumber - 1].player2.PlayerIndex, new Card(b, Hodnota.Eso)) >= 1 - _epsilon ||
                                                                   _probabilities.CardProbability(_rounds[RoundNumber - 1].player2.PlayerIndex, new Card(b, Hodnota.Desitka)) >= 1 - _epsilon))
                                                      .ToList();
-                            _bannedSuits.AddRange(opponentXsuits.Take(nonTrumpSuitCount));
+                            banRange(opponentXsuits.Take(nonTrumpSuitCount));
                         }
                     }
                 }
