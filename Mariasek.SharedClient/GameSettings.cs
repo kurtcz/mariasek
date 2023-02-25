@@ -65,6 +65,8 @@ namespace Mariasek.SharedClient
         public bool? Default { get; set; }
         public bool? ShowRatingOffer { get; set; }
         public bool ShouldSerializeShowRatingOffer() { return ShowRatingOffer.HasValue && !ShowRatingOffer.Value; }
+        public bool? LogProbabilities { get; set; }
+        public bool ShouldSerializeLogProbabilities() { return LogProbabilities.HasValue && LogProbabilities.Value; }
         public bool? AiCheating { get; set; }
         public bool ShouldSerializeAiCheating() { return AiCheating.HasValue && AiCheating.Value; }
         public bool? TestMode { get; set; }
@@ -277,7 +279,7 @@ namespace Mariasek.SharedClient
             SolitaryXThreshold = 0.13f; //pokud mam na zacatku 5 karet, tak P(souper ma plonkovou X) ~ 0.131
             SolitaryXThresholdDefense = 0.5f; //v obrane musi mit prah vyssi hodnotu aby tahali jen kdyz je to skoro jiste
             RiskFactorSevenDefense = 0.5f; //pouziva se u pravidla bodovat nebo vytlacit trumf proti sedme
-            SafetyGameThreshold = 40;
+            SafetyGameThreshold = 80;
             SafetyHundredThreshold = 56;
             SafetyBetlThreshold = CalculationStyle == CalculationStyle.Adding ? 40 : 64;
             Thresholds = new []

@@ -1929,7 +1929,6 @@ namespace Mariasek.Engine
                     {
                         //: c--
                         //pri sedme zkousej nejprve vytlacit trumf dllouhou bocni barvou
-                        const int talonIndex = 3;
                         if (SevenValue >= GameValue &&
                             //(_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
                             //(_gameType & (Hra.Kilo | Hra.KiloProti)) == 0 &&
@@ -1938,13 +1937,13 @@ namespace Mariasek.Engine
                                                       i.Value >= Hodnota.Kral) >= 1 &&
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump)
-                                .Any(b => myInitialHand.CardCount(b) + hands[talonIndex].CardCount(b) >= 4 &&
+                                .Any(b => myInitialHand.CardCount(b) + hands[Game.TalonIndex].CardCount(b) >= 4 &&
                                           myInitialHand.HasA(b)))
                         {
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                 i.Value < Hodnota.Desitka &&
                                                                                 myInitialHand.CardCount(i.Suit) +
-                                                                                hands[talonIndex].CardCount(i.Suit) >= 4 &&
+                                                                                hands[Game.TalonIndex].CardCount(i.Suit) >= 4 &&
                                                                                 myInitialHand.HasA(i.Suit) &&
                                                                                 !hands[MyIndex].HasA(i.Suit) &&
                                                                                 !((!_probabilities.PotentialCards(player2).HasSuit(_trump) &&
@@ -4015,7 +4014,6 @@ namespace Mariasek.Engine
                     {
                         //c--
                         //pri sedme zkousej nejprve vytlacit trumf dllouhou bocni barvou
-                        const int talonIndex = 3;
                         if (SevenValue > GameValue &&
                             //(_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
                             //(_gameType & (Hra.Kilo | Hra.KiloProti)) == 0 &&
@@ -4024,7 +4022,7 @@ namespace Mariasek.Engine
                                                       i.Value >= Hodnota.Kral) >= 1 &&
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump)
-                                .Any(b => hands[MyIndex].CardCount(b) + hands[talonIndex].CardCount(b) >= 4 &&
+                                .Any(b => hands[MyIndex].CardCount(b) + hands[Game.TalonIndex].CardCount(b) >= 4 &&
                                           myInitialHand.HasA(b)))
                         {
                             return null;
@@ -4718,7 +4716,6 @@ namespace Mariasek.Engine
                               hands[MyIndex].CardCount(_trump) > 1) ||  //a dalsi karty pripadne hrat v ramci "hrat cokoli mimo A,X,trumf a dalsich"
                              (hands[MyIndex].CardCount(_trump) > 0)))   //to same pokud jsem volil, sedmu nehraju a uz nemam zadny trumf v ruce
                         {
-                            const int talonIndex = 3;
                             var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                             .OrderBy(b => hands[MyIndex].Count(i => i.Suit == b &&
                                                                                     (i.Value == Hodnota.Eso ||
@@ -4728,7 +4725,7 @@ namespace Mariasek.Engine
                                             .ThenBy(b => hands[MyIndex].CardCount(b))
                                             .Where(b => b != _trump &&
                                                         !_bannedSuits.Contains(b) &&
-                                                        myInitialHand.CardCount(b) + hands[talonIndex].CardCount(b) > 3 &&
+                                                        myInitialHand.CardCount(b) + hands[Game.TalonIndex].CardCount(b) > 3 &&
                                                         ValidCards(hands[MyIndex]).Any(i => i.Suit == b &&
                                                                                             i.Value != Hodnota.Eso &&
                                                                                             i.Value != Hodnota.Desitka &&

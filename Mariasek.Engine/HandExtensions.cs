@@ -184,6 +184,23 @@ namespace Mariasek.Engine
         {
             return hand.Count(i => i.Value == value);
         }
+
+        public static string ToHandString(this IEnumerable<Card> hand)
+        {
+            var sb = new StringBuilder();
+
+            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            {
+                sb.AppendFormat(" {0}: ", b);
+                foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().OrderByDescending(h => h))
+                {
+                    var card = hand.FirstOrDefault(c => c != null && c.Suit == b && c.Value == h);
+                    sb.Append(card != null ? card.CharCode : '-');
+                }
+            }
+
+            return sb.ToString().Trim();
+        }
     }
 
     public class Hand
@@ -410,19 +427,7 @@ namespace Mariasek.Engine
 
         public override string ToString()
         {
-            var sb = new StringBuilder();
-
-            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
-            {
-                sb.AppendFormat(" {0}: ", b);
-                foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().OrderByDescending(h => h))
-                {
-                    var card = _hand.FirstOrDefault(c => c != null && c.Suit == b && c.Value == h);
-                    sb.Append(card != null ? card.CharCode : '-');
-                }
-            }
-
-            return sb.ToString();
+            return _hand.ToHandString();
         }
     }
 }

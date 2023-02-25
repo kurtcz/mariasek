@@ -253,13 +253,12 @@ namespace Mariasek.Engine
                     SkipSimulations = true,
                     ChooseCard1 = () =>
                     {
-                        const int talonIndex = 3;
                         var cardsToPlay = hands[MyIndex].Where(i => hands[MyIndex].CardCount(i.Suit) +
-                                                                    _probabilities.CertainCards(talonIndex).CardCount(i.Suit) == 7 &&
+                                                                    _probabilities.CertainCards(Game.TalonIndex).CardCount(i.Suit) == 7 &&
                                                                     (hands[MyIndex].Has7(i.Suit) ||
-                                                                     hands[talonIndex].Has7(i.Suit)) &&
+                                                                     hands[Game.TalonIndex].Has7(i.Suit)) &&
                                                                     (hands[MyIndex].HasA(i.Suit) ||
-                                                                     hands[talonIndex].HasA(i.Suit)) &&
+                                                                     hands[Game.TalonIndex].HasA(i.Suit)) &&
                                                                     Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                         .Select(h => new Card(i.Suit, h))
                                                                         .Where(j => j.BadValue > i.BadValue)
@@ -277,9 +276,8 @@ namespace Mariasek.Engine
                     SkipSimulations = true,
                     ChooseCard1 = () =>
                     {
-                        const int talonIndex = 3;
                         var cardsToPlay = hands[MyIndex].Where(i => hands[MyIndex].CardCount(i.Suit) +
-                                                                    _probabilities.CertainCards(talonIndex).CardCount(i.Suit) == 6 &&
+                                                                    _probabilities.CertainCards(Game.TalonIndex).CardCount(i.Suit) == 6 &&
                                                                     hands[MyIndex].Any(j => j.Suit == i.Suit &&
                                                                                             (_probabilities.PotentialCards(player2).Any(k => k.Suit == j.Suit &&
                                                                                                                                              k.BadValue < j.BadValue) ||
@@ -287,8 +285,8 @@ namespace Mariasek.Engine
                                                                                                                                              k.BadValue < j.BadValue))) &&
                                                                     (hands[MyIndex].HasA(i.Suit) ||
                                                                      hands[MyIndex].HasK(i.Suit) ||
-                                                                     hands[talonIndex].HasA(i.Suit) ||
-                                                                     hands[talonIndex].HasK(i.Suit)) &&
+                                                                     hands[Game.TalonIndex].HasA(i.Suit) ||
+                                                                     hands[Game.TalonIndex].HasK(i.Suit)) &&
                                                                     Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                         .Select(h => new Card(i.Suit, h))
                                                                         .Where(j => j.BadValue > i.BadValue)

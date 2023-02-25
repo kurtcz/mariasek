@@ -1554,29 +1554,25 @@ namespace Mariasek.Engine
 
         private void UpdateGeneratedHandsByChoosingTalon(Hand[] hands, Func<List<Card>, Card, List<Card>> chooseTalonFunc, int gameStartingPlayerIndex)
         {
-            const int talonIndex = 3;
-
             //volicimu hraci dame i to co je v talonu, aby mohl vybrat skutecny talon
-            hands[gameStartingPlayerIndex].AddRange(hands[talonIndex]);
+            hands[gameStartingPlayerIndex].AddRange(hands[Game.TalonIndex]);
 
             var talon = chooseTalonFunc(hands[gameStartingPlayerIndex], TrumpCard);
 
             hands[gameStartingPlayerIndex].RemoveAll(i => talon.Contains(i));
-            hands[talonIndex] = new Hand(talon);
+            hands[Game.TalonIndex] = new Hand(talon);
         }
 
         private void UpdateGeneratedHandsByChoosingTrumpAndTalon(Hand[] hands, Func<List<Card>, Card, List<Card>> chooseTalonFunc, int GameStartingPlayerIndex)
         {
-            const int talonIndex = 3;
-
             //volicimu hraci dame i to co je v talonu, aby mohl vybrat skutecny talon
-            hands[GameStartingPlayerIndex].AddRange(hands[talonIndex]);
+            hands[GameStartingPlayerIndex].AddRange(hands[Game.TalonIndex]);
 
             var trumpCard = ChooseTrump(hands[GameStartingPlayerIndex]);
             var talon = chooseTalonFunc(hands[GameStartingPlayerIndex], trumpCard);
 
             hands[GameStartingPlayerIndex].RemoveAll(i => talon.Contains(i));
-            hands[talonIndex] = new Hand(talon);
+            hands[Game.TalonIndex] = new Hand(talon);
         }
 
         private Hand[] GetPlayersHandsAndTalon()
@@ -1735,8 +1731,7 @@ namespace Mariasek.Engine
                                         {
                                             UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
                                         }
-                                        const int talonIndex = 3;
-                                        var gt = !IsHundredTooRisky(hands[PlayerIndex], hands[talonIndex]) &&
+                                        var gt = !IsHundredTooRisky(hands[PlayerIndex], hands[Game.TalonIndex]) &&
                                                  Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                                      .Any(b => hands[PlayerIndex].HasK(b) && hands[PlayerIndex].HasQ(b))
                                                      ? Hra.Kilo
@@ -4598,6 +4593,17 @@ namespace Mariasek.Engine
         {
             var gameWinningRound = IsGameWinningRound(r, _g.rounds, PlayerIndex, TeamMateIndex, Hand, Probabilities);
             UpdateProbabilitiesAfterCardPlayed(Probabilities, r.number, r.player1.PlayerIndex, r.c1, r.c2, r.c3, r.hlas1, r.hlas2, r.hlas3, TeamMateIndex, _teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound);
+
+            if (_g.RoundNumber > 0 &&           //pri vlastni hre
+                r.number < Game.NumRounds &&    //pred posledim kolem
+                r.c3 != null)                   //na konci kola
+            {
+                DebugInfo.ProbDebugInfo = GetProbabilityString(r);
+            }
+            else
+            {
+                DebugInfo.ProbDebugInfo = null;
+            }
         }
 
         private static void UpdateProbabilitiesAfterCardPlayed(Probability probabilities, int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas1, bool hlas2, bool hlas3, int teamMateIndex, List<Barva> teamMatesSuits, Barva? trump, bool teamMateDoubledGame, bool gameWinningRound)
@@ -4626,6 +4632,66 @@ namespace Mariasek.Engine
         private bool ShouldComputeBestCard(Round r)
         {
             return _g.FirstMinMaxRound > 0 && r.number >= _g.FirstMinMaxRound && r.number < Game.NumRounds && r.c1 == null && _g.GameType != Hra.Durch;
+        }
+
+        private string GetProbabilityString(Round r)
+        {
+            var likelyCards1 = 0 == PlayerIndex || !Probabilities.LikelyCards(0).Any() ? null : Probabilities.LikelyCards(0).ToHandString();
+            var likelyCards2 = 1 == PlayerIndex || !Probabilities.LikelyCards(1).Any() ? null : Probabilities.LikelyCards(1).ToHandString();
+            var likelyCards3 = 2 == PlayerIndex || !Probabilities.LikelyCards(2).Any() ? null : Probabilities.LikelyCards(2).ToHandString();
+            var potentialCards1 = 0 == PlayerIndex || !Probabilities.PotentialCards(0).Any() ? null : Probabilities.PotentialCards(0).ToHandString();
+            var potentialCards2 = 1 == PlayerIndex || !Probabilities.PotentialCards(1).Any() ? null : Probabilities.PotentialCards(1).ToHandString();
+            var potentialCards3 = 2 == PlayerIndex || !Probabilities.PotentialCards(2).Any() ? null : Probabilities.PotentialCards(2).ToHandString();
+            var unlikelyCards1 = 0 == PlayerIndex || !Probabilities.UnlikelyCards(0).Any() ? null : Probabilities.UnlikelyCards(0).ToHandString();
+            var unlikelyCards2 = 1 == PlayerIndex || !Probabilities.UnlikelyCards(1).Any() ? null : Probabilities.UnlikelyCards(1).ToHandString();
+            var unlikelyCards3 = 2 == PlayerIndex || !Probabilities.UnlikelyCards(2).Any() ? null : Probabilities.UnlikelyCards(2).ToHandString();
+            var likelyCardsT = Probabilities.LikelyCards(3).Any() ? Probabilities.LikelyCards(3).ToHandString() : null;
+
+            var sb = new StringBuilder();
+
+            sb.Append($"Hráč{PlayerIndex + 1} si myslí že\n");
+            if (likelyCards1 != null)
+            {
+                sb.Append($"Hráč1 určitě má\n{likelyCards1}\n");
+            }
+            if (potentialCards1 != null)
+            {
+                sb.Append($"Hráč1 může mít\n{potentialCards1}\n");
+            }
+            if (unlikelyCards1 != null)
+            {
+                sb.Append($"Hráč1 určitě nemá\n{unlikelyCards1}\n");
+            }
+            if (likelyCards2 != null)
+            {
+                sb.Append($"Hráč2 určitě má\n{likelyCards2}\n");
+            }
+            if (potentialCards2 != null)
+            {
+                sb.Append($"Hráč2 může mít\n{potentialCards2}\n");
+            }
+            if (unlikelyCards2 != null)
+            {
+                sb.Append($"Hráč2 určitě nemá\n{unlikelyCards2}\n");
+            }
+            if (likelyCards3 != null)
+            {
+                sb.Append($"Hráč3 určitě má\n{likelyCards3}\n");
+            }
+            if (potentialCards3 != null)
+            {
+                sb.Append($"Hráč3 může mít\n{potentialCards3}\n");
+            }
+            if (unlikelyCards3 != null)
+            {
+                sb.Append($"Hráč3 určitě nemá\n{unlikelyCards3}\n");
+            }
+            if (likelyCardsT != null)
+            {
+                sb.Append($"V talonu určitě je\n{likelyCardsT}");
+            }
+
+            return sb.ToString().Replace("-", "");
         }
 
         public override Card PlayCard(Round r)
@@ -4842,7 +4908,6 @@ namespace Mariasek.Engine
 
         private Card ComputeBestCardToPlay(IEnumerable<Hand[]> source, int roundNumber)
         {
-            const int talonIndex = 3;
             var results = new ConcurrentQueue<Tuple<Card, MoneyCalculatorBase, GameComputationResult, Hand[]>>();
             var likelyResults = new ConcurrentQueue<Tuple<Card, MoneyCalculatorBase, GameComputationResult, Hand[]>>();
             var averageResults = new Dictionary<Card, double>();
@@ -5089,15 +5154,13 @@ namespace Mariasek.Engine
 
         private bool IsLikelyTalonForHand(Hand[] hands)
         {
-            const int talonIndex = 3;
-
-            if (_talon != null && _talon.Any() && hands[talonIndex].Any(i => !_talon.Contains(i)))
+            if (_talon != null && _talon.Any() && hands[Game.TalonIndex].Any(i => !_talon.Contains(i)))
             {
                 return false;
             }
 
-            if (Probabilities.CertainCards(talonIndex).Any() &&
-                hands[talonIndex].All(i => !Probabilities.CertainCards(talonIndex).Contains(i)))
+            if (Probabilities.CertainCards(Game.TalonIndex).Any() &&
+                hands[Game.TalonIndex].All(i => !Probabilities.CertainCards(Game.TalonIndex).Contains(i)))
             {
                 return false;
             }
@@ -5118,20 +5181,20 @@ namespace Mariasek.Engine
                                                        }
                                                    }).ToList();
 
-            var initialHand = gameStartedInitialCards.Concat((List<Card>)hands[_g.GameStartingPlayerIndex]).Concat((List<Card>)hands[talonIndex]).ToList();
+            var initialHand = gameStartedInitialCards.Concat((List<Card>)hands[_g.GameStartingPlayerIndex]).Concat((List<Card>)hands[Game.TalonIndex]).ToList();
 
-            //if (hands[talonIndex].HasK(Barva.Zaludy) &&
-            //    hands[talonIndex].HasJ(Barva.Zeleny) &&
+            //if (hands[Game.TalonIndex].HasK(Barva.Zaludy) &&
+            //    hands[Game.TalonIndex].HasJ(Barva.Zeleny) &&
             //    talon.HasJ(Barva.Zaludy) &&
             //    talon.HasJ(Barva.Zeleny))
             //{
             //    var x = !hands[_g.GameStartingPlayerIndex].Any(i => talon != null && talon.Contains(i));
-            //    var y = hands[talonIndex].All(i => talon.Contains(i));
+            //    var y = hands[Game.TalonIndex].All(i => talon.Contains(i));
             //}
 
             var talonCandidates = initialHand.Where(i => (i.Suit != _g.TrumpCard.Suit &&
                                                           ((!initialHand.HasX(i.Suit) &&
-                                                            initialHand.CardCount(i.Suit) - hands[talonIndex].CardCount(i.Suit) == 1) ||
+                                                            initialHand.CardCount(i.Suit) - hands[Game.TalonIndex].CardCount(i.Suit) == 1) ||
                                                            !initialHand.HasSuit(i.Suit))) &&
                                                          (i.Value <= Hodnota.Spodek ||
                                                            (i.Value == Hodnota.Svrsek &&
@@ -5143,11 +5206,11 @@ namespace Mariasek.Engine
 
             if ((_g.GameType & (Hra.Betl | Hra.Durch)) != 0 ||
                 (((talonCandidates.Count() < 2 &&
-                   talonCandidates.All(i => ((List<Card>)hands[talonIndex]).Contains(i))) ||
+                   talonCandidates.All(i => ((List<Card>)hands[Game.TalonIndex]).Contains(i))) ||
                   (talonCandidates.Count() >= 2 &&
-                   hands[talonIndex].All(i => talonCandidates.Contains(i)))) &&
-                 (!hands[talonIndex].HasSuit(_g.TrumpCard.Suit) ||
-                  (hands[talonIndex].HasSuit(_g.TrumpCard.Suit) &&
+                   hands[Game.TalonIndex].All(i => talonCandidates.Contains(i)))) &&
+                 (!hands[Game.TalonIndex].HasSuit(_g.TrumpCard.Suit) ||
+                  (hands[Game.TalonIndex].HasSuit(_g.TrumpCard.Suit) &&
                    initialHand.CardCount(_g.TrumpCard.Suit) >= 5 &&
                    initialHand.HasA(_g.TrumpCard.Suit) &&
                    ChooseNormalTalon(initialHand, _g.TrumpCard).HasSuit(_g.TrumpCard.Suit)))))
@@ -5797,12 +5860,11 @@ namespace Mariasek.Engine
             //prob.UpdateProbabilitiesAfterTalon((List<Card>)hands[player1], (List<Card>)hands[3]);
             //prob.UseDebugString = false;    //otherwise we are being really slooow
 
-            const int talonIndex = Game.NumPlayers;
-            var prob1 = 0 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(0, player1, hands[0], trump, _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 0 == PlayerIndex ? (List<Card>)hands[talonIndex] : null);
+            var prob1 = 0 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(0, player1, hands[0], trump, _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 0 == PlayerIndex ? (List<Card>)hands[Game.TalonIndex] : null);
             prob1.UseDebugString = false;
-            var prob2 = 1 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(1, player1, hands[1], trump, _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 1 == PlayerIndex ? (List<Card>)hands[talonIndex] : null);
+            var prob2 = 1 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(1, player1, hands[1], trump, _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 1 == PlayerIndex ? (List<Card>)hands[Game.TalonIndex] : null);
             prob2.UseDebugString = false;
-            var prob3 = 2 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(2, player1, hands[2], trump, _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 2 == PlayerIndex ? (List<Card>)hands[talonIndex] : null);
+            var prob3 = 2 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(2, player1, hands[2], trump, _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 2 == PlayerIndex ? (List<Card>)hands[Game.TalonIndex] : null);
             prob3.UseDebugString = false;
 
             if (Settings.Cheat)

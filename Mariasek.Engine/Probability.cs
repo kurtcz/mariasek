@@ -33,7 +33,6 @@ namespace Mariasek.Engine
         private bool _allowFakeSeven;
         private bool _allowAXTalon;
         private bool _allowTrumpTalon;
-        public const int talonIndex = Game.NumPlayers;
         public bool UseDebugString { get; set; }
         private CancellationToken _cancellationToken;
 
@@ -102,7 +101,7 @@ namespace Mariasek.Engine
                         {
                             _cardProbabilityForPlayer[i][b].Add(h, _myHand.Any(k => k.Suit == b && k.Value == h) ? 1f : 0f);
                         }
-                        else if (i == talonIndex)
+                        else if (i == Game.TalonIndex)
                         {
                             if(!Game.IsValidTalonCard(h, b, trump, _allowAXTalon, _allowTrumpTalon))
                             {
@@ -229,14 +228,14 @@ namespace Mariasek.Engine
                         //ostatnim naopak pravdepodobnosti snizim
                         if (_trump.HasValue && b == _trump.Value)
                         {
-                            var playedTrumps = ii != talonIndex ? _cardsPlayedByPlayer[ii].Count(j => j.Suit == b) : 0;
+                            var playedTrumps = ii != Game.TalonIndex ? _cardsPlayedByPlayer[ii].Count(j => j.Suit == b) : 0;
                             var certainTrumps = _cardProbabilityForPlayer[ii][b].Count(j => j.Value == 1);//pocet jistych trumfu pro daneho hrace
                             var totalUncertainTrumps = _cardProbabilityForPlayer.SelectMany(j => j[b].Where(k => k.Value > 0f && k.Value < 1f)
                                                                                                      .Select(k => k.Key))
                                                                                 .Distinct().Count();//celkovy pocet nejistych trumfu pro vsechny
                             var currentExpectedTrumps = 0f;
 
-                            if (ii != talonIndex &&
+                            if (ii != Game.TalonIndex &&
                                 _cardsPlayedByPlayer[ii].Where(j => j.Suit == b)
                                                         .Any(j => _cardProbabilityForPlayer[ii][b][j.Value] == 1))
                             {
@@ -248,7 +247,7 @@ namespace Mariasek.Engine
                                 currentExpectedTrumps = _initialExpectedTrumps[ii] - certainTrumps - playedTrumps;
                                 _gameStarterCurrentExpectedTrumps = currentExpectedTrumps;
                             }
-                            else if (ii != talonIndex)
+                            else if (ii != Game.TalonIndex)
                             {
                                 if (_myIndex == _gameStarterIndex)
                                 {
@@ -838,7 +837,7 @@ namespace Mariasek.Engine
                                     _cardProbabilityForPlayer[k][uncertainCard.Suit][uncertainCard.Value] = j == k
                                         ? 0.01f
                                         : _cardProbabilityForPlayer[k][uncertainCard.Suit][uncertainCard.Value] > 0
-                                            ? k != talonIndex
+                                            ? k != Game.TalonIndex
                                                 ? 0.99f
                                                 : 0.01f
                                             : 0f;
@@ -886,8 +885,8 @@ namespace Mariasek.Engine
 
                 for (int j = 0; j < Game.NumPlayers + 1; j++)
                 {
-                    var certainCards = j == talonIndex
-                    ? _cardProbabilityForPlayer[talonIndex].Sum(i => i.Value.Count(k => k.Value == 1f))
+                    var certainCards = j == Game.TalonIndex
+                    ? _cardProbabilityForPlayer[Game.TalonIndex].Sum(i => i.Value.Count(k => k.Value == 1f))
                     : _cardProbabilityForPlayer[(_myIndex + j) % Game.NumPlayers].Sum(i => i.Value.Count(k => k.Value == 1f));
                     if (uncertainCards[j].Any() && totalCards[j] - hands[j].Count() == uncertainCards[j].Count())
                     {
@@ -1004,10 +1003,10 @@ namespace Mariasek.Engine
                 
                 hands[i] = new List<Card>();
             }
-            certainCards[talonIndex] = _cardProbabilityForPlayer[talonIndex].SelectMany(j => j.Value.Where(k => k.Value == 1f).Select(k => new Card(j.Key, k.Key))).ToList();
-            uncertainCards[talonIndex] = _cardProbabilityForPlayer[talonIndex].SelectMany(j => j.Value.Where(k => k.Value > 0f && k.Value < 1f).Select(k => new Card(j.Key, k.Key))).ToList();
-            totalCards[talonIndex] = 2;
-            hands[talonIndex] = new List<Card>();
+            certainCards[Game.TalonIndex] = _cardProbabilityForPlayer[Game.TalonIndex].SelectMany(j => j.Value.Where(k => k.Value == 1f).Select(k => new Card(j.Key, k.Key))).ToList();
+            uncertainCards[Game.TalonIndex] = _cardProbabilityForPlayer[Game.TalonIndex].SelectMany(j => j.Value.Where(k => k.Value > 0f && k.Value < 1f).Select(k => new Card(j.Key, k.Key))).ToList();
+            totalCards[Game.TalonIndex] = 2;
+            hands[Game.TalonIndex] = new List<Card>();
 
             _verboseString.Clear();
             _verboseString.AppendFormat("GenerateHands(round: {0}, starting: Player{1} -> Enter\n", roundNumber, roundStarterIndex + 1);
@@ -1022,13 +1021,13 @@ namespace Mariasek.Engine
 				_verboseString.AppendFormat("Player {0}: {1} total, {2} certain, {3} uncertain cards\n",
 					(_myIndex + i) % Game.NumPlayers + 1, totalCards[i], certainCards[i].Count(), uncertainCards[i].Count());
 			}
-			hands[talonIndex].AddRange(certainCards[talonIndex]);
-			foreach (var c in certainCards[talonIndex])
+			hands[Game.TalonIndex].AddRange(certainCards[Game.TalonIndex]);
+			foreach (var c in certainCards[Game.TalonIndex])
 			{
 				_verboseString.AppendFormat("Talon += {0} (certain)\n", c);
 			}
 			_verboseString.AppendFormat("Talon: {0} total, {1} certain, {2} uncertain cards\n",
-                totalCards[talonIndex], certainCards[talonIndex].Count(), uncertainCards[talonIndex].Count());
+                totalCards[Game.TalonIndex], certainCards[Game.TalonIndex].Count(), uncertainCards[Game.TalonIndex].Count());
 			ReduceUncertainCardSet(hands, totalCards, uncertainCards);
             //projdeme vsechny nejiste karty a zkusime je rozdelit podle pravdepodobnosti jednotlivym hracum (nebo do talonu)
             foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().OrderByDescending(h => h))
@@ -1056,9 +1055,9 @@ namespace Mariasek.Engine
                         }
                         if (hands[i].Count() < totalCards[i] && i > 0)
                         {
-                            if (i == talonIndex)
+                            if (i == Game.TalonIndex)
                             {
-                                thresholds[i] += _cardProbabilityForPlayer[talonIndex][b][h];
+                                thresholds[i] += _cardProbabilityForPlayer[Game.TalonIndex][b][h];
                             }
                             else
                             {
@@ -1066,10 +1065,10 @@ namespace Mariasek.Engine
                             }                            
                         } 
                     }
-                    if (thresholds[talonIndex] != 1f)
+                    if (thresholds[Game.TalonIndex] != 1f)
                     {
                         //musime znormalizovat vsechny prahy, protoze nekomu uz jsme nagenerovali maximum moznych karet
-                        var sum = thresholds[talonIndex];
+                        var sum = thresholds[Game.TalonIndex];
 
                         for (int i = 0; i < Game.NumPlayers + 1; i++)
                         {
@@ -1082,7 +1081,7 @@ namespace Mariasek.Engine
 								thresholds[i] /= sum;
 							}
                         }
-                        //nyni by melo platit, ze thresholds[talonIndex] == 1f
+                        //nyni by melo platit, ze thresholds[Game.TalonIndex] == 1f
                     }
 
                     //var n = r.NextDouble();
@@ -1150,7 +1149,7 @@ namespace Mariasek.Engine
             {
                 result[(_myIndex + i) % Game.NumPlayers] = new Hand(hands[i]);
             }
-            result[talonIndex] = new Hand(hands[talonIndex]);
+            result[Game.TalonIndex] = new Hand(hands[Game.TalonIndex]);
 
             var sb = new StringBuilder();
             for (var i = 0; i < Game.NumPlayers; i++)
@@ -1158,7 +1157,7 @@ namespace Mariasek.Engine
                 sb.AppendFormat("\nPlayer {0}: ", i + 1);
                 sb.Append(result[i].ToString());
             }
-            sb.AppendFormat("\nTalon: {0}", result[talonIndex].ToString());
+            sb.AppendFormat("\nTalon: {0}", result[Game.TalonIndex].ToString());
             //zkontroluj vysledek
             var check = true;
             for (int i = 0; i < Game.NumPlayers; i++)
@@ -1176,7 +1175,7 @@ namespace Mariasek.Engine
                     break;
                 }
             }
-            if(hands[talonIndex].Count != 0 && hands[talonIndex].Count != 2)
+            if(hands[Game.TalonIndex].Count != 0 && hands[Game.TalonIndex].Count != 2)
             {
                 check = false;
             }
@@ -1210,7 +1209,6 @@ namespace Mariasek.Engine
 
         public long EstimateTotalCombinations(int roundNumber)
         {
-            const int talonIndex = 3;
             var p2 = (_myIndex + 1) % Game.NumPlayers;
             var p3 = (_myIndex + 2) % Game.NumPlayers;
             var certainCards = new List<Card>[Game.NumPlayers + 1];
@@ -1221,12 +1219,12 @@ namespace Mariasek.Engine
             uncertainCards = _cardProbabilityForPlayer.Select(j => j.SelectMany(i => i.Value.Where(k => k.Value > 0.1f && k.Value < 0.9f).Select(k => new Card(i.Key, k.Key))).ToList()).ToArray();
 
             cardsToGuess = certainCards.Select(i => 10 - roundNumber + 1 - i.Count()).ToArray();
-            cardsToGuess[talonIndex] = 2 - certainCards[talonIndex].Count();
+            cardsToGuess[Game.TalonIndex] = 2 - certainCards[Game.TalonIndex].Count();
 
             //tohle je jen radovy odhad, pro presne cislo je dulezite na kolik pozic muzu dat kazdou nejistou kartu
             var combinations2 = CNK(uncertainCards[p2].Count(), cardsToGuess[p2]);
             var combinations3 = CNK(Math.Max(0, uncertainCards[p3].Count() - cardsToGuess[p2]), cardsToGuess[p3]);
-            var combinations4 = CNK(Math.Max(0, uncertainCards[talonIndex].Count() - Math.Max(cardsToGuess[p2], cardsToGuess[p3])), cardsToGuess[talonIndex]);
+            var combinations4 = CNK(Math.Max(0, uncertainCards[Game.TalonIndex].Count() - Math.Max(cardsToGuess[p2], cardsToGuess[p3])), cardsToGuess[Game.TalonIndex]);
 
             var result = combinations2 * combinations3 * combinations4;
 
@@ -1235,7 +1233,6 @@ namespace Mariasek.Engine
 
         public IEnumerable<Hand[]> GenerateAllHandCombinations(int roundNumber)
         {
-            const int talonIndex = 3;
             var p2 = (_myIndex + 1) % Game.NumPlayers;
             var p3 = (_myIndex + 2) % Game.NumPlayers;
             var certainCards = new List<Card>[Game.NumPlayers + 1];
@@ -1247,7 +1244,7 @@ namespace Mariasek.Engine
             uncertainCards = _cardProbabilityForPlayer.Select(j => j.SelectMany(i => i.Value.Where(k => k.Value > 0 && k.Value < 1).Select(k => new Card(i.Key, k.Key))).ToList()).ToArray();
 
             cardsToGuess = certainCards.Select(i => 10 - roundNumber + 1 - i.Count()).ToArray();
-            cardsToGuess[talonIndex] = 2 - certainCards[talonIndex].Count();
+            cardsToGuess[Game.TalonIndex] = 2 - certainCards[Game.TalonIndex].Count();
 
             var combinations2 = new Combinations<Card>(uncertainCards[p2], cardsToGuess[p2]);
             foreach (var guessedCards2 in combinations2)
@@ -1262,16 +1259,16 @@ namespace Mariasek.Engine
                 {
                     hands[p3] = certainCards[p3].Concat(guessedCards3).ToList();
 
-                    var combinations4 = new Combinations<Card>(uncertainCards[talonIndex].Except(guessedCards2).Except(guessedCards3).ToList(), cardsToGuess[talonIndex]);
+                    var combinations4 = new Combinations<Card>(uncertainCards[Game.TalonIndex].Except(guessedCards2).Except(guessedCards3).ToList(), cardsToGuess[Game.TalonIndex]);
                     foreach(var guessedCards4 in combinations4)
                     {
-                        hands[talonIndex] = certainCards[talonIndex].Concat(guessedCards4).ToList();
+                        hands[Game.TalonIndex] = certainCards[Game.TalonIndex].Concat(guessedCards4).ToList();
 
                         //vynech kombinace ve kterych nevyslo na vsechny spravny pocet karet
                         if (hands[0].Count() == 10 - roundNumber + 1 &&
                             hands[1].Count() == 10 - roundNumber + 1 &&
                             hands[2].Count() == 10 - roundNumber + 1 &&
-                            hands[talonIndex].Count() == 2)
+                            hands[Game.TalonIndex].Count() == 2)
                         {
                             yield return new[]
                             {
@@ -1338,7 +1335,7 @@ namespace Mariasek.Engine
             {
                 foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
                 {
-                    _cardProbabilityForPlayer[talonIndex][b][h] = 0f;
+                    _cardProbabilityForPlayer[Game.TalonIndex][b][h] = 0f;
                 }
             }
             foreach (var card in hand)
@@ -1355,7 +1352,7 @@ namespace Mariasek.Engine
                 {
                     _cardProbabilityForPlayer[i][card.Suit][card.Value] = 0f;
                 }
-                _cardProbabilityForPlayer[talonIndex][card.Suit][card.Value] = 1f;
+                _cardProbabilityForPlayer[Game.TalonIndex][card.Suit][card.Value] = 1f;
             }
             if (UseDebugString)
             {
@@ -1380,13 +1377,13 @@ namespace Mariasek.Engine
 						{
 							_cardProbabilityForPlayer[gameBidder][card.Suit][card.Value] = gameBidder == _myIndex ? 0f : 0.5f;
 						}
-						_cardProbabilityForPlayer[talonIndex][card.Suit][card.Value] = 0.5f;
+						_cardProbabilityForPlayer[Game.TalonIndex][card.Suit][card.Value] = 0.5f;
 					}
                     foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
                     {
                         foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
                         {
-                            _cardProbabilityForPlayer[talonIndex][b][h] = _cardProbabilityForPlayer[_myIndex][b][h] == 1 ||
+                            _cardProbabilityForPlayer[Game.TalonIndex][b][h] = _cardProbabilityForPlayer[_myIndex][b][h] == 1 ||
                                                                           !Game.IsValidTalonCard(h, b, _trump, _allowAXTalon, _allowTrumpTalon) 
                                                                           ? 0 : 0.5f;
                         }
@@ -1422,7 +1419,7 @@ namespace Mariasek.Engine
             {
                 for (var j = 0; j < Game.NumPlayers + 1; j++)
                 {
-                    _cardProbabilityForPlayer[j][e.axTalon[i].Suit][e.axTalon[i].Value] = j == talonIndex ? 1f : 0f;
+                    _cardProbabilityForPlayer[j][e.axTalon[i].Suit][e.axTalon[i].Value] = j == Game.TalonIndex ? 1f : 0f;
                 }
             }
             if ((e.GameType & (Hra.Betl | Hra.Durch)) == 0 && e.GameStartingPlayerIndex != _myIndex)
@@ -1435,7 +1432,7 @@ namespace Mariasek.Engine
 
                     for (var i = 0; i < Game.NumPlayers + 1; i++)
                     {
-                        if (i == talonIndex)
+                        if (i == Game.TalonIndex)
                         {
                             _cardProbabilityForPlayer[i][b][Hodnota.Eso] = e.axTalon.Contains(eso) ? 1f : 0f;
                             _cardProbabilityForPlayer[i][b][Hodnota.Desitka] = e.axTalon.Contains(desitka) ? 1f : 0f;
@@ -1463,7 +1460,7 @@ namespace Mariasek.Engine
                     }
                     else if(e.GameStartingPlayerIndex != _myIndex &&
                             i != _myIndex &&
-                            i != talonIndex &&
+                            i != Game.TalonIndex &&
                             !(_myHand.Has7(e.TrumpCard.Suit)))
                     {
                         _cardProbabilityForPlayer[i][e.TrumpCard.Suit][Hodnota.Sedma] = i == e.GameStartingPlayerIndex ? 0.99f : 0.01f;
@@ -1537,7 +1534,7 @@ namespace Mariasek.Engine
                 for (var i = 0; i < Game.NumPlayers + 1; i++)
                 {
                     if (i == _myIndex ||
-                        i == talonIndex)
+                        i == Game.TalonIndex)
                     {
                         continue;
                     }
@@ -1594,7 +1591,7 @@ namespace Mariasek.Engine
                 for (var i = 0; i < Game.NumPlayers + 1; i++)
                 {
                     if (i == _myIndex ||
-                        i == talonIndex)
+                        i == Game.TalonIndex)
                     {
                         continue;
                     }
@@ -1624,7 +1621,7 @@ namespace Mariasek.Engine
                         var likelyOrCertain = _allowFakeSeven ? 0.99f : 1f;
 
                         _cardProbabilityForPlayer[i][_trump.Value][Hodnota.Sedma] = i == _sevenAgainstIndex ? likelyOrCertain : 1 - likelyOrCertain;
-                        if (i != _myIndex && i != _sevenAgainstIndex && i != _gameStarterIndex && i != talonIndex)
+                        if (i != _myIndex && i != _sevenAgainstIndex && i != _gameStarterIndex && i != Game.TalonIndex)
                         {
                             _initialExpectedTrumps[i] = 8 - _initialExpectedTrumps[_gameStarterIndex] - _initialExpectedTrumps[_sevenAgainstIndex];
                         }
@@ -1688,7 +1685,7 @@ namespace Mariasek.Engine
                 _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Kral] = 1f;
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Kral] = 0f;
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Kral] = 0f;
-                _cardProbabilityForPlayer[talonIndex][c1.Suit][Hodnota.Kral] = 0f;
+                _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Kral] = 0f;
             }
             else if (_trump.HasValue && c1.Value == Hodnota.Svrsek && roundStarterIndex != _myIndex)
             {
@@ -1730,7 +1727,7 @@ namespace Mariasek.Engine
                 _cardProbabilityForPlayer[roundStarterIndex][c2.Suit][Hodnota.Kral] = 0f;
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c2.Suit][Hodnota.Kral] = 1f;
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c2.Suit][Hodnota.Kral] = 0f;
-                _cardProbabilityForPlayer[talonIndex][c2.Suit][Hodnota.Kral] = 0f;
+                _cardProbabilityForPlayer[Game.TalonIndex][c2.Suit][Hodnota.Kral] = 0f;
             }
             else if (_trump.HasValue && c2.Value == Hodnota.Svrsek && (roundStarterIndex + 1) % Game.NumPlayers != _myIndex)
             {
@@ -1805,7 +1802,7 @@ namespace Mariasek.Engine
                                                       _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] < 1))
                     {
                         _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] = 0.5f;
-                        _cardProbabilityForPlayer[talonIndex][c1.Suit][h] = 0.5f;
+                        _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][h] = 0.5f;
                     }
                 }
             }
@@ -1909,7 +1906,7 @@ namespace Mariasek.Engine
                                                       _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] < 1))
                     {
                         _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][h] = 0.5f;
-                        _cardProbabilityForPlayer[talonIndex][c1.Suit][h] = 0.5f;
+                        _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][h] = 0.5f;
                     }
                 }
             }
@@ -1986,7 +1983,7 @@ namespace Mariasek.Engine
                 _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Kral] = 0f;
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Kral] = 0f;
                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Kral] = 1f;
-                _cardProbabilityForPlayer[talonIndex][c3.Suit][Hodnota.Kral] = 0f;
+                _cardProbabilityForPlayer[Game.TalonIndex][c3.Suit][Hodnota.Kral] = 0f;
             }
             else if (_trump.HasValue && c3.Value == Hodnota.Svrsek && (roundStarterIndex + 2) % Game.NumPlayers != _myIndex)
             {
@@ -2061,7 +2058,7 @@ namespace Mariasek.Engine
                                                       _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][h] < 1))
                     {
                         _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][h] = 0.5f;
-                        _cardProbabilityForPlayer[talonIndex][c3.Suit][h] = 0.5f;
+                        _cardProbabilityForPlayer[Game.TalonIndex][c3.Suit][h] = 0.5f;
                     }
                 }
             }
@@ -2165,7 +2162,7 @@ namespace Mariasek.Engine
                                                       _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][h] < 1))
                     {
                         _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][h] = 0.5f;
-                        _cardProbabilityForPlayer[talonIndex][c3.Suit][h] = 0.5f;
+                        _cardProbabilityForPlayer[Game.TalonIndex][c3.Suit][h] = 0.5f;
                     }
                 }
             }
@@ -2324,16 +2321,16 @@ namespace Mariasek.Engine
                     if (_cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] > 0f &&
                         _cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] < 1f &&
                         _cardProbabilityForPlayer[_myIndex][c2.Suit][h] == 0f &&
-                        _cardProbabilityForPlayer[talonIndex][c2.Suit][h] == 0f)
+                        _cardProbabilityForPlayer[Game.TalonIndex][c2.Suit][h] == 0f)
                     {
                         _cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] = 1f;
                     }
                     else if (_cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] == 0f &&
                         _cardProbabilityForPlayer[_myIndex][c2.Suit][h] == 0f &&
-                        _cardProbabilityForPlayer[talonIndex][c2.Suit][h] > 0f &&
-                        _cardProbabilityForPlayer[talonIndex][c2.Suit][h] < 1f)
+                        _cardProbabilityForPlayer[Game.TalonIndex][c2.Suit][h] > 0f &&
+                        _cardProbabilityForPlayer[Game.TalonIndex][c2.Suit][h] < 1f)
                     {
-                        _cardProbabilityForPlayer[talonIndex][c2.Suit][h] = 1f;
+                        _cardProbabilityForPlayer[Game.TalonIndex][c2.Suit][h] = 1f;
                     }
                 }
             }
@@ -2373,16 +2370,16 @@ namespace Mariasek.Engine
                         if (_cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] > 0f &&
                             _cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] < 1f &&
                             _cardProbabilityForPlayer[_myIndex][c2.Suit][h] == 0f &&
-                            _cardProbabilityForPlayer[talonIndex][c2.Suit][h] == 0f)
+                            _cardProbabilityForPlayer[Game.TalonIndex][c2.Suit][h] == 0f)
                         {
                             _cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] = 1 - epsilon;
                         }
                         else if (_cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] == 0f &&
                             _cardProbabilityForPlayer[_myIndex][c2.Suit][h] == 0f &&
-                            _cardProbabilityForPlayer[talonIndex][c2.Suit][h] > 0f &&
-                            _cardProbabilityForPlayer[talonIndex][c2.Suit][h] < 1f)
+                            _cardProbabilityForPlayer[Game.TalonIndex][c2.Suit][h] > 0f &&
+                            _cardProbabilityForPlayer[Game.TalonIndex][c2.Suit][h] < 1f)
                         {
-                            _cardProbabilityForPlayer[talonIndex][c2.Suit][h] = 1 - epsilon;
+                            _cardProbabilityForPlayer[Game.TalonIndex][c2.Suit][h] = 1 - epsilon;
                         }
                     }
                 }

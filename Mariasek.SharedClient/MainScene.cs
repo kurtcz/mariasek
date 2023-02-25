@@ -1506,7 +1506,8 @@ namespace Mariasek.SharedClient
                          AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish,
                          OptimisticAutoFinish = Game.Settings.OptimisticAutoFinish,
                          PreGameHook = () => _preGameEvent.WaitOne(),
-                         CurrencyFormat = Game.CurrencyFormat
+                         CurrencyFormat = Game.CurrencyFormat,
+                         LogProbDebugInfo = Game.Settings.LogProbabilities ?? false
                      };
                      g.RegisterPlayers(
                          new HumanPlayer(g, _aiSettings, this, Game.Settings.HintEnabled) { Name = Game.Settings.PlayerNames[0] },
@@ -3420,7 +3421,8 @@ namespace Mariasek.SharedClient
                         AllowPlayerAutoFinish = Game.Settings.AllowPlayerAutoFinish,
                         OptimisticAutoFinish = Game.Settings.OptimisticAutoFinish,
                         PreGameHook = () => _preGameEvent.WaitOne(),
-                        CurrencyFormat = Game.CurrencyFormat
+                        CurrencyFormat = Game.CurrencyFormat,
+                        LogProbDebugInfo = Game.Settings.LogProbabilities ?? false
                     };
                     g.RegisterPlayers(
                         new HumanPlayer(g, _aiSettings, this, Game.Settings.HintEnabled) { Name = Game.Settings.PlayerNames[0] },

@@ -46,6 +46,7 @@ namespace Mariasek.Engine
         public const int NumPlayers = 3;
         public const int NumRounds = 10;
         public const int NumSuits = 4;
+        public const int TalonIndex = 3;
 
         private int CurrentGameNumber;
         private static int GameCounter;
@@ -103,6 +104,7 @@ namespace Mariasek.Engine
         public int LastRoundNumber { get; private set; }
         public Bidding Bidding { get; private set; }
         public string Author { get; set; }
+        public bool LogProbDebugInfo { get; set; }
         //public bool DoSort { get; set; }
         public bool AutoDisable100Against { get; set; }
 #if !PORTABLE
@@ -243,6 +245,7 @@ namespace Mariasek.Engine
             AllowPlayerAutoFinish = true;
             Calculate107Separately = true;
             FirstMinMaxRound = 8;
+            LogProbDebugInfo = false;
             HlasConsidered = HlasConsidered.Highest;
             GetStringLogger = stringLoggerFactory;
             if (GetStringLogger == null)
@@ -480,7 +483,10 @@ namespace Mariasek.Engine
                             parentNodes.Peek() == "Stych" &&
                             tmpcomments != null)
                         {
-                            tmpcomments[comment++] = xmlrdr.Value.Trim();
+                            if (comment < tmpcomments.Length)
+                            {
+                                tmpcomments[comment++] = xmlrdr.Value.Trim();
+                            }
                         }
                         break;
                     case XmlNodeType.EndElement:
@@ -860,6 +866,7 @@ namespace Mariasek.Engine
                     }
                     var cards = new[] { r.c1, r.c2, r.c3 };
                     var debugInfo = new[] { r.debugNote1, r.debugNote2, r.debugNote3 };
+                    var probDebugInfo = new[] { r.probDebugNote1, r.probDebugNote2, r.probDebugNote3 };
                     var playerIndices = new[] { r.player1.PlayerIndex, r.player2.PlayerIndex, r.player3.PlayerIndex };
 
                     var index = Array.IndexOf(playerIndices, 0);
@@ -869,7 +876,8 @@ namespace Mariasek.Engine
                         {
                             Barva = cards[index].Suit,
                             Hodnota = cards[index].Value,
-                            Poznamka = debugInfo[index]
+                            Poznamka = debugInfo[index],
+                            Poznamka2 = probDebugInfo[index]
                         };
                     }
                     index = Array.IndexOf(playerIndices, 1);
@@ -879,7 +887,8 @@ namespace Mariasek.Engine
                         {
                             Barva = cards[index].Suit,
                             Hodnota = cards[index].Value,
-                            Poznamka = debugInfo[index]
+                            Poznamka = debugInfo[index],
+                            Poznamka2 = probDebugInfo[index]
                         };
                     }
                     index = Array.IndexOf(playerIndices, 2);
@@ -889,7 +898,8 @@ namespace Mariasek.Engine
                         {
                             Barva = cards[index].Suit,
                             Hodnota = cards[index].Value,
-                            Poznamka = debugInfo[index]
+                            Poznamka = debugInfo[index],
+                            Poznamka2 = probDebugInfo[index]
                         };
                     }
                 }

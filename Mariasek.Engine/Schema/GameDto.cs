@@ -116,18 +116,38 @@ namespace Mariasek.Engine.Schema
                     var hrac1 = stych.Element("Hrac1");
                     var hrac2 = stych.Element("Hrac2");
                     var hrac3 = stych.Element("Hrac3");
+                    var poznamka1 = string.IsNullOrEmpty(Stychy[i]?.Hrac1?.Poznamka) ? null : new XComment($" {Stychy[i].Hrac1.Poznamka} ");
+                    var poznamka2 = string.IsNullOrEmpty(Stychy[i]?.Hrac2?.Poznamka) ? null : new XComment($" {Stychy[i].Hrac2.Poznamka} ");
+                    var poznamka3 = string.IsNullOrEmpty(Stychy[i]?.Hrac3?.Poznamka) ? null : new XComment($" {Stychy[i].Hrac3.Poznamka} ");
+                    var poznamka21 = string.IsNullOrEmpty(Stychy[i]?.Hrac1?.Poznamka2) ? null : new XComment($" {Stychy[i].Hrac1.Poznamka2} ");
+                    var poznamka22 = string.IsNullOrEmpty(Stychy[i]?.Hrac2?.Poznamka2) ? null : new XComment($" {Stychy[i].Hrac2.Poznamka2} ");
+                    var poznamka23 = string.IsNullOrEmpty(Stychy[i]?.Hrac3?.Poznamka2) ? null : new XComment($" {Stychy[i].Hrac3.Poznamka2} ");
 
-                    if (!string.IsNullOrEmpty(Stychy[i]?.Hrac1?.Poznamka))
+                    if (poznamka1 != null)
                     {
-                        hrac1.AddAfterSelf(new XComment($" {Stychy[i].Hrac1.Poznamka} "));
+                        hrac1.AddAfterSelf(poznamka1);
                     }
-                    if (!string.IsNullOrEmpty(Stychy[i]?.Hrac2?.Poznamka))
+                    if (poznamka2 != null)
                     {
-                        hrac2.AddAfterSelf(new XComment($" {Stychy[i].Hrac2.Poznamka} "));
+                        hrac2.AddAfterSelf(poznamka2);
                     }
-                    if (!string.IsNullOrEmpty(Stychy[i]?.Hrac3?.Poznamka))
+                    //poznamky o pravdepodobnostech (budou na konci)
+                    if (poznamka23 != null)
                     {
-                        hrac3.AddAfterSelf(new XComment($" {Stychy[i].Hrac3.Poznamka} "));
+                        hrac3.AddAfterSelf(poznamka23);
+                    }
+                    if (poznamka22 != null)
+                    {
+                        hrac3.AddAfterSelf(poznamka22);
+                    }
+                    if (poznamka21 != null)
+                    {
+                        hrac3.AddAfterSelf(poznamka21);
+                    }
+                    //nakonec klasickou poznamku (bude prvni)
+                    if (poznamka3 != null)
+                    {
+                        hrac3.AddAfterSelf(poznamka3);
                     }
                     i++;
                 }
@@ -151,6 +171,8 @@ namespace Mariasek.Engine.Schema
         public Hodnota Hodnota;
         [XmlIgnore]
         public string Poznamka;
+        [XmlIgnore]
+        public string Poznamka2;
     }
 
     public class Flek

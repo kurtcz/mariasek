@@ -23,6 +23,7 @@ namespace Mariasek.Engine
         public int MaxSimulatedHundredLoss { get; set; }
         public int TotalHoles { get; set; }
         public bool HundredTooRisky { get; set; }
+        public string ProbDebugInfo { get; set; }
 
         public PlayerDebugInfo()
         {
