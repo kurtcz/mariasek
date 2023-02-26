@@ -3752,12 +3752,8 @@ namespace Mariasek.Engine
                                         : 0;
             var totalHoles = GetTotalHoles();
             var handSuits = Hand.SuitCount();
-            var simulatedMultiplier = bidding.GameMultiplier < 2
-                                        ? 1
-                                        : 4; //pri re pocitej prohru jakoby se souperi jeste otocili na tutti
-            var gameValue = bidding.GameMultiplier < 2
-                            ? 2 * _g.QuietHundredValue  //pocitej prohru pokud si souper da flek
-                            : 4 * _g.QuietHundredValue; //pocitej prohru pokud by ses otocil na re
+            var estimatedPointsLost = _trump.HasValue ? EstimateMaxTotalPointsLost(Hand, _talon) : 0;
+            var gameValue = 2 * bidding.GameMultiplier * (estimatedPointsLost >= 100 ? _g.QuietHundredValue : _g.GameValue);
             var lossPerPointsLost = _trump.HasValue
                                     ? Enumerable.Range(0, 10)
                                                 .Select(i => 100 + i * 10)
@@ -3772,7 +3768,6 @@ namespace Mariasek.Engine
                                                                      ? 4
                                                                      : 2)) //ztrata pro aktera je dvojnasobna (plati obema souperum)
                                     : new Dictionary<int, int>();
-            var estimatedPointsLost = _trump.HasValue ? EstimateMaxTotalPointsLost(Hand, _talon) : 0;
 
             if ((bidding.Bids & Hra.Hra) != 0 &&                //pokud byla zvolena hra (nebo hra a sedma]
                 Settings.CanPlayGameType[Hra.Hra] &&
@@ -3793,11 +3788,12 @@ namespace Mariasek.Engine
                     axCount >= 3)) &&
                   (_teamMateDoubledGame ||
                    estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqLikelyOpponentScore)) ||
-                  (TeamMateIndex == -1 &&                       //Re: pokud mam vic nez souperi s Min(1, n-1) z moznych hlasek a
+                  (TeamMateIndex == -1 &&                       //Re: pokud mam vic nez souperi s Max(0, n-1) z moznych hlasek a
                    bidding.GameMultiplier == 2 &&
-                   estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqLikelyOpponentScore &&
+                   //estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqLikelyOpponentScore &&
+                   estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + Math.Max(0, kqMaxOpponentScore - 20) &&
                    estimatedOpponentFinalBasicScore + kqLikelyOpponentScore < 100 &&
-                   simulatedMultiplier * _maxMoneyLost >= -Settings.SafetyGameThreshold &&
+                   2 * _maxMoneyLost >= -Settings.SafetyGameThreshold &&    // simulace byly jen na flek, pro re vynasobim ztratu dvema
                    (Settings.SafetyGameThreshold == 0 ||
                     !lossPerPointsLost.ContainsKey(estimatedPointsLost) ||
                     lossPerPointsLost[estimatedPointsLost] <= Settings.SafetyGameThreshold)) ||   //souper nemuze uhrat kilo proti s Min(1, n-1) z moznych hlasek
