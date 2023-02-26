@@ -150,7 +150,7 @@ namespace Mariasek.SharedClient
                 ZIndex = 80,
                 HorizontalAlign = HorizontalAlignment.Left,
                 VerticalAlign = VerticalAlignment.Top,
-                FontScaleFactor = 0.9f
+                FontScaleFactor = 0.85f
             };
             _rawData.Hide();
             //tlacitka vpravo

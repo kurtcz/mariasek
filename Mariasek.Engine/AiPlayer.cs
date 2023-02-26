@@ -3757,7 +3757,7 @@ namespace Mariasek.Engine
                                         : 4; //pri re pocitej prohru jakoby se souperi jeste otocili na tutti
             var gameValue = bidding.GameMultiplier < 2
                             ? 2 * _g.QuietHundredValue  //pocitej prohru pokud si souper da flek
-                            : 8 * _g.QuietHundredValue; //pocitej prohru pokud by ses otocil na re a souper jeste na tutti
+                            : 4 * _g.QuietHundredValue; //pocitej prohru pokud by ses otocil na re
             var lossPerPointsLost = _trump.HasValue
                                     ? Enumerable.Range(0, 10)
                                                 .Select(i => 100 + i * 10)

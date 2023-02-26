@@ -15,8 +15,8 @@ namespace Mariasek.SharedClient.GameComponents
         public const int page3Offset = 1140;
         public const int page4Offset = 1740;
         public const int page5Offset = 2460;
-        public const int page6Offset = 2880;
-        public const int boundsRectHeight = 3300;
+        public const int page6Offset = 2940;
+        public const int boundsRectHeight = 3360;
         //nove tematicke offsety zacinaji na ruznych mistech puvodnich stranek
         public readonly int[] TopicOffsets = new [] { 0, page2Offset, page3Offset + 120, page6Offset };
 
@@ -49,6 +49,7 @@ namespace Mariasek.SharedClient.GameComponents
         private Label _maxDegreeOfParallelism;
         private Label _autoDisable100Against;
         private Label _showScoreDuringGame;
+        private Label _logProbabilities;
         private Label _cardSize;
         private Label _fatFingers;
         private Label _gameValue;
@@ -106,6 +107,7 @@ namespace Mariasek.SharedClient.GameComponents
         private LeftRightSelector _maxDegreeOfParallelismSelector;
         private LeftRightSelector _autoDisable100AgainstSelector;
         private LeftRightSelector _showScoreDuringGameSelector;
+        private LeftRightSelector _logProbabilitiesSelector;
         private LeftRightSelector _cardSizeSelector;
         private LeftRightSelector _fatFingersSelector;
         private LeftRightSelector _bubbleTimeSelector;
@@ -1355,9 +1357,34 @@ namespace Mariasek.SharedClient.GameComponents
             {
                 _directionOfPlaySelector.SelectedIndex = 0;
             }
-            _maxWin = new Label(this)
+            _logProbabilities = new Label(this)
             {
                 Position = new Vector2(200, page5Offset + 370),
+                Width = (int)Game.VirtualScreenWidth / 2 - 150,
+                Height = 50,
+                Text = "Logování AI modelu",
+                Group = 1,
+                HorizontalAlign = HorizontalAlignment.Center,
+                VerticalAlign = VerticalAlignment.Middle,
+                UseCommonScissorRect = true
+            };
+            _logProbabilitiesSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page5Offset + 370),
+                Width = 270,
+                Group = 1,
+                Items = new SelectorItems() { { "Vypnuté", false }, { "Zapnuté", true } },
+                UseCommonScissorRect = true
+            };
+            _logProbabilitiesSelector.SelectedIndex = _logProbabilitiesSelector.Items.FindIndex(Game.Settings.LogProbabilities);
+            _logProbabilitiesSelector.SelectionChanged += LogProbabilitiesChanged;
+            if (_logProbabilitiesSelector.SelectedIndex < 0)
+            {
+                _logProbabilitiesSelector.SelectedIndex = 0;
+            }
+            _maxWin = new Label(this)
+            {
+                Position = new Vector2(200, page5Offset + 430),
                 Width = (int)Game.VirtualScreenWidth / 2 - 150,
                 Height = 50,
                 Text = "Maximální sazba za hru",
@@ -1368,7 +1395,7 @@ namespace Mariasek.SharedClient.GameComponents
             };
             _maxWinSelector = new LeftRightSelector(this)
             {
-                Position = new Vector2(Game.VirtualScreenWidth - 300, page5Offset + 370),
+                Position = new Vector2(Game.VirtualScreenWidth - 300, page5Offset + 430),
                 Width = 270,
                 Group = 1,
                 Items = new SelectorItems() { { "500x základ", 500 }, { "Neomezená", 0 } },
@@ -1599,6 +1626,15 @@ namespace Mariasek.SharedClient.GameComponents
 
             Game.Settings.ShowScoreDuringGame = (((int)selector.SelectedValue) & 1) > 0;
             Game.Settings.WhiteScore = (((int)selector.SelectedValue) & 2) > 0;
+            Game.SaveGameSettings();
+            Game.OnSettingsChanged();
+        }
+
+        private void LogProbabilitiesChanged(object sender)
+        {
+            var selector = sender as LeftRightSelector;
+
+            Game.Settings.LogProbabilities = (bool)selector.SelectedValue;
             Game.SaveGameSettings();
             Game.OnSettingsChanged();
         }
