@@ -1731,7 +1731,7 @@ namespace Mariasek.Engine
                                         {
                                             UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
                                         }
-                                        var gt = !IsHundredTooRisky(hands[PlayerIndex], hands[Game.TalonIndex]) &&
+                                        var gt = EstimateBasicPointsLost(hands[PlayerIndex], hands[Game.TalonIndex]) <= 50 &&
                                                  Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                                      .Any(b => hands[PlayerIndex].HasK(b) && hands[PlayerIndex].HasQ(b))
                                                      ? Hra.Kilo
@@ -4641,7 +4641,7 @@ namespace Mariasek.Engine
             var unlikelyCards1 = 0 == PlayerIndex || !Probabilities.UnlikelyCards(0).Any() ? null : Probabilities.UnlikelyCards(0).ToHandString();
             var unlikelyCards2 = 1 == PlayerIndex || !Probabilities.UnlikelyCards(1).Any() ? null : Probabilities.UnlikelyCards(1).ToHandString();
             var unlikelyCards3 = 2 == PlayerIndex || !Probabilities.UnlikelyCards(2).Any() ? null : Probabilities.UnlikelyCards(2).ToHandString();
-            var likelyCardsT = Probabilities.LikelyCards(3).Any() ? Probabilities.LikelyCards(3).ToHandString() : null;
+            var certainCardsT = Probabilities.CertainCards(3).Any() ? Probabilities.CertainCards(3).ToHandString() : null;
 
             var sb = new StringBuilder();
 
@@ -4682,9 +4682,9 @@ namespace Mariasek.Engine
             {
                 sb.Append($"Hráč3 určitě nemá\n{unlikelyCards3}\n");
             }
-            if (likelyCardsT != null)
+            if (certainCardsT != null)
             {
-                sb.Append($"V talonu určitě je\n{likelyCardsT}");
+                sb.Append($"V talonu určitě je\n{certainCardsT}");
             }
 
             return sb.ToString().Replace("-", "");
@@ -5856,11 +5856,11 @@ namespace Mariasek.Engine
             //prob.UpdateProbabilitiesAfterTalon((List<Card>)hands[player1], (List<Card>)hands[3]);
             //prob.UseDebugString = false;    //otherwise we are being really slooow
 
-            var prob1 = 0 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(0, player1, hands[0], trump, _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 0 == PlayerIndex ? (List<Card>)hands[Game.TalonIndex] : null);
+            var prob1 = 0 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(0, _g.RoundNumber == 0 ? player1 : _g.GameStartingPlayerIndex, hands[0], trump, _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 0 == PlayerIndex ? (List<Card>)hands[Game.TalonIndex] : null);
             prob1.UseDebugString = false;
-            var prob2 = 1 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(1, player1, hands[1], trump, _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 1 == PlayerIndex ? (List<Card>)hands[Game.TalonIndex] : null);
+            var prob2 = 1 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(1, _g.RoundNumber == 0 ? player1 : _g.GameStartingPlayerIndex, hands[1], trump, _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 1 == PlayerIndex ? (List<Card>)hands[Game.TalonIndex] : null);
             prob2.UseDebugString = false;
-            var prob3 = 2 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(2, player1, hands[2], trump, _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 2 == PlayerIndex ? (List<Card>)hands[Game.TalonIndex] : null);
+            var prob3 = 2 == PlayerIndex && !ImpersonateGameStartingPlayer ? prob : new Probability(2, _g.RoundNumber == 0 ? player1 : _g.GameStartingPlayerIndex, hands[2], trump, _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon, _g.CancellationToken, _stringLoggerFactory, 2 == PlayerIndex ? (List<Card>)hands[Game.TalonIndex] : null);
             prob3.UseDebugString = false;
 
             if (Settings.Cheat)

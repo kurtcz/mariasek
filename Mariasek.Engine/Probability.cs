@@ -1851,6 +1851,39 @@ namespace Mariasek.Engine
                     }
                 }
             }
+            //pokud hrajeme v barve a prvni hrac nevolil
+            //a zacina necim jinym nez trumfem
+            //a druhy hrac sel vejs desitkou
+            //a treti prebiji esem nebo trumfem
+            //tak druhy hrac uz nema zadne dalsi karty v barve (a proto hral desitku nebo eso)
+            //plati at je akter druhym nebo tretim hracem
+            if (_trump.HasValue &&
+                c1.Suit != _trump &&
+                c1.Suit == c2.Suit &&
+                c2.Value > c1.Value &&
+                c2.Value == Hodnota.Desitka &&
+                roundStarterIndex != _gameStarterIndex &&
+                _myIndex != (roundStarterIndex + 1) % Game.NumPlayers &&
+                (_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Eso] > epsilon ||
+                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit].All(h => h.Value == 0) &&
+                 _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][_trump.Value].Any(h => h.Value > epsilon)))
+            {
+                foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                      .Where(h => h < c2.Value &&
+                                                  _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] > 0 &&
+                                                  _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] < 1))
+                {
+                    var otherPlayerIndex = _myIndex == roundStarterIndex ? (roundStarterIndex + 2) % Game.NumPlayers : roundStarterIndex;
+
+                    _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] = epsilon;
+
+                    if (_cardProbabilityForPlayer[otherPlayerIndex][c1.Suit][h] == 0 &&
+                        _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][h] > 0)
+                    {
+                        _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][h] = 1 - epsilon;
+                    }
+                }
+            }
             //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
             //druhy hrac priznal barvu, sel vejs, ale nehral eso a
             //vim, ze nikdo nema desitku, tak
@@ -2230,9 +2263,8 @@ namespace Mariasek.Engine
                 c1.IsLowerThan(c2, _trump) &&
                 c2.IsHigherThan(c3, _trump))
             {
-                SetCardProbabilitiesLowerThanCardToEpsilon((roundStarterIndex + 2) % Game.NumPlayers, c3);
+                SetCardProbabilitiesLowerThanCardToEpsilon((roundStarterIndex + 2) % Game.NumPlayers, c3);                
             }
-
 
             _cardsPlayedByPlayer[(roundStarterIndex + 2) % Game.NumPlayers].Add(c3);
             ReduceUcertainCardSet();
@@ -2377,11 +2409,11 @@ namespace Mariasek.Engine
                         if (_cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] > 0f &&
                             _cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] < 1f &&
                             _cardProbabilityForPlayer[_myIndex][c2.Suit][h] == 0f &&
-                            _cardProbabilityForPlayer[Game.TalonIndex][c2.Suit][h] == 0f)
+                            _cardProbabilityForPlayer[Game.TalonIndex][c2.Suit][h] <= epsilon)
                         {
                             _cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] = 1 - epsilon;
                         }
-                        else if (_cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] == 0f &&
+                        else if (_cardProbabilityForPlayer[otherPlayerIndex][c2.Suit][h] <= epsilon &&
                             _cardProbabilityForPlayer[_myIndex][c2.Suit][h] == 0f &&
                             _cardProbabilityForPlayer[Game.TalonIndex][c2.Suit][h] > 0f &&
                             _cardProbabilityForPlayer[Game.TalonIndex][c2.Suit][h] < 1f)
