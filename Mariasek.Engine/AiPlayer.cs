@@ -4632,9 +4632,9 @@ namespace Mariasek.Engine
 
         private string GetProbabilityString(Round r)
         {
-            var likelyCards1 = 0 == PlayerIndex || !Probabilities.LikelyCards(0).Any() ? null : Probabilities.LikelyCards(0).ToHandString();
-            var likelyCards2 = 1 == PlayerIndex || !Probabilities.LikelyCards(1).Any() ? null : Probabilities.LikelyCards(1).ToHandString();
-            var likelyCards3 = 2 == PlayerIndex || !Probabilities.LikelyCards(2).Any() ? null : Probabilities.LikelyCards(2).ToHandString();
+            var certainCards1 = 0 == PlayerIndex || !Probabilities.CertainCards(0).Any() ? null : Probabilities.CertainCards(0).ToHandString();
+            var certainCards2 = 1 == PlayerIndex || !Probabilities.CertainCards(1).Any() ? null : Probabilities.CertainCards(1).ToHandString();
+            var certainCards3 = 2 == PlayerIndex || !Probabilities.CertainCards(2).Any() ? null : Probabilities.CertainCards(2).ToHandString();
             var potentialCards1 = 0 == PlayerIndex || !Probabilities.PotentialCards(0).Any() ? null : Probabilities.PotentialCards(0).ToHandString();
             var potentialCards2 = 1 == PlayerIndex || !Probabilities.PotentialCards(1).Any() ? null : Probabilities.PotentialCards(1).ToHandString();
             var potentialCards3 = 2 == PlayerIndex || !Probabilities.PotentialCards(2).Any() ? null : Probabilities.PotentialCards(2).ToHandString();
@@ -4646,9 +4646,9 @@ namespace Mariasek.Engine
             var sb = new StringBuilder();
 
             sb.Append($"Hráč{PlayerIndex + 1} si myslí že\n");
-            if (likelyCards1 != null)
+            if (certainCards1 != null)
             {
-                sb.Append($"Hráč1 určitě má\n{likelyCards1}\n");
+                sb.Append($"Hráč1 určitě má\n{certainCards1}\n");
             }
             if (potentialCards1 != null)
             {
@@ -4658,9 +4658,9 @@ namespace Mariasek.Engine
             {
                 sb.Append($"Hráč1 určitě nemá\n{unlikelyCards1}\n");
             }
-            if (likelyCards2 != null)
+            if (certainCards2 != null)
             {
-                sb.Append($"Hráč2 určitě má\n{likelyCards2}\n");
+                sb.Append($"Hráč2 určitě má\n{certainCards2}\n");
             }
             if (potentialCards2 != null)
             {
@@ -4670,9 +4670,9 @@ namespace Mariasek.Engine
             {
                 sb.Append($"Hráč2 určitě nemá\n{unlikelyCards2}\n");
             }
-            if (likelyCards3 != null)
+            if (certainCards3 != null)
             {
-                sb.Append($"Hráč3 určitě má\n{likelyCards3}\n");
+                sb.Append($"Hráč3 určitě má\n{certainCards3}\n");
             }
             if (potentialCards3 != null)
             {

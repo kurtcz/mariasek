@@ -301,6 +301,65 @@ namespace Mariasek.SharedClient
                     }
                     _gameType = _scene.ChooseGameType(validGameTypes);
                     _givenUp = _gameType == 0;
+                    //upravim procenta podle skutecne zvoleneho typu hry (hrac muze zavolit jinak nez napoveda)
+                    if (_aiPlayer != null)
+                    {
+                        if (_gameType == Hra.Durch)
+                        {
+                            _aiPlayer.DebugInfo.RuleCount = _aiPlayer.DebugInfo.AllChoices
+                                                                     .Where(i => i.Rule == Hra.Durch.ToString())
+                                                                     .Select(i => i.RuleCount)
+                                                                     .FirstOrDefault();
+                            _aiPlayer.DebugInfo.TotalRuleCount = _aiPlayer.DebugInfo.AllChoices
+                                                                          .Where(i => i.Rule == Hra.Durch.ToString())
+                                                                          .Select(i => i.TotalRuleCount)
+                                                                          .FirstOrDefault();
+                        }
+                        else if (_gameType == Hra.Betl)
+                        {
+                            _aiPlayer.DebugInfo.RuleCount = _aiPlayer.DebugInfo.AllChoices
+                                                                     .Where(i => i.Rule == Hra.Betl.ToString())
+                                                                     .Select(i => i.RuleCount)
+                                                                     .FirstOrDefault();
+                            _aiPlayer.DebugInfo.TotalRuleCount = _aiPlayer.DebugInfo.AllChoices
+                                                                          .Where(i => i.Rule == Hra.Betl.ToString())
+                                                                          .Select(i => i.TotalRuleCount)
+                                                                          .FirstOrDefault();
+                        }
+                        else if ((_gameType & Hra.Kilo) != 0)
+                        {
+                            _aiPlayer.DebugInfo.RuleCount = _aiPlayer.DebugInfo.AllChoices
+                                                                     .Where(i => i.Rule == Hra.Kilo.ToString())
+                                                                     .Select(i => i.RuleCount)
+                                                                     .FirstOrDefault();
+                            _aiPlayer.DebugInfo.TotalRuleCount = _aiPlayer.DebugInfo.AllChoices
+                                                                          .Where(i => i.Rule == Hra.Kilo.ToString())
+                                                                          .Select(i => i.TotalRuleCount)
+                                                                          .FirstOrDefault();
+                        }
+                        else if ((_gameType & Hra.Sedma) != 0)
+                        {
+                            _aiPlayer.DebugInfo.RuleCount = _aiPlayer.DebugInfo.AllChoices
+                                                                     .Where(i => i.Rule == Hra.Sedma.ToString())
+                                                                     .Select(i => i.RuleCount)
+                                                                     .FirstOrDefault();
+                            _aiPlayer.DebugInfo.TotalRuleCount = _aiPlayer.DebugInfo.AllChoices
+                                                                          .Where(i => i.Rule == Hra.Sedma.ToString())
+                                                                          .Select(i => i.TotalRuleCount)
+                                                                          .FirstOrDefault();
+                        }
+                        else if ((_gameType & Hra.Hra) != 0)
+                        {
+                            _aiPlayer.DebugInfo.RuleCount = _aiPlayer.DebugInfo.AllChoices
+                                                                     .Where(i => i.Rule.StartsWith(Hra.Hra.ToString()))
+                                                                     .Select(i => i.RuleCount)
+                                                                     .FirstOrDefault();
+                            _aiPlayer.DebugInfo.TotalRuleCount = _aiPlayer.DebugInfo.AllChoices
+                                                                          .Where(i => i.Rule.StartsWith(Hra.Hra.ToString()))
+                                                                          .Select(i => i.TotalRuleCount)
+                                                                          .FirstOrDefault();
+                        }
+                    }
                     CancelAiTask();
                     _g.ThrowIfCancellationRequested();
                     if ((_gameType & (Hra.Betl | Hra.Durch)) != 0)
@@ -363,7 +422,7 @@ namespace Mariasek.SharedClient
         public override Hra ChooseGameType(Hra validGameTypes)
         {
             _g.ThrowIfCancellationRequested();
-            if(_gameType != 0 || _givenUp)
+            if (_gameType != 0 || _givenUp)
             {
                 return _gameType;
             }
