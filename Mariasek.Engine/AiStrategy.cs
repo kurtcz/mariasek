@@ -6352,7 +6352,8 @@ namespace Mariasek.Engine
                                                                                                 _probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1) &&  //ignoruj kartu pokud s ni muzu prebit akterovu nizkou kartu v barve
                                                                                               !(!_probabilities.PotentialCards(player3).HasSuit(i.Suit) &&          //nehraj pokud ma oponent jiste nizsi kartu v barve
                                                                                                 _probabilities.PotentialCards(player1)
-                                                                                                              .Where(j => j != c1)
+                                                                                                              .Where(j => j != c1 &&
+                                                                                                                          j != new Card(i.Suit, Hodnota.Eso))
                                                                                                               .CardCount(i.Suit) > 2) &&    //(kdyz kolega urcite barvu nezna a souper ma aspon 3 karty v barve)
                                                                                               hands[MyIndex].CardCount(_trump) <= 3 &&
                                                                                               (hands[MyIndex].CardCount(_trump) <= opHiTrumps + 1 ||
@@ -6383,7 +6384,7 @@ namespace Mariasek.Engine
                                               hands[MyIndex].CardCount(i.Suit) > 1) ||
                                              _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) == 0) &&
                                             (_probabilities.CertainCards(player3).Count(j => j.Suit == i.Suit &&
-                                                                                           j.Value < i.Value) > (hands[MyIndex].HasA(i.Suit) ? 2 : 1) ||
+                                                                                             j.Value < i.Value) > (hands[MyIndex].HasA(i.Suit) ? 2 : 1) ||
                                              (!_probabilities.PotentialCards(player1).HasSuit(i.Suit) &&
                                               _probabilities.PotentialCards(player3).Count(j => j.Suit == i.Suit &&
                                                                                                 j.Value < i.Value) > (hands[MyIndex].HasA(i.Suit) ? 3 : 2)))))
@@ -8146,7 +8147,8 @@ namespace Mariasek.Engine
                                                                                             .Any(j => _probabilities.CardProbability(player2, j) >= 1 - _epsilon)) &&
                                                                                       !(!_probabilities.PotentialCards(player1).HasSuit(i.Suit) &&          //nehraj pokud ma oponent jiste nizsi kartu v barve
                                                                                         _probabilities.PotentialCards(player2)
-                                                                                                      .Where(j => j != c2)
+                                                                                                      .Where(j => j != c2 &&
+                                                                                                                  j != new Card(i.Suit, Hodnota.Eso))
                                                                                                       .CardCount(i.Suit) > 2) &&    //(kdyz kolega urcite barvu nezna a souper ma aspon 3 karty v barve)
                                                                                       (i.Suit != _trump ||              //pokud to neni trumfova X
                                                                                                                         // (!hands[MyIndex].HasA(i.Suit) && //nebo pokud mam 2 a mene trumfu a nemam trumfove A
@@ -8268,7 +8270,8 @@ namespace Mariasek.Engine
                                                                                             .Any(j => _probabilities.CardProbability(player1, j) == 1)) &&
                                                                                       !(!_probabilities.PotentialCards(player2).HasSuit(i.Suit) &&          //nehraj pokud ma oponent jiste nizsi kartu v barve
                                                                                         _probabilities.PotentialCards(player1)
-                                                                                                      .Where(j => j != c1)
+                                                                                                      .Where(j => j != c1 &&
+                                                                                                                  j != new Card(i.Suit, Hodnota.Eso))
                                                                                                       .CardCount(i.Suit) > 2) &&    //(kdyz kolega urcite barvu nezna a souper ma aspon 3 karty v barve)
                                                                                       (i.Suit != _trump ||              //pokud to neni trumfova X
                                                                                                                         //(!hands[MyIndex].HasA(i.Suit) && //nebo pokud mam 2 a mene trumfu a nemam trumfove A

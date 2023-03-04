@@ -122,6 +122,8 @@ namespace Mariasek.SharedClient
         private string _errorFilePath = Path.Combine(MariasekMonoGame.RootPath, "_error.hra");
         private string _errorMsgFilePath = Path.Combine(MariasekMonoGame.RootPath, "_error.txt");
         private string _endGameFilePath = Path.Combine(MariasekMonoGame.RootPath, "_end.hra");
+        private string _newGameArchivePath;
+        private string _endGameArchivePath;
 
         private Action HintBtnFunc;
         private volatile GameState _state;
@@ -1108,12 +1110,13 @@ namespace Mariasek.SharedClient
             {
                 int counter;
                 var baseFileName = GetBaseFileName(_archivePath, g.GameType, out counter);
-                var newGameArchivePath = Path.Combine(_archivePath, string.Format("{0}.def.hra", baseFileName));
-                var endGameArchivePath = Path.Combine(_archivePath, string.Format("{0}.end.hra", baseFileName));
+                _newGameArchivePath = Path.Combine(_archivePath, string.Format("{0}.def.hra", baseFileName));
+                _endGameArchivePath = Path.Combine(_archivePath, string.Format("{0}.end.hra", baseFileName));
 
-                CreateDirectoryForFilePath(newGameArchivePath);
-                FileCopy(_newGameFilePath, newGameArchivePath);
-                FileCopy(_endGameFilePath, endGameArchivePath);
+                
+                CreateDirectoryForFilePath(_newGameArchivePath);
+                FileCopy(_newGameFilePath, _newGameArchivePath);
+                FileCopy(_endGameFilePath, _endGameArchivePath);
 
                 return counter;
             }
@@ -1452,6 +1455,8 @@ namespace Mariasek.SharedClient
             _repeatGameAsPlayer2Btn.Hide();
             _repeatGameAsPlayer3Btn.Hide();
             _testGame = false;
+            _newGameArchivePath = null;
+            _endGameArchivePath = null;
             var cancellationTokenSource = new CancellationTokenSource();
             _gameTask = Task.Run(() => CancelRunningTask(gameTask))
                             .ContinueWith(cancellationTask =>
@@ -1902,7 +1907,14 @@ namespace Mariasek.SharedClient
                 else
                 {
                     Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Napište svůj komentář k této hře\n:",
-                                               new[] { _screenPath, _newGameFilePath, _endGameFilePath, _minMaxFilePath, SettingsScene._settingsFilePath });
+                                               new[]
+                                               {
+                                                   _screenPath,
+                                                   _newGameArchivePath ?? _newGameFilePath,
+                                                   _endGameArchivePath ?? _endGameFilePath,
+                                                   _minMaxFilePath,
+                                                   SettingsScene._settingsFilePath
+                                               });
                 }
             }
         }
@@ -3370,6 +3382,8 @@ namespace Mariasek.SharedClient
             }
             var gameTask = _gameTask;
 
+            _newGameArchivePath = null;
+            _endGameArchivePath = null;
             _trumpLabel1.Hide();
             _trumpLabel2.Hide();
             _trumpLabel3.Hide();
