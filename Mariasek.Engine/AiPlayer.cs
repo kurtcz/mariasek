@@ -2748,9 +2748,9 @@ namespace Mariasek.Engine
                                          hand.CardCount(b) > 2)) ||
                                         (hand.HasK(b) &&
                                          hand.HasQ(b))) ||
-                       Enum.GetValues(typeof(Barva)).Cast<Barva>()         //aspon v jedne barve nemam A nebo X+K a
-                           .Where(b => hand.HasA(b))
-                           .Sum(b => hand.Count(i => i.Value >= Hodnota.Kral)) <= 4) &&
+                         Enum.GetValues(typeof(Barva)).Cast<Barva>()         //aspon v jedne barve nemam A nebo X+K a
+                             .Where(b => hand.HasA(b))
+                             .Sum(b => hand.Count(i => i.Value >= Hodnota.Kral)) <= 4) &&
                        (!hand.HasA(_trump.Value) ||                          //nemam trumfove A nebo X a
                         !hand.HasX(_trump.Value)) &&
                        !(hand.HasK(_trump.Value) &&                          //nevidim do trumfoveho hlasu a
@@ -3546,13 +3546,15 @@ namespace Mariasek.Engine
                        _avgWinForHundred > 2 * (_g.DurchValue + 2 * _g.SevenValue))) ||
                      (Hand.Has7(_trump.Value) &&
                       _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0 &&
-                      (!IsSevenTooRisky() ||                  //sedmu hlas pokud neni riskantni nebo pokud nelze uhrat hru (doufej ve flek na hru a konec)
-                       (!_g.PlayZeroSumGames &&
-                        Hand.CardCount(_trump.Value) >= 4 &&
-                        Hand.Any(i => i.Suit == _trump.Value &&
-                                      i.Value >= Hodnota.Svrsek) &&
-                        _gamesBalance < Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && 
-                        _gameSimulations > 0)))))
+                      !IsSevenTooRisky()
+                      //(!IsSevenTooRisky() ||                  //sedmu hlas pokud neni riskantni nebo pokud nelze uhrat hru (doufej ve flek na hru a konec)
+                      // (!_g.PlayZeroSumGames &&
+                      //  Hand.CardCount(_trump.Value) >= 4 &&
+                      //  Hand.Any(i => i.Suit == _trump.Value &&
+                      //                i.Value >= Hodnota.Svrsek) &&
+                      //  _gamesBalance < Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && 
+                      //  _gameSimulations > 0))
+                      )))
                 {
                     if (gameType == 0)
                     {
