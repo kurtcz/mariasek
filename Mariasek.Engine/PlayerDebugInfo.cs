@@ -22,6 +22,7 @@ namespace Mariasek.Engine
         public int AvgSimulatedPointsWon { get; set; }
         public int MaxSimulatedHundredLoss { get; set; }
         public int TotalHoles { get; set; }
+        public bool SevenTooRisky { get; set; }
         public bool HundredTooRisky { get; set; }
         public string ProbDebugInfo { get; set; }
 
@@ -34,8 +35,9 @@ namespace Mariasek.Engine
     public class RuleDebugInfo
     {
         public Card Card { get; set; }
-        public string Rule { get; set; }
+        public string Rule { get; set; }        
         public int RuleCount { get; set; }
         public int TotalRuleCount { get; set; }
+        public string AiDebugInfo { get; set; }
     }
 }

@@ -17,6 +17,7 @@ namespace Mariasek.Engine
         public int[] MaxHlasScore { get; set; }
         public int[] TotalHlasScore { get; set; }
         public AiRule Rule { get; set; }
+        public string Note { get; set; }
         public Dictionary<AiRule, Card> ToplevelRuleDictionary { get; set; }
         public bool? Final7Won { get; set; }
         public bool? Final7AgainstWon { get; set; }

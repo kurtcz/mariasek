@@ -29,6 +29,10 @@ namespace Mariasek.Engine
         public Card c2 { get; private set; }
         public Card c3 { get; private set; }
 
+        public string aiDebugNote1 { get; private set; }
+        public string aiDebugNote2 { get; private set; }
+        public string aiDebugNote3 { get; private set; }
+
         public string probDebugNote1 { get; private set; }
         public string probDebugNote2 { get; private set; }
         public string probDebugNote3 { get; private set; }
@@ -263,6 +267,9 @@ namespace Mariasek.Engine
             CalculateRoundScore();
             if (_g.LogProbDebugInfo)
             {
+                aiDebugNote1 = player1.DebugInfo.AiDebugInfo;
+                aiDebugNote2 = player2.DebugInfo.AiDebugInfo;
+                aiDebugNote3 = player3.DebugInfo.AiDebugInfo;
                 probDebugNote1 = player1.DebugInfo.ProbDebugInfo;
                 probDebugNote2 = player2.DebugInfo.ProbDebugInfo;
                 probDebugNote3 = player3.DebugInfo.ProbDebugInfo;

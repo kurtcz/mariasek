@@ -116,12 +116,12 @@ namespace Mariasek.Engine.Schema
                     var hrac1 = stych.Element("Hrac1");
                     var hrac2 = stych.Element("Hrac2");
                     var hrac3 = stych.Element("Hrac3");
-                    var poznamka1 = string.IsNullOrEmpty(Stychy[i]?.Hrac1?.Poznamka) ? null : new XComment($" {Stychy[i].Hrac1.Poznamka} ");
-                    var poznamka2 = string.IsNullOrEmpty(Stychy[i]?.Hrac2?.Poznamka) ? null : new XComment($" {Stychy[i].Hrac2.Poznamka} ");
-                    var poznamka3 = string.IsNullOrEmpty(Stychy[i]?.Hrac3?.Poznamka) ? null : new XComment($" {Stychy[i].Hrac3.Poznamka} ");
-                    var poznamka21 = string.IsNullOrEmpty(Stychy[i]?.Hrac1?.Poznamka2) ? null : new XComment($" {Stychy[i].Hrac1.Poznamka2} ");
-                    var poznamka22 = string.IsNullOrEmpty(Stychy[i]?.Hrac2?.Poznamka2) ? null : new XComment($" {Stychy[i].Hrac2.Poznamka2} ");
-                    var poznamka23 = string.IsNullOrEmpty(Stychy[i]?.Hrac3?.Poznamka2) ? null : new XComment($" {Stychy[i].Hrac3.Poznamka2} ");
+                    var poznamka1 = string.IsNullOrEmpty(Stychy[i]?.Hrac1?.Poznamka) ? null : new XComment($" {Stychy[i].Hrac1.Poznamka}{(string.IsNullOrEmpty(Stychy[i].Hrac1.AiDebugInfo) ? "" : Stychy[i].Hrac1.AiDebugInfo)} ");
+                    var poznamka2 = string.IsNullOrEmpty(Stychy[i]?.Hrac2?.Poznamka) ? null : new XComment($" {Stychy[i].Hrac2.Poznamka}{(string.IsNullOrEmpty(Stychy[i].Hrac2.AiDebugInfo) ? "" : Stychy[i].Hrac2.AiDebugInfo)} ");
+                    var poznamka3 = string.IsNullOrEmpty(Stychy[i]?.Hrac3?.Poznamka) ? null : new XComment($" {Stychy[i].Hrac3.Poznamka}{(string.IsNullOrEmpty(Stychy[i].Hrac3.AiDebugInfo) ? "" : Stychy[i].Hrac3.AiDebugInfo)} ");
+                    var poznamka21 = string.IsNullOrEmpty(Stychy[i]?.Hrac1?.AiDebugInfo2) ? null : new XComment($" {Stychy[i].Hrac1.AiDebugInfo2} ");
+                    var poznamka22 = string.IsNullOrEmpty(Stychy[i]?.Hrac2?.AiDebugInfo2) ? null : new XComment($" {Stychy[i].Hrac2.AiDebugInfo2} ");
+                    var poznamka23 = string.IsNullOrEmpty(Stychy[i]?.Hrac3?.AiDebugInfo2) ? null : new XComment($" {Stychy[i].Hrac3.AiDebugInfo2} ");
 
                     if (poznamka1 != null)
                     {
@@ -172,7 +172,9 @@ namespace Mariasek.Engine.Schema
         [XmlIgnore]
         public string Poznamka;
         [XmlIgnore]
-        public string Poznamka2;
+        public string AiDebugInfo;
+        [XmlIgnore]
+        public string AiDebugInfo2;
     }
 
     public class Flek

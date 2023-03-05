@@ -9,6 +9,7 @@ namespace Mariasek.Engine
         public bool UseThreshold { get; set; }
 		public bool SkipSimulations { get; set; }
         public string Description { get; set; }
+        public string AiDebugInfo { get; set; }
 
         public Func<Card> ChooseCard1;
         public Func<Card, Card> ChooseCard2;

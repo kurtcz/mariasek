@@ -2211,110 +2211,110 @@ namespace Mariasek.Engine
             }
         }
 
-        public string GetComputationResultString(//string filename, 
-                                            GameComputationResult result, MoneyCalculatorBase money)
-        {
-            //using (var fs = _g.GetFileStream(filename))
-            using(var fs = new MemoryStream())
-            {
-                var gameDto = new GameDto
-                {
-                    Kolo = 10,
-                    Voli = (Hrac)_g.GameStartingPlayerIndex,
-                    Trumf = result.Trump,
-                    Hrac1 = ((List<Card>)result.Hands[0])
-                                    .Select(i => new Karta
-                                    {
-                                        Barva = i.Suit,
-                                        Hodnota = i.Value
-                                    }).ToArray(),
-                    Hrac2 = ((List<Card>)result.Hands[1])
-                                    .Select(i => new Karta
-                                    {
-                                        Barva = i.Suit,
-                                        Hodnota = i.Value
-                                    }).ToArray(),
-                    Hrac3 = ((List<Card>)result.Hands[2])
-                                    .Select(i => new Karta
-                                    {
-                                        Barva = i.Suit,
-                                        Hodnota = i.Value
-                                    }).ToArray(),
-                    //Fleky = fleky,
-                    Stychy = result.Rounds
-                                   .Select((r, idx) => new Stych
-                                    {
-                                        Kolo = idx + 1,
-                                        Zacina = (Hrac)r.RoundStarterIndex
-                                    }).ToArray(),
-                    //Talon = talon
-                    //                .Select(i => new Karta
-                    //                {
-                    //                    Barva = i.Suit,
-                    //                    Hodnota = i.Value
-                    //                }).ToArray()
-                };
-                try
-                {
-                    foreach (var stych in gameDto.Stychy)
-                    {
-                        var r = result.Rounds[stych.Kolo - 1];
-                        var cards = new[] { r.c1, r.c2, r.c3 };
-                        var debugInfo = new[] { r.r1, r.r2, r.r3 };
-                        var playerIndices = new[] { r.RoundStarterIndex, (r.RoundStarterIndex + 1) % Game.NumPlayers, (r.RoundStarterIndex + 2) % Game.NumPlayers };
-                        int index = Array.IndexOf(playerIndices, 0);
-                        stych.Hrac1 = new Karta
-                        {
-                            Barva = cards[index].Suit,
-                            Hodnota = cards[index].Value,
-                            Poznamka = debugInfo[index]
-                        };
-                        index = Array.IndexOf(playerIndices, 1);
-                        stych.Hrac2 = new Karta
-                        {
-                            Barva = cards[index].Suit,
-                            Hodnota = cards[index].Value,
-                            Poznamka = debugInfo[index]
-                        };
-                        index = Array.IndexOf(playerIndices, 2);
-                        stych.Hrac3 = new Karta
-                        {
-                            Barva = cards[index].Suit,
-                            Hodnota = cards[index].Value,
-                            Poznamka = debugInfo[index]
-                        };
-                    }
-                }
-                catch (Exception)
-                {
-                }
-                if (money != null)
-                {
-                    gameDto.Zuctovani = new Zuctovani
-                    {
-                        Hrac1 = new Skore
-                        {
-                            Body = _g.GameStartingPlayerIndex == 0 ? money.PointsWon : money.PointsLost,
-                            Zisk = money.MoneyWon[0]
-                        },
-                        Hrac2 = new Skore
-                        {
-                            Body = _g.GameStartingPlayerIndex == 1 ? money.PointsWon : money.PointsLost,
-                            Zisk = money.MoneyWon[1]
-                        },
-                        Hrac3 = new Skore
-                        {
-                            Body = _g.GameStartingPlayerIndex == 2 ? money.PointsWon : money.PointsLost,
-                            Zisk = money.MoneyWon[2]
-                        }
-                    };
-                }
+        //public string GetComputationResultString(//string filename, 
+        //                                    GameComputationResult result, MoneyCalculatorBase money)
+        //{
+        //    //using (var fs = _g.GetFileStream(filename))
+        //    using(var fs = new MemoryStream())
+        //    {
+        //        var gameDto = new GameDto
+        //        {
+        //            Kolo = 10,
+        //            Voli = (Hrac)_g.GameStartingPlayerIndex,
+        //            Trumf = result.Trump,
+        //            Hrac1 = ((List<Card>)result.Hands[0])
+        //                            .Select(i => new Karta
+        //                            {
+        //                                Barva = i.Suit,
+        //                                Hodnota = i.Value
+        //                            }).ToArray(),
+        //            Hrac2 = ((List<Card>)result.Hands[1])
+        //                            .Select(i => new Karta
+        //                            {
+        //                                Barva = i.Suit,
+        //                                Hodnota = i.Value
+        //                            }).ToArray(),
+        //            Hrac3 = ((List<Card>)result.Hands[2])
+        //                            .Select(i => new Karta
+        //                            {
+        //                                Barva = i.Suit,
+        //                                Hodnota = i.Value
+        //                            }).ToArray(),
+        //            //Fleky = fleky,
+        //            Stychy = result.Rounds
+        //                           .Select((r, idx) => new Stych
+        //                            {
+        //                                Kolo = idx + 1,
+        //                                Zacina = (Hrac)r.RoundStarterIndex
+        //                            }).ToArray(),
+        //            //Talon = talon
+        //            //                .Select(i => new Karta
+        //            //                {
+        //            //                    Barva = i.Suit,
+        //            //                    Hodnota = i.Value
+        //            //                }).ToArray()
+        //        };
+        //        try
+        //        {
+        //            foreach (var stych in gameDto.Stychy)
+        //            {
+        //                var r = result.Rounds[stych.Kolo - 1];
+        //                var cards = new[] { r.c1, r.c2, r.c3 };
+        //                var debugInfo = new[] { r.r1, r.r2, r.r3 };
+        //                var playerIndices = new[] { r.RoundStarterIndex, (r.RoundStarterIndex + 1) % Game.NumPlayers, (r.RoundStarterIndex + 2) % Game.NumPlayers };
+        //                int index = Array.IndexOf(playerIndices, 0);
+        //                stych.Hrac1 = new Karta
+        //                {
+        //                    Barva = cards[index].Suit,
+        //                    Hodnota = cards[index].Value,
+        //                    Poznamka = debugInfo[index],
+        //                };
+        //                index = Array.IndexOf(playerIndices, 1);
+        //                stych.Hrac2 = new Karta
+        //                {
+        //                    Barva = cards[index].Suit,
+        //                    Hodnota = cards[index].Value,
+        //                    Poznamka = debugInfo[index]
+        //                };
+        //                index = Array.IndexOf(playerIndices, 2);
+        //                stych.Hrac3 = new Karta
+        //                {
+        //                    Barva = cards[index].Suit,
+        //                    Hodnota = cards[index].Value,
+        //                    Poznamka = debugInfo[index]
+        //                };
+        //            }
+        //        }
+        //        catch (Exception)
+        //        {
+        //        }
+        //        if (money != null)
+        //        {
+        //            gameDto.Zuctovani = new Zuctovani
+        //            {
+        //                Hrac1 = new Skore
+        //                {
+        //                    Body = _g.GameStartingPlayerIndex == 0 ? money.PointsWon : money.PointsLost,
+        //                    Zisk = money.MoneyWon[0]
+        //                },
+        //                Hrac2 = new Skore
+        //                {
+        //                    Body = _g.GameStartingPlayerIndex == 1 ? money.PointsWon : money.PointsLost,
+        //                    Zisk = money.MoneyWon[1]
+        //                },
+        //                Hrac3 = new Skore
+        //                {
+        //                    Body = _g.GameStartingPlayerIndex == 2 ? money.PointsWon : money.PointsLost,
+        //                    Zisk = money.MoneyWon[2]
+        //                }
+        //            };
+        //        }
 
-                gameDto.SaveGame(fs, false);
-                var sr = new StreamReader(fs);
-                return sr.ReadToEnd();;
-            }
-        }
+        //        gameDto.SaveGame(fs, false);
+        //        var sr = new StreamReader(fs);
+        //        return sr.ReadToEnd();;
+        //    }
+        //}
 
 		public bool ShouldChooseDurch()
 		{
@@ -2704,7 +2704,7 @@ namespace Mariasek.Engine
         {
             hand = hand ?? Hand;
             talon = talon ?? _talon ?? new List<Card>();
-
+            
             var result = hand.CardCount(_trump.Value) < 4 ||                      //1.  mene nez 4 trumfy
                          (hand.CardCount(_trump.Value) == 4 &&
                           TeamMateIndex != -1 &&
@@ -2846,6 +2846,7 @@ namespace Mariasek.Engine
                                                     i.Value >= Hodnota.Svrsek) <
                                     hand.Count(i => i.Suit == b &&
                                                     i.Value <= Hodnota.Spodek)) > 1));
+            DebugInfo.SevenTooRisky = hand.Has7(_trump.Value) && result;
 
             return result;
         }
@@ -4722,6 +4723,7 @@ namespace Mariasek.Engine
                 DebugInfo.Rule = computationResult.Rule.Description;
                 DebugInfo.RuleCount = 1;
                 DebugInfo.TotalRuleCount = 1;
+                DebugInfo.AiDebugInfo = computationResult.Rule.AiDebugInfo;
             }
             else
             {
@@ -5587,6 +5589,7 @@ namespace Mariasek.Engine
                             DebugInfo.Rule = kv.Value.First().Description;
                             DebugInfo.RuleCount = kv.Value.Count;
                             DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count); //tohle by se melo rovnat poctu simulaci
+                            DebugInfo.AiDebugInfo = kv.Value.First().AiDebugInfo;
                             DebugInfo.AllChoices = cardRules.OrderByDescending(i => i.Value.Count(j => !j.UseThreshold)).Select(i => new RuleDebugInfo
                             {
                                 Card = i.Key,
@@ -5605,6 +5608,7 @@ namespace Mariasek.Engine
                         DebugInfo.Rule = kv.Value.First().Description;
                         DebugInfo.RuleCount = kv.Value.Count;
                         DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count); //tohle by se melo rovnat poctu simulaci
+                        DebugInfo.AiDebugInfo = kv.Value.First().AiDebugInfo;
                         DebugInfo.AllChoices = cardRules.OrderByDescending(i => i.Value.Count).Select(i => new RuleDebugInfo
                         {
                             Card = i.Key,
@@ -5636,6 +5640,7 @@ namespace Mariasek.Engine
                     DebugInfo.Rule = kvp2.Value.Rule.Description;
                     DebugInfo.RuleCount = cardScores.Count(i => i.Key == cardToPlay);
                     DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count);
+                    DebugInfo.AiDebugInfo = kvp2.Value.Rule.AiDebugInfo;
                     DebugInfo.AllChoices = cardScores.OrderByDescending(i => i.Value.Count).Select(i => new RuleDebugInfo
                     {
                         Card = i.Key,
@@ -5655,6 +5660,7 @@ namespace Mariasek.Engine
                     DebugInfo.Rule = kvp.Value.First().Rule.Description;
                     DebugInfo.RuleCount = kvp.Value.Count;
                     DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count);
+                    DebugInfo.AiDebugInfo = kv.Value.First().AiDebugInfo;
                     DebugInfo.AllChoices = cardScores.OrderByDescending(i => i.Value.Count).Select(i => new RuleDebugInfo
                     {
                         Card = i.Key,
@@ -5932,6 +5938,11 @@ namespace Mariasek.Engine
                     {
                         result.CardToPlay = c1;
                         result.Rule = r1;
+                        if ((_gameType & (Hra.Durch | Hra.Betl)) == 0 &&
+                            (aiStrategy as AiStrategy)._bannedSuits.Any())
+                        {
+                            result.Rule.AiDebugInfo = "\nZakázané barvy: " + string.Join(" ", (aiStrategy as AiStrategy)._bannedSuits);
+                        }
                         result.ToplevelRuleDictionary = ruleDictionary;
                         firstTime = false;
                     }
@@ -6047,12 +6058,6 @@ namespace Mariasek.Engine
             _log.DebugFormat("Round {0}. Finished simulation for {1}. Card/rule to play: {2} - {3}, expected score in the end: {4}/{5}/{6}\n",
                 _g.RoundNumber, _g.players[PlayerIndex].Name, result.CardToPlay, result.Rule.Description, result.Score[0], result.Score[1], result.Score[2]);
 
-            //if ((_g.GameType & (Hra.Betl | Hra.Durch)) == 0 &&
-            //    (aiStrategy as AiStrategy)._bannedSuits.Any())
-            //{
-            //    result.Rule.Description += "\n" + string.Join(" ", (aiStrategy as AiStrategy)._bannedSuits.ToArray());
-            //    result.Rule.Description = "\n" + result.Rule.Description;
-            //}
             return result;
         }
 

@@ -724,7 +724,7 @@ namespace Mariasek.Engine
         }
 #endif
 
-        public void SaveGame(Stream fileStream, bool saveDebugInfo = false, bool saveFromEditor = false)
+        public void SaveGame(Stream fileStream, bool saveDebugInfo = false, bool saveFromEditor = false, bool logAiModel = false)
         {
             try
             {
@@ -866,6 +866,7 @@ namespace Mariasek.Engine
                     }
                     var cards = new[] { r.c1, r.c2, r.c3 };
                     var debugInfo = new[] { r.debugNote1, r.debugNote2, r.debugNote3 };
+                    var aiDebugInfo = new[] { r.aiDebugNote1, r.aiDebugNote2, r.aiDebugNote3 };
                     var probDebugInfo = new[] { r.probDebugNote1, r.probDebugNote2, r.probDebugNote3 };
                     var playerIndices = new[] { r.player1.PlayerIndex, r.player2.PlayerIndex, r.player3.PlayerIndex };
 
@@ -877,7 +878,8 @@ namespace Mariasek.Engine
                             Barva = cards[index].Suit,
                             Hodnota = cards[index].Value,
                             Poznamka = debugInfo[index],
-                            Poznamka2 = probDebugInfo[index]
+                            AiDebugInfo = aiDebugInfo[index],
+                            AiDebugInfo2 = probDebugInfo[index]
                         };
                     }
                     index = Array.IndexOf(playerIndices, 1);
@@ -888,7 +890,8 @@ namespace Mariasek.Engine
                             Barva = cards[index].Suit,
                             Hodnota = cards[index].Value,
                             Poznamka = debugInfo[index],
-                            Poznamka2 = probDebugInfo[index]
+                            AiDebugInfo = aiDebugInfo[index],
+                            AiDebugInfo2 = probDebugInfo[index]
                         };
                     }
                     index = Array.IndexOf(playerIndices, 2);
@@ -899,7 +902,8 @@ namespace Mariasek.Engine
                             Barva = cards[index].Suit,
                             Hodnota = cards[index].Value,
                             Poznamka = debugInfo[index],
-                            Poznamka2 = probDebugInfo[index]
+                            AiDebugInfo = aiDebugInfo[index],
+                            AiDebugInfo2 = probDebugInfo[index]
                         };
                     }
                 }
@@ -1992,6 +1996,10 @@ namespace Mariasek.Engine
                 if (players[playerIndex].DebugInfo.MaxSimulatedHundredLoss < 0)
                 {
                     BiddingDebugInfo.AppendFormat("\nMaximální simulovaná prohra při kilu: {0}", players[playerIndex].DebugInfo.MaxSimulatedHundredLoss);
+                }
+                if (players[playerIndex].DebugInfo.SevenTooRisky)
+                {
+                    BiddingDebugInfo.AppendFormat("\nPříliš riskantní na sedmu");
                 }
                 if (kqScore > 0 &&
                     players[playerIndex].DebugInfo.HundredTooRisky)
