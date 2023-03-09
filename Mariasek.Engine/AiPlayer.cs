@@ -3907,7 +3907,8 @@ namespace Mariasek.Engine
                      Hand.CardCount(Hodnota.Eso) >= 2 &&            //navic jeste aspon jedno dalsi eso
                      Enum.GetValues(typeof(Barva)).Cast<Barva>()    //a k tomu nejaka dlouha barva
                          .Any(b => b != _trump &&
-                                   Hand.CardCount(b) >= 5)) ||
+                                   Hand.CardCount(b) >= 5) &&
+                     Hand.SuitCount() == Game.NumSuits) ||
                     (Hand.CardCount(_g.trump.Value) >= 3 &&         //tri trumfy vcetne esa a jeste jednoho velkeho trumfu
                      Hand.HasA(_g.trump.Value) &&
                      (Hand.HasX(_g.trump.Value) ||
@@ -3917,7 +3918,8 @@ namespace Mariasek.Engine
                      Enum.GetValues(typeof(Barva)).Cast<Barva>()    //z nichz jedno eso je od delsi barvy
                          .Any(b => b != _trump &&
                                    Hand.HasA(b) &&
-                                   Hand.CardCount(b) >= 4)) ||
+                                   Hand.CardCount(b) >= 4) &&
+                     Hand.SuitCount() == Game.NumSuits) ||
                     (Hand.CardCount(_g.trump.Value) >= 3 &&
                      Hand.HasA(_g.trump.Value) &&
                      Hand.SuitCount() == Game.NumSuits &&

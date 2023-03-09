@@ -367,7 +367,7 @@ namespace Mariasek.Engine
 
                         banRange(opponentXsuits);
                         if (!(SevenValue >= GameValue &&
-                              (PlayerBids[TeamMateIndex] & Hra.Sedma) != 0))
+                              (PlayerBids[TeamMateIndex] & (Hra.Sedma | Hra.SedmaProti)) != 0))
                         {
                             if (suits.Where(i => i != _trump &&
                                                  !_bannedSuits.Contains(i))
@@ -4651,10 +4651,9 @@ namespace Mariasek.Engine
                     {
                         return null;
                     }
-                    //nehraj pravidlo pokud spoluhrac hlasil sedmu proti - bodovane karty budeme mazat
+                    //nehraj pravidlo pokud spoluhrac hlasil sedmu proti
                     if (TeamMateIndex != -1 &&
-                        (_gameType & Hra.SedmaProti) != 0)// &&
-                        //_probabilities.CardProbability(TeamMateIndex, new Card(_trump, Hodnota.Sedma)) == 1)
+                        (PlayerBids[TeamMateIndex] & Hra.SedmaProti) != 0)
                     {
                         return null;
                     }
@@ -5019,6 +5018,9 @@ namespace Mariasek.Engine
                                                                             Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                                 .Where(h => h > i.Value)
                                                                                 .All(h => _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0) &&
+                                                                            ((_gameType & Hra.SedmaProti) == 0 ||
+                                                                             (hands[MyIndex].Has7(_trump) &&
+                                                                              topCards.Contains(i))) &&
                                                                             (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0 ||  //netahat zbytecne trumfy ze spoluhrace
                                                                              _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) &&
                                                                             (_probabilities.CertainCards(player3).HasSuit(i.Suit) ||
@@ -5038,6 +5040,9 @@ namespace Mariasek.Engine
                                                                             Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                                 .Where(h => h > i.Value)
                                                                                 .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0) &&
+                                                                            ((_gameType & Hra.SedmaProti) == 0 ||
+                                                                             (hands[MyIndex].Has7(_trump) &&
+                                                                              topCards.Contains(i))) &&
                                                                             (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 ||  //netahat zbytecne trumfy ze spoluhrace
                                                                              _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
                                                                             (_probabilities.CertainCards(player2).HasSuit(i.Suit) ||
@@ -5569,7 +5574,7 @@ namespace Mariasek.Engine
                     if (TeamMateIndex != -1 &&
                         (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
                         (_gameType & Hra.Hra) != 0 &&
-                        SevenValue > GameValue)
+                        SevenValue >= GameValue)
                     {
                         return null;
                     }
