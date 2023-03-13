@@ -675,42 +675,6 @@ namespace Mariasek.Engine
             yield return new AiRule()
             {
                 Order = 3,
-                Description = "hrát největší kartu, kterou nechytám",
-                SkipSimulations = true,
-                ChooseCard3 = (Card c1, Card c2) =>
-                {
-                    var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0);
-
-                    if (cardsToPlay.Any())
-                    {
-                        return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
-                    }
-                    if (!hands[MyIndex].HasSuit(c1.Suit) &&
-                        (cardsToKeep.Any() ||
-                         Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                             .Any(b => hands[MyIndex].CardCount(b) >= 4 &&
-                                       hands[MyIndex].Where(i => i.Suit == b)
-                                                     .All(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                   .Select(h => new Card(b, h))
-                                                                   .Where(j => j.BadValue < i.BadValue)
-                                                                   .All(j => _probabilities.CardProbability(player1, j) == 0)))))
-                    {
-                        cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => cardsToKeep.SelectMany(j => j.Value)
-                                                                                               .All(j => i != j));
-                        if (cardsToPlay.Any(i => !cardsToKeep.ContainsKey(i.Suit)))
-                        {
-                            cardsToPlay = cardsToPlay.Where(i => !cardsToKeep.ContainsKey(i.Suit));
-                        }
-
-                        return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
-                    }
-                    return null;
-                }
-            };
-
-            yield return new AiRule()
-            {
-                Order = 4,
                 Description = "hrát kartu od spoluhráčova chytáka",
                 SkipSimulations = true,
                 ChooseCard3 = (Card c1, Card c2) =>
@@ -746,6 +710,42 @@ namespace Mariasek.Engine
                                                                                                                   i.BadValue < j.BadValue));
                     return cardsToPlay.OrderBy(i => i.Suit)
                                       .ThenBy(i => i.BadValue).FirstOrDefault();
+                }
+            };
+
+            yield return new AiRule()
+            {
+                Order = 4,
+                Description = "hrát největší kartu, kterou nechytám",
+                SkipSimulations = true,
+                ChooseCard3 = (Card c1, Card c2) =>
+                {
+                    var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0);
+
+                    if (cardsToPlay.Any())
+                    {
+                        return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+                    }
+                    if (!hands[MyIndex].HasSuit(c1.Suit) &&
+                        (cardsToKeep.Any() ||
+                         Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                             .Any(b => hands[MyIndex].CardCount(b) >= 4 &&
+                                       hands[MyIndex].Where(i => i.Suit == b)
+                                                     .All(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                   .Select(h => new Card(b, h))
+                                                                   .Where(j => j.BadValue < i.BadValue)
+                                                                   .All(j => _probabilities.CardProbability(player1, j) == 0)))))
+                    {
+                        cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => cardsToKeep.SelectMany(j => j.Value)
+                                                                                               .All(j => i != j));
+                        if (cardsToPlay.Any(i => !cardsToKeep.ContainsKey(i.Suit)))
+                        {
+                            cardsToPlay = cardsToPlay.Where(i => !cardsToKeep.ContainsKey(i.Suit));
+                        }
+
+                        return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+                    }
+                    return null;
                 }
             };
 

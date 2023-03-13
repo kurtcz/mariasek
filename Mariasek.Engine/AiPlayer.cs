@@ -2976,13 +2976,13 @@ namespace Mariasek.Engine
             }
             //pokud hrozi vysoka prohra, tak do kila nejdi
             if (lossPerPointsLost.ContainsKey(maxBasicPointsLost + kqLikelyOpponentScore) &&
-                 lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore] >= Settings.SafetyHundredThreshold)
+                 lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore] > Settings.SafetyHundredThreshold)
             {
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
             if (lossPerPointsLost.ContainsKey(potentialBasicPointsLost + kqMaxOpponentScore) &&
-                lossPerPointsLost[potentialBasicPointsLost + kqMaxOpponentScore] >= Settings.SafetyHundredThreshold)
+                lossPerPointsLost[potentialBasicPointsLost + kqMaxOpponentScore] > Settings.SafetyHundredThreshold)
             {
                 DebugInfo.EstimatedHundredLoss = Math.Min(DebugInfo.EstimatedHundredLoss, -lossPerPointsLost[potentialBasicPointsLost + kqMaxOpponentScore]);
                 DebugInfo.HundredTooRisky = true;
@@ -2990,7 +2990,7 @@ namespace Mariasek.Engine
             }
 
             if (Settings.SafetyHundredThreshold > 0 &&
-                _minWinForHundred <= -Settings.SafetyHundredThreshold)
+                _minWinForHundred < -Settings.SafetyHundredThreshold)
             {
                 DebugInfo.HundredTooRisky = true;
                 return true;
@@ -3799,7 +3799,7 @@ namespace Mariasek.Engine
                    2 * _maxMoneyLost >= -Settings.SafetyGameThreshold &&    // simulace byly jen na flek, pro re vynasobim ztratu dvema
                    (Settings.SafetyGameThreshold == 0 ||
                     !lossPerPointsLost.ContainsKey(estimatedPointsLost) ||
-                    lossPerPointsLost[estimatedPointsLost] <= Settings.SafetyGameThreshold)) ||   //souper nemuze uhrat kilo proti s Min(1, n-1) z moznych hlasek
+                    lossPerPointsLost[estimatedPointsLost] < Settings.SafetyGameThreshold)) ||   //souper nemuze uhrat kilo proti s Min(1, n-1) z moznych hlasek
                   (TeamMateIndex != -1 &&                       //Flek:
                    bidding.GameMultiplier == 1 &&
                    (((Hand.HasK(_trumpCard.Suit) ||             //pokud trham a

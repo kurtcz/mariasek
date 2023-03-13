@@ -55,8 +55,7 @@ namespace Mariasek.SharedClient
         private const string _defaultNote2 = "Risk faktor udává ochotu AI mazat a hrát ostrou kartu.";
         private static readonly Dictionary<Hra, string> _notes = new Dictionary<Hra, string>
         {
-            { Hra.Hra, "Prahy udávají jistotu, kterou AI potřebuje aby si dal flek.\nAI si nedá re pokud nevidí do hlasu a hrozí zobrazená prohra." },
-            { Hra.Kilo, "AI kilo nevolí pokud na základě simulací\nhrozí zobrazená prohra." },
+            { Hra.Kilo, "AI kilo volí jen pokud na základě simulací\nhrozí maximálně zobrazená prohra." },
             { Hra.Betl, "AI používá práh pro Flek když nevolil a hlásí špatnou\nbarvu. AI hraje utíkáčka pokud hrozí zobrazená prohra." },
             { Hra.Durch, "AI durch flekuje jen když nejde uhrát." },
         };
