@@ -861,6 +861,7 @@ namespace Mariasek.Engine
 
                 //u barvy kde mam dve karty se snaz si nechat tu nizsi
                 var reducedTalon = talon.Where(i => i.Suit != trumpCard.Suit &&
+                                                    i.Value < Hodnota.Desitka &&
                                                     !(hand.HasK(i.Suit) &&
                                                       i.Value == Hodnota.Svrsek) &&
                                                     !(hand.HasQ(i.Suit) &&
