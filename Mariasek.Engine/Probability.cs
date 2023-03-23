@@ -1817,15 +1817,18 @@ namespace Mariasek.Engine
             }
 
             //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
-            //druhy hrac priznal barvu, sel vejs, a hral esem, tak
-            //druhy hrac pravdepodobne nema v barve zadne karty vyssi nez c1 (vyjma X)
+            //druhy hrac priznal barvu, sel vejs, a hral esem a
+            //desitku muze stale mit akter, tak
+            //druhy hrac pravdepodobne nema v barve zadne karty vyssi nez c1
             if (_trump.HasValue &&
                 roundStarterIndex == _gameStarterIndex &&
                 !gameWinningRound &&
                 c1.Suit != _trump &&
                 c1.Suit == c2.Suit &&
                 c2.Value > c1.Value &&
-                c2.Value == Hodnota.Eso)
+                c2.Value == Hodnota.Eso &&
+                _cardProbabilityForPlayer[roundStarterIndex][c2.Suit][Hodnota.Desitka] > epsilon &&
+                _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c2.Suit][Hodnota.Desitka] <= epsilon)
             {
                 foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => h > c1.Value && h < Hodnota.Desitka))
                 {
@@ -1860,7 +1863,7 @@ namespace Mariasek.Engine
             //pokud hrajeme v barve a prvni hrac nevolil
             //a zacina necim jinym nez trumfem
             //a druhy hrac sel vejs desitkou
-            //a treti prebiji esem nebo trumfem
+            //a treti muze prebijet esem nebo trumfem
             //tak druhy hrac uz nema zadne dalsi karty v barve (a proto hral desitku nebo eso)
             //plati at je akter druhym nebo tretim hracem
             if (_trump.HasValue &&
@@ -2123,7 +2126,8 @@ namespace Mariasek.Engine
             }
 
             //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
-            //treti hrac priznal barvu, sel vejs, a hral esem, tak
+            //treti hrac priznal barvu, sel vejs, a hral esem a
+            //akter muze mit desitku, tak
             //treti hrac pravdepodobne nema v barve zadne karty vyssi nez c1
             if (_trump.HasValue &&
                 roundStarterIndex == _gameStarterIndex &&
@@ -2131,7 +2135,9 @@ namespace Mariasek.Engine
                 c1.Suit != _trump &&
                 c2.Suit != _trump &&
                 c1.Suit == c3.Suit &&
-                c3.Value == Hodnota.Eso)
+                c3.Value == Hodnota.Eso &&
+                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] > epsilon &&
+                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] <= epsilon)
             {
                 foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => h > c1.Value && h < Hodnota.Desitka))
                 {
@@ -2256,16 +2262,16 @@ namespace Mariasek.Engine
             //}
 
             //pokud hrajeme v barve, zacinal akter a
-            //druhy hrac nesel vejs, ale namazal eso
+            //treti hrac nesel vejs, ale namazal eso
             //tak pravdepodobne ma v dane barve i desitku (jinak by nemazal eso)
             if (_trump.HasValue &&
                 roundStarterIndex == _gameStarterIndex &&
                 c3.Value == Hodnota.Eso &&
                 c1.IsHigherThan(c3, _trump) &&
-                _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] > 0 &&
-                _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] < 1)
+                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] > 0 &&
+                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] < 1)
             {
-                _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] = 1 - epsilon;
+                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] = 1 - epsilon;
                 if (_cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] > 0 &&
                     _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] < 1)
                 {
