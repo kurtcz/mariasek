@@ -4661,37 +4661,55 @@ namespace Mariasek.Engine
             {
                 sb.Append($"Hráč1 určitě má\n{certainCards1}\n");
             }
-            if (potentialCards1 != null)
+            if (!(certainCards1 != null &&
+                  potentialCards1 != null &&
+                  certainCards1.Length == potentialCards1.Length &&
+                  certainCards1.All(i => potentialCards1.Contains(i))))
             {
-                sb.Append($"Hráč1 může mít\n{potentialCards1}\n");
-            }
-            if (unlikelyCards1 != null)
-            {
-                sb.Append($"Hráč1 určitě nemá\n{unlikelyCards1}\n");
+                if (potentialCards1 != null)
+                {
+                    sb.Append($"Hráč1 může mít\n{potentialCards1}\n");
+                }
+                if (unlikelyCards1 != null)
+                {
+                    sb.Append($"Hráč1 určitě nemá\n{unlikelyCards1}\n");
+                }
             }
             if (certainCards2 != null)
             {
                 sb.Append($"Hráč2 určitě má\n{certainCards2}\n");
             }
-            if (potentialCards2 != null)
+            if (!(certainCards2 != null &&
+                  potentialCards2 != null &&
+                  certainCards2.Length == potentialCards2.Length &&
+                  certainCards2.All(i => potentialCards2.Contains(i))))
             {
-                sb.Append($"Hráč2 může mít\n{potentialCards2}\n");
-            }
-            if (unlikelyCards2 != null)
-            {
-                sb.Append($"Hráč2 určitě nemá\n{unlikelyCards2}\n");
+                if (potentialCards2 != null)
+                {
+                    sb.Append($"Hráč2 může mít\n{potentialCards2}\n");
+                }
+                if (unlikelyCards2 != null)
+                {
+                    sb.Append($"Hráč2 určitě nemá\n{unlikelyCards2}\n");
+                }
             }
             if (certainCards3 != null)
             {
                 sb.Append($"Hráč3 určitě má\n{certainCards3}\n");
             }
-            if (potentialCards3 != null)
+            if (!(certainCards3 != null &&
+                  potentialCards3 != null &&
+                  certainCards3.Length == potentialCards3.Length &&
+                  certainCards3.All(i => potentialCards3.Contains(i))))
             {
-                sb.Append($"Hráč3 může mít\n{potentialCards3}\n");
-            }
-            if (unlikelyCards3 != null)
-            {
-                sb.Append($"Hráč3 určitě nemá\n{unlikelyCards3}\n");
+                if (potentialCards3 != null)
+                {
+                    sb.Append($"Hráč3 může mít\n{potentialCards3}\n");
+                }
+                if (unlikelyCards3 != null)
+                {
+                    sb.Append($"Hráč3 určitě nemá\n{unlikelyCards3}\n");
+                }
             }
             if (certainCardsT != null)
             {

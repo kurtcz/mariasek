@@ -654,6 +654,7 @@ namespace Mariasek.SharedClient
 
             CancelAiTask();
             _g.ThrowIfCancellationRequested();
+            System.Diagnostics.Debug.WriteLine("HumanPlayer - PlayCard");
             return card;
         }
             

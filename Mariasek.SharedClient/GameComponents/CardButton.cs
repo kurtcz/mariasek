@@ -306,6 +306,11 @@ namespace Mariasek.SharedClient.GameComponents
 			}
 		}
 
+        public new void TouchDown(TouchLocation tl)
+        {
+            OnTouchDown(tl);
+        }
+
         public new void TouchUp(TouchLocation tl)
         {
             OnTouchUp(tl);

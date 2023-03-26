@@ -2013,6 +2013,7 @@ namespace Mariasek.SharedClient
                                 .Invoke(() =>
                                 {
                                     _hlasy[0][0].IsEnabled = true;
+                                    System.Diagnostics.Debug.WriteLine("_evt.Set(); 2");
                                     _evt.Set();
                                 });
                         });
@@ -2046,6 +2047,7 @@ namespace Mariasek.SharedClient
                               targetSprite.Show();
                               button.Hide();
                               button.Position = button.PreDragPosition;
+                              System.Diagnostics.Debug.WriteLine("_evt.Set(); 3");
                               _evt.Set();
                           });
                     _hand.IsEnabled = false;
@@ -2055,6 +2057,7 @@ namespace Mariasek.SharedClient
                     ClearTable();
                     HideMsgLabel();
                     _hand.IsEnabled = false;
+                    System.Diagnostics.Debug.WriteLine("_evt.Set(); 4");
                     _evt.Set();
                     break;
                 case GameState.GameFinished:
@@ -2431,6 +2434,7 @@ namespace Mariasek.SharedClient
 			_evt.Reset();
 			RunOnUiThread(() =>
             {
+                System.Diagnostics.Debug.WriteLine("ClearOperations: PlayCard 0");
                 this.ClearOperations();
                 this.WaitUntil(() => _bubbles.All(i => !i.IsVisible) && !_hand.IsBusy)
                     .Invoke(() =>
@@ -2467,7 +2471,9 @@ namespace Mariasek.SharedClient
                             button.Wait(200)
                                   .Invoke(() =>
                                   {
-                                      button.TouchUp(new TouchLocation(-1, TouchLocationState.Released, button.Position - Vector2.UnitY * button.MinimalDragDistance));
+                                      System.Diagnostics.Debug.WriteLine("PlayCard: Invoke button.TouchUp");
+                                      button.TouchDown(new TouchLocation(-1, TouchLocationState.Pressed, button.Position));
+                                      button.TouchUp(new TouchLocation(-1, TouchLocationState.Released, button.Position - Vector2.UnitY * button.MinimalDragDistance * 1.1f));
                                   });
                         }
                         else
@@ -2514,10 +2520,12 @@ namespace Mariasek.SharedClient
                     });
             });
             WaitForUIThread();
+            System.Diagnostics.Debug.WriteLine("WaitForUIThread: PlayCard");
 
             _state = GameState.NotPlaying;
 			RunOnUiThread(() =>
             {
+                System.Diagnostics.Debug.WriteLine("ClearOperations: PlayCard");
                 this.ClearOperations();
                 _hintBtn.IsEnabled = false;
                 _hand.IsEnabled = false;
@@ -4307,6 +4315,7 @@ namespace Mariasek.SharedClient
         private void HideThinkingMessage()
         {
             HideMsgLabel();
+            System.Diagnostics.Debug.WriteLine("ClearOperations: HideThinkingMessage");
             this.ClearOperations();         //MainScene holds bubble operations
             foreach (var bubble in _bubbles)
             {
@@ -4502,6 +4511,7 @@ namespace Mariasek.SharedClient
                     _stareStychy[roundWinnerPlayerIndex].ZIndex = (g.RoundNumber - 1) * 3;
                     _stareStychy[roundWinnerPlayerIndex].Show();
                     stych.Hide();
+                    System.Diagnostics.Debug.WriteLine("_evt.Set(); 1");
                     _evt.Set();
                 });
         }
