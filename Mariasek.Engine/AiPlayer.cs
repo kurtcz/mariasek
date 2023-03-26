@@ -2915,6 +2915,13 @@ namespace Mariasek.Engine
             {
                 return true;
             }
+            if (Settings.SafetyHundredThreshold > 0 &&
+                _minWinForHundred < -Settings.SafetyHundredThreshold)
+            {
+                DebugInfo.HundredTooRisky = true;
+                return true;
+            }
+
             var maxBasicPointsLost = EstimateBasicPointsLost(hand, talon);
             //var result = basicPointsLost > (hand.HasK(_g.trump.Value) &&
             //                                hand.HasQ(_g.trump.Value)
@@ -2990,12 +2997,6 @@ namespace Mariasek.Engine
                 return true;
             }
 
-            if (Settings.SafetyHundredThreshold > 0 &&
-                _minWinForHundred < -Settings.SafetyHundredThreshold)
-            {
-                DebugInfo.HundredTooRisky = true;
-                return true;
-            }
             if ((!hand.HasA(_trump.Value) ||                    //na souperuv A nebo X trumf muze prijit namaz: 20 bodu
                  (!hand.HasX(_trump.Value) &&
                   hand.CardCount(_trump.Value) <= 6)) &&        //neplati pokud mam vic nez 6 trumfu - trumfovou X pak vytahnu
@@ -3840,8 +3841,8 @@ namespace Mariasek.Engine
                     (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
                      Hand.HasX(_trumpCard.Suit) &&
                      ((kqScore >= 40 &&                          //mam aspon 40 bodu v hlasech
-                       axCount >= 4 &&                            //a aspon jeste dve dalsi desitky
-                       estimatedFinalBasicScore >= 40) ||
+                       axCount >= 3 &&                            //a aspon jeste jednu dalsi desitku
+                       estimatedFinalBasicScore >= 30) ||
                       (kqScore >= 20 &&                          //mam aspon 20 bodu v hlasech
                        axCount >= 5 &&                            //a aspon jeste tri dalsi desitky
                        estimatedFinalBasicScore >= 50))) ||
@@ -3850,7 +3851,11 @@ namespace Mariasek.Engine
                      Hand.CardCount(_trumpCard.Suit) >= 4 &&    //a aspon 4 trumfy
                      (kqScore >= 20 ||                          //mam aspon 20 bodu v hlasech
                       (axCount >= 4 &&                          //a aspon 4 desitky celkem
-                       estimatedFinalBasicScore >= 50)))))))
+                       estimatedFinalBasicScore >= 50))) ||
+                    (Hand.HasA(_trumpCard.Suit) &&              //mam aspon 40 bodu v hlasech a trumfove eso
+                     kqScore >= 40 &&
+                     estimatedFinalBasicScore >= 40 &&          //a aspon tri dalsi desitky
+                     axCount >= 4)))))
             {
                 bid |= bidding.Bids & Hra.Hra;
                 //minRuleCount = Math.Min(minRuleCount, _gamesBalance);
@@ -3926,9 +3931,9 @@ namespace Mariasek.Engine
                      Hand.SuitCount() == Game.NumSuits &&
                      Hand.Count(i => i.Value >= Hodnota.Kral) >= 5 &&
                      Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                         .All(b => Hand.Any(i => i.Suit == b &&
+                         .Count(b => Hand.Any(i => i.Suit == b &&
                                                  i.Value >= Hodnota.Kral) &&
-                                   !Hand.HasSolitaryX(b))) ||
+                                   !Hand.HasSolitaryX(b)) >= 3) ||
                     (Hand.CardCount(_g.trump.Value) >= 3 &&          //tri trumfy 3-3-2-2                     
                      ((kqScore >= 60 &&
                        ((Hand.HasA(_g.trump.Value) &&

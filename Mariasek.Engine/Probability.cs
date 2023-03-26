@@ -780,6 +780,12 @@ namespace Mariasek.Engine
         /// </summary>
         private void ReduceUcertainCardSet()
         {
+            ReduceUcertainCardSet(0f);
+            ReduceUcertainCardSet(0.01f);
+        }
+
+        private void ReduceUcertainCardSet(float epsilon)
+        {
             //pocet mych jistych karet je pocet karet ve hre pro kazdeho hrace
             var tc = _cardProbabilityForPlayer[_myIndex].SelectMany(i => i.Value).Count(i => i.Value == 1f);
             var totalCards = new int[] { tc, tc, tc, 2 };
@@ -791,8 +797,8 @@ namespace Mariasek.Engine
 
                 for (int j = 0; j < Game.NumPlayers + 1; j++)
                 {
-                    var certainCards = _cardProbabilityForPlayer[j].SelectMany(i => i.Value.Where(k => k.Value == 1f).Select(k => new Card(i.Key, k.Key))).ToList();
-                    var uncertainCards = _cardProbabilityForPlayer[j].SelectMany(i => i.Value.Where(k => k.Value > 0f && k.Value < 1f).Select(k => new Card(i.Key, k.Key))).ToList();
+                    var certainCards = _cardProbabilityForPlayer[j].SelectMany(i => i.Value.Where(k => k.Value >= 1 - epsilon).Select(k => new Card(i.Key, k.Key))).ToList();
+                    var uncertainCards = _cardProbabilityForPlayer[j].SelectMany(i => i.Value.Where(k => k.Value > 0 && k.Value < 1 - epsilon).Select(k => new Card(i.Key, k.Key))).ToList();
 
                     if (uncertainCards.Any() && (totalCards[j] - certainCards.Count() == uncertainCards.Count()))
                     {
@@ -801,14 +807,14 @@ namespace Mariasek.Engine
                         {
                             for (int k = 0; k < Game.NumPlayers + 1; k++)
                             {
-                                _cardProbabilityForPlayer[k][uncertainCard.Suit][uncertainCard.Value] = j == k ? 1f : 0f;
+                                _cardProbabilityForPlayer[k][uncertainCard.Suit][uncertainCard.Value] = j == k ? 1 - epsilon : epsilon;
 								_verboseString.AppendFormat("Player{0}[{1}][{2}] = {3}\n",
 									k + 1, uncertainCard.Suit, uncertainCard.Value, _cardProbabilityForPlayer[k][uncertainCard.Suit][uncertainCard.Value]);
                             }
                         }
                         reduced = true;
                     }
-                    //pokud ma akter u pri falesne sedme povolene jiste vsechny karty az na trumfovou sedmu
+                    //pokud ma akter pri falesne sedme povolene jiste vsechny karty az na trumfovou sedmu
                     //tak ma jiste i trumfovou sedmu a naopak nema ostatni nejiste karty
                     if (_trump.HasValue &&
                         _allowFakeSeven &&
@@ -854,13 +860,13 @@ namespace Mariasek.Engine
                     {
                         foreach (var uncertainCard in uncertainCards)
                         {
-                            if (_cardProbabilityForPlayer[j][uncertainCard.Suit][uncertainCard.Value] > 0f &&
-                                _cardProbabilityForPlayer[j][uncertainCard.Suit][uncertainCard.Value] < 1f)
+                            if (_cardProbabilityForPlayer[j][uncertainCard.Suit][uncertainCard.Value] > epsilon &&
+                            _cardProbabilityForPlayer[j][uncertainCard.Suit][uncertainCard.Value] < 1 - epsilon)
                             {
-                                _cardProbabilityForPlayer[j][uncertainCard.Suit][uncertainCard.Value] = 0f;
+                                _cardProbabilityForPlayer[j][uncertainCard.Suit][uncertainCard.Value] = epsilon;
                                 reduced = true;
-								_verboseString.AppendFormat("Player{0}[{1}][{2}] = {3}\n",
-									j + 1, uncertainCard.Suit, uncertainCard.Value, _cardProbabilityForPlayer[j][uncertainCard.Suit][uncertainCard.Value]);
+                                _verboseString.AppendFormat("Player{0}[{1}][{2}] = {3}\n",
+                                    j + 1, uncertainCard.Suit, uncertainCard.Value, _cardProbabilityForPlayer[j][uncertainCard.Suit][uncertainCard.Value]);
                             }
                         }
                     }
@@ -871,7 +877,7 @@ namespace Mariasek.Engine
                     break;
                 }
             }
-			_verboseString.Append("ReduceUcertainCardSet <- Exit\n");
+            _verboseString.Append("ReduceUcertainCardSet <- Exit\n");
         }
 
         /// <summary>
@@ -2176,7 +2182,8 @@ namespace Mariasek.Engine
             //pokud jsem zacinal ja, ma eso pravdepodobne druhy hrac
             //pokud jsem nezacinal ja, ma eso pravdepodobne akter
             if (_trump.HasValue &&
-				c1.Suit != _trump &&
+                roundStarterIndex == _gameStarterIndex &&
+                c1.Suit != _trump &&
 				c1.Suit == c3.Suit &&
 				c3.Value > c1.Value &&
 				c3.Value != Hodnota.Eso &&
