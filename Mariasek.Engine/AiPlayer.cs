@@ -578,6 +578,9 @@ namespace Mariasek.Engine
         private List<Card> ChooseNormalTalonImpl(List<Card> hand, Card trumpCard)
         {
             var talon = new List<Card>();
+            var kqScore = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                              .Where(b => Hand.HasK(b) && Hand.HasQ(b))
+                              .Sum(b => b == trumpCard.Suit ? 40 : 20);
 
             if (trumpCard == null)
             {
@@ -602,11 +605,6 @@ namespace Mariasek.Engine
             {
                 var basicPointsLost = EstimateBasicPointsLost(hand, new List<Card>());
                 var totalPointsLost = EstimateMaxTotalPointsLost(hand, new List<Card>());
-                var kqScore = _g.trump.HasValue
-                                ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                      .Where(b => Hand.HasK(b) && Hand.HasQ(b))
-                                      .Sum(b => b == _g.trump.Value ? 40 : 20)
-                                : 0;
                 var noKQSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                     .Count(b => !hand.HasK(b) &&
                                                 !hand.HasQ(b));
@@ -839,9 +837,10 @@ namespace Mariasek.Engine
             //pokud to vypada na sedmu se 4 kartama nebo na slabou sedmu s 5 kartama, tak se snaz mit vsechny barvy na ruce
             if (hand.Has7(trumpCard.Suit) &&
                 ((hand.CardCount(trumpCard.Suit) <= 5 &&
-                  hand.Count(i => i.Value >= Hodnota.Desitka) <= 2 &&
+                  hand.Count(i => i.Value >= Hodnota.Desitka) * 10 + kqScore <= 50 &&
                   !hand.HasA(trumpCard.Suit)) ||
-                 hand.CardCount(trumpCard.Suit) == 4 ||
+                 (hand.CardCount(trumpCard.Suit) == 4 &&
+                  hand.Count(i => i.Value >= Hodnota.Desitka) * 10 + kqScore <= 50) ||
                  (hand.CardCount(trumpCard.Suit) == 5 &&
                   !hand.HasA(trumpCard.Suit) &&
                   !(hand.HasX(trumpCard.Suit) &&
@@ -3840,12 +3839,13 @@ namespace Mariasek.Engine
                      !Is100AgainstPossible()) ||
                     (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
                      Hand.HasX(_trumpCard.Suit) &&
+                     Hand.CardCount(_trumpCard.Suit) >= 3 &&    //a aspon 3 trumfy
                      ((kqScore >= 40 &&                          //mam aspon 40 bodu v hlasech
                        axCount >= 3 &&                            //a aspon jeste jednu dalsi desitku
                        estimatedFinalBasicScore >= 30) ||
                       (kqScore >= 20 &&                          //mam aspon 20 bodu v hlasech
-                       axCount >= 5 &&                            //a aspon jeste tri dalsi desitky
-                       estimatedFinalBasicScore >= 50))) ||
+                       axCount >= 4 &&                            //a aspon jeste dve dalsi desitky
+                       estimatedFinalBasicScore >= 40))) ||
                     (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
                      Hand.HasX(_trumpCard.Suit) &&
                      Hand.CardCount(_trumpCard.Suit) >= 4 &&    //a aspon 4 trumfy
