@@ -2437,6 +2437,10 @@ namespace Mariasek.Engine
                                                                                  (!_probabilities.PotentialCards(player2).HasX(i.Suit) &&
                                                                                   !_probabilities.PotentialCards(player3).HasX(i.Suit)) ||
                                                                                  myInitialHand.CardCount(_trump) <= 2) &&
+                                                                                (SevenValue < GameValue ||
+                                                                                 !(topCards.HasSuit(i.Suit) &&
+                                                                                   (topCards.HasA(i.Suit) ||
+                                                                                    topCards.HasX(i.Suit)))) &&
                                                                                 _probabilities.SuitHigherThanCardExceptAXProbability(TeamMateIndex, i, RoundNumber) > 1 - RiskFactor &&
                                                                                 (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0f ||
                                                                                  (PlayerBids[MyIndex] == 0 &&
@@ -2477,6 +2481,10 @@ namespace Mariasek.Engine
                                                                                  _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0f ||
                                                                                  (SevenValue >= GameValue &&
                                                                                   hands[MyIndex].Has7(_trump))) &&
+                                                                                (SevenValue < GameValue ||
+                                                                                 !(topCards.HasSuit(i.Suit) &&
+                                                                                   (topCards.HasA(i.Suit) ||
+                                                                                    topCards.HasX(i.Suit)))) &&
                                                                                 (_gameType & (Hra.Kilo | Hra.KiloProti)) == 0 &&
                                                                                 ((_gameType == (Hra.Hra | Hra.Sedma) &&
                                                                                   SevenValue > GameValue) ||
@@ -2509,6 +2517,10 @@ namespace Mariasek.Engine
                                                                                     _probabilities.SuitProbability(player3, _trump, RoundNumber) > 0f &&
                                                                                     (_probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0f ||
                                                                                      _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0f) &&
+                                                                                    (SevenValue < GameValue ||
+                                                                                     !(topCards.HasSuit(i.Suit) &&
+                                                                                       (topCards.HasA(i.Suit) ||
+                                                                                        topCards.HasX(i.Suit)))) &&
                                                                                     (_gameType & Hra.Kilo) == 0 &&
                                                                                     ((_gameType == (Hra.Hra | Hra.Sedma) &&
                                                                                       SevenValue > GameValue) ||
@@ -2542,7 +2554,11 @@ namespace Mariasek.Engine
                                                                                       (!_probabilities.PotentialCards(player2).HasX(i.Suit) &&
                                                                                        !_probabilities.PotentialCards(player3).HasX(i.Suit)) ||
                                                                                       myInitialHand.CardCount(_trump) <= 2) &&
-                                                                                     (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0f ||
+                                                                                    (SevenValue < GameValue ||
+                                                                                     !(topCards.HasSuit(i.Suit) &&
+                                                                                       (topCards.HasA(i.Suit) ||
+                                                                                        topCards.HasX(i.Suit)))) &&
+                                                                                         (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0f ||
                                                                                       (PlayerBids[MyIndex] == 0 &&
                                                                                        _preferredSuits.Contains(i.Suit))) &&
                                                                                      (_gameType & (Hra.Kilo | Hra.KiloProti)) == 0 &&

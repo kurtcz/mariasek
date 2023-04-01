@@ -3840,12 +3840,17 @@ namespace Mariasek.Engine
                     (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
                      Hand.HasX(_trumpCard.Suit) &&
                      Hand.CardCount(_trumpCard.Suit) >= 3 &&    //a aspon 3 trumfy
+                     (kqScore >= 20 &&                          //mam aspon 20 bodu v hlasech
+                      axCount >= 4 &&                            //a aspon jeste dve dalsi desitky
+                      estimatedFinalBasicScore >= 40)) ||
+                    (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
+                     Hand.HasX(_trumpCard.Suit) &&
                      ((kqScore >= 40 &&                          //mam aspon 40 bodu v hlasech
                        axCount >= 3 &&                            //a aspon jeste jednu dalsi desitku
                        estimatedFinalBasicScore >= 30) ||
                       (kqScore >= 20 &&                          //mam aspon 20 bodu v hlasech
-                       axCount >= 4 &&                            //a aspon jeste dve dalsi desitky
-                       estimatedFinalBasicScore >= 40))) ||
+                       axCount >= 5 &&                            //a aspon jeste dve dalsi desitky
+                       estimatedFinalBasicScore >= 50))) ||
                     (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
                      Hand.HasX(_trumpCard.Suit) &&
                      Hand.CardCount(_trumpCard.Suit) >= 4 &&    //a aspon 4 trumfy
