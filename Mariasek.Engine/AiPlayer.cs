@@ -4663,8 +4663,7 @@ namespace Mariasek.Engine
             }
             if (!(certainCards1 != null &&
                   potentialCards1 != null &&
-                  certainCards1.Length == potentialCards1.Length &&
-                  certainCards1.All(i => potentialCards1.Contains(i))))
+                  certainCards1 == potentialCards1))
             {
                 if (potentialCards1 != null)
                 {
@@ -4681,8 +4680,7 @@ namespace Mariasek.Engine
             }
             if (!(certainCards2 != null &&
                   potentialCards2 != null &&
-                  certainCards2.Length == potentialCards2.Length &&
-                  certainCards2.All(i => potentialCards2.Contains(i))))
+                  certainCards2 == potentialCards2))
             {
                 if (potentialCards2 != null)
                 {
@@ -4699,8 +4697,7 @@ namespace Mariasek.Engine
             }
             if (!(certainCards3 != null &&
                   potentialCards3 != null &&
-                  certainCards3.Length == potentialCards3.Length &&
-                  certainCards3.All(i => potentialCards3.Contains(i))))
+                  certainCards3 == potentialCards3))
             {
                 if (potentialCards3 != null)
                 {
