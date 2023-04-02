@@ -4436,6 +4436,20 @@ namespace Mariasek.Engine
                 _initialSimulation = true;
             }
             Probabilities.UpdateProbabilitiesAfterBidMade(e, _g.Bidding);
+
+            if (_g.Bidding.SevenMultiplier > 0 &&
+                _g.Bidding.SevenMultiplier * _g.SevenValue < _g.Bidding.GameMultiplier * _g.GameValue &&
+                _g.GameStartingPlayer.DebugInfo.TotalRuleCount > 0)
+            {
+                DebugInfo.RuleCount = DebugInfo.AllChoices
+                                               .Where(i => i.Rule.StartsWith(Hra.Hra.ToString()))
+                                               .Select(i => i.RuleCount)
+                                               .FirstOrDefault();
+                DebugInfo.TotalRuleCount = DebugInfo.AllChoices
+                                                    .Where(i => i.Rule.StartsWith(Hra.Hra.ToString()))
+                                                    .Select(i => i.TotalRuleCount)
+                                                    .FirstOrDefault();
+            }
         }
 
         private bool IsGameWinningRound(Round round, Round[] rounds, int playerIndex, int teamMateIndex, List<Card> hand, Probability prob)

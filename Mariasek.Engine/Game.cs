@@ -1850,6 +1850,12 @@ namespace Mariasek.Engine
                         GameType = Bidding.CompleteBidding();
                     }
                 }
+                if (Bidding.SevenMultiplier * SevenValue > 0 &&
+                    Bidding.SevenMultiplier * SevenValue < Bidding.GameMultiplier * GameValue &&
+                    GameStartingPlayer.DebugInfo.TotalRuleCount > 0)
+                {
+                    GameTypeConfidence = (float)GameStartingPlayer.DebugInfo.RuleCount / (float)GameStartingPlayer.DebugInfo.TotalRuleCount;
+                }
                 if (GivenUp &&
                     (Bidding.SevenAgainstMultiplier > 0 ||      //bude se hrat
                      Bidding.HundredAgainstMultiplier > 0 ||    //bude se hrat

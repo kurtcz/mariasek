@@ -329,22 +329,22 @@ namespace Mariasek.SharedClient
                         else if ((_gameType & Hra.Kilo) != 0)
                         {
                             _aiPlayer.DebugInfo.RuleCount = _aiPlayer.DebugInfo.AllChoices
-                                                                     .Where(i => i.Rule == Hra.Kilo.ToString())
+                                                                     .Where(i => i.Rule.StartsWith(Hra.Kilo.ToString()))
                                                                      .Select(i => i.RuleCount)
                                                                      .FirstOrDefault();
                             _aiPlayer.DebugInfo.TotalRuleCount = _aiPlayer.DebugInfo.AllChoices
-                                                                          .Where(i => i.Rule == Hra.Kilo.ToString())
+                                                                          .Where(i => i.Rule.StartsWith(Hra.Kilo.ToString()))
                                                                           .Select(i => i.TotalRuleCount)
                                                                           .FirstOrDefault();
                         }
                         else if ((_gameType & Hra.Sedma) != 0)
                         {
                             _aiPlayer.DebugInfo.RuleCount = _aiPlayer.DebugInfo.AllChoices
-                                                                     .Where(i => i.Rule == Hra.Sedma.ToString())
+                                                                     .Where(i => i.Rule.StartsWith(Hra.Sedma.ToString()))
                                                                      .Select(i => i.RuleCount)
                                                                      .FirstOrDefault();
                             _aiPlayer.DebugInfo.TotalRuleCount = _aiPlayer.DebugInfo.AllChoices
-                                                                          .Where(i => i.Rule == Hra.Sedma.ToString())
+                                                                          .Where(i => i.Rule.StartsWith(Hra.Sedma.ToString()))
                                                                           .Select(i => i.TotalRuleCount)
                                                                           .FirstOrDefault();
                         }
@@ -693,6 +693,19 @@ namespace Mariasek.SharedClient
             if (_aiPlayer != null)
             {
                 _aiPlayer.Probabilities.UpdateProbabilitiesAfterBidMade(e, _g.Bidding);
+                if (_g.Bidding.SevenMultiplier > 0 &&
+                    _g.Bidding.SevenMultiplier * _g.SevenValue < _g.Bidding.GameMultiplier * _g.GameValue &&
+                    _g.GameStartingPlayer.DebugInfo.TotalRuleCount > 0)
+                {
+                    _aiPlayer.DebugInfo.RuleCount = _aiPlayer.DebugInfo.AllChoices
+                                                             .Where(i => i.Rule.StartsWith(Hra.Hra.ToString()))
+                                                             .Select(i => i.RuleCount)
+                                                             .FirstOrDefault();
+                    _aiPlayer.DebugInfo.TotalRuleCount = _aiPlayer.DebugInfo.AllChoices
+                                                                  .Where(i => i.Rule.StartsWith(Hra.Hra.ToString()))
+                                                                  .Select(i => i.TotalRuleCount)
+                                                                  .FirstOrDefault();
+                }
             }
         }
     }
