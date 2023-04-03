@@ -1550,7 +1550,14 @@ namespace Mariasek.Engine
                         }
                         if ((_gameType & Hra.Sedma) != 0 &&
                             hands[MyIndex].Has7(_trump) &&
-                            hands[MyIndex].CardCount(_trump) <= unwinnableLowCards.Where(i => i.Suit != _trump).Count() + 1)
+                            hands[MyIndex].CardCount(_trump) <= unwinnableLowCards.Where(i => i.Suit != _trump).Count() + 1 &&
+                            !(topTrumps.Any() &&                              
+                              opponentTrumps.Count <= 2 * topTrumps.Count &&
+                              _probabilities.PotentialCards(player2).HasSuit(_trump) &&
+                              _probabilities.PotentialCards(player3).HasSuit(_trump) &&
+                              topCards.SuitCount() == 1 &&
+                              hands[MyIndex].Any(i => i.Suit != _trump &&
+                                                      i.Value == Hodnota.Desitka)))
                         {
                             return null;
                         }
@@ -6561,11 +6568,9 @@ namespace Mariasek.Engine
                         if (!cardsToPlay.Any())
                         {
                             //tohle se ma hrat v pravidle "namazat"
-                            var hiCards = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                                .SelectMany(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                    .Select(h => new Card(b, h)))
-                                                                    .Where(i => _probabilities.CardProbability(player3, i) > _epsilon &&
-                                                                                c1.IsLowerThan(i, _trump));
+                            var hiCards = _probabilities.PotentialCards(player3)
+                                                        .Where(i => c1.IsLowerThan(i, _trump));
+
                             cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Desitka &&
                                                                                     !(_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 &&  //ignoruj kartu pokud s ni muzu prebit akterovu nizkou kartu v barve
                                                                                       _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Eso)) == 0) &&
