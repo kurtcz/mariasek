@@ -4,6 +4,9 @@ using Mariasek.Engine;
 using System.Xml.Serialization;
 using System.Linq;
 using System.Globalization;
+#if __IOS__
+using PreserveAttribute = Foundation.PreserveAttribute;
+#endif
 
 namespace Mariasek.SharedClient
 {

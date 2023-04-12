@@ -1,25 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
-
+using Android;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.OS;
 using Android.Runtime;
 using Android.Views;
-using Android.Widget;
-using Android.OS;
-using Android.Support.V4.Content;
-
+using AndroidX.Core.Content;
+using AndroidX.Core.View;
 using Microsoft.Xna.Framework;
 using Mariasek.SharedClient;
-using Android;
-using System.Diagnostics;
+
+#if NET6_0
+[assembly: AssemblyVersion("1.5.*")]
+[assembly: AssemblyMetadata("IsTrimmable", "True")]
+#else
+using Android.OS.Storage;
+using Android.Widget;
+using System.Configuration;
 using Android.Support.V4.App;
 using Android.Support.V4.View;
-using Android.OS.Storage;
+using Android.Support.V4.Content;
+#endif
 
 namespace Mariasek.AndroidClient
 {

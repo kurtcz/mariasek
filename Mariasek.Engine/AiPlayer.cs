@@ -5702,7 +5702,7 @@ namespace Mariasek.Engine
                     DebugInfo.Rule = kvp.Value.First().Rule.Description;
                     DebugInfo.RuleCount = kvp.Value.Count;
                     DebugInfo.TotalRuleCount = cardScores.Sum(i => i.Value.Count);
-                    DebugInfo.AiDebugInfo = kv.Value.First().AiDebugInfo;
+                    //DebugInfo.AiDebugInfo = kv.Value.First().AiDebugInfo;
                     DebugInfo.AllChoices = cardScores.OrderByDescending(i => i.Value.Count).Select(i => new RuleDebugInfo
                     {
                         Card = i.Key,

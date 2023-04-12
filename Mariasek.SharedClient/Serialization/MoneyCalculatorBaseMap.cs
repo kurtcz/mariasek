@@ -1,5 +1,8 @@
 ﻿using CsvHelper.Configuration;
 using Mariasek.Engine;
+#if __IOS__
+using PreserveAttribute = Foundation.PreserveAttribute;
+#endif
 
 namespace Mariasek.SharedClient.Serialization
 {

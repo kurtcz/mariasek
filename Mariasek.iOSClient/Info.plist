@@ -6,8 +6,6 @@
 	<string>Mariášek</string>
 	<key>CFBundleIdentifier</key>
 	<string>project.MonoGame.Mariasek.iOS</string>
-	<key>MinimumOSVersion</key>
-	<string>7.0</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationLandscapeLeft</string>

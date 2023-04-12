@@ -1,0 +1,80 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-ios</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <SupportedOSPlatformVersion>11.2</SupportedOSPlatformVersion>
+    <ImplicitUsings>true</ImplicitUsings>
+    <CodesignKey>iPhone Developer</CodesignKey>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Deterministic>false</Deterministic>
+    <VersionSuffix>1.0.0.$([System.DateTime]::UtcNow.ToString(mmff))</VersionSuffix>
+    <AssemblyVersion Condition=" '$(VersionSuffix)' == '' ">0.0.0.1</AssemblyVersion>
+    <AssemblyVersion Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</AssemblyVersion>
+    <Version Condition=" '$(VersionSuffix)' == '' ">0.0.1.0</Version>
+    <Version Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</Version>
+    <PublishTrimmed Condition=" '$(Configuration)' == 'Release' ">true</PublishTrimmed>
+    <TrimMode Condition=" '$(Configuration)' == 'Release' ">Link</TrimMode>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <MtouchLink>SdkOnly</MtouchLink>
+    <CreatePackage>false</CreatePackage>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <MtouchLink>SdkOnly</MtouchLink>
+    <CreatePackage>false</CreatePackage>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
+    <PackageReference Include="MonoGame.Framework.iOS" Version="3.8.1.303" />
+    <PackageReference Include="CsvHelper" Version="28.0.1" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="CsvHelper" />
+    <None Remove="System.ServiceModel.Primitives" />
+    <None Remove="Resources\Images.xcassets\LaunchImage.launchimage\Contents.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\Mariasek.Content\BM2Font.fnt">
+      <Link>Content\BM2Font.fnt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Mariasek.Content\BMFont.fnt">
+      <Link>Content\BMFont.fnt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Mariasek.Content\SegoeUI40Outl.fnt">
+      <Link>Content\SegoeUI40Outl.fnt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Remove="Resources\Icon.png" />
+    <BundleResource Remove="Resources\Icon-120.png" />
+    <BundleResource Remove="Resources\Icon-76.png" />
+    <BundleResource Remove="Resources\Icon-152.png" />
+    <BundleResource Remove="Resources\Default-Landscape.png" />
+    <BundleResource Remove="Resources\iPad-Landscape.png" />
+    <BundleResource Remove="Resources\iPhone-Portrait.png" />
+    <BundleResource Remove="Resources\Icon-80.png" />
+    <BundleResource Remove="Resources\Icon-167.png" />
+    <BundleResource Remove="Resources\Icon-40.png" />
+    <BundleResource Remove="Resources\iPad-Landscape2.png" />
+    <BundleResource Remove="Resources\iPhone-Portrait2.png" />
+    <BundleResource Remove="Resources\iPhone-Portrait3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterfaceDefinition Remove="LaunchScreen.storyboard" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Images.xcassets\LaunchImage.launchimage\Contents.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Mariasek.Engine\Mariasek.Engine6.csproj" />
+  </ItemGroup>
+  <Target Name="RestoreDotnetTools" BeforeTargets="Restore">
+    <Message Text="Restoring dotnet tools" Importance="High" />
+    <Exec Command="dotnet tool restore" />
+  </Target>
+  <Import Project="..\Mariasek.SharedClient\Mariasek.SharedClient6.projitems" Label="Shared" Condition="Exists('..\Mariasek.SharedClient\Mariasek.SharedClient6.projitems')" />
+</Project>

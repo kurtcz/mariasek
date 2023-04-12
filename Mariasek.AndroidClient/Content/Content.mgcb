@@ -1,0 +1,243 @@
+
+#----------------------------- Global Properties ----------------------------#
+
+/outputDir:bin/$(Platform)
+/intermediateDir:obj/$(Platform)
+/platform:Android
+/config:
+/profile:Reach
+/compress:False
+
+#-------------------------------- References --------------------------------#
+
+
+#---------------------------------- Content ---------------------------------#
+
+#begin BM2Font_0.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../Mariasek.Content/BM2Font_0.png;BM2Font_0.png
+
+#begin BM2Font_1.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../Mariasek.Content/BM2Font_1.png;BM2Font_1.png
+
+#begin BMFont_0.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../Mariasek.Content/BMFont_0.png;BMFont_0.png
+
+#begin BMFont_1.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../Mariasek.Content/BMFont_1.png;BMFont_1.png
+
+#begin boo.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Low
+/build:../../Mariasek.Content/boo.wav;boo.wav
+
+#begin clap.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Low
+/build:../../Mariasek.Content/clap.wav;clap.wav
+
+#begin click.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Low
+/build:../../Mariasek.Content/click.wav;click.wav
+
+#begin cough.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Low
+/build:../../Mariasek.Content/cough.wav;cough.wav
+
+#begin laugh.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Low
+/build:../../Mariasek.Content/laugh.wav;laugh.wav
+
+#begin logo_hracikarty.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../Mariasek.Content/logo_hracikarty.png;logo_hracikarty.png
+
+#begin marias.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../Mariasek.Content/marias.png;marias.png
+
+#begin marias2.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../Mariasek.Content/marias2.png;marias2.png
+
+#begin marias3.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../Mariasek.Content/marias3.png;marias3.png
+
+#begin mariasek_rate.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../Mariasek.Content/mariasek_rate.png;mariasek_rate.png
+
+#begin na pankraci.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Low
+/build:../../Mariasek.Content/na pankraci.mp3;na pankraci.mp3
+
+#begin off.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Low
+/build:../../Mariasek.Content/off.wav;off.wav
+
+#begin on.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Low
+/build:../../Mariasek.Content/on.wav;on.wav
+
+#begin revers.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../Mariasek.Content/revers.png;revers.png
+
+#begin SegoeUI40Outl_0.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../Mariasek.Content/SegoeUI40Outl_0.png;SegoeUI40Outl_0.png
+
+#begin SegoeUI40Outl_1.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../Mariasek.Content/SegoeUI40Outl_1.png;SegoeUI40Outl_1.png
+
+#begin SegoeUI40Outl_2.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../Mariasek.Content/SegoeUI40Outl_2.png;SegoeUI40Outl_2.png
+
+#begin tavern-ambience-looping.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Low
+/build:../../Mariasek.Content/tavern-ambience-looping.wav;tavern-ambience-looping.wav
+
+#begin watch-tick.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Low
+/build:../../Mariasek.Content/watch-tick.wav;watch-tick.wav
+
+#begin wood2.jpg
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../Mariasek.Content/wood2.jpg;wood2.jpg
+
