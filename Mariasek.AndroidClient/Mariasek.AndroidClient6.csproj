@@ -33,6 +33,7 @@
     <None Remove="System.ServiceModel.Primitives" />
     <None Remove="System.Xml.XmlSerializer" />
     <None Remove="Xamarin.AndroidX.Legacy.Support.V4" />
+    <None Remove="Properties\AndroidManifest.xml" />
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="..\Mariasek.Content\BM2Font.fnt">
