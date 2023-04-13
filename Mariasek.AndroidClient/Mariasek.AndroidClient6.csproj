@@ -3,7 +3,7 @@
     <TargetFramework>net6.0-android</TargetFramework>
     <SupportedOSPlatformVersion>23</SupportedOSPlatformVersion>
     <OutputType>Exe</OutputType>
-    <ApplicationId>com.companyname.Mariasek.AndroidClient</ApplicationId>
+    <ApplicationId></ApplicationId>
     <ApplicationVersion>1</ApplicationVersion>
     <ApplicationDisplayVersion>1.2</ApplicationDisplayVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>

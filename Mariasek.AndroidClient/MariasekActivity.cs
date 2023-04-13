@@ -18,7 +18,7 @@ using Mariasek.SharedClient;
 using AndroidX.Core.Content;
 using AndroidX.Core.View;
 
-[assembly: AssemblyVersion("1.5.*")]
+[assembly: AssemblyVersion("1.6.*")]
 [assembly: AssemblyMetadata("IsTrimmable", "True")]
 #else
 using Android.OS.Storage;
