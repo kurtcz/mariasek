@@ -33,6 +33,31 @@
     <None Remove="CsvHelper" />
     <None Remove="System.ServiceModel.Primitives" />
     <None Remove="Resources\Images.xcassets\LaunchImage.launchimage\Contents.json" />
+    <None Remove="Content\BM2Font_0.xnb" />
+    <None Remove="Content\BM2Font_1.xnb" />
+    <None Remove="Content\BMFont_0.xnb" />
+    <None Remove="Content\BMFont_1.xnb" />
+    <None Remove="Content\SegoeUI40Outl_0.xnb" />
+    <None Remove="Content\SegoeUI40Outl_1.xnb" />
+    <None Remove="Content\SegoeUI40Outl_2.xnb" />
+    <None Remove="Content\boo.xnb" />
+    <None Remove="Content\clap.xnb" />
+    <None Remove="Content\click.xnb" />
+    <None Remove="Content\cough.xnb" />
+    <None Remove="Content\laugh.xnb" />
+    <None Remove="Content\logo_hracikarty.xnb" />
+    <None Remove="Content\marias.xnb" />
+    <None Remove="Content\marias2.xnb" />
+    <None Remove="Content\marias3.xnb" />
+    <None Remove="Content\mariasek_rate.xnb" />
+    <None Remove="Content\na pankraci.m4a" />
+    <None Remove="Content\na pankraci.xnb" />
+    <None Remove="Content\off.xnb" />
+    <None Remove="Content\on.xnb" />
+    <None Remove="Content\revers.xnb" />
+    <None Remove="Content\tavern-ambience-looping.xnb" />
+    <None Remove="Content\watch-tick.xnb" />
+    <None Remove="Content\wood2.xnb" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\Mariasek.Content\BM2Font.fnt">
@@ -47,6 +72,31 @@
       <Link>Content\SegoeUI40Outl.fnt</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\BM2Font_0.xnb" />
+    <Content Include="Content\BM2Font_1.xnb" />
+    <Content Include="Content\BMFont_0.xnb" />
+    <Content Include="Content\BMFont_1.xnb" />
+    <Content Include="Content\SegoeUI40Outl_0.xnb" />
+    <Content Include="Content\SegoeUI40Outl_1.xnb" />
+    <Content Include="Content\SegoeUI40Outl_2.xnb" />
+    <Content Include="Content\boo.xnb" />
+    <Content Include="Content\clap.xnb" />
+    <Content Include="Content\click.xnb" />
+    <Content Include="Content\cough.xnb" />
+    <Content Include="Content\laugh.xnb" />
+    <Content Include="Content\logo_hracikarty.xnb" />
+    <Content Include="Content\marias.xnb" />
+    <Content Include="Content\marias2.xnb" />
+    <Content Include="Content\marias3.xnb" />
+    <Content Include="Content\mariasek_rate.xnb" />
+    <Content Include="Content\na pankraci.m4a" />
+    <Content Include="Content\na pankraci.xnb" />
+    <Content Include="Content\off.xnb" />
+    <Content Include="Content\on.xnb" />
+    <Content Include="Content\revers.xnb" />
+    <Content Include="Content\tavern-ambience-looping.xnb" />
+    <Content Include="Content\watch-tick.xnb" />
+    <Content Include="Content\wood2.xnb" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Remove="Resources\Icon.png" />

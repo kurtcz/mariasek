@@ -62,13 +62,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)EditorScene.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\BarChart.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\SettingsBox.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AssetLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)SavedGame\SavedGame.hra">
       <LogicalName>GameToLoad</LogicalName>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)AssetLoader.cs" />
   </ItemGroup>
 </Project>

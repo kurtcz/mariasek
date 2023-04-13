@@ -11,12 +11,13 @@ using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
-using AndroidX.Core.Content;
-using AndroidX.Core.View;
 using Microsoft.Xna.Framework;
 using Mariasek.SharedClient;
 
 #if NET6_0
+using AndroidX.Core.Content;
+using AndroidX.Core.View;
+
 [assembly: AssemblyVersion("1.5.*")]
 [assembly: AssemblyMetadata("IsTrimmable", "True")]
 #else
