@@ -7760,6 +7760,16 @@ namespace Mariasek.Engine
                             : _probabilities.PotentialCards(player1).Where(i => i.Suit == _trump &&
                                                                                 i != c1).ToList();
 
+                    if (ValidCards(c1, hands[MyIndex]).Has7(_trump) &&
+                        ValidCards(c1, hands[MyIndex]).Count > 1 &&
+                        !opponentTrumps.Any())
+                    {
+                        var cardToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value != Hodnota.Sedma)
+                                                                       .OrderBy(i => i.Value)
+                                                                       .FirstOrDefault();
+
+                        return cardToPlay;
+                    }
                     if (TeamMateIndex == player3 &&
                         ValidCards(c1, hands[MyIndex]).HasX(_trump) &&
                         ValidCards(c1, hands[MyIndex]).Count == 2 &&
@@ -9033,6 +9043,17 @@ namespace Mariasek.Engine
                                                                                 i != c2).ToList()
                             : _probabilities.PotentialCards(player1).Where(i => i.Suit == _trump &&
                                                                                 i != c1).ToList();
+
+                    if (ValidCards(c1, c2, hands[MyIndex]).Has7(_trump) &&
+                        ValidCards(c1, c2, hands[MyIndex]).Count > 1 &&
+                        !opponentTrumps.Any())
+                    {
+                        var cardToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Value != Hodnota.Sedma)
+                                                                           .OrderBy(i => i.Value)
+                                                                           .FirstOrDefault();
+
+                        return cardToPlay;
+                    }
 
                     if (ValidCards(c1, c2, hands[MyIndex]).HasX(_trump) &&
                         ValidCards(c1, c2, hands[MyIndex]).Count == 2 &&

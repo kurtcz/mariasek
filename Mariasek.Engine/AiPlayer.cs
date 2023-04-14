@@ -2774,7 +2774,21 @@ namespace Mariasek.Engine
                              .Count(i => i.Value == Hodnota.Eso) >= 2);
             result |= hand.CardCount(_trump.Value) <= 4 &&
                       hand.SuitCount() == 3 &&
-                      hand.CardCount(Hodnota.Eso) <= 2;
+                      hand.CardCount(Hodnota.Eso) <= 2 &&
+                      !(hand.HasA(_trump.Value) &&
+                        hand.HasX(_trump.Value)) &&
+                      !((hand.HasA(_trump.Value) ||
+                         hand.HasX(_trump.Value)) &&
+                        hand.HasK(_trump.Value) &&
+                        hand.HasQ(_trump.Value)) &&
+                      !(Enum.GetValues(typeof(Barva)).Cast<Barva>()         //nemam v kazde netrumfove barve A nebo X+K nebo X+2 a jedno z
+                            .Where(b => hand.HasSuit(b))
+                            .All(b => hand.HasA(b) ||
+                                      (hand.HasX(b) &&
+                                       (hand.HasK(b) ||
+                                        hand.CardCount(b) > 2)) ||
+                                       (hand.HasK(b) &&
+                                        hand.HasQ(b))));
             result |= hand.CardCount(_trump.Value) == 4 &&                  //3. nebo 4 trumfy a
                       (TeamMateIndex == -1 ||
                        (!_teamMateDoubledGame ||
