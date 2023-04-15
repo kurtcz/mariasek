@@ -7,7 +7,14 @@ using Mariasek.SharedClient;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using AVFoundation;
+using System.Reflection;
 
+#if NET6_0
+using System.Reflection;
+
+[assembly: AssemblyVersion("1.6.*")]
+[assembly: AssemblyMetadata("IsTrimmable", "True")]
+#else
 #if MONOMAC
 using MonoMac.AppKit;
 using MonoMac.Foundation;
@@ -16,6 +23,8 @@ using MonoMac.Foundation;
 using Foundation;
 using UIKit;
 #endif
+#endif
+
 #endregion
 
 namespace Mariasek.iOSClient

@@ -9,10 +9,6 @@
     <Import_RootNamespace>Mariasek.SharedClient</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)Mariasek.SharedClient6.projitems" />
-    <None Include="$(MSBuildThisFileDirectory)Mariasek.SharedClient6.shproj" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)GameSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)HumanPlayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MainScene.cs" />

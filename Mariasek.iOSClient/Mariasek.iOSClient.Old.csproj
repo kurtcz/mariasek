@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\Mariasek.SharedClient\Mariasek.SharedClient.projitems" Label="Shared" Condition="Exists('..\Mariasek.SharedClient\Mariasek.SharedClient.projitems')" />
+  <Import Project="..\Mariasek.SharedClient\Mariasek.SharedClient.Old.projitems" Label="Shared" Condition="Exists('..\Mariasek.SharedClient\Mariasek.SharedClient.Old.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -57,7 +57,6 @@
     <MtouchI18n></MtouchI18n>
     <OptimizePNGs></OptimizePNGs>
     <NoStdLib>false</NoStdLib>
-    <DelaySign>false</DelaySign>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>full</DebugType>
@@ -126,7 +125,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <BundleResource Include="GameThumbnail.png" />
     <BundleResource Include="Resources\Icon-76.png" />
     <BundleResource Include="Resources\Icon-120.png" />
     <BundleResource Include="Resources\Icon-152.png" />
@@ -174,9 +172,9 @@
     <ITunesArtwork Include="iTunesArtwork%402x" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Mariasek.Engine\Mariasek.Engine.csproj">
+    <ProjectReference Include="..\Mariasek.Engine\Mariasek.Engine.Old.csproj">
       <Project>{DA5B6FE8-318A-40E5-805E-D93896B924D0}</Project>
-      <Name>Mariasek.Engine</Name>
+      <Name>Mariasek.Engine.Old</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

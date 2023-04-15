@@ -2750,15 +2750,15 @@ namespace Mariasek.Engine
                                          hand.HasQ(b))) ||
                          Enum.GetValues(typeof(Barva)).Cast<Barva>()         //aspon v jedne barve nemam A nebo X+K a
                              .Where(b => hand.HasA(b))
-                             .Sum(b => hand.Count(i => i.Value >= Hodnota.Kral)) <= 4) &&
+                             .Sum(b => hand.Count(i => i.Value >= Hodnota.Kral)) > 4) &&
                        (!hand.HasA(_trump.Value) ||                          //nemam trumfove A nebo X a
                         !hand.HasX(_trump.Value)) &&
                        !(hand.HasK(_trump.Value) &&                          //nevidim do trumfoveho hlasu a
                          hand.HasQ(_trump.Value)) &&
                        !(//Enum.GetValues(typeof(Barva)).Cast<Barva>()       //neni pravda ze
-                        //    .Where(b => b != _trump &&                    //2a. mam dlouhou tlacnou barvu nebo
-                        //                hand.HasSuit(b))
-                        //    .Any(b => hand.CardCount(b) >= 5) ||
+                         //    .Where(b => b != _trump &&                    //2a. mam dlouhou tlacnou barvu nebo
+                         //                hand.HasSuit(b))
+                         //    .Any(b => hand.CardCount(b) >= 5) ||
                          hand.Where(i => i.Suit != _trump)                   //2b. mam vysoke netrumfove karty nebo
                              .All(i => i.Value >= Hodnota.Svrsek) ||
                          Enum.GetValues(typeof(Barva)).Cast<Barva>()         //2c. mam v kazde netrumfove barve A nebo X+K nebo X+2 nebo
@@ -2769,11 +2769,10 @@ namespace Mariasek.Engine
                                         (hand.HasK(b) ||
                                          hand.CardCount(b) > 2)) ||
                                         (hand.HasK(b) &&
-                                         hand.HasQ(b))) ||
-                         hand.Where(i => i.Suit != _trump.Value)             //2d. aspon dve esa
-                             .Count(i => i.Value == Hodnota.Eso) >= 2);
+                                         hand.HasQ(b))));// ||
+                         //hand.Where(i => i.Suit != _trump.Value)             //2d. aspon dve esa
+                         //    .Count(i => i.Value == Hodnota.Eso) >= 2);
             result |= hand.CardCount(_trump.Value) <= 4 &&
-                      hand.SuitCount() == 3 &&
                       hand.CardCount(Hodnota.Eso) <= 2 &&
                       !(hand.HasA(_trump.Value) &&
                         hand.HasX(_trump.Value)) &&
@@ -2782,7 +2781,8 @@ namespace Mariasek.Engine
                         hand.HasK(_trump.Value) &&
                         hand.HasQ(_trump.Value)) &&
                       !(Enum.GetValues(typeof(Barva)).Cast<Barva>()         //nemam v kazde netrumfove barve A nebo X+K nebo X+2 a jedno z
-                            .Where(b => hand.HasSuit(b))
+                            .Where(b => hand.HasSuit(b) &&
+                                        b != _trump)
                             .All(b => hand.HasA(b) ||
                                       (hand.HasX(b) &&
                                        (hand.HasK(b) ||
