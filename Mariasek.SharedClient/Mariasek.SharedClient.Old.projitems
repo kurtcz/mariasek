@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>{CF067FA9-C4F1-483C-852E-CF6272BFDB91}</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Mariasek.SharedClient</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)GameComponents\" />
+    <Folder Include="$(MSBuildThisFileDirectory)BmFont\" />
+    <Folder Include="$(MSBuildThisFileDirectory)SavedGame\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Serialization\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)IEmailSender.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MariasekMonoGame.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Button.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Hand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Sprite.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\GameComponent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\RectangleShape.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\SpriteButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BmFont\FontSerializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\TouchControlBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Scene.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Label.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\FontRenderer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MainScene.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HumanPlayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\TextBox.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Dialog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\CardButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ToggleButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ClickableArea.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MenuScene.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\FluentExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HistoryScene.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SettingsChangedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ProgressIndicator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\Primitives2D.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\LineChart.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SavedGame\ResourceLoader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\LeftRightSelector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ScrollBox.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\GameReview.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StatScene.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\RadarChart.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AiSettingsScene.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\DragEndEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IWebNavigate.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IScreenManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IStorageAccessor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OrientationChangedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ReviewScene.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SettingsScene.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Serialization\MoneyCalculatorBaseMap.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)EditorScene.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\BarChart.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\SettingsBox.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AssetLoader.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SavedGame\SavedGame.hra">
+      <LogicalName>GameToLoad</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

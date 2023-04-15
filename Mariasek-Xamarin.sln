@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Mariasek.SharedClient", "Mariasek.SharedClient\Mariasek.SharedClient.shproj", "{CF067FA9-C4F1-483C-852E-CF6272BFDB91}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Mariasek.SharedClient", "Mariasek.SharedClient\Mariasek.SharedClient.Old.shproj", "{CF067FA9-C4F1-483C-852E-CF6272BFDB91}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mariasek.iOSClient", "Mariasek.iOSClient\Mariasek.iOSClient.csproj", "{0B8620DC-4B4C-40DF-A3EC-0F78105A7C6A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mariasek.iOSClient", "Mariasek.iOSClient\Mariasek.iOSClient.Old.csproj", "{0B8620DC-4B4C-40DF-A3EC-0F78105A7C6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mariasek.Engine", "Mariasek.Engine\Mariasek.Engine.csproj", "{DA5B6FE8-318A-40E5-805E-D93896B924D0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mariasek.Engine", "Mariasek.Engine\Mariasek.Engine.Old.csproj", "{DA5B6FE8-318A-40E5-805E-D93896B924D0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mariasek.AndroidClient", "Mariasek.AndroidClient\Mariasek.AndroidClient.csproj", "{B213B966-681A-4305-BA27-C23CB0F1CE6D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mariasek.AndroidClient", "Mariasek.AndroidClient\Mariasek.AndroidClient.Old.csproj", "{B213B966-681A-4305-BA27-C23CB0F1CE6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mariasek.Cli", "Mariasek.Cli\Mariasek.Cli.csproj", "{A10A4187-6044-4AA5-AD9E-E6A4DC09EEE9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mariasek.Cli", "Mariasek.Cli\Mariasek.Cli.Old.csproj", "{A10A4187-6044-4AA5-AD9E-E6A4DC09EEE9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
