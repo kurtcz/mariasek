@@ -1931,7 +1931,10 @@ namespace Mariasek.Engine
                     if (TeamMateIndex == -1 &&
                         (_gameType & Hra.Sedma) != 0 &&
                         hands[MyIndex].Has7(_trump) &&
-                        hands[MyIndex].CardCount(_trump) <= unwinnableLowCards.Where(i => i.Suit != _trump).Count() + 1)
+                        hands[MyIndex].CardCount(_trump) <= unwinnableLowCards.Where(i => i.Suit != _trump).Count() + 1 &&
+                        !Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                             .Where(b => b != _trump)
+                             .All(b => myInitialHand.CardCount(b) <= 3))
                     {
                         return null;
                     }
@@ -3183,6 +3186,7 @@ namespace Mariasek.Engine
                         Enum.GetValues(typeof(Barva)).Cast<Barva>()
                             .Where(b => b != _trump)
                             .Any(b => !hands[MyIndex].HasSuit(b) &&
+                                      teamMatePlayedCards.HasSuit(b) &&
                                       _probabilities.PotentialCards(TeamMateIndex).HasSuit(b) &&
                                       _probabilities.PotentialCards(opponent).HasSuit(b)) &&
                         !Enum.GetValues(typeof(Barva)).Cast<Barva>()

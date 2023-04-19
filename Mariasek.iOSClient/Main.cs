@@ -1,13 +1,9 @@
 ﻿#region Using Statements
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
 using Mariasek.SharedClient;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using AVFoundation;
-using System.Reflection;
 
 #if NET6_0
 using System.Reflection;
