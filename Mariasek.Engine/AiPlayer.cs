@@ -1938,11 +1938,6 @@ namespace Mariasek.Engine
                             {
                                 System.Diagnostics.Debug.WriteLine(ex.Message + "\n" + ex.StackTrace);
                             }
-                            if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
-                            {
-                                Probabilities.StopGeneratingHands();
-                                loopState.Stop();
-                            }
 
                             var val = Interlocked.Increment(ref progress);
                             OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju durch" });
@@ -1951,6 +1946,11 @@ namespace Mariasek.Engine
                             if (NoChanceToWinDurch(PlayerIndex, hands))
                             {
                                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = initialProgress + Settings.SimulationsPerGameType, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Neuhratelnej durch" });
+                                Probabilities.StopGeneratingHands();
+                                loopState.Stop();
+                            }
+                            if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
+                            {
                                 Probabilities.StopGeneratingHands();
                                 loopState.Stop();
                             }
@@ -4395,6 +4395,7 @@ namespace Mariasek.Engine
             {
                 _talon = null;
                 _initialSimulation = true;
+                TrumpCard = null;
                 if (TestGameType.HasValue && TestGameType.Value != Hra.Durch)
                 {
                     TestGameType = null;

@@ -133,8 +133,9 @@ namespace Mariasek.Engine
                                                         }
                                                         return null;
                                                     })
+                                                   .Where(i => i != null)
                                                    .OrderByDescending(i => i.BadValue)
-                                                   .FirstOrDefault(i => i != null))
+                                                   .FirstOrDefault())
                                     .Where(i => i != null &&    //vyber jen karty kde je sance chytit akterovu nizsi kartu
                                                 Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                     .Select(h => new Card(i.Suit, h))
@@ -502,8 +503,9 @@ namespace Mariasek.Engine
                                                         }
                                                         return null;
                                                     })
+                                                   .Where(i => i != null)
                                                    .OrderByDescending(i => i.BadValue)
-                                                   .FirstOrDefault(i => i != null))
+                                                   .FirstOrDefault())
                                     .Where(i => i != null &&    //vyber jen karty kde je sance chytit akterovu nizsi kartu
                                                 Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                     .Select(h => new Card(i.Suit, h))
