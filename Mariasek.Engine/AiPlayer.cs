@@ -3814,7 +3814,7 @@ namespace Mariasek.Engine
                    2 * _maxMoneyLost >= -Settings.SafetyGameThreshold &&    // simulace byly jen na flek, pro re vynasobim ztratu dvema
                    (Settings.SafetyGameThreshold == 0 ||
                     !lossPerPointsLost.ContainsKey(estimatedPointsLost) ||
-                    lossPerPointsLost[estimatedPointsLost] < Settings.SafetyGameThreshold)) ||   //souper nemuze uhrat kilo proti s Min(1, n-1) z moznych hlasek
+                    lossPerPointsLost[estimatedPointsLost] <= Settings.SafetyGameThreshold)) ||   //souper nemuze uhrat kilo proti s Min(1, n-1) z moznych hlasek
                   (TeamMateIndex != -1 &&                       //Flek:
                    bidding.GameMultiplier == 1 &&
                    (((Hand.HasK(_trumpCard.Suit) ||             //pokud trham a
@@ -3833,7 +3833,7 @@ namespace Mariasek.Engine
                       ((bidding.Bids & Hra.Sedma) != 0 &&       //pri sedme
                        kqScore >= 20 &&                         //aspon 20 bodu v hlaskach a
                        axCount >= 2 &&                          //aspon 2 ostre karty
-                       estimatedFinalBasicScore >= 10) ||
+                       estimatedFinalBasicScore >= 20) ||
                       (Hand.CardCount(_trumpCard.Suit) >= 4 &&
                        axCount >= 1 &&
                        estimatedFinalBasicScore >= 10) ||

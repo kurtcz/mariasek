@@ -1522,6 +1522,31 @@ namespace Mariasek.Engine
                 {
                     var cardsToPlay = new List<Card>();
 
+                    //pokud mas dost trumfu na ruce a zadnou dloubou bocni barvu,
+                    //tak zkus nejdriv vytahnout trumfy ze souperu abys neohrozil vlastni bodovane karty
+                    if (GameValue > SevenValue &&
+                        topCards.Any(i => i.Suit != _trump &&
+                                          i.Value >= Hodnota.Desitka) &&
+                        topTrumps.Count >= 2 &&
+                        opponentTrumps.Any() &&
+                        !hands[MyIndex].Has7(_trump) &&
+                        hands[MyIndex].CardCount(_trump) > opponentTrumps.Count &&
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            .Where(b => b != _trump &&
+                                        hands[MyIndex].HasSuit(b))
+                            .All(b => hands[MyIndex].CardCount(b) < 4 &&
+                                      ((hands[MyIndex].HasA(b) ||
+                                        hands[MyIndex].HasX(b)))) &&
+                        !hands[MyIndex].Any(i => i.Suit != _trump &&    //nehraj pravidlo pokud muzes tlacit trumf ze soupere bocni barvou
+                                                 i.Value < Hodnota.Desitka &&
+                                                 ((!_probabilities.PotentialCards(player2).HasSuit(i.Suit) &&
+                                                   _probabilities.PotentialCards(player2).HasSuit(_trump)) ||
+                                                  (!_probabilities.PotentialCards(player3).HasSuit(i.Suit) &&
+                                                   _probabilities.PotentialCards(player3).HasSuit(_trump)))))
+                    {
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => topTrumps.Contains(i))
+                                                                .ToList();
+                    }
                     if (TeamMateIndex == -1)
                     {
                         //c--
@@ -2015,6 +2040,30 @@ namespace Mariasek.Engine
                         //pokud hrajes proti kilu a mas malo trumfu a k tomu co namazat tak pravidlo nehraj
                         return null;
                     }
+                    //pokud mas dost trumfu na ruce a zadnou dloubou bocni barvu,
+                    //tak zkus nejdriv vytlacit trumfy ze souperu abys neohrozil vlastni bodovane karty
+                    if (GameValue > SevenValue &&
+                        topCards.Any(i => i.Suit != _trump &&
+                                          i.Value >= Hodnota.Desitka) &&
+                        opponentTrumps.Count > 0 &&
+                        !hands[MyIndex].Has7(_trump) &&
+                        hands[MyIndex].CardCount(_trump) > opponentTrumps.Count &&
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            .Where(b => b != _trump &&
+                                        hands[MyIndex].HasSuit(b))
+                            .All(b => hands[MyIndex].CardCount(b) < 4 &&
+                                      ((hands[MyIndex].HasA(b) ||
+                                        hands[MyIndex].HasX(b)))) &&
+                        !hands[MyIndex].Any(i => i.Suit != _trump &&    //nehraj pravidlo pokud muzes tlacit trumf ze soupere bocni barvou
+                                                 i.Value < Hodnota.Desitka &&
+                                                 ((!_probabilities.PotentialCards(player2).HasSuit(i.Suit) &&
+                                                   _probabilities.PotentialCards(player2).HasSuit(_trump)) ||
+                                                  (!_probabilities.PotentialCards(player3).HasSuit(i.Suit) &&
+                                                   _probabilities.PotentialCards(player3).HasSuit(_trump)))))
+                    {
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&
+                                                                            i.Value < Hodnota.Desitka);
+                    }
                     if (TeamMateIndex == -1)
                     {
                         //: c--
@@ -2053,24 +2102,25 @@ namespace Mariasek.Engine
                         }
                         //pokud mas dost trumfu na ruce a zadnou dloubou bocni barvu,
                         //tak zkus nejdriv vytlacit trumfy ze souperu abys neohrozil vlastni bodovane karty
-                        if (GameValue > SevenValue &&
-                            topCards.Any(i => i.Suit != _trump &&
-                                              i.Value >= Hodnota.Desitka) &&
-                            hands[MyIndex].CardCount(_trump) > opponentTrumps.Count + 1 &&
-                            hands[MyIndex].HasA(_trump) &&
-                            (_probabilities.PotentialCards(player2).HasX(_trump) ||
-                             _probabilities.PotentialCards(player3).HasX(_trump)) &&
-                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                .Where(b => b != _trump)
-                                .All(b => hands[MyIndex].CardCount(b) < 4 ||
-                                          (hands[MyIndex].CardCount(b) == 4 &&
-                                           !hands[MyIndex].HasA(b))) &&
-                            !hands[MyIndex].Any(i => i.Suit != _trump &&    //nehraj pravidlo pokud muzes tlacit trumf ze soupere bocni barvou
-                                                     i.Value < Hodnota.Desitka &&
-                                                     ((!_probabilities.PotentialCards(player2).HasSuit(i.Suit) &&
-                                                       _probabilities.PotentialCards(player2).HasSuit(_trump)) ||
-                                                      (!_probabilities.PotentialCards(player3).HasSuit(i.Suit) &&
-                                                       _probabilities.PotentialCards(player3).HasSuit(_trump)))))
+                        if (!cardsToPlay.Any() &&
+                            GameValue > SevenValue &&
+                                                    topCards.Any(i => i.Suit != _trump &&
+                                                                      i.Value >= Hodnota.Desitka) &&
+                                                    hands[MyIndex].CardCount(_trump) > opponentTrumps.Count + 1 &&
+                                                    hands[MyIndex].HasA(_trump) &&
+                                                    (_probabilities.PotentialCards(player2).HasX(_trump) ||
+                                                     _probabilities.PotentialCards(player3).HasX(_trump)) &&
+                                                    Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                        .Where(b => b != _trump)
+                                                        .All(b => hands[MyIndex].CardCount(b) < 4 ||
+                                                                  (hands[MyIndex].CardCount(b) == 4 &&
+                                                                   !hands[MyIndex].HasA(b))) &&
+                                                    !hands[MyIndex].Any(i => i.Suit != _trump &&    //nehraj pravidlo pokud muzes tlacit trumf ze soupere bocni barvou
+                                                                             i.Value < Hodnota.Desitka &&
+                                                                             ((!_probabilities.PotentialCards(player2).HasSuit(i.Suit) &&
+                                                                               _probabilities.PotentialCards(player2).HasSuit(_trump)) ||
+                                                                              (!_probabilities.PotentialCards(player3).HasSuit(i.Suit) &&
+                                                                               _probabilities.PotentialCards(player3).HasSuit(_trump)))))
                         {
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&
                                                                                 i.Value < Hodnota.Desitka);
@@ -4395,6 +4445,7 @@ namespace Mariasek.Engine
                     //pokud hrajes proti kilu, tak se zbav trumfu, pokud mas v ostatnich barvach ostre karty
                     if (TeamMateIndex != -1 &&
                         PlayerBids[MyIndex] == 0 &&
+                        (_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 &&
                         hands[MyIndex].HasSuit(_trump) &&
                         (topTrumps.Any() ||
                          (!hands[MyIndex].HasX(_trump) &&
