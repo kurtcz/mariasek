@@ -3531,13 +3531,7 @@ namespace Mariasek.Engine
                              _maxMoneyLost > -Settings.SafetyBetlThreshold) &&
                             (Settings.SafetyBetlThreshold == 0 ||
                              !lossPerPointsLost.ContainsKey(estimatedPointsLost) ||
-                             lossPerPointsLost[estimatedPointsLost] < Settings.SafetyBetlThreshold)) ||
-                           (estimatedFinalBasicScore >= 10 &&
-                            estimatedFinalBasicScore + kqScore >= 40 &&
-                            (Settings.SafetyBetlThreshold == 0 ||
-                             _maxMoneyLost >= -Settings.SafetyBetlThreshold)) ||
-                           (estimatedFinalBasicScore + kqScore >= estimatefOpponentFinalBasicScore &&
-                            (Hand.HasK(_trump.Value) || Hand.HasQ(_trump.Value))))))
+                             lossPerPointsLost[estimatedPointsLost] < Settings.SafetyBetlThreshold)))))
                 {
                     gameType = Hra.Hra;
                     DebugInfo.RuleCount = _gamesBalance;
