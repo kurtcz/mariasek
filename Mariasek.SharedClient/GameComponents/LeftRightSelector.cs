@@ -80,6 +80,18 @@ namespace Mariasek.SharedClient.GameComponents
 		private Button _rightButton;
 		private Label _valueLabel;
 
+        public override int ZIndex
+		{
+			get { return base.ZIndex; }
+			set
+			{
+				base.ZIndex = value;
+				_leftButton.ZIndex = value;
+                _rightButton.ZIndex = value;
+				_valueLabel.ZIndex = value;
+            }
+		}
+
         public override bool IsEnabled
         {
             get
@@ -228,10 +240,12 @@ namespace Mariasek.SharedClient.GameComponents
 				Width = 100,
 				Height = 50,
 				HorizontalAlign = HorizontalAlignment.Center,
-				VerticalAlign = VerticalAlignment.Middle
-				//BackgroundColor = Color.Transparent,
-				//BorderColor = Color.Transparent
-			};
+				VerticalAlign = VerticalAlignment.Middle,
+				AutosizeText = true,
+				AutosizeMode = AutosizeMode.Horizontal,
+                AutosizeHorizontalMargin = 10,
+                AutosizeVerticalMargin = 5
+            };
 			//_valueLabel.Click += RightButtonClick;
 			SelectedIndex = -1;
             IsCyclicSelector = true;

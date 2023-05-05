@@ -185,7 +185,11 @@ namespace Mariasek.SharedClient.GameComponents
                 HorizontalAlign = HorizontalAlignment.Center,
                 Width = _buttonShape.Width,
                 Height = _buttonShape.Height,
-                TextRenderer = Game.FontRenderers["BMFont"]
+                TextRenderer = Game.FontRenderers["BMFont"],
+                AutosizeText = true,
+                AutosizeMode = AutosizeMode.Horizontal,
+                AutosizeHorizontalMargin = 10,
+                AutosizeVerticalMargin = 5
             };
         }
 

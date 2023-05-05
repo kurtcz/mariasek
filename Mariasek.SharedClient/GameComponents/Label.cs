@@ -13,14 +13,23 @@ namespace Mariasek.SharedClient.GameComponents
 
     public class Label : GameComponent
     {
-        private float? _origFontScaleFactor;
+        private float _origFontScaleFactor;
+        private float _currFontScaleFactor;
         private string _text;
 
         public virtual int Width { get; set; }
         public virtual int Height { get; set; }
         public virtual Color TextColor { get; set; }
         public virtual Color ScrollBarBackgroundColor { get; set; }
-        public virtual float FontScaleFactor { get; set; }
+        public virtual float FontScaleFactor
+        {
+            get { return _currFontScaleFactor; }
+            set
+            {
+                _origFontScaleFactor = value;
+                _currFontScaleFactor = value;
+            }
+        }
         public virtual VerticalAlignment VerticalAlign { get; set; }
         public virtual HorizontalAlignment HorizontalAlign { get; set; }
         public virtual FontRenderer TextRenderer { get; set; }
@@ -40,26 +49,24 @@ namespace Mariasek.SharedClient.GameComponents
                 var lineSeparators = new[] { '\r', '\n' };
                 var lines = value.Split(lineSeparators);
 
-                BoundsRect = TextRenderer.GetBoundsRect(lines, FontScaleFactor);
-
                 if (AutosizeText)
                 {
-                    var newScaleFactor = FontScaleFactor;
+                    var newScaleFactor = _origFontScaleFactor;
                     var normalBoundsRect = TextRenderer.GetBoundsRect(lines, 1);
 
                     if ((AutosizeMode & AutosizeMode.Horizontal) != 0 &&
-                        BoundsRect.Width > 0 && BoundsRect.Width > Width - 2 * AutosizeHorizontalMargin)
+                        normalBoundsRect.Width > 0 && normalBoundsRect.Width > Width - 2 * AutosizeHorizontalMargin)
                     {
                         newScaleFactor = (Width - 2 * AutosizeHorizontalMargin) / (float)normalBoundsRect.Width;
                     }
                     if ((AutosizeMode & AutosizeMode.Vertical) != 0 &&
-                        BoundsRect.Height > 0 && BoundsRect.Height > Height - 2 * AutosizeVerticalMargin)
+                        normalBoundsRect.Height > 0 && normalBoundsRect.Height > Height - 2 * AutosizeVerticalMargin)
                     {
                         newScaleFactor = Math.Min(newScaleFactor, (Height - 2 * AutosizeVerticalMargin) / (float)normalBoundsRect.Height);
                     }
-                    FontScaleFactor = newScaleFactor;
-                    BoundsRect = TextRenderer.GetBoundsRect(lines, FontScaleFactor);
+                    _currFontScaleFactor = newScaleFactor;
                 }
+                BoundsRect = TextRenderer.GetBoundsRect(lines, FontScaleFactor);
             }
         }
 

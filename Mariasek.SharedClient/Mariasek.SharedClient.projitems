@@ -57,5 +57,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Serialization\MoneyCalculatorBaseMap.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BmFont\FontSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AssetLoader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ProbabilityBox.cs" />
   </ItemGroup>
  </Project>

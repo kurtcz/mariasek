@@ -26,7 +26,7 @@ namespace Mariasek.SharedClient.GameComponents
 
         protected int TouchId = -1;
 
-		public bool CanDrag { get; set; }
+        public bool CanDrag { get; set; }
         public bool IsClicked { get; private set; }
         public SoundEffect ClickSound { get; set; }
 

@@ -431,7 +431,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 130),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Po barvě", false }, { "Bez ptaní na bar.", true } },
+                Items = new SelectorItems() { { "Po barvě", false }, { "Bez ptaní na barvu", true } },
                 UseCommonScissorRect = true
             };
             _top107Selector.SelectedIndex = _top107Selector.Items.FindIndex(Game.Settings.Top107);

@@ -60,6 +60,7 @@ namespace Mariasek.SharedClient
         private Button _reviewGameBtn;
         private Button _editGameBtn;
         private ToggleButton _infoBtn;
+        private ToggleButton _probBtn;
         private Button _okBtn;
         private Button[] gtButtons, gfButtons, bidButtons;
         private Button gtHraButton;
@@ -95,6 +96,7 @@ namespace Mariasek.SharedClient
         private bool _shuffleAnimationRunning;
         private AutoResetEvent _shuffleEvent = new AutoResetEvent(false);
         private GameReview _review;
+        private ProbabilityBox _probabilityBox;
 
 #pragma warning restore 414
         #endregion
@@ -212,6 +214,15 @@ namespace Mariasek.SharedClient
                                         ? Game.CardTextures2
                                         : Game.CardTextures3;
             //PopulateAiConfig(); //volano uz v Game.OnSettingsChanged()
+            _probabilityBox = new ProbabilityBox(this)
+            {
+                Position = new Vector2(160, 90),
+                Width = (int)Game.VirtualScreenWidth - 160,
+                Height = (int)Game.VirtualScreenHeight - 100,
+                BackgroundColor = Color.Black,
+                ZIndex = 100
+            };
+            _probabilityBox.Hide();
             _hlasy = new[]
             {
                 new []
@@ -393,6 +404,17 @@ namespace Mariasek.SharedClient
                 Width = 50
             };
             _sendBtn.Click += SendBtnClicked;
+            _sendBtn.Hide();
+            _probBtn = new ToggleButton(this)
+            {
+                Text = "P",
+                Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 150),
+                ZIndex = 100,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main,
+                Width = 50
+            };
+            _probBtn.Click += ProbBtnClicked;
+            _probBtn.Hide();
             _infoBtn = new ToggleButton(this)
             {
                 Text = "i",
@@ -425,7 +447,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 50, Game.VirtualScreenHeight / 2f - 90),
                 //Position = new Vector2(10, 60),
                 IsEnabled = false,
-                ZIndex = 100
+                ZIndex = 90
             };
             _okBtn.Click += OkBtnClicked;
             _okBtn.Hide();
@@ -434,7 +456,7 @@ namespace Mariasek.SharedClient
                 Text = "Hra",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 325, Game.VirtualScreenHeight / 2f - 155),
                 Tag = Hra.Hra,
-                ZIndex = 100
+                ZIndex = 90
             };
             gtHraButton.Click += GtButtonClicked;
             gtHraButton.Hide();
@@ -443,7 +465,7 @@ namespace Mariasek.SharedClient
                 Text = "Sedma",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 215, Game.VirtualScreenHeight / 2f - 155),
                 Tag = Hra.Hra | Hra.Sedma,
-                ZIndex = 100
+                ZIndex = 90
             };
             gt7Button.Click += GtButtonClicked;
             gt7Button.Hide();
@@ -452,7 +474,7 @@ namespace Mariasek.SharedClient
                 Text = "Kilo",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 105, Game.VirtualScreenHeight / 2f - 155),
                 Tag = Hra.Kilo,
-                ZIndex = 100
+                ZIndex = 90
             };
             gt100Button.Click += GtButtonClicked;
             gt100Button.Hide();
@@ -461,7 +483,7 @@ namespace Mariasek.SharedClient
                 Text = "Stosedm",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f + 5, Game.VirtualScreenHeight / 2f - 155),
                 Tag = Hra.Kilo | Hra.Sedma,
-                ZIndex = 100
+                ZIndex = 90
             };
             gt107Button.Click += GtButtonClicked;
             gt107Button.Hide();
@@ -470,7 +492,7 @@ namespace Mariasek.SharedClient
                 Text = "Betl",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f + 115, Game.VirtualScreenHeight / 2f - 155),
                 Tag = Hra.Betl,
-                ZIndex = 100
+                ZIndex = 90
             };
             gtBetlButton.Click += GtButtonClicked;
             gtBetlButton.Hide();
@@ -479,7 +501,7 @@ namespace Mariasek.SharedClient
                 Text = "Durch",
                 Position = new Vector2(Game.VirtualScreenWidth / 2f + 225, Game.VirtualScreenHeight / 2f - 155),
                 Tag = Hra.Durch,
-                ZIndex = 100
+                ZIndex = 90
             };
             gtDurchButton.Click += GtButtonClicked;
             gtDurchButton.Hide();
@@ -490,7 +512,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth / 2f - 155, Game.VirtualScreenHeight / 2f - 100),
                 Tag = GameFlavour.Good,
                 Width = 150,
-                ZIndex = 100
+                ZIndex = 90
             };
             gfDobraButton.Click += GfButtonClicked;
             gfDobraButton.Hide();
@@ -500,7 +522,7 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth / 2f + 5, Game.VirtualScreenHeight / 2f - 100),
                 Tag = GameFlavour.Bad,
                 Width = 150,
-                ZIndex = 100
+                ZIndex = 90
             };
             gfSpatnaButton.Click += GfButtonClicked;
             gfSpatnaButton.Hide();
@@ -557,7 +579,7 @@ namespace Mariasek.SharedClient
                 Height = (int)Game.VirtualScreenHeight - 120,
                 TextColor = Game.Settings.HighlightedTextColor,
                 TextRenderer = Game.FontRenderers["SegoeUI40Outl"],
-                ZIndex = 100
+                ZIndex = 90
             };
             _msgLabelSmall = new Label(this)
             {
@@ -567,7 +589,7 @@ namespace Mariasek.SharedClient
                 Width = (int)Game.VirtualScreenWidth - 20,
                 Height = (int)Game.VirtualScreenHeight - 120,
                 TextColor = Game.Settings.HighlightedTextColor,
-                ZIndex = 100,
+                ZIndex = 90,
                 FontScaleFactor = 0.9f
             };
             _msgLabelLeft = new Label(this)
@@ -1582,6 +1604,8 @@ namespace Mariasek.SharedClient
                      _infoBtn.IsSelected = false;
                      _infoBtn.IsEnabled = Game.Settings.TestMode.HasValue && Game.Settings.TestMode.Value;
                      _editGameBtn.Hide();
+                     _sendBtn.Hide();
+                     _probBtn.Hide();
 
                      if (_review != null)
                      {
@@ -1880,8 +1904,25 @@ namespace Mariasek.SharedClient
             Game.MenuScene.SetActive();
         }
 
+        public void ProbBtnClicked(object sender)
+        {
+            if (_probBtn.IsSelected)
+            {
+                _probabilityBox.UpdateControls(g);
+                _probabilityBox.Show();
+            }
+            else
+            {
+                _probabilityBox.Hide();
+            }
+        }
+
         public void SendBtnClicked(object sender)
         {
+            if (_probabilityBox.IsVisible)
+            {
+                return;
+            }
             if (Game.EmailSender != null)
             {
                 //RefreshReview(true);
@@ -1921,12 +1962,20 @@ namespace Mariasek.SharedClient
 
         public void HintBtnClicked(object sender)
         {
+            if (_probabilityBox.IsVisible)
+            {
+                return;
+            }
             HintBtnFunc();
             _hintBtn.IsEnabled = false;
         }
 
         public void CardClicked(object sender)
         {
+            if (_probabilityBox.IsVisible)
+            {
+                return;
+            }
             var button = sender as CardButton;
             var origZIndex = button.ZIndex;
             Sprite targetSprite;
@@ -2119,6 +2168,10 @@ namespace Mariasek.SharedClient
 
         public void OkBtnClicked(object sender)
         {
+            if (_probabilityBox.IsVisible)
+            {
+                return;
+            }
             HideMsgLabel();
             HideBidButtons();
             _okBtn.Hide();
@@ -2134,6 +2187,10 @@ namespace Mariasek.SharedClient
 
         public void GtButtonClicked(object sender)
         {
+            if (_probabilityBox.IsVisible)
+            {
+                return;
+            }
             HideMsgLabel();
             foreach (var btn in gtButtons)
             {
@@ -2148,6 +2205,10 @@ namespace Mariasek.SharedClient
 
         public void GfButtonClicked(object sender)
         {
+            if (_probabilityBox.IsVisible)
+            {
+                return;
+            }
             foreach (var btn in gfButtons)
             {
                 btn.Hide();
@@ -2167,6 +2228,10 @@ namespace Mariasek.SharedClient
 
         public void BidButtonClicked(object sender)
         {
+            if (_probabilityBox.IsVisible)
+            {
+                return;
+            }
             if (sender == flekBtn && flekBtn.IsSelected)
             {
                 kiloBtn.IsSelected = false;
@@ -2429,7 +2494,11 @@ namespace Mariasek.SharedClient
         {
             EnsureBubblesHidden();
 			g.ThrowIfCancellationRequested();
-			_hand.IsEnabled = false;
+            if (_probBtn.IsVisible)
+            {
+                _probBtn.IsEnabled = true;
+            }
+            _hand.IsEnabled = false;
 			_cardClicked = null;
 			_evt.Reset();
 			RunOnUiThread(() =>
@@ -3017,6 +3086,8 @@ namespace Mariasek.SharedClient
             //novou hru pujde spustit az pote, co se ulozi balicek
             //aby se nestalo, ze budu hrat novou hru s balickem z predchozi hry
             _newGameBtn.Enabled = false;
+            _sendBtn.Show();
+            _probBtn.Hide();
             EnsureBubblesHidden();
             g.ThrowIfCancellationRequested();
 
@@ -3501,6 +3572,16 @@ namespace Mariasek.SharedClient
                     HideMsgLabel();
                     _reviewGameBtn.Hide();
                     _editGameBtn.Hide();
+                    if (testGame)
+                    {
+                        _probBtn.IsEnabled = false;
+                        _probBtn.Show();
+                    }
+                    else
+                    {
+                        _probBtn.Hide();
+                    }
+                    _sendBtn.Hide();
                     _infoBtn.Show();
                     _infoBtn.IsSelected = false;
                     _infoBtn.IsEnabled = (Game.Settings.TestMode.HasValue && 

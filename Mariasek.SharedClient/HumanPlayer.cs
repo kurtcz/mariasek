@@ -49,6 +49,7 @@ namespace Mariasek.SharedClient
 			}
             _g.GameFlavourChosen += GameFlavourChosen;
             _g.GameTypeChosen += GameTypeChosen;
+            _g.CardPlayed += CardPlayed;
         }
 
         public override void Init()
@@ -196,6 +197,8 @@ namespace Mariasek.SharedClient
                 _aiPlayer._talon = new List<Card>(_talon);
                 _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _aiPlayer._talon);
             }
+            Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
+
             return _talon;
         }
 
@@ -668,6 +671,7 @@ namespace Mariasek.SharedClient
                 {
                     _aiPlayer.Probabilities.UpdateProbabilitiesAfterGameFlavourChosen(e);
                 }
+                Probabilities.UpdateProbabilitiesAfterGameFlavourChosen(e);
             }
         }
 
@@ -684,6 +688,28 @@ namespace Mariasek.SharedClient
                     ExternalDebugString = _aiPlayer._debugString
                 };
                 _aiPlayer.Probabilities.UpdateProbabilitiesAfterGameTypeChosen(e);
+            }
+        }
+
+        private void CardPlayed(object sender, Round r)
+        {
+            var gameWinningRound = IsGameWinningRound(r, _g.rounds, PlayerIndex, TeamMateIndex, Hand, Probabilities);
+            UpdateProbabilitiesAfterCardPlayed(Probabilities, r.number, r.player1.PlayerIndex, r.c1, r.c2, r.c3, r.hlas1, r.hlas2, r.hlas3, TeamMateIndex, _trump, gameWinningRound);
+        }
+
+        private static void UpdateProbabilitiesAfterCardPlayed(Probability probabilities, int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas1, bool hlas2, bool hlas3, int teamMateIndex, Barva? trump, bool gameWinningRound)
+        {
+            if (c3 != null)
+            {
+                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, c2, c3, hlas3, gameWinningRound);
+            }
+            else if (c2 != null)
+            {
+                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, c2, hlas2, gameWinningRound);
+            }
+            else
+            {
+                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, hlas1);
             }
         }
 
@@ -707,6 +733,169 @@ namespace Mariasek.SharedClient
                                                                   .FirstOrDefault();
                 }
             }
+        }
+
+        private bool IsGameWinningRound(Round round, Round[] rounds, int playerIndex, int teamMateIndex, List<Card> hand, Probability prob)
+        {
+            var basicPointsWonSoFar = 0;
+            var basicPointsWonThisRound = (round?.c1?.Value >= Hodnota.Desitka ? 10 : 0) +
+                                          (round?.c2?.Value >= Hodnota.Desitka ? 10 : 0) +
+                                          (round?.c3?.Value >= Hodnota.Desitka ? 10 : 0);
+            var basicPointsLost = 0;
+            var hlasPointsLost = 0;
+            var hlasPointsWon = 0;
+            var hlasPointsWonThisRound = 0;
+            var maxHlasPointsWon = 0;
+
+            foreach (var r in rounds.Where(r => r?.number < round?.number))
+            {
+                if (r.c1.Value >= Hodnota.Desitka)
+                {
+                    if (r.roundWinner.PlayerIndex == playerIndex ||
+                        r.roundWinner.PlayerIndex == teamMateIndex)
+                    {
+                        basicPointsWonSoFar += 10;
+                    }
+                    else
+                    {
+                        basicPointsLost += 10;
+                    }
+                }
+                if (r.c2.Value >= Hodnota.Desitka)
+                {
+                    if (r.roundWinner.PlayerIndex == playerIndex ||
+                        r.roundWinner.PlayerIndex == teamMateIndex)
+                    {
+                        basicPointsWonSoFar += 10;
+                    }
+                    else
+                    {
+                        basicPointsLost += 10;
+                    }
+                }
+                if (r.c3.Value >= Hodnota.Desitka)
+                {
+                    if (r.roundWinner.PlayerIndex == playerIndex ||
+                        r.roundWinner.PlayerIndex == teamMateIndex)
+                    {
+                        basicPointsWonSoFar += 10;
+                    }
+                    else
+                    {
+                        basicPointsLost += 10;
+                    }
+                }
+                hlasPointsWonThisRound = 0;
+                if (r.hlas1)
+                {
+                    if (r.player1.PlayerIndex == playerIndex ||
+                        r.player1.PlayerIndex == teamMateIndex)
+                    {
+                        hlasPointsWonThisRound = r.c1.Suit == _trump ? 40 : 20;
+                        hlasPointsWon += hlasPointsWonThisRound;
+                        maxHlasPointsWon = teamMateIndex == -1
+                                            ? _g.HlasConsidered == HlasConsidered.Highest
+                                                ? Math.Max(maxHlasPointsWon, hlasPointsWonThisRound)
+                                                : _g.HlasConsidered == HlasConsidered.First && maxHlasPointsWon == 0
+                                                    ? hlasPointsWonThisRound
+                                                    : _g.HlasConsidered == HlasConsidered.Each
+                                                        ? hlasPointsWon
+                                                        : 0
+                                            : 0;
+                    }
+                    else
+                    {
+                        hlasPointsLost += r.c1.Suit == _trump ? 40 : 20;
+                    }
+                }
+                if (r.hlas2)
+                {
+                    if (r.player2.PlayerIndex == playerIndex ||
+                        r.player2.PlayerIndex == teamMateIndex)
+                    {
+                        hlasPointsWonThisRound = r.c2.Suit == _trump ? 40 : 20;
+                        hlasPointsWon += hlasPointsWonThisRound;
+                        maxHlasPointsWon = teamMateIndex == -1
+                                            ? _g.HlasConsidered == HlasConsidered.Highest
+                                                ? Math.Max(maxHlasPointsWon, hlasPointsWonThisRound)
+                                                : _g.HlasConsidered == HlasConsidered.First && maxHlasPointsWon == 0
+                                                    ? hlasPointsWonThisRound
+                                                    : _g.HlasConsidered == HlasConsidered.Each
+                                                        ? hlasPointsWon
+                                                        : 0
+                                            : 0;
+                    }
+                    else
+                    {
+                        hlasPointsLost += r.c2.Suit == _trump ? 40 : 20;
+                    }
+                }
+                if (r.hlas3)
+                {
+                    if (r.player3.PlayerIndex == playerIndex ||
+                        r.player3.PlayerIndex == teamMateIndex)
+                    {
+                        hlasPointsWonThisRound = r.c3.Suit == _trump ? 40 : 20;
+                        hlasPointsWon += hlasPointsWonThisRound;
+                        maxHlasPointsWon = teamMateIndex == -1
+                                            ? _g.HlasConsidered == HlasConsidered.Highest
+                                                ? Math.Max(maxHlasPointsWon, hlasPointsWonThisRound)
+                                                : _g.HlasConsidered == HlasConsidered.First && maxHlasPointsWon == 0
+                                                    ? hlasPointsWonThisRound
+                                                    : _g.HlasConsidered == HlasConsidered.Each
+                                                        ? hlasPointsWon
+                                                        : 0
+                                            : 0;
+                    }
+                    else
+                    {
+                        hlasPointsLost += r.c3.Suit == _trump ? 40 : 20;
+                    }
+                }
+            }
+            var basicPointsLeft = 90 - basicPointsWonSoFar - basicPointsWonThisRound - basicPointsLost;
+            var player2 = (playerIndex + 1) % Game.NumPlayers;
+            var player3 = (playerIndex + 2) % Game.NumPlayers;
+            var opponent = teamMateIndex == player2 ? player3 : player2;
+            var kqScore = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                              .Sum(b => hand.HasK(b) &&
+                                        hand.HasQ(b)
+                                        ? b == _trump ? 40 : 20
+                                        : 0);
+            var hlasPointsLeft = teamMateIndex == -1
+                                 ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                       .Sum(b => (prob.PotentialCards(player2).HasK(b) &&
+                                                  prob.PotentialCards(player2).HasQ(b)) ||
+                                                 (prob.PotentialCards(player3).HasK(b) &&
+                                                  prob.PotentialCards(player3).HasQ(b))
+                                                  ? b == _trump ? 40 : 20
+                                                  : 0)
+                                 : Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                       .Sum(b => prob.PotentialCards(opponent).HasK(b) &&
+                                                 prob.PotentialCards(opponent).HasQ(b)
+                                                 ? b == _trump ? 40 : 20
+                                                 : 0);
+            var opponentPotentialPoints = basicPointsLost + hlasPointsLost + basicPointsLeft + hlasPointsLeft;
+            var gameWinningCard = false;
+
+            if ((_gameType & Hra.Kilo) != 0 &&
+                ((teamMateIndex == -1 &&
+                  basicPointsWonSoFar + maxHlasPointsWon <= 90 &&
+                  basicPointsWonSoFar + basicPointsWonThisRound + maxHlasPointsWon >= 100) ||
+                 (teamMateIndex != -1 &&
+                  basicPointsWonSoFar <= 30 &&
+                  basicPointsWonSoFar + basicPointsWonThisRound >= 40)))
+            {
+                gameWinningCard = true;
+            }
+            else if ((_gameType & Hra.Kilo) == 0 &&
+                        basicPointsWonSoFar + hlasPointsWon + kqScore <= opponentPotentialPoints &&
+                        basicPointsWonSoFar + basicPointsWonThisRound + hlasPointsWon + kqScore > opponentPotentialPoints)
+            {
+                gameWinningCard = true;
+            }
+
+            return gameWinningCard;
         }
     }
 }

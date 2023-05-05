@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Concurrent;
 using Mariasek.SharedClient.GameComponents;
+using Mariasek.Engine;
+using System.Linq;
 
 namespace Mariasek.SharedClient
 {
@@ -393,10 +395,9 @@ namespace Mariasek.SharedClient
                 IsMoving = operation != null && (operation.OperationType & GameComponentOperationType.Move) != 0 && positionDiff != Vector2.Zero;
             }
 
-            for (var i = Children.Count - 1; i >= 0; i--)
-            //for (var i = 0; i < Children.Count; i++)
+            foreach(var c in Children.OrderByDescending(i => i.ZIndex))
             {
-                var child = Children[i] as TouchControlBase;
+                var child = c as TouchControlBase;
 
                 if (child != null)
                 {
@@ -404,8 +405,15 @@ namespace Mariasek.SharedClient
                     {
                         child.TouchUpdate(gameTime);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        try
+                        {
+                            Game?.MainScene?.GameException(this, new GameExceptionEventArgs { e = ex });
+                        }
+                        catch
+                        {
+                        }
                     }
                 }
             }
