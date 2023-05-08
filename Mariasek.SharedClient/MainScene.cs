@@ -3088,6 +3088,7 @@ namespace Mariasek.SharedClient
             _newGameBtn.Enabled = false;
             _sendBtn.Show();
             _probBtn.Hide();
+            _probabilityBox.Hide();
             EnsureBubblesHidden();
             g.ThrowIfCancellationRequested();
 

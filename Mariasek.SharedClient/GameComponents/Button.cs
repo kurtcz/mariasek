@@ -187,9 +187,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Height = _buttonShape.Height,
                 TextRenderer = Game.FontRenderers["BMFont"],
                 AutosizeText = true,
-                AutosizeMode = AutosizeMode.Horizontal,
-                AutosizeHorizontalMargin = 10,
-                AutosizeVerticalMargin = 5
+                AutosizeMode = AutosizeMode.Horizontal
             };
         }
 

@@ -1348,7 +1348,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Position = new Vector2(Game.VirtualScreenWidth - 300, page5Offset + 310),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Po směru hodin", DirectionOfPlay.Clockwise }, { "Proti směru hod", DirectionOfPlay.Counterclockwise } },
+                Items = new SelectorItems() { { "Po směru hodin", DirectionOfPlay.Clockwise }, { "Proti směru hodin", DirectionOfPlay.Counterclockwise } },
                 UseCommonScissorRect = true
             };
             _directionOfPlaySelector.SelectedIndex = _directionOfPlaySelector.Items.FindIndex(Game.Settings.DirectionOfPlay);

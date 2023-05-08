@@ -242,9 +242,7 @@ namespace Mariasek.SharedClient.GameComponents
 				HorizontalAlign = HorizontalAlignment.Center,
 				VerticalAlign = VerticalAlignment.Middle,
 				AutosizeText = true,
-				AutosizeMode = AutosizeMode.Horizontal,
-                AutosizeHorizontalMargin = 10,
-                AutosizeVerticalMargin = 5
+				AutosizeMode = AutosizeMode.Horizontal
             };
 			//_valueLabel.Click += RightButtonClick;
 			SelectedIndex = -1;

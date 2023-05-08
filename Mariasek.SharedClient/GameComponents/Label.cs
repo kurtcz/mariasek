@@ -13,12 +13,31 @@ namespace Mariasek.SharedClient.GameComponents
 
     public class Label : GameComponent
     {
+        private readonly char[] _lineSeparators = new[] { '\r', '\n' };
         private float _origFontScaleFactor;
         private float _currFontScaleFactor;
         private string _text;
 
-        public virtual int Width { get; set; }
-        public virtual int Height { get; set; }
+        private int _width;
+        public virtual int Width
+        {
+            get { return _width; }
+            set
+            {
+                _width = value;
+                AmendFontScaleFactor();
+            }
+        }
+        private int _height;
+        public virtual int Height
+        {
+            get { return _height; }
+            set
+            {
+                _height = value;
+                AmendFontScaleFactor();
+            }
+        }
         public virtual Color TextColor { get; set; }
         public virtual Color ScrollBarBackgroundColor { get; set; }
         public virtual float FontScaleFactor
@@ -45,28 +64,7 @@ namespace Mariasek.SharedClient.GameComponents
             set
             {
                 _text = value;
-
-                var lineSeparators = new[] { '\r', '\n' };
-                var lines = value.Split(lineSeparators);
-
-                if (AutosizeText)
-                {
-                    var newScaleFactor = _origFontScaleFactor;
-                    var normalBoundsRect = TextRenderer.GetBoundsRect(lines, 1);
-
-                    if ((AutosizeMode & AutosizeMode.Horizontal) != 0 &&
-                        normalBoundsRect.Width > 0 && normalBoundsRect.Width > Width - 2 * AutosizeHorizontalMargin)
-                    {
-                        newScaleFactor = (Width - 2 * AutosizeHorizontalMargin) / (float)normalBoundsRect.Width;
-                    }
-                    if ((AutosizeMode & AutosizeMode.Vertical) != 0 &&
-                        normalBoundsRect.Height > 0 && normalBoundsRect.Height > Height - 2 * AutosizeVerticalMargin)
-                    {
-                        newScaleFactor = Math.Min(newScaleFactor, (Height - 2 * AutosizeVerticalMargin) / (float)normalBoundsRect.Height);
-                    }
-                    _currFontScaleFactor = newScaleFactor;
-                }
-                BoundsRect = TextRenderer.GetBoundsRect(lines, FontScaleFactor);
+                AmendFontScaleFactor();
             }
         }
 
@@ -87,7 +85,7 @@ namespace Mariasek.SharedClient.GameComponents
             AutosizeText = false;
             AutosizeMode = AutosizeMode.Horizontal;
         }
-
+        
         public override void Draw(GameTime gameTime)
         {
             if (Anchor == Game.CurrentRenderingGroup &&
@@ -160,6 +158,30 @@ namespace Mariasek.SharedClient.GameComponents
                 Game.SpriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, null, ScaleMatrix);
             }
         }
-	}
+
+        private void AmendFontScaleFactor()
+        {
+            var lines = _text.Split(_lineSeparators);
+
+            if (AutosizeText)
+            {
+                var newScaleFactor = _origFontScaleFactor;
+                var normalBoundsRect = TextRenderer.GetBoundsRect(lines, 1);
+
+                if ((AutosizeMode & AutosizeMode.Horizontal) != 0 &&
+                    normalBoundsRect.Width > 0 && normalBoundsRect.Width > Width - 2 * AutosizeHorizontalMargin)
+                {
+                    newScaleFactor = (Width - 2 * AutosizeHorizontalMargin) / (float)normalBoundsRect.Width;
+                }
+                if ((AutosizeMode & AutosizeMode.Vertical) != 0 &&
+                    normalBoundsRect.Height > 0 && normalBoundsRect.Height > Height - 2 * AutosizeVerticalMargin)
+                {
+                    newScaleFactor = Math.Min(newScaleFactor, (Height - 2 * AutosizeVerticalMargin) / (float)normalBoundsRect.Height);
+                }
+                _currFontScaleFactor = newScaleFactor;
+            }
+            BoundsRect = TextRenderer.GetBoundsRect(lines, FontScaleFactor);
+        }
+    }
 }
 
