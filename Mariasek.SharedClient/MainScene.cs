@@ -407,7 +407,7 @@ namespace Mariasek.SharedClient
             _sendBtn.Hide();
             _probBtn = new ToggleButton(this)
             {
-                Text = "P",
+                Text = "%",
                 Position = new Vector2(Game.VirtualScreenWidth - 60, Game.VirtualScreenHeight / 2f - 150),
                 ZIndex = 100,
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Right : AnchorType.Main,
@@ -1919,10 +1919,6 @@ namespace Mariasek.SharedClient
 
         public void SendBtnClicked(object sender)
         {
-            if (_probabilityBox.IsVisible)
-            {
-                return;
-            }
             if (Game.EmailSender != null)
             {
                 //RefreshReview(true);
@@ -2168,10 +2164,6 @@ namespace Mariasek.SharedClient
 
         public void OkBtnClicked(object sender)
         {
-            if (_probabilityBox.IsVisible)
-            {
-                return;
-            }
             HideMsgLabel();
             HideBidButtons();
             _okBtn.Hide();
@@ -2187,10 +2179,6 @@ namespace Mariasek.SharedClient
 
         public void GtButtonClicked(object sender)
         {
-            if (_probabilityBox.IsVisible)
-            {
-                return;
-            }
             HideMsgLabel();
             foreach (var btn in gtButtons)
             {
@@ -2205,10 +2193,6 @@ namespace Mariasek.SharedClient
 
         public void GfButtonClicked(object sender)
         {
-            if (_probabilityBox.IsVisible)
-            {
-                return;
-            }
             foreach (var btn in gfButtons)
             {
                 btn.Hide();
@@ -2228,10 +2212,6 @@ namespace Mariasek.SharedClient
 
         public void BidButtonClicked(object sender)
         {
-            if (_probabilityBox.IsVisible)
-            {
-                return;
-            }
             if (sender == flekBtn && flekBtn.IsSelected)
             {
                 kiloBtn.IsSelected = false;
