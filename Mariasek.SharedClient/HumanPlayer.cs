@@ -60,7 +60,7 @@ namespace Mariasek.SharedClient
             firstTimeChoosingFlavour = true;
             Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump,
                                             _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
-                                            _g.CancellationToken, _stringLoggerFactory, _g.talon);
+                                            _g.CancellationToken, _stringLoggerFactory, _talon);
             _cancellationTokenSource = new CancellationTokenSource();
             if (_aiPlayer != null)
             {
@@ -678,16 +678,20 @@ namespace Mariasek.SharedClient
         private void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
         {
             _previousBid = e.GameType;
-            if (e.GameStartingPlayerIndex != PlayerIndex && _aiPlayer != null)
+            if (e.GameStartingPlayerIndex != PlayerIndex)
             {
-                _aiPlayer.Probabilities = new Probability(PlayerIndex, e.GameStartingPlayerIndex, new Hand(Hand), 
-                                                          e.TrumpCard != null ? e.TrumpCard.Suit : (Barva?)null,
-                                                          _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
-                                                          _g.CancellationToken, _stringLoggerFactory, _talon)
+                if (_aiPlayer != null)
                 {
-                    ExternalDebugString = _aiPlayer._debugString
-                };
-                _aiPlayer.Probabilities.UpdateProbabilitiesAfterGameTypeChosen(e);
+                    _aiPlayer.Probabilities = new Probability(PlayerIndex, e.GameStartingPlayerIndex, new Hand(Hand),
+                                                              e.TrumpCard != null ? e.TrumpCard.Suit : (Barva?)null,
+                                                              _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                                              _g.CancellationToken, _stringLoggerFactory, _talon)
+                    {
+                        ExternalDebugString = _aiPlayer._debugString
+                    };
+                    _aiPlayer.Probabilities.UpdateProbabilitiesAfterGameTypeChosen(e);
+                }
+                Probabilities.UpdateProbabilitiesAfterGameTypeChosen(e);
             }
         }
 
