@@ -243,9 +243,10 @@ namespace Mariasek.SharedClient
         }
 
         public void PopulateControls()
-        {
+        {            
             var sb = new StringBuilder();
             int played = 0, wins = 0, total = 0;
+            var gameCount = Game.Money.Count;
             var series = new Vector2[Mariasek.Engine.Game.NumPlayers][];
             var numFormat = (NumberFormatInfo)Game.CurrencyFormat.Clone();
 
@@ -266,10 +267,10 @@ namespace Mariasek.SharedClient
 
             for (var i = 0; i < series.Length; i++)
             {
-                series[i] = new Vector2[Game.Money.Count + 1];
+                series[i] = new Vector2[gameCount + 1];
                 series[i][0] = Vector2.Zero;
 
-                for (var j = 0; j < Game.Money.Count; j++)
+                for (var j = 0; j < gameCount; j++)
                 {
                     sums[i] += Game.Money[j].MoneyWon[i] * Game.Settings.BaseBet;
                     series[i][j + 1] = new Vector2(j + 1, sums[i]);
@@ -283,7 +284,7 @@ namespace Mariasek.SharedClient
                     }
                 }
             }
-            _historyChart.MaxValue = new Vector2(Game.Money.Count, maxWon);
+            _historyChart.MaxValue = new Vector2(gameCount, maxWon);
             _historyChart.MinValue = new Vector2(0, maxLost);
             if (Game.Settings != null)
             {
@@ -341,7 +342,7 @@ namespace Mariasek.SharedClient
 
             _historyBox.Text = sb.ToString().TrimEnd();
             _historyChart.ScrollToEnd();
-			_historyBox.ScrollToBottom();
+            _historyBox.ScrollToBottom();
             _stat.Text = string.Format("Odehráno her:\n{0}\nZ toho výher:\n{1} ({2:N0}%)\nCelkem her: {3}\nPříště začíná:\n{4}",
                 played, wins, ratio, total,
                 Game.Settings.PlayerNames[(Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers]);
@@ -507,7 +508,7 @@ namespace Mariasek.SharedClient
             try
             {
                 if (_historyBox.HighlightedLine >= 0 &&
-                    _historyBox.HighlightedLine < Game.Money.Count())
+                    _historyBox.HighlightedLine < Game.Money.Count)
                 {
                     var historicGame = Game.Money[_historyBox.HighlightedLine];
                     if (historicGame.GameId <= 0)
@@ -553,7 +554,7 @@ namespace Mariasek.SharedClient
 
             if (_historyBox.IsVisible &&
                 _historyBox.HighlightedLine >= 0 &&
-                _historyBox.HighlightedLine < Game.Money.Count() &&
+                _historyBox.HighlightedLine < Game.Money.Count &&
                 Game.Money[_historyBox.HighlightedLine].GameId > 0)
             {
                 //_viewGameButton.Position = new Vector2(753, _historyBox.HighlightedLineBoundsRect.Top);

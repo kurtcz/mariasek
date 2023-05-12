@@ -5829,11 +5829,18 @@ namespace Mariasek.Engine
 
         private bool NoChanceToWinDurch(int gameStarterIndex, Hand[] hands)
         {
-            var player2 = (gameStarterIndex + 1) % Game.NumPlayers;
-            var player3 = (gameStarterIndex + 2) % Game.NumPlayers;
+            try
+            {
+                var player2 = (gameStarterIndex + 1) % Game.NumPlayers;
+                var player3 = (gameStarterIndex + 2) % Game.NumPlayers;
 
-            return hands[player2].Any(i => hands[gameStarterIndex].All(j => !j.IsHigherThan(i, null))) ||
-                   hands[player3].Any(i => hands[gameStarterIndex].All(j => !j.IsHigherThan(i, null)));
+                return hands[player2].Any(i => hands[gameStarterIndex].All(j => !j.IsHigherThan(i, null))) ||
+                       hands[player3].Any(i => hands[gameStarterIndex].All(j => !j.IsHigherThan(i, null)));
+            }
+            catch(Exception ex)
+            {
+                return true;
+            }
         }
 
         private GameComputationResult ComputeGame(Hand[] hands, Card c1, Card c2, Barva? trump = null, Hra? gameType = null, int? roundsToCompute = null, int? initialRoundNumber = null, bool ImpersonateGameStartingPlayer = false)

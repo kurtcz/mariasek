@@ -483,8 +483,18 @@ namespace Mariasek.SharedClient
 
         private void HistoryClicked(object sender)
         {
-            Game.HistoryScene.PopulateControls();
-            Game.HistoryScene.SetActive();
+            try
+            {
+                Game.HistoryScene.PopulateControls();
+                Game.HistoryScene.SetActive();
+            }
+            catch(Exception ex)
+            {
+                ShowWarning(ex.Message);
+                var errorMsgFilePath = System.IO.Path.Combine(MariasekMonoGame.RootPath, "_error.txt");
+                System.IO.File.WriteAllText(errorMsgFilePath, $"{ex.Message}\n{ex.StackTrace}");
+                throw;
+            }
         }
 
         private void EditorClicked(object sender)
@@ -496,6 +506,7 @@ namespace Mariasek.SharedClient
         {
             base.Update(gameTime);
             _resumeButton.IsEnabled = Game.MainScene.g != null;// && Game.MainScene.g.IsRunning;
+            _historyBtn.IsEnabled = Game.MainScene.HistoryLoaded;
         }
 	}
 }

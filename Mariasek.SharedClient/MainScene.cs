@@ -150,6 +150,7 @@ namespace Mariasek.SharedClient
         private Vector2 _totalBalanceHiddenPosition;
         private bool _testGame;
         private bool _lastGameWasLoaded;
+        public bool HistoryLoaded { get; private set; }
 
         public MainScene(MariasekMonoGame game)
             : base(game)
@@ -846,9 +847,10 @@ namespace Mariasek.SharedClient
                         //Game.Money = Game.Settings.CalculationStyle == CalculationStyle.Adding
                         //                ? csv.GetRecords<AddingMoneyCalculator>().Select(i => (MoneyCalculatorBase)i).ToList()
                         //                : csv.GetRecords<MultiplyingMoneyCalculator>().Select(i => (MoneyCalculatorBase)i).ToList();
+
                         csv.Read();
                         csv.ReadHeader();
-                        while(csv.Read())
+                        while (csv.Read())
                         {
                             var money = new AddingMoneyCalculator();
                             money.GameId = csv.GetField<int>(0);
@@ -883,6 +885,10 @@ namespace Mariasek.SharedClient
                 {
                     System.Diagnostics.Debug.WriteLine("Cannot load XML history\n{0}", ex.Message);
                 }
+            }
+            finally
+            {
+                HistoryLoaded = true;
             }
         }
 

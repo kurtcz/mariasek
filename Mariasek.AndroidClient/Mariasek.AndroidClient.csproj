@@ -12,7 +12,7 @@
     <TrimMode Condition=" '$(Configuration)' == 'Release' ">Link</TrimMode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DefineConstants>TRACE;DEBUG;NET;NET6_0;NETCOREAPP;</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET;NET6_0;NETCOREAPP</DefineConstants>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\net6.0-android\Mariasek.AndroidClient.xml</DocumentationFile>
   </PropertyGroup>
@@ -21,13 +21,19 @@
     <Deterministic>false</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <AndroidPackageFormat>aab</AndroidPackageFormat>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <WarningLevel>4</WarningLevel>
+    <AndroidLinkTool>r8</AndroidLinkTool>
+    <AndroidLinkMode>Full</AndroidLinkMode>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
     <PackageReference Include="MonoGame.Framework.Android" Version="3.8.1.303" />
-    <PackageReference Include="CsvHelper" Version="28.0.1" />
-    <PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
-    <PackageReference Include="Xamarin.AndroidX.Legacy.Support.V4" Version="1.0.0.14" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="4.10.2" />
+    <PackageReference Include="Xamarin.AndroidX.Legacy.Support.V4" Version="1.0.0.17" />
+    <PackageReference Include="CsvHelper" Version="30.0.1" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="CsvHelper" />
