@@ -370,7 +370,7 @@ namespace Mariasek.SharedClient
             var sbDefenceMoney = new StringBuilder();
             var sbDefenceGamesSummary = new StringBuilder();
             var sbDefenceMoneySummary = new StringBuilder();
-            var totalGroup = new MyGrouping<string, MoneyCalculatorBase>();
+            var totalGroup = new MyGrouping<string, HistoryItem>();
 
             totalGroup.Key = "Souhrn";
             totalGroup.AddRange(Game.Money.Where(i => i.GameIdSpecified));
@@ -403,27 +403,27 @@ namespace Mariasek.SharedClient
             var maxDefenceValue = 0f;
             var allStats = new[]
             {
-                new MyGrouping<string, MoneyCalculatorBase>()
+                new MyGrouping<string, HistoryItem>()
                 {
                     Key = "Hra"
                 },
-                new MyGrouping<string, MoneyCalculatorBase>()
+                new MyGrouping<string, HistoryItem>()
                 {
                     Key = "Sedma"
                 },
-                new MyGrouping<string, MoneyCalculatorBase>()
+                new MyGrouping<string, HistoryItem>()
                 {
                     Key = "Stosedm"
                 },
-                new MyGrouping<string, MoneyCalculatorBase>()
+                new MyGrouping<string, HistoryItem>()
                 {
                     Key = "Kilo"
                 },
-                new MyGrouping<string, MoneyCalculatorBase>()
+                new MyGrouping<string, HistoryItem>()
                 {
                     Key = "Durch"
                 },
-                new MyGrouping<string, MoneyCalculatorBase>()
+                new MyGrouping<string, HistoryItem>()
                 {
                     Key = "Betl"
                 }
@@ -529,7 +529,7 @@ namespace Mariasek.SharedClient
             }
         }
 
-        private void AppendStatsForGameType(IGrouping<string, MoneyCalculatorBase> stat, StringBuilder sbGames, StringBuilder sbMoney, StringBuilder sbDefenceGames, StringBuilder sbDefenceMoney)
+        private void AppendStatsForGameType(IGrouping<string, HistoryItem> stat, StringBuilder sbGames, StringBuilder sbMoney, StringBuilder sbDefenceGames, StringBuilder sbDefenceMoney)
         {
             var gameTypeString = stat.Key;
             var games1 = stat.Where(i => (i.MoneyWon[0] > 0 && i.MoneyWon[1] < 0 && i.MoneyWon[2] < 0) ||

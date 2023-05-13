@@ -171,7 +171,7 @@ namespace Mariasek.SharedClient
             Game.EditorScene.SetActive();
         }
 
-        public void ShowGame(MoneyCalculatorBase results, string newGamePath, string endGamePath)
+        public void ShowGame(HistoryItem results, string newGamePath, string endGamePath)
         {
             _review.Hide();
             _rawData.Hide();

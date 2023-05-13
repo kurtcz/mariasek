@@ -838,30 +838,41 @@ namespace Mariasek.SharedClient
             try
             {
 				Game.StorageAccessor.GetStorageAccess();
+
+                //foreach(var line in File.ReadLines(_historyFilePath))
+                //{
+                //    var money = new HistoryItem();
+                //    var items = line.Split(",");
+
+                //    if (items.Length < 6)
+                //    {
+                //        continue;
+                //    }
+                //    money.GameId = int.Parse(items[0]);
+                //    money.GameTypeString = items[1].Trim();
+                //    money.GameTypeConfidence = float.Parse(items[2]);
+                //    money.MoneyWon1 = int.Parse(items[3]);
+                //    money.MoneyWon2 = int.Parse(items[4]);
+                //    money.MoneyWon3 = int.Parse(items[5]);
+
+                //    Game.Money.Add(money);
+                //}
                 using (var reader = new StreamReader(_historyFilePath))
                 {
-                    using(var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                     {
-                        //csv.Configuration.RegisterClassMap<MoneyCalculatorBaseMap>();
-                        ////Game.Money = csv.GetRecords<MoneyCalculatorBase>().ToList();
-                        //Game.Money = Game.Settings.CalculationStyle == CalculationStyle.Adding
-                        //                ? csv.GetRecords<AddingMoneyCalculator>().Select(i => (MoneyCalculatorBase)i).ToList()
-                        //                : csv.GetRecords<MultiplyingMoneyCalculator>().Select(i => (MoneyCalculatorBase)i).ToList();
-
                         csv.Read();
                         csv.ReadHeader();
                         while (csv.Read())
                         {
-                            var money = new AddingMoneyCalculator();
+                            var money = new HistoryItem();
+
                             money.GameId = csv.GetField<int>(0);
                             money.GameTypeString = csv.GetField<string>(1);
                             money.GameTypeConfidence = csv.GetField<float>(2);
-                            money.MoneyWon = new[]
-                            {
-                                 csv.GetField<int>(3),
-                                 csv.GetField<int>(4),
-                                 csv.GetField<int>(5)
-                            };
+                            money.MoneyWon1 = csv.GetField<int>(3);
+                            money.MoneyWon2 = csv.GetField<int>(4);
+                            money.MoneyWon3 = csv.GetField<int>(5);
 
                             Game.Money.Add(money);
                         }
@@ -873,12 +884,12 @@ namespace Mariasek.SharedClient
                 System.Diagnostics.Debug.WriteLine("Cannot load CSV history\n{0}", e.Message);
                 try
                 {
-                    var xml = new XmlSerializer(typeof(SynchronizedCollection<MoneyCalculatorBase>));
+                    var xml = new XmlSerializer(typeof(SynchronizedCollection<HistoryItem>));
 
                     Game.StorageAccessor.GetStorageAccess();
                     using (var fs = File.Open(_historyFilePath, FileMode.Open))
                     {
-                        Game.Money = (SynchronizedCollection<MoneyCalculatorBase>)xml.Deserialize(fs);
+                        Game.Money = (SynchronizedCollection<HistoryItem>)xml.Deserialize(fs);
                     }
                 }
                 catch (Exception ex)
@@ -2850,7 +2861,7 @@ namespace Mariasek.SharedClient
             {
                 for (var i = 0; i < _trumpLabels.Count(); i++)
                 {
-                    var sum = new List<MoneyCalculatorBase>(Game.Money).Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
+                    var sum = new List<HistoryItem>(Game.Money).Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
                     _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                              GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
                                              Game.Settings.ShowScoreDuringGame
@@ -3092,7 +3103,7 @@ namespace Mariasek.SharedClient
                 {
                     Game.Money.Clear();
                 }
-                Game.Money.Add(results);
+                Game.Money.Add(new HistoryItem(results));
                 PopulateResults(results);
                 Task.Run(async () =>
                 {

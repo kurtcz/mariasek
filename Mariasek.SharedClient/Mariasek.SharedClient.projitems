@@ -58,5 +58,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)BmFont\FontSerializer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AssetLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameComponents\ProbabilityBox.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HistoryItem.cs" />
   </ItemGroup>
  </Project>
