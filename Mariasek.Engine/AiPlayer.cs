@@ -4127,6 +4127,7 @@ namespace Mariasek.Engine
                     Hand.SuitCount() == Game.NumSuits)))) &&
                 ((_gameSimulations > 0 && _sevensAgainstBalance / (float)_gameSimulations >= sevenAgainstThreshold) ||
                  (_avgBasicPointsLost + kqScore >= 110 &&
+                  kqScore >= 40 &&
                   (Hand.Has7(_g.trump.Value) ||
                    (bidding._sevenAgainstFlek < 2 &&
                     _g.AllowFakeSeven)))))
