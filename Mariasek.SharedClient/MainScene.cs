@@ -3118,6 +3118,7 @@ namespace Mariasek.SharedClient
                         if (g.rounds[0] != null)
                         {
                             results.GameId = ArchiveGame();
+                            Game.Money[Game.Money.Count - 1].GameId = results.GameId;
                         }
                         try
                         {
