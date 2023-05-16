@@ -42,6 +42,12 @@ namespace Mariasek.SharedClient.GameComponents
 
 			for (int i = 1; i < points.Count; i++)
 			{
+				if (i > 1 &&
+					(int)points[i - 1].X == (int)points[i].X &&
+                    (int)points[i - 1].Y == (int)points[i].Y)
+				{
+					continue;
+				}
                 DrawLine(spriteBatch, points[i - 1] + position, points[i] + position, color, thickness, opacity);
 			}
 		}

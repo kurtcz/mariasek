@@ -289,6 +289,12 @@ namespace Mariasek.SharedClient.GameComponents
                     {
                         for (var j = 0; j < points.Length; j++)
                         {
+                            if (j > 0 &&
+                                (int)points[j - 1].X == (int)points[j].X &&
+                                (int)points[j - 1].Y == (int)points[j].Y)
+                            {
+                                continue;
+                            }
                             Primitives2D.DrawCircle(Game.SpriteBatch, points[j], DataMarkerSize / 2, (int)DataMarkerShape, Colors[i], DataMarkerSize / 2, Opacity);
                         }
                     }
