@@ -59,7 +59,6 @@ namespace Mariasek.SharedClient
             { Hra.Betl, "AI používá práh pro Flek když nevolil a hlásí špatnou\nbarvu. AI hraje utíkáčka pokud hrozí zobrazená prohra." },
             { Hra.Durch, "AI durch flekuje jen když nejde uhrát." },
         };
-        private const string _alternateBetlNote = "AI používá práh pro Flek když nevolil a hlásí špatnou\nbarvu. Dle nastavení smí AI hru zahodit, proto utíkáčka nehraje.";
 #endregion
 
         private bool _settingsChanged;
@@ -775,11 +774,6 @@ namespace Mariasek.SharedClient
             var gt = (Hra)_gameTypeSelector.SelectedValue;
             _note.Text = _notes.ContainsKey(gt) ? _notes[gt] : _defaultNote;
 
-            if (gt == Hra.Betl &&
-                Game.Settings.AiMayGiveUp)
-            {
-                _note.Text = _alternateBetlNote;
-            }
             if (_gameTypeSelector.IsVisible &&
                 (Hra)_gameTypeSelector.SelectedValue == Hra.Hra)
             {

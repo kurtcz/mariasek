@@ -1326,10 +1326,10 @@ namespace Mariasek.Engine
                                !(_betlBalance < Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations &&
                                  _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)) ||
                               (Settings.SafetyBetlThreshold > 0 &&
-                               ((!AdvisorMode &&
-                                 !Settings.AiMayGiveUp) ||
-                                (AdvisorMode &&
-                                 !Settings.PlayerMayGiveUp)) &&
+                               //((!AdvisorMode &&
+                               //  !Settings.AiMayGiveUp) ||
+                               // (AdvisorMode &&
+                               //  !Settings.PlayerMayGiveUp)) &&
                                Settings.MinimalBidsForGame <= 1 &&
                                ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                                  lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
