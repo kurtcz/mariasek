@@ -2052,6 +2052,7 @@ namespace Mariasek.Engine
                 }
             }
 			const float epsilon = 0.01f;
+            const int talonIndex = 3;
 
             //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
             //treti hrac priznal barvu, sel vejs, ale nehral desitku ani eso, tak
@@ -2187,10 +2188,12 @@ namespace Mariasek.Engine
 				c1.Suit == c3.Suit &&
 				c3.Value > c1.Value &&
 				c3.Value != Hodnota.Eso &&
+                c3.Value != Hodnota.Desitka &&
                 !gameWinningRound &&
                 _cardProbabilityForPlayer[roundStarterIndex][c3.Suit][Hodnota.Desitka] == 0 &&
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] == 0 &&
-                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] == 0) //&&
+                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Desitka] == 0 &&
+                _cardProbabilityForPlayer[talonIndex][c3.Suit][Hodnota.Desitka] == 0) //&&
 				//_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Eso] > 0 &&
 				//_cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c3.Suit][Hodnota.Eso] < 1)
 			{
