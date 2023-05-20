@@ -6686,7 +6686,12 @@ namespace Mariasek.Engine
                                                                                       _probabilities.CardProbability(player1, new Card(i.Suit, Hodnota.Eso)) == 0) &&
                                                                                       !hiCards.Any() &&                     //spoluhrac hral nejvyssi kartu co ve hre zbyva
                                                                                       (i.Suit != _trump ||                  //a pokud moje X neni trumfova
-                                                                                       !hands[MyIndex].HasA(_trump)))       //trumfovou X hraju jen kdyz nemam A
+                                                                                       !hands[MyIndex].HasA(_trump)) &&     //trumfovou X hraju jen kdyz nemam A
+                                                                                    (i.Suit == _trump ||
+                                                                                     (i.Suit != c1.Suit &&
+                                                                                      (_probabilities.PotentialCards(player3).HasA(i.Suit) ||
+                                                                                       _probabilities.CertainCards(player3).HasSuit(i.Suit) ||
+                                                                                       _probabilities.PotentialCards(player3).CardCount(i.Suit) <= 2))))
                                                                         .ToList();
                         }
                         if (cardsToPlay.Any())
