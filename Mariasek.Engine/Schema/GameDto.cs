@@ -156,11 +156,12 @@ namespace Mariasek.Engine.Schema
         }
     }
 
+    [Flags]
     public enum Hrac
     {
-        Hrac1,
-        Hrac2,
-        Hrac3
+        Hrac1 = 1,
+        Hrac2 = 2,
+        Hrac3 = 4
     }
 
     public class Karta
@@ -183,6 +184,8 @@ namespace Mariasek.Engine.Schema
         public Hra Hra;
         [XmlAttribute]
         public int Pocet;
+        [XmlAttribute]
+        public Hrac Hraci;
     }
 
     public class Stych

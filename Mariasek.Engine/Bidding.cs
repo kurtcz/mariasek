@@ -18,7 +18,7 @@ namespace Mariasek.Engine
         private Game _g;
 
         public Hra[] PlayerBids { get; private set; }
-        public Hra[] AllPlayerBids { get; private set; }
+        public Hra[] AllPlayerBids { get; set; }
         public bool GivenUp { get; private set; }
         /// <summary>
         /// When a AbstractPlayer.GetBidsAndDoubles() is called this property holds valid bids for that player.

@@ -540,8 +540,20 @@ namespace Mariasek.Engine
                     case Hra.Durch:
                         Bidding._betlDurchFlek = flek.Pocet + 1; break;
                 }
+                if ((flek.Hraci & Hrac.Hrac1) != 0)
+                {
+                    Bidding.AllPlayerBids[0] |= flek.Hra;
+                }
+                if ((flek.Hraci & Hrac.Hrac2) != 0)
+                {
+                    Bidding.AllPlayerBids[1] |= flek.Hra;
+                }
+                if ((flek.Hraci & Hrac.Hrac3) != 0)
+                {
+                    Bidding.AllPlayerBids[2] |= flek.Hra;
+                }
             }
-            //Bidding.PlayerBids je ztracene, ale pro hrani ho nepotrebujeme
+            Bidding.AllPlayerBids[GameStartingPlayerIndex] |= gameData.TypValue & ~(Hra.SedmaProti | Hra.KiloProti);
 
             if (gameData.Talon == null)
             {
@@ -775,16 +787,49 @@ namespace Mariasek.Engine
                             flek = Bidding._betlDurchFlek; break;
                     }
 
+                    Hrac flekoval = 0;
+
+                    if ((Bidding.AllPlayerBids[0] & gt) != 0)
+                    {
+                        flekoval |= Hrac.Hrac1;
+                    }
+                    if ((Bidding.AllPlayerBids[1] & gt) != 0)
+                    {
+                        flekoval |= Hrac.Hrac2;
+                    }
+                    if ((Bidding.AllPlayerBids[2] & gt) != 0)
+                    {
+                        flekoval |= Hrac.Hrac3;
+                    }
+
+                    if (flek <= 2 &&
+                        (gt & (Hra.SedmaProti)) == 0 &&
+                        (gt & (Hra.KiloProti)) == 0)
+                    {
+                        if (GameStartingPlayerIndex == 0)
+                        {
+                            flekoval &= ~Hrac.Hrac1;
+                        }
+                        if (GameStartingPlayerIndex == 1)
+                        {
+                            flekoval &= ~Hrac.Hrac2;
+                        }
+                        if (GameStartingPlayerIndex == 2)
+                        {
+                            flekoval &= ~Hrac.Hrac3;
+                        }
+                    }
                     return new Flek
                     {
                         Hra = gt,
-                        Pocet = flek - 1
+                        Pocet = flek - 1,
+                        Hraci = flekoval
                     };
-                }).ToArray();
-                if (fleky.All(i => i.Pocet <= 0))
-                {
-                    fleky = new Flek[0];
-                }
+                })
+                .Where(i => i.Pocet > 0 ||
+                            (i.Hra & (Hra.SedmaProti)) != 0 ||
+                            (i.Hra & (Hra.KiloProti)) != 0)
+                .ToArray();
                 var hands = new[]
                 {
                     new List<Card>(players[0].Hand),

@@ -27,6 +27,7 @@ namespace Mariasek.Engine
         public Barva? _trump;
         public Hra? _gameType;
         public List<Card> _talon; //public so that HumanPlayer can set it
+        private float _avgWinForGame;
         private float _avgWinForHundred;
         private float _avgBasicPointsLost;
         private float _maxBasicPointsLost;
@@ -1342,7 +1343,9 @@ namespace Mariasek.Engine
                                       estimatedPointsWon >= 50) ||
                                      estimatedPointsWon >= 70)))) ||
                                 (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
-                                 _avgBasicPointsLost >= 50)))))  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
+                                 _avgBasicPointsLost >= 50) ||  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
+                                (_avgWinForGame < -2 * 2 * _g.BetlValue &&
+                                 _avgBasicPointsLost >= 50)))))
                     {
                         if (_talon == null || !_talon.Any())
                         {
@@ -1604,6 +1607,7 @@ namespace Mariasek.Engine
                                        (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
             var progress = 0;
             var maxSimulationsPerGameType = 1000;
+            var exceptions = new ConcurrentQueue<Exception>();
 
             OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 1, Message = "Generuju karty"});
 
@@ -1669,6 +1673,7 @@ namespace Mariasek.Engine
                             catch (Exception ex)
                             {
                                 System.Diagnostics.Debug.WriteLine(ex.Message + "\n" + ex.StackTrace);
+                                exceptions.Enqueue(ex);
                             }
                             var val = Interlocked.Increment(ref progress);
                             OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju hru" });
@@ -1699,7 +1704,6 @@ namespace Mariasek.Engine
                     else
                     {
                         _debugString.Append("Simulating hundreds and sevens\n");
-                        var exceptions = new ConcurrentQueue<Exception>();
                         try
                         {
                             Parallel.ForEach(source, options, (hh, loopState) =>
@@ -1810,7 +1814,6 @@ namespace Mariasek.Engine
                     else
                     {
                         _debugString.AppendFormat("Simulating betl. Fast guess: {0}\n", ShouldChooseBetl());
-                        var exceptions = new ConcurrentQueue<Exception>();
                         try
                         {
                             Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hh, loopState) =>
@@ -1937,6 +1940,7 @@ namespace Mariasek.Engine
                             catch (Exception ex)
                             {
                                 System.Diagnostics.Debug.WriteLine(ex.Message + "\n" + ex.StackTrace);
+                                exceptions.Enqueue(ex);
                             }
 
                             var val = Interlocked.Increment(ref progress);
@@ -1963,6 +1967,11 @@ namespace Mariasek.Engine
 				}
 			}
 			OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0 });
+
+            if (exceptions.Any())
+            {
+                throw new AggregateException($"{exceptions.Count} exceptions occured in RunGameSimulations.\nFirst one: {exceptions.First()?.Message ?? "?"}\n{exceptions.First()?.StackTrace ?? "?"}", exceptions);
+            }
 
 			//vyber vhodnou hru podle vysledku simulace
 			var opponent = TeamMateIndex == (PlayerIndex + 1) % Game.NumPlayers
@@ -2047,6 +2056,10 @@ namespace Mariasek.Engine
                                                                    : (i.GameType & (Hra.Betl | Hra.Durch)) == 0)
                                                        .DefaultIfEmpty()
                                                        .Average(i => (i?.BasicPointsWon ?? 0) + (i?.MaxHlasWon ?? 0));
+            _avgWinForGame = moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0 &&
+                                                          (i.GameType & Hra.Sedma) == 0)
+                                              .DefaultIfEmpty()
+                                              .Average(i => (float)(i?.MoneyWon?[gameStartingPlayerIndex] ?? 0));
             _avgWinForHundred = moneyCalculations.Where(i => PlayerIndex == gameStartingPlayerIndex
                                                                 ? (i.GameType & Hra.Kilo) != 0
                                                                 : (i.GameType & (Hra.Betl | Hra.Durch)) == 0)
@@ -3843,8 +3856,18 @@ namespace Mariasek.Engine
                       Hand.CardCount(_trumpCard.Suit) >= 4) &&
                      (Hand.CardCount(Hodnota.Eso) >= 2 ||       //aspon jeste jedno eso nebo
                       (axCount >= 4 &&                          //aspon jeste dve desitky a
-                       estimatedFinalBasicScore >= 40)) &&      //akter nemuze uhrat kilo
-                     !Is100AgainstPossible()) ||
+                       estimatedFinalBasicScore >= 40)) &&      //akter nemuze uhrat 110
+                     !Is100AgainstPossible(110)) ||
+                    (!Hand.HasK(_trumpCard.Suit) &&             //netrham a
+                     !Hand.HasQ(_trumpCard.Suit) &&
+                     Hand.HasA(_trumpCard.Suit) &&              //mam trumfove A a
+                     Hand.CardCount(_trumpCard.Suit) >= 3 &&    //jeste aspon 2 trumfy a
+                     Hand.CardCount(Hodnota.Eso) >= 3 &&        //aspon jeste dve dalsi esa a
+                     (axCount >= 5 ||                           //aspon jeste dve desitky
+                      (axCount >= 4 &&                          //popr. pokud nebyla hlasena sedma
+                       (_gameType & Hra.Sedma) == 0)) &&        //aspon jeste jednu desitku a
+                     estimatedFinalBasicScore >= 50 &&          //akter nemuze uhrat 110
+                     !Is100AgainstPossible(110)) ||
                     (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
                      Hand.HasX(_trumpCard.Suit) &&
                      Hand.CardCount(_trumpCard.Suit) >= 3 &&    //a aspon 3 trumfy

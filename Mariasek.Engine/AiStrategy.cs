@@ -1963,6 +1963,12 @@ namespace Mariasek.Engine
                     {
                         return null;
                     }
+                    if (TeamMateIndex != -1 &&
+                        (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
+                        (PlayerBids[TeamMateIndex] & (Hra.Sedma | Hra.SedmaProti)) != 0)
+                    {
+                        return null;
+                    }
                     if (hands[MyIndex].Any(i => i.Value == Hodnota.Desitka &&   //mas-li plonkovou X tak pravidlo nehraj
                                                 myInitialHand.CardCount(i.Suit) == 1) &&
                         !((_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&    //neplati pri sedme pokud mas dost trumfu
@@ -6691,7 +6697,7 @@ namespace Mariasek.Engine
                                                                                      (i.Suit != c1.Suit &&
                                                                                       (_probabilities.PotentialCards(player3).HasA(i.Suit) ||
                                                                                        _probabilities.CertainCards(player3).HasSuit(i.Suit) ||
-                                                                                       _probabilities.PotentialCards(player3).CardCount(i.Suit) <= 2))))
+                                                                                       _probabilities.PotentialCards(player3).CardCount(i.Suit) <= 2 - _probabilities.CertainCards(Game.TalonIndex).CardCount(i.Suit)))))
                                                                         .ToList();
                         }
                         if (cardsToPlay.Any())
