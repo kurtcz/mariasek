@@ -516,9 +516,13 @@ namespace Mariasek.Engine
                 impersonationPlayerIndex = 0;
             }
             var shift = Game.NumPlayers - impersonationPlayerIndex;
-            GameStartingPlayerIndex = (int)(gameData.Voli + shift) % Game.NumPlayers;
+            var hraci = new[] { Hrac.Hrac1, Hrac.Hrac2, Hrac.Hrac3 };
+            var voli = Enum.IsDefined(typeof(Hrac), gameData.Voli) ? Array.IndexOf(hraci, gameData.Voli) : (int)gameData.Voli;
+            var zacina = Enum.IsDefined(typeof(Hrac), gameData.Voli) ? Array.IndexOf(hraci, gameData.Zacina) : (int)gameData.Zacina;
+
+            GameStartingPlayerIndex = (voli + shift) % Game.NumPlayers;
             OriginalGameStartingPlayerIndex = GameStartingPlayerIndex;
-            _roundStartingPlayer = players[(int)(gameData.Zacina + shift) % Game.NumPlayers];
+            _roundStartingPlayer = players[(zacina + shift) % Game.NumPlayers];
 
             Author = gameData.Autor;
             Comment = gameData.Komentar;
@@ -655,10 +659,9 @@ namespace Mariasek.Engine
                                        }
                                      : new [] { string.Empty, string.Empty, string.Empty };
                 var cards = new[] {stych.Hrac1, stych.Hrac2, stych.Hrac3};
-                
-                var player1 = (int) stych.Zacina;
-                var player2 = ((int) stych.Zacina + 1) % NumPlayers;
-                var player3 = ((int) stych.Zacina + 2) % NumPlayers;
+                var player1 = Array.IndexOf(hraci, stych.Zacina);
+                var player2 = (player1 + 1) % NumPlayers;
+                var player3 = (player1 + 2) % NumPlayers;
                 
                 var c1 = new Card(cards[player1].Barva, cards[player1].Hodnota);
                 var c2 = new Card(cards[player2].Barva, cards[player2].Hodnota);
@@ -859,13 +862,14 @@ namespace Mariasek.Engine
                     hands[(GameStartingPlayerIndex + 1) % NumPlayers].Sort(SortMode.SuitsOnly);
                     hands[(GameStartingPlayerIndex + 2) % NumPlayers].Sort(SortMode.SuitsOnly);
                 }
+                var hraci = new[] { Hrac.Hrac1, Hrac.Hrac2, Hrac.Hrac3 };
                 var gameDto = new GameDto
                 {
                     Kolo = roundNumber,
-                    Voli = (Hrac)GameStartingPlayerIndex,
+                    Voli = hraci[GameStartingPlayerIndex],
                     Trumf = GameType != 0 ? trump : null,
                     Typ = GameType != 0 ? (Hra?)GameType : null,
-                    Zacina = (Hrac)startingPlayerIndex,
+                    Zacina = hraci[startingPlayerIndex],
                     Autor = Author,
                     Verze = Version.ToString(),
                     BiddingNotes = BiddingDebugInfo?.ToString(),
@@ -893,7 +897,7 @@ namespace Mariasek.Engine
                         .Select(r => new Stych
                         {
                             Kolo = r.number,
-                            Zacina = (Hrac)r.player1.PlayerIndex                            
+                            Zacina = hraci[r.player1.PlayerIndex]
                         }).ToArray(),
                     Talon = talon
                         ?.Select(i => new Karta
