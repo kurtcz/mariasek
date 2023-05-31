@@ -1617,7 +1617,7 @@ namespace Mariasek.Engine
                 : null;
             var tempSource = new ConcurrentQueue<Hand[]>();
 
-            options.MaxDegreeOfParallelism = Settings.MaxDegreeOfParallelism > 0 ? Settings.MaxDegreeOfParallelism : -1;
+            options.MaxDegreeOfParallelism = Settings.MaxDegreeOfParallelism > 0 ? Settings.MaxDegreeOfParallelism : Environment.ProcessorCount;
             //pokud volim hru tak se ted rozhoduju jaky typ hry hrat (hra, betl, durch)
             //pokud nevolim hru, tak bud simuluju betl a durch nebo konkretni typ hry
             //tak ci tak nevim co je/bude v talonu
@@ -5008,7 +5008,7 @@ namespace Mariasek.Engine
 
             try
             {
-                options.MaxDegreeOfParallelism = Settings.MaxDegreeOfParallelism > 0 ? Settings.MaxDegreeOfParallelism : -1;
+                options.MaxDegreeOfParallelism = Settings.MaxDegreeOfParallelism > 0 ? Settings.MaxDegreeOfParallelism : Environment.ProcessorCount;
                 //source = new[] { _g.players.Select(i => new Hand(i.Hand)).ToArray() };
                 //foreach (var hands in source)
                 Parallel.ForEach(source, options, (hands, loopState) =>
