@@ -4823,7 +4823,7 @@ namespace Mariasek.Engine
 
                 if (_g.CurrentRound != null)
                 {
-                    //pokud je hra v behu tak krome betla nepotrebujeme paralelni vypocty
+                    //pokud je hra v behu tak nepotrebujeme paralelni vypocty
                     //protoze ted pouzivame pravdepodobnostni pravidla
                     options = new ParallelOptions
                     {
@@ -4845,51 +4845,59 @@ namespace Mariasek.Engine
                     source = Probabilities.GenerateHands(r.number, roundStarterIndex, 1);
                     start = DateTime.Now;
                 }
-                Parallel.ForEach(source, options, (hands, loopState) =>
+                try
                 {
-                    ThrowIfCancellationRequested();
-                    try
+                    Parallel.ForEach(source, options, (hands, loopState) =>
                     {
-                        System.Diagnostics.Debug.WriteLine($"PlayCard (player{PlayerIndex + 1} r {r.number} c1 {r.c1} c2 {r.c2})");
-                        System.Diagnostics.Debug.WriteLine(hands[0]);
-                        System.Diagnostics.Debug.WriteLine(hands[1]);
-                        System.Diagnostics.Debug.WriteLine(hands[2]);
-                        System.Diagnostics.Debug.WriteLine(hands[3]);
-                        Check(hands);
-                        if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
+                        ThrowIfCancellationRequested();
+                        try
                         {
-                            Probabilities.StopGeneratingHands();
-                            loopState.Stop();
-                        }
-                        else
-                        {
-                            var computationResult = ComputeGame(hands, r.c1, r.c2);
-
-                            if (!cardScores.TryAdd(computationResult.CardToPlay, new ConcurrentQueue<GameComputationResult>(new[] { computationResult })))
+                            System.Diagnostics.Debug.WriteLine($"PlayCard (player{PlayerIndex + 1} r {r.number} c1 {r.c1} c2 {r.c2})");
+                            System.Diagnostics.Debug.WriteLine(hands[0]);
+                            System.Diagnostics.Debug.WriteLine(hands[1]);
+                            System.Diagnostics.Debug.WriteLine(hands[2]);
+                            System.Diagnostics.Debug.WriteLine(hands[3]);
+                            Check(hands);
+                            if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                             {
-                                cardScores[computationResult.CardToPlay].Enqueue(computationResult);
-                            }
-
-                            var val = Interlocked.Increment(ref progress);
-                            OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Simuluju hru" });
-
-                            if (computationResult.Rule == AiRule.PlayTheOnlyValidCard ||
-                                (computationResult.Rule.SkipSimulations &&
-                                    r.number != 9) ||     //in round no. 9 we want to run simulations every time to mitigate a chance of bad ending
-                                canSkipSimulations)    //We have only one card to play, so there is really no need to compute anything
-                            {
-                                OnGameComputationProgress(new GameComputationProgressEventArgs { Current = simulations, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0 });
                                 Probabilities.StopGeneratingHands();
                                 loopState.Stop();
                             }
+                            else
+                            {
+                                var computationResult = ComputeGame(hands, r.c1, r.c2);
+
+                                if (!cardScores.TryAdd(computationResult.CardToPlay, new ConcurrentQueue<GameComputationResult>(new[] { computationResult })))
+                                {
+                                    cardScores[computationResult.CardToPlay].Enqueue(computationResult);
+                                }
+
+                                var val = Interlocked.Increment(ref progress);
+                                OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Simuluju hru" });
+
+                                if (computationResult.Rule == AiRule.PlayTheOnlyValidCard ||
+                                    (computationResult.Rule.SkipSimulations &&
+                                        r.number != 9) ||     //in round no. 9 we want to run simulations every time to mitigate a chance of bad ending
+                                    canSkipSimulations)    //We have only one card to play, so there is really no need to compute anything
+                                {
+                                    OnGameComputationProgress(new GameComputationProgressEventArgs { Current = simulations, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0 });
+                                    Probabilities.StopGeneratingHands();
+                                    loopState.Stop();
+                                }
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine(ex.Message + "\n" + ex.StackTrace);
-                        exceptions.Enqueue(ex);
-                    }
-                });
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine(ex.Message + "\n" + ex.StackTrace);
+                            exceptions.Enqueue(ex);
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.Message + "\n" + ex.StackTrace);
+                    exceptions.Enqueue(ex);
+                }
                 ThrowIfCancellationRequested();
                 if (_shouldMeasureThroughput) // only do this 1st time when we calculate most to get a more realistic benchmark
                 {
@@ -5096,6 +5104,10 @@ namespace Mariasek.Engine
                 });
             }
             catch(OperationCanceledException)
+            {
+                return null;
+            }
+            catch (Exception)
             {
                 return null;
             }
