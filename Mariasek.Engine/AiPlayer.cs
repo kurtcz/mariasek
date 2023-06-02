@@ -1906,59 +1906,66 @@ namespace Mariasek.Engine
                     else
                     {
                         _debugString.AppendFormat("Simulating durch. fast guess: {0}\n", ShouldChooseDurch());
-                        Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hands, loopState) =>
+                        try
                         {
-                            try
+                            Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hands, loopState) =>
                             {
-                                ThrowIfCancellationRequested();
-                                if (source == null)
+                                try
                                 {
-                                    tempSource.Enqueue(hands);
-                                }
-                                //nasimuluj ze volici hrac vybral trumfy a/nebo talon
-                                if (PlayerIndex != _g.GameStartingPlayerIndex)
-                                {
-                                    if (_g.GameType == Hra.Betl)                                        
+                                    ThrowIfCancellationRequested();
+                                    if (source == null)
                                     {
-                                        if (_g.OriginalGameStartingPlayerIndex != _g.GameStartingPlayerIndex &&
-                                            PlayerIndex != _g.OriginalGameStartingPlayerIndex)
+                                        tempSource.Enqueue(hands);
+                                    }
+                                    //nasimuluj ze volici hrac vybral trumfy a/nebo talon
+                                    if (PlayerIndex != _g.GameStartingPlayerIndex)
+                                    {
+                                        if (_g.GameType == Hra.Betl)
                                         {
-                                            UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, _g.OriginalGameStartingPlayerIndex);
+                                            if (_g.OriginalGameStartingPlayerIndex != _g.GameStartingPlayerIndex &&
+                                                PlayerIndex != _g.OriginalGameStartingPlayerIndex)
+                                            {
+                                                UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, _g.OriginalGameStartingPlayerIndex);
+                                            }
+                                            UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, _g.GameStartingPlayerIndex);
                                         }
-                                        UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, _g.GameStartingPlayerIndex);
+                                        else
+                                        {
+                                            UpdateGeneratedHandsByChoosingTrumpAndTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
+                                        }
                                     }
-                                    else
+                                    UpdateGeneratedHandsByChoosingTalon(hands, ChooseDurchTalon, gameStartingPlayerIndex);
+
+                                    var durchComputationResult = ComputeGame(hands, null, null, null, Hra.Durch, 10, 1, true);
+                                    durchComputationResults.Enqueue(durchComputationResult);
+
+                                    if (NoChanceToWinDurch(PlayerIndex, hands))
                                     {
-                                        UpdateGeneratedHandsByChoosingTrumpAndTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
+                                        OnGameComputationProgress(new GameComputationProgressEventArgs { Current = initialProgress + Settings.SimulationsPerGameType, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Neuhratelnej durch" });
+                                        Probabilities.StopGeneratingHands();
+                                        loopState.Stop();
                                     }
                                 }
-                                UpdateGeneratedHandsByChoosingTalon(hands, ChooseDurchTalon, gameStartingPlayerIndex);
+                                catch (Exception ex)
+                                {
+                                    System.Diagnostics.Debug.WriteLine(ex.Message + "\n" + ex.StackTrace);
+                                    exceptions.Enqueue(ex);
+                                }
 
-                                var durchComputationResult = ComputeGame(hands, null, null, null, Hra.Durch, 10, 1, true);
-                                durchComputationResults.Enqueue(durchComputationResult);
-                            }
-                            catch (Exception ex)
-                            {
-                                System.Diagnostics.Debug.WriteLine(ex.Message + "\n" + ex.StackTrace);
-                                exceptions.Enqueue(ex);
-                            }
+                                var val = Interlocked.Increment(ref progress);
+                                OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju durch" });
 
-                            var val = Interlocked.Increment(ref progress);
-                            OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju durch" });
-
-                            ThrowIfCancellationRequested();
-                            if (NoChanceToWinDurch(PlayerIndex, hands))
-                            {
-                                OnGameComputationProgress(new GameComputationProgressEventArgs { Current = initialProgress + Settings.SimulationsPerGameType, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Neuhratelnej durch" });
-                                Probabilities.StopGeneratingHands();
-                                loopState.Stop();
-                            }
-                            if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
-                            {
-                                Probabilities.StopGeneratingHands();
-                                loopState.Stop();
-                            }
-                        });
+                                if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
+                                {
+                                    Probabilities.StopGeneratingHands();
+                                    loopState.Stop();
+                                }
+                            });
+                        }
+                        catch(OperationCanceledException ex)
+                        {
+                            throw;
+                        }
                     }
                 }
 				else
@@ -4148,7 +4155,9 @@ namespace Mariasek.Engine
                                    Hand.HasX(b) ||
                                    Hand.HasK(b))) &&
                     Hand.SuitCount() == Game.NumSuits)))) &&
-                ((_gameSimulations > 0 && _sevensAgainstBalance / (float)_gameSimulations >= sevenAgainstThreshold) ||
+                ((_gameSimulations > 0 &&
+                  _sevensAgainstBalance / (float)_gameSimulations >= sevenAgainstThreshold &&
+                  Hand.Has7(_g.trump.Value)) ||
                  (_avgBasicPointsLost + kqScore >= 110 &&
                   kqScore >= 40 &&
                   (Hand.Has7(_g.trump.Value) ||
