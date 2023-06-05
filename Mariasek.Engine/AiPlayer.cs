@@ -579,15 +579,16 @@ namespace Mariasek.Engine
         private List<Card> ChooseNormalTalonImpl(List<Card> hand, Card trumpCard)
         {
             var talon = new List<Card>();
-            var kqScore = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                              .Where(b => Hand.HasK(b) && Hand.HasQ(b))
-                              .Sum(b => b == trumpCard.Suit ? 40 : 20);
 
             if (trumpCard == null)
             {
                 trumpCard = hand.OrderByDescending(i => hand.CardCount(i.Suit))
                                 .ThenByDescending(i => i.Value).First();
             }
+            var kqScore = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                              .Where(b => Hand.HasK(b) && Hand.HasQ(b))
+                              .Sum(b => b == trumpCard.Suit ? 40 : 20);
+
             if (_g.AllowAXTalon)
             {
                 //nejdriv se zbav plonkovych desitek (pokud se to smi)
@@ -1925,7 +1926,7 @@ namespace Mariasek.Engine
                                             if (_g.OriginalGameStartingPlayerIndex != _g.GameStartingPlayerIndex &&
                                                 PlayerIndex != _g.OriginalGameStartingPlayerIndex)
                                             {
-                                                UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, _g.OriginalGameStartingPlayerIndex);
+                                                UpdateGeneratedHandsByChoosingTrumpAndTalon(hands, ChooseNormalTalon, _g.OriginalGameStartingPlayerIndex);
                                             }
                                             UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, _g.GameStartingPlayerIndex);
                                         }
