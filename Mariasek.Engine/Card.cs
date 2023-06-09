@@ -142,7 +142,7 @@ namespace Mariasek.Engine
         {
             if (second == null)
             {
-                second = second;
+                throw new ArgumentNullException();
             }
             if (Suit != second.Suit)
             {
