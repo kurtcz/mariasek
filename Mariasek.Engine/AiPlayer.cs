@@ -1143,7 +1143,13 @@ namespace Mariasek.Engine
                         ExternalDebugString = _debugString,
                         UseDebugString = true
                     };
-                    RunGameSimulations(bidding, PlayerIndex, false, true);
+                    try
+                    {
+                        RunGameSimulations(bidding, PlayerIndex, false, true);
+                    }
+                    catch(Exception ex)
+                    {
+                    }
                 }
                 //pokud je min. hra betl, zbyva uz jen talon na durcha
                 if (_g.GameType == Hra.Betl)
@@ -1265,8 +1271,8 @@ namespace Mariasek.Engine
                                                                     : 2
                                                                   : 1))
                                     : new Dictionary<int, int>();
-            var tempTalon = Hand.Count == 12 ? ChooseNormalTalon(Hand, TrumpCard) : _talon ?? new List<Card>();
-            var tempHand = Hand.Where(i => !tempTalon.Contains(i)).ToList();
+            var tempTalon = Hand.Count == 12 ? ChooseNormalTalon(Hand, TrumpCard) : _talon != null ? new List<Card>(_talon) : new List<Card>();
+            var tempHand = new List<Card>(Hand.Where(i => !tempTalon.Contains(i)));
             var kqScore = _g.trump.HasValue
                 ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
                       .Where(b => Hand.HasK(b) && Hand.HasQ(b))
@@ -1301,7 +1307,13 @@ namespace Mariasek.Engine
                 {
                     //Sjedeme simulaci hry, betlu, durcha i normalni hry a vratit talon pro to nejlepsi. 
                     //Zapamatujeme si vysledek a pouzijeme ho i v ChooseGameFlavour() a ChooseGameType()
-                    RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, true);
+                    try
+                    {
+                        RunGameSimulations(bidding, _g.GameStartingPlayerIndex, true, true);
+                    }
+                    catch(Exception ex)
+                    {
+                    }
                     _initialSimulation = false;
                     if (Settings.CanPlayGameType[Hra.Durch] && 
                         _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
@@ -1385,6 +1397,9 @@ namespace Mariasek.Engine
                     try
                     {
                         RunGameSimulations(bidding, PlayerIndex, false, true);
+                    }
+                    catch(Exception ex)
+                    {
                     }
                     finally
                     {
@@ -4120,8 +4135,13 @@ namespace Mariasek.Engine
                    (_hundredsBalance == _hundredSimulations &&                                                          //nebo pokud v simulacich nevyslo ani jednou
                     Hand.HasK(_g.trump.Value) &&
                     Hand.HasQ(_g.trump.Value) &&
-                    estimatedFinalBasicScore >= 40)))))
-            {
+                    estimatedFinalBasicScore >= 40) ||
+                   (Hand.CardCount(_g.trump.Value) >= 4 &&                                                              //nebo pokud mas 4 trumfy, trhaka a aspon jednu desitku
+                    (Hand.HasK(_g.trump.Value) ||
+                     Hand.HasQ(_g.trump.Value)) &&
+                    axCount >= 1 &&
+                    estimatedFinalBasicScore >= 20)))))
+            {  
                 bid |= bidding.Bids & Hra.Kilo;
                 //minRuleCount = Math.Min(minRuleCount, _hundredsBalance);
                 DebugInfo.RuleCount = _hundredsBalance;

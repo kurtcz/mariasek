@@ -4577,8 +4577,10 @@ namespace Mariasek.Engine
                         }
                     }
                     if (TeamMateIndex != -1 &&
-                        ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 ||
-                         (_gameType & Hra.Kilo) != 0))
+                        GameValue > SevenValue &&
+                        (_gameType & Hra.SedmaProti) == 0)
+                        //((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 ||
+                        // (_gameType & Hra.Kilo) != 0))
                     {
                         //odmazat si barvu pokud nemam trumfy abych mohl mazat
                         var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
@@ -4609,7 +4611,7 @@ namespace Mariasek.Engine
                             if (!cardsToPlay.Any())
                             {
                                 cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&
-                                                                                    hands[MyIndex].CardCount(i.Suit) <= 2 &&
+                                                                                    myInitialHand.CardCount(i.Suit) <= 2 &&
                                                                                     !hands[MyIndex].HasA(i.Suit) &&
                                                                                     !hands[MyIndex].HasX(i.Suit) &&
                                                                                     Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -4631,6 +4633,7 @@ namespace Mariasek.Engine
                             if (((_gameType & Hra.Kilo) != 0 ||
                                  myInitialHand.CardCount(_trump) <= 1 ||
                                  (myInitialHand.CardCount(_trump) <= 2 &&
+                                  hands[MyIndex].CardCount(_trump) <= 1 &&
                                   hands[MyIndex].Where(i => i.Suit != _trump).ToList()
                                                 .CardCount(Hodnota.Desitka) +
                                   hands[MyIndex].Where(i => i.Suit != _trump).ToList()

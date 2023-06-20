@@ -59,16 +59,21 @@ namespace Mariasek.Engine
 
         public Dictionary<AiRule, Card> GetApplicableRules()
         {
+            var validCards = ValidCards(_hands[MyIndex]);
             var result = new Dictionary<AiRule, Card>();
             
-            if (((List<Card>)_hands[MyIndex]).Count() == 1)
+            if (validCards.Count == 1)
             {
-                var cardToPlay = ((List<Card>)_hands[MyIndex]).First();
+                var cardToPlay = validCards.First();
 
                 _hands[MyIndex].Remove(cardToPlay);
                 result.Add(AiRule.PlayTheOnlyValidCard, cardToPlay);
 
                 return result;
+            }
+            if (!validCards.Any())
+            {
+                throw new InvalidDataException();
             }
 
             var t0 = DateTime.Now;
@@ -114,6 +119,10 @@ namespace Mariasek.Engine
 
                 return result;
             }
+            if (!validCards.Any())
+            {
+                throw new InvalidDataException();
+            }
 
             foreach (var rule in GetRules2(_hands))
             {
@@ -157,6 +166,10 @@ namespace Mariasek.Engine
                 result.Add(AiRule.PlayTheOnlyValidCard, cardToPlay);
 
                 return result;
+            }
+            if (!validCards.Any())
+            {
+                throw new InvalidDataException();
             }
 
             foreach (var rule in GetRules3(_hands))
