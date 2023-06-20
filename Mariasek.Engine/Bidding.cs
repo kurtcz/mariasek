@@ -377,10 +377,10 @@ namespace Mariasek.Engine
                     switch (GameMultiplier)
                     {
                         case 2:
-                            e.Description = "Flek na hru";
+                            e.Description = "Flek na kilo";
                             break;
                         default:
-                            e.Description = "Na hru vejš";
+                            e.Description = "Na kilo vejš";
                             break;
                     }
                 }

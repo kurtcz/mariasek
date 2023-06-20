@@ -304,7 +304,7 @@ namespace Mariasek.SharedClient
                 {
                     GameType = Hra.Kilo,
                     Use = true,
-                    MaxBidCount = 0,
+                    MaxBidCount = 1,
                     Thresholds = "60|80|95|100"
                 },
                 new BidThresholdSettings
