@@ -1705,9 +1705,9 @@ namespace Mariasek.Engine
                 {
                     source = tempSource.ToArray();
                 }
+                var trump = _trump ?? _g.trump ?? Barva.Cerveny;
                 if (PlayerIndex == _g.GameStartingPlayerIndex && 
-//                    _gameType == null && 
-                    (Hand.Has7(_trump ?? _g.trump.Value) ||
+                    (Hand.Has7(trump) ||
                      (Enum.GetValues(typeof(Barva)).Cast<Barva>()
                           .Any(b => Hand.HasK(b) && Hand.HasQ(b)))))
                 {
@@ -1909,6 +1909,7 @@ namespace Mariasek.Engine
                 try
                 {
                     shouldChooseDurch = ShouldChooseDurch();
+
                 }
                 catch
                 {                    

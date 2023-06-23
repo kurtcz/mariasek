@@ -1927,10 +1927,17 @@ namespace Mariasek.SharedClient
             {
                 _probabilityBox.UpdateControls(g);
                 _probabilityBox.Show();
+                _hand.IsEnabled = false;
+                _hand.ForbidDragging();
             }
             else
             {
                 _probabilityBox.Hide();
+                if (_state == GameState.Play)
+                {
+                    _hand.IsEnabled = true;
+                    _hand.AllowDragging();
+                }
             }
         }
 
