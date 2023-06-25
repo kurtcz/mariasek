@@ -824,8 +824,8 @@ namespace Mariasek.Engine
                           (_gameType & Hra.Sedma) != 0) ||
                          (j != _gameStarterIndex &&
                           (_gameType & Hra.SedmaProti) != 0)) &&
-                        uncertainCards.Any(k => _cardProbabilityForPlayer[j][k.Suit][k.Value] > 0.01 &&
-                                                _cardProbabilityForPlayer[j][k.Suit][k.Value] < 0.99))
+                        uncertainCards.Any(k => _cardProbabilityForPlayer[j][k.Suit][k.Value] > epsilon &&
+                                                _cardProbabilityForPlayer[j][k.Suit][k.Value] < 1 - epsilon))
                     {
                         foreach (var uncertainCard in uncertainCards)
                         {
@@ -835,26 +835,29 @@ namespace Mariasek.Engine
                                     uncertainCard.Value == Hodnota.Sedma)
                                 {
                                     _cardProbabilityForPlayer[k][uncertainCard.Suit][uncertainCard.Value] = j == k
-                                        ? 0.99f
+                                        ? 1 - epsilon
                                         : _cardProbabilityForPlayer[k][uncertainCard.Suit][uncertainCard.Value] > 0
-                                            ? 0.01f
+                                            ? epsilon
                                             : 0f;
+                                    reduced = true;
+                                    _verboseString.AppendFormat("Player{0}[{1}][{2}] = {3}\n",
+                                        k + 1, uncertainCard.Suit, uncertainCard.Value, _cardProbabilityForPlayer[k][uncertainCard.Suit][uncertainCard.Value]);
                                 }
-                                else
+                                else if (_cardProbabilityForPlayer[Game.TalonIndex][uncertainCard.Suit][uncertainCard.Value] == 0)
                                 {
                                     _cardProbabilityForPlayer[k][uncertainCard.Suit][uncertainCard.Value] = j == k
                                         ? 0.01f
                                         : _cardProbabilityForPlayer[k][uncertainCard.Suit][uncertainCard.Value] > 0
                                             ? k != Game.TalonIndex
-                                                ? 0.99f
-                                                : 0.01f
+                                                ? 1 - epsilon
+                                                : epsilon
                                             : 0f;
+                                    reduced = true;
+                                    _verboseString.AppendFormat("Player{0}[{1}][{2}] = {3}\n",
+                                        k + 1, uncertainCard.Suit, uncertainCard.Value, _cardProbabilityForPlayer[k][uncertainCard.Suit][uncertainCard.Value]);
                                 }
-                                _verboseString.AppendFormat("Player{0}[{1}][{2}] = {3}\n",
-                                    k + 1, uncertainCard.Suit, uncertainCard.Value, _cardProbabilityForPlayer[k][uncertainCard.Suit][uncertainCard.Value]);
                             }
                         }
-                        reduced = true;
                     }
                     if (certainCards.Count() == totalCards[j])
                     {
