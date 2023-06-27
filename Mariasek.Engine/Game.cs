@@ -576,29 +576,49 @@ namespace Mariasek.Engine
                     players[0].Hand.AddRange(gameData.Hrac2.Select(i => new Card(i.Barva, i.Hodnota)));
                     players[1].Hand.AddRange(gameData.Hrac3.Select(i => new Card(i.Barva, i.Hodnota)));
                     players[2].Hand.AddRange(gameData.Hrac1.Select(i => new Card(i.Barva, i.Hodnota)));
+
+                    players[0].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
+                                                                        i.Hrac2 != null &&
+                                                                        i.Hrac3 != null).Select(i => new Card(i.Hrac2.Barva, i.Hrac2.Hodnota)));
+                    players[1].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
+                                                                        i.Hrac2 != null &&
+                                                                        i.Hrac3 != null).Select(i => new Card(i.Hrac3.Barva, i.Hrac3.Hodnota)));
+                    players[2].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
+                                                                        i.Hrac2 != null &&
+                                                                        i.Hrac3 != null).Select(i => new Card(i.Hrac1.Barva, i.Hrac1.Hodnota)));
                     break;
                 case 2:
                     players[0].Hand.AddRange(gameData.Hrac3.Select(i => new Card(i.Barva, i.Hodnota)));
                     players[1].Hand.AddRange(gameData.Hrac1.Select(i => new Card(i.Barva, i.Hodnota)));
                     players[2].Hand.AddRange(gameData.Hrac2.Select(i => new Card(i.Barva, i.Hodnota)));
+
+                    players[0].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
+                                                                        i.Hrac2 != null &&
+                                                                        i.Hrac3 != null).Select(i => new Card(i.Hrac3.Barva, i.Hrac3.Hodnota)));
+                    players[1].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
+                                                                        i.Hrac2 != null &&
+                                                                        i.Hrac3 != null).Select(i => new Card(i.Hrac1.Barva, i.Hrac1.Hodnota)));
+                    players[2].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
+                                                                        i.Hrac2 != null &&
+                                                                        i.Hrac3 != null).Select(i => new Card(i.Hrac2.Barva, i.Hrac2.Hodnota)));
                     break;
                 case 0:
                 default:
                     players[0].Hand.AddRange(gameData.Hrac1.Select(i => new Card(i.Barva, i.Hodnota)));
                     players[1].Hand.AddRange(gameData.Hrac2.Select(i => new Card(i.Barva, i.Hodnota)));
                     players[2].Hand.AddRange(gameData.Hrac3.Select(i => new Card(i.Barva, i.Hodnota)));
+
+                    players[0].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
+                                                                        i.Hrac2 != null &&
+                                                                        i.Hrac3 != null).Select(i => new Card(i.Hrac1.Barva, i.Hrac1.Hodnota)));
+                    players[1].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
+                                                                        i.Hrac2 != null &&
+                                                                        i.Hrac3 != null).Select(i => new Card(i.Hrac2.Barva, i.Hrac2.Hodnota)));
+                    players[2].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
+                                                                        i.Hrac2 != null &&
+                                                                        i.Hrac3 != null).Select(i => new Card(i.Hrac3.Barva, i.Hrac3.Hodnota)));
                     break;
             }
-
-            players[0].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
-                                                                i.Hrac2 != null &&
-                                                                i.Hrac3 != null).Select(i => new Card(i.Hrac1.Barva, i.Hrac1.Hodnota)));
-            players[1].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
-                                                                i.Hrac2 != null &&
-                                                                i.Hrac3 != null).Select(i => new Card(i.Hrac2.Barva, i.Hrac2.Hodnota)));
-            players[2].Hand.AddRange(gameData.Stychy.Where(i => i.Hrac1 != null &&
-                                                                i.Hrac2 != null &&
-                                                                i.Hrac3 != null).Select(i => new Card(i.Hrac3.Barva, i.Hrac3.Hodnota)));
             players[0].Hand = players[0].Hand.Distinct().ToList();
             players[1].Hand = players[1].Hand.Distinct().ToList(); 
             players[2].Hand = players[2].Hand.Distinct().ToList();
@@ -1297,8 +1317,11 @@ namespace Mariasek.Engine
                 if (r.c3 == null) break;
                 players[r.player3.PlayerIndex].Hand.Add(r.c3);
             }
-            GameStartingPlayer.Hand.AddRange(talon);
-            talon.Clear();
+            if (talon != null && talon.Any())
+            {
+                GameStartingPlayer.Hand.AddRange(talon);
+                talon.Clear();
+            }
             RoundNumber = 0;
             GameType = 0;
             InitPlayers();

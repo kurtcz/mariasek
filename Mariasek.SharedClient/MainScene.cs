@@ -905,7 +905,8 @@ namespace Mariasek.SharedClient
 
         private void TryFixGameIdsIfNeeded()
         {
-            if (Game.Money.Any() &&
+            if (Game.Money != null &&
+                Game.Money.Any() &&
                 Game.Money.Max(i => i.GameId) == 10000 &&
                 Game.Money.Count(i => i.GameId == 10000) > 1)
             {
