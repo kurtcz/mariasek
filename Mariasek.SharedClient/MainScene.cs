@@ -150,6 +150,7 @@ namespace Mariasek.SharedClient
         private Vector2 _totalBalanceHiddenPosition;
         private bool _testGame;
         private bool _lastGameWasLoaded;
+        public int ImpersonationPlayerIndex { get; set; }
         public bool HistoryLoaded { get; private set; }
 
         public MainScene(MariasekMonoGame game)
@@ -1437,12 +1438,14 @@ namespace Mariasek.SharedClient
 
         public void RepeatGameAsPlayer2BtnClicked(object sender)
         {
-            ReplayGame(_newGameFilePath, 1);
+            ImpersonationPlayerIndex = (ImpersonationPlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers;
+            ReplayGame(_newGameFilePath);
         }
 
         public void RepeatGameAsPlayer3BtnClicked(object sender)
         {
-            ReplayGame(_newGameFilePath, 2);
+            ImpersonationPlayerIndex = (ImpersonationPlayerIndex + 2) % Mariasek.Engine.Game.NumPlayers;
+            ReplayGame(_newGameFilePath);
         }
 
         //vola se z menu (micha vzdy)
@@ -3100,6 +3103,7 @@ namespace Mariasek.SharedClient
             results.SimulatedSuccessRate = SimulatedSuccessRate;
             if (!_testGame)
             {
+                ImpersonationPlayerIndex = 0;
                 _deck = g.GetDeckFromLastGame();
                 System.Diagnostics.Debug.WriteLine(_deck);
                 var deck = _deck;
@@ -3459,7 +3463,7 @@ namespace Mariasek.SharedClient
             return false;
         }
 
-        public void LoadGame(string path, bool testGame, int impersonationPlayerIndex = 0)
+        public void LoadGame(string path, bool testGame)
         {
             _testGame = testGame;
             if (!_gameSemaphore.Wait(0))
@@ -3536,7 +3540,7 @@ namespace Mariasek.SharedClient
                         Game.StorageAccessor.GetStorageAccess();
                         using (var fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
-                            g.LoadGame(fs, impersonationPlayerIndex: impersonationPlayerIndex);
+                            g.LoadGame(fs, impersonationPlayerIndex: ImpersonationPlayerIndex);
                         }
                     }
                     catch (Exception ex)
@@ -3817,7 +3821,7 @@ namespace Mariasek.SharedClient
             }
         }
 
-        public void ReplayGame(string gamePath, int impersonationPlayerIndex = 0)
+        public void ReplayGame(string gamePath)
         {
             CancelRunningTask(_gameTask);
             CleanUpOldGame();
@@ -3826,7 +3830,7 @@ namespace Mariasek.SharedClient
             {
                 try
                 {
-                    LoadGame(gamePath, true, impersonationPlayerIndex: impersonationPlayerIndex);
+                    LoadGame(gamePath, true);
                 }
                 catch (Exception ex)
                 {

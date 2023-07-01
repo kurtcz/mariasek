@@ -119,7 +119,7 @@ namespace Mariasek.Engine
                     //nehraj barvu kterou kolega nezna a akter ma jiste na ruce nizkou kartu v barve
                     if (_probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) == 0 &&
                         hands[MyIndex].Where(i => i.Suit == b)
-                                       .Any(i => _probabilities.SuitLowerThanCardProbability(opponent, i, RoundNumber) == 1))
+                                      .Any(i => _probabilities.SuitLowerThanCardProbability(opponent, i, RoundNumber) == 1))
                     {
                         ban(b);
                     }
@@ -595,8 +595,8 @@ namespace Mariasek.Engine
                                                   _probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) == 0 &&
                                                   _probabilities.PotentialCards(opponent).HasSuit(b) &&
                                                   _probabilities.PotentialCards(opponent).Where(i => i.Suit == b)
-                                                                                         .All(i => hands[MyIndex].Any(j => j.Suit == i.Suit &&
-                                                                                                                            j.Value > i.Value))))
+                                                                                         .Any(i => hands[MyIndex].Any(j => j.Suit == i.Suit &&
+                                                                                                                           j.Value > i.Value))))
                 {
                     if (!_bannedSuits.Contains(b))
                     {
@@ -2070,11 +2070,27 @@ namespace Mariasek.Engine
                         cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&
                                                                             i.Value < Hodnota.Desitka);
                     }
+                    //pokud mam pri kilu diry jen v trumfove barve, tak se je snaz vytlacit a nehraj bocni barvu na kterou lze mazat
+                    if (!cardsToPlay.Any() &&
+                        (_gameType & (Hra.Kilo | Hra.KiloProti)) != 0 &&
+                        topCards.Any(i => i.Suit != _trump &&
+                                          i.Value >= Hodnota.Desitka) &&
+                        opponentTrumps.Count > 0 &&
+                        hands[MyIndex].CardCount(_trump) > opponentTrumps.Count &&
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            .Where(b => b != _trump &&
+                                        hands[MyIndex].HasSuit(b))
+                            .All(b => holesPerSuit[b].Count == 0))
+                    {
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&
+                                                                            i.Value < Hodnota.Desitka);
+                    }
                     if (TeamMateIndex == -1)
                     {
                         //: c--
                         //pri sedme zkousej nejprve vytlacit trumf dllouhou bocni barvou
-                        if (SevenValue >= GameValue &&
+                        if (!cardsToPlay.Any() &&
+                            SevenValue >= GameValue &&
                             //(_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
                             //(_gameType & (Hra.Kilo | Hra.KiloProti)) == 0 &&
                             myInitialHand.CardCount(_trump) <= 5 &&
@@ -7847,7 +7863,7 @@ namespace Mariasek.Engine
                                                                                 (hands[MyIndex].CardCount(i.Suit) == 1 ||
                                                                                  !hands[MyIndex].Where(j => j.Suit == i.Suit)
                                                                                                 .All(j => j.Value <= i.Value)))
-                                                                        .ToList();
+                                                                    .ToList();
                         if (cardsToPlay.Any(i => !_bannedSuits.Contains(i.Suit)))
                         {
                             cardsToPlay = cardsToPlay.Where(i => !_bannedSuits.Contains(i.Suit)).ToList();

@@ -354,12 +354,14 @@ namespace Mariasek.SharedClient
 
         void ReplayAsPlayer2ButtonClicked(object sender)
         {
-            Game.MainScene.ReplayGame(_newGamePath, 1);
+            Game.MainScene.ImpersonationPlayerIndex = 1;
+            Game.MainScene.ReplayGame(_newGamePath);
         }
 
         void ReplayAsPlayer3ButtonClicked(object sender)
         {
-            Game.MainScene.ReplayGame(_newGamePath, 2);
+            Game.MainScene.ImpersonationPlayerIndex = 2;
+            Game.MainScene.ReplayGame(_newGamePath);
         }
 
         void RawButtonClicked(object sender)

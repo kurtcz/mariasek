@@ -731,22 +731,6 @@ namespace Mariasek.Engine
                 Results.CalculateMoney();
             }
             RoundSanityCheck();
-#if !PORTABLE
-            var programFolder = System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
-            SaveGame(System.IO.Path.Combine(programFolder, "_temp.hra"));
-#else
-            //using (var fs = GetFileStream("_temp.hra"))
-            //{
-            //    SaveGame(fs);
-            //}
-            if (impersonationPlayerIndex != 0)
-            {
-                using (var fs = GetFileStream("_def.hra"))
-                {
-                    SaveGame(fs);
-                }
-            }
-#endif        
         }
 
 #if !PORTABLE
