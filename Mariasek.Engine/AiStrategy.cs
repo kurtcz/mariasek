@@ -9301,7 +9301,8 @@ namespace Mariasek.Engine
                                                                                  hands[MyIndex].Any(j => j.Suit == i.Key &&
                                                                                                          j.Value != Hodnota.Eso &&
                                                                                                          j.Value != Hodnota.Desitka));
-                        if (catchCardsPerSuitNoAX.Any())
+                        if (catchCardsPerSuitNoAX.Any() || hands[MyIndex].All(i => i.Suit == _trump ||
+                                                                                   i.Value >= Hodnota.Desitka))
                         {
                             var preferredSuit = catchCardsPerSuitNoAX.Where(i => !_bannedSuits.Contains(i.Key) &&
                                                                                  !(hands[MyIndex].HasX(i.Key) &&
@@ -9311,6 +9312,19 @@ namespace Mariasek.Engine
                                                                      .Select(i => (Barva?)i.Key)
                                                                      .FirstOrDefault();
 
+                            if (!preferredSuit.HasValue &&
+                                hands[MyIndex].All(i => i.Suit == _trump ||
+                                                        i.Value >= Hodnota.Desitka))
+                            {
+                                preferredSuit = catchCardsPerSuit.Where(i => validSuits.Contains(i.Key) &&
+                                                                             !_bannedSuits.Contains(i.Key) &&
+                                                                             !(hands[MyIndex].HasX(i.Key) &&
+                                                                               !hands[MyIndex].HasA(i.Key) &&
+                                                                               hands[MyIndex].CardCount(i.Key) == 2))
+                                                                 .OrderBy(i => i.Value)
+                                                                 .Select(i => (Barva?)i.Key)
+                                                                 .FirstOrDefault();
+                            }
                             if (preferredSuit.HasValue)
                             {
                                 cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit == preferredSuit.Value &&
@@ -9320,6 +9334,12 @@ namespace Mariasek.Engine
                                                                                              !hands[MyIndex].Where(j => j.Suit == i.Suit)
                                                                                                             .All(j => j.Value <= i.Value)))
                                                                                 .ToList();
+                                if (hands[MyIndex].All(i => i.Suit == _trump ||
+                                                            i.Value >= Hodnota.Desitka))
+                                {
+                                    cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => i.Suit == preferredSuit.Value)
+                                                                                    .ToList();
+                                }
                             }
                             if (cardsToPlay.Any(i => !(i.Suit != _trump &&
                                                        hands[MyIndex].HasX(i.Suit) &&
