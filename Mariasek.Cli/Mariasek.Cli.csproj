@@ -25,6 +25,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Mariasek.Engine\Mariasek.Engine6.csproj" />
+    <ProjectReference Include="..\Mariasek.Engine\Mariasek.Engine.csproj" />
   </ItemGroup>
 </Project>

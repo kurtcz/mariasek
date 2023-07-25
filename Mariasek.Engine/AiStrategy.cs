@@ -2509,6 +2509,23 @@ namespace Mariasek.Engine
                                                                                 (i.Value < Hodnota.Desitka ||
                                                                                  !_probabilities.PotentialCards(player3).HasA(i.Suit))).ToList();
                         }
+                        if (SevenValue >= GameValue &&
+                            (_gameType & Hra.Sedma) != 0 &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => b != _trump &&
+                                            hands[MyIndex].HasSuit(b))
+                                .Any(b => !_probabilities.PotentialCards(player3).HasSuit(b)))
+                        {
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                i.Value < Hodnota.Desitka &&
+                                                                                !_probabilities.PotentialCards(player3).HasSuit(i.Suit)).ToList();
+                            if (!cardsToPlay.Any())
+                            {
+                                cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                    _probabilities.PotentialCards(player3).CardCount(_trump) == 1 &&
+                                                                                    !_probabilities.PotentialCards(player3).HasA(i.Suit)).ToList();
+                            }
+                        }
                         if (!cardsToPlay.Any())
                         {
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Value != Hodnota.Desitka &&
@@ -2825,6 +2842,23 @@ namespace Mariasek.Engine
                             cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&
                                                                                 (i.Value < Hodnota.Desitka ||
                                                                                  !_probabilities.PotentialCards(player2).HasA(i.Suit))).ToList();
+                        }
+                        if (SevenValue >= GameValue &&
+                            (_gameType & Hra.Sedma) != 0 &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => b != _trump &&
+                                            hands[MyIndex].HasSuit(b))
+                                .Any(b => !_probabilities.PotentialCards(player2).HasSuit(b)))
+                        {
+                            cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                i.Value < Hodnota.Desitka &&
+                                                                                !_probabilities.PotentialCards(player2).HasSuit(i.Suit)).ToList();
+                            if (!cardsToPlay.Any())
+                            {
+                                cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                    _probabilities.PotentialCards(player2).CardCount(_trump) == 1 &&
+                                                                                    !_probabilities.PotentialCards(player2).HasA(i.Suit)).ToList();
+                            }
                         }
                         if (!cardsToPlay.Any())
                         {
