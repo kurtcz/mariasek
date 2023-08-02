@@ -290,7 +290,7 @@ namespace Mariasek.Engine
                     Bids = PlayerBids[_g.GameStartingPlayerIndex] & ~PlayerBids[(playerIndex + 2) % Game.NumPlayers];
                     if ((PlayerBids[(playerIndex + 2) % Game.NumPlayers] & Hra.KiloProti) != 0)
                     {
-                        Bids &= (Hra)~Hra.Hra; //u kila proti uz nejde dat flek na hru
+                        Bids &= ~Hra.Hra; //u kila proti uz nejde dat flek na hru
                     }
                 }
                 else
@@ -303,6 +303,10 @@ namespace Mariasek.Engine
             {
                 //hrac co volil muze flekovat jen souperovy hry a fleky
                 Bids = PlayerBids[(playerIndex + 1) % Game.NumPlayers] | PlayerBids[(playerIndex + 2) % Game.NumPlayers];
+                if ((Bids & Hra.KiloProti) != 0)
+                {
+                    Bids &= ~Hra.Hra; //u kila proti uz nejde dat flek na hru
+                }
             }
             //v prvnim kole muzou souperi hlasit 100/7 proti
             if (_g.trump.HasValue &&

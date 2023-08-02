@@ -647,7 +647,7 @@ namespace Mariasek.Engine
                                                                      .Where(h => h > i.Value)
                                                                      .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0 &&
                                                                                _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0))
-                                                     .ToList();
+                                         .ToList();
             var holesPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                    .ToDictionary(k => k, v =>
                                        Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
@@ -1176,7 +1176,8 @@ namespace Mariasek.Engine
                                                  .ToList();
                     }
 
-                    if (cardsToPlay.Any(i => hands[MyIndex].CardCount(i.Suit) == 2 &&
+                    if (cardsToPlay.Any(i => i.Value != Hodnota.Desitka &&
+                                             hands[MyIndex].CardCount(i.Suit) == 2 &&
                                              hands[MyIndex].HasX(i.Suit) &&
                                              !myInitialHand.HasA(i.Suit)))
                     {

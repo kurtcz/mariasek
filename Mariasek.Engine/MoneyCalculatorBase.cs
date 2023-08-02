@@ -547,7 +547,7 @@ namespace Mariasek.Engine
                     case Hra.Hra:
                         won = GameWon;
                         genre = Genre.Feminine;
-                        multiplier = _bidding.GameMultiplier;
+                        multiplier = (_gameType & Hra.KiloProti) == 0 ? _bidding.GameMultiplier : 0;
                         money = GameMoneyWon;
                         score = string.Format("{0}Skóre: {1}:{2}\t \n", QuietHundredWon
                                                                         ? "Tichý kilo, "
