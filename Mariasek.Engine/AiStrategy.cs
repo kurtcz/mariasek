@@ -697,6 +697,30 @@ namespace Mariasek.Engine
                                                  }
                                              }).ToList()
                                        : new List<Card>();
+            var teamMatePlayedWinningAXNonTrumpCards = TeamMateIndex != -1
+                                                       ? _rounds.Where(r => r != null && r.c3 != null)
+                                                                .Select(r =>
+                                                                {
+                                                                    if (r.player2.PlayerIndex == TeamMateIndex &&
+                                                                        r.c2.Suit == r.c1.Suit &&
+                                                                        r.c2.Suit != _trump &&
+                                                                        r.c2.Value >= Hodnota.Desitka &&
+                                                                        r.roundWinner.PlayerIndex != opponent)
+                                                                    {
+                                                                        return r.c2;
+                                                                    }
+                                                                    else if (r.player3.PlayerIndex == TeamMateIndex &&
+                                                                            r.c3.Suit == r.c1.Suit &&
+                                                                            r.c3.Suit != _trump &&
+                                                                            r.c3.Value >= Hodnota.Desitka &&
+                                                                            r.roundWinner.PlayerIndex != opponent)
+                                                                    {
+                                                                        return r.c3;
+                                                                    }
+                                                                    return null;
+                                                                })
+                                                                .Where(i => i != null).ToList()
+                                                       : new List<Card>();
             var teamMatePlayedGreaseCards = TeamMateIndex != -1
                                             ? _rounds.Where(r => r != null && r.c3 != null)
                                                      .Select(r =>
@@ -4110,6 +4134,26 @@ namespace Mariasek.Engine
                     if ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 ||
                         (_gameType & Hra.Kilo) != 0)
                     {
+                        //nehraj pravidlo pokud si muzes odmazat trumf
+                        //a existuje barva kterou kolega asi dobira
+                        //a mas co mazat
+                        if (TeamMateIndex != -1 &&
+                            hands[MyIndex].CardCount(_trump) == 1 &&
+                            !hands[MyIndex].HasX(_trump) &&
+                            !topTrumps.Any() &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => b != _trump &&
+                                            !hands[MyIndex].HasSuit(b))
+                                .Any(b => teamMatePlayedWinningAXNonTrumpCards.HasSuit(b) &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => b != _trump &&
+                                            hands[MyIndex].HasSuit(b))
+                                .Any(b => (hands[MyIndex].HasA(b) ||
+                                           hands[MyIndex].HasX(b)) &&
+                                          !_probabilities.CertainCards(opponent).HasSuit(b))))
+                        {
+                            return null;
+                        }
                         if (TeamMateIndex == player2)
                         {
                             //co-
@@ -4525,6 +4569,30 @@ namespace Mariasek.Engine
                                                 _probabilities.PotentialCards(opponent).HasSuit(i.Suit)))
                     {
                         return null;
+                    }
+                    if (TeamMateIndex != -1 &&
+                        ((_gameType & (Hra.Sedma | Hra.SedmaProti)) == 0 ||
+                         (_gameType & (Hra.Kilo | Hra.KiloProti)) != 0) &&
+                        hands[MyIndex].CardCount(_trump) == 1 &&
+                        !hands[MyIndex].HasX(_trump) &&
+                        !topTrumps.Any() &&
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            .Where(b => b != _trump &&
+                                        !hands[MyIndex].HasSuit(b))
+                            .Any(b => teamMatePlayedWinningAXNonTrumpCards.HasSuit(b) &&
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            .Where(b => b != _trump &&
+                                        hands[MyIndex].HasSuit(b))
+                            .Any(b => (hands[MyIndex].HasA(b) ||
+                                       hands[MyIndex].HasX(b)) &&
+                                      !_probabilities.CertainCards(opponent).HasSuit(b))))
+                    {
+                        var cardToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump)
+                                                                   .FirstOrDefault();
+                        if (cardToPlay != null)
+                        {
+                            return cardToPlay;
+                        }
                     }
                     //pokud hrajes proti kilu, tak se zbav trumfu, pokud mas v ostatnich barvach ostre karty
                     if (TeamMateIndex != -1 &&

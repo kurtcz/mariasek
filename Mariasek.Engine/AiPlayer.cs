@@ -3875,7 +3875,12 @@ namespace Mariasek.Engine
                        kqMaxOpponentScore <= 20) ||
                       (Hand.CardCount(_trumpCard.Suit) >= 3 &&
                        (bidding.Bids & Hra.Sedma) == 0 &&
-                       kqMaxOpponentScore == 0))) ||
+                       kqMaxOpponentScore == 0) ||
+                      (Hand.CardCount(_trumpCard.Suit) >= 3 &&
+                       Hand.HasA(_trumpCard.Suit) &&
+                       axCount >= 2 &&
+                       estimatedFinalBasicScore >= 20 &&
+                       !Is100AgainstPossible(120)))) ||
                     (!Hand.HasK(_trumpCard.Suit) &&             //netrham a
                      !Hand.HasQ(_trumpCard.Suit) &&
                      Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
