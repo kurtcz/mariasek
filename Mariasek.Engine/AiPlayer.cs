@@ -4651,14 +4651,31 @@ namespace Mariasek.Engine
                                         hand.HasQ(b)
                                         ? b == _trump ? 40 : 20
                                         : 0);
+            var hlasCards = new List<Card>();
+            if (round != null)
+            {
+                if (round.hlas1)
+                {
+                    hlasCards.Add(round.c1);
+                }
+                if (round.hlas2)
+                {
+                    hlasCards.Add(round.c2);
+                }
+                if (round.hlas3)
+                {
+                    hlasCards.Add(round.c3);
+                }
+            }
             var hlasPointsLeft = teamMateIndex == -1
                                  ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                       .Sum(b => (prob.PotentialCards(player2).HasK(b) &&
-                                                  prob.PotentialCards(player2).HasQ(b)) ||
-                                                 (prob.PotentialCards(player3).HasK(b) &&
-                                                  prob.PotentialCards(player3).HasQ(b))
-                                                  ? b == _trump ? 40 : 20
-                                                  : 0)
+                                       .Sum(b => !hlasCards.HasQ(b) &&
+                                                 ((prob.PotentialCards(player2).HasK(b) &&
+                                                   prob.PotentialCards(player2).HasQ(b)) ||
+                                                  (prob.PotentialCards(player3).HasK(b) &&
+                                                   prob.PotentialCards(player3).HasQ(b)))
+                                                 ? b == _trump ? 40 : 20
+                                                 : 0)
                                  : Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                        .Sum(b => prob.PotentialCards(opponent).HasK(b) &&
                                                  prob.PotentialCards(opponent).HasQ(b)
@@ -4678,8 +4695,8 @@ namespace Mariasek.Engine
                 gameWinningCard = true;
             }
             else if ((_gameType & Hra.Kilo) == 0 &&
-                        basicPointsWonSoFar + hlasPointsWon + kqScore <= opponentPotentialPoints &&
-                        basicPointsWonSoFar + basicPointsWonThisRound + hlasPointsWon + kqScore > opponentPotentialPoints)
+                     basicPointsWonSoFar + hlasPointsWon + kqScore <= opponentPotentialPoints &&
+                     basicPointsWonSoFar + basicPointsWonThisRound + hlasPointsWon + kqScore > opponentPotentialPoints)
             {
                 gameWinningCard = true;
             }

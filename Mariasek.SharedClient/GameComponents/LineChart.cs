@@ -278,6 +278,10 @@ namespace Mariasek.SharedClient.GameComponents
                         for (var j = 0; j < Data[i].Length; j++)
                         {
                             points[j] = LogicalToPhysical(Data[i][j]);
+                            if (j > 0 && points[j].X <= points[j-1].X)
+                            {
+                                points[j] = new Vector2(points[j - 1].X + float.Epsilon, points[j - 1].Y);
+                            }
                         }
                         if (UseSplineCorrection)
                         {
