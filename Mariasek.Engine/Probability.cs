@@ -1992,6 +1992,24 @@ namespace Mariasek.Engine
                     _cardProbabilityForPlayer[roundStarterIndex][c2.Suit][Hodnota.Desitka] = epsilon;
                 }
             }
+
+            //pokud hrajeme v barve a
+            //druhy hrac neni akter a nepriznal barvu ale hral trumf a
+            //akter muze mit hlasku v barve prvni karty
+            //tak ji ma jiste (nebude prece davat hlasku do talonu)
+            if (_trump.HasValue &&
+                _gameStarterIndex == roundStarterIndex &&
+                c1.Suit != _trump &&
+                c2.Suit == _trump &&
+                _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Kral] > 0 &&
+                _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Kral] < 1 &&
+                _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Svrsek] > 0 &&
+                _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Svrsek] < 1)
+            {
+                _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Kral] = 1 - epsilon;
+                _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Svrsek] = 1 - epsilon;
+            }
+
             _cardsPlayedByPlayer[(roundStarterIndex + 1) % Game.NumPlayers].Add(c2);
             ReduceUcertainCardSet();
             if (c2.Suit != c1.Suit || c2.IsLowerThan(c1, _trump))
@@ -2302,6 +2320,36 @@ namespace Mariasek.Engine
                 c2.IsHigherThan(c3, _trump))
             {
                 SetCardProbabilitiesLowerThanCardToEpsilon((roundStarterIndex + 2) % Game.NumPlayers, c3);                
+            }
+
+            //pokud hrajeme v barve a
+            //treti hrac neni akter a nepriznal barvu ale hral trumf a
+            //akter muze mit hlasku v barve prvni karty
+            //tak ji ma jiste (nebude prece davat hlasku do talonu)
+            if (_trump.HasValue &&
+                _gameStarterIndex == roundStarterIndex &&
+                c1.Suit != _trump &&
+                c3.Suit == _trump &&
+                _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Kral] > 0 &&
+                _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Kral] < 1 &&
+                _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Svrsek] > 0 &&
+                _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Svrsek] < 1)
+            {
+                _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Kral] = 1 - epsilon;
+                _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Svrsek] = 1 - epsilon;
+            }
+            if (_trump.HasValue &&
+                _gameStarterIndex == (roundStarterIndex + 1) % Game.NumPlayers &&
+                c1.Suit != _trump &&
+                c2.Suit == c1.Suit &&
+                c3.Suit == _trump &&
+                _cardProbabilityForPlayer[_gameStarterIndex][c2.Suit][Hodnota.Kral] > 0 &&
+                _cardProbabilityForPlayer[_gameStarterIndex][c2.Suit][Hodnota.Kral] < 1 &&
+                _cardProbabilityForPlayer[_gameStarterIndex][c2.Suit][Hodnota.Svrsek] > 0 &&
+                _cardProbabilityForPlayer[_gameStarterIndex][c2.Suit][Hodnota.Svrsek] < 1)
+            {
+                _cardProbabilityForPlayer[_gameStarterIndex][c2.Suit][Hodnota.Kral] = 1 - epsilon;
+                _cardProbabilityForPlayer[_gameStarterIndex][c2.Suit][Hodnota.Svrsek] = 1 - epsilon;
             }
 
             _cardsPlayedByPlayer[(roundStarterIndex + 2) % Game.NumPlayers].Add(c3);
