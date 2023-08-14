@@ -658,8 +658,30 @@ namespace Mariasek.Engine
                                .OrderBy(i => hand.CardCount(i.Suit))
                                .ThenByDescending(i => i.BadValue));  //vybirej od nejkratsich barev
 
+            //pokud mas X + 1 plivu a v jine barve X + 2 plivy a ani v jedne barve krale, vezmi malou kartu od X + 1
+            var c = hand.Where(i => i.Suit != trumpCard.Suit &&
+                                    i.Value != Hodnota.Eso &&
+                                    i.Value != Hodnota.Desitka &&
+                                    hand.HasX(i.Suit) &&
+                                    !hand.HasA(i.Suit) &&
+                                    !hand.HasK(i.Suit) &&
+                                    hand.CardCount(i.Suit) == 2 &&
+                                    Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                        .Where(b => b != trumpCard.Suit)
+                                        .Any(b => b != i.Suit &&
+                                                  hand.HasX(b) &&
+                                                  !hand.HasA(b) &&
+                                                  !hand.HasK(b) &&
+                                                  (hand.HasQ(b) ||
+                                                   hand.HasJ(b)) &&
+                                                  hand.CardCount(b) == 3))
+                        .FirstOrDefault();
+            if (c != null)
+            {
+                talon.Add(c);
+            }
             //pokud mas X + 2 plivy, tak vezmi tu mensi
-            var c = hand.Where(i => //!(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
+            c = hand.Where(i => //!(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
                                     //  i.Suit == trumpCard.Suit) &&
                                     i.Suit != trumpCard.Suit &&
                                     i.Value != Hodnota.Eso &&             //ani A,X
@@ -802,7 +824,8 @@ namespace Mariasek.Engine
                                 (hand.HasX(i.Suit) &&
                                  !hand.HasA(i.Suit) &&
                                  !hand.HasK(i.Suit) &&
-                                 hand.CardCount(i.Suit) == 3)))))
+                                 hand.CardCount(i.Suit) >= 2 &&
+                                 hand.CardCount(i.Suit) <= 3)))))
             {
                 if (hand.CardCount(trumpCard.Suit) >= 6 &&          //pri 6+ trumfech dej klidne 2 do talonu
                     !(hand.HasK(trumpCard.Suit) &&                  //neplati kdyz budu hrat sedmu a mam trumfovy flas
@@ -810,12 +833,12 @@ namespace Mariasek.Engine
                       hand.Has7(trumpCard.Suit) &&                  //ale nemam dobiraky (esa) resp. mam max. jedno
                       hand.CardCount(Hodnota.Eso) <= 1))
                 {
-                    talon.AddRange(hand.Where(i => i.Suit == trumpCard.Suit &&
-                                                   i != trumpCard &&
-                                                   i.Value > Hodnota.Sedma &&
-                                                   i.Value < Hodnota.Svrsek)
-                                   .OrderBy(i => i.Value)
-                                   .Take(2));
+                    talon.InsertRange(0, hand.Where(i => i.Suit == trumpCard.Suit &&
+                                                         i != trumpCard &&
+                                                         i.Value > Hodnota.Sedma &&
+                                                         i.Value < Hodnota.Svrsek)
+                                             .OrderBy(i => i.Value)
+                                             .Take(2));
                 }
             }
             //nakonec cokoli co je podle pravidel
