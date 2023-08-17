@@ -3830,6 +3830,11 @@ namespace Mariasek.SharedClient
             {
                 try
                 {
+                    if (gamePath != _newGameFilePath)
+                    {
+                        //aby fungovalo opetovne prehravani
+                        File.Copy(gamePath, _newGameFilePath, true);
+                    }
                     LoadGame(gamePath, true);
                 }
                 catch (Exception ex)

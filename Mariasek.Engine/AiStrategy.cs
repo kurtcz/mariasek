@@ -674,8 +674,7 @@ namespace Mariasek.Engine
                                            .OrderBy(i => i.Value)
                                            .Skip(topCards.CardCount(v))
                                            .ToList());
-            var unwinnableLowCards = hands[MyIndex].Where(i => holesPerSuit[i.Suit]
-                                                   .Any(j => j.Value > i.Value))
+            var unwinnableLowCards = hands[MyIndex].Where(i => holesPerSuit[i.Suit].Any(j => j.Value > i.Value))
                                                    .ToList();
             //pouzivam 0 misto epsilon protoze jinak bych mohl hrat trumfovou x a myslet si ze souper nema eso a on by ho zrovna mel!
             //holes zavisi jen na dirach vuci souperum narozdil od holesPerSuit ktery zavisi na vsech mych dirach
