@@ -1493,21 +1493,21 @@ namespace Mariasek.Engine
                       !(_hundredOverDurch &&
                         !IsHundredTooRisky(tempHand)))) ||
                     (Settings.CanPlayGameType[Hra.Betl] && 
-                     (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][betlThresholdIndex] * _betlSimulations &&
-                      _betlSimulations > 0 &&
-                      ((TeamMateIndex != -1 &&
-                        (Hand.CardCount(Hodnota.Eso) <= 1 ||
-                         GetBetlHoles() <= 3)) ||
-                       (TeamMateIndex == -1 &&
-                        !(_hundredOverBetl &&
-                          !IsHundredTooRisky(tempHand, tempTalon)) &&
-                        !(_betlBalance < Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations &&
-                          _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)))) ||
-                       (Settings.SafetyBetlThreshold > 0 &&
-                        ((!AdvisorMode &&
-                          !Settings.AiMayGiveUp) ||
-                         (AdvisorMode &&
-                          !Settings.PlayerMayGiveUp)) &&
+                     ((_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][betlThresholdIndex] * _betlSimulations &&
+                       _betlSimulations > 0 &&
+                       ((TeamMateIndex != -1 &&
+                         (Hand.CardCount(Hodnota.Eso) <= 1 ||
+                          GetBetlHoles() <= 3)) ||
+                        (TeamMateIndex == -1 &&
+                         !(_hundredOverBetl &&
+                           !IsHundredTooRisky(tempHand, tempTalon)) &&
+                         !(_betlBalance < Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations &&
+                           _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)))) ||
+                      (Settings.SafetyBetlThreshold > 0 &&
+                       //((!AdvisorMode &&
+                       //  !Settings.AiMayGiveUp) ||
+                       // (AdvisorMode &&
+                       //  !Settings.PlayerMayGiveUp)) &&
                         Settings.MinimalBidsForGame <= 1 &&
                         ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                           lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
@@ -1520,7 +1520,7 @@ namespace Mariasek.Engine
                                estimatedPointsWon >= 50) ||
                               estimatedPointsWon >= 70)))) ||
                          (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
-                          _avgBasicPointsLost >= 50)))))
+                          _avgBasicPointsLost >= 50))))))
                 {
                     if ((_betlSimulations > 0 && 
                          (!Settings.CanPlayGameType[Hra.Durch] ||
