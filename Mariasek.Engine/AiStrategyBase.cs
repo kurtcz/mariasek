@@ -12,23 +12,20 @@ namespace Mariasek.Engine
 {
     public abstract class AiStrategyBase
     {
-#if !PORTABLE
-        protected static readonly ILog _log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-#else
         protected static readonly ILog _log = new DummyLogWrapper();
-#endif   
         protected Barva? _trump;
         protected Hra _gameType;
         protected Hand[] _hands;
 		protected Round[] _rounds;
         protected Probability _probabilities;
         protected List<Barva> _teamMatesSuits;
+        public readonly IStringLogger _debugString;
         public int MyIndex { get; set; }
         public string MyName { get; set; }
         public int TeamMateIndex { get; set; }
         public int RoundNumber { get; set; }
 
-        public AiStrategyBase(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities)
+        public AiStrategyBase(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities, IStringLogger debugString)
         {
             _trump = trump;
             _hands = hands;
@@ -36,6 +33,7 @@ namespace Mariasek.Engine
             _rounds = rounds;
             _probabilities = probabilities;
             _teamMatesSuits = teamMatesSuits;
+            _debugString = debugString;
         }
 
         protected abstract IEnumerable<AiRule> GetRules1(Hand[] hands);

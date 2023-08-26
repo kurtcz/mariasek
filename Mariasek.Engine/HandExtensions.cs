@@ -194,7 +194,7 @@ namespace Mariasek.Engine
                 sb.AppendFormat(" {0}: ", b);
                 foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().OrderByDescending(h => h))
                 {
-                    var card = hand.FirstOrDefault(c => c != null && c.Suit == b && c.Value == h);
+                    var card = hand?.FirstOrDefault(c => c != null && c.Suit == b && c.Value == h);
                     sb.Append(card != null ? card.CharCode : '-');
                 }
             }

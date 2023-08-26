@@ -6081,151 +6081,160 @@ namespace Mariasek.Engine
             var aiStrategies = new[] { aiStrategy1, aiStrategy2, aiStrategy3 };
             var aiStrategy = aiStrategies[player1];
 
-            _log.DebugFormat("Round {0}. Starting simulation for {1}", _g.RoundNumber, _g.players[PlayerIndex].Name);
-            if (c1 != null) _log.DebugFormat("First card: {0}", c1);
-            if (c2 != null) _log.DebugFormat("Second card: {0}", c2);
-            _log.DebugFormat("{0}: {1} cerveny, {2} zeleny, {3} kule, {4} zaludy", _g.players[player2].Name, hands[player2].Count(i => i.Suit == Barva.Cerveny), hands[player2].Count(i => i.Suit == Barva.Zeleny), hands[player2].Count(i => i.Suit == Barva.Kule), hands[player2].Count(i => i.Suit == Barva.Zaludy));
-            _log.DebugFormat("{0}: {1} cerveny, {2} zeleny, {3} kule, {4} zaludy", _g.players[player3].Name, hands[player3].Count(i => i.Suit == Barva.Cerveny), hands[player3].Count(i => i.Suit == Barva.Zeleny), hands[player3].Count(i => i.Suit == Barva.Kule), hands[player3].Count(i => i.Suit == Barva.Zaludy));
-            for (initialRoundNumber = aiStrategy.RoundNumber;
-                 aiStrategy.RoundNumber < initialRoundNumber + roundsToCompute;
-                 //aiStrategy.RoundNumber++)
-                 aiStrategy1.RoundNumber++, aiStrategy2.RoundNumber++, aiStrategy3.RoundNumber++)
+            try
             {
-                if (aiStrategy.RoundNumber > 10) break;
-
-                var roundStarterIndex = player1;
-                AiRule r1 = null, r2 = null, r3 = null;
-                Dictionary<AiRule, Card> ruleDictionary;
-
-                if (!firstTime || c1 == null)
+                _log.DebugFormat("Round {0}. Starting simulation for {1}", _g.RoundNumber, _g.players[PlayerIndex].Name);
+                if (c1 != null) _log.DebugFormat("First card: {0}", c1);
+                if (c2 != null) _log.DebugFormat("Second card: {0}", c2);
+                _log.DebugFormat("{0}: {1} cerveny, {2} zeleny, {3} kule, {4} zaludy", _g.players[player2].Name, hands[player2].Count(i => i.Suit == Barva.Cerveny), hands[player2].Count(i => i.Suit == Barva.Zeleny), hands[player2].Count(i => i.Suit == Barva.Kule), hands[player2].Count(i => i.Suit == Barva.Zaludy));
+                _log.DebugFormat("{0}: {1} cerveny, {2} zeleny, {3} kule, {4} zaludy", _g.players[player3].Name, hands[player3].Count(i => i.Suit == Barva.Cerveny), hands[player3].Count(i => i.Suit == Barva.Zeleny), hands[player3].Count(i => i.Suit == Barva.Kule), hands[player3].Count(i => i.Suit == Barva.Zaludy));
+                for (initialRoundNumber = aiStrategy.RoundNumber;
+                     aiStrategy.RoundNumber < initialRoundNumber + roundsToCompute;
+                     //aiStrategy.RoundNumber++)
+                     aiStrategy1.RoundNumber++, aiStrategy2.RoundNumber++, aiStrategy3.RoundNumber++)
                 {
-                    aiStrategy = aiStrategies[player1];
-                    ruleDictionary = aiStrategy.GetApplicableRules();
+                    if (aiStrategy.RoundNumber > 10) break;
 
-                    r1 = ruleDictionary.Keys.OrderBy(i => i.Order).FirstOrDefault();
-                    c1 = ruleDictionary.OrderBy(i => i.Key.Order).Select(i => i.Value).FirstOrDefault();
+                    var roundStarterIndex = player1;
+                    AiRule r1 = null, r2 = null, r3 = null;
+                    Dictionary<AiRule, Card> ruleDictionary;
 
-                    //aiStrategy.MyIndex = player2;
-                    //aiStrategy.TeamMateIndex = aiStrategy.TeamMateIndex == player2 ? player1 : (aiStrategy.TeamMateIndex == -1 ? player3 : -1);
-                    if (firstTime)
+                    if (!firstTime || c1 == null)
                     {
-                        result.CardToPlay = c1;
-                        result.Rule = r1;
-                        if ((_gameType & (Hra.Durch | Hra.Betl)) == 0 &&
-                            (aiStrategy as AiStrategy)._bannedSuits.Any())
+                        aiStrategy = aiStrategies[player1];
+                        ruleDictionary = aiStrategy.GetApplicableRules();
+
+                        r1 = ruleDictionary.Keys.OrderBy(i => i.Order).FirstOrDefault();
+                        c1 = ruleDictionary.OrderBy(i => i.Key.Order).Select(i => i.Value).FirstOrDefault();
+
+                        //aiStrategy.MyIndex = player2;
+                        //aiStrategy.TeamMateIndex = aiStrategy.TeamMateIndex == player2 ? player1 : (aiStrategy.TeamMateIndex == -1 ? player3 : -1);
+                        if (firstTime)
                         {
-                            result.Rule.AiDebugInfo = "\nZakázané barvy: " + string.Join(" ", (aiStrategy as AiStrategy)._bannedSuits);
+                            result.CardToPlay = c1;
+                            result.Rule = r1;
+                            if ((_gameType & (Hra.Durch | Hra.Betl)) == 0 &&
+                                (aiStrategy as AiStrategy)._bannedSuits.Any())
+                            {
+                                result.Rule.AiDebugInfo = "\nZakázané barvy: " + string.Join(" ", (aiStrategy as AiStrategy)._bannedSuits);
+                            }
+                            result.ToplevelRuleDictionary = ruleDictionary;
+                            firstTime = false;
                         }
-                        result.ToplevelRuleDictionary = ruleDictionary;
-                        firstTime = false;
                     }
-                }
-                if (!firstTime || c2 == null)
-                {
-                    aiStrategy = aiStrategies[player2];
-                    ruleDictionary = aiStrategy.GetApplicableRules2(c1);
+                    if (!firstTime || c2 == null)
+                    {
+                        aiStrategy = aiStrategies[player2];
+                        ruleDictionary = aiStrategy.GetApplicableRules2(c1);
 
-                    r2 = ruleDictionary.Keys.OrderBy(i => i.Order).FirstOrDefault();
-                    c2 = ruleDictionary.OrderBy(i => i.Key.Order).Select(i => i.Value).FirstOrDefault();
+                        r2 = ruleDictionary.Keys.OrderBy(i => i.Order).FirstOrDefault();
+                        c2 = ruleDictionary.OrderBy(i => i.Key.Order).Select(i => i.Value).FirstOrDefault();
 
-                    //aiStrategy.MyIndex = player3;
-                    //aiStrategy.TeamMateIndex = aiStrategy.TeamMateIndex == player3 ? player2 : (aiStrategy.TeamMateIndex == -1 ? player1 : -1);
+                        //aiStrategy.MyIndex = player3;
+                        //aiStrategy.TeamMateIndex = aiStrategy.TeamMateIndex == player3 ? player2 : (aiStrategy.TeamMateIndex == -1 ? player1 : -1);
+                        if (firstTime)
+                        {
+                            result.CardToPlay = c2;
+                            result.Rule = r2;
+                            result.ToplevelRuleDictionary = ruleDictionary;
+                            firstTime = false;
+                        }
+                    }
+                    aiStrategy = aiStrategies[player3];
+                    ruleDictionary = aiStrategy.GetApplicableRules3(c1, c2);
+
+                    r3 = ruleDictionary.Keys.OrderBy(i => i.Order).FirstOrDefault();
+                    var c3 = ruleDictionary.OrderBy(i => i.Key.Order).Select(i => i.Value).FirstOrDefault();
+
+                    //if (c1 == null || c2 == null || c3 == null)
+                    //    c3 = c3; //investigate
+                    var roundWinnerCard = Round.WinningCard(c1, c2, c3, trump);
+                    var roundWinnerIndex = roundWinnerCard == c1 ? roundStarterIndex : (roundWinnerCard == c2 ? (roundStarterIndex + 1) % Game.NumPlayers : (roundStarterIndex + 2) % Game.NumPlayers);
+                    var roundScore = Round.ComputePointsWon(c1, c2, c3, aiStrategy.RoundNumber);
+                    result.Rounds.Add(new RoundDebugContext
+                    {
+                        RoundStarterIndex = roundStarterIndex,
+                        c1 = c1,
+                        c2 = c2,
+                        c3 = c3,
+                        //hlas123
+                        r1 = r1 != null ? r1.Description : null,
+                        r2 = r2 != null ? r2.Description : null,
+                        r3 = r3 != null ? r3.Description : null,
+                        RoundWinnerIndex = roundWinnerIndex
+                    });
+                    if (_g.RoundNumber == 0)
+                    {
+                        simRounds[aiStrategy.RoundNumber - 1] = new Round(_g.players, trump, roundStarterIndex, c1, c2, c3, aiStrategy.RoundNumber);
+                    }
+                    _log.TraceFormat("{0}: {1}, {2}: {3}, {4}: {5}", _g.players[player1].Name, c1, _g.players[player2].Name, c2, _g.players[player3].Name, c3);
+                    _log.TraceFormat("Simulation round {2} won by {0}. Points won: {1}", _g.players[roundWinnerIndex].Name, roundScore, aiStrategy.RoundNumber);
                     if (firstTime)
                     {
-                        result.CardToPlay = c2;
-                        result.Rule = r2;
+                        result.CardToPlay = c3;
+                        result.Rule = r3;
                         result.ToplevelRuleDictionary = ruleDictionary;
                         firstTime = false;
                     }
-                }
-                aiStrategy = aiStrategies[player3];
-                ruleDictionary = aiStrategy.GetApplicableRules3(c1, c2);
+                    if (aiStrategy.RoundNumber == 10 && trump.HasValue)
+                    {
+                        result.Final7Won = roundWinnerCard.Suit == trump.Value && roundWinnerCard.Value == Hodnota.Sedma && roundWinnerIndex == _g.GameStartingPlayerIndex;
+                        result.Final7AgainstWon = roundWinnerCard.Suit == trump.Value && roundWinnerCard.Value == Hodnota.Sedma && roundWinnerIndex != _g.GameStartingPlayerIndex;
+                    }
+                    hands[player1].Remove(c1);
+                    hands[player2].Remove(c2);
+                    hands[player3].Remove(c3);
+                    Check(hands);
+                    var hlas1 = _trump.HasValue && c1.Value == Hodnota.Svrsek && hands[player1].HasK(c1.Suit);
+                    var hlas2 = _trump.HasValue && c2.Value == Hodnota.Svrsek && hands[player2].HasK(c2.Suit);
+                    var hlas3 = _trump.HasValue && c3.Value == Hodnota.Svrsek && hands[player3].HasK(c3.Suit);
+                    if (Settings.Cheat)
+                    {
+                        //prob.Set(hands);
+                        prob1.Set(hands);
+                        prob2.Set(hands);
+                        prob3.Set(hands);
+                    }
+                    else
+                    {
+                        //UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                        //UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                        //UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
 
-                r3 = ruleDictionary.Keys.OrderBy(i => i.Order).FirstOrDefault();
-                var c3 = ruleDictionary.OrderBy(i => i.Key.Order).Select(i => i.Value).FirstOrDefault();
+                        var gameWinningRound1 = IsGameWinningRound(simRounds[aiStrategy.RoundNumber - 1], simRounds, 0, teamMateIndex1, hands[0], prob1);
+                        var gameWinningRound2 = IsGameWinningRound(simRounds[aiStrategy.RoundNumber - 1], simRounds, 0, teamMateIndex2, hands[1], prob2);
+                        var gameWinningRound3 = IsGameWinningRound(simRounds[aiStrategy.RoundNumber - 1], simRounds, 0, teamMateIndex3, hands[2], prob3);
 
-                //if (c1 == null || c2 == null || c3 == null)
-                //    c3 = c3; //investigate
-                var roundWinnerCard = Round.WinningCard(c1, c2, c3, trump);
-                var roundWinnerIndex = roundWinnerCard == c1 ? roundStarterIndex : (roundWinnerCard == c2 ? (roundStarterIndex + 1) % Game.NumPlayers : (roundStarterIndex + 2) % Game.NumPlayers);
-                var roundScore = Round.ComputePointsWon(c1, c2, c3, aiStrategy.RoundNumber);
-                result.Rounds.Add(new RoundDebugContext
-                {
-                    RoundStarterIndex = roundStarterIndex,
-                    c1 = c1,
-                    c2 = c2,
-                    c3 = c3,
-                    //hlas123
-                    r1 = r1 != null ? r1.Description : null,
-                    r2 = r2 != null ? r2.Description : null,
-                    r3 = r3 != null ? r3.Description : null,
-                    RoundWinnerIndex = roundWinnerIndex
-                });
-                if (_g.RoundNumber == 0)
-                {
-                    simRounds[aiStrategy.RoundNumber - 1] = new Round(_g.players, trump, roundStarterIndex, c1, c2, c3, aiStrategy.RoundNumber);
-                }
-                _log.TraceFormat("{0}: {1}, {2}: {3}, {4}: {5}", _g.players[player1].Name, c1, _g.players[player2].Name, c2, _g.players[player3].Name, c3);
-                _log.TraceFormat("Simulation round {2} won by {0}. Points won: {1}", _g.players[roundWinnerIndex].Name, roundScore, aiStrategy.RoundNumber);
-                if (firstTime)
-                {
-                    result.CardToPlay = c3;
-                    result.Rule = r3;
-                    result.ToplevelRuleDictionary = ruleDictionary;
-                    firstTime = false;
-                }
-                if (aiStrategy.RoundNumber == 10 && trump.HasValue)
-                {
-                    result.Final7Won = roundWinnerCard.Suit == trump.Value && roundWinnerCard.Value == Hodnota.Sedma && roundWinnerIndex == _g.GameStartingPlayerIndex;
-                    result.Final7AgainstWon = roundWinnerCard.Suit == trump.Value && roundWinnerCard.Value == Hodnota.Sedma && roundWinnerIndex != _g.GameStartingPlayerIndex;
-                }
-                hands[player1].Remove(c1);
-                hands[player2].Remove(c2);
-                hands[player3].Remove(c3);
-                Check(hands);
-                var hlas1 = _trump.HasValue && c1.Value == Hodnota.Svrsek && hands[player1].HasK(c1.Suit);
-                var hlas2 = _trump.HasValue && c2.Value == Hodnota.Svrsek && hands[player2].HasK(c2.Suit);
-                var hlas3 = _trump.HasValue && c3.Value == Hodnota.Svrsek && hands[player3].HasK(c3.Suit);
-                if (Settings.Cheat)
-                {
-                    //prob.Set(hands);
-                    prob1.Set(hands);
-                    prob2.Set(hands);
-                    prob3.Set(hands);
-                }
-                else
-                {
-                    //UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
-                    //UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
-                    //UpdateProbabilitiesAfterCardPlayed(prob, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _teamMateDoubledGame);
+                        UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound1);
+                        UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound1);
+                        UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound1);
 
-                    var gameWinningRound1 = IsGameWinningRound(simRounds[aiStrategy.RoundNumber - 1], simRounds, 0, teamMateIndex1, hands[0], prob1);
-                    var gameWinningRound2 = IsGameWinningRound(simRounds[aiStrategy.RoundNumber - 1], simRounds, 0, teamMateIndex2, hands[1], prob2);
-                    var gameWinningRound3 = IsGameWinningRound(simRounds[aiStrategy.RoundNumber - 1], simRounds, 0, teamMateIndex3, hands[2], prob3);
+                        UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound2);
+                        UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound2);
+                        UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound2);
 
-                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound1);
-                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound1);
-                    UpdateProbabilitiesAfterCardPlayed(prob1, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound1);
-
-                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound2);
-                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound2);
-                    UpdateProbabilitiesAfterCardPlayed(prob2, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound2);
-
-                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound3);
-                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound3);
-                    UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound3);
+                        UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, null, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound3);
+                        UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, null, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound3);
+                        UpdateProbabilitiesAfterCardPlayed(prob3, aiStrategy.RoundNumber, roundStarterIndex, c1, c2, c3, hlas1, hlas2, hlas3, TeamMateIndex, teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound3);
+                    }
+                    //aiStrategy.MyIndex = roundWinnerIndex;
+                    //aiStrategy.TeamMateIndex = _g.players[roundWinnerIndex].TeamMateIndex;
+                    //player1 = aiStrategy.MyIndex;
+                    //player2 = (aiStrategy.MyIndex + 1) % Game.NumPlayers;
+                    //player3 = (aiStrategy.MyIndex + 2) % Game.NumPlayers;
+                    player1 = roundWinnerIndex;
+                    player2 = (roundWinnerIndex + 1) % Game.NumPlayers;
+                    player3 = (roundWinnerIndex + 2) % Game.NumPlayers;
+                    AmendGameComputationResult(result, roundStarterIndex, roundWinnerIndex, roundScore, hands, c1, c2, c3);
+                    Check(hands);
+                    _log.TraceFormat("Score: {0}/{1}/{2}", result.Score[0], result.Score[1], result.Score[2]);
                 }
-                //aiStrategy.MyIndex = roundWinnerIndex;
-                //aiStrategy.TeamMateIndex = _g.players[roundWinnerIndex].TeamMateIndex;
-                //player1 = aiStrategy.MyIndex;
-                //player2 = (aiStrategy.MyIndex + 1) % Game.NumPlayers;
-                //player3 = (aiStrategy.MyIndex + 2) % Game.NumPlayers;
-                player1 = roundWinnerIndex;
-                player2 = (roundWinnerIndex + 1) % Game.NumPlayers;
-                player3 = (roundWinnerIndex + 2) % Game.NumPlayers;
-                AmendGameComputationResult(result, roundStarterIndex, roundWinnerIndex, roundScore, hands, c1, c2, c3);
-                Check(hands);
-                _log.TraceFormat("Score: {0}/{1}/{2}", result.Score[0], result.Score[1], result.Score[2]);
+            }
+            catch(Exception ex)
+            {
+                _g.DebugString.AppendLine($"ComputeGame for player{PlayerIndex+1} and round {aiStrategy.RoundNumber} threw an exception {ex.Message}");
+                _g.DebugString.Append(aiStrategy._debugString.ToString());
+                throw;
             }
 
             _log.DebugFormat("Round {0}. Finished simulation for {1}. Card/rule to play: {2} - {3}, expected score in the end: {4}/{5}/{6}\n",

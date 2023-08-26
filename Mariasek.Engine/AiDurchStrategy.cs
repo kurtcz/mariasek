@@ -9,8 +9,8 @@ namespace Mariasek.Engine
 {
     public class AiDurchStrategy : AiStrategyBase
     {
-        public AiDurchStrategy(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities)
-            :base(trump, gameType, hands, rounds, teamMatesSuits, probabilities)
+        public AiDurchStrategy(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities, IStringLogger debugString)
+            :base(trump, gameType, hands, rounds, teamMatesSuits, probabilities, debugString)
         {
         }
 

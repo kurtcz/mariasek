@@ -11,8 +11,8 @@ namespace Mariasek.Engine
     {
         public float RiskFactor { get; set; }
 
-        public AiBetlStrategy(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities)
-            : base(trump, gameType, hands, rounds, teamMatesSuits, probabilities)
+        public AiBetlStrategy(Barva? trump, Hra gameType, Hand[] hands, Round[] rounds, List<Barva> teamMatesSuits, Probability probabilities, IStringLogger debugString)
+            : base(trump, gameType, hands, rounds, teamMatesSuits, probabilities, debugString)
         {
             RiskFactor = 0.275f; //0.2727f ~ (9 nad 5) / (11 nad 5)
 		}
