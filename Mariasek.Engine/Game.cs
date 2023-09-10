@@ -100,7 +100,7 @@ namespace Mariasek.Engine
         public List<Card> talon { get; private set; }
         public Round[] rounds { get; private set; }
         public Round CurrentRound { get { return rounds != null && RoundNumber > 0  && RoundNumber <= rounds.Length ? rounds[RoundNumber - 1] : null; } }
-		public int RoundNumber { get; private set; }
+        public int RoundNumber { get; private set; }
         public int LastRoundNumber { get; private set; }
         public Bidding Bidding { get; private set; }
         public string Author { get; set; }
@@ -110,9 +110,9 @@ namespace Mariasek.Engine
 #if !PORTABLE
         public static Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
 #else
-		public Version Version { get { return GetVersion != null ? GetVersion() : typeof(Game).GetTypeInfo().Assembly.GetName().Version; } }
+        public Version Version { get { return GetVersion != null ? GetVersion() : typeof(Game).GetTypeInfo().Assembly.GetName().Version; } }
         public Func<string, Stream> GetFileStream { get; set; }
-		public Func<Version> GetVersion { get; set; }
+        public Func<Version> GetVersion { get; set; }
 #endif
         public string Comment { get; set; }
         public IStringLogger DebugString { get; private set; }
@@ -720,8 +720,8 @@ namespace Mariasek.Engine
             //    players[(GameStartingPlayerIndex + 1) % NumPlayers].Hand.Sort();
             //    players[(GameStartingPlayerIndex + 2) % NumPlayers].Hand.Sort();
             //}
-			RoundSanityCheck();
-			if(RoundNumber == 0)
+            RoundSanityCheck();
+            if(RoundNumber == 0)
             {
                 Rewind();
             }
@@ -1008,7 +1008,7 @@ namespace Mariasek.Engine
             DebugString.AppendLine($"Talon: {talonstr}");
         }
 
-        public void PlayGame(CancellationToken cancellationToken = default(CancellationToken), Hra? desiredGameType = null)
+        public async Task PlayGame(CancellationToken cancellationToken = default(CancellationToken), Hra? desiredGameType = null)
         {
             try
             {
@@ -1036,30 +1036,30 @@ namespace Mariasek.Engine
 
                         //predcasne vitezstvi ukazuju jen do sedmeho kola, pro posledni 2 karty to nema smysl
                         //(kontrola je po sedmem kole)
-						if (RoundNumber <= 8 && 
+                        if (RoundNumber <= 8 && 
                             ((AllowPlayerAutoFinish && roundWinner.PlayerIndex == 0) || 
                              (AllowAIAutoFinish && roundWinner.PlayerIndex != 0)) &&
                             PlayerWinsGame(roundWinner, out catchCardsMayExist))
-						{
-							IsRunning = false;
-							if (GameType == Hra.Betl && !catchCardsMayExist)
-							{
-								roundWinner = GameStartingPlayer;
-							}
+                        {
+                            IsRunning = false;
+                            if (GameType == Hra.Betl && !catchCardsMayExist)
+                            {
+                                roundWinner = GameStartingPlayer;
+                            }
                             var winningHand = roundWinner.Hand.ToList();
-							CompleteUnfinishedRounds();
+                            CompleteUnfinishedRounds();
                             OnGameWonPrematurely(this, new GameWonPrematurelyEventArgs { winner = roundWinner, winningHand = winningHand, roundNumber = RoundNumber });
-							break;
-						}
-						var r = new Round(this, roundWinner);
+                            break;
+                        }
+                        var r = new Round(this, roundWinner);
 
                         LastRoundNumber = RoundNumber;
-						DebugString.AppendFormat("Starting round {0}\n", RoundNumber);
+                        DebugString.AppendFormat("Starting round {0}\n", RoundNumber);
                         RoundSanityCheck();
-						OnRoundStarted(r);
+                        OnRoundStarted(r);
 
                         rounds[RoundNumber - 1] = r;
-                        roundWinner = r.PlayRound();
+                        roundWinner = await r.PlayRound();
 
                         DebugString.AppendFormat("Finished round {0}\n", RoundNumber);
                         OnRoundFinished(r);
@@ -1077,7 +1077,7 @@ namespace Mariasek.Engine
                 using (var fs = GetFileStream("_end.hra"))
                 {
                     SaveGame(fs, saveDebugInfo: true);
-				}
+                }
 #endif
                 Bidding.Die();
                 OnGameFinished(Results);
@@ -1104,15 +1104,15 @@ namespace Mariasek.Engine
                     {
                         SaveGame(fs, saveDebugInfo: true);
                     }
-					using (var fs = GetFileStream("_error.txt"))
-					{
+                    using (var fs = GetFileStream("_error.txt"))
+                    {
                         using(var tw = new StreamWriter(fs))
                         {
                             tw.Write($"{ex.Message}\n{ex.StackTrace}\n{DebugString.ToString()}\n-\n{BiddingDebugInfo.ToString()}");
                         }
-					}
+                    }
 #endif
-					OnGameException(new GameExceptionEventArgs { e = ex });
+                    OnGameException(new GameExceptionEventArgs { e = ex });
                     throw;
                 }
             }
@@ -1284,7 +1284,7 @@ namespace Mariasek.Engine
             {
                 throw e;
             }
-		}
+        }
 
         public void Rewind()
         {
@@ -1313,8 +1313,8 @@ namespace Mariasek.Engine
 
         public Deck GetDeckFromLastGame()
         {
-			var deck = new List<Card>();
-			var sb = new StringBuilder();
+            var deck = new List<Card>();
+            var sb = new StringBuilder();
 
             if (rounds != null)
             {
@@ -1395,8 +1395,8 @@ namespace Mariasek.Engine
                           .Distinct()
                           .ToList();
             }
-			try
-			{
+            try
+            {
                 //obcas se nepodari balicek rekonstuovat - napr. protoze zmizel talon
                 //neni jasne jak tato chyba vznika. Pokud karet nechybi moc,
                 //tak se pokus rozbity balicek opravit dodanim chybejicich karet
@@ -1435,8 +1435,8 @@ namespace Mariasek.Engine
 
                 return newDeck;
             }
-			catch (InvalidDataException e)
-			{
+            catch (InvalidDataException e)
+            {
                 //pokud se balicek nepodarilo dat dohromady, tak vyrob uplne novy
                 //throw new InvalidDataException(sb.ToString(), e);
                 var newDeck = new Deck();
@@ -1445,13 +1445,13 @@ namespace Mariasek.Engine
                 newDeck.Shuffle();
 
                 return newDeck;
-			}
+            }
         }
 
         public bool IsValidTalonCard(Card c)
         {
-			//to druhe by nemelo teoreticky nastat, ale uz se to par hracum nejak povedlo
-			return IsValidTalonCard(c.Value, c.Suit, trump, AllowAXTalon, AllowTrumpTalon) && c != TrumpCard;
+            //to druhe by nemelo teoreticky nastat, ale uz se to par hracum nejak povedlo
+            return IsValidTalonCard(c.Value, c.Suit, trump, AllowAXTalon, AllowTrumpTalon) && c != TrumpCard;
         }
 
         public static bool IsValidTalonCard(Hodnota h, Barva b, Barva? trump, bool allowAX, bool allowTrump)
@@ -1572,15 +1572,15 @@ namespace Mariasek.Engine
                                                                            hand3.Any(i => i.Suit == b && i.Value == h)) &&
                                                                           (((GameType & (Hra.Betl | Hra.Durch)) != 0 &&
                                                                             hand1.Any(i => i.Suit == b && i.BadValue < Card.GetBadValue(h))) ||
-																		   ((GameType & (Hra.Betl | Hra.Durch)) == 0 &&
-																		    hand1.Any(i => i.Suit == b && i.Value < h)))));
+                                                                           ((GameType & (Hra.Betl | Hra.Durch)) == 0 &&
+                                                                            hand1.Any(i => i.Suit == b && i.Value < h)))));
 
                 var topCards = hand1.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-			                                        .Where(h => ((GameType & (Hra.Betl | Hra.Durch)) == 0 && h > i.Value) ||
+                                                    .Where(h => ((GameType & (Hra.Betl | Hra.Durch)) == 0 && h > i.Value) ||
                                                                  ((GameType & (Hra.Betl | Hra.Durch)) != 0 && Card.GetBadValue(h) > i.BadValue))
                                                     .All(h => hand2.All(j => j.Suit != i.Suit || j.Value != h) &&
                                                               hand3.All(j => j.Suit != i.Suit || j.Value != h)))
-		                            .GroupBy(g => g.Suit)
+                                    .GroupBy(g => g.Suit)
                                     .ToList();
                 var topTrumps = trump.HasValue 
                                      ? topCards.Where(i => i.Key == trump.Value)
@@ -1639,7 +1639,7 @@ namespace Mariasek.Engine
             return validGameTypes;
         }
 
-        private void ChooseGame()
+        private async Task ChooseGame()
         {
             GameFlavour gameFlavour;
             Hra validGameTypes = 0;
@@ -1654,7 +1654,7 @@ namespace Mariasek.Engine
             gameTypeForPlayer[GameStartingPlayerIndex] = Hra.Hra;
             DebugString.AppendLine("ChooseGame()");
             DebugString.AppendFormat("Player {0} ChooseTrump()\n", GameStartingPlayer.PlayerIndex + 1);
-            TrumpCard = GameStartingPlayer.ChooseTrump();
+            TrumpCard = await GameStartingPlayer.ChooseTrump();
             DebugString.AppendFormat("TrumpCard: {0}\n", TrumpCard);
             trump = TrumpCard.Suit;
             GameType = 0;
@@ -1682,8 +1682,8 @@ namespace Mariasek.Engine
                 }
                 if (noMoreGameFlavourChoices)
                 {
-					canChooseFlavour = false;
-				}
+                    canChooseFlavour = false;
+                }
                 if (firstTime)
                 {
                     if (GameStartingPlayer.Hand.Count() != 12)
@@ -1693,7 +1693,7 @@ namespace Mariasek.Engine
                         throw new InvalidOperationException($"Invalid card count during ChooseGame(): {GameStartingPlayer.Hand.Count()}");
                     }
                     DebugString.AppendFormat("Player {0} ChooseTalon()\n", GameStartingPlayer.PlayerIndex + 1);
-                    talon = new List<Card>(GameStartingPlayer.ChooseTalon());
+                    talon = new List<Card>(await GameStartingPlayer.ChooseTalon());
                     GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
                     if (talon == null || talon.Count() != 2)
                     {
@@ -1702,14 +1702,14 @@ namespace Mariasek.Engine
                         throw new InvalidOperationException($"Invalid talon count from player{GameStartingPlayerIndex + 1} during ChooseGame(): {talon?.Count()} null: {talon == null}");
                     }
                     DebugString.AppendFormat("talon: {0} {1}\n", talon[0], talon[1]);
-					BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
+                    BiddingDebugInfo.AppendFormat("\nPlayer {0} talon: {1} {2}", GameStartingPlayer.PlayerIndex + 1, talon[0], talon[1]);
                     if (GameStartingPlayer.Hand.Count() != 10)
                     {
                         DebugString.AppendLine("Invalid card count during ChooseGame()");
                         LogHands();                            
                         throw new InvalidOperationException($"Invalid card count during ChooseGame(): {GameStartingPlayer.Hand.Count()}");
                     }
-					if (talon.Any(i => !IsValidTalonCard(i))) //pokud je v talonu eso nebo desitka, musime hrat betla nebo durch
+                    if (talon.Any(i => !IsValidTalonCard(i))) //pokud je v talonu eso nebo desitka, musime hrat betla nebo durch
                     {
                         canChooseFlavour = false;
                     }
@@ -1717,7 +1717,7 @@ namespace Mariasek.Engine
                 if (canChooseFlavour)
                 {
                     DebugString.AppendFormat("Player {0} ChooseGameFlavour()\n", nextPlayer.PlayerIndex + 1);
-                    gameFlavour = nextPlayer.ChooseGameFlavour();
+                    gameFlavour = await nextPlayer.ChooseGameFlavour();
                     if (gameFlavour == GameFlavour.Good107 && 
                         (!Top107 || !firstTime))
                     {
@@ -1742,15 +1742,15 @@ namespace Mariasek.Engine
                     }
                     if (gameFlavour == GameFlavour.Bad)
                     {
-						GameStartingPlayerIndex = nextPlayer.PlayerIndex;
+                        GameStartingPlayerIndex = nextPlayer.PlayerIndex;
                         GivenUp = false;
-						trump = null;
-						TrumpCard = null;
+                        trump = null;
+                        TrumpCard = null;
                         foreach (var player in players)
                         {
                             player.BidMade = string.Empty;
                         }
-					}
+                    }
                     OnGameFlavourChosen(new GameFlavourChosenEventArgs
                     {
                         Player = nextPlayer,
@@ -1763,8 +1763,8 @@ namespace Mariasek.Engine
                     if (talon.Any(i => !IsValidTalonCard(i))) //pokud je v talonu eso nebo desitka, musime hrat betla nebo durch
                     {
                         gameFlavour = GameFlavour.Bad;
-						trump = null;
-						TrumpCard = null;
+                        trump = null;
+                        TrumpCard = null;
                         OnGameFlavourChosen(new GameFlavourChosenEventArgs
                         {
                             Player = nextPlayer,
@@ -1784,7 +1784,7 @@ namespace Mariasek.Engine
                         Bidding.Round = (Bidding.Round + 1) % Game.NumPlayers;
 
                         //zapis novy flek
-                        bidForPlayer[nextPlayer.PlayerIndex] = Bidding.GetBidsForPlayer(GameType, players[nextPlayer.PlayerIndex], bidNumber++);
+                        bidForPlayer[nextPlayer.PlayerIndex] = await Bidding.GetBidsForPlayer(GameType, players[nextPlayer.PlayerIndex], bidNumber++);
                     }
                 }
                 else if(gameFlavour == GameFlavour.Bad)
@@ -1799,7 +1799,7 @@ namespace Mariasek.Engine
                         }
                         DebugString.AppendFormat("Old talon {0} {1} goes to Player {2}\n", talon[0], talon[1], GameStartingPlayer.PlayerIndex + 1);
                         GameStartingPlayer.Hand.AddRange(talon);
-						talon.Clear();
+                        talon.Clear();
                         if (GameStartingPlayer.Hand.Count() != 12)
                         {
                             DebugString.AppendLine("Invalid card count during ChooseGame()");
@@ -1807,9 +1807,9 @@ namespace Mariasek.Engine
                             throw new InvalidOperationException($"Invalid card count after taking old talon: {GameStartingPlayer.Hand.Count()}");
                         }
                         DebugString.AppendFormat("Player {0} ChooseTalon()\n", GameStartingPlayer.PlayerIndex + 1);
-						talon = new List<Card>(GameStartingPlayer.ChooseTalon());
+                        talon = new List<Card>(await GameStartingPlayer.ChooseTalon());
                         GameStartingPlayer.Hand.RemoveAll(i => talon.Contains(i));
-						if (talon == null || talon.Count() != 2)
+                        if (talon == null || talon.Count() != 2)
                         {
                             DebugString.AppendLine("Invalid talon count during ChooseGame()");
                             LogHands();
@@ -1830,7 +1830,7 @@ namespace Mariasek.Engine
                     }
                     validGameTypes = GetValidGameTypesForPlayer(nextPlayer, gameFlavour, minimalBid);
                     DebugString.AppendFormat("Player {0} ChooseGameType()\n", GameStartingPlayer.PlayerIndex + 1);
-                    GameType = GameStartingPlayer.ChooseGameType(validGameTypes);
+                    GameType = await GameStartingPlayer.ChooseGameType(validGameTypes);
                     GameTypeConfidence = GameStartingPlayer.DebugInfo.TotalRuleCount > 0 ? (float)GameStartingPlayer.DebugInfo.RuleCount / (float)GameStartingPlayer.DebugInfo.TotalRuleCount : -1f;
                     DebugString.AppendFormat("ChooseGameType: {0}\n", GameType);
                     if (GameType == 0)
@@ -1882,7 +1882,7 @@ namespace Mariasek.Engine
                 }
                 else
                 {
-                    GameType = GameStartingPlayer.ChooseGameType(validGameTypes);
+                    GameType = await GameStartingPlayer.ChooseGameType(validGameTypes);
                     if (GameType == 0)
                     {
                         GameType = Hra.Hra;
@@ -1903,7 +1903,7 @@ namespace Mariasek.Engine
                     Bidding = new Bidding(this);
                     if (GameType != 0)
                     {
-                        GameType = Bidding.CompleteBidding();
+                        GameType = await Bidding.CompleteBidding();
                     }
                 }
                 if (Bidding.SevenMultiplier * SevenValue > 0 &&
@@ -2070,12 +2070,12 @@ namespace Mariasek.Engine
                 }
             }
             BiddingDebugInfo.Append("\nVšechny simulace:");
-			if (players[playerIndex].DebugInfo.AllChoices == null)
-			{
-				BiddingDebugInfo.Append("DebugInfo.AllChoices == null");
-				return;
-			}
-			foreach (var choice in players[playerIndex].DebugInfo.AllChoices.Where(i => i?.TotalRuleCount > 0))
+            if (players[playerIndex].DebugInfo.AllChoices == null)
+            {
+                BiddingDebugInfo.Append("DebugInfo.AllChoices == null");
+                return;
+            }
+            foreach (var choice in players[playerIndex].DebugInfo.AllChoices.Where(i => i?.TotalRuleCount > 0))
             {
                 BiddingDebugInfo.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, choice.TotalRuleCount);
             }

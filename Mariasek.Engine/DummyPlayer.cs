@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Mariasek.Engine
+﻿namespace Mariasek.Engine
 {
     public class DummyPlayer : AbstractPlayer
     {
@@ -13,12 +7,12 @@ namespace Mariasek.Engine
             
         }
 
-        public override Card ChooseTrump()
+        public override async Task<Card> ChooseTrump()
         {
             return Hand.RandomOne();
         }
 
-        public override List<Card> ChooseTalon()
+        public override async Task<List<Card>> ChooseTalon()
         {
             var talon = Hand.Where(i => i.Suit != _g.trump.Value &&
                                    i.Value < Hodnota.Svrsek)
@@ -41,19 +35,19 @@ namespace Mariasek.Engine
             return talon;
         }
 
-        public override GameFlavour ChooseGameFlavour()
+        public override async Task<GameFlavour> ChooseGameFlavour()
         {
             return GameFlavour.Good;
         }
 
-        public override Hra ChooseGameType(Hra validGameTypes)
+        public override async Task<Hra> ChooseGameType(Hra validGameTypes)
         {
             return Hra.Hra;
         }
 
         private int _numberOfDoubles = 0;
 
-        public override Hra GetBidsAndDoubles(Bidding bidding)
+        public override async Task<Hra> GetBidsAndDoubles(Bidding bidding)
         {
             //1x flekujeme hru, jinak mlcime
             if (_numberOfDoubles++ == 0)
@@ -67,7 +61,7 @@ namespace Mariasek.Engine
         {            
         }
 
-        public override Card PlayCard(Round r)
+        public override async Task<Card> PlayCard(Round r)
         {
             if (r.c1 == null)
             {

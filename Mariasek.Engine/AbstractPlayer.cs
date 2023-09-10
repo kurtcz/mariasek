@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-//using System.Security.Policy;
-using System.Text;
-
-namespace Mariasek.Engine
+﻿namespace Mariasek.Engine
 {
     public interface IPlayer
     {
-        Card ChooseTrump();
-        List<Card> ChooseTalon();
-        Hra ChooseGameType(Hra minimalBid = Hra.Hra);
-        void Init();
-        Card PlayCard(Round r);
+        Task<Card> ChooseTrump();
+        Task<GameFlavour> ChooseGameFlavour();
+        Task<List<Card>> ChooseTalon();
+        Task<Hra> ChooseGameType(Hra minimalBid = Hra.Hra);
+        Task<Hra> GetBidsAndDoubles(Bidding bidding);
+        Task<Card> PlayCard(Round r);
     }
 
-    //public abstract class AbstractPlayer : /*MarshalByRefObject,*/ IPlayer
     public abstract class AbstractPlayer : IPlayer
     {
         protected Game _g;
@@ -23,7 +17,7 @@ namespace Mariasek.Engine
         public string Name { get; set; }
         public int PlayerIndex { get; set; }
 
-		private int _teamMateIndex;
+        private int _teamMateIndex;
         public int TeamMateIndex
         {
             get
@@ -32,15 +26,15 @@ namespace Mariasek.Engine
                 {
                     return _teamMateIndex;
                 }
-				if (PlayerIndex == _g.GameStartingPlayerIndex)
-				{
+                if (PlayerIndex == _g.GameStartingPlayerIndex)
+                {
                     _teamMateIndex = -1;
-				}
-				else
-				{
-					_teamMateIndex = _g.players.First(i => i.PlayerIndex != PlayerIndex && i.PlayerIndex != _g.GameStartingPlayerIndex).PlayerIndex;
-				}
-				return _teamMateIndex;
+                }
+                else
+                {
+                    _teamMateIndex = _g.players.First(i => i.PlayerIndex != PlayerIndex && i.PlayerIndex != _g.GameStartingPlayerIndex).PlayerIndex;
+                }
+                return _teamMateIndex;
             }
         }
 
@@ -54,11 +48,11 @@ namespace Mariasek.Engine
         public float BidConfidence { get; protected set; }
         public Hra? TestGameType { get; set; }          //used when we want to generate certain game type for testing
 
-        public abstract Card ChooseTrump();
-        public abstract List<Card> ChooseTalon();
-        public abstract GameFlavour ChooseGameFlavour();
-        public abstract Hra ChooseGameType(Hra validGameTypes);
-        public abstract Hra GetBidsAndDoubles(Bidding bidding);
+        public abstract Task<Card> ChooseTrump();
+        public abstract Task<List<Card>> ChooseTalon();
+        public abstract Task<GameFlavour> ChooseGameFlavour();
+        public abstract Task<Hra> ChooseGameType(Hra validGameTypes);
+        public abstract Task<Hra> GetBidsAndDoubles(Bidding bidding);
 
         public delegate void GameComputationProgressEventHandler(object sender, GameComputationProgressEventArgs e);
         public event GameComputationProgressEventHandler GameComputationProgress;
@@ -84,10 +78,10 @@ namespace Mariasek.Engine
                     GameComputationProgress -= (GameComputationProgressEventHandler)d;
                 }
             }
-			_g = null;
+            _g = null;
         }
 
-        public abstract Card PlayCard(Round r); //r obsahuje kontext (ktere karty uz nekdo hral prede mnou a jestli byly zahrany nejake hlasy)
+        public abstract Task<Card> PlayCard(Round r); //r obsahuje kontext (ktere karty uz nekdo hral prede mnou a jestli byly zahrany nejake hlasy)
 
         protected AbstractPlayer(Game g)
         {

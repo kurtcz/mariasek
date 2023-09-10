@@ -202,7 +202,7 @@ namespace Mariasek.SharedClient
             AutoPlaySingletonCard = false;
             BaseBet = 1f;
             Locale = "cs-CZ";
-			MaxWin = 500;
+            MaxWin = 500;
             CalculationStyle = CalculationStyle.Adding;
             CountHlasAgainst = true;
             CurrentStartingPlayerIndex = 0;
@@ -214,7 +214,7 @@ namespace Mariasek.SharedClient
             RoundFinishedWaitTimeMs = 1000;
             AutoFinishRounds = true;
             AutoFinish = true;
-			CardDesign = CardFace.Single;
+            CardDesign = CardFace.Single;
             CardBackSide = CardBackSide.Horse;
             PlayerNames = new [] { "Já", "Karel", "Pepa" };
             MinimalBidsForGame = 1;
@@ -272,12 +272,12 @@ namespace Mariasek.SharedClient
 
         public void ResetThresholds()
         {
-			Default = true;
+            Default = true;
 
-			//celkem jsou ve hre 2 nezname karty v dane barve
-			//souper ma 5 z 11 neznamych karet ve hre
-			//pravdepodobnost, ze souper nezna ani jednu z 2 neznamych karet v dane barve
-			RiskFactor = 0.28f; //0.2727f ~ (9 nad 5) / (11 nad 5)
+            //celkem jsou ve hre 2 nezname karty v dane barve
+            //souper ma 5 z 11 neznamych karet ve hre
+            //pravdepodobnost, ze souper nezna ani jednu z 2 neznamych karet v dane barve
+            RiskFactor = 0.28f; //0.2727f ~ (9 nad 5) / (11 nad 5)
             SolitaryXThreshold = 0.13f; //pokud mam na zacatku 5 karet, tak P(souper ma plonkovou X) ~ 0.131
             SolitaryXThresholdDefense = 0.5f; //v obrane musi mit prah vyssi hodnotu aby tahali jen kdyz je to skoro jiste
             RiskFactorSevenDefense = 0.5f; //pouziva se u pravidla bodovat nebo vytlacit trumf proti sedme

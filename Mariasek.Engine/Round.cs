@@ -161,12 +161,12 @@ namespace Mariasek.Engine
             CalculateRoundScore();
         }
 
-        public AbstractPlayer PlayRound()
+        public async Task<AbstractPlayer> PlayRound()
         {
             var allRules = new StringBuilder();
 
             //musim nejak overit, ze karty jsou validni a pokud ne tak to hraci oznamit a akci opakovat
-            c1 = player1.PlayCard(this);
+            c1 = await player1.PlayCard(this);
             if (c1 == null)
             {
                 throw new InvalidOperationException("Card c1 cannot be null");
@@ -198,7 +198,7 @@ namespace Mariasek.Engine
             _g.ThrowIfCancellationRequested();
             _g.OnCardPlayed(this);
             
-            c2 = player2.PlayCard(this);
+            c2 = await player2.PlayCard(this);
             if (c2 == null)
             {
                 throw new InvalidOperationException("Card c2 cannot be null");
@@ -206,9 +206,9 @@ namespace Mariasek.Engine
             player2.Hand.Remove(c2);
             _g.DebugString.AppendFormat("Player{0}: {1}\n", player2.PlayerIndex + 1, c2);
             if (_g.rounds.Where(i => i != null && i.number < number).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).Contains(c2))
-			{
-				throw new InvalidOperationException($"Card {c2} has already been played");
-			}
+            {
+                throw new InvalidOperationException($"Card {c2} has already been played");
+            }
             if (player2.DebugInfo.AllChoices.Count() > 1)
             {
                 allRules.Clear();
@@ -231,17 +231,17 @@ namespace Mariasek.Engine
             _g.ThrowIfCancellationRequested(); 
             _g.OnCardPlayed(this);
             
-            c3 = player3.PlayCard(this);
+            c3 = await player3.PlayCard(this);
             if (c3 == null)
             {
                 throw new InvalidOperationException("Card c3 cannot be null");
             }
             player3.Hand.Remove(c3);
             _g.DebugString.AppendFormat("Player{0}: {1}\n", player3.PlayerIndex + 1, c3);
-			if (_g.rounds.Where(i => i != null && i.number < number).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).Contains(c3))
-			{
-				throw new InvalidOperationException($"Card {c3} has already been played");
-			}
+            if (_g.rounds.Where(i => i != null && i.number < number).SelectMany(i => new[] { i.c1, i.c2, i.c3 }).Contains(c3))
+            {
+                throw new InvalidOperationException($"Card {c3} has already been played");
+            }
             if (player3.DebugInfo.AllChoices.Count() > 1)
             {
                 allRules.Clear();

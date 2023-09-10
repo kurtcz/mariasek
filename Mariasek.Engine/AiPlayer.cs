@@ -1,18 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
+﻿using System.Text;
 using Mariasek.Engine.Logger;
-using System.Threading.Tasks;
 using System.Collections.Concurrent;
-using Mariasek.Engine.Schema;
-using System.IO;
-using System.Globalization;
-using System.Runtime.InteropServices.ComTypes;
 using System.Data;
 
 namespace Mariasek.Engine
@@ -60,15 +48,15 @@ namespace Mariasek.Engine
             //MaxDegreeOfParallelism = 1  //Uncomment before debugging
             //MaxDegreeOfParallelism = 2 * Environment.ProcessorCount - 1
         };
-		public bool AdvisorMode { get; set; }
-		private Card _trumpCard;
-		public Card TrumpCard
-		{
-			get { return _trumpCard; }
-			set { _trumpCard = value; _trump = value != null ? (Barva?)value.Suit : null; }
-		}
+        public bool AdvisorMode { get; set; }
+        private Card _trumpCard;
+        public Card TrumpCard
+        {
+            get { return _trumpCard; }
+            set { _trumpCard = value; _trump = value != null ? (Barva?)value.Suit : null; }
+        }
         public Func<IStringLogger> _stringLoggerFactory { get; set; }
-		public IStringLogger _debugString { get; set; }
+        public IStringLogger _debugString { get; set; }
         public string _minMaxDebugString { get; set; }
         public Probability Probabilities { get; set; }
         public AiPlayerSettings Settings { get; set; }
@@ -150,13 +138,13 @@ namespace Mariasek.Engine
             _teamMatesSuits = new List<Barva>();
         }
 
-		public override void Die()
-		{
-			ThrowIfCancellationRequested = null;
-			base.Die();
-		}
+        public override void Die()
+        {
+            ThrowIfCancellationRequested = null;
+            base.Die();
+        }
 
-		private int GetSuitScoreForTrumpChoice(List<Card> hand, Barva b)
+        private int GetSuitScoreForTrumpChoice(List<Card> hand, Barva b)
         {
             var score = 0;
             var count = hand.Count(i => i.Suit == b);
@@ -195,10 +183,10 @@ namespace Mariasek.Engine
             return score;
         }
 
-        public override Card ChooseTrump()
+        public override async Task<Card> ChooseTrump()
         {
-			return ChooseTrump(Hand.Take(7).ToList()); //nekoukat do karet co nejsou videt
-		}
+            return ChooseTrump(Hand.Take(7).ToList()); //nekoukat do karet co nejsou videt
+        }
 
         public Card ChooseTrump(List<Card> hand)
         {
@@ -217,8 +205,8 @@ namespace Mariasek.Engine
             TrumpCard = hand.FirstOrDefault(i => i.Suit == trump && i.Value > Hodnota.Sedma && i.Value < Hodnota.Svrsek) ??
                        hand.OrderBy(i => i.Value).FirstOrDefault(i => i.Suit == trump);
 
-			_log.DebugFormat("Trump chosen: {0}", TrumpCard);
-			return TrumpCard;
+            _log.DebugFormat("Trump chosen: {0}", TrumpCard);
+            return TrumpCard;
         }
 
         private List<Card> ChooseBetlTalon(List<Card> hand, Card trumpCard)
@@ -236,22 +224,22 @@ namespace Mariasek.Engine
                                               hand.Has7(b))
                                   .ToList();
 
-			var holesByCard = hand.Select(i =>
-			{
-				//pro kazdou kartu spocitej diry (mensi karty v barve ktere nemam)
-				var holes = 0;
-				var holesDelta = 0;
+            var holesByCard = hand.Select(i =>
+            {
+                //pro kazdou kartu spocitej diry (mensi karty v barve ktere nemam)
+                var holes = 0;
+                var holesDelta = 0;
                 var higherCards = 0;
 
-				foreach (var h in Enum.GetValues(typeof(Hodnota))
-									  .Cast<Hodnota>()
+                foreach (var h in Enum.GetValues(typeof(Hodnota))
+                                      .Cast<Hodnota>()
                                       .Where(h => i.BadValue > Card.GetBadValue(h)))
-				{
-					if (!hand.Any(j => j.Suit == i.Suit && j.Value == h))
-					{
-						holes++;
-					}
-				}
+                {
+                    if (!hand.Any(j => j.Suit == i.Suit && j.Value == h))
+                    {
+                        holes++;
+                    }
+                }
                 foreach (var h in Enum.GetValues(typeof(Hodnota))
                                       .Cast<Hodnota>()
                                       .Where(h => i.BadValue < Card.GetBadValue(h)))
@@ -264,20 +252,20 @@ namespace Mariasek.Engine
                 //mam v ruce mensi kartu v barve?
                 var card2 = hand.Where(j => j.Suit == i.Suit && j.BadValue < i.BadValue).OrderByDescending(j => j.BadValue).FirstOrDefault();
 
-				if (card2 != null)
-				{
-					//spocitej pocet der ktere zmizi pokud dam kartu do talonu
-					holesDelta = Enum.GetValues(typeof(Hodnota))
-									 .Cast<Hodnota>()
-									 .Select(h => new Card(i.Suit, h))
-									 .Count(j => i.IsHigherThan(j, null) && j.IsHigherThan(card2, null));
-				}
-				else
-				{
-					holesDelta = holes;
-				}
+                if (card2 != null)
+                {
+                    //spocitej pocet der ktere zmizi pokud dam kartu do talonu
+                    holesDelta = Enum.GetValues(typeof(Hodnota))
+                                     .Cast<Hodnota>()
+                                     .Select(h => new Card(i.Suit, h))
+                                     .Count(j => i.IsHigherThan(j, null) && j.IsHigherThan(card2, null));
+                }
+                else
+                {
+                    holesDelta = holes;
+                }
 
-				return new Tuple<Card, int, int, int, int>(i, hand.CardCount(i.Suit), holesDelta, holes, higherCards);
+                return new Tuple<Card, int, int, int, int>(i, hand.CardCount(i.Suit), holesDelta, holes, higherCards);
             }).Where(i => i.Item4 > 0);
 
             if (holesByCard.Count(i => !bannedSuits.Contains(i.Item1.Suit)) > 2)
@@ -406,7 +394,7 @@ namespace Mariasek.Engine
                                           .ToList());
             }
             if (talon.Count < 2)
-			{
+            {
                 //dopln kartami od delsich barev
                 var top2HolesDeltaPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                               .ToDictionary(b => b, b => holesByCard.Where(i => i.Item1.Suit == b)
@@ -416,11 +404,11 @@ namespace Mariasek.Engine
                                                                                     .Sum());
 
                 talon.AddRange(holesByCard.Where(i => i.Item2 < 7 &&  !talon.Contains(i.Item1))		//Card
-				               		   	  .OrderByDescending(i => top2HolesDeltaPerSuit[i.Item1.Suit])//i.Item3)			//holesDelta
-				               			  .ThenByDescending(i => i.Item4)			//holes
-									   	  .ThenByDescending(i => i.Item1.BadValue)
-									   	  .Select(i => i.Item1)						//Card
-									   	  .ToList());
+                                          .OrderByDescending(i => top2HolesDeltaPerSuit[i.Item1.Suit])//i.Item3)			//holesDelta
+                                          .ThenByDescending(i => i.Item4)			//holes
+                                          .ThenByDescending(i => i.Item1.BadValue)
+                                          .Select(i => i.Item1)						//Card
+                                          .ToList());
                 //pokud bys mel dat do talonu dve karty stejne barvy a muzes misto jedne dat jinou barvu, tak si radsi nech jednu z dvojice na vynos
                 if(talon.Count > 2 &&
                    talon[0].Suit == talon[1].Suit &&
@@ -495,10 +483,10 @@ namespace Mariasek.Engine
                                       .ToList();
             }
             if (talon == null || talon.Distinct().Count() != 2)
-			{
+            {
                 var msg = talon == null ? "(null)" : string.Format("Count: {0}\nHand: {1}", talon.Distinct().Count(), new Hand(hand));
-				throw new InvalidOperationException("Bad talon: " + msg);
-			}
+                throw new InvalidOperationException("Bad talon: " + msg);
+            }
             return talon;
         }
 
@@ -560,14 +548,14 @@ namespace Mariasek.Engine
                 talon.AddRange(hand.Where(i => !talon.Contains(i)).OrderBy(i => i.BadValue).Take(2 - count));
             }
 
-			if (talon == null || talon.Distinct().Count() != 2)
-			{
-				var msg = talon == null ? "(null)" : string.Format("Count: {0}\nHand: {1}", talon.Distinct().Count(), new Hand(hand));
-				throw new InvalidOperationException("Bad talon: " + msg);
-			}
+            if (talon == null || talon.Distinct().Count() != 2)
+            {
+                var msg = talon == null ? "(null)" : string.Format("Count: {0}\nHand: {1}", talon.Distinct().Count(), new Hand(hand));
+                throw new InvalidOperationException("Bad talon: " + msg);
+            }
 
-			//mozna by stacilo negrupovat podle barev ale jen sestupne podle hodnot a vzit prvni dve?
-			return talon;
+            //mozna by stacilo negrupovat podle barev ale jen sestupne podle hodnot a vzit prvni dve?
+            return talon;
         }
 
         private List<Card> ChooseNormalTalon(List<Card> hand, Card trumpCard)
@@ -1121,37 +1109,37 @@ namespace Mariasek.Engine
 
             talon = talon.Take(2).ToList();
 
-			if (talon == null || talon.Count != 2 || talon.Contains(trumpCard))
-			{
-				var msg = talon == null ? "(null)" : string.Format("Count: {0}\nHand: {1}", talon.Distinct().Count(), new Hand(hand));
-				throw new InvalidOperationException("Bad talon: " + msg);
-			}
+            if (talon == null || talon.Count != 2 || talon.Contains(trumpCard))
+            {
+                var msg = talon == null ? "(null)" : string.Format("Count: {0}\nHand: {1}", talon.Distinct().Count(), new Hand(hand));
+                throw new InvalidOperationException("Bad talon: " + msg);
+            }
 
-			return talon;
+            return talon;
         }
 
-        public override List<Card> ChooseTalon()
+        public override async Task<List<Card>> ChooseTalon()
         {
             //zacinajici hrac nejprve vybira talon a az pak rozhoduje jakou hru bude hrat (my mame oboje implementovane uvnitr ChooseGameFlavour())
             if (PlayerIndex == _g.OriginalGameStartingPlayerIndex && _g.GameType == 0)
             {
                 ChooseGameFlavour();
-				//pokud delam poradce pro cloveka, musim vybrat talon i kdyz bych normalne nehral betla nebo durcha
-				//v tom pripade jestli uz byl vybranej betl, tak my musime jit na durch a podle toho vybirat talon
-				//jiank vybirame betlovej talon
-				if (AdvisorMode && (_talon == null || !_talon.Any()))
-				{
+                //pokud delam poradce pro cloveka, musim vybrat talon i kdyz bych normalne nehral betla nebo durcha
+                //v tom pripade jestli uz byl vybranej betl, tak my musime jit na durch a podle toho vybirat talon
+                //jiank vybirame betlovej talon
+                if (AdvisorMode && (_talon == null || !_talon.Any()))
+                {
                     if ((_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
                          _durchSimulations > 0) ||
-					    _gameType == Hra.Betl)
-					{
-						_talon = ChooseDurchTalon(Hand, null);
-					}
-					else
-					{
-						_talon = ChooseBetlTalon(Hand, null);
-					}
-				}
+                        _gameType == Hra.Betl)
+                    {
+                        _talon = ChooseDurchTalon(Hand, null);
+                    }
+                    else
+                    {
+                        _talon = ChooseBetlTalon(Hand, null);
+                    }
+                }
             }
             else
             {
@@ -1208,22 +1196,22 @@ namespace Mariasek.Engine
                     }
                 }
             }
-			if (_talon == null || _talon.Count != 2)
-			{
-				var msg = _talon == null ? "(null)" : "Count: " + _talon.Count;
-				throw new InvalidOperationException("Bad talon: " + msg);
-			}
+            if (_talon == null || _talon.Count != 2)
+            {
+                var msg = _talon == null ? "(null)" : "Count: " + _talon.Count;
+                throw new InvalidOperationException("Bad talon: " + msg);
+            }
 
-			if (!AdvisorMode)
-			{
-				Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
-			}
-			_log.DebugFormat("Talon chosen: {0} {1}", _talon[0], _talon[1]);
+            if (!AdvisorMode)
+            {
+                Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
+            }
+            _log.DebugFormat("Talon chosen: {0} {1}", _talon[0], _talon[1]);
 
-			return _talon;
+            return _talon;
         }
 
-        public override GameFlavour ChooseGameFlavour()
+        public override async Task<GameFlavour> ChooseGameFlavour()
         {
             if (TestGameType.HasValue)
             {
@@ -1322,9 +1310,9 @@ namespace Mariasek.Engine
                 Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null,
                                                 _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
                                                 _g.CancellationToken, _stringLoggerFactory, _talon)
-				{
-					ExternalDebugString = _debugString
-				};
+                {
+                    ExternalDebugString = _debugString
+                };
 
                 if (PlayerIndex == _g.OriginalGameStartingPlayerIndex && bidding.BetlDurchMultiplier == 0)
                 {
@@ -1437,10 +1425,10 @@ namespace Mariasek.Engine
             }
             _runSimulations = true; //abychom v GetBidsAndDoubles znovu sjeli simulaci normalni hry
 
-			//byla uz zavolena nejaka hra?
+            //byla uz zavolena nejaka hra?
             if (_gameType == Hra.Durch)
             {
-				DebugInfo.RuleCount = _durchBalance;
+                DebugInfo.RuleCount = _durchBalance;
                 DebugInfo.TotalRuleCount = _durchSimulations;
                 return GameFlavour.Good;
             }
@@ -1473,8 +1461,8 @@ namespace Mariasek.Engine
                     _durchSimulations > 0 &&
                     lowCards.Count() < 2)   //pokud mas v nejake barve 2 neodstranitelne diry, tak je durch riskantni (talon by musel byt perfektni)
                 {
-					_talon = ChooseDurchTalon(Hand, null);
-					DebugInfo.RuleCount = _durchBalance;
+                    _talon = ChooseDurchTalon(Hand, null);
+                    DebugInfo.RuleCount = _durchBalance;
                     DebugInfo.TotalRuleCount = _durchSimulations;
                     return GameFlavour.Bad;
                 }
@@ -1835,7 +1823,7 @@ namespace Mariasek.Engine
                 var initialProgress = progress;
                 var start = DateTime.Now;
                 var actualSimulations = 0;
-				var fastSelection = Settings.GameFlavourSelectionStrategy == GameFlavourSelectionStrategy.Fast;
+                var fastSelection = Settings.GameFlavourSelectionStrategy == GameFlavourSelectionStrategy.Fast;
                 var shouldChooseBetl = false;
                 try
                 {
@@ -1844,8 +1832,8 @@ namespace Mariasek.Engine
                 catch
                 {                    
                 }
-				if (!fastSelection || shouldChooseBetl)
-				{
+                if (!fastSelection || shouldChooseBetl)
+                {
                     if (_g.CancellationToken.IsCancellationRequested)
                     {
                         _debugString.AppendFormat("Task cancellation requested");
@@ -1915,14 +1903,14 @@ namespace Mariasek.Engine
                         //Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / Settings.MaxSimulationTimeMs * 1000);
                         Settings.SimulationsPerGameTypePerSecond = (int)((float)actualSimulations / (end - start).TotalMilliseconds * 1000);
                     }
-				}
-				else
-				{
-					Interlocked.Add(ref progress, Settings.SimulationsPerGameType);
-				}
-				totalGameSimulations = (simulateGoodGames ? _gameSimulations + _sevenSimulations : 0) +
+                }
+                else
+                {
+                    Interlocked.Add(ref progress, Settings.SimulationsPerGameType);
+                }
+                totalGameSimulations = (simulateGoodGames ? _gameSimulations + _sevenSimulations : 0) +
                     (simulateBadGames ? 2 * Settings.SimulationsPerGameType : 0);
-				OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0 });
+                OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0 });
                 if (source == null && tempSource.Any())
                 {
                     source = tempSource.ToArray();
@@ -1937,8 +1925,8 @@ namespace Mariasek.Engine
                 catch
                 {                    
                 }
-				if (!fastSelection || shouldChooseDurch)
-				{
+                if (!fastSelection || shouldChooseDurch)
+                {
                     if (_g.CancellationToken.IsCancellationRequested)
                     {
                         _debugString.AppendFormat("Task cancellation requested");
@@ -2008,20 +1996,20 @@ namespace Mariasek.Engine
                         }
                     }
                 }
-				else
-				{
-					Interlocked.Add(ref progress, Settings.SimulationsPerGameType);
-				}
-			}
-			OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0 });
+                else
+                {
+                    Interlocked.Add(ref progress, Settings.SimulationsPerGameType);
+                }
+            }
+            OnGameComputationProgress(new GameComputationProgressEventArgs { Current = progress, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0 });
 
             if (exceptions.Any())
             {
                 throw new AggregateException($"{exceptions.Count} exceptions occured in RunGameSimulations.\nFirst one: {exceptions.First()?.Message ?? "?"}\n{exceptions.First()?.StackTrace ?? "?"}", exceptions);
             }
 
-			//vyber vhodnou hru podle vysledku simulace
-			var opponent = TeamMateIndex == (PlayerIndex + 1) % Game.NumPlayers
+            //vyber vhodnou hru podle vysledku simulace
+            var opponent = TeamMateIndex == (PlayerIndex + 1) % Game.NumPlayers
                 ? (PlayerIndex + 2) % Game.NumPlayers : (PlayerIndex + 1) % Game.NumPlayers;
             //var _gameStrings = new List<string>();
             //var _sevenStrings = new List<string>();
@@ -2376,20 +2364,20 @@ namespace Mariasek.Engine
         //    }
         //}
 
-		public bool ShouldChooseDurch()
-		{
-			var holesPerSuit = new Dictionary<Barva, int>();
-			var hiHolePerSuit = new Dictionary<Barva, Card>();
+        public bool ShouldChooseDurch()
+        {
+            var holesPerSuit = new Dictionary<Barva, int>();
+            var hiHolePerSuit = new Dictionary<Barva, Card>();
             var dummyTalon = TeamMateIndex == -1
                                 ? _talon != null && _talon.Any()
                                     ? _talon
                                     : ChooseDurchTalon(Hand, _trumpCard)
                                 : Enumerable.Empty<Card>();
 
-			foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
-			{
-				var holes = 0;
-				var hiHole = new Card(Barva.Cerveny, Hodnota.Sedma);
+            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            {
+                var holes = 0;
+                var hiHole = new Card(Barva.Cerveny, Hodnota.Sedma);
 
                 foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
                 {
@@ -2399,18 +2387,18 @@ namespace Mariasek.Engine
                                       i.BadValue < c.BadValue &&
                                       !dummyTalon.Contains(i)  &&
                                       !Hand.Contains(c)))
-					{
-						holes++;
-						if (c.BadValue > hiHole.BadValue)
-						{
-							hiHole = c;
-						}
-					}
-				}
+                    {
+                        holes++;
+                        if (c.BadValue > hiHole.BadValue)
+                        {
+                            hiHole = c;
+                        }
+                    }
+                }
 
-				holesPerSuit.Add(b, holes);
-				hiHolePerSuit.Add(b, hiHole);
-			}
+                holesPerSuit.Add(b, holes);
+                hiHolePerSuit.Add(b, hiHole);
+            }
             if (PlayerIndex == _g.GameStartingPlayerIndex)
             {
                 var minHole = new Card(Barva.Cerveny, Hodnota.Desitka);
@@ -2455,8 +2443,8 @@ namespace Mariasek.Engine
                     return true;
                 }
             }
-			return false;
-		}
+            return false;
+        }
 
         public int GetBetlHoles()   //vola se ChooseGameFlavour pri rozhodovani zda hlasit spatnou barvu a z GetBidsAndDoubles pri rozhodovani zda si dat re na betla
         {
@@ -2485,7 +2473,7 @@ namespace Mariasek.Engine
         }
 
         public bool ShouldChooseBetl()
-		{
+        {
             var talon = TeamMateIndex == -1 ? _talon ?? ChooseBetlTalon(Hand, null) : new List<Card>();                //nasimuluj talon
             var hh = Hand.Where(i => !talon.Contains(i)).ToList();
             var holesPerSuit = new Dictionary<Barva, int>();
@@ -2535,7 +2523,7 @@ namespace Mariasek.Engine
                 return true;
             }
             return false;
-		}   
+        }   
 
         public int EstimateMinBasicPointsLost(List<Card> hand = null, List<Card> talon = null)
         {
@@ -3082,10 +3070,10 @@ namespace Mariasek.Engine
                 return true;
             }
             if (axCount >= 6)
-			{
+            {
                 DebugInfo.HundredTooRisky = false;
-				return false;
-			}
+                return false;
+            }
             if (nn == 0 &&
                 hand.CardCount(_trump.Value) >= 5 &&
                 hand.HasK(_trump.Value) &&
@@ -3155,31 +3143,31 @@ namespace Mariasek.Engine
             if ((hand.CardCount(_trump.Value) < 4 &&
                  !hand.HasA(_trump.Value) &&                 
                   n >= 3) ||
-				(hand.CardCount(_trump.Value) == 4 &&
+                (hand.CardCount(_trump.Value) == 4 &&
                  (!hand.HasA(_trump.Value) ||
-				  !hand.HasX(_trump.Value)) &&
-				 Enum.GetValues(typeof(Barva)).Cast<Barva>()
-					 .Where(b => b != _trump && hand.HasSuit(b))
-					 .Any(b => !hand.HasA(b) &&
+                  !hand.HasX(_trump.Value)) &&
+                 Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                     .Where(b => b != _trump && hand.HasSuit(b))
+                     .Any(b => !hand.HasA(b) &&
                                !(hand.HasX(b) &&
                                  hand.HasK(b))) &&
-				 !(hand.CardCount(Hodnota.Eso) == 3 &&
+                 !(hand.CardCount(Hodnota.Eso) == 3 &&
                    hand.HasK(_trump.Value) &&
                    hand.HasQ(_trump.Value) &&
                    hand.Count(i => i.Value == Hodnota.Desitka &&
                                    (hand.HasA(i.Suit) ||
                                     hand.HasK(i.Suit))) >= 2)))
-			{
+            {
                 DebugInfo.HundredTooRisky = true;
                 return true;
-			}
-			if (hand.Count(i => i.Suit == _trump.Value && i.Value >= Hodnota.Spodek) < 3 &&
+            }
+            if (hand.Count(i => i.Suit == _trump.Value && i.Value >= Hodnota.Spodek) < 3 &&
                 (!hand.HasA(_trump.Value) ||
                  !hand.HasX(_trump.Value)))
-			{
+            {
                 DebugInfo.HundredTooRisky = true;
                 return true;
-			}
+            }
             //Pokud nevidis do trumfoveho hlasu a mas malo trumfu, tak kilo nehraj
             if (hand.CardCount(_trump.Value) <= 4 &&
                 !hand.HasK(_trump.Value) &&
@@ -3289,7 +3277,7 @@ namespace Mariasek.Engine
                             hand.CardCount(_trump.Value) >= 4 &&
                             hand.HasK(_trump.Value) &&
                             hand.HasQ(_trump.Value))) ||
-			             (n > 2 &&                        //pokud mam vic nez 2 neodstranitelne diry
+                         (n > 2 &&                        //pokud mam vic nez 2 neodstranitelne diry
                           !(hand.HasK(_trump.Value) &&    //a nemam trumfovou hlasku, tak taky ne
                             hand.HasQ(_trump.Value))) ||
                          (n > 1 &&                        //pokud mam vic nez 2 neodstranitelne diry
@@ -3410,71 +3398,71 @@ namespace Mariasek.Engine
         }
 
         public bool ShouldChooseHundred()
-		{
+        {
             var trump = _trump ?? _g.trump;
-			var axCount = Hand.Count(i => i.Value == Hodnota.Eso || 
-			                         	  (i.Value == Hodnota.Desitka && 
-			                          	   Hand.Any(j => j.Suit == i.Suit && 
-			                                   			 (j.Value == Hodnota.Eso || j.Value == Hodnota.Kral))));
-			var trumpCount = Hand.Count(i => i.Suit == trump && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka); //bez A,X
-			var axTrumpCount = Hand.Count(i => i.Suit == trump && (i.Value == Hodnota.Eso ||
-										   (i.Value == Hodnota.Desitka &&
-											Hand.Any(j => j.Suit == i.Suit &&
-			                                              (j.Value == Hodnota.Eso || j.Value == Hodnota.Kral)))));
-			var cardsPerSuit = new Dictionary<Barva, int>();
-			var kqs = new List<Barva>();
-			var n = axCount * 10;	//vezmi body za A,X
+            var axCount = Hand.Count(i => i.Value == Hodnota.Eso || 
+                                          (i.Value == Hodnota.Desitka && 
+                                           Hand.Any(j => j.Suit == i.Suit && 
+                                                         (j.Value == Hodnota.Eso || j.Value == Hodnota.Kral))));
+            var trumpCount = Hand.Count(i => i.Suit == trump && i.Value != Hodnota.Eso && i.Value != Hodnota.Desitka); //bez A,X
+            var axTrumpCount = Hand.Count(i => i.Suit == trump && (i.Value == Hodnota.Eso ||
+                                           (i.Value == Hodnota.Desitka &&
+                                            Hand.Any(j => j.Suit == i.Suit &&
+                                                          (j.Value == Hodnota.Eso || j.Value == Hodnota.Kral)))));
+            var cardsPerSuit = new Dictionary<Barva, int>();
+            var kqs = new List<Barva>();
+            var n = axCount * 10;	//vezmi body za A,X
 
-			foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
-			{
-				//mam v barve hlasku?
-				if (Hand.Count(i => i.Suit == b && (i.Value == Hodnota.Kral || i.Value == Hodnota.Svrsek)) == 2)
-				{
-					kqs.Add(b);
-				}
-				cardsPerSuit.Add(b, Hand.Count(i => i.Suit == b));
-			}
-			if (!kqs.Any())
-			{
-				//nemam zadanou hlasku v ruce
-				return false;
-			}
-			//pridej body za hlasky
-			if (kqs.Any(i => i == trump))
-			{
-				n += 40;
-			}
-			else
-			{
-				n += 20;
-			}
+            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            {
+                //mam v barve hlasku?
+                if (Hand.Count(i => i.Suit == b && (i.Value == Hodnota.Kral || i.Value == Hodnota.Svrsek)) == 2)
+                {
+                    kqs.Add(b);
+                }
+                cardsPerSuit.Add(b, Hand.Count(i => i.Suit == b));
+            }
+            if (!kqs.Any())
+            {
+                //nemam zadanou hlasku v ruce
+                return false;
+            }
+            //pridej body za hlasky
+            if (kqs.Any(i => i == trump))
+            {
+                n += 40;
+            }
+            else
+            {
+                n += 20;
+            }
 
-			var emptySuits = cardsPerSuit.Count(i => i.Value == 0);
-			var aceOnlySuits = Hand.Count(i => i.Value == Hodnota.Eso && Hand.Count(j => j.Suit == i.Suit) == 1);
+            var emptySuits = cardsPerSuit.Count(i => i.Value == 0);
+            var aceOnlySuits = Hand.Count(i => i.Value == Hodnota.Eso && Hand.Count(j => j.Suit == i.Suit) == 1);
 
-			//pridej 20 za kazdou prazdnou barvu a 10 za kazdou barvu kde znam jen eso
-			n += Math.Min(2 * emptySuits + aceOnlySuits, trumpCount + axTrumpCount) * 10;
+            //pridej 20 za kazdou prazdnou barvu a 10 za kazdou barvu kde znam jen eso
+            n += Math.Min(2 * emptySuits + aceOnlySuits, trumpCount + axTrumpCount) * 10;
 
-			if (trumpCount + axCount >= 5)
-			{
-				//posledni stych
-				n += 10;
-			}
+            if (trumpCount + axCount >= 5)
+            {
+                //posledni stych
+                n += 10;
+            }
 
-			return n >= 100;
-		}
+            return n >= 100;
+        }
 
-		public bool ShouldChooseSeven()
-		{
-			var numSuits = Hand.Select(i => i.Suit).Distinct().Count();
-			var numTrumps = Hand.Count(i => i.Suit == _trump.Value);
-			var has7 = Hand.Any(i => i.Suit == _trump.Value && i.Value == Hodnota.Sedma);
+        public bool ShouldChooseSeven()
+        {
+            var numSuits = Hand.Select(i => i.Suit).Distinct().Count();
+            var numTrumps = Hand.Count(i => i.Suit == _trump.Value);
+            var has7 = Hand.Any(i => i.Suit == _trump.Value && i.Value == Hodnota.Sedma);
 
-			return has7 && ((numTrumps == 4 && numSuits == 4) ||
-			                (numTrumps >= 5));
-		}
+            return has7 && ((numTrumps == 4 && numSuits == 4) ||
+                            (numTrumps >= 5));
+        }
 
-        public override Hra ChooseGameType(Hra validGameTypes)
+        public override async Task<Hra> ChooseGameType(Hra validGameTypes)
         {
             if (TestGameType.HasValue)
             {
@@ -3496,7 +3484,7 @@ namespace Mariasek.Engine
                     (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
                      _durchSimulations > 0 &&
                      !_hundredOverDurch) ||
-				    validGameTypes == Hra.Durch)
+                    validGameTypes == Hra.Durch)
                 {
                     gameType = Hra.Durch;
                     DebugInfo.RuleCount = _durchBalance;
@@ -3530,7 +3518,7 @@ namespace Mariasek.Engine
                         DebugInfo.RuleCount = _betlBalance;
                         DebugInfo.TotalRuleCount = _betlSimulations;
                     }
-				}
+                }
             }
             else
             {
@@ -3737,7 +3725,7 @@ namespace Mariasek.Engine
         }
 
         //V tehle funkci muzeme dat flek nebo hlasit protihru
-        public override Hra GetBidsAndDoubles(Bidding bidding)
+        public override async Task<Hra> GetBidsAndDoubles(Bidding bidding)
         {
             Hra bid = 0;
             const int MaxFlek = 3;
@@ -4157,12 +4145,12 @@ namespace Mariasek.Engine
                 Settings.CanPlayGameType[Hra.Kilo] &&
                 _hundredSimulations > 0 &&
                 (bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Kilo] ||
-				 (bidding._gameFlek <= MaxFlek &&
+                 (bidding._gameFlek <= MaxFlek &&
                   _hundredsBalance / (float)_hundredSimulations >= certaintyThreshold)) &&
                 ((PlayerIndex == _g.GameStartingPlayerIndex &&
                   _hundredsBalance / (float)_hundredSimulations >= hundredThreshold &&
                   Enum.GetValues(typeof(Barva)).Cast<Barva>().Where(b => Hand.HasSuit(b)).All(b => Hand.HasA(b))) ||    //Re na kilo si dej jen pokud mas ve vsech barvach eso
-			     (PlayerIndex != _g.GameStartingPlayerIndex &&                                                          //Flek na kilo si dej jen pokud akter nema hlas
+                 (PlayerIndex != _g.GameStartingPlayerIndex &&                                                          //Flek na kilo si dej jen pokud akter nema hlas
                   (Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0 ||
                    (_hundredsBalance == _hundredSimulations &&                                                          //nebo pokud v simulacich nevyslo ani jednou
                     Hand.HasK(_g.trump.Value) &&
@@ -4272,7 +4260,7 @@ namespace Mariasek.Engine
                  (bidding._betlDurchFlek <= MaxFlek &&
                   _durchBalance / (float)_durchSimulations >= certaintyThreshold)) &&
                 ((PlayerIndex == _g.GameStartingPlayerIndex && _durchBalance / (float)_durchSimulations >= durchThreshold && IsDurchCertain()) ||
-			     (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) >= 3)))
+                 (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) >= 3)))
             {
                 bid |= bidding.Bids & Hra.Durch;
                 //minRuleCount = Math.Min(minRuleCount, _durchBalance);
@@ -4284,7 +4272,7 @@ namespace Mariasek.Engine
                 Settings.CanPlayGameType[Hra.Betl] &&
                 _betlSimulations > 0 && 
                 (bidding._betlDurchFlek <= Settings.MaxDoubleCountForGameType[Hra.Betl] ||
-				 (bidding._betlDurchFlek <= MaxFlek &&
+                 (bidding._betlDurchFlek <= MaxFlek &&
                   _betlBalance / (float)_betlSimulations >= certaintyThreshold)) &&
                 PlayerIndex == _g.GameStartingPlayerIndex &&
                 _betlBalance / (float)_betlSimulations >= betlThreshold &&
@@ -4452,20 +4440,20 @@ namespace Mariasek.Engine
             Settings.SimulationsPerRoundPerSecond = 0;
         }
 
-		public void GameLoaded(object sender)
-		{
+        public void GameLoaded(object sender)
+        {
             _gameType = _g.GameType;
             _trump = _g.trump;
-			if (PlayerIndex == _g.GameStartingPlayerIndex)
-			{
+            if (PlayerIndex == _g.GameStartingPlayerIndex)
+            {
                 _talon = new List<Card>(_g.talon); //TODO: tohle by se melo delat v Game.LoadGame()!
-			}
+            }
             Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump,
                                             _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
                                             _g.CancellationToken, _stringLoggerFactory, _talon)
-			{
-				ExternalDebugString = _debugString
-			};
+            {
+                ExternalDebugString = _debugString
+            };
         }
 
         private void GameFlavourChosen(object sender, GameFlavourChosenEventArgs e)
@@ -4502,10 +4490,10 @@ namespace Mariasek.Engine
                 Probabilities = new Probability(PlayerIndex, _g.GameStartingPlayerIndex, new Hand(Hand), _g.trump,
                                                 _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
                                                 _g.CancellationToken, _stringLoggerFactory, _talon)
-				{
-					ExternalDebugString = _debugString
-				};
-			}
+                {
+                    ExternalDebugString = _debugString
+                };
+            }
             Probabilities.UpdateProbabilitiesAfterGameTypeChosen(e);
         }
 
@@ -4847,13 +4835,13 @@ namespace Mariasek.Engine
             return sb.ToString().Replace("-", "");
         }
 
-        public override Card PlayCard(Round r)
+        public override async Task<Card> PlayCard(Round r)
         {
             var roundStarterIndex = r.player1.PlayerIndex;
             Card cardToPlay = null;
             var cardScores = new ConcurrentDictionary<Card, ConcurrentQueue<GameComputationResult>>();
 
-			_debugString.AppendFormat("PlayCard(round{0}: c1: {1} c2: {2} c3: {3})\n", r.number, r.c1, r.c2, r.c3);
+            _debugString.AppendFormat("PlayCard(round{0}: c1: {1} c2: {2} c3: {3})\n", r.number, r.c1, r.c2, r.c3);
             if (Settings.Cheat)
             {
                 ResetDebugInfo();
@@ -4886,7 +4874,7 @@ namespace Mariasek.Engine
 
                 for (var i = 0; i < Game.NumPlayers; i++)
                 {
-					_log.DebugFormat("{0}'s probabilities for {1}:\n{2}", Name, _g.players[i].Name, Probabilities.FriendlyString(i, r.number));
+                    _log.DebugFormat("{0}'s probabilities for {1}:\n{2}", Name, _g.players[i].Name, Probabilities.FriendlyString(i, r.number));
                 }
                 var simulations = (int)Math.Min(Settings.SimulationsPerRound,
                     Math.Max(Probabilities.PossibleCombinations((PlayerIndex + 1) % Game.NumPlayers, r.number), //*3 abych snizil sanci ze budu generovat nektere kombinace vickrat
@@ -6397,7 +6385,7 @@ namespace Mariasek.Engine
             if (validCards.All(c => c.Value == Hodnota.Desitka || c.Value == Hodnota.Eso) ||
                 validCards.All(c => c.Value != Hodnota.Desitka && c.Value != Hodnota.Eso))
             {
-				//muzu hrat jen A nebo X nebo naopak ani jedna karta kterou muzu hrat neni A ani X
+                //muzu hrat jen A nebo X nebo naopak ani jedna karta kterou muzu hrat neni A ani X
                 return true;
             }
 
@@ -6425,7 +6413,7 @@ namespace Mariasek.Engine
                         Probabilities.CardProbability(player2, A) == 0f &&
                         Probabilities.CardProbability(player2, X) == 0f)
                     {
-						//muzu hrat jen jednu barvu ve ktere souperi nemaji ani A ani X
+                        //muzu hrat jen jednu barvu ve ktere souperi nemaji ani A ani X
                         return true;
                     }
                 }
@@ -6436,7 +6424,7 @@ namespace Mariasek.Engine
                     if (Probabilities.CardProbability(opponent, A) == 0f &&
                         Probabilities.CardProbability(opponent, X) == 0f)
                     {
-						//muzu hrat jen jednu barvu ve ktere souper nema ani A ani X
+                        //muzu hrat jen jednu barvu ve ktere souper nema ani A ani X
                         return true;
                     }
                 }

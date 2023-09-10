@@ -138,11 +138,11 @@ namespace Mariasek.Engine
             }
             if ((bid & (Hra.Betl | Hra.Durch)) != 0)
             {
-				if (BetlDurchLastBidder != null && PlayerBids[BetlDurchLastBidder.PlayerIndex] != bid)
-				{
-					//sli jsme z betla na durcha: resetuj pocitadlo fleku
-					_betlDurchFlek = 0;
-				}
+                if (BetlDurchLastBidder != null && PlayerBids[BetlDurchLastBidder.PlayerIndex] != bid)
+                {
+                    //sli jsme z betla na durcha: resetuj pocitadlo fleku
+                    _betlDurchFlek = 0;
+                }
                 BetlDurchLastBidder = player;
                 _betlDurchFlek++;
             }
@@ -161,7 +161,7 @@ namespace Mariasek.Engine
             _g.OnBidMade(e);
         }
 
-        public Hra CompleteBidding()
+        public async Task<Hra> CompleteBidding()
         {
             //vola se pokud hrajeme normalni hru. U betla a durcha se flekuje rovnou
             var gameType = PlayerBids[_g.GameStartingPlayerIndex];
@@ -182,7 +182,7 @@ namespace Mariasek.Engine
                 AdjustValidBidsForPlayer(i, j);
                 _g.DebugString.AppendFormat("Player{0} GetBidsAndDoubles()\n", i + 1);
             
-                var bid = _g.players[i].GetBidsAndDoubles(this);
+                var bid = await _g.players[i].GetBidsAndDoubles(this);
                 bid &= Bids;
                 //pokud se 107 pocita dohromady, tak fleky na sedmu uprav podle fleku na hru / kilo proti
                 if (!_g.Calculate107Separately)
@@ -237,12 +237,12 @@ namespace Mariasek.Engine
             return gameType;
         }
 
-        public Hra GetBidsForPlayer(Hra gameType, AbstractPlayer player, int bidNumber)
+        public async Task<Hra> GetBidsForPlayer(Hra gameType, AbstractPlayer player, int bidNumber)
         {
             AdjustValidBidsForPlayer(player.PlayerIndex, bidNumber);
 
             _g.DebugString.AppendFormat("Player{0} GetBidsAndDoubles()\n", player.PlayerIndex + 1);
-            var bid = player.GetBidsAndDoubles(this);
+            var bid = await player.GetBidsAndDoubles(this);
             bid &= Bids;
             //pokud se 107 pocita dohromady, tak fleky na sedmu uprav podle fleku na hru / kilo proti
             if (!_g.Calculate107Separately)
@@ -321,8 +321,8 @@ namespace Mariasek.Engine
                 {
                     Bids |= Hra.SedmaProti;
                 }
-				if ((_g.GameType & Hra.Kilo) == 0 &&    //pri kilu nejde hlasit kilo proti
-					(!_g.AutoDisable100Against ||
+                if ((_g.GameType & Hra.Kilo) == 0 &&    //pri kilu nejde hlasit kilo proti
+                    (!_g.AutoDisable100Against ||
                      Enum.GetValues(typeof(Barva)).Cast<Barva>()   //aby neslo omylem hlasit kilo proti bez hlasky
                          .Any(b => hand.HasK(b) &&
                                    hand.HasQ(b))) &&
