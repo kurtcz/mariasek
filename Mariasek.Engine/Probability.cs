@@ -1426,13 +1426,6 @@ namespace Mariasek.Engine
             }
 
             _trump = e.TrumpCard.Suit;
-            for (var i = 0; i < e.axTalon.Count(); i++)
-            {
-                for (var j = 0; j < Game.NumPlayers + 1; j++)
-                {
-                    _cardProbabilityForPlayer[j][e.axTalon[i].Suit][e.axTalon[i].Value] = j == Game.TalonIndex ? 1f : 0f;
-                }
-            }
             if ((e.GameType & (Hra.Betl | Hra.Durch)) == 0 && e.GameStartingPlayerIndex != _myIndex)
             {
                 //v talonu nesmi byt ostre karty vyjma tech hlasenych
@@ -1458,6 +1451,11 @@ namespace Mariasek.Engine
                                                                                 : 0.5f;
                         }
                     }
+                }
+                //pokud dal akter do talonu ostrou, tak uz urcite zadnou dalsi kartu v barve na ruce nema
+                for (var i = 0; i < e.axTalon.Count(); i++)
+                {
+                    SetCardProbabilitiesToEpsilon(e.GameStartingPlayerIndex, e.axTalon[i].Suit);
                 }
             }
             for (var i = 0; i < Game.NumPlayers + 1; i++)
@@ -2457,6 +2455,49 @@ namespace Mariasek.Engine
                     {
                         _cardProbabilityForPlayer[Game.TalonIndex][c2.Suit][h] = 1f;
                     }
+                }
+            }
+        }
+
+        private void SetCardProbabilitiesToEpsilon(int playerIndex, Barva suit)
+        {
+            //vola se pote co akter ukaze ostrou v talonu (vsechny zbyle barvy ma urcite kolega)
+            const float epsilon = 0.01f;
+            var otherPlayerIndex = -1;
+
+            if (playerIndex == _myIndex)
+            {
+                //no need to update my own probabilities (i know what cards i have)
+                return;
+            }
+
+            for (var i = 0; i < Game.NumPlayers; i++)
+            {
+                if (i != _myIndex && i != playerIndex)
+                {
+                    otherPlayerIndex = i;
+                    break;
+                }
+            }
+
+            foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+            {
+                var c = new Card(suit, h);
+
+                if (_cardProbabilityForPlayer[playerIndex][c.Suit][h] > 0f &&
+                    _cardProbabilityForPlayer[playerIndex][c.Suit][h] < 1f)
+                {
+                    _cardProbabilityForPlayer[playerIndex][c.Suit][h] = epsilon;
+                }
+                if (_cardProbabilityForPlayer[otherPlayerIndex][c.Suit][h] > 0f &&
+                    _cardProbabilityForPlayer[otherPlayerIndex][c.Suit][h] < 1f)
+                {
+                    _cardProbabilityForPlayer[otherPlayerIndex][c.Suit][h] = 1 - epsilon;
+                }
+                if (_cardProbabilityForPlayer[Game.TalonIndex][c.Suit][h] > 0f &&
+                    _cardProbabilityForPlayer[Game.TalonIndex][c.Suit][h] < 1f)
+                {
+                    _cardProbabilityForPlayer[Game.TalonIndex][c.Suit][h] = epsilon;
                 }
             }
         }

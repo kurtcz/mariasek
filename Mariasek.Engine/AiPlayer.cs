@@ -439,7 +439,7 @@ namespace Mariasek.Engine
             foreach (var card in talon)
             {
                 var cardToReplace = holesByCard.Where(i => !cardsToReplaceDict.Values.Contains(i.Item1) &&
-                                                           i.Item2 < 7 &&
+                                                           //i.Item2 < 7 &&
                                                            i.Item1.Suit == card.Suit &&
                                                            i.Item1.BadValue < card.BadValue &&
                                                            i.Item4 == holesByCard.First(j => j.Item1 == card).Item4)
@@ -1472,7 +1472,7 @@ namespace Mariasek.Engine
             }
             else
             {
-                var betlThresholdIndex = PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Betl].Length - 1, 1);     //85%
+                var betlThresholdIndex = 0;// PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Betl].Length - 1, 1);     //85%
                 var durchThresholdIndex = 0;// PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 1);    //85%
                 if ((Settings.CanPlayGameType[Hra.Durch] &&
                      _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][durchThresholdIndex] * _durchSimulations &&
@@ -2450,19 +2450,30 @@ namespace Mariasek.Engine
         {
             var totalHoles = 0;
 
+            var hand = new List<Card>(Hand);
+
+            if (TeamMateIndex != -1)
+            {
+                var betlTalon = ChooseBetlTalon(hand, null);
+
+                foreach(var c in betlTalon)
+                {
+                    hand.Remove(c);
+                }
+            }
             foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
             {
-                var hiCards = Hand.Count(i => i.Suit == b &&
+                var hiCards = hand.Count(i => i.Suit == b &&
                                               Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                   .Where(h => i.BadValue > Card.GetBadValue(h))
                                                   .Select(h => new Card(b, h))
-                                                  .Any(j => !Hand.Contains(j) &&
+                                                  .Any(j => !hand.Contains(j) &&
                                                             (_talon == null ||
                                                              !_talon.Contains(j))));
                 var holes = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                .Where(h => Hand.Any(i => i.BadValue > Card.GetBadValue(h)))
+                                .Where(h => hand.Any(i => i.BadValue > Card.GetBadValue(h)))
                                 .Select(h => new Card(b, h))
-                                .Count(i => !Hand.Contains(i) &&
+                                .Count(i => !hand.Contains(i) &&
                                             (_talon == null ||
                                              !_talon.Contains(i)));
 
@@ -4178,6 +4189,7 @@ namespace Mariasek.Engine
                   ((Hand.Has7(_g.trump.Value) &&
                     !IsSevenTooRisky()) ||
                    (_g.AllowFakeSeven &&                                            //falesnou sedmu proti hlas jen pokud se bez re nehraje
+                    estimatedFinalBasicScore + kqScore >= 115 &&
                     (_g.MinimalBidsForGame > 1 ||
                      ((_g.GameStartingPlayerIndex == 0 &&                           //nebo kdyz muze akter hru zahodit
                        Settings.PlayerMayGiveUp) ||
