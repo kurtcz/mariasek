@@ -1020,7 +1020,7 @@ namespace Mariasek.Engine
                 {
                     GameType = Hra.Hra; //docasne nastavena nejaka minimalni hra
                     Bidding = new Bidding(this);
-                    ChooseGame();
+                    await ChooseGame();
                     RoundNumber++;
                 }
                 if (ShouldPlayGame() &&
