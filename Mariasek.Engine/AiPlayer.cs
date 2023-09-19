@@ -832,7 +832,7 @@ namespace Mariasek.Engine
             //nakonec cokoli co je podle pravidel
             talon.AddRange(hand.Where(i => !(i.Value == trumpCard.Value &&         //nevybirej trumfovou kartu
                                              i.Suit == trumpCard.Suit) &&
-                                           Game.IsValidTalonCard(i.Value, i.Suit, _trumpCard.Suit, _g.AllowAXTalon, _g.AllowTrumpTalon))
+                                           Game.IsValidTalonCard(i.Value, i.Suit, trumpCard.Suit, _g.AllowAXTalon, _g.AllowTrumpTalon))
                                .OrderBy(i => 0)
                                              //i.Value == Hodnota.Sedma &&
                                              //i.Suit == trumpCard.Suit
@@ -996,7 +996,7 @@ namespace Mariasek.Engine
 
             //pokud bych vybral do talonu barvu kde mam X ale ne A, tak vybirej tyto barvy odspodu
             var cardsToRemove = talon.Take(2)
-                                     .Where(i => i.Suit != _trumpCard.Suit &&
+                                     .Where(i => i.Suit != trumpCard.Suit &&
                                                  hand.HasX(i.Suit) &&
                                                  !hand.HasA(i.Suit) &&
                                                  (!hand.HasK(i.Suit) ||
@@ -1688,7 +1688,7 @@ namespace Mariasek.Engine
                                     {
                                         hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
                                     }
-                                    if (_talon == null || !_talon.Any())
+                                    if (hands[gameStartingPlayerIndex].Count() == 12)//_talon == null || !_talon.Any())
                                     {
                                         UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
                                     }
@@ -1758,7 +1758,7 @@ namespace Mariasek.Engine
                                             hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
                                         }
 
-                                        if (_talon == null || !_talon.Any())
+                                        if (hands[gameStartingPlayerIndex].Count() == 12)//_talon == null || !_talon.Any())
                                         {
                                             UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
                                         }
@@ -1868,7 +1868,7 @@ namespace Mariasek.Engine
                                     {
                                         UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
                                     }
-                                    if (!AdvisorMode || _talon == null || !_talon.Any())
+                                    if (!AdvisorMode || _talon == null || !_talon.Any() || hands[gameStartingPlayerIndex].Count() == 12)
                                     {
                                         UpdateGeneratedHandsByChoosingTalon(hands, ChooseBetlTalon, gameStartingPlayerIndex);
                                     }
@@ -2554,6 +2554,11 @@ namespace Mariasek.Engine
             talon = talon ?? _talon;
 
             var trump = _trump ?? _g.trump;
+
+            if (trump == null)
+            {
+                return 0;
+            }
             var axCount = hand.Count(i => i.Value == Hodnota.Eso ||         //pocitej vsechny esa
                                            (i.Value == Hodnota.Desitka &&   //desitky pocitej tehdy
                                             (i.Suit == trump.Value ||       //pokud je bud trumfova 
@@ -2686,13 +2691,19 @@ namespace Mariasek.Engine
             hand = hand ?? Hand;
             talon = talon ?? _talon;
 
+            var trump = _trump ?? _g.trump;
+
+            if (trump == null)
+            {
+                return 0;
+            }
             var noKQSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => !hand.HasK(b) &&
                                             !hand.HasQ(b) &&
                                             (talon == null ||
                                              (!talon.HasK(b) &&
                                               !talon.HasQ(b))));
-            var estimatedKQPointsLost = noKQSuits.Sum(b => b == _trump ? 40 : 20);
+            var estimatedKQPointsLost = noKQSuits.Sum(b => b == trump.Value ? 40 : 20);
             var estimatedBasicPointsLost = EstimateBasicPointsLost(hand, talon);
             var estimatedPointsLost = estimatedBasicPointsLost + estimatedKQPointsLost;
 
@@ -2709,6 +2720,11 @@ namespace Mariasek.Engine
             talon = talon ?? _talon ?? new List<Card>();
 
             var trump = _trump ?? _g.trump;
+
+            if (trump == null)
+            {
+                return 0;
+            }
             var noKQSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => !hand.HasK(b) &&
                                             !hand.HasQ(b) &&
@@ -2717,9 +2733,9 @@ namespace Mariasek.Engine
             var opponentAXCount = 8 - hand.CardCount(Hodnota.Eso) - hand.CardCount(Hodnota.Desitka);
             var weakXs = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => hand.HasX(b) &&
-                                            ((b == _trump.Value &&
+                                            ((b == trump.Value &&
                                               hand.CardCount(b) == 1) ||
-                                             (b != _trump.Value &&
+                                             (b != trump.Value &&
                                               !(hand.HasA(b) ||
                                                 hand.HasK(b) ||
                                                 (hand.HasQ(b) &&
@@ -2728,9 +2744,9 @@ namespace Mariasek.Engine
                                                   hand.HasJ(b)) &&
                                                  hand.Has9(b) &&
                                                  hand.Has8(b) &&
-                                                 hand.CardCount(_trump.Value) >= 3) ||
+                                                 hand.CardCount(trump.Value) >= 3) ||
                                                 (hand.CardCount(b) >= 5 &&
-                                                 hand.CardCount(_trump.Value) >= 4)))))
+                                                 hand.CardCount(trump.Value) >= 4)))))
                                 .ToList();
 
             var estimatedBasicPointsLost = Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -3613,7 +3629,8 @@ namespace Mariasek.Engine
                        _g.Top107 &&
                        (gameType & Hra.Kilo) != 0 && //pri kilu
                        _avgWinForHundred > 2 * (_g.DurchValue + 2 * _g.SevenValue))) ||
-                     (Hand.Has7(_trump.Value) &&
+                     (_trump.HasValue &&
+                      Hand.Has7(_trump.Value) &&
                       _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0 &&
                       !IsSevenTooRisky()
                       //(!IsSevenTooRisky() ||                  //sedmu hlas pokud neni riskantni nebo pokud nelze uhrat hru (doufej ve flek na hru a konec)

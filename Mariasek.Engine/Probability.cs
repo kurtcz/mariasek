@@ -1536,6 +1536,10 @@ namespace Mariasek.Engine
 
         public void UpdateProbabilitiesAfterBidMade(BidEventArgs e, Bidding bidding)
         {
+            if (!_trump.HasValue)
+            {
+                return;
+            }
             if ((e.BidMade & Hra.Hra) != 0 &&
                 e.Player.PlayerIndex != _myIndex &&
                 _gameStarterIndex == _myIndex)

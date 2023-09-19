@@ -574,7 +574,7 @@ namespace Mariasek.SharedClient
             {
                 _t0 = Environment.TickCount;
                 _aiPlayer.ResetDebugInfo();
-                _aiTask = Task.Run(() =>
+                _aiTask = Task.Run(async () =>
                 {
                     try
                     {
@@ -588,7 +588,7 @@ namespace Mariasek.SharedClient
                             _aiPlayer._talon = new List<Card>(_talon);
                             _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
                         }
-                        var cardToplay = _aiPlayer.PlayCard(r);
+                        var cardToplay = await _aiPlayer.PlayCard(r);
 
                         _scene.SimulatedSuccessRate = _aiPlayer.DebugInfo?.TotalRuleCount > 0 ? _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1;
                         if (_aiPlayer.DebugInfo?.TotalRuleCount > 0)
