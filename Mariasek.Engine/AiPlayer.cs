@@ -4090,6 +4090,16 @@ namespace Mariasek.Engine
                       //  //     .Any(b => Hand.CardCount(b) >= 4))
                       //      ))
                             ))) ||
+                   (_teamMateDoubledGame &&
+                    !_g.MandatoryDouble &&
+                    Hand.CardCount(_trump.Value) >= 3 &&
+                    (Hand.HasA(_trump.Value) ||
+                     Hand.HasX(_trump.Value)) &&
+                    Hand.Count(i => i.Value >= Hodnota.Svrsek) >= 5 &&
+                    axCount >= 2 &&
+                    Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                        .Where(b => b != _trump.Value)
+                        .All(b => Hand.CardCount(b) >= 2)) ||
                    (_teamMateDoubledGame &&                          //nebo pokud kolega flekoval
                     !_g.MandatoryDouble &&
                     Hand.HasA(_trump.Value) &&                       //a ja mam aspon 3 trumfy a navic eso a neco velkeho a aspon 40 bodu
