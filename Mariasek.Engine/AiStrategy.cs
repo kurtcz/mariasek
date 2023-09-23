@@ -1838,6 +1838,10 @@ namespace Mariasek.Engine
                         {
                             return null;
                         }
+                        if ((PlayerBids[TeamMateIndex] & (Hra.Sedma | Hra.SedmaProti)) != 0)
+                        {
+                            return null;
+                        }
                         if (_probabilities.SuitProbability(player3, _trump, RoundNumber) == 0)
                         {
                             return null;
@@ -1940,6 +1944,10 @@ namespace Mariasek.Engine
                         if ((_gameType & Hra.SedmaProti) != 0 &&
                             hands[MyIndex].Has7(_trump) &&
                             hands[MyIndex].CardCount(_trump) == 2)
+                        {
+                            return null;
+                        }
+                        if ((PlayerBids[TeamMateIndex] & (Hra.Sedma | Hra.SedmaProti)) != 0)
                         {
                             return null;
                         }
