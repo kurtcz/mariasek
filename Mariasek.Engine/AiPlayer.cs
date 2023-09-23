@@ -1123,7 +1123,7 @@ namespace Mariasek.Engine
             //zacinajici hrac nejprve vybira talon a az pak rozhoduje jakou hru bude hrat (my mame oboje implementovane uvnitr ChooseGameFlavour())
             if (PlayerIndex == _g.OriginalGameStartingPlayerIndex && _g.GameType == 0)
             {
-                ChooseGameFlavour();
+                await ChooseGameFlavour();
                 //pokud delam poradce pro cloveka, musim vybrat talon i kdyz bych normalne nehral betla nebo durcha
                 //v tom pripade jestli uz byl vybranej betl, tak my musime jit na durch a podle toho vybirat talon
                 //jiank vybirame betlovej talon
@@ -1282,7 +1282,7 @@ namespace Mariasek.Engine
                                                                     : 2
                                                                   : 1))
                                     : new Dictionary<int, int>();
-            var tempTalon = Hand.Count == 12 ? ChooseNormalTalon(Hand, TrumpCard) : _talon != null ? new List<Card>(_talon) : new List<Card>();
+            var tempTalon = Hand.Count == 12 ? ChooseNormalTalon(Hand, TrumpCard ?? await ChooseTrump()) : _talon != null ? new List<Card>(_talon) : new List<Card>();
             var tempHand = new List<Card>(Hand.Where(i => !tempTalon.Contains(i)));
             var kqScore = _g.trump.HasValue
                 ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -2988,14 +2988,18 @@ namespace Mariasek.Engine
             hand = hand ?? Hand;
             talon = talon ?? _talon ?? new List<Card>();
 
+            if (!_trump.HasValue)
+            {
+                return true;
+            }
             var minBasicPointsLost = EstimateMinBasicPointsLost(hand, talon);
-            var maxAllowedPointsLost = hand.HasK(_g.trump.Value) &&
-                                       hand.HasQ(_g.trump.Value)
+            var maxAllowedPointsLost = hand.HasK(_trump.Value) &&
+                                       hand.HasQ(_trump.Value)
                                         ? 30 : 10;
             var kqScore = _g.trump.HasValue
                 ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
                       .Where(b => Hand.HasK(b) && Hand.HasQ(b))
-                      .Sum(b => b == _g.trump.Value ? 40 : 20)
+                      .Sum(b => b == _trump.Value ? 40 : 20)
                 : 0;
 
             if (kqScore == 0 ||                
@@ -3011,22 +3015,6 @@ namespace Mariasek.Engine
             }
 
             var maxBasicPointsLost = EstimateBasicPointsLost(hand, talon);
-            //var result = basicPointsLost > (hand.HasK(_g.trump.Value) &&
-            //                                hand.HasQ(_g.trump.Value)
-            //                                ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
-            //                                      .Count(b => GetTotalHoles(hand.Union(talon).ToList(), b) > 0) > 2 ||
-            //                                  Enum.GetValues(typeof(Barva)).Cast<Barva>()
-            //                                      .Where(b => b != _g.trump.Value &&
-            //                                                  GetTotalHoles(hand.Union(talon).ToList(), b) > 0)
-            //                                      .Any(b => hand.CardCount(b) >= 5) || //u dlouhych barev s dirou je sance ze budou mazat
-            //                                  hand.CardCount(_g.trump.Value) >= 5 //maji-li souperi malo trumfu, je vetsi sance ze budou mazat
-            //                                      ? 30 : 40
-            //                                : 10);
-            ////mam-li trumf. hlas a diry v max 2 barvach tak 40 bodu proti risknu a uvidime jestli vyjde
-            //if (_g.HlasConsidered == HlasConsidered.Each)
-            //{
-            //    result = 90 - basicPointsLost + kqScore <= 90;
-            //}
 
             if (maxBasicPointsLost <= maxAllowedPointsLost)
             {
@@ -3048,7 +3036,7 @@ namespace Mariasek.Engine
                                                      !hand.HasQ(b) &&
                                                      (!talon.HasK(b) &&
                                                       !talon.HasQ(b)))
-                                         .Sum(b => b == _g.trump.Value ? 40 : 20);
+                                         .Sum(b => b == _trump ? 40 : 20);
             var kqLikelyOpponentScore = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                             .Count(b => !hand.HasK(b) &&
                                                         !hand.HasQ(b) &&
@@ -3056,14 +3044,14 @@ namespace Mariasek.Engine
                                                         !talon.HasQ(b)) <= 1
                                         ? kqMaxOpponentScore
                                         : kqMaxOpponentScore - 20;
-            var potentialBasicPointsLost = minBasicPointsLost + (hand.HasA(_g.trump.Value) ? 0 : 10);
+            var potentialBasicPointsLost = minBasicPointsLost + (hand.HasA(_trump.Value) ? 0 : 10);
             var lossPerPointsLost = Enumerable.Range(1, maxAllowedPointsLost == 30 ? 16 : 18)
                                               .Select(i => maxAllowedPointsLost + i * 10)
                                               .ToDictionary(k => k,
                                                             v => (_g.CalculationStyle == CalculationStyle.Adding
                                                                   ? (v - maxAllowedPointsLost)/ 10 * _g.HundredValue
                                                                   : (1 << (v - maxAllowedPointsLost - 10) / 10) * _g.HundredValue) *
-                                                                 (_g.trump.Value == Barva.Cerveny
+                                                                 (_trump.Value == Barva.Cerveny
                                                                   ? 4
                                                                   : 2));
             if (lossPerPointsLost.ContainsKey(maxBasicPointsLost + kqLikelyOpponentScore))
@@ -5218,6 +5206,10 @@ namespace Mariasek.Engine
                 return null;
             }
             if (prematureStop)
+            {
+                return null;
+            }
+            if (!results.Any())
             {
                 return null;
             }
