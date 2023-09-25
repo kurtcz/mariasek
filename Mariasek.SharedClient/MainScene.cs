@@ -1379,6 +1379,7 @@ namespace Mariasek.SharedClient
         {
             if (g != null)
             {
+                (g.players[0] as HumanPlayer).CancelAiTask();
                 try
                 {
                     g.Die();

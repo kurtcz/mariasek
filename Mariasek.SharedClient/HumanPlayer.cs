@@ -78,6 +78,7 @@ namespace Mariasek.SharedClient
 
         public override void Die()
         {
+            CancelAiTask();
             _scene = null;
             base.Die();
         }
@@ -88,7 +89,11 @@ namespace Mariasek.SharedClient
             {
                 _scene.GameException(this, new GameExceptionEventArgs(){ e = _aiTask.Exception });
             }
-            if (_aiTask != null && _aiTask.Status == TaskStatus.Running)
+            if (_aiTask != null && (_aiTask.Status == TaskStatus.Created ||
+                                    _aiTask.Status == TaskStatus.Running ||
+                                    _aiTask.Status == TaskStatus.WaitingForActivation ||
+                                    _aiTask.Status == TaskStatus.WaitingToRun ||
+                                    _aiTask.Status == TaskStatus.WaitingForChildrenToComplete))
             {
                 _cancellationTokenSource.Cancel();
                 try

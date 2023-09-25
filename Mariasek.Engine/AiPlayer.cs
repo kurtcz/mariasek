@@ -5222,16 +5222,24 @@ namespace Mariasek.Engine
             foreach (var card in results.Select(i => i.Item1).Distinct())
             {
                 averageResults.Add(card, likelyResults.Where(i => i.Item1 == card)
-                                                      .Average(i => 100 * i.Item2.MoneyWon[PlayerIndex] +
+                                                      .DefaultIfEmpty()
+                                                      .Average(i => i == null ? 0 :
+                                                                    100 * i.Item2.MoneyWon[PlayerIndex] +
                                                                     (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
                 minResults.Add(card, likelyResults.Where(i => i.Item1 == card)
-                                                  .Min(i => 100 * i.Item2.MoneyWon[PlayerIndex] +
+                                                  .DefaultIfEmpty()
+                                                  .Min(i => i == null ? 0 :
+                                                            100 * i.Item2.MoneyWon[PlayerIndex] +
                                                             (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
                 maxResults.Add(card, likelyResults.Where(i => i.Item1 == card)
-                                                  .Max(i => 100 * i.Item2.MoneyWon[PlayerIndex] +
+                                                  .DefaultIfEmpty()
+                                                  .Max(i => i == null ? 0 :
+                                                            100 * i.Item2.MoneyWon[PlayerIndex] +
                                                             (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
                 winCount.Add(card, likelyResults.Where(i => i.Item1 == card)
-                                                .Count(i => i.Item2.MoneyWon[PlayerIndex] >= 0));
+                                                .DefaultIfEmpty()
+                                                .Count(i => i == null ? false :
+                                                            i.Item2.MoneyWon[PlayerIndex] >= 0));
             }
 
             if (roundNumber == _g.FirstMinMaxRound)
