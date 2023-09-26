@@ -3516,7 +3516,10 @@ namespace Mariasek.Engine
                                                                                       myInitialHand.HasA(i.Suit))) &&
                                                                                     _probabilities.PotentialCards(opponent).HasSuit(i.Suit) &&
                                                                                     !_probabilities.LikelyCards(opponent).HasX(i.Suit) &&
-                                                                                    !_probabilities.CertainCards(Game.TalonIndex).HasX(i.Suit))
+                                                                                    !_probabilities.CertainCards(Game.TalonIndex).HasX(i.Suit) &&
+                                                                                    !(_probabilities.CertainCards(opponent).HasSuit(i.Suit) ||
+                                                                                      (!_probabilities.PotentialCards(TeamMateIndex).HasSuit(i.Suit) &&
+                                                                                       _probabilities.PotentialCards(opponent).CardCount(i.Suit) > 2)))
                                                                         .ToList();
                             if (cardsToPlay.Any(i => !_probabilities.PotentialCards(opponent).HasX(i.Suit)))
                             {
