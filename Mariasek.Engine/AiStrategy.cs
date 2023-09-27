@@ -2651,7 +2651,8 @@ namespace Mariasek.Engine
                                                                                   ((_probabilities.PotentialCards(player2)                      //musi byt sance, ze spoluhrac ma
                                                                                                   .Count(j => j.Suit == i.Suit &&               //v barve i neco jineho nez A nebo X
                                                                                                               j.Value > i.Value &&
-                                                                                                              j.Value < Hodnota.Desitka) > 1) ||
+                                                                                                              j.Value < Hodnota.Desitka) > (_probabilities.PotentialCards(player3).HasSuit(i.Suit)
+                                                                                                                                            ? 1 : 2)) ||
                                                                                     !_probabilities.PotentialCards(player2).Any(j => j.Suit == i.Suit &&
                                                                                                                                     j.Value >= Hodnota.Desitka)))));
 
