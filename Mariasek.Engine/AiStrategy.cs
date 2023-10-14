@@ -2064,8 +2064,14 @@ namespace Mariasek.Engine
                         return null;
                     }
                     if (TeamMateIndex != -1 &&
-                        (_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
-                        (PlayerBids[TeamMateIndex] & (Hra.Sedma | Hra.SedmaProti)) != 0)
+                        //(_gameType & (Hra.Sedma | Hra.SedmaProti)) != 0 &&
+                        SevenValue > GameValue &&
+                        (PlayerBids[TeamMateIndex] & (Hra.Sedma | Hra.SedmaProti)) != 0 &&    //pokud kolega flekoval sedmu tak pravidlo nehraj
+                        !Enum.GetValues(typeof(Barva)).Cast<Barva>()    //to neplati pokud vim o barve, kterou muzu z aktera tlacit trumf
+                             .Where(b => b != _trump)                   //a nehrozi, ze kolega tu barvu nebude mit
+                             .Any(b => hands[MyIndex].HasSuit(b) &&
+                                       !_probabilities.PotentialCards(opponent).HasSuit(b) &&
+                                       _probabilities.PotentialCards(TeamMateIndex).CardCount(b) > 2))
                     {
                         return null;
                     }

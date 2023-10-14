@@ -21,6 +21,9 @@ namespace Mariasek.Engine
         private float _maxBasicPointsLost;
         private bool _hundredOverBetl;
         private bool _hundredOverDurch;
+        private bool _hundredTooRisky;
+        private bool _betlTalonChosen;
+        private bool _durchTalonChosen;
         private int _minWinForHundred;
         private int _maxMoneyLost;
         private int _gamesBalance;
@@ -1134,10 +1137,12 @@ namespace Mariasek.Engine
                         _gameType == Hra.Betl)
                     {
                         _talon = ChooseDurchTalon(Hand, null);
+                        _durchTalonChosen = true;
                     }
                     else
                     {
                         _talon = ChooseBetlTalon(Hand, null);
+                        _betlTalonChosen = true;
                     }
                 }
             }
@@ -1166,6 +1171,7 @@ namespace Mariasek.Engine
                 if (_g.GameType == Hra.Betl)
                 {
                     _talon = ChooseDurchTalon(Hand, null);
+                    _durchTalonChosen = true;
                 }
                 else
                 {
@@ -1173,11 +1179,13 @@ namespace Mariasek.Engine
                     if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][1] * _durchSimulations && _durchSimulations > 0)
                     {
                         _talon = ChooseDurchTalon(Hand, null);
+                        _durchTalonChosen = true;
                     }
                     //pokud vysel betl pres prah, vyber pro nej talon
                     else if (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations && _betlSimulations > 0)
                     {
                         _talon = ChooseBetlTalon(Hand, null);
+                        _betlTalonChosen = true;
                     }
                     else
                     {
@@ -1188,10 +1196,12 @@ namespace Mariasek.Engine
                              (float)_durchBalance / (float)_durchSimulations > (float)_betlBalance / (float)_betlSimulations))
                         {
                             _talon = ChooseDurchTalon(Hand, null);
+                            _durchTalonChosen = true;
                         }
                         else
                         {
                             _talon = ChooseBetlTalon(Hand, null);
+                            _betlTalonChosen = true;
                         }
                     }
                 }
@@ -1222,6 +1232,7 @@ namespace Mariasek.Engine
                     if (_talon == null || !_talon.Any())
                     {
                         _talon = ChooseBetlTalon(Hand, null);
+                        _betlTalonChosen = true;
                     }
                     flavour = GameFlavour.Bad;
                 }
@@ -1230,6 +1241,7 @@ namespace Mariasek.Engine
                     if (_talon == null || !_talon.Any())
                     {
                         _talon = ChooseDurchTalon(Hand, null);
+                        _durchTalonChosen = true;
                     }
                     flavour = GameFlavour.Bad;
                 }
@@ -1325,17 +1337,18 @@ namespace Mariasek.Engine
                     catch(Exception ex)
                     {
                     }
+                    _hundredTooRisky = IsHundredTooRisky(tempHand, tempTalon);
                     _initialSimulation = false;
                     if (Settings.CanPlayGameType[Hra.Durch] && 
                         _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
                         _durchSimulations > 0 &&
                         !(_hundredOverDurch &&
-                          !IsHundredTooRisky(tempHand, tempTalon)))
+                          !_hundredTooRisky))
                     {
                         if (_talon == null || !_talon.Any())
                         {
                             _talon = ChooseDurchTalon(Hand, null);
-
+                            _durchTalonChosen = true;
                         }
                         DebugInfo.Rule = "Durch";
                         DebugInfo.RuleCount = _durchBalance;
@@ -1347,7 +1360,7 @@ namespace Mariasek.Engine
                              ((_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && 
                                _betlSimulations > 0 &&
                                !(_hundredOverBetl &&
-                                 !IsHundredTooRisky(tempHand, tempTalon)) &&
+                                 !_hundredTooRisky) &&
                                !(_betlBalance < Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations &&
                                  _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)) ||
                               (Settings.SafetyBetlThreshold > 0 &&
@@ -1374,6 +1387,7 @@ namespace Mariasek.Engine
                         if (_talon == null || !_talon.Any())
                         {
                             _talon = ChooseBetlTalon(Hand, null);
+                            _betlTalonChosen = true;
                         }
                         DebugInfo.Rule = "Betl";
                         DebugInfo.RuleCount = _betlBalance;
@@ -1385,7 +1399,7 @@ namespace Mariasek.Engine
                     {
                         if (_talon == null || !_talon.Any())
                         {
-                            _talon = ChooseNormalTalon(Hand, TrumpCard);
+                            _talon = tempTalon;
                         }
                         DebugInfo.Rule = "Klasika";
                         if ((float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations)
@@ -1462,6 +1476,7 @@ namespace Mariasek.Engine
                     lowCards.Count() < 2)   //pokud mas v nejake barve 2 neodstranitelne diry, tak je durch riskantni (talon by musel byt perfektni)
                 {
                     _talon = ChooseDurchTalon(Hand, null);
+                    _durchTalonChosen = true;
                     DebugInfo.RuleCount = _durchBalance;
                     DebugInfo.TotalRuleCount = _durchSimulations;
                     return GameFlavour.Bad;
@@ -1479,7 +1494,7 @@ namespace Mariasek.Engine
                      _durchSimulations > 0 &&
                      (TeamMateIndex != -1 ||
                       !(_hundredOverDurch &&
-                        !IsHundredTooRisky(tempHand)))) ||
+                        !_hundredTooRisky))) ||
                     (Settings.CanPlayGameType[Hra.Betl] && 
                      ((_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][betlThresholdIndex] * _betlSimulations &&
                        _betlSimulations > 0 &&
@@ -1488,7 +1503,7 @@ namespace Mariasek.Engine
                           GetBetlHoles() <= 3)) ||
                         (TeamMateIndex == -1 &&
                          !(_hundredOverBetl &&
-                           !IsHundredTooRisky(tempHand, tempTalon)) &&
+                           !_hundredTooRisky) &&
                          !(_betlBalance < Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations &&
                            _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)))) ||
                       (Settings.SafetyBetlThreshold > 0 &&
@@ -1508,6 +1523,8 @@ namespace Mariasek.Engine
                                estimatedPointsWon >= 50) ||
                               estimatedPointsWon >= 70)))) ||
                          (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
+                          _avgBasicPointsLost >= 50) ||
+                         (_avgWinForGame < -2 * 2 * _g.BetlValue &&
                           _avgBasicPointsLost >= 50))))))
                 {
                     if ((_betlSimulations > 0 && 
@@ -1526,6 +1543,8 @@ namespace Mariasek.Engine
                                estimatedPointsWon >= 50) ||
                               estimatedPointsWon >= 70)))) ||
                           (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
+                           _avgBasicPointsLost >= 50) ||
+                          (_avgWinForGame < -2 * 2 * _g.BetlValue &&
                            _avgBasicPointsLost >= 50))))
                     {
                         _gameType = Hra.Betl;   //toto zajisti, ze si umysl nerozmysli po odhozeni talonu na betla
@@ -1562,7 +1581,7 @@ namespace Mariasek.Engine
                     Hand.Has7(_trump ?? _g.trump.Value) &&          //protoze prah pro sedmu muze nekdo nastavit na nulu
                     _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations &&
                     _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&
-                    !IsHundredTooRisky(tempHand))
+                    !_hundredTooRisky)
                 {
                     return GameFlavour.Good107;
                 }
@@ -1573,7 +1592,7 @@ namespace Mariasek.Engine
                     _g.Top107 &&
                     _hundredSimulations > 0 &&
                     _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&
-                    !IsHundredTooRisky(tempHand, tempTalon) &&
+                    !_hundredTooRisky &&
                     _avgWinForHundred > 2 * (_g.DurchValue + 2 * _g.SevenValue))
                 {
                     return GameFlavour.Good107;
