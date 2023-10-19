@@ -205,8 +205,24 @@ namespace Mariasek.Engine
                               .First();
 
             //vyber jednu z karet v barve (nejdriv zkus neukazovat zadne dulezite karty, pokud to nejde vezmi libovolnou kartu v barve)
-            TrumpCard = hand.FirstOrDefault(i => i.Suit == trump && i.Value > Hodnota.Sedma && i.Value < Hodnota.Svrsek) ??
-                       hand.OrderBy(i => i.Value).FirstOrDefault(i => i.Suit == trump);
+            TrumpCard = hand.FirstOrDefault(i => i.Suit == trump &&
+                                                 i.Value > Hodnota.Sedma &&
+                                                 i.Value < Hodnota.Svrsek &&
+                                                 !(hand.Count(j => j.Suit == trump ||            //pokud mas na ruce jen dulezite karty nebo trumfy
+                                                                   j.Value >= Hodnota.Desitka || //a mas prave jeden nedulezity trumf
+                                                                   (j.Value == Hodnota.Kral &&   //tak ten nedulezity trumf nevybirej
+                                                                    hand.HasQ(j.Suit)) ||        //protoze by teoreticky mohl skoncit v talonu
+                                                                   (j.Value == Hodnota.Svrsek && //pokud budu mit silne karty na kilo/stosedm
+                                                                    hand.HasK(j.Suit))) >= hand.Count - 2 &&
+                                                   hand.Count(j => j.Suit == i.Suit &&
+                                                                   j.Value < Hodnota.Svrsek &&
+                                                                   j.Value > Hodnota.Sedma) == 1)) ??
+                        hand.OrderBy(i => i.Value)
+                            .FirstOrDefault(i => i.Suit == trump &&
+                                                 i.Value <= Hodnota.Kral &&
+                                                 i.Value >= Hodnota.Svrsek) ??
+                        hand.OrderBy(i => i.Value)
+                            .First(i => i.Suit == trump);
 
             _log.DebugFormat("Trump chosen: {0}", TrumpCard);
             return TrumpCard;
@@ -3607,8 +3623,9 @@ namespace Mariasek.Engine
                            (!Settings.PlayerMayGiveUp &&
                             AdvisorMode)) ||
                           Settings.MinimalBidsForGame > 1 ||
-                          ((_gamesBalance > 0 &&
-                            _gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations && _gameSimulations > 0 &&
+                          ((_gameSimulations > 0 &&
+                            _gamesBalance > 0 &&
+                            _gamesBalance >= Settings.GameThresholdsForGameType[Hra.Hra][0] * _gameSimulations &&
                             (Settings.SafetyBetlThreshold == 0 ||
                              _maxMoneyLost > -Settings.SafetyBetlThreshold) &&
                             (Settings.SafetyBetlThreshold == 0 ||
