@@ -646,6 +646,12 @@ namespace Mariasek.Engine
             OnGameLoaded();
 
             rounds = new Round[NumRounds];
+            TrumpCard = trump.HasValue
+                        ? players[GameStartingPlayerIndex].Hand
+                                                          .Where(i => i.Suit == trump)
+                                                          .OrderBy(i => i.Value)
+                                                          .First()
+                        : null;
             foreach (var stych in gameData.Stychy.Where(i => i.Kolo < gameData.Kolo && i.Hrac1 != null && i.Hrac2 != null && i.Hrac3 != null).OrderBy(i => i.Kolo))
             {
                 if (RoundNumber == 0)
@@ -653,12 +659,7 @@ namespace Mariasek.Engine
                     OnGameTypeChosen(new GameTypeChosenEventArgs    //dovolime hracum aby zjistili jaky jsou trumfy
                     {
                         GameType = GameType,
-                        TrumpCard = trump.HasValue
-                                         ? players[GameStartingPlayerIndex].Hand
-                                                                           .Where(i => i.Suit == trump)
-                                                                           .OrderBy(i => i.Value)
-                                                                           .First()
-                                         : null,
+                        TrumpCard = TrumpCard,
                         axTalon = talon.Where(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka).ToList(),
                         GameStartingPlayerIndex = GameStartingPlayerIndex
                     });

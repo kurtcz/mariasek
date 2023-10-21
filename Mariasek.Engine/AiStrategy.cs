@@ -7863,16 +7863,16 @@ namespace Mariasek.Engine
                                                                              _probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 / 3f) ||
                                                                             ((_gameType & Hra.Kilo) != 0) &&  //u kila zkousim mazat vice
                                                                              _probabilities.SuitProbability(player3, _trump, RoundNumber) >= 1 / 3f))) &&
-                                                                         !(gameWinningCard ||
-                                                                           (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0 &&
-                                                                            _probabilities.PotentialCards(player1)
+                                                                         (gameWinningCard ||
+                                                                          !((_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0 &&
+                                                                             _probabilities.PotentialCards(player1)
+                                                                                           .Where(j => j.Suit == i.Suit)
+                                                                                           .Count(j => j != c1 &&
+                                                                                                       j.Value < Hodnota.Desitka) > 2) ||
+                                                                            _probabilities.CertainCards(player1)
                                                                                           .Where(j => j.Suit == i.Suit)
-                                                                                          .Count(j => j != c1 &&
-                                                                                                      j.Value < Hodnota.Desitka) > 2) ||
-                                                                           _probabilities.CertainCards(player1)
-                                                                                         .Where(j => j.Suit == i.Suit)
-                                                                                         .Any(j => j != c1 &&
-                                                                                                   j.Value < Hodnota.Desitka)))
+                                                                                          .Any(j => j != c1 &&
+                                                                                                    j.Value < Hodnota.Desitka))))
                                                                         .OrderBy(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber))    //namaz v barve kterou souper nema
                                                                         .ToList();
                         if (RoundNumber >= 6 &&

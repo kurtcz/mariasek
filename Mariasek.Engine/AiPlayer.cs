@@ -5176,7 +5176,13 @@ namespace Mariasek.Engine
                                                     .Where(b => b != _trump &&
                                                                 !gameStarterPlayedCards.HasSuit(b) &&
                                                                 initialHand.CardCount(b) > maxPlayedSuitLength);
-                        var talon = ChooseNormalTalon(initialHand, _g.TrumpCard);
+                        var talon = PlayerIndex == _g.GameStartingPlayerIndex &&
+                                    _talon != null &&
+                                    _talon.Count == 2
+                                    ? new List<Card>(_talon)
+                                    : _g.GameType == Hra.Betl
+                                      ? ChooseBetlTalon(initialHand, _g.TrumpCard)
+                                      : ChooseNormalTalon(initialHand, _g.TrumpCard);
                         var isLikelyTalonForHand = IsLikelyTalonForHand(hands);
                         var hh = new[] {
                             new Hand((List<Card>)hands[0]),
@@ -5421,7 +5427,9 @@ namespace Mariasek.Engine
             //    var y = hands[Game.TalonIndex].All(i => talon.Contains(i));
             //}
 
-            var talonCandidates = initialHand.Where(i => (i.Suit != _g.TrumpCard.Suit &&
+            var talonCandidates = (_g.GameType & (Hra.Betl | Hra.Durch)) != 0
+                                  ? initialHand
+                                  : initialHand.Where(i => (i.Suit != _g.TrumpCard.Suit &&
                                                           ((!initialHand.HasX(i.Suit) &&
                                                             initialHand.CardCount(i.Suit) - hands[Game.TalonIndex].CardCount(i.Suit) == 1) ||
                                                            !initialHand.HasSuit(i.Suit))) &&
