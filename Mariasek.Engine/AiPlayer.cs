@@ -2,6 +2,7 @@
 using Mariasek.Engine.Logger;
 using System.Collections.Concurrent;
 using System.Data;
+using System.Linq;
 
 namespace Mariasek.Engine
 {
@@ -4820,7 +4821,11 @@ namespace Mariasek.Engine
 
         private bool ShouldComputeBestCard(Round r)
         {
-            return _g.FirstMinMaxRound > 0 && r.number >= _g.FirstMinMaxRound && r.number < Game.NumRounds && r.c1 == null && _g.GameType != Hra.Durch;
+            return _g.FirstMinMaxRound > 0 &&
+                   r.number >= _g.FirstMinMaxRound &&
+                   r.number < Game.NumRounds &&
+                   //r.c1 == null &&
+                   _g.GameType != Hra.Durch;
         }
 
         private string GetProbabilityString(Round r)
@@ -5430,16 +5435,16 @@ namespace Mariasek.Engine
             var talonCandidates = (_g.GameType & (Hra.Betl | Hra.Durch)) != 0
                                   ? initialHand
                                   : initialHand.Where(i => (i.Suit != _g.TrumpCard.Suit &&
-                                                          ((!initialHand.HasX(i.Suit) &&
-                                                            initialHand.CardCount(i.Suit) - hands[Game.TalonIndex].CardCount(i.Suit) == 1) ||
-                                                           !initialHand.HasSuit(i.Suit))) &&
-                                                         (i.Value <= Hodnota.Spodek ||
-                                                           (i.Value == Hodnota.Svrsek &&
-                                                            !initialHand.HasK(i.Suit)) ||
-                                                           (i.Value == Hodnota.Kral &&
-                                                            !initialHand.HasQ(i.Suit) &&
-                                                            (!initialHand.HasX(i.Suit) ||
-                                                             initialHand.HasA(i.Suit)))));
+                                                            ((!initialHand.HasX(i.Suit) &&
+                                                              initialHand.CardCount(i.Suit) - hands[Game.TalonIndex].CardCount(i.Suit) == 1) ||
+                                                             !initialHand.HasSuit(i.Suit))) &&
+                                                           (i.Value <= Hodnota.Spodek ||
+                                                            (i.Value == Hodnota.Svrsek &&
+                                                             !initialHand.HasK(i.Suit)) ||
+                                                            (i.Value == Hodnota.Kral &&
+                                                             !initialHand.HasQ(i.Suit) &&
+                                                             (!initialHand.HasX(i.Suit) ||
+                                                              initialHand.HasA(i.Suit)))));
 
             if ((_g.GameType & (Hra.Betl | Hra.Durch)) != 0 ||
                 (((talonCandidates.Count() < 2 &&
@@ -5469,11 +5474,17 @@ namespace Mariasek.Engine
             var player3 = (player1 + 2) % Game.NumPlayers;
             var candidateRounds = new List<Round>();
             var results = new List<Tuple<Card, Card, Card, MoneyCalculatorBase, GameComputationResult>>();
-            var cards1 = ValidCards(hands[player1], _g.trump, _g.GameType, _g.players[player1].TeamMateIndex);
+            var cards1 = currentRound == roundNumber &&
+                         _g.CurrentRound.c1 != null
+                         ? new List<Card> { _g.rounds[_g.RoundNumber - 1].c1 }
+                         : ValidCards(hands[player1], _g.trump, _g.GameType, _g.players[player1].TeamMateIndex);
 
             foreach (var c1 in cards1)
             {
-                var cards2 = ValidCards(hands[player2], _g.trump, _g.GameType, _g.players[player2].TeamMateIndex, c1);
+                var cards2 = currentRound == roundNumber &&
+                             _g.CurrentRound.c2 != null
+                             ? new List<Card> { _g.rounds[currentRound - 1].c2 }
+                             : ValidCards(hands[player2], _g.trump, _g.GameType, _g.players[player2].TeamMateIndex, c1);
 
                 foreach (var c2 in cards2)
                 {
@@ -5538,7 +5549,11 @@ namespace Mariasek.Engine
 
                             calc.CalculateMoney();
 
-                            return new[] { new Tuple<Card, MoneyCalculatorBase, GameComputationResult>(c1, calc, result) };
+                            return new[] { new Tuple<Card, MoneyCalculatorBase, GameComputationResult>(currentRound == _g.RoundNumber &&
+                                                                                                       _g.CurrentRound.c2 != null
+                                                                                                       ? c3
+                                                                                                       : _g.CurrentRound.c1 != null
+                                                                                                         ? c2 : c1, calc, result) };
                         }
                         else
                         {
@@ -5575,6 +5590,13 @@ namespace Mariasek.Engine
                                                           i.Item2 == c2).Select(i => i.Item3).Distinct())
                     {
                         var res3 = results.Single(i => i.Item1 == c1 && i.Item2 == c2 && i.Item3 == c3);
+
+                        if (currentRound == roundNumber &&
+                            _g.CurrentRound.c2 != null)
+                        {
+                            filteredResults.Add(res3);
+                            continue;
+                        }
 
                         if (!filtered2.Any(i => i.Item1 == c1 &&
                                                 i.Item2 == c2))
@@ -5614,6 +5636,16 @@ namespace Mariasek.Engine
                             }
                         }
                     }
+
+                    if (currentRound == roundNumber &&
+                        _g.CurrentRound.c1 != null)
+                    {
+                        if (_g.CurrentRound.c2 == null)
+                        {
+                            filteredResults.AddRange(filtered2);
+                        }
+                        continue;
+                    }
                     var res2 = filtered2.First();
 
                     if (!filtered1.Any(i => i.Item1 == c1))
@@ -5652,6 +5684,12 @@ namespace Mariasek.Engine
                             filtered1.Add(res2);
                         }
                     }
+                }
+
+                if (currentRound == roundNumber &&
+                    _g.CurrentRound.c1 != null)
+                {
+                    break;
                 }
                 var res1 = filtered1.First();
 
@@ -5701,7 +5739,12 @@ namespace Mariasek.Engine
                                                  .ToList();
             }
 
-            return filteredResults.Select(i => new Tuple<Card, MoneyCalculatorBase, GameComputationResult>(i.Item1, i.Item4, i.Item5)).ToList();
+            return filteredResults.Select(i => new Tuple<Card, MoneyCalculatorBase, GameComputationResult>(roundNumber == currentRound &&
+                                                                                                           _g.CurrentRound.c2 != null
+                                                                                                           ? i.Item3
+                                                                                                           : _g.CurrentRound.c1 != null
+                                                                                                             ? i.Item2
+                                                                                                             : i.Item1, i.Item4, i.Item5)).ToList();
         }
 
         private Card ChooseCardToPlay(Dictionary<Card, List<GameComputationResult>> cardScores)
