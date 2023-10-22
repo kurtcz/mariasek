@@ -51,7 +51,7 @@ namespace Mariasek.SharedClient
             _description = new TextBox(this)
             {
                 Position = new Vector2(10, 10),
-                Width = 200,
+                Width = 250,
                 AutosizeText = true,
                 AutosizeMode = AutosizeMode.Vertical,
                 Height = (int)Game.VirtualScreenHeight - 190,
@@ -265,7 +265,10 @@ namespace Mariasek.SharedClient
                     }
                     description = description.Where(i => !i.StartsWith("Celkem:")).ToArray();
                     _description.FontScaleFactor = OriginalDescriptionFontScaleFactor;
-                    _description.Text = string.Join("\n", description).Replace("V červenejch:", "V červenejch");
+                    _description.Text = string.Join("\n", description)
+                                              .Replace("V červenejch:", "V červenejch");
+                                              //.Replace("hraná sedma proti", "hraná sedma\nproti")
+                                              //.Replace("hraný kilo proti", "hraný kilo\nproti");
                     _review.UpdateReview(g);
 
                     var biddingInfo = new string[Mariasek.Engine.Game.NumPlayers];
