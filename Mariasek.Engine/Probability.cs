@@ -2321,7 +2321,7 @@ namespace Mariasek.Engine
                 c1.IsLowerThan(c2, _trump) &&
                 c2.IsHigherThan(c3, _trump))
             {
-                SetCardProbabilitiesLowerThanCardToEpsilon((roundStarterIndex + 2) % Game.NumPlayers, c3);                
+                SetCardProbabilitiesLowerThanCardToEpsilon((roundStarterIndex + 2) % Game.NumPlayers, c3);
             }
 
             //pokud hrajeme v barve a
@@ -2352,6 +2352,33 @@ namespace Mariasek.Engine
             {
                 _cardProbabilityForPlayer[_gameStarterIndex][c2.Suit][Hodnota.Kral] = 1 - epsilon;
                 _cardProbabilityForPlayer[_gameStarterIndex][c2.Suit][Hodnota.Svrsek] = 1 - epsilon;
+            }
+
+            //pokud hrajeme v barve a
+            //treti hrac neni akter a priznal barvu
+            //a stych nejde za akterem ani za tretim hracem
+            //tak treti hrac asi uz nema v barve nic nizsiho
+            if (_trump.HasValue &&
+                _gameStarterIndex == roundStarterIndex &&
+                c1.Suit != _trump &&
+                //c2.Suit == c1.Suit &&
+                c3.Suit == c1.Suit &&
+                c1.IsLowerThan(c2, _trump) &&
+                c2.IsHigherThan(c3, _trump) &&
+                c3.Value < Hodnota.Desitka)
+            {
+                SetCardProbabilitiesLowerThanCardToEpsilon((roundStarterIndex + 2) % Game.NumPlayers, c3);
+            }
+            if (_trump.HasValue &&
+                _gameStarterIndex == (roundStarterIndex + 1) % Game.NumPlayers &&
+                c1.Suit != _trump &&
+                //c2.Suit == c1.Suit &&
+                c3.Suit == c1.Suit &&
+                c1.IsHigherThan(c2, _trump) &&
+                c1.IsHigherThan(c3, _trump) &&
+                c3.Value < Hodnota.Desitka)
+            {
+                SetCardProbabilitiesLowerThanCardToEpsilon((roundStarterIndex + 2) % Game.NumPlayers, c3);
             }
 
             _cardsPlayedByPlayer[(roundStarterIndex + 2) % Game.NumPlayers].Add(c3);

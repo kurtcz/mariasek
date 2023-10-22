@@ -3384,7 +3384,7 @@ namespace Mariasek.Engine
                          hands[MyIndex].CardCount(_trump) >= 2 &&
                          hands[MyIndex].HasA(_trump) &&
                          myInitialHand.CardCount(Hodnota.Eso) <= 2) &&    //pokud mas na zacatku 3 a vice es, tak zkus nejake uhrat
-                         !(hands[MyIndex].SuitCount == Game.NumPlayers &&
+                         !(hands[MyIndex].SuitCount == Game.NumSuits &&
                            hands[MyIndex].Any(i => i.Suit != _trump &&     //pokud mas v bocni barve AX a max 4 karty, tak zkus neco uhrat
                                                   i.Value >= Hodnota.Desitka &&
                                                   myInitialHand.HasA(i.Suit) &&
