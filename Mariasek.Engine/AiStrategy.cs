@@ -3268,9 +3268,35 @@ namespace Mariasek.Engine
             yield return new AiRule()
             {
                 Order = 7,
-                Description = "zkusit uhrát bodovanou kartu",
+                Description = "hrát nízkou kartu od desítky",
                 SkipSimulations = true,
                 #region ChooseCard1 Rule7
+                ChooseCard1 = () =>
+                {
+                    if (TeamMateIndex != -1 &&
+                        GameValue > SevenValue)
+                    {
+                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                !_bannedSuits.Contains(i.Suit) &&
+                                                                                i.Value < Hodnota.Desitka &&
+                                                                                hands[MyIndex].HasX(i.Suit) &&
+                                                                                _probabilities.PotentialCards(opponent).HasA(i.Suit))
+                                                                    .ToList();
+
+                        return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
+                    }
+
+                    return null;
+                }
+                #endregion
+            };
+
+            yield return new AiRule()
+            {
+                Order = 8,
+                Description = "zkusit uhrát bodovanou kartu",
+                SkipSimulations = true,
+                #region ChooseCard1 Rule8
                 ChooseCard1 = () =>
                 {
                     //proti kilu zkus vytlacit netrumfovou hlasku pokud se hraje kilo na prvni hlas
@@ -4222,10 +4248,10 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 8,
+                Order = 9,
                 Description = "vytlačit bodovanou kartu",
                 SkipSimulations = true,
-                #region ChooseCard1 Rule7
+                #region ChooseCard1 Rule9
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = new List<Card>();
@@ -4403,10 +4429,10 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 9,
+                Order = 10,
                 Description = "bodovat nebo vytlačit trumf",
                 SkipSimulations = true,
-                #region ChooseCard1 Rule9
+                #region ChooseCard1 Rule10
                 ChooseCard1 = () =>
                 {
                     if (TeamMateIndex != -1 &&
@@ -4642,10 +4668,10 @@ namespace Mariasek.Engine
 
             yield return new AiRule
             {
-                Order = 10,
+                Order = 11,
                 Description = "odmazat si barvu",
                 SkipSimulations = true,
-                #region ChooseCard1 Rule10
+                #region ChooseCard1 Rule11
                 ChooseCard1 = () =>
                 {
                     //var poorSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -5009,10 +5035,10 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 11,
+                Order = 12,
                 Description = "hrát spoluhráčovu barvu",
                 SkipSimulations = true,
-                #region ChooseCard1 Rule11
+                #region ChooseCard1 Rule12
                 ChooseCard1 = () =>
                 {
                     var suitsToPlay = _teamMatesSuits.Concat(teamMatePlayedGreaseCards.Select(i => i.Suit)).Distinct().ToList();
@@ -5065,10 +5091,10 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 12,
+                Order = 13,
                 Description = "hrát dlouhou barvu mimo A,X,trumf",
                 SkipSimulations = true,
-                #region ChooseCard1 Rule12
+                #region ChooseCard1 Rule13
                 ChooseCard1 = () =>
                 {
                     if (TeamMateIndex == -1 &&
@@ -5353,10 +5379,10 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 13,
+                Order = 14,
                 Description = "obětuj plonkovou X",
                 SkipSimulations = true,
-                #region ChooseCard1 Rule13
+                #region ChooseCard1 Rule14
                 ChooseCard1 = () =>
                 {
                     if (TeamMateIndex == -1 &&
@@ -5450,10 +5476,10 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 14,
+                Order = 15,
                 Description = "hrát vítěznou kartu",
                 SkipSimulations = true,
-                #region ChooseCard1 Rule14
+                #region ChooseCard1 Rule15
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = new List<Card>();
@@ -5537,10 +5563,10 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 15,
+                Order = 16,
                 Description = "hrát vítězné A",
                 SkipSimulations = true,
-                #region ChooseCard1 Rule15
+                #region ChooseCard1 Rule16
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = new List<Card>();
@@ -5618,10 +5644,10 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 16,
+                Order = 17,
                 Description = "zůstat ve štychu",
                 SkipSimulations = true,
-                #region ChooseCard1 Rule16
+                #region ChooseCard1 Rule17
                 ChooseCard1 = () =>
                 {
                     if (TeamMateIndex != -1)
@@ -5716,10 +5742,10 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 17,
+                Order = 18,
                 Description = "hrát největší trumf",
                 SkipSimulations = true,
-                #region ChooseCard1 Rule17
+                #region ChooseCard1 Rule18
                 ChooseCard1 = () =>
                 {
                     if (TeamMateIndex != -1 &&
@@ -5862,10 +5888,10 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 18,
+                Order = 19,
                 Description = "zbavit se plev",
                 SkipSimulations = true,
-                #region ChooseCard1 Rule18
+                #region ChooseCard1 Rule19
                 ChooseCard1 = () =>
                 {
                     if (TeamMateIndex == -1 &&
@@ -6040,10 +6066,10 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 19,
+                Order = 20,
                 Description = "hrát trumf",
                 SkipSimulations = true,
-                #region ChooseCard1 Rule19
+                #region ChooseCard1 Rule20
                 ChooseCard1 = () =>
                 {
                     if (TeamMateIndex != -1 &&
@@ -6192,10 +6218,10 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 20,
+                Order = 21,
                 Description = "hrát cokoli mimo A,X,trumf",
                 SkipSimulations = true,
-                #region ChooseCard1 Rule20
+                #region ChooseCard1 Rule21
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
@@ -6293,10 +6319,10 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 21,
+                Order = 22,
                 Description = "hrát cokoli mimo trumf",
                 SkipSimulations = true,
-                #region ChooseCard1 Rule21
+                #region ChooseCard1 Rule22
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
@@ -6483,10 +6509,10 @@ namespace Mariasek.Engine
             
             yield return new AiRule()
             {
-                Order = 22,
+                Order = 23,
                 Description = "hrát cokoli",
                 SkipSimulations = true,
-                #region ChooseCard1 Rule22
+                #region ChooseCard1 Rule23
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
