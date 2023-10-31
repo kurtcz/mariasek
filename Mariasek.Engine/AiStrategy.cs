@@ -3873,6 +3873,7 @@ namespace Mariasek.Engine
                                                                                  (i.Value == Hodnota.Desitka &&
                                                                                   _probabilities.CardProbability(player3, new Card(i.Suit, Hodnota.Eso)) <= _epsilon)) &&
                                                                                 ((_probabilities.CertainCards(player3).Any(j => j.Suit == i.Suit) ||
+                                                                                  _probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 1 ||
                                                                                   _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) ||
                                                                                  (_probabilities.SuitProbability(player3, i.Suit, RoundNumber) > 0 &&
                                                                                   hands[MyIndex].CardCount(_trump) > 2 &&
@@ -4068,6 +4069,7 @@ namespace Mariasek.Engine
                                                                                 (//(_probabilities.SuitProbability(player2, i.Suit, RoundNumber) >= 1 - RiskFactor &&
                                                                                  // hands[MyIndex].CardCount(_trump) < _probabilities.MaxCardCount(player2, _trump)) ||
                                                                                  (_probabilities.CertainCards(player2).Any(j => j.Suit == i.Suit) ||
+                                                                                  _probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 1 ||
                                                                                   _probabilities.SuitProbability(player2, _trump, RoundNumber) == 0) ||
                                                                                   //(_probabilities.SuitProbability(player2, i.Suit, RoundNumber) > 0 &&
                                                                                   // hands[MyIndex].CardCount(_trump) > 2) ||
