@@ -283,7 +283,7 @@ namespace Mariasek.SharedClient
             RiskFactorSevenDefense = 0.5f; //pouziva se u pravidla bodovat nebo vytlacit trumf proti sedme
             SafetyGameThreshold = 48;
             SafetyHundredThreshold = 56;
-            SafetyBetlThreshold = CalculationStyle == CalculationStyle.Adding ? 56 : 64;
+            SafetyBetlThreshold = 64;
             Thresholds = new []
             {
                 new BidThresholdSettings

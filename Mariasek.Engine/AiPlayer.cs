@@ -2677,7 +2677,7 @@ namespace Mariasek.Engine
             var hiTrumps = hand.Count(i => i.Suit == trump.Value &&
                                            i.Value >= Hodnota.Svrsek);
 
-            if (trumpCount > 5 ||
+            if (trumpCount >= 5 ||
                 (trumpCount >= 4 &&
                  (hiTrumps >= 2 ||
                   hand.CardCount(Hodnota.Eso) >= 3) &&
@@ -3932,6 +3932,9 @@ namespace Mariasek.Engine
                       (Hand.CardCount(_trumpCard.Suit) >= 4 &&
                        axCount >= 1 &&
                        estimatedFinalBasicScore >= 10) ||
+                      (Hand.CardCount(_trumpCard.Suit) >= 4 &&
+                       kqScore >= 20 &&
+                       !Is100AgainstPossible(120)) ||
                       (Hand.CardCount(_trumpCard.Suit) >= 3 &&
                        (bidding.Bids & Hra.Sedma) == 0 &&
                        axCount >= 1 &&
@@ -3964,6 +3967,10 @@ namespace Mariasek.Engine
                        (_gameType & Hra.Sedma) == 0)) &&        //aspon jeste jednu desitku a
                      estimatedFinalBasicScore >= 50 &&          //akter nemuze uhrat 110
                      !Is100AgainstPossible(110)) ||
+                    ((_gameType & Hra.SedmaProti) != 0 &&       //kolega hlasil sedmu proti a
+                     estimatedFinalBasicScore + kqScore >= 50 &&//mam 40 bodu v hlasech plus aspon 10
+                     kqScore >= 40 &&
+                     axCount >= 1) ||
                     (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
                      Hand.HasX(_trumpCard.Suit) &&
                      Hand.CardCount(_trumpCard.Suit) >= 3 &&    //a aspon 3 trumfy
