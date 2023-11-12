@@ -1798,12 +1798,11 @@ namespace Mariasek.Engine
                                         {
                                             UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
                                         }
-                                        var gt = EstimateBasicPointsLost(hands[PlayerIndex], hands[Game.TalonIndex]) <= 50 &&
+                                        var gt = EstimateBasicPointsLost(hands[PlayerIndex], hands[Game.TalonIndex], false) <= 30 &&
                                                  Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                                      .Any(b => hands[PlayerIndex].HasK(b) && hands[PlayerIndex].HasQ(b))
                                                      ? Hra.Kilo
                                                      : Hra.Hra;
-                                        var trump = _trump ?? _g.trump ?? Barva.Cerveny;
                                         if (hands[PlayerIndex].Has7(trump))
                                         {
                                             gt |= Hra.Sedma;
