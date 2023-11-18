@@ -1345,7 +1345,8 @@ namespace Mariasek.Engine
 
                 foreach (var player in players)
                 {
-                    var temp = new List<Card>();
+                    var playedCards = new List<Card>();
+                    var playedHlasCards = new List<Card>();
 
                     //dodame karty ve stychu vyjma hlasu
                     foreach (var r in rounds.Where(r => r != null && r.number <= LastRoundNumber))
@@ -1354,39 +1355,44 @@ namespace Mariasek.Engine
                         {
                             if (r.hlas3)
                             {
-                                all.Add(new[] { r.c3 });
-                                sb.AppendFormat("Round {0} card 3: Hlas {1}\n", r.number, r.c1);
+                                playedHlasCards.Add(r.c3);
+                                sb.AppendFormat("Round {0} card 3: Hlas {1}\n", r.number, r.c3);
                             }
                             else
                             {
-                                temp.Add(r.c3);
+                                playedCards.Add(r.c3);
                                 sb.AppendFormat("Round {0} card 3: Adding {1}\n", r.number, r.c3);
                             }
                             if (r.hlas2)
                             {
-                                all.Add(new[] { r.c2 });
+                                playedHlasCards.Add(r.c2);
                                 sb.AppendFormat("Round {0} card 2: Hlas {1}\n", r.number, r.c2);
                             }
                             else
                             {
-                                temp.Add(r.c2);
-                                sb.AppendFormat("Round {0} card 2: Adding {1}\n", r.number, r.c3);
+                                playedCards.Add(r.c2);
+                                sb.AppendFormat("Round {0} card 2: Adding {1}\n", r.number, r.c2);
                             }
                             if (r.hlas1)
                             {
-                                all.Add(new[] { r.c1 });
+                                playedHlasCards.Add(r.c1);
                                 sb.AppendFormat("Round {0} card 1: Hlas {1}\n", r.number, r.c1);
                             }
                             else
                             {
-                                temp.Add(r.c1);
-                                sb.AppendFormat("Round {0} card 1: Adding {1}\n", r.number, r.c3);
+                                playedCards.Add(r.c1);
+                                sb.AppendFormat("Round {0} card 1: Adding {1}\n", r.number, r.c1);
                             }
                         }
                     }
-                    if (temp.Any())
+
+                    if (playedCards.Any())
                     {
-                        all.Add(temp);
+                        all.Add(playedCards);
+                    }
+                    if (playedHlasCards.Any())
+                    {
+                        all.Add(playedHlasCards);
                     }
                 }
                 sb.AppendFormat("Randomly collecting stacks\n");

@@ -2644,6 +2644,30 @@ namespace Mariasek.Engine
             var axWinPotential = Math.Min(2 * emptySuits + aceOnlySuits + (trumpCount >= 4 ? singleLowSuits : 0),
                                           trumpCount == 4 ? 3 : (int)Math.Ceiling(trumpCount / 2f)); // ne kazdym trumfem prebiju a nebo x
 
+            //pokud jsem nevolil a znam vsechny barvy a mam malo trumfu a
+            //mam dlouhou netrumfovou barvu s A,X tak je asi neuhraju protoze
+            //akter urcite tuhle barvu nema a nebudu je mit jak namazat 
+            if (PlayerIndex != _g.GameStartingPlayerIndex &&
+                trumpCount <= 3 &&
+                hand.SuitCount() == Game.NumSuits &&
+                Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                    .Any(b => b != trump.Value &&
+                              hand.CardCount(b) >= 6 &&
+                              hand.HasX(b)))
+            {
+                if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                    .Any(b => b != trump.Value &&
+                              hand.CardCount(b) >= 6 &&
+                              hand.HasA(b)))
+                {
+                    axWinPotential = Math.Max(axWinPotential - 2, 0);
+                }
+                else
+                {
+                    axWinPotential = Math.Max(axWinPotential - 1, 0);
+                }
+            }
+
             if (PlayerIndex == _g.GameStartingPlayerIndex &&    //mam-li malo trumfu, tak ze souperu moc A,X nedostanu
                 (trumpCount <= 3 ||
                  (trumpCount == 4 &&
