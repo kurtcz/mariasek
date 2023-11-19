@@ -1684,6 +1684,8 @@ namespace Mariasek.Engine
                             //(_gameType & (Hra.Kilo | Hra.KiloProti)) == 0 &&
                             myInitialHand.CardCount(_trump) <= 5 &&
                             topTrumps.Any() &&
+                            !(myInitialHand.CardCount(_trump) <= 3 &&
+                              topCards.SuitCount() == Game.NumSuits) &&
                             opponentCards.HasSuit(_trump) &&
                             (!hands[MyIndex].Has7(_trump) ||
                              hands[MyIndex].CardCount(_trump) > 2) &&

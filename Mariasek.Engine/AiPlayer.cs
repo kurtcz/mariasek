@@ -3287,7 +3287,10 @@ namespace Mariasek.Engine
                                 !hand.HasK(b)))) &&
                !(n == 4 &&
                  nn == 3 &&
-                 sh.Count == 2))
+                 sh.Count == 2) &&
+               !(n == 4 &&
+                 nn == 4 &&
+                 sh.Count == 1))
             {
                 DebugInfo.HundredTooRisky = true;
                 return true;
@@ -3913,21 +3916,27 @@ namespace Mariasek.Engine
                  _teamMateDoubledGame) &&
                 _gameSimulations > 0 &&                         //pokud v simulacich vysla dost casto
                 _gamesBalance / (float)_gameSimulations >= gameThreshold &&
-                ((TeamMateIndex != -1 &&                        //Tutti: 50+ bodu na ruce                  
+                ((TeamMateIndex != -1 &&                        //Tutti: 50+ bodu na ruce nebo 40+ bodu se trema a vice esama
                   bidding.GameMultiplier > 2 &&
-                  estimatedFinalBasicScore + kqScore >= 50 &&
-                  (axCount >= 5 ||
-                   kqScore >= 60 ||
-                   (kqScore >= 40 &&
-                    axCount >= 1) ||
-                   (kqScore >= 20 &&
-                    axCount >= 3)) &&
+                  ((estimatedFinalBasicScore >= 40 &&
+                    axCount >= 4 &&
+                    Hand.CardCount(Hodnota.Eso) >= 3) ||
+                   (estimatedFinalBasicScore + kqScore >= 50 &&
+                    (axCount >= 5 ||
+                     kqScore >= 60 ||
+                     (kqScore >= 40 &&
+                      axCount >= 1) ||
+                     (kqScore >= 20 &&
+                      axCount >= 3)))) &&
                   (_teamMateDoubledGame ||
                    estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqLikelyOpponentScore)) ||
                   (TeamMateIndex == -1 &&                       //Re: pokud mam vic nez souperi s Max(0, n-1) z moznych hlasek a
                    bidding.GameMultiplier == 2 &&
-                   //estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqLikelyOpponentScore &&
-                   estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + Math.Max(0, kqMaxOpponentScore - 20) &&
+                   (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + Math.Max(0, kqMaxOpponentScore - 20) ||
+                    (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
+                     (Hand.HasK(_trumpCard.Suit) ||
+                      Hand.HasQ(_trumpCard.Suit)) &&
+                     Hand.CardCount(Hodnota.Eso) == Game.NumSuits)) &&
                    estimatedOpponentFinalBasicScore + kqLikelyOpponentScore < 100 &&
                    2 * _maxMoneyLost >= -Settings.SafetyGameThreshold &&    // simulace byly jen na flek, pro re vynasobim ztratu dvema
                    (Settings.SafetyGameThreshold == 0 ||
@@ -4285,14 +4294,15 @@ namespace Mariasek.Engine
                     Hand.Where(i => i.Suit != _g.trump.Value)
                         .CardCount(Hodnota.Eso) >= 2 &&
                     Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                        .All(b => Hand.CardCount(b) >= 2 &&
-                                  (Hand.HasA(b) ||
-                                   Hand.HasX(b) ||
-                                   Hand.HasK(b))) &&
+                        .All(b => Hand.HasA(b) ||
+                                  (Hand.CardCount(b) >= 2 &&
+                                   (Hand.HasX(b) ||
+                                    Hand.HasK(b)))) &&
                     Hand.SuitCount() == Game.NumSuits)))) &&
                 ((_gameSimulations > 0 &&
                   _sevensAgainstBalance / (float)_gameSimulations >= sevenAgainstThreshold &&
-                  Hand.Has7(_g.trump.Value)) ||
+                  (Hand.Has7(_g.trump.Value) ||
+                   TeamMateIndex == -1)) ||
                  (_avgBasicPointsLost + kqScore >= 110 &&
                   kqScore >= 40 &&
                   (Hand.Has7(_g.trump.Value) ||
