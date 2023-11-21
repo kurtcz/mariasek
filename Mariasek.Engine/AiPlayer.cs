@@ -1398,7 +1398,8 @@ namespace Mariasek.Engine
                                      estimatedPointsWon >= 70)))) ||
                                 (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
                                  _avgBasicPointsLost >= 50) ||  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
-                                (_avgWinForGame < -2 * 2 * _g.BetlValue &&
+                                (_maxMoneyLost < -2 * 2 * _g.BetlValue &&
+                                 _avgWinForGame < -2 * _g.BetlValue &&
                                  _avgBasicPointsLost >= 50)))))
                     {
                         if (_talon == null || !_talon.Any())
@@ -1541,7 +1542,8 @@ namespace Mariasek.Engine
                               estimatedPointsWon >= 70)))) ||
                          (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
                           _avgBasicPointsLost >= 50) ||
-                         (_avgWinForGame < -2 * 2 * _g.BetlValue &&
+                         (_maxMoneyLost < -2 * 2 * _g.BetlValue &&
+                          _avgWinForGame < -2 * _g.BetlValue &&
                           _avgBasicPointsLost >= 50))))))
                 {
                     if ((_betlSimulations > 0 && 
@@ -1561,7 +1563,8 @@ namespace Mariasek.Engine
                               estimatedPointsWon >= 70)))) ||
                           (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
                            _avgBasicPointsLost >= 50) ||
-                          (_avgWinForGame < -2 * 2 * _g.BetlValue &&
+                          (_maxMoneyLost < -2 * 2 * _g.BetlValue &&
+                           _avgWinForGame < -2 * _g.BetlValue &&
                            _avgBasicPointsLost >= 50))))
                     {
                         _gameType = Hra.Betl;   //toto zajisti, ze si umysl nerozmysli po odhozeni talonu na betla
@@ -3920,7 +3923,8 @@ namespace Mariasek.Engine
                   bidding.GameMultiplier > 2 &&
                   ((estimatedFinalBasicScore >= 40 &&
                     axCount >= 4 &&
-                    Hand.CardCount(Hodnota.Eso) >= 3) ||
+                    Hand.CardCount(Hodnota.Eso) >= 3 &&
+                    _teamMateDoubledGame) ||
                    (estimatedFinalBasicScore + kqScore >= 50 &&
                     (axCount >= 5 ||
                      kqScore >= 60 ||

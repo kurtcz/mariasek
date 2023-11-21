@@ -29,6 +29,7 @@ namespace Mariasek.SharedClient
         private Button _sendBtn;
 
         private int _gameStartingPlayerIndex;
+        private int _roundNumber;
         private Label _fileLabel;
         private Label[] _labels;
         private CardButton[] _cards;
@@ -39,8 +40,9 @@ namespace Mariasek.SharedClient
         private Vector2 _hiddenPosition;
         private string[] _files;
         private string _filename;
+        private string _path;
         private bool _loadGameCalled;
-
+        
         public EditorScene(MariasekMonoGame game)
             : base(game)
         {
@@ -216,6 +218,8 @@ namespace Mariasek.SharedClient
         private void PopulateCards(IEnumerable<Card> cards)
         {
             var i = 0;
+            var cardPosition = 0;
+            var cardsPerHand = Mariasek.Engine.Game.NumRounds - _roundNumber + 1;
 
             if (_cards == null)
             {
@@ -225,7 +229,7 @@ namespace Mariasek.SharedClient
 
             foreach (var c in cards)
             {
-                _cardPositions[i] = new Vector2(220 + (i < 7 ? i+0.5f : i < 12 ? i + 0.9f : (i - 12) % 10 + 0.5f) * (GameComponents.Hand.CardWidth * _editorCardScaleFactor.X - 16),
+                _cardPositions[cardPosition] = new Vector2(220 + (i < 7 ? i+0.5f : i < 12 ? i + 0.9f : (i - 12) % 10 + 0.5f) * (GameComponents.Hand.CardWidth * _editorCardScaleFactor.X - 16),
                                                 90 + (i < 12 ? 0 : i < 22 ? 1 : 2) * (GameComponents.Hand.CardHeight * _editorCardScaleFactor.Y + 50));
                 if (_cards[i] == null)
                 {
@@ -241,12 +245,40 @@ namespace Mariasek.SharedClient
                 {
                     _cards[i].Sprite.Texture = Game.CardTextures;
                 }
-                _cards[i].Position = _cardPositions[i];
+                _cards[i].Position = _cardPositions[cardPosition];
                 _cards[i].Tag = c;
                 _cards[i].ZIndex = i + 1;
                 _cards[i].Sprite.SpriteRectangle = c.ToTextureRect();
 
                 i++;
+                cardPosition++;
+                if (_roundNumber > 0 &&
+                    i % cardsPerHand == 0)
+                {
+                    if (i < 12)
+                    {
+                        for(var j = i; j < 12; j++)
+                        {
+                            _cards[j].Sprite.Texture = null;
+                        }
+                        i = 12;
+                    }
+                    else if (i < 22)
+                    {
+                        for (var j = i; j < 22; j++)
+                        {
+                            _cards[j].Sprite.Texture = null;
+                        }
+                        i = 22;
+                    }
+                }
+            }
+            if (_roundNumber > 0)
+            {
+                for (var j = i; j < _cards.Length; j++)
+                {
+                    _cards[j].Sprite.Texture = null;
+                }
             }
         }
 
@@ -443,6 +475,7 @@ namespace Mariasek.SharedClient
             {
                 try
                 {
+                    _path = path;
                     _filename = Path.GetFileNameWithoutExtension(path);
                     if (_filename == "_def")
                     {
@@ -501,9 +534,10 @@ namespace Mariasek.SharedClient
                         GameListClicked(this);
                         return;
                     }
-                    if (g.RoundNumber == 0)
+                    //if (g.RoundNumber == 0)
                     {
                         _gameStartingPlayerIndex = g.GameStartingPlayerIndex;
+                        _roundNumber = g.RoundNumber;
 
                         var cards = new List<Card>();
                         for (var i = 0; i < Mariasek.Engine.Game.NumPlayers; i++)
@@ -537,8 +571,15 @@ namespace Mariasek.SharedClient
         {
             Task.Run(() =>
             {
-                SaveGame(_newGameFilePath);
-                Game.MainScene.LoadGame(_newGameFilePath, true);
+                if (_roundNumber == 0)
+                {
+                    SaveGame(_newGameFilePath);
+                    Game.MainScene.LoadGame(_newGameFilePath, true);
+                }
+                else
+                {
+                    Game.MainScene.LoadGame(_path, true);
+                }
             });
         }
 
@@ -618,9 +659,23 @@ namespace Mariasek.SharedClient
                                           new DummyPlayer(g) { Name = Game.Settings.PlayerNames[1] },
                                           new DummyPlayer(g) { Name = Game.Settings.PlayerNames[2] }
                                   });
-                g.players[_gameStartingPlayerIndex].Hand = _cards.Select(i => (Card)i.Tag).Take(12).ToList();
-                g.players[(_gameStartingPlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers].Hand = _cards.Select(i => (Card)i.Tag).Skip(12).Take(10).ToList();
-                g.players[(_gameStartingPlayerIndex + 2) % Mariasek.Engine.Game.NumPlayers].Hand = _cards.Select(i => (Card)i.Tag).Skip(22).Take(10).ToList();
+                int count1, count2, count3;
+
+                if (_roundNumber == 0)
+                {
+                    count1 = 12;
+                    count2 = 10;
+                    count3 = 10;
+                }
+                else
+                {
+                    count1 = Mariasek.Engine.Game.NumRounds - _roundNumber + 1;
+                    count2 = Mariasek.Engine.Game.NumRounds - _roundNumber + 1;
+                    count3 = Mariasek.Engine.Game.NumRounds - _roundNumber + 1;
+                }
+                g.players[_gameStartingPlayerIndex].Hand = _cards.Select(i => (Card)i.Tag).Take(count1).ToList();
+                g.players[(_gameStartingPlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers].Hand = _cards.Select(i => (Card)i.Tag).Skip(count1).Take(count2).ToList();
+                g.players[(_gameStartingPlayerIndex + 2) % Mariasek.Engine.Game.NumPlayers].Hand = _cards.Select(i => (Card)i.Tag).Skip(count1+count2).Take(count3).ToList();
 
                 Game.StorageAccessor.GetStorageAccess();
                 MainScene.CreateDirectoryForFilePath(saveGamePath);
@@ -693,14 +748,13 @@ namespace Mariasek.SharedClient
                                         _gameListBox.Text.Length > 0 &&
                                         _gameListBox.HighlightedLine >= 0 &&
                                         _gameListBox.HighlightedLine < _files.Length;
-            _saveGameButton.IsEnabled = !_gameListBox.IsVisible;
+            _saveGameButton.IsEnabled = !_gameListBox.IsVisible && _roundNumber == 0;
             _playGameButton.IsEnabled = !_gameListBox.IsVisible;
             _deleteGameButton.IsEnabled = (_gameListBox.IsVisible &&
                                            _gameListBox.Text.Length > 0 &&
                                            _gameListBox.HighlightedLine >= 0 &&
                                            _gameListBox.HighlightedLine < _files.Length) || _filename != null;
-            _saveGameButton.IsEnabled = !_gameListBox.IsVisible;
-            _startingPlayerButton.IsEnabled = !_gameListBox.IsVisible;
+            _startingPlayerButton.IsEnabled = !_gameListBox.IsVisible && _roundNumber == 0;
             _sendBtn.IsEnabled = _filename != null;
 
             if (!_gameListBox.IsVisible &&
