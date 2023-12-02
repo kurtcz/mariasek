@@ -2871,7 +2871,9 @@ namespace Mariasek.Engine
                             hand.SuitCount() == 4 &&
                             hand.Count(i => i.Value == Hodnota.Eso ||
                                             (i.Value == Hodnota.Desitka &&
-                                             hand.HasA(i.Suit))) >= 4));
+                                             (hand.HasA(i.Suit) ||
+                                              hand.HasK(i.Suit) ||
+                                              hand.CardCount(i.Suit) >= 3))) >= 4));
             result |= hand.CardCount(_trump.Value) <= 4 &&                  //2. nebo max. 4 trumfy a
                       (TeamMateIndex == -1 ||
                        (!_teamMateDoubledGame ||
@@ -3107,6 +3109,7 @@ namespace Mariasek.Engine
                                         ? kqMaxOpponentScore
                                         : kqMaxOpponentScore - 20;
             var potentialBasicPointsLost = minBasicPointsLost + (hand.HasA(_trump.Value) ? 0 : 10);
+            var basicPointsLostThreshold = hand.HasK(_trump.Value) && hand.HasQ(_trump.Value) ? 30 : 10;
             var lossPerPointsLost = Enumerable.Range(1, maxAllowedPointsLost == 30 ? 16 : 18)
                                               .Select(i => maxAllowedPointsLost + i * 10)
                                               .ToDictionary(k => k,
@@ -3116,18 +3119,21 @@ namespace Mariasek.Engine
                                                                  (_trump.Value == Barva.Cerveny
                                                                   ? 4
                                                                   : 2));
-            if (lossPerPointsLost.ContainsKey(maxBasicPointsLost + kqLikelyOpponentScore))
+            if (maxBasicPointsLost > basicPointsLostThreshold &&
+                lossPerPointsLost.ContainsKey(maxBasicPointsLost + kqLikelyOpponentScore))
             {
                 DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
             }
             //pokud hrozi vysoka prohra, tak do kila nejdi
-            if (lossPerPointsLost.ContainsKey(maxBasicPointsLost + kqLikelyOpponentScore) &&
+            if (maxBasicPointsLost > basicPointsLostThreshold &&
+                lossPerPointsLost.ContainsKey(maxBasicPointsLost + kqLikelyOpponentScore) &&
                  lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore] > Settings.SafetyHundredThreshold)
             {
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
-            if (lossPerPointsLost.ContainsKey(potentialBasicPointsLost + kqMaxOpponentScore) &&
+            if (potentialBasicPointsLost > basicPointsLostThreshold &&
+                lossPerPointsLost.ContainsKey(potentialBasicPointsLost + kqMaxOpponentScore) &&
                 lossPerPointsLost[potentialBasicPointsLost + kqMaxOpponentScore] > Settings.SafetyHundredThreshold)
             {
                 DebugInfo.EstimatedHundredLoss = Math.Min(DebugInfo.EstimatedHundredLoss, -lossPerPointsLost[potentialBasicPointsLost + kqMaxOpponentScore]);
@@ -3925,6 +3931,10 @@ namespace Mariasek.Engine
                     axCount >= 4 &&
                     Hand.CardCount(Hodnota.Eso) >= 3 &&
                     _teamMateDoubledGame) ||
+                   (estimatedFinalBasicScore >= 40 &&
+                    axCount >= 5 &&
+                    Hand.CardCount(Hodnota.Eso) >= 2 &&
+                    _teamMateDoubledGame) ||
                    (estimatedFinalBasicScore + kqScore >= 50 &&
                     (axCount >= 5 ||
                      kqScore >= 60 ||
@@ -3936,7 +3946,7 @@ namespace Mariasek.Engine
                    estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqLikelyOpponentScore)) ||
                   (TeamMateIndex == -1 &&                       //Re: pokud mam vic nez souperi s Max(0, n-1) z moznych hlasek a
                    bidding.GameMultiplier == 2 &&
-                   (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + Math.Max(0, kqMaxOpponentScore - 20) ||
+                   (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqLikelyOpponentScore ||
                     (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
                      (Hand.HasK(_trumpCard.Suit) ||
                       Hand.HasQ(_trumpCard.Suit)) &&
