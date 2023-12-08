@@ -5401,7 +5401,9 @@ namespace Mariasek.Engine
                                                         .Where(j => j.Suit == i.Suit)
                                                         .All(j => j.Value < i.Value))
                                .ToList();
-            Card cardToPlay;
+            var roundStarter = _g.rounds?[roundNumber - 1]?.c1 == null;
+            Card? cardToPlay;
+
             switch(_g.GameType)
             {
                 case Hra.Durch:
@@ -5425,7 +5427,8 @@ namespace Mariasek.Engine
                                                 .ThenByDescending(i => minResults[i])
                                                 .ThenByDescending(i => averageResults[i])
                                                 .ThenByDescending(i => maxResults[i])
-                                                .ThenBy(i => topCards.Contains(i) ? -(int)i.Value : (int)i.Value)
+                                                .ThenBy(i => roundStarter && topCards.Contains(i)
+                                                             ? -(int)i.Value : (int)i.Value)
                                                 .FirstOrDefault();
                     break;
             }
@@ -6400,8 +6403,12 @@ namespace Mariasek.Engine
             }
             catch(Exception ex)
             {
-                _g.DebugString.AppendLine($"ComputeGame for player{PlayerIndex+1} and round {aiStrategy.RoundNumber} threw an exception {ex.Message}");
-                _g.DebugString.Append(aiStrategy._debugString.ToString());
+                try
+                {
+                    _g.DebugString.AppendLine($"ComputeGame for player{PlayerIndex + 1} and round {aiStrategy.RoundNumber} threw an exception {ex.Message}");
+                    _g.DebugString.Append(aiStrategy._debugString.ToString());
+                }
+                catch { }
                 throw;
             }
 
