@@ -869,11 +869,10 @@ namespace Mariasek.Engine
 
             //pokud to vypada na sedmu se 4 kartama nebo na slabou sedmu s 5 kartama, tak se snaz mit vsechny barvy na ruce
             if (hand.Has7(trumpCard.Suit) &&
-                ((hand.CardCount(trumpCard.Suit) <= 5 &&
+                ((hand.CardCount(trumpCard.Suit) == 4 &&
                   hand.Count(i => i.Value >= Hodnota.Desitka) * 10 + kqScore <= 50 &&
-                  !hand.HasA(trumpCard.Suit)) ||
-                 (hand.CardCount(trumpCard.Suit) == 4 &&
-                  hand.Count(i => i.Value >= Hodnota.Desitka) * 10 + kqScore <= 50) ||
+                  (!hand.HasA(trumpCard.Suit) ||
+                   !hand.HasX(trumpCard.Suit))) ||
                  (hand.CardCount(trumpCard.Suit) == 5 &&
                   !hand.HasA(trumpCard.Suit) &&
                   !(hand.HasX(trumpCard.Suit) &&

@@ -2295,13 +2295,15 @@ namespace Mariasek.Engine
                                (hands[MyIndex].CardCount(_trump) == opponentTrumps.Count &&
                                 _probabilities.PotentialCards(player2).HasSuit(_trump) &&
                                 _probabilities.PotentialCards(player3).HasSuit(_trump)))) ||
-                             hands[MyIndex].CardCount(_trump) > opponentTrumps.Count + 1))
+                             hands[MyIndex].CardCount(_trump) > opponentTrumps.Count + 1 ||
+                             (_gameType & Hra.Kilo) != 0))
                         {
                             if (topCards.HasSuit(_trump))
                             {
                                 cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump);
                             }
-                            else if (!Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            else if ((_gameType & Hra.Kilo) != 0 ||
+                                     !Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                           .Where(b => b != _trump)
                                           .Any(b => hands[MyIndex].CardCount(b) >= 5))
                             {
@@ -7484,7 +7486,7 @@ namespace Mariasek.Engine
                                                                     ((_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0 &&
                                                                       _probabilities.PotentialCards(player1)
                                                                                     .Where(j => j.Suit == i.Suit)
-                                                                                    .Count(j => j != c1) > (hands[MyIndex].HasX(i.Suit) ? 2 : 1)) ||
+                                                                                    .Count(j => j != c1) > (hands[MyIndex].HasX(i.Suit) ? 3 : 2) - _probabilities.CertainCards(Game.TalonIndex).CardCount(i.Suit)) ||
                                                                      _probabilities.CertainCards(player1)
                                                                                     .Where(j => j.Suit == i.Suit)
                                                                                     .Count(j => j != c1) > (hands[MyIndex].HasX(i.Suit) ? 1 : 0) ||
@@ -7509,7 +7511,7 @@ namespace Mariasek.Engine
                                                                                     !((_probabilities.SuitProbability(player3, i.Suit, RoundNumber) == 0 &&
                                                                                        _probabilities.PotentialCards(player1)
                                                                                                      .Where(j => j.Suit == i.Suit)
-                                                                                                     .Count(j => j != c1) > (hands[MyIndex].HasX(i.Suit) ? 2 : 1) - _probabilities.CertainCards(Game.TalonIndex).CardCount(i.Suit)) ||
+                                                                                                     .Count(j => j != c1) > (hands[MyIndex].HasX(i.Suit) ? 3 : 2) - _probabilities.CertainCards(Game.TalonIndex).CardCount(i.Suit)) ||
                                                                                       _probabilities.CertainCards(player1)
                                                                                                     .Where(j => j.Suit == i.Suit)
                                                                                                     .Count(j => j != c1) > (hands[MyIndex].HasX(i.Suit) ? 1 : 0))))
@@ -7529,10 +7531,7 @@ namespace Mariasek.Engine
                                                           .All(i =>
                                             i.Suit != _trump &&
                                             i.Suit != c1.Suit &&
-                                            (_probabilities.CertainCards(player3).CardCount(i.Suit) > (hands[MyIndex].HasX(i.Suit) ? 2 : 1) - _probabilities.CertainCards(Game.TalonIndex).CardCount(i.Suit) ||
-                                             _probabilities.PotentialCards(player3).HasX(i.Suit) ||
-                                             (!_probabilities.PotentialCards(player1).HasSuit(i.Suit) &&
-                                              _probabilities.PotentialCards(player3).CardCount(i.Suit) > (hands[MyIndex].HasX(i.Suit) ? 3 : 2) - _probabilities.CertainCards(Game.TalonIndex).CardCount(i.Suit)))))
+                                            (_probabilities.CertainCards(player3).CardCount(i.Suit) > (hands[MyIndex].HasX(i.Suit) ? 3 : 2) - _probabilities.CertainCards(Game.TalonIndex).CardCount(i.Suit))))
                         {
                             return null;
                         }
@@ -7546,9 +7545,7 @@ namespace Mariasek.Engine
                                                                                    _probabilities.SuitProbability(player3, _trump, RoundNumber) == 0) &&
                                                                                   ((gameWinningCard &&
                                                                                     !_probabilities.CertainCards(player3).HasX(i.Suit)) ||
-                                                                                   !(_probabilities.CertainCards(player3).CardCount(i.Suit) > (hands[MyIndex].HasX(i.Suit) ? 2 : 1) - _probabilities.CertainCards(Game.TalonIndex).CardCount(i.Suit) ||
-                                                                                     (!_probabilities.PotentialCards(player1).HasSuit(i.Suit) &&
-                                                                                      _probabilities.PotentialCards(player3).CardCount(i.Suit) > (hands[MyIndex].HasX(i.Suit) ? 3 : 2) - _probabilities.CertainCards(Game.TalonIndex).CardCount(i.Suit)))))
+                                                                                   !(_probabilities.CertainCards(player3).CardCount(i.Suit) > (hands[MyIndex].HasX(i.Suit) ? 3 : 2) - _probabilities.CertainCards(Game.TalonIndex).CardCount(i.Suit))))
                                                                    .ToList();
 
                         return cardsToPlay.OrderBy(i => _probabilities.SuitProbability(opponent, i.Suit, RoundNumber))
@@ -9336,7 +9333,7 @@ namespace Mariasek.Engine
                                                                       _probabilities.PotentialCards(player2)
                                                                                     .Where(j => j.Suit == i.Suit)
                                                                                     .Count(j => j != c1 &&
-                                                                                                j != c2) > 2) ||
+                                                                                                j != c2) > (hands[MyIndex].HasX(i.Suit) ? 3 : 2) - _probabilities.CertainCards(Game.TalonIndex).CardCount(i.Suit)) ||
                                                                      _probabilities.CertainCards(player2)
                                                                                     .Where(j => j.Suit == i.Suit)
                                                                                     .Count(j => j != c1 &&
@@ -9443,7 +9440,7 @@ namespace Mariasek.Engine
                                                                                         !((_probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0 &&
                                                                                            _probabilities.PotentialCards(player1)
                                                                                                          .Where(j => j.Suit == i.Suit)
-                                                                                                         .Count(j => j != c1) > 2) ||
+                                                                                                         .Count(j => j != c1) > (hands[MyIndex].HasX(i.Suit) ? 3 : 2) - _probabilities.CertainCards(Game.TalonIndex).CardCount(i.Suit)) ||
                                                                                           _probabilities.CertainCards(player1)
                                                                                                         .Where(j => j.Suit == i.Suit)
                                                                                                         .Count(j => j != c1) > (hands[MyIndex].HasX(i.Suit) ? 1 : 0) ||
