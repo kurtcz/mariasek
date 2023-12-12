@@ -5393,13 +5393,25 @@ namespace Mariasek.Engine
 #endif
             }
 
-            var topCards = Hand.Where(i => Probabilities.PotentialCards((PlayerIndex + 1) % Game.NumPlayers)
-                                                        .Where(j => j.Suit == i.Suit)
-                                                        .All(j => j.Value < i.Value) &&
-                                           Probabilities.PotentialCards((PlayerIndex + 2) % Game.NumPlayers)
-                                                        .Where(j => j.Suit == i.Suit)
-                                                        .All(j => j.Value < i.Value))
-                               .ToList();
+            var topCards = _trump.HasValue
+                            ? Hand.Where(i => Probabilities.PotentialCards((PlayerIndex + 1) % Game.NumPlayers)
+                                                           .Where(j => j.Suit == i.Suit)
+                                                           .All(j => j.Value < i.Value) &&
+                                              Probabilities.PotentialCards((PlayerIndex + 2) % Game.NumPlayers)
+                                                           .Where(j => j.Suit == i.Suit)
+                                                           .All(j => j.Value < i.Value) &&
+                                              (TeamMateIndex == (PlayerIndex + 1) % Game.NumPlayers ||
+                                               Probabilities.PotentialCards((PlayerIndex + 1) % Game.NumPlayers)
+                                                            .HasSuit(i.Suit) ||
+                                               !Probabilities.PotentialCards((PlayerIndex + 1) % Game.NumPlayers)
+                                                             .HasSuit(_trump.Value)) &&
+                                              (TeamMateIndex == (PlayerIndex + 2) % Game.NumPlayers ||
+                                               Probabilities.PotentialCards((PlayerIndex + 2) % Game.NumPlayers)
+                                                            .HasSuit(i.Suit) ||
+                                               !Probabilities.PotentialCards((PlayerIndex + 2) % Game.NumPlayers)
+                                                             .HasSuit(_trump.Value)))
+                                  .ToList()
+                            : new List<Card>();
             var roundStarter = _g.rounds?[roundNumber - 1]?.c1 == null;
             Card? cardToPlay;
 
@@ -5427,7 +5439,7 @@ namespace Mariasek.Engine
                                                 .ThenByDescending(i => averageResults[i])
                                                 .ThenByDescending(i => maxResults[i])
                                                 .ThenBy(i => roundStarter && topCards.Contains(i)
-                                                             ? -(int)i.Value : (int)i.Value)
+                                                             ? -(int)i.Value : (i.Suit == _trump.Value ? 10 : 0) + (int)i.Value)
                                                 .FirstOrDefault();
                     break;
             }

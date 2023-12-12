@@ -584,6 +584,7 @@ namespace Mariasek.SharedClient
                     try
                     {
                         _t1 = Environment.TickCount;
+                        _aiPlayer.Hand = new List<Card>(Hand);
                         if (_aiPlayer.Probabilities.IsUpdateProbabilitiesAfterTalonNeeded())
                         {
                             if (_talon == null || _talon.Count() == 0)
@@ -593,6 +594,7 @@ namespace Mariasek.SharedClient
                             _aiPlayer._talon = new List<Card>(_talon);
                             _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
                         }
+
                         var cardToplay = await _aiPlayer.PlayCard(r);
 
                         _scene.SimulatedSuccessRate = _aiPlayer.DebugInfo?.TotalRuleCount > 0 ? _aiPlayer.DebugInfo.RuleCount / _aiPlayer.DebugInfo.TotalRuleCount : -1;

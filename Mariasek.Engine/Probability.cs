@@ -2155,6 +2155,54 @@ namespace Mariasek.Engine
                 }
             }
 
+            //pokud hrajeme v barve, nevolil jsem a
+            //akterovi zbyvaji jen max. 2 karty ktere lze hodit do talonu
+            //tak jsou asi v talonu
+            if (_trump.HasValue &&
+                _myIndex != _gameStarterIndex)
+            {
+                var gameStarterPotentialTalonCards = PotentialCards(_gameStarterIndex).Where(i => i.Value < Hodnota.Desitka &&
+                                                                                                  i.Suit != _trump &&
+                                                                                                  i != c1 &&
+                                                                                                  i != c2 &&
+                                                                                                  i != c3)
+                                                                                      .ToList();
+                if (gameStarterPotentialTalonCards.Count > 0 &&
+                    gameStarterPotentialTalonCards.Count == 2 - CertainCards(Game.TalonIndex).Length)
+                {
+                    foreach (var c in gameStarterPotentialTalonCards)
+                    {
+                        for (var i = 0; i < Game.NumPlayers + 1; i++)
+                        {
+                            if (_cardProbabilityForPlayer[i][c.Suit][c.Value] > 0 &&
+                                _cardProbabilityForPlayer[i][c.Suit][c.Value] < 1)
+                            {
+                                if (i == Game.TalonIndex)
+                                {
+                                    _cardProbabilityForPlayer[i][c.Suit][c.Value] = 1 - epsilon;
+                                }
+                                else
+                                {
+                                    _cardProbabilityForPlayer[i][c.Suit][c.Value] = epsilon;
+                                }
+                            }
+                        }
+                    }
+
+                    foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                    {
+                        foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+                        {
+                            if (_cardProbabilityForPlayer[Game.TalonIndex][b][h] > epsilon &&
+                                _cardProbabilityForPlayer[Game.TalonIndex][b][h] < 1 - epsilon)
+                            {
+                                _cardProbabilityForPlayer[Game.TalonIndex][b][h] = epsilon;
+                            }
+                        }
+                    }
+                }
+            }
+
             //pokud hrajeme v barve, zacinal akter a nejel trumfem a 
             //treti hrac priznal barvu, sel vejs, a hral esem a
             //akter muze mit desitku, tak
