@@ -1388,13 +1388,18 @@ namespace Mariasek.Engine
                                ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                                  lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
                                  (!_trump.HasValue ||
-                                  estimatedPointsWon <= 40 ||
-                                  (!Hand.HasK(_trump.Value) &&
-                                   !Hand.HasQ(_trump.Value) &&
-                                   !(Hand.CardCount(_trump.Value) >= 5 &&
-                                     (Hand.HasA(_trump.Value) &&                                     
-                                      estimatedPointsWon >= 50) ||
-                                     estimatedPointsWon >= 70)))) ||
+                                  (!(!_g.PlayZeroSumGames &&    //pokud lze doufat v sedmu s flekem na hru ktera se nehraje
+                                     Hand.Has7(_trump.Value) && //je to lepsi nez utikat na betla
+                                     _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations &&
+                                     _sevenSimulations > 0 &&
+                                     !IsSevenTooRisky()) &&
+                                   (estimatedPointsWon <= 40 ||
+                                    (!Hand.HasK(_trump.Value) &&
+                                     !Hand.HasQ(_trump.Value) &&
+                                     !(Hand.CardCount(_trump.Value) >= 5 &&
+                                       (Hand.HasA(_trump.Value) &&                                     
+                                        estimatedPointsWon >= 50) ||
+                                       estimatedPointsWon >= 70)))))) ||
                                 (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
                                  _avgBasicPointsLost >= 50) ||  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
                                 (_maxMoneyLost < -2 * 2 * _g.BetlValue &&
@@ -3690,7 +3695,8 @@ namespace Mariasek.Engine
                        _avgWinForHundred > 2 * (_g.DurchValue + 2 * _g.SevenValue))) ||
                      (_trump.HasValue &&
                       Hand.Has7(_trump.Value) &&
-                      _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0 &&
+                      _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations &&
+                      _sevenSimulations > 0 &&
                       !IsSevenTooRisky()
                       //(!IsSevenTooRisky() ||                  //sedmu hlas pokud neni riskantni nebo pokud nelze uhrat hru (doufej ve flek na hru a konec)
                       // (!_g.PlayZeroSumGames &&
@@ -4266,6 +4272,7 @@ namespace Mariasek.Engine
                   _hundredsBalance / (float)_hundredSimulations >= hundredThreshold &&
                   Enum.GetValues(typeof(Barva)).Cast<Barva>().Where(b => Hand.HasSuit(b)).All(b => Hand.HasA(b))) ||    //Re na kilo si dej jen pokud mas ve vsech barvach eso
                  (PlayerIndex != _g.GameStartingPlayerIndex &&                                                          //Flek na kilo si dej jen pokud akter nema hlas
+                  _hundredsBalance / (float)_hundredSimulations >= hundredThreshold &&
                   (Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0 ||
                    (_hundredsBalance == _hundredSimulations &&                                                          //nebo pokud v simulacich nevyslo ani jednou
                     Hand.HasK(_g.trump.Value) &&
@@ -4274,7 +4281,7 @@ namespace Mariasek.Engine
                    (Hand.CardCount(_g.trump.Value) >= 4 &&                                                              //nebo pokud mas 4 trumfy, trhaka a aspon jednu desitku
                     (Hand.HasK(_g.trump.Value) ||
                      Hand.HasQ(_g.trump.Value)) &&
-                    axCount >= 1 &&
+                    axCount >= 2 &&
                     estimatedFinalBasicScore >= 20)))))
             {  
                 bid |= bidding.Bids & Hra.Kilo;
