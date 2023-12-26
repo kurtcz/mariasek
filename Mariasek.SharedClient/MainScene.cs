@@ -2241,6 +2241,13 @@ namespace Mariasek.SharedClient
 
         public void BidButtonClicked(object sender)
         {
+            if (flekBtn == null ||
+                kiloBtn == null ||
+                sedmaBtn == null ||
+                _bidding == null)
+            {
+                return;
+            }
             if (sender == flekBtn && flekBtn.IsSelected)
             {
                 kiloBtn.IsSelected = false;
