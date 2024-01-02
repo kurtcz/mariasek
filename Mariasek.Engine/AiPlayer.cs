@@ -5200,6 +5200,21 @@ namespace Mariasek.Engine
             var estimatedCombinations = (int)Probabilities.EstimateTotalCombinations(roundNumber);
             var maxtime = 3 * Settings.MaxSimulationTimeMs;
             var exceptionOccured = false;
+            var player2 = (PlayerIndex + 1) % Game.NumPlayers;
+            var player3 = (PlayerIndex + 2) % Game.NumPlayers;
+            var uncertainTrumps = _g.trump.HasValue
+                                  ? Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                        .Select(h => new Card(_g.trump.Value, h))
+                                        .Where(i => Probabilities.PotentialCards(player2).Contains(i) &&
+                                                    Probabilities.PotentialCards(player3).Contains(i))
+                                        .ToList()
+                                  : new List<Card>();
+            var maxTrumpCount = _g.trump.HasValue
+                                ? Math.Min(Probabilities.PotentialCards(_g.GameStartingPlayerIndex)
+                                                        .Where(i => !Probabilities.CertainCards(_g.GameStartingPlayerIndex).Contains(i))
+                                                        .CardCount(_g.trump.Value),
+                                           10 - roundNumber + 1 - Probabilities.CertainCards(_g.GameStartingPlayerIndex).Count())
+                                : 0;
 
             try
             {
@@ -5268,8 +5283,6 @@ namespace Mariasek.Engine
                                                             .ToList();
                             var teamMateDoubledGame = TeamMateIndex != -1 &&
                                                       (_g.Bidding.PlayerBids[TeamMateIndex] & Hra.Hra) != 0;
-                            var player2 = (PlayerIndex + 1) % Game.NumPlayers;
-                            var player3 = (PlayerIndex + 2) % Game.NumPlayers;
                             const float epsilon = 0.01f;
 
                             results.Enqueue(new Tuple<Card, MoneyCalculatorBase, GameComputationResult, Hand[]>(res.Item1, res.Item2, res.Item3, hh));
@@ -5289,6 +5302,16 @@ namespace Mariasek.Engine
                                    !(Enum.GetValues(typeof(Barva)).Cast<Barva>()     //hlasku kolegy nepocitej pokud ji do ted neukazal
                                          .Any(b => hands[TeamMateIndex].HasK(b) &&
                                                    hands[TeamMateIndex].HasQ(b))) &&
+                                   (teamMateDoubledGame ||  //pokud kolega neflekoval predpokladej ze vsechny nezname trumfy ma akter
+                                    !uncertainTrumps.Any() ||
+                                    uncertainTrumps.Count(i => hands[_g.GameStartingPlayerIndex].Any(j => i == j) ||
+                                                               hands[Game.TalonIndex].Any(j => i == j)) == maxTrumpCount) &&
+                                   //!(Probabilities.PotentialCards(player2).HasA(_g.trump.Value) &&
+                                   //  Probabilities.PotentialCards(player3).HasA(_g.trump.Value) &&
+                                   //  !hands[_g.GameStartingPlayerIndex].HasA(_g.trump.Value)) &&   //pokud netusim kdo ma trumfove A, predpokladej, ze ho ma akter
+                                   //!(Probabilities.PotentialCards(player2).HasX(_g.trump.Value) &&
+                                   //  Probabilities.PotentialCards(player3).HasX(_g.trump.Value) &&
+                                   //  !hands[_g.GameStartingPlayerIndex].HasX(_g.trump.Value)) &&   //pokud netusim kdo ma trumfovou X, predpokladej, ze ji ma akter
                                    !longUnplayedSuits.Any() &&                       //pokud ma akter dlouhou barvu kterou nehral, asi barvu nezna
                                    isLikelyTalonForHand))))
                             {
@@ -5419,7 +5442,6 @@ namespace Mariasek.Engine
                                                              .HasSuit(_trump.Value)))
                                   .ToList()
                             : new List<Card>();
-            var roundStarter = _g.rounds?[roundNumber - 1]?.c1 == null;
             Card? cardToPlay;
 
             switch(_g.GameType)

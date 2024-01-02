@@ -19,6 +19,7 @@ namespace Mariasek.Engine
 
         protected override IEnumerable<AiRule> GetRules1(Hand[] hands)
         {
+            #region InitVariables
             var player2 = (MyIndex + 1) % Game.NumPlayers;
             var player3 = (MyIndex + 2) % Game.NumPlayers;
             var opponent = TeamMateIndex == player2 ? player3 : player2;
@@ -209,11 +210,29 @@ namespace Mariasek.Engine
                         if (_rounds[i].player2.PlayerIndex == TeamMateIndex &&
                              _rounds[i].c1.Suit != _rounds[i].c2.Suit)
                         {
+                            for (var j = 0; j < i; j++)
+                            {
+                                //pokud kolega v nejakem kole vyjel barvou, kterou pote ale neodmazaval, tak uz ji asi nema
+                                if (_rounds[j].player1.PlayerIndex == TeamMateIndex &&
+                                    _rounds[j].c1.Suit != _rounds[i].c2.Suit)
+                                {
+                                    preferredSuits.Add(_rounds[j].c1.Suit);
+                                }
+                            }
                             preferredSuits.Add(_rounds[i].c2.Suit);
                         }
                         if (_rounds[i].player3.PlayerIndex == TeamMateIndex &&
                             _rounds[i].c1.Suit != _rounds[i].c3.Suit)
                         {
+                            for (var j = 0; j < i; j++)
+                            {
+                                //pokud kolega v nejakem kole vyjel barvou, kterou pote ale neodmazaval, tak uz ji asi nema
+                                if (_rounds[j].player1.PlayerIndex == TeamMateIndex &&
+                                    _rounds[j].c1.Suit != _rounds[i].c3.Suit)
+                                {
+                                    preferredSuits.Add(_rounds[j].c1.Suit);
+                                }
+                            }
                             preferredSuits.Add(_rounds[i].c3.Suit);
                         }
                     }
@@ -244,6 +263,8 @@ namespace Mariasek.Engine
                     }
                 }
             }
+            #endregion
+
             if (TeamMateIndex == -1)
             {
                 yield return new AiRule()
@@ -251,6 +272,7 @@ namespace Mariasek.Engine
                     Order = 0,
                     Description = "Vytlač jedinou díru v barvě",
                     SkipSimulations = true,
+                    #region GetRules1 Rule0
                     ChooseCard1 = () =>
                     {
                         var cardsToPlay = hands[MyIndex].Where(i => hands[MyIndex].CardCount(i.Suit) +
@@ -267,6 +289,7 @@ namespace Mariasek.Engine
 
                         return cardsToPlay.ToList().RandomOneOrDefault();
                     }
+                    #endregion
                 };
 
                 yield return new AiRule()
@@ -274,6 +297,7 @@ namespace Mariasek.Engine
                     Order = 1,
                     Description = "Vytlač dvě díry v barvě",
                     SkipSimulations = true,
+                    #region GetRules1 Rule1
                     ChooseCard1 = () =>
                     {
                         var cardsToPlay = hands[MyIndex].Where(i => hands[MyIndex].CardCount(i.Suit) +
@@ -295,6 +319,7 @@ namespace Mariasek.Engine
 
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
+                    #endregion
                 };
 
                 yield return new AiRule()
@@ -302,6 +327,7 @@ namespace Mariasek.Engine
                     Order = 2,
                     Description = "Zbav se plonka",
                     SkipSimulations = true,
+                    #region GetRules1 Rule2
                     ChooseCard1 = () =>
                     {
                         var hiCards = ValidCards(hands[MyIndex]).Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
@@ -335,6 +361,7 @@ namespace Mariasek.Engine
 
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
+                    #endregion
                 };
 
                 yield return new AiRule()
@@ -342,6 +369,7 @@ namespace Mariasek.Engine
                     Order = 3,
                     Description = "Odmazat si vysokou kartu",
                     SkipSimulations = true,
+                    #region GetRules1 Rule3
                     ChooseCard1 = () =>
                     {
                         var hiCards = ValidCards(hands[MyIndex]).Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
@@ -378,12 +406,14 @@ namespace Mariasek.Engine
 
                         return cardsToPlay.FirstOrDefault();
                     }
+                    #endregion
                 };
                 yield return new AiRule()
                 {
                     Order = 4,
                     Description = "Hrát barvu s dírou",
                     SkipSimulations = true,
+                    #region GetRules1 Rule4
                     ChooseCard1 = () =>
                     {
                         var cardsToPlay = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
@@ -394,6 +424,7 @@ namespace Mariasek.Engine
 
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
+                    #endregion
                 };
             }
             else
@@ -403,6 +434,7 @@ namespace Mariasek.Engine
                     Order = 5,
                     Description = "Nechat spoluhráče odmazat",
                     SkipSimulations = true,
+                    #region GetRules1 Rule5
                     ChooseCard1 = () =>
                     {
                         var cardsToPlay = hands[MyIndex].Where(i => _probabilities.PotentialCards(opponent).CardCount(i.Suit) > 1 &&
@@ -498,6 +530,7 @@ namespace Mariasek.Engine
 
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
+                    #endregion
                 };
 
                 yield return new AiRule()
@@ -505,6 +538,7 @@ namespace Mariasek.Engine
                     Order = 6,
                     Description = "Hrát nejnižší od esa",
                     SkipSimulations = true,
+                    #region GetRules1 Rule6
                     ChooseCard1 = () =>
                     {
                         if (RoundNumber == 2 && preferredSuits.Any())
@@ -542,6 +576,7 @@ namespace Mariasek.Engine
 
                         return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                     }
+                    #endregion
                 };
 
                 yield return new AiRule()
@@ -549,6 +584,7 @@ namespace Mariasek.Engine
                     Order = 7,
                     Description = "Chytit soupeře",
                     SkipSimulations = true,
+                    #region GetRules1 Rule7
                     ChooseCard1 = () =>
                     {
                         var cardsToPlay = Enumerable.Empty<Card>();
@@ -668,13 +704,15 @@ namespace Mariasek.Engine
 
                         return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                     }
+                    #endregion
                 };
 
                 yield return new AiRule()
                 {
-                    Order = 7,
+                    Order = 8,
                     Description = "Hrát nízkou kartu (nieder)",
                     SkipSimulations = true,
+                    #region GetRules1 Rule8
                     ChooseCard1 = () =>
                     {
                         var cardsToPlay = Enumerable.Empty<Card>();
@@ -755,13 +793,15 @@ namespace Mariasek.Engine
 
                         return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                     }
+                    #endregion
                 };
 
                 yield return new AiRule()
                 {
-                    Order = 8,
+                    Order = 9,
                     Description = "Odmazat si plonkovou kartu",
                     SkipSimulations = true,
+                    #region GetRules1 Rule9
                     ChooseCard1 = () =>
                     {
                         //pri 2. kole hraj jen devitku a vyssi (zbavovat se plonkove 7 nebo 8 moc brzy neni dobre)
@@ -782,13 +822,15 @@ namespace Mariasek.Engine
 
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
+                    #endregion
                 };
 
                 yield return new AiRule()
                 {
-                    Order = 9,
+                    Order = 10,
                     Description = "Hrát vysokou kartu (hoch)",
                     SkipSimulations = true,
+                    #region GetRules1 Rule10
                     ChooseCard1 = () =>
                     {
                         //nejprv zkus hrat barvu, kterou akter jiste ma, ale kolega ne, aby si mohl odmazat
@@ -841,13 +883,15 @@ namespace Mariasek.Engine
                         }
                         return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                     }
+                    #endregion
                 };
             }
 
             yield return new AiRule()
             {
-                Order = 10,
+                Order = 11,
                 Description = "Zkusit soupeře chytit",
+                #region GetRules1 Rule11
                 ChooseCard1 = () =>
                 {
                     if (TeamMateIndex != -1)
@@ -860,12 +904,14 @@ namespace Mariasek.Engine
                     }
                     return null;
                 }
+                #endregion
             };
 
             yield return new AiRule()
             {
-                Order = 11,
+                Order = 12,
                 Description = "Dostat spoluhráče do štychu",
+                #region GetRules1 Rule12
                 ChooseCard1 = () =>
                 {
                     if (TeamMateIndex != -1)
@@ -883,12 +929,14 @@ namespace Mariasek.Engine
                     }
                     return null;
                 }
+                #endregion
             };
 
             yield return new AiRule()
             {
-                Order = 12,
+                Order = 13,
                 Description = "Hrát krátkou barvu",
+                #region GetRules1 Rule13
                 ChooseCard1 = () =>
                 {
                     var cardsToPlay = hands[MyIndex].Where(i => i != null);
@@ -906,11 +954,13 @@ namespace Mariasek.Engine
                                           .ThenBy(i => i.BadValue).FirstOrDefault();
                     }
                 }
+                #endregion
             };
         }
 
         protected override IEnumerable<AiRule> GetRules2(Hand[] hands)
         {
+            #region InitVariables
             var player3 = (MyIndex + 1) % Game.NumPlayers;
             var player1 = (MyIndex + 2) % Game.NumPlayers;
             var opponent = TeamMateIndex == (MyIndex + 1) % Game.NumPlayers
@@ -1066,12 +1116,14 @@ namespace Mariasek.Engine
                 //    }
                 //}
             }
+            #endregion
 
             yield return new AiRule()
             {
                 Order = 0,
                 Description = "Dostat se do štychu (hoch)",
                 SkipSimulations = true,
+                #region GetRules2 Rule0
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = Enumerable.Empty<Card>();
@@ -1102,6 +1154,7 @@ namespace Mariasek.Engine
                     }
                     return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                 }
+                #endregion
             };
 
             yield return new AiRule()
@@ -1109,6 +1162,7 @@ namespace Mariasek.Engine
                 Order = 1,
                 Description = "Hrát nízkou kartu (nieder)",
                 SkipSimulations = true,
+                #region GetRules2 Rule1
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = Enumerable.Empty<Card>();
@@ -1121,6 +1175,7 @@ namespace Mariasek.Engine
                     }
                     return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                 }
+                #endregion
             };
 
             yield return new AiRule()
@@ -1128,6 +1183,7 @@ namespace Mariasek.Engine
                 Order = 2,
                 Description = "Odmazat si vysokou kartu",
                 SkipSimulations = true,
+                #region GetRules2 Rule2
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = Enumerable.Empty<Card>();
@@ -1237,6 +1293,7 @@ namespace Mariasek.Engine
 
                     return cardsToPlay.FirstOrDefault();
                 }
+                #endregion
             };
 
             yield return new AiRule()
@@ -1244,6 +1301,7 @@ namespace Mariasek.Engine
                 Order = 3,
                 Description = "Hrát cokoli",
                 SkipSimulations = true,
+                #region GetRules2 Rule3
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]);
@@ -1259,11 +1317,13 @@ namespace Mariasek.Engine
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
                 }
+                #endregion
             };
         }
 
         protected override IEnumerable<AiRule> GetRules3(Hand[] hands)
         {
+            #region InitVariables
             var player1 = (MyIndex + 1) % Game.NumPlayers;
             var player2 = (MyIndex + 2) % Game.NumPlayers;
             var opponent = TeamMateIndex == (MyIndex + 1) % Game.NumPlayers
@@ -1419,12 +1479,14 @@ namespace Mariasek.Engine
                 //    }
                 //}
             }
+            #endregion
 
             yield return new AiRule()
             {
                 Order = 0,
                 Description = "Hrát vítěznou kartu",
                 SkipSimulations = true,
+                #region GetRules3 Rule0
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = Enumerable.Empty<Card>();
@@ -1443,13 +1505,15 @@ namespace Mariasek.Engine
 
                     return cardsToPlay.ToList().RandomOneOrDefault();
                 }
+                #endregion
             };
 
             yield return new AiRule()
             {
-                Order = 2,
+                Order = 1,
                 Description = "Odmazat si vysokou kartu",
                 SkipSimulations = true,
+                #region GetRules3 Rule1
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = Enumerable.Empty<Card>();
@@ -1533,6 +1597,7 @@ namespace Mariasek.Engine
 
                     return cardsToPlay.FirstOrDefault();
                 }
+                #endregion
             };
 
             yield return new AiRule()
@@ -1540,6 +1605,7 @@ namespace Mariasek.Engine
                 Order = 2,
                 Description = "Hrát cokoli",
                 SkipSimulations = true,
+                #region GetRules3 Rule2
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]);
@@ -1555,6 +1621,7 @@ namespace Mariasek.Engine
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
                 }
+                #endregion
             };
         }
     }
