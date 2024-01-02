@@ -1875,7 +1875,7 @@ namespace Mariasek.Engine
             //a zacina necim jinym nez trumfem
             //a druhy hrac sel vejs desitkou
             //a treti muze prebijet esem nebo trumfem
-            //tak druhy hrac uz nema zadne dalsi karty v barve (a proto hral desitku nebo eso)
+            //tak druhy hrac uz nema zadne dalsi vyssi karty v barve (a proto hral desitku nebo eso)
             //plati at je akter druhym nebo tretim hracem
             if (_trump.HasValue &&
                 c1.Suit != _trump &&
@@ -1889,7 +1889,8 @@ namespace Mariasek.Engine
                  _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][_trump.Value].Any(h => h.Value > epsilon)))
             {
                 foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                      .Where(h => h < c2.Value &&
+                                      .Where(h => h > c1.Value &&
+                                                  h < c2.Value &&
                                                   _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] > 0 &&
                                                   _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][h] < 1))
                 {
@@ -2402,8 +2403,8 @@ namespace Mariasek.Engine
                 _cardProbabilityForPlayer[_gameStarterIndex][c2.Suit][Hodnota.Svrsek] = 1 - epsilon;
             }
 
-            //pokud hrajeme v barve a
-            //treti hrac neni akter a priznal barvu
+            //pokud hrajeme v barve a zacina akter a nehral trumf
+            //a treti hrac priznal barvu
             //a stych nejde za akterem ani za tretim hracem
             //tak treti hrac asi uz nema v barve nic nizsiho
             if (_trump.HasValue &&

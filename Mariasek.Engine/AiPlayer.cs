@@ -5445,7 +5445,7 @@ namespace Mariasek.Engine
                                                 .ThenByDescending(i => minResults[i])
                                                 .ThenByDescending(i => averageResults[i])
                                                 .ThenByDescending(i => maxResults[i])
-                                                .ThenBy(i => roundStarter && topCards.Contains(i)
+                                                .ThenBy(i => winCount[i] > 0    //roundStarter && topCards.Contains(i)
                                                              ? -(int)i.Value : (i.Suit == _trump.Value ? 10 : 0) + (int)i.Value)
                                                 .FirstOrDefault();
                     break;
