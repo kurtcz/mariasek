@@ -3949,13 +3949,15 @@ namespace Mariasek.Engine
                       axCount >= 3)))) &&
                   (_teamMateDoubledGame ||
                    estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqLikelyOpponentScore)) ||
-                  (TeamMateIndex == -1 &&                       //Re: pokud mam vic nez souperi s Max(0, n-1) z moznych hlasek a
+                  (TeamMateIndex == -1 &&                       //Re: pokud mam vic nez souperi s Max(0, n-1) z moznych hlasek
                    bidding.GameMultiplier == 2 &&
                    (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore + kqLikelyOpponentScore ||
                     (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
-                     (Hand.HasK(_trumpCard.Suit) ||
+                     (Hand.HasK(_trumpCard.Suit) ||                         //nebo vic bodu v ostrych nez souperi a k tomu trhak a
                       Hand.HasQ(_trumpCard.Suit)) &&
-                     Hand.CardCount(Hodnota.Eso) == Game.NumSuits)) &&
+                     (Hand.CardCount(Hodnota.Eso) == Game.NumSuits) ||      //4 esa nebo
+                      (axCount >= 5 &&                                      //aspon 5 ostrych karet s potencialnim ziskem aspon 60 bodu
+                       estimatedFinalBasicScore >= 60))) &&
                    estimatedOpponentFinalBasicScore + kqLikelyOpponentScore < 100 &&
                    2 * _maxMoneyLost >= -Settings.SafetyGameThreshold &&    // simulace byly jen na flek, pro re vynasobim ztratu dvema
                    (Settings.SafetyGameThreshold == 0 ||
