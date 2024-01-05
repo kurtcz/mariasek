@@ -5202,6 +5202,7 @@ namespace Mariasek.Engine
             var minResults = new Dictionary<Card, double>();
             var maxResults = new Dictionary<Card, double>();
             var winCount = new Dictionary<Card, int>();
+            var roundWinners = new Dictionary<Card, int>();
             var n = 0;
             var start = DateTime.Now;
             var prematureStop = false;
@@ -5380,6 +5381,12 @@ namespace Mariasek.Engine
                                                 .DefaultIfEmpty()
                                                 .Count(i => i == null ? false :
                                                             i.Item2.MoneyWon[PlayerIndex] >= 0));
+                roundWinners.Add(card, likelyResults.Where(i => i.Item1 == card)
+                                                    .DefaultIfEmpty()
+                                                    .Count(i => i == null ? false :
+                                                                TeamMateIndex == -1
+                                                                ? i.Item3.Rounds[roundNumber].RoundWinnerIndex == PlayerIndex
+                                                                : i.Item3.Rounds[roundNumber].RoundWinnerIndex != _g.GameStartingPlayerIndex));
             }
 
             if (roundNumber == _g.FirstMinMaxRound)
@@ -5477,7 +5484,7 @@ namespace Mariasek.Engine
                                                 .ThenByDescending(i => minResults[i])
                                                 .ThenByDescending(i => averageResults[i])
                                                 .ThenByDescending(i => maxResults[i])
-                                                .ThenBy(i => winCount[i] > 0    //roundStarter && topCards.Contains(i)
+                                                .ThenBy(i => roundWinners[i] > 0
                                                              ? -(int)i.Value : (i.Suit == _trump.Value ? 10 : 0) + (int)i.Value)
                                                 .FirstOrDefault();
                     break;
