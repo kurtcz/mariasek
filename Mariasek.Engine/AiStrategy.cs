@@ -146,8 +146,10 @@ namespace Mariasek.Engine
                         r.c2.Suit != r.c1.Suit &&
                         r.c2.Suit == _trump)
                     {
-                        //neplati pokud kolega uz nema trumfy nebo tak jiste vytlacis ze soupere ostrou kartu
-                        if (_probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) > 0 &&
+                        //neplati pokud kolega neflekoval nebo uz nema trumfy nebo
+                        //tak jiste vytlacis ze soupere ostrou kartu
+                        if (PlayerBids[TeamMateIndex] != 0 &&
+                            _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) > 0 &&
                             _probabilities.HasAOrXAndNothingElse(r.player3.PlayerIndex, r.c1.Suit, RoundNumber) < 1)
                         {
                             ban(r.c1.Suit);
@@ -157,7 +159,8 @@ namespace Mariasek.Engine
                         r.c3.Suit != r.c1.Suit &&
                         r.c3.Suit == _trump)
                     {
-                        if (_probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) > 0 &&
+                        if (PlayerBids[TeamMateIndex] != 0 &&
+                            _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) > 0 &&
                             _probabilities.HasAOrXAndNothingElse(r.player2.PlayerIndex, r.c1.Suit, RoundNumber) < 1)
                         {
                             ban(r.c1.Suit);

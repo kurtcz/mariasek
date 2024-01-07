@@ -531,6 +531,35 @@ namespace Mariasek.Engine
                                           .ToList();
                 }
             }
+            else if (!holesByCard.Any(i => i.Item2 >= 6) &&   //CardCount
+                     talon.Any(i => hand.CardCount(i.Suit) - talon.CardCount(i.Suit) == 1 &&
+                                    hiCardsWithHoles.Contains(i) &&
+                                    holesByCard.Any(j => j.Item1 == i &&
+                                                         j.Item5 > 0)))
+            {
+                //pokud nemam v zdne barve diru s 6 a vice kartama a
+                //a pokud mam v nejake barve o jednu kartu vic nez kolik jich je v talonu
+                //a pokud souperi maji nejakou vyssi kartu v dane barve
+                //tak dej do talonu tyto barvy odspodu, tou nejvyssi potom vyjedu
+                var b = talon.Where(i => hand.CardCount(i.Suit) - talon.CardCount(i.Suit) == 1 &&
+                                         hiCardsWithHoles.Contains(i) &&
+                                         holesByCard.Any(j => j.Item1 == i &&
+                                                              j.Item5 > 0)) //higherCards
+                             .Select(i => i.Suit)
+                             .First();
+
+                cardsToReplace = hand.Where(i => i.Suit == b)
+                                        .OrderBy(i => i.BadValue)
+                                        .Take(talon.CardCount(b))
+                                        .ToList();
+
+                if (cardsToReplace.Any())
+                {
+                    talon = cardsToReplace.Concat(talon.Where(i => i.Suit != cardsToReplace.First().Suit))
+                                          .Take(2)
+                                          .ToList();
+                }
+            }
             if (talon == null || talon.Distinct().Count() != 2)
             {
                 var msg = talon == null ? "(null)" : string.Format("Count: {0}\nHand: {1}", talon.Distinct().Count(), new Hand(hand));
@@ -3121,6 +3150,7 @@ namespace Mariasek.Engine
                 DebugInfo.HundredTooRisky = false;
                 return false;
             }
+
             var handPlusTalon = hand.Concat(talon).ToList();
             var n = GetTotalHoles(hand, talon);
             var nn = GetTotalHoles(hand, talon, false);
@@ -3173,6 +3203,14 @@ namespace Mariasek.Engine
                 lossPerPointsLost[potentialBasicPointsLost + kqMaxOpponentScore] > Settings.SafetyHundredThreshold)
             {
                 DebugInfo.EstimatedHundredLoss = Math.Min(DebugInfo.EstimatedHundredLoss, -lossPerPointsLost[potentialBasicPointsLost + kqMaxOpponentScore]);
+                DebugInfo.HundredTooRisky = true;
+                return true;
+            }
+
+            if (minBasicPointsLost == maxAllowedPointsLost &&       //urcite uhraju max. 100 bodu
+                maxBasicPointsLost >= maxAllowedPointsLost + 20 &&  //ale potencialne muzu prohrat hodne
+                kqMaxOpponentScore >= 20)                           //navic souperi muzou mit hlas ktery se mi zapocita navrub
+            {
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
@@ -4326,7 +4364,18 @@ namespace Mariasek.Engine
                     (Hand.HasK(_g.trump.Value) ||
                      Hand.HasQ(_g.trump.Value)) &&
                     axCount >= 2 &&
-                    estimatedFinalBasicScore >= 20)))))
+                    estimatedFinalBasicScore >= 20) ||
+                   (Hand.HasA(_g.trump.Value) &&                                                                        //nebo pokud mas trumfove eso
+                    (Hand.HasK(_g.trump.Value) ||                                                                       //a 2 ostre karty, trhaka
+                     Hand.HasQ(_g.trump.Value)) &&                                                                      //a souper ma max. 20 bodu v hlasech
+                    axCount >= 2 &&
+                    estimatedFinalBasicScore >= 20 &&
+                    kqMaxOpponentScore <= 20) ||
+                   (Hand.HasA(_g.trump.Value) &&                                                                        //nebo pokud mas trumfove eso
+                    (Hand.CardCount(Hodnota.Eso) == 3 ||                                                                //a 3 esa nebo
+                     (axCount >= 4 &&                                                                                   //4 ostre karty
+                      estimatedFinalBasicScore >= 40)) &&
+                    kqMaxOpponentScore <= 40)))))
             {  
                 bid |= bidding.Bids & Hra.Kilo;
                 //minRuleCount = Math.Min(minRuleCount, _hundredsBalance);
