@@ -479,28 +479,57 @@ namespace Mariasek.Engine
             }
             talon = talon.Distinct().Take(2).ToList();
             var cardsToReplace = new List<Card>();
-            var lowHoles = holesByCard.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                      .Select(h => new Card(i.Item1.Suit, h))
-                                                      .Where(j => j.BadValue > i.Item1.BadValue)
-                                                      .Any(j => !hand.Contains(j)))
-                                      .Select(i => i.Item1)
-                                      .ToList();
-            if (lowHoles.Count >= 1 &&
-                holesByCard.Count() <= 2)
+            //nejvyssi karty na ruce ktere maji pod sebou nejakou diru
+            var hiCardsWithHoles = holesByCard.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                              .Select(h => new Card(i.Item1.Suit, h))
+                                                              .Where(j => j.BadValue > i.Item1.BadValue)
+                                                              .Any(j => !hand.Contains(j)))
+                                              .Select(i => i.Item1)
+                                              .ToList();
+            if (holesByCard.Count() <= 2 &&
+                hiCardsWithHoles.Any())
             {
-                //jen dve nebo jedna karta ma diru
+                //jen dve nebo jedna karta ma diru a
                 //jednu si necham na ruce (s tou betla zacnu) a do talonu dam misto ni neco nizkeho
-                cardsToReplace = hand.Where(i => !talon.Contains(i) &&
-                                                 !lowHoles.Contains(i))
-                                     .OrderByDescending(i => hand.CardCount(i.Suit))
-                                     .ThenBy(i => i.BadValue)
-                                     .Take(1)
-                                     .ToList();
-                talon = cardsToReplace.Concat(talon)
-                                      .OrderBy(i => lowHoles.Contains(i) ? 1 : 0)
-                                      .Distinct()
-                                      .Take(2)
-                                      .ToList();
+                if (holesByCard.Any(i => i.Item2 >= 6)) //CardCount
+                {
+                    //aspon jedna s dirou je z barvy kde mam 6 a vice karet
+                    //vezmi nenizsi kartu v barve ktera ma pod sebou stejny pocet der
+                    var holes = holesByCard.Where(i => i.Item2 >= 6) //CardCount
+                                           .Select(i => i.Item4)     //holes
+                                           .First();
+
+                    if (talon.Any(i => holesByCard.Where(j => j.Item2 >= 6)
+                                                  .Select(j => j.Item1)
+                                                  .Any(j => j == i)))
+                    {
+                        cardsToReplace = hand.Where(i => !talon.Contains(i) &&
+                                                         holesByCard.Any(j => j.Item2 >= 6 && //CardCount
+                                                                              j.Item1.Suit == i.Suit &&
+                                                                              j.Item1.BadValue < i.BadValue &&
+                                                                              j.Item4 == holes))  //holes
+                                             .OrderBy(i => i.BadValue)
+                                             .Take(1)
+                                             .ToList();
+                    }
+                }
+                else
+                {
+                    cardsToReplace = hand.Where(i => !talon.Contains(i) &&
+                                                     !hiCardsWithHoles.Contains(i))
+                                         .OrderByDescending(i => hand.CardCount(i.Suit))
+                                         .ThenBy(i => i.BadValue)
+                                         .Take(1)
+                                         .ToList();
+                }
+                if (cardsToReplace.Any())
+                {
+                    talon = cardsToReplace.Concat(talon)
+                                          .OrderBy(i => hiCardsWithHoles.Contains(i) ? 1 : 0)
+                                          .Distinct()
+                                          .Take(2)
+                                          .ToList();
+                }
             }
             if (talon == null || talon.Distinct().Count() != 2)
             {
@@ -1906,8 +1935,10 @@ namespace Mariasek.Engine
                                     {
                                         UpdateGeneratedHandsByChoosingTrumpAndTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
                                     }
-                                    else if (!_rerunSimulations) //pokud volim (poprve, tak v UpdateGeneratedHandsByChoosingTalon() beru v potaz trumfovou kartu kterou jsem zvolil
+                                    else if (!_rerunSimulations &&
+                                             (_talon == null || !_talon.Any()))
                                     {
+                                        //pokud volim (poprve, tak v UpdateGeneratedHandsByChoosingTalon() beru v potaz trumfovou kartu kterou jsem zvolil
                                         UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
                                     }
                                     if (!AdvisorMode || _talon == null || !_talon.Any() || hands[gameStartingPlayerIndex].Count() == 12)
@@ -1926,6 +1957,7 @@ namespace Mariasek.Engine
                                 {
                                     Probabilities.StopGeneratingHands();
                                     loopState.Stop();
+                                    //break;
                                 }
 
                                 var val = Interlocked.Increment(ref progress);
