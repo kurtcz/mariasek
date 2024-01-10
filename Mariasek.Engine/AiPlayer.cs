@@ -5563,8 +5563,7 @@ namespace Mariasek.Engine
                                                 .FirstOrDefault();
                     break;
                 default:
-                    cardToPlay = minResults.Keys.OrderByDescending(i => winCount[i])
-                                                .ThenByDescending(i => minResults[i])
+                    cardToPlay = minResults.Keys.OrderByDescending(i => minResults[i])
                                                 .ThenByDescending(i => averageResults[i])
                                                 .ThenByDescending(i => maxResults[i])
                                                 .ThenBy(i => roundWinners[i] > 0
