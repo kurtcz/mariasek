@@ -122,16 +122,25 @@ namespace Mariasek.Engine
                                                             if (r.c2.Suit == b &&
                                                                 r.c2.BadValue > spodek.BadValue &&
                                                                 r.c1.Suit != r.c2.Suit &&
-                                                                myInitialHand.CardCount(r.c2.Suit) <= 4)    //pokud mam sam hodne karet, tak se o chytaka nejedna
+                                                                (!myCardsPlayed.Any(i => i.Suit == r.c2.Suit &&
+                                                                                         i.BadValue <= spodek.BadValue) ||
+                                                                 myCardsPlayed.Where(i => i.Suit == r.c2.Suit &&
+                                                                                          i.BadValue <= spodek.BadValue)  //pokud jsem hral v barve driv nizkou nez vysokou, tak se o chytaka nejedna
+                                                                              .All(i => myCardsPlayed.IndexOf(i) > myCardsPlayed.IndexOf(r.c2))) &&
+
+                                                                myInitialHand.CardCount(r.c2.Suit) >= 9 - r.c2.BadValue)
                                                             {
                                                                 return r.c2;
                                                             }
                                                             if (r.c3.Suit == b &&
                                                                 r.c1.Suit != r.c3.Suit &&
-                                                                r.c3.BadValue > spodek.BadValue &
-                                                                teamMatesCardsPlayed.Where(i => i.BadValue <= spodek.BadValue)  //pokud hral v barve kolega driv nizkou nez vysokou, tak se o chytaka nejedna
-                                                                                    .All(i => teamMatesCardsPlayed.IndexOf(i) > teamMatesCardsPlayed.IndexOf(r.c3)) &&
-                                                                myInitialHand.CardCount(r.c3.Suit) <= 4)    //pokud mam sam hodne karet, tak se o chytaka nejedna
+                                                                r.c3.BadValue > spodek.BadValue &&
+                                                                (!teamMatesCardsPlayed.Any(i => i.Suit == r.c3.Suit &&
+                                                                                                i.BadValue <= spodek.BadValue) ||
+                                                                 teamMatesCardsPlayed.Where(i => i.Suit == r.c3.Suit &&
+                                                                                                 i.BadValue <= spodek.BadValue)  //pokud hral v barve kolega driv nizkou nez vysokou, tak se o chytaka nejedna
+                                                                                     .All(i => teamMatesCardsPlayed.IndexOf(i) > teamMatesCardsPlayed.IndexOf(r.c3))) &&
+                                                                myInitialHand.CardCount(r.c3.Suit) < r.c3.BadValue)
                                                             {
                                                                 return r.c3;
                                                             }
@@ -308,9 +317,10 @@ namespace Mariasek.Engine
                 SkipSimulations = true,
                 #region ChooseCard2 Rule2
                 ChooseCard2 = (Card c1) =>
-                {
+                {                    
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => cardsToKeep.Keys.Contains(i.Suit) &&
-                                                                                cardsToKeep[i.Suit].All(j => i.BadValue > j.BadValue));
+                                                                                cardsToKeep[i.Suit].All(j => i.BadValue > j.BadValue) &&
+                                                                                !myCardsPlayed.Any(j => j.Suit == i.Suit));
 
                     return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                 }
@@ -348,15 +358,14 @@ namespace Mariasek.Engine
                     {
                         cardsToPlay = cardsToPlay.Where(i => i.Suit == previousSuit);
                     }
-                    if (cardsToPlay.Any())
+                    if (!cardsToPlay.Any())
                     {
-                        return cardsToPlay.OrderBy(i => i.Suit)
-                                          .ThenByDescending(i => i.BadValue).FirstOrDefault();
+                        cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => teamMatesCatchingCards.Any(j => i.Suit == j.Suit &&
+                                                                                                                i.BadValue < j.BadValue));
                     }
-                    cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => teamMatesCatchingCards.Any(j => i.Suit == j.Suit &&
-                                                                                                            i.BadValue < j.BadValue));
+
                     return cardsToPlay.OrderBy(i => i.Suit)
-                                      .ThenBy(i => i.BadValue).FirstOrDefault();
+                                      .ThenByDescending(i => i.BadValue).FirstOrDefault();
                 }
                 #endregion
             };
@@ -378,7 +387,7 @@ namespace Mariasek.Engine
                     if (!hands[MyIndex].HasSuit(c1.Suit) &&
                         (cardsToKeep.Any() ||
                          Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                             .Any(b => hands[MyIndex].CardCount(b) >= 4 &&
+                             .Any(b => //hands[MyIndex].CardCount(b) >= 4 &&
                                        hands[MyIndex].Where(i => i.Suit == b)
                                                      .All(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                    .Select(h => new Card(b, h))
@@ -498,7 +507,7 @@ namespace Mariasek.Engine
                                                             : r.c3)
                                        .ToList();
             var myInitialHand = new Hand(myCardsPlayed.Concat((List<Card>)hands[MyIndex]).Distinct());
-            var svrsek = new Card(Barva.Cerveny, Hodnota.Svrsek);
+            var spodek = new Card(Barva.Cerveny, Hodnota.Spodek);
             var catchingCards = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                     .Select(b =>
                                             _rounds.Select(r =>
@@ -506,19 +515,27 @@ namespace Mariasek.Engine
                                                         if (r != null && r.c2 != null)
                                                         {
                                                             if (r.c2.Suit == b &&
+                                                                r.c2.BadValue > spodek.BadValue &&
                                                                 r.c1.Suit != r.c2.Suit &&
-                                                                r.c2.BadValue >= svrsek.BadValue &&
-                                                                teamMatesCardsPlayed.Where(i => i.BadValue < svrsek.BadValue) //pokud hral kolega driv nizkou nez vysokou, tak se o chytaka nejedna
-                                                                                    .All(i => teamMatesCardsPlayed.IndexOf(i) > teamMatesCardsPlayed.IndexOf(r.c2)) &&
-                                                                myInitialHand.CardCount(r.c2.Suit) <= 4)    //pokud mam sam hodne karet, tak se o chytaka nejedna
+                                                                (!teamMatesCardsPlayed.Any(i => i.Suit == r.c2.Suit &&
+                                                                                         i.BadValue <= spodek.BadValue) ||
+                                                                 teamMatesCardsPlayed.Where(i => i.Suit == r.c2.Suit &&
+                                                                                          i.BadValue <= spodek.BadValue)  //pokud jsem hral v barve driv nizkou nez vysokou, tak se o chytaka nejedna
+                                                                              .All(i => teamMatesCardsPlayed.IndexOf(i) > teamMatesCardsPlayed.IndexOf(r.c2))) &&
+                                                                myInitialHand.CardCount(r.c2.Suit) < r.c2.BadValue)
                                                             {
                                                                 return r.c2;
                                                             }
                                                             if (r.c3 != null &&
                                                                 r.c3.Suit == b &&
                                                                 r.c1.Suit != r.c3.Suit &&
-                                                                r.c3.BadValue >= svrsek.BadValue &&
-                                                                myInitialHand.CardCount(r.c3.Suit) <= 4)    //pokud mam sam hodne karet, tak se o chytaka nejedna
+                                                                r.c3.BadValue > spodek.BadValue &&
+                                                                (!myCardsPlayed.Any(i => i.Suit == r.c3.Suit &&
+                                                                                         i.BadValue <= spodek.BadValue) ||
+                                                                 myCardsPlayed.Where(i => i.Suit == r.c3.Suit &&
+                                                                                          i.BadValue <= spodek.BadValue)  //pokud jsem hral v barve driv nizkou nez vysokou, tak se o chytaka nejedna
+                                                                              .All(i => myCardsPlayed.IndexOf(i) > myCardsPlayed.IndexOf(r.c3))) &&
+                                                                myInitialHand.CardCount(r.c3.Suit) >= 9 - r.c3.BadValue)
                                                             {
                                                                 return r.c3;
                                                             }
@@ -696,7 +713,8 @@ namespace Mariasek.Engine
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => cardsToKeep.Keys.Contains(i.Suit) &&
-                                                                                    cardsToKeep[i.Suit].All(j => i.BadValue > j.BadValue));
+                                                                                    cardsToKeep[i.Suit].All(j => i.BadValue > j.BadValue) &&
+                                                                                !myCardsPlayed.Any(j => j.Suit == i.Suit));
 
                     return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                 }
@@ -733,15 +751,14 @@ namespace Mariasek.Engine
                     {
                         cardsToPlay = cardsToPlay.Where(i => i.Suit == previousSuit);
                     }
-                    if (cardsToPlay.Any())
+                    if (!cardsToPlay.Any())
                     {
-                        return cardsToPlay.OrderBy(i => i.Suit)
-                                          .ThenByDescending(i => i.BadValue).FirstOrDefault();
+                        cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => teamMatesCatchingCards.Any(j => i.Suit == j.Suit &&
+                                                                                                                    i.BadValue < j.BadValue));
                     }
-                    cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => teamMatesCatchingCards.Any(j => i.Suit == j.Suit &&
-                                                                                                                  i.BadValue < j.BadValue));
+
                     return cardsToPlay.OrderBy(i => i.Suit)
-                                      .ThenBy(i => i.BadValue).FirstOrDefault();
+                                      .ThenByDescending(i => i.BadValue).FirstOrDefault();
                 }
                 #endregion
             };
@@ -763,7 +780,7 @@ namespace Mariasek.Engine
                     if (!hands[MyIndex].HasSuit(c1.Suit) &&
                         (cardsToKeep.Any() ||
                          Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                             .Any(b => hands[MyIndex].CardCount(b) >= 4 &&
+                             .Any(b => //hands[MyIndex].CardCount(b) >= 4 &&
                                        hands[MyIndex].Where(i => i.Suit == b)
                                                      .All(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                    .Select(h => new Card(b, h))

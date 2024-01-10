@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-android</TargetFramework>
+    <TargetFramework>net7.0-android33</TargetFramework>
     <SupportedOSPlatformVersion>23</SupportedOSPlatformVersion>
     <OutputType>Exe</OutputType>
     <ApplicationId></ApplicationId>
@@ -12,7 +12,7 @@
     <TrimMode Condition=" '$(Configuration)' == 'Release' ">Link</TrimMode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DefineConstants>TRACE;DEBUG;NET;NET6_0;NETCOREAPP;</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET;NET6_0;NETCOREAPP</DefineConstants>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\net6.0-android\Mariasek.AndroidClient.xml</DocumentationFile>
   </PropertyGroup>
