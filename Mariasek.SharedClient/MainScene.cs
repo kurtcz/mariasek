@@ -1247,34 +1247,9 @@ namespace Mariasek.SharedClient
             kiloBtn.Hide();
         }
 
-        private void RefreshReview(bool hidden = false)
-        {
-            //if (_review != null)
-            //{
-            //    Children.Remove(_review);
-            //    _review.Dispose();
-            //}
-            //_review = new GameReview(this)
-            //{
-            //    Position = new Vector2(160, 45),
-            //    Width = (int)Game.VirtualScreenWidth - 160,
-            //    Height = (int)Game.VirtualScreenHeight - 55,
-            //    BackgroundColor = g.IsRunning ? Color.Black : Color.Transparent,
-            //    ZIndex = 200
-            //};
-            //if (hidden)
-            //{
-            //    _review.Hide();
-            //}
-        }
-
         public void EditGameBtnClicked(object sender)
         {
-            //pokud nehrajeme hru z editoru, tak nahraj aktualni hru do editoru
-            if (!_testGame)
-            {
-                Game.EditorScene.LoadGame(_newGameFilePath);
-            }
+            Game.EditorScene.LoadGame(_newGameFilePath, ImpersonationPlayerIndex);
             Game.EditorScene.SetActive();
         }
 

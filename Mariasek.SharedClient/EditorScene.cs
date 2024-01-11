@@ -469,7 +469,7 @@ namespace Mariasek.SharedClient
             }
         }
 
-        public void LoadGame(string path)
+        public void LoadGame(string path, int impersonationPlayerIndex = 0)
         {
             Task.Run(() =>
             {
@@ -477,7 +477,7 @@ namespace Mariasek.SharedClient
                 {
                     _path = path;
                     _filename = Path.GetFileNameWithoutExtension(path);
-                    if (_filename == "_def")
+                    if (_filename == "_def" || impersonationPlayerIndex != 0)
                     {
                         _filename = null;
                     }
@@ -524,7 +524,7 @@ namespace Mariasek.SharedClient
                         Game.StorageAccessor.GetStorageAccess();
                         using (var fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
-                            g.LoadGame(fs);
+                            g.LoadGame(fs, impersonationPlayerIndex: impersonationPlayerIndex);
                         }
                     }
                     catch (Exception ex)
