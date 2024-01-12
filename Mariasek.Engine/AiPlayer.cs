@@ -4177,6 +4177,10 @@ namespace Mariasek.Engine
                            .All(b => Hand.CardCount(b) >= 2 &&
                                      Hand.Any(i => i.Suit == b &&
                                                    i.Value >= Hodnota.Kral))))) ||
+                    (Hand.CardCount(_g.trump.Value) >= 4 &&         //ctyri trumfy
+                     Enum.GetValues(typeof(Barva)).Cast<Barva>()    //a k tomu nejaka dlouha barva
+                         .Any(b => b != _trump &&
+                                   Hand.CardCount(b) >= 5)) ||
                     (Hand.CardCount(_g.trump.Value) >= 3 &&         //tri trumfy vcetne esa a jeste jednoho velkeho trumfu
                      Hand.HasA(_g.trump.Value) &&
                      (Hand.HasX(_g.trump.Value) ||
