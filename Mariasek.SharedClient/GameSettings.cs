@@ -80,6 +80,7 @@ namespace Mariasek.SharedClient
         public bool CheerAndBooSoundEnabled { get; set; }
         public int BgMusicMinDelayMs { get; set; }
         public int BgMusicMaxDelayMs { get; set; }
+        public int HistoryDaysToShow { get; set; }
         public string[] PlayerNames { get; set; }
         public SortMode SortMode { get; set; }
         public TrumpSorting TrumpSort { get; set; }

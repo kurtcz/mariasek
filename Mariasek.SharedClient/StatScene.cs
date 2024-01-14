@@ -62,10 +62,13 @@ namespace Mariasek.SharedClient
         private float _maxMoney = float.MinValue;
         private float _minDefenceMoney = float.MaxValue;
         private float _maxDefenceMoney = float.MinValue;
+        public Func<HistoryItem, bool> _filter;
 
         public StatScene(MariasekMonoGame game)
             : base(game)
         {
+            _filter = (HistoryItem i) => Game.Settings.HistoryDaysToShow <= 0 ||
+                                         (int)(DateTime.Today - i.DateTime.Date).TotalDays < Game.Settings.HistoryDaysToShow;
         }
 
         public override void Initialize()
@@ -360,7 +363,7 @@ namespace Mariasek.SharedClient
         public void PopulateControls()
         {
             var stats = Game.Money
-                            .Where(i => i.GameIdSpecified)
+                            .Where(_filter)
                             .GroupBy(g => g.GameTypeString.TrimEnd());
             var sbGames = new StringBuilder();
             var sbMoney = new StringBuilder();
@@ -373,7 +376,9 @@ namespace Mariasek.SharedClient
             var totalGroup = new MyGrouping<string, HistoryItem>();
 
             totalGroup.Key = "Souhrn";
-            totalGroup.AddRange(Game.Money.Where(i => i.GameIdSpecified));
+            totalGroup.AddRange(Game.Money
+                                    .Where(_filter)
+                                    .Where(i => i.GameIdSpecified));
             AppendStatsForGameType(totalGroup, sbGamesSummary, sbMoneySummary, sbDefenceGamesSummary, sbDefenceMoneySummary);
             foreach (var stat in stats.OrderBy(g => g.Key))
             {
@@ -395,6 +400,7 @@ namespace Mariasek.SharedClient
         private void PopulateCharts()
         {
             var stats = Game.Money
+                            .Where(_filter)
                             .Where(i => i.GameIdSpecified)
                             .GroupBy(g => g.GameTypeString.TrimEnd())
                             .Where(i => !string.IsNullOrWhiteSpace(i.Key))

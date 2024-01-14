@@ -860,7 +860,17 @@ namespace Mariasek.SharedClient
                 //}
                 using (var reader = new StreamReader(_historyFilePath))
                 {
-                    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                    var csvConfiguration = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)
+                    {
+                        MissingFieldFound = (args) =>
+                        {
+                            if (args.Index < 6) //ignore missing DateTime (at index 6)
+                            {
+                                throw new CsvHelper.MissingFieldException(args.Context);
+                            }
+                        }
+                    };
+                    using (var csv = new CsvReader(reader, csvConfiguration))
                     {
                         csv.Read();
                         csv.ReadHeader();
@@ -874,6 +884,7 @@ namespace Mariasek.SharedClient
                             money.MoneyWon1 = csv.GetField<int>(3);
                             money.MoneyWon2 = csv.GetField<int>(4);
                             money.MoneyWon3 = csv.GetField<int>(5);
+                            money.DateTime = csv.GetField<DateTime>(6);
 
                             Game.Money.Add(money);
                         }
@@ -993,6 +1004,7 @@ namespace Mariasek.SharedClient
                         csv.WriteField("MoneyWon1");
                         csv.WriteField("MoneyWon2");
                         csv.WriteField("MoneyWon3");
+                        csv.WriteField("DateTime");
                         csv.NextRecord();
                         foreach(var money in Game.Money)
                         {
@@ -1002,6 +1014,7 @@ namespace Mariasek.SharedClient
                             csv.WriteField(money.MoneyWon[0]);
                             csv.WriteField(money.MoneyWon[1]);
                             csv.WriteField(money.MoneyWon[2]);
+                            csv.WriteField(money.DateTime);
                             csv.NextRecord();
                         }
                     }

@@ -21,6 +21,7 @@ namespace Mariasek.SharedClient
         private ToggleButton _chartButton;
         private Button _statsButton;
         private Button _resetHistoryButton;
+        private LeftRightSelector _daysToShowSelector;
         private Label _stat;
         private Label _header;
         private Label _player1;
@@ -35,11 +36,15 @@ namespace Mariasek.SharedClient
 		private TouchLocation _touchDownLocation;
 		private TouchLocation _touchHeldLocation;
         private bool _moneyDataFixupStarted;
+        private Func<HistoryItem, bool> _filter;
+        private HistoryItem[] _filteredItems => Game.Money.Where(_filter).ToArray();
 
         public HistoryScene(MariasekMonoGame game)
             : base(game)
         {
             Game.SettingsChanged += SettingsChanged;
+            _filter = (HistoryItem i) => Game.Settings.HistoryDaysToShow <= 0 ||
+                                         (int)(DateTime.Today - i.DateTime.Date).TotalDays < Game.Settings.HistoryDaysToShow;
         }
 
         /// <summary>
@@ -128,11 +133,24 @@ namespace Mariasek.SharedClient
 				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _resetHistoryButton.Click += ResetHistoryClicked;
-			_stat = new Label(this)
+            _daysToShowSelector = new LeftRightSelector(this)
+            {
+                Position = new Vector2(0, 70),
+                Width = 220,
+                Height = 50,
+                Items = new SelectorItems() { { "Celá historie", 0 }, { "Dnešek", 1 }, { "7 dní", 7 }, { "14 dní", 14 }, { "30 dní", 30 }, { "60 dní", 60 }, { "90 dní", 90 } },
+                UseCommonScissorRect = true,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
+            };
+            _daysToShowSelector.SelectedIndex = _daysToShowSelector.Items.FindIndex(Game.Settings.HistoryDaysToShow);
+            _daysToShowSelector.SelectionChanged += DaysToShowChanged;
+            _stat = new Label(this)
 			{
-				Position = new Vector2(10, 70),
-				Width = 200,
-				Height = (int)Game.VirtualScreenHeight - 140,
+				Position = new Vector2(10, 120),
+				Width = 210,
+				Height = (int)Game.VirtualScreenHeight - 335,
+                Tabs = new Tab[] { new Tab{ TabAlignment = HorizontalAlignment.Right, TabPosition = 210 } },
+                FontScaleFactor = 0.9f,
 				Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
 			};
             _header = new Label(this)
@@ -246,7 +264,7 @@ namespace Mariasek.SharedClient
         {            
             var sb = new StringBuilder();
             int played = 0, wins = 0, total = 0;
-            var gameCount = Game.Money.Count;
+            var gameCount = _filteredItems.Length;
             var series = new Vector2[Mariasek.Engine.Game.NumPlayers][];
             var numFormat = (NumberFormatInfo)Game.CurrencyFormat.Clone();
 
@@ -272,7 +290,7 @@ namespace Mariasek.SharedClient
 
                 for (var j = 0; j < gameCount; j++)
                 {
-                    sums[i] += Game.Money[j].MoneyWon[i] * Game.Settings.BaseBet;
+                    sums[i] += _filteredItems[j].MoneyWon[i] * Game.Settings.BaseBet;
                     series[i][j + 1] = new Vector2(j + 1, sums[i]);
                     if (maxWon < sums[i])
                     {
@@ -319,7 +337,7 @@ namespace Mariasek.SharedClient
             //{
             //    _historyChart.MaxValue = new Vector2(_historyChart.Data[0].Length, maxWon);
             //};
-            foreach (var historyItem in Game.Money)
+            foreach (var historyItem in _filteredItems)
             {
                 sb.AppendFormat(" {0:D4}\t{1}\t{2}\t{3}\t{4}\n",
                                 (historyItem.GameIdSpecified ? (historyItem.GameId % 10000).ToString("D4") : "-----"),
@@ -343,15 +361,15 @@ namespace Mariasek.SharedClient
             _historyBox.Text = sb.ToString().TrimEnd();
             _historyChart.ScrollToEnd();
             _historyBox.ScrollToBottom();
-            _stat.Text = string.Format("Odehráno her:\n{0}\nZ toho výher:\n{1} ({2:N0}%)\nCelkem her: {3}\nPříště začíná:\n{4}",
-                played, wins, ratio, total,
+            _stat.Text = string.Format("Odehráno her:\t{0}\nZ toho výher:\t{1}\nPoměr výher:\t{2:N0}%\nPříště začíná:\n{3}",
+                played, wins, ratio,
                 Game.Settings.PlayerNames[(Game.MainScene.CurrentStartingPlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers]);
 
             lock (Game.Money.SyncRoot)
             {
-                var sum1 = Game.Money.Sum(i => i.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", numFormat);
-                var sum2 = Game.Money.Sum(i => i.MoneyWon[1] * Game.Settings.BaseBet).ToString("C", numFormat);
-                var sum3 = Game.Money.Sum(i => i.MoneyWon[2] * Game.Settings.BaseBet).ToString("C", numFormat);
+                var sum1 = _filteredItems.Sum(i => i.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", numFormat);
+                var sum2 = _filteredItems.Sum(i => i.MoneyWon[1] * Game.Settings.BaseBet).ToString("C", numFormat);
+                var sum3 = _filteredItems.Sum(i => i.MoneyWon[2] * Game.Settings.BaseBet).ToString("C", numFormat);
 
                 _footer.Text = string.Format("Součet:\t{0}\t{1}\t{2}", sum1, sum2, sum3);
             }
@@ -419,6 +437,13 @@ namespace Mariasek.SharedClient
         private void SettingsChanged(object sender, SettingsChangedEventArgs e)
         {
             Game.MainScene.UpdateToggleButtons(this);
+        }
+
+        private void DaysToShowChanged(object sender)
+        {
+            Game.Settings.HistoryDaysToShow = (int)(sender as LeftRightSelector).SelectedValue;
+            Game.SaveGameSettings();
+            PopulateControls();
         }
 
         private void ChartButtonClicked(object sender)
@@ -508,9 +533,9 @@ namespace Mariasek.SharedClient
             try
             {
                 if (_historyBox.HighlightedLine >= 0 &&
-                    _historyBox.HighlightedLine < Game.Money.Count)
+                    _historyBox.HighlightedLine < _filteredItems.Count())
                 {
-                    var historicGame = Game.Money[_historyBox.HighlightedLine];
+                    var historicGame = _filteredItems.ToArray()[_historyBox.HighlightedLine];
                     if (historicGame.GameId <= 0)
                     {
                         return;
@@ -554,8 +579,8 @@ namespace Mariasek.SharedClient
 
             if (_historyBox.IsVisible &&
                 _historyBox.HighlightedLine >= 0 &&
-                _historyBox.HighlightedLine < Game.Money.Count &&
-                Game.Money[_historyBox.HighlightedLine].GameId > 0)
+                _historyBox.HighlightedLine < _filteredItems.Count() &&
+                _filteredItems.ToArray()[_historyBox.HighlightedLine].GameId > 0)
             {
                 //_viewGameButton.Position = new Vector2(753, _historyBox.HighlightedLineBoundsRect.Top);
                 //_viewGameButton.Height = _historyBox.HighlightedLineBoundsRect.Height;
