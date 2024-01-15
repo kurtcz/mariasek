@@ -4202,14 +4202,14 @@ namespace Mariasek.Engine
                                    Hand.HasA(b) &&
                                    Hand.CardCount(b) >= 4) &&
                      Hand.SuitCount() == Game.NumSuits) ||
-                    (Hand.CardCount(_g.trump.Value) >= 3 &&
-                     Hand.HasA(_g.trump.Value) &&
-                     Hand.SuitCount() == Game.NumSuits &&
-                     Hand.Count(i => i.Value >= Hodnota.Kral) >= 5 &&
-                     Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                         .Count(b => Hand.Any(i => i.Suit == b &&
-                                                 i.Value >= Hodnota.Kral) &&
-                                   !Hand.HasSolitaryX(b)) >= 3) ||
+                    //(Hand.CardCount(_g.trump.Value) >= 3 &&
+                    // Hand.HasA(_g.trump.Value) &&
+                    // Hand.SuitCount() == Game.NumSuits &&
+                    // Hand.Count(i => i.Value >= Hodnota.Kral) >= 5 &&
+                    // Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                    //     .Count(b => Hand.Any(i => i.Suit == b &&
+                    //                             i.Value >= Hodnota.Kral) &&
+                    //                 !Hand.HasSolitaryX(b)) >= 3) ||
                     (Hand.CardCount(_g.trump.Value) >= 3 &&          //tri trumfy 3-3-2-2                     
                      ((kqScore >= 60 &&
                        ((Hand.HasA(_g.trump.Value) &&
