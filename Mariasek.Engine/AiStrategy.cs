@@ -152,6 +152,13 @@ namespace Mariasek.Engine
                             _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) > 0 &&
                             _probabilities.HasAOrXAndNothingElse(r.player3.PlayerIndex, r.c1.Suit, RoundNumber) < 1)
                         {
+                            //pri sedme (proti) je toto dulezitejsi nez jina pravidla.
+                            //proto pokud je to nutne nejdrive odstran drivejsi zakazanou barvu
+                            if (SevenValue >= GameValue &&
+                                hands[MyIndex].SuitCount - 1 == _bannedSuits.Count)
+                            {
+                                _bannedSuits.RemoveAt(_bannedSuits.Count - 1);
+                            }
                             ban(r.c1.Suit);
                         }
                     }
@@ -163,6 +170,11 @@ namespace Mariasek.Engine
                             _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) > 0 &&
                             _probabilities.HasAOrXAndNothingElse(r.player2.PlayerIndex, r.c1.Suit, RoundNumber) < 1)
                         {
+                            if (SevenValue >= GameValue &&
+                                hands[MyIndex].SuitCount - 1 == _bannedSuits.Count)
+                            {
+                                _bannedSuits.RemoveAt(_bannedSuits.Count - 1);
+                            }
                             ban(r.c1.Suit);
                         }
                     }
@@ -535,7 +547,7 @@ namespace Mariasek.Engine
                                                    .ToList();
 
                         banRange(opponentSuits.Where(b => hands[MyIndex].HasSuit(b))
-                                                           .Take(nonTrumpSuitCount - 1)); //toto zajisti, ze zustane aspon jedna barva kterou muzu hrat
+                                              .Take(nonTrumpSuitCount - 1)); //toto zajisti, ze zustane aspon jedna barva kterou muzu hrat
                     }
                     if (_bannedSuits.Count() <= 1) //pokud zustavaji jeste aspon 2 netrumfove barvy ktere nejsou zakazane
                     {
