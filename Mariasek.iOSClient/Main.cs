@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using AVFoundation;
 
-#if NET6_0
+#if NET6_0 || NET7_0
 using System.Reflection;
 
 [assembly: AssemblyVersion("1.6.*")]

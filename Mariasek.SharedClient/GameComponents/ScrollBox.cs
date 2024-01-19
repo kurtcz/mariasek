@@ -222,30 +222,38 @@ namespace Mariasek.SharedClient.GameComponents
 
             var dt = gameTime.ElapsedGameTime;
             var distance = _touchHeldLocation.Position.Y - _previoustouchHeldLocation.Position.Y;
+            const int touchSensitiveEdgeWidth = 50;
 
-            if ((int)distance != 0)
+            if (_touchHeldLocation.Position.X > Position.X + Width - touchSensitiveEdgeWidth)
             {
-                _scrollingVelocity = Math.Abs(distance / dt.TotalMilliseconds);
+                VerticalScrollOffset = (int)(-BoundsRect.Height * (_touchHeldLocation.Position.Y - Position.Y) / Height);
             }
-            if (distance > 0)
+            else
             {
-                _scrollingDirection = 1;
-            }
-            else if (distance < 0)
-            {
-                _scrollingDirection = -1;
-            }
-            //System.Diagnostics.Debug.WriteLine("Dist: {0} DT: {1}, SV: {2}", distance, dt.TotalMilliseconds, _scrollingVelocity);
-            if ((int)distance == 0 && _scrollingVelocity > 0)
-            {
-                distance = (float)(_scrollingDirection * _scrollingVelocity * dt.TotalMilliseconds);
-                _scrollingVelocity -= decceleration * dt.TotalMilliseconds;
-                if (_scrollingVelocity < 0)
+                if ((int)distance != 0)
                 {
-                    _scrollingVelocity = 0;
+                    _scrollingVelocity = Math.Abs(distance / dt.TotalMilliseconds);
                 }
+                if (distance > 0)
+                {
+                    _scrollingDirection = 1;
+                }
+                else if (distance < 0)
+                {
+                    _scrollingDirection = -1;
+                }
+                //System.Diagnostics.Debug.WriteLine("Dist: {0} DT: {1}, SV: {2}", distance, dt.TotalMilliseconds, _scrollingVelocity);
+                if ((int)distance == 0 && _scrollingVelocity > 0)
+                {
+                    distance = (float)(_scrollingDirection * _scrollingVelocity * dt.TotalMilliseconds);
+                    _scrollingVelocity -= decceleration * dt.TotalMilliseconds;
+                    if (_scrollingVelocity < 0)
+                    {
+                        _scrollingVelocity = 0;
+                    }
+                }
+                VerticalScrollOffset += (int)distance;
             }
-            VerticalScrollOffset += (int)distance;
             //if ((int)distance != 0)
             //{
             //  System.Diagnostics.Debug.WriteLine("Update: distance: {0} VO: {1}", distance, VerticalScrollOffset);
