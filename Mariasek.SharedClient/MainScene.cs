@@ -885,6 +885,7 @@ namespace Mariasek.SharedClient
                             money.MoneyWon2 = csv.GetField<int>(4);
                             money.MoneyWon3 = csv.GetField<int>(5);
                             money.DateTime = csv.GetField<DateTime>(6);
+                            money.DateTicks = money.DateTime.Date.Ticks;
 
                             Game.Money.Add(money);
                         }

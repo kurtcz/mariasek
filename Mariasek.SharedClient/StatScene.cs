@@ -67,8 +67,6 @@ namespace Mariasek.SharedClient
         public StatScene(MariasekMonoGame game)
             : base(game)
         {
-            _filter = (HistoryItem i) => Game.Settings.HistoryDaysToShow <= 0 ||
-                                         (int)(DateTime.Today - i.DateTime.Date).TotalDays < Game.Settings.HistoryDaysToShow;
         }
 
         public override void Initialize()
@@ -362,6 +360,11 @@ namespace Mariasek.SharedClient
 
         public void PopulateControls()
         {
+            var ticksToShow = Game.Settings.HistoryDaysToShow * 864000000000L;
+
+            _filter = (HistoryItem i) => Game.Settings.HistoryDaysToShow <= 0 ||
+                                         DateTime.Today.Ticks - i.DateTime.Date.Ticks < ticksToShow;
+
             var stats = Game.Money
                             .Where(_filter)
                             .GroupBy(g => g.GameTypeString.TrimEnd());

@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.Input.Touch;
 using Mariasek.SharedClient.GameComponents;
 using System.IO;
 using System;
+using System.Collections.Generic;
 
 namespace Mariasek.SharedClient
 {
@@ -37,14 +38,12 @@ namespace Mariasek.SharedClient
 		private TouchLocation _touchHeldLocation;
         private bool _moneyDataFixupStarted;
         private Func<HistoryItem, bool> _filter;
-        private HistoryItem[] _filteredItems => Game.Money.Where(_filter).ToArray();
+        private HistoryItem[] _filteredItems; 
 
         public HistoryScene(MariasekMonoGame game)
             : base(game)
         {
             Game.SettingsChanged += SettingsChanged;
-            _filter = (HistoryItem i) => Game.Settings.HistoryDaysToShow <= 0 ||
-                                         (int)(DateTime.Today - i.DateTime.Date).TotalDays < Game.Settings.HistoryDaysToShow;
         }
 
         /// <summary>
@@ -216,7 +215,8 @@ namespace Mariasek.SharedClient
                 },
                 FontScaleFactor = 0.9f,
                 HighlightColor = Game.Settings.HighlightedTextColor,
-                TapToHighlight = true
+                TapToHighlight = true,
+                UseCommonScissorRect = false
             };
             _historyBox.Hide();
             _viewGameButton = new Button(this)
@@ -261,11 +261,17 @@ namespace Mariasek.SharedClient
         }
 
         public void PopulateControls()
-        {            
+        {
+            var ticksToShow = Game.Settings.HistoryDaysToShow * 864000000000L;
+
+            _filter = (HistoryItem i) => Game.Settings.HistoryDaysToShow <= 0 ||
+                                         DateTime.Today.Ticks - i.DateTime.Date.Ticks < ticksToShow;
+            _filteredItems = Game.Money.Where(_filter).ToArray();
+
             var sb = new StringBuilder();
             int played = 0, wins = 0, total = 0;
             var gameCount = _filteredItems.Length;
-            var series = new Vector2[Mariasek.Engine.Game.NumPlayers][];
+            var seriesData = new int[Mariasek.Engine.Game.NumPlayers][];
             var numFormat = (NumberFormatInfo)Game.CurrencyFormat.Clone();
 
             numFormat.CurrencyGroupSeparator = "";
@@ -279,19 +285,21 @@ namespace Mariasek.SharedClient
                         ((i + 1) * -0.5f).ToString("C", numFormat));
                 }
             }
-            var maxWon = 0f;
-            var maxLost = 0f;
-            var sums = new float[series.Length];
+            var maxWon = 0;
+            var maxLost = 0;
+            var sums = new int[seriesData.Length];
+            var lastGameId = 0;
 
-            for (var i = 0; i < series.Length; i++)
+            for (var i = 0; i < seriesData.Length; i++)
             {
-                series[i] = new Vector2[gameCount + 1];
-                series[i][0] = Vector2.Zero;
+                seriesData[i] = new int[gameCount + 1];
+                seriesData[i][0] = 0;
 
                 for (var j = 0; j < gameCount; j++)
                 {
-                    sums[i] += _filteredItems[j].MoneyWon[i] * Game.Settings.BaseBet;
-                    series[i][j + 1] = new Vector2(j + 1, sums[i]);
+                    sums[i] += _filteredItems[j].MoneyWon[i];
+                    seriesData[i][j + 1] = sums[i];
+                    lastGameId = Math.Max(lastGameId, _filteredItems[j].GameId);
                     if (maxWon < sums[i])
                     {
                         maxWon = sums[i];
@@ -302,8 +310,12 @@ namespace Mariasek.SharedClient
                     }
                 }
             }
-            _historyChart.MaxValue = new Vector2(gameCount, maxWon);
+
+            var series = AdjustChartData(seriesData, _historyChart.Width);
+
+            _historyChart.MaxValue = new Vector2(series[0].Length, maxWon);
             _historyChart.MinValue = new Vector2(0, maxLost);
+
             if (Game.Settings != null)
             {
                 //_historyChart.GridInterval = new Vector2(1f, 10 * Game.Settings.BaseBet);
@@ -326,7 +338,8 @@ namespace Mariasek.SharedClient
                     _historyChart.GridInterval = new Vector2(1, gridInterval);
                 }
             }
-            if (series[0].Length > _historyChart.Width)
+
+            if (seriesData[0].Length > _historyChart.Width)
             {
                 _historyChart.LineThickness = 2;
                 _historyChart.DataMarkerSize = 5;
@@ -339,13 +352,18 @@ namespace Mariasek.SharedClient
             //};
             foreach (var historyItem in _filteredItems)
             {
-                sb.AppendFormat(" {0:D4}\t{1}\t{2}\t{3}\t{4}\n",
-                                (historyItem.GameIdSpecified ? (historyItem.GameId % 10000).ToString("D4") : "-----"),
-                                (string.IsNullOrWhiteSpace(historyItem.GameTypeString) ? "?" : historyItem.GameTypeString),
-                                (historyItem.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", numFormat),
-                                (historyItem.MoneyWon[1] * Game.Settings.BaseBet).ToString("C", numFormat),
-                                (historyItem.MoneyWon[2] * Game.Settings.BaseBet).ToString("C", numFormat));
-
+                if (Game.Settings.MaxHistoryTableLength <= 0 ||
+                    _filteredItems.Length - total < Game.Settings.MaxHistoryTableLength)
+                {
+                    //tabulka zobrazuje jen poslednich MaxHistoryTableLength zaznamu
+                    var format = lastGameId < 10000 ? " {0:D4}\t{1}\t{2}\t{3}\t{4}\n" : " {0:D5}\t{1}\t{2}\t{3}\t{4}\n";
+                    sb.AppendFormat(format,
+                                    (historyItem.GameIdSpecified ? (historyItem.GameId % 100000).ToString(lastGameId < 10000 ? "D4" : "D5") : "-----"),
+                                    (string.IsNullOrWhiteSpace(historyItem.GameTypeString) ? "?" : historyItem.GameTypeString),
+                                    (historyItem.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", numFormat),
+                                    (historyItem.MoneyWon[1] * Game.Settings.BaseBet).ToString("C", numFormat),
+                                    (historyItem.MoneyWon[2] * Game.Settings.BaseBet).ToString("C", numFormat));
+                }
                 if (historyItem.GameIdSpecified)
                 {
                     if (historyItem.MoneyWon[0] > 0)
@@ -358,6 +376,7 @@ namespace Mariasek.SharedClient
             }
             var ratio = played != 0 ? (wins * 100f / played) : 0f;
 
+            _historyBox.FontScaleFactor = lastGameId < 10000 ? 0.9f : 0.8f;
             _historyBox.Text = sb.ToString().TrimEnd();
             _historyChart.ScrollToEnd();
             _historyBox.ScrollToBottom();
@@ -432,6 +451,54 @@ namespace Mariasek.SharedClient
             //        }
             //    });
             //}
+        }
+
+        private Vector2[][] AdjustChartData(int[][] data, int buckets)
+        {
+            var result = new Vector2[data.Length][];
+
+            for(var i = 0; i < data.Length; i++)
+            {
+                var bucketSize = data[i].Length / (double)buckets;
+
+                if (data[i].Length > buckets)
+                {
+                    result[i] = new Vector2[4 * buckets];
+
+                    for (var j = 0; j < buckets; j++)
+                    {
+                        var startIndex = (int)(j * bucketSize);
+                        var endIndex = Math.Min((int)((j + 1) * bucketSize), data[i].Length - 1);
+
+                        var firstValue = data[i][startIndex];
+                        var lastValue = data[i][endIndex];
+                        var minValue = float.MaxValue;
+                        var maxValue = float.MinValue;
+
+                        for (var k = startIndex; k <= endIndex; k++)
+                        {
+                            minValue = Math.Min(minValue, data[i][k]);
+                            maxValue = Math.Max(maxValue, data[i][k]);
+                        }
+
+                        result[i][4 * j] = new Vector2(4 * j, firstValue);
+                        result[i][4 * j + 1] = new Vector2(4 * j + 1, minValue);
+                        result[i][4 * j + 2] = new Vector2(4 * j + 2, maxValue);
+                        result[i][4 * j + 3] = new Vector2(4 * j + 3, lastValue);
+                    }
+                }
+                else
+                {
+                    result[i] = new Vector2[data[i].Length];
+
+                    for (var j = 0; j < data[i].Length; j++)
+                    {
+                        result[i][j] = new Vector2(j, data[i][j]);
+                    }
+                }
+            }
+
+            return result;
         }
 
         private void SettingsChanged(object sender, SettingsChangedEventArgs e)
@@ -533,7 +600,7 @@ namespace Mariasek.SharedClient
             try
             {
                 if (_historyBox.HighlightedLine >= 0 &&
-                    _historyBox.HighlightedLine < _filteredItems.Count())
+                    _historyBox.HighlightedLine < _filteredItems.Length)
                 {
                     var historicGame = _filteredItems.ToArray()[_historyBox.HighlightedLine];
                     if (historicGame.GameId <= 0)

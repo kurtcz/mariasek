@@ -108,6 +108,7 @@ namespace Mariasek.SharedClient
         public int ThinkingTimeMs { get; set; }
         public int BubbleTimeMs { get; set; }
         public int MaxHistoryLength { get; set; }
+        public int MaxHistoryTableLength { get; set; }
         public DirectionOfPlay DirectionOfPlay { get; set; }
         public bool AiMayGiveUp { get; set; }
         public bool PlayerMayGiveUp { get; set; }
@@ -210,6 +211,7 @@ namespace Mariasek.SharedClient
             BubbleTimeMs = 1000;
             ThinkingTimeMs = 1500;
             MaxHistoryLength = 0;
+            MaxHistoryTableLength = 0;
             DirectionOfPlay = DirectionOfPlay.Clockwise;
             KeepScreenOn = true;
             RoundFinishedWaitTimeMs = 1000;

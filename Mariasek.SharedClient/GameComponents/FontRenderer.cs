@@ -161,30 +161,36 @@ namespace Mariasek.SharedClient.GameComponents
 
         public Rectangle DrawText(SpriteBatch spriteBatch, string text, Vector2 position, float scaleFactor, Color[] colors, Alignment alignment = Alignment.TopLeft, Tab[] tabs = null, bool renderOffscreen = true)
         {
-            var lineSeparators = new [] { '\r', '\n' };
+            var lineSeparators = new[] { '\r', '\n' };
             var lines = text.Split(lineSeparators);
-            var lineHeight = 0;
-            var dx = position.X;
-            var dy = position.Y;
 
-            var boundsRect = GetBoundsRect(lines, scaleFactor);
-            if (((VerticalAlignment)alignment & VerticalAlignment.Bottom) != 0)
-            {
-                dy -= boundsRect.Height;
-            }
-            else if (((VerticalAlignment)alignment & VerticalAlignment.Middle) != 0)
-            {
-                dy -= boundsRect.Height / 2f;
-            }
+            return DrawText(spriteBatch, lines, position, scaleFactor, colors, alignment, tabs, renderOffscreen);
+        }
+
+        public Rectangle DrawText(SpriteBatch spriteBatch, string[] lines, Vector2 position, float scaleFactor, Color[] colors, Alignment alignment = Alignment.TopLeft, Tab[] tabs = null, bool renderOffscreen = true)
+        {
+            var lineHeight = 0;
+            var dx = (double)position.X;
+            var dy = (double)position.Y;
 
             FontChar fc;
             if (_characterMap.TryGetValue('X', out fc))
             {
                 lineHeight = fc.Height + fc.YOffset;
             }
+            if (((VerticalAlignment)alignment & VerticalAlignment.Bottom) != 0)
+            {
+                dy -= (lineHeight * lines.Length + _lineSpacing * (lines.Length - 1)) * scaleFactor;
+            }
+            else if (((VerticalAlignment)alignment & VerticalAlignment.Middle) != 0)
+            {
+                dy -= (lineHeight * lines.Length + _lineSpacing * (lines.Length - 1)) * scaleFactor / 2f;
+            }
 
             var screenRect = new Rectangle(0, 0, (int)_game.VirtualScreenWidth, (int)_game.VirtualScreenHeight);
             var lineNumber = 0;
+            var maxWidth = 0;
+
             foreach (var line in lines)
             {
                 //nezdrzovat se s vykreslovanim radku mimo obrazovku
@@ -193,6 +199,7 @@ namespace Mariasek.SharedClient.GameComponents
                     var wordWidths = new List<int>();
                     var lineRect = GetBoundsRect(new[] { line }, scaleFactor, wordWidths);
 
+                    maxWidth = Math.Max(maxWidth, lineRect.Width);
                     for (var i = 0; i < wordWidths.Count; i++)
                     {
                         wordWidths[i] = (int)wordWidths[i];
@@ -219,7 +226,7 @@ namespace Mariasek.SharedClient.GameComponents
                             if (_characterMap.TryGetValue(c, out fc))
                             {
                                 var sourceRectangle = new Rectangle(fc.X, fc.Y, fc.Width, fc.Height);
-                                var charPosition = new Vector2(dx + fc.XOffset * scaleFactor, dy + fc.YOffset * scaleFactor);
+                                var charPosition = new Vector2((float)dx + fc.XOffset * scaleFactor, (float)dy + fc.YOffset * scaleFactor);
                                 var color = colors != null && colors.Length > 0
                                             ? colors[lineNumber % colors.Length]
                                             : Color.White;
@@ -273,9 +280,13 @@ namespace Mariasek.SharedClient.GameComponents
                     }
                     dx = position.X;
                 }
-                dy += (lineHeight + _lineSpacing) * scaleFactor;
+                var scaledLine = (lineHeight + _lineSpacing) * scaleFactor;
+
+                dy += scaledLine;
                 lineNumber++;
             }
+
+            var boundsRect = new Rectangle(0, 0, maxWidth, (int)((lineHeight * lines.Length + _lineSpacing * (lines.Length - 1)) * scaleFactor));
 
             return boundsRect;
         }

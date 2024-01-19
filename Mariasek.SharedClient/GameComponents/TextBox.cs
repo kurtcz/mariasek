@@ -20,8 +20,18 @@ namespace Mariasek.SharedClient.GameComponents
         private int _scrollBarWidth = 5;
         private int _scrollBarHeight;
         private Vector2 _scrollBarPosition;
+        private Color[] _colors;
+        private int _highlightedLine;
 
-        public int HighlightedLine { get; set; }
+        public int HighlightedLine
+        {
+            get => _highlightedLine;
+            set
+            {
+                _highlightedLine = value;
+                UpdateColors();
+            }
+        }
 
         public override Vector2 Position
         {
@@ -68,6 +78,8 @@ namespace Mariasek.SharedClient.GameComponents
             }
         }
 
+        private string[] _linesOfText;
+        
         public override string Text
         {
             get { return base.Text; }
@@ -76,9 +88,9 @@ namespace Mariasek.SharedClient.GameComponents
                 base.Text = value;
 
                 var lineSeparators = new [] { '\r', '\n' };
-                var lines = value.Split(lineSeparators);
+                _linesOfText = value.Split(lineSeparators);
 
-                BoundsRect = TextRenderer.GetBoundsRect(lines, FontScaleFactor);
+                BoundsRect = TextRenderer.GetBoundsRect(_linesOfText, FontScaleFactor);
 
                 //shift the bounding rectangle to the right offset
                 if (VerticalAlign == VerticalAlignment.Middle)
@@ -90,6 +102,8 @@ namespace Mariasek.SharedClient.GameComponents
                     BoundsRect.Offset((int)Position.X, (int)Position.Y - BoundsRect.Height);
                 }
                 UpdateVerticalScrollbar();
+
+                UpdateColors();
             }
         }
 
@@ -117,11 +131,12 @@ namespace Mariasek.SharedClient.GameComponents
 
         public Color HighlightColor
         {
-            get { return _highlightShape.BackgroundColors[0]; }
+            get { return _highlightShape?.BackgroundColors[0] ?? default; }
             set
             {
                 _highlightShape.BackgroundColors[0] = value;
                 _highlightShape.UpdateTexture();
+                UpdateColors();
             }
         }
 
@@ -219,6 +234,23 @@ namespace Mariasek.SharedClient.GameComponents
             _textureUpdateNeeded = true;
         }
 
+        void UpdateColors()
+        {
+            _colors = new[] { TextColor * Opacity };
+
+            if (HighlightColor != TextColor &&
+                HighlightColor != Color.Transparent)
+            {                
+                _colors = new Color[_linesOfText.Length];
+                for (var i = 0; i < _linesOfText.Length; i++)
+                {
+                    _colors[i] = i == HighlightedLine
+                                ? HighlightColor
+                                : TextColor;
+                }
+            }
+        }
+
         /// <summary>
         /// Called when Text, Width or Height changes
         /// </summary>
@@ -259,9 +291,9 @@ namespace Mariasek.SharedClient.GameComponents
             if (BoundsRect.Height > Height)
             {
                 //create a scrollbar texture
-                var scrollBarHeight = Height * Height / BoundsRect.Height;
+                var scrollBarHeight = Math.Max(1, Height * Height / BoundsRect.Height);
 
-                if (scrollBarHeight != _scrollBarHeight)
+                if (scrollBarHeight != _scrollBarHeight || _scrollBarTexture == null || _scrollBarBgTexture == null)
                 {
                     _scrollBarHeight = scrollBarHeight;
                     _scrollBarBgTexture = new Texture2D(Game.GraphicsDevice, _scrollBarWidth, Height, false, SurfaceFormat.Color);
@@ -463,29 +495,14 @@ namespace Mariasek.SharedClient.GameComponents
 
         private void DrawTextAtPosition(Vector2 position)
         {
-            var colors = new[] { TextColor * Opacity };
-
-            if (HighlightColor != TextColor &&
-                HighlightColor != Color.Transparent)
-            {
-                var linesOfText = Text.Split('\n').Length;
-
-                colors = new Color[linesOfText];
-                for (var i = 0; i < linesOfText; i++)
-                {
-                    colors[i] = i == HighlightedLine
-                                ? HighlightColor
-                                : TextColor;
-                }
-            }
             if (UseCommonScissorRect)
             {
                 TextRenderer.DrawText(
                     Game.SpriteBatch,
-                    Text,
+                    _linesOfText,
                     position,
                     FontScaleFactor,
-                    colors,
+                    _colors,
                     (Alignment)VerticalAlign | (Alignment)HorizontalAlign,
                     Tabs);
             }
@@ -503,10 +520,10 @@ namespace Mariasek.SharedClient.GameComponents
 
                 TextRenderer.DrawText(
                     Game.SpriteBatch,
-                    Text,
+                    _linesOfText,
                     position,
                     FontScaleFactor,
-                    colors,
+                    _colors,
                     (Alignment)VerticalAlign | (Alignment)HorizontalAlign,
                     Tabs,
                     false);
