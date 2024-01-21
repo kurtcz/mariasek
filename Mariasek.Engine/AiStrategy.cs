@@ -155,6 +155,7 @@ namespace Mariasek.Engine
                             //pri sedme (proti) je toto dulezitejsi nez jina pravidla.
                             //proto pokud je to nutne nejdrive odstran drivejsi zakazanou barvu
                             if (SevenValue >= GameValue &&
+                                _bannedSuits.Any() &&
                                 hands[MyIndex].SuitCount - 1 == _bannedSuits.Count)
                             {
                                 _bannedSuits.RemoveAt(_bannedSuits.Count - 1);
@@ -171,6 +172,7 @@ namespace Mariasek.Engine
                             _probabilities.HasAOrXAndNothingElse(r.player2.PlayerIndex, r.c1.Suit, RoundNumber) < 1)
                         {
                             if (SevenValue >= GameValue &&
+                                _bannedSuits.Any() &&
                                 hands[MyIndex].SuitCount - 1 == _bannedSuits.Count)
                             {
                                 _bannedSuits.RemoveAt(_bannedSuits.Count - 1);
