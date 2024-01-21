@@ -1528,7 +1528,7 @@ namespace Mariasek.Engine
                 case Hra.Kilo:
                     return Math.Min(6, 8 - myInitialTrumpCount);
                 case Hra.Sedma:
-                    return Math.Min(5, 8 - myInitialTrumpCount);
+                    return Math.Min(6, 8 - myInitialTrumpCount);
                 default:
                     return Math.Min(4, 8 - myInitialTrumpCount);
             }

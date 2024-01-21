@@ -16,12 +16,83 @@ namespace Mariasek.Engine
 
         protected override IEnumerable<AiRule> GetRules1(Hand[] hands)
         {
+            #region InitVariables
+
             var player2 = (MyIndex + 1) % Game.NumPlayers;
             var player3 = (MyIndex + 2) % Game.NumPlayers;
+
+            var topCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                         .Where(h => Card.GetBadValue(h) > i.BadValue)
+                                                         .All(h => _probabilities.CardProbability(player2, new Card(i.Suit, h)) == 0 &&
+                                                                   _probabilities.CardProbability(player3, new Card(i.Suit, h)) == 0))
+                                         .ToList();
+            var holesPerSuit = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                   .ToDictionary(k => k, v =>
+                                       Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                           .Select(h => new Card(v, h))
+                                           .Where(i => _probabilities.CardProbability(player2, i) > 0 ||
+                                                       _probabilities.CardProbability(player3, i) > 0)
+                                           .OrderBy(i => i.BadValue)
+                                           .Skip(topCards.CardCount(v))
+                                           .ToList());
+            var unwinnableLowCards = hands[MyIndex].Where(i => holesPerSuit[i.Suit].Any(j => j.Value > i.Value))
+                                                   .ToList();
+
+            #endregion
 
             yield return new AiRule()
             {
                 Order = 0,
+                Description = "hrát od A nejdelší barvu bez děr",
+                SkipSimulations = true,
+                #region ChooseCard1 Rule0
+                ChooseCard1 = () =>
+                {
+                    var cardsToPlay = new List<Card>();
+
+                    if (unwinnableLowCards.Any())
+                    {
+                        var maxCard = Card.GetBadValue(Hodnota.Eso) + 1;
+                        var minCard = Card.GetBadValue(Hodnota.Eso) + 1;
+                        var maxCardCount = 0;
+
+                        foreach (var barva in Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                  .Where(b => !unwinnableLowCards.HasSuit(b)))
+                        {
+                            var cards = hands[MyIndex].Where(i => i.Suit == barva &&
+                                                                 _probabilities.SuitHigherThanCardProbability(player2, i, RoundNumber, false) == 0 &&
+                                                                 _probabilities.SuitHigherThanCardProbability(player3, i, RoundNumber, false) == 0)
+                                                      .OrderByDescending(i => i.BadValue)
+                                                      .ToList();
+                            var hi = cards.FirstOrDefault();
+                            var lo = cards.LastOrDefault();
+                            var cnt = hands[MyIndex].CardCount(barva);
+
+                            if (lo != null &&
+                               (lo.BadValue < minCard ||
+                                (lo.BadValue == minCard &&
+                                 hi.BadValue < maxCard) ||
+                                (lo.BadValue == minCard &&
+                                 hi.BadValue == maxCard &&
+                                 cnt > maxCardCount)))
+                            {
+                                minCard = lo.BadValue;
+                                maxCard = hi.BadValue;
+                                maxCardCount = cnt;
+                                cardsToPlay.Clear();
+                                cardsToPlay.Add(hi);
+                            }
+                        }
+                    }
+
+                    return cardsToPlay.FirstOrDefault();
+                }
+                #endregion
+            };
+
+            yield return new AiRule()
+            {
+                Order = 1,
                 Description = "hrát od A nejdelší vítěznou barvu",
                 SkipSimulations = true,
                 #region ChooseCard1 Rule0
@@ -66,7 +137,7 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 1,
+                Order = 2,
                 Description = "hrát nejdelší barvu",
                 SkipSimulations = true,
                 #region ChooseCard1 Rule1
