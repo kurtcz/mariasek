@@ -665,6 +665,10 @@ namespace Mariasek.SharedClient
                 Game.StorageAccessor.GetStorageAccess();
                 MainScene.CreateDirectoryForFilePath(saveGamePath);
 
+                if (File.Exists(saveGamePath))
+                {
+                    File.Delete(saveGamePath);
+                }
                 using (var fs = File.Open(saveGamePath, FileMode.Create))
                 {
                     g.SaveGame(fs, saveFromEditor: true);

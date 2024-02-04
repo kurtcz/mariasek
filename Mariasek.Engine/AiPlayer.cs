@@ -200,11 +200,16 @@ namespace Mariasek.Engine
             var scores = Enum.GetValues(typeof(Barva)).Cast<Barva>().Select(barva => new
             {
                 Suit = barva,
-                Score = GetSuitScoreForTrumpChoice(hand, barva)
+                Score = GetSuitScoreForTrumpChoice(hand, barva),
+                TopCard = hand.Where(i => i.Suit == barva)
+                              .Select(i => (int)i.Value)
+                              .OrderByDescending(i => i)
+                              .FirstOrDefault()
             });
 
-            //vezmi barvu s nejvetsim skore, pokud je skore shodne tak vezmi nejdelsi barvu
+            //vezmi barvu s nejvetsim skore, pokud je skore shodne tak vezmi nejvyssi kartu
             var trump = scores.OrderByDescending(i => i.Score)
+                              .ThenByDescending(i => i.TopCard)
                               .Select(i => i.Suit)
                               .First();
 
@@ -936,7 +941,10 @@ namespace Mariasek.Engine
             //pokud to vypada na sedmu se 4 kartama nebo na slabou sedmu s 5 kartama, tak se snaz mit vsechny barvy na ruce
             if (hand.Has7(trumpCard.Suit) &&
                 ((hand.CardCount(trumpCard.Suit) == 4 &&
-                  hand.Count(i => i.Value >= Hodnota.Desitka) * 10 + kqScore <= 50 &&
+                  (hand.Count(i => i.Value >= Hodnota.Desitka) * 10 + kqScore <= 50 ||
+                   (hand.HasK(trumpCard.Suit) &&
+                    hand.HasQ(trumpCard.Suit) &&
+                    hand.Count(i => i.Value >= Hodnota.Desitka) * 10 + kqScore >= 70)) &&
                   (!hand.HasA(trumpCard.Suit) ||
                    !hand.HasX(trumpCard.Suit))) ||
                  (hand.CardCount(trumpCard.Suit) == 5 &&
@@ -3004,6 +3012,12 @@ namespace Mariasek.Engine
                                                          //    .Count(i => i.Value == Hodnota.Eso) >= 2);
             result |= hand.CardCount(_trump.Value) <= 4 &&
                       hand.CardCount(Hodnota.Eso) <= 2 &&
+                      hand.Count(i => i.Value == Hodnota.Desitka) * 10 +
+                      hand.Sum(i => i.Value == Hodnota.Svrsek &&
+                                    hand.HasK(i.Suit)
+                                    ? i.Suit == _trump.Value
+                                      ? 40 : 20
+                                    : 0) <= 50 &&
                       !(hand.HasA(_trump.Value) &&
                         hand.HasX(_trump.Value)) &&
                       !((hand.HasA(_trump.Value) ||
@@ -3061,10 +3075,13 @@ namespace Mariasek.Engine
                         !(((hand.HasA(_trump.Value) ||                             //    (vyjma pripadu kdy mam trumfove A nebo X a max. 2 neodstranitelne netrumfove diry)
                             hand.HasX(_trump.Value)) &&
                             GetTotalHoles(hand, talon, false, false) <= 2) ||                //    (nebo vyjma pripadu kdy mam X,K,Q trumfove a k tomu netrumfove eso
-                            (hand.HasX(_trump.Value) &&
-                            hand.HasK(_trump.Value) &&
-                            (hand.HasQ(_trump.Value) ||
-                            hand.HasJ(_trump.Value)) &&
+                           (((hand.HasX(_trump.Value) &&
+                              hand.HasK(_trump.Value)) ||
+                             (hand.HasK(_trump.Value) &&
+                              hand.HasQ(_trump.Value))) &&
+                            (hand.HasK(_trump.Value) ||
+                             hand.HasQ(_trump.Value) ||
+                             hand.HasJ(_trump.Value)) &&
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump.Value &&
                                             hand.HasSuit(b))

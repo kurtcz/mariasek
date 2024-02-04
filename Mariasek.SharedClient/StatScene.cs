@@ -404,7 +404,6 @@ namespace Mariasek.SharedClient
         {
             var stats = Game.Money
                             .Where(_filter)
-                            .Where(i => i.GameIdSpecified)
                             .GroupBy(g => g.GameTypeString.TrimEnd())
                             .Where(i => !string.IsNullOrWhiteSpace(i.Key))
                             .ToList();
@@ -454,11 +453,45 @@ namespace Mariasek.SharedClient
                 var barChart = _barCharts.First(j => (string)j.Tag == gameTypeString);
                 var n = Array.IndexOf(_barCharts, barChart);
                 var games1 = stat.Where(j => (j.MoneyWon[0] > 0 && j.MoneyWon[1] < 0 && j.MoneyWon[2] < 0) ||
-                                             (j.MoneyWon[0] < 0 && j.MoneyWon[1] > 0 && j.MoneyWon[2] > 0));
+                                             (j.MoneyWon[0] < 0 && j.MoneyWon[1] > 0 && j.MoneyWon[2] > 0)).ToList();
                 var games2 = stat.Where(j => (j.MoneyWon[0] < 0 && j.MoneyWon[1] > 0 && j.MoneyWon[2] < 0) ||
-                                             (j.MoneyWon[0] > 0 && j.MoneyWon[1] < 0 && j.MoneyWon[2] > 0));
+                                             (j.MoneyWon[0] > 0 && j.MoneyWon[1] < 0 && j.MoneyWon[2] > 0)).ToList();
                 var games3 = stat.Where(j => (j.MoneyWon[0] < 0 && j.MoneyWon[1] < 0 && j.MoneyWon[2] > 0) ||
-                                             (j.MoneyWon[0] > 0 && j.MoneyWon[1] > 0 && j.MoneyWon[2] < 0));
+                                             (j.MoneyWon[0] > 0 && j.MoneyWon[1] > 0 && j.MoneyWon[2] < 0)).ToList();
+                var zeroMoneyGames = stat.Where(i => i.GameIdSpecified && i.MoneyWon[0] == 0);
+                foreach (var g in zeroMoneyGames)
+                {
+                    var games = new[] { games1, games2, games3 };
+                    var g0 = stat.LastOrDefault(i => i.GameIdSpecified &&
+                                                     i.GameId < g.GameId &&
+                                                     i.GoodGame &&
+                                                     i.MoneyWon[0] != 0) ??
+                             stat.FirstOrDefault(i => i.GameIdSpecified &&
+                                                      i.GameId > g.GameId &&
+                                                      i.GoodGame &&
+                                                      i.MoneyWon[0] != 0);
+                    if (g0 == null)
+                    {
+                        continue;
+                    }
+                    var diff = (g.GameId - g0.GameId) % games.Length;
+                    if (diff < 0)
+                    {
+                        diff += games.Length;
+                    }
+                    if (games1.Contains(g0))
+                    {
+                        games[(0 + diff) % games.Length].Add(g);
+                    }
+                    else if (games2.Contains(g0))
+                    {
+                        games[(1 + diff) % games.Length].Add(g);
+                    }
+                    else if (games3.Contains(g0))
+                    {
+                        games[(2 + diff) % games.Length].Add(g);
+                    }
+                }
                 var gamesWon1 = games1.Count(j => j.MoneyWon[0] > 0);
                 var gamesWon2 = games2.Count(j => j.MoneyWon[1] > 0);
                 var gamesWon3 = games3.Count(j => j.MoneyWon[2] > 0);
