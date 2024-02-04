@@ -33,7 +33,6 @@ namespace Mariasek.SharedClient
         private Label _fileLabel;
         private Label[] _labels;
         private CardButton[] _cards;
-        private Vector2[] _cardPositions;
 
         private readonly Vector2 _editorCardScaleFactor = new Vector2(0.38f, 0.38f);
         private Vector2 _origPosition;
@@ -195,6 +194,7 @@ namespace Mariasek.SharedClient
 
             foreach(var c in _cards.Where(i => i != null &&
                                                i.Sprite != null &&
+                                               i.Sprite.Texture != null &&
                                                i.Sprite.Texture != Game.CardTextures))
             {
                 c.Sprite.Texture = newTextures;
@@ -218,25 +218,21 @@ namespace Mariasek.SharedClient
         private void PopulateCards(IEnumerable<Card> cards)
         {
             var i = 0;
-            var cardPosition = 0;
             var cardsPerHand = Mariasek.Engine.Game.NumRounds - _roundNumber + 1;
-
+            
             if (_cards == null)
             {
                 _cards = new CardButton[cards.Count()];
             }
-            _cardPositions = new Vector2[cards.Count()];
 
             foreach (var c in cards)
             {
-                _cardPositions[cardPosition] = new Vector2(220 + (i < 7 ? i+0.5f : i < 12 ? i + 0.9f : (i - 12) % 10 + 0.5f) * (GameComponents.Hand.CardWidth * _editorCardScaleFactor.X - 16),
-                                                90 + (i < 12 ? 0 : i < 22 ? 1 : 2) * (GameComponents.Hand.CardHeight * _editorCardScaleFactor.Y + 50));
                 if (_cards[i] == null)
                 {
                     _cards[i] = new CardButton(this, new Sprite(this, Game.CardTextures) { Scale = _editorCardScaleFactor })
                     {
                         Name = $"Karta{i + 1}",
-                        CanDrag = true,
+                        CanDrag = _roundNumber == 0,
                         MinimalDragDistance = 0
                     };
                     _cards[i].DragEnd += CardDragged;
@@ -245,33 +241,21 @@ namespace Mariasek.SharedClient
                 {
                     _cards[i].Sprite.Texture = Game.CardTextures;
                 }
-                _cards[i].Position = _cardPositions[cardPosition];
+                if (_roundNumber == 0)
+                {
+                    _cards[i].Position = new Vector2(220 + (i < 7 ? i + 0.5f : i < 12 ? i + 0.9f : (i - 12) % 10 + 0.5f) * (GameComponents.Hand.CardWidth * _editorCardScaleFactor.X - 16),
+                                                     90 + (i < 12 ? 0 : i < 22 ? 1 : 2) * (GameComponents.Hand.CardHeight * _editorCardScaleFactor.Y + 50));
+                }
+                else
+                {
+                    _cards[i].Position = new Vector2(220 + (i % cardsPerHand + 0.5f) * (GameComponents.Hand.CardWidth * _editorCardScaleFactor.X - 16),
+                                                     90 + i / cardsPerHand * (GameComponents.Hand.CardHeight * _editorCardScaleFactor.Y + 50));
+                }
                 _cards[i].Tag = c;
                 _cards[i].ZIndex = i + 1;
                 _cards[i].Sprite.SpriteRectangle = c.ToTextureRect();
 
                 i++;
-                cardPosition++;
-                if (_roundNumber > 0 &&
-                    i % cardsPerHand == 0)
-                {
-                    if (i < 12)
-                    {
-                        for(var j = i; j < 12; j++)
-                        {
-                            _cards[j].Sprite.Texture = null;
-                        }
-                        i = 12;
-                    }
-                    else if (i < 22)
-                    {
-                        for (var j = i; j < 22; j++)
-                        {
-                            _cards[j].Sprite.Texture = null;
-                        }
-                        i = 22;
-                    }
-                }
             }
             if (_roundNumber > 0)
             {
@@ -481,6 +465,7 @@ namespace Mariasek.SharedClient
                     {
                         _filename = null;
                     }
+
                     var g = new Mariasek.Engine.Game()
                     {
                         BaseBet = Game.Settings.BaseBet,
