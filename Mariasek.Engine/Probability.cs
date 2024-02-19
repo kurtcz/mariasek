@@ -2169,7 +2169,8 @@ namespace Mariasek.Engine
                                                                                                   i != c3)
                                                                                       .ToList();
                 if (gameStarterPotentialTalonCards.Count > 0 &&
-                    gameStarterPotentialTalonCards.Count == 2 - CertainCards(Game.TalonIndex).Length)
+                    gameStarterPotentialTalonCards.Count == 2 - CertainCards(Game.TalonIndex).Length &&
+                    gameStarterPotentialTalonCards.Count == PotentialCards(Game.TalonIndex).Length - CertainCards(Game.TalonIndex).Length)
                 {
                     foreach (var c in gameStarterPotentialTalonCards)
                     {

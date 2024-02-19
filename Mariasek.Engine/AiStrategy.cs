@@ -5033,7 +5033,6 @@ namespace Mariasek.Engine
                             //odmazat si trumf abych pozdeji mohl mazat 
                             //(musi existovat barva, kterou neznam a muj spoluhrac v ni doufejme ma vyssi karty nez akter)
                             if (((_gameType & Hra.Kilo) != 0 ||
-                                 myInitialHand.CardCount(_trump) <= 1 ||
                                  (myInitialHand.CardCount(_trump) <= 2 &&
                                   hands[MyIndex].CardCount(_trump) <= 1)) &&
                                !(hands[MyIndex].CardCount(_trump) == 2 &&
