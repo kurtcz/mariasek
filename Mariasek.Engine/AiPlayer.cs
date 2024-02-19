@@ -1477,11 +1477,9 @@ namespace Mariasek.Engine
                                        (Hand.HasA(_trump.Value) &&                                     
                                         estimatedPointsWon >= 50) ||
                                        estimatedPointsWon >= 70)))))) ||
-                                (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
-                                 _avgBasicPointsLost >= 50) ||  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
+                                _maxMoneyLost <= -Settings.SafetyBetlThreshold ||  //utec na betla pokud nemas na ruce nic a hrozi kilo proti
                                 (_maxMoneyLost < -2 * 2 * _g.BetlValue &&
-                                 _avgWinForGame < -2 * _g.BetlValue &&
-                                 _avgBasicPointsLost >= 50)))))
+                                 _avgWinForGame < -2 * _g.BetlValue)))))
                     {
                         if (_talon == null || !_talon.Any())
                         {
@@ -2369,6 +2367,7 @@ namespace Mariasek.Engine
             DebugInfo.AllChoices = allChoices.ToArray();
             DebugInfo.MaxSimulatedHundredLoss = _minWinForHundred;
             DebugInfo.MaxSimulatedLoss = _maxMoneyLost;
+            DebugInfo.AvgSimulatedGameLoss = (int)_avgWinForGame;
             //DebugInfo.TotalRuleCount = Settings.SimulationsPerGameType;
             gameComputationResults = null;
             moneyCalculations = null;

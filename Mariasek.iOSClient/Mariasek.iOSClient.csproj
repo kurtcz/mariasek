@@ -25,6 +25,8 @@
     <MtouchLink>Full</MtouchLink>
     <CreatePackage>false</CreatePackage>
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
+    <CodesignProvision>Automatic</CodesignProvision>
+    <CodesignKey>iPhone Distribution</CodesignKey>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />

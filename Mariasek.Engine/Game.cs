@@ -2066,6 +2066,10 @@ namespace Mariasek.Engine
                     BiddingDebugInfo.AppendFormat("\nMaximální simulovaná prohra při kilu: {0}", players[playerIndex].DebugInfo.MaxSimulatedHundredLoss);
                 }
                 BiddingDebugInfo.AppendFormat("\nPrůměrný simulovaný bodový zisk: {0}", players[playerIndex].DebugInfo.AvgSimulatedPointsWon);
+                if (players[playerIndex].DebugInfo.AvgSimulatedGameLoss < 0)
+                {
+                    BiddingDebugInfo.AppendFormat("\nPrůměrná simulovaná prohra při hře: {0}", players[playerIndex].DebugInfo.AvgSimulatedGameLoss);
+                }
                 if (players[playerIndex].DebugInfo.SevenTooRisky)
                 {
                     BiddingDebugInfo.AppendFormat("\nPříliš riskantní na sedmu");

@@ -15,6 +15,7 @@ namespace Mariasek.Engine
         public int Tygrovo { get; set; }
         public int Strong { get; set; }
         public int MaxSimulatedLoss { get; set; }
+        public int AvgSimulatedGameLoss { get; set; }
         public int MaxEstimatedBasicPointsLost { get; set; }
         public int MaxEstimatedHlasPointsLost { get; set; }
         public int MaxEstimatedMoneyLost { get; set; }

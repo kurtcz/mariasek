@@ -796,6 +796,24 @@ namespace Mariasek.Engine
             var lowCards = hands[MyIndex].Where(i => opponentCards.Any(j => j.Suit == i.Suit &&
                                                                             j.Value > i.Value))
                                          .ToList();
+
+            var potentialGreaseCards = TeamMateIndex != -1 &&
+                                       hands[MyIndex].CardCount(_trump) <= 1 &&
+                                       Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                           .Any(b => b != _trump &&
+                                                     !hands[MyIndex].HasSuit(b) &&
+                                                     _probabilities.PotentialCards(opponent).CardCount(b) > 2 - _probabilities.CertainCards(Game.TalonIndex).CardCount(b) &&
+                                                     _probabilities.PotentialCards(TeamMateIndex).Any(i => i.Suit == b &&
+                                                                                                           i.Value >= Hodnota.Svrsek))
+                                       ? hands[MyIndex].Where(i => i.Suit != _trump &&
+                                                                   i.Value >= Hodnota.Desitka &&
+                                                                   !(!_probabilities.PotentialCards(opponent).HasA(i.Suit) &&
+                                                                     _probabilities.CertainCards(opponent).Any(j => j.Suit == i.Suit &&
+                                                                                                                    j.Value < Hodnota.Desitka) ||
+                                                                     (!_probabilities.PotentialCards(TeamMateIndex).HasSuit(i.Suit) &&
+                                                                      _probabilities.PotentialCards(opponent).CardCount(i.Suit) > 2)))
+                                                       .ToList()
+                                       : new List<Card>();
             #endregion
 
             BeforeGetRules(hands);
@@ -3518,8 +3536,9 @@ namespace Mariasek.Engine
                              .Where(b => b != _trump)
                              .All(b => myInitialHand.HasA(b)) &&
                         //PlayerBids[MyIndex] == 0 &&
+                        potentialGreaseCards.Any() &&
                         hands[MyIndex].HasSuit(_trump) &&
-                        hands[MyIndex].CardCount(_trump) <= 2 &&
+                        hands[MyIndex].CardCount(_trump) <= 1 &&
                         !hands[MyIndex].HasA(_trump) &&
                         !hands[MyIndex].HasX(_trump))
                     {
@@ -5016,22 +5035,13 @@ namespace Mariasek.Engine
                             if (((_gameType & Hra.Kilo) != 0 ||
                                  myInitialHand.CardCount(_trump) <= 1 ||
                                  (myInitialHand.CardCount(_trump) <= 2 &&
-                                  hands[MyIndex].CardCount(_trump) <= 1 &&
-                                  hands[MyIndex].Where(i => i.Suit != _trump).ToList()
-                                                .CardCount(Hodnota.Desitka) +
-                                  hands[MyIndex].Where(i => i.Suit != _trump).ToList()
-                                                .CardCount(Hodnota.Eso) >= 2)) &&
+                                  hands[MyIndex].CardCount(_trump) <= 1)) &&
                                !(hands[MyIndex].CardCount(_trump) == 2 &&
                                  hands[MyIndex].HasX(_trump) &&
                                  _probabilities.PotentialCards(opponent).HasA(_trump)) &&
                                GameValue > SevenValue &&
                                (PlayerBids[TeamMateIndex] & Hra.Sedma) == 0 &&
-                               Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                   .Any(b => !hands[MyIndex].HasSuit(b) &&
-                                             teamMatePlayedCards.HasSuit(b) &&
-                                             _probabilities.PotentialCards(TeamMateIndex).Any(i => i.Suit == b &&
-                                                                                                   i.Value >= Hodnota.Svrsek) &&
-                                             _probabilities.PotentialCards(opponent).CardCount(b) > 2) &&
+                               potentialGreaseCards.Any() &&
                                opponentTrumps.Count > 0 &&
                                //opponentTrumps <= 6 &&  //abych nehral trumfem hned ale az pozdeji
                                Enum.GetValues(typeof(Barva)).Cast<Barva>()
