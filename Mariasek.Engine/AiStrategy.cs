@@ -78,13 +78,16 @@ namespace Mariasek.Engine
                                 : (MyIndex + 1) % Game.NumPlayers;
 
                 //nehraj barvu pokud mam eso a souper muze mit desitku
-                foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                     .Where(b => b != _trump &&
-                                                 _probabilities.CardProbability(MyIndex, new Card(b, Hodnota.Eso)) == 1 &&
-                                                 _probabilities.CardProbability(opponent, new Card(b, Hodnota.Desitka)) > _epsilon))// &&
-                                                                                                                                    //_probabilities.HasSolitaryX(TeamMateIndex, b, RoundNumber) < SolitaryXThreshold))
+                if (GameValue > SevenValue)
                 {
-                    ban(b);
+                    foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                         .Where(b => b != _trump &&
+                                                     _probabilities.CardProbability(MyIndex, new Card(b, Hodnota.Eso)) == 1 &&
+                                                     _probabilities.CardProbability(opponent, new Card(b, Hodnota.Desitka)) > _epsilon))// &&
+                                                                                                                                        //_probabilities.HasSolitaryX(TeamMateIndex, b, RoundNumber) < SolitaryXThreshold))
+                    {
+                        ban(b);
+                    }
                 }
 
                 //pokud se nehraje sedma (proti), tak nehraj barvu
@@ -3645,9 +3648,10 @@ namespace Mariasek.Engine
 
                         //pokud nemuzes eso namazat a lze ho teoreticky uhrat, tak do toho jdi
                         if (//hands[MyIndex].CardCount(_trump) > 1 &&
-                            hands[MyIndex].HasSuit(_trump) &&
                             (SevenValue >= GameValue ||                      //pri sedme vzdy
-                             (Enum.GetValues(typeof(Barva)).Cast<Barva>()    //pri hre jen kdyz nemas nejakou plonkovou barvu
+                             ((hands[MyIndex].HasSuit(_trump) ||
+                              hands[MyIndex].SuitCount == 3) &&
+                              Enum.GetValues(typeof(Barva)).Cast<Barva>()    //pri hre jen kdyz nemas nejakou plonkovou barvu
                                   .Where(b => b != _trump &&
                                               hands[MyIndex].HasSuit(b))
                                   .All(b => hands[MyIndex].HasA(b) ||        //mam jen barvy kde znam A

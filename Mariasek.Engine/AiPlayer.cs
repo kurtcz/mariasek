@@ -2538,7 +2538,7 @@ namespace Mariasek.Engine
                 holesPerSuit.Add(b, holes);
                 hiHolePerSuit.Add(b, hiHole);
             }
-            if (PlayerIndex == _g.GameStartingPlayerIndex)
+            if (PlayerIndex == _g.OriginalGameStartingPlayerIndex)
             {
                 var minHole = new Card(Barva.Cerveny, Hodnota.Desitka);
                 var topCards = Hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
@@ -2775,10 +2775,10 @@ namespace Mariasek.Engine
             if (PlayerIndex == _g.GameStartingPlayerIndex &&    //mam-li malo trumfu, tak ze souperu moc A,X nedostanu
                 (trumpCount <= 3 ||
                  (trumpCount == 4 &&
-                  (!hand.HasA(trump.Value) ||
-                   !hand.HasX(trump.Value) ||
-                   !hand.HasK(trump.Value) ||
-                   !hand.HasQ(trump.Value)))))
+                  !(hand.HasA(trump.Value) &&
+                    hand.HasX(trump.Value) &&
+                    (hand.HasK(trump.Value) ||
+                     hand.HasQ(trump.Value))))))
             {
                 if (_g.Bidding.SevenMultiplier > 1)
                 {
