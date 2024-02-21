@@ -334,6 +334,17 @@ namespace Mariasek.Engine
                                   .Take(2 - talon.Count)
                                   .Select(i => i.Item1)                     //Card
                                   .ToList();
+
+                var cardsWithSingleHigherCard = holesByCard.Where(i => i.Item4 > 0 &&   //holes
+                                                                       i.Item5 == 1)    //HigherCards
+                                                           .Select(i => i.Item1)        //Card
+                                                           .ToList();
+                if (cardsWithSingleHigherCard.Count >= 2)
+                {
+                    temp = cardsWithSingleHigherCard.OrderByDescending(i => i.BadValue)
+                                                    .Take(Math.Min(2, cardsWithSingleHigherCard.Count - 1))
+                                                    .ToList();
+                }
                 //pokud jsou jen 2 karty s dirou, tak se zbav jedne z nich
                 //zbyvajici druhou kartou potom betl zahajis a bude lozeny
                 //pritom se zhorsi talon na pripadneho durcha
