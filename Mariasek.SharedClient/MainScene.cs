@@ -1693,7 +1693,6 @@ namespace Mariasek.SharedClient
                          for (var i = 0; i < _trumpLabels.Count(); i++)
                          {
                              var sum = Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet;
-                             //_trumpLabels[i].Text = g.players[i].Name;
                              _trumpLabels[i].Text = string.Format("{0}\n{1}",
                                                       GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
                                                       Game.Settings.ShowScoreDuringGame
@@ -2469,24 +2468,14 @@ namespace Mariasek.SharedClient
             if (bidding.Bids != 0)
             {
                 ShowBidButtons(bidding);
-                _okBtn.IsEnabled = true;
-                _okBtn.Show();
-                //RunOnUiThread(() =>
-                //{
-                //    this.Invoke(() =>
-                //    {
-                //        ShowBidButtons(bidding);
-                //        _okBtn.IsEnabled = true;
-                //        _okBtn.Show();
-                //    });
-                //});
-                WaitForUIThread();
-                EnsureBubblesHidden();
-                //RunOnUiThread(() =>
-                //{
-                //    this.ClearOperations();
-                //    HideBidButtons();
-                //});
+                if (bidButtons.Any(i => i.IsEnabled))
+                {
+                    _okBtn.IsEnabled = true;
+                    _okBtn.Show();
+
+                    WaitForUIThread();
+                    EnsureBubblesHidden();
+                }
                 HideBidButtons();
             }
             _state = GameState.NotPlaying;
@@ -2766,7 +2755,9 @@ namespace Mariasek.SharedClient
                     {
                         for (var i = 0; i < _trumpLabels.Count(); i++)
                         {
-                            _trumpLabels[i].Text = string.Format("{0}\n{1}", GetTrumpLabelForPlayer(g.players[i].PlayerIndex),
+                            _trumpLabels[i].Text = string.Format("{0}\n{1}", g.players[i].PlayerIndex == g.GameStartingPlayerIndex
+                                                                             ? GetTrumpLabelForPlayer(g.players[i].PlayerIndex)
+                                                                             : g.players[i].Name,
                                                                              Game.Settings.ShowScoreDuringGame
                                                                              ? (Game.Money.Sum(j => j.MoneyWon[i]) * Game.Settings.BaseBet).ToString("C", Game.CurrencyFormat)
                                                                              : string.Empty);
