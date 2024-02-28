@@ -3378,7 +3378,9 @@ namespace Mariasek.Engine
                 ChooseCard1 = () =>
                 {
                     if (TeamMateIndex != -1 &&
-                        GameValue > SevenValue)
+                        (GameValue > SevenValue ||
+                         !hands[MyIndex].Any(i => i.Value == Hodnota.Eso &&
+                                                  i.Suit != _trump)))
                     {
                         var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                 !_bannedSuits.Contains(i.Suit) &&

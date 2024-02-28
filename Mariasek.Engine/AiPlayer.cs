@@ -4490,10 +4490,10 @@ namespace Mariasek.Engine
                     Hand.Where(i => i.Suit != _g.trump.Value)
                         .CardCount(Hodnota.Eso) >= 2 &&
                     Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                        .All(b => Hand.HasA(b) ||
-                                  (Hand.CardCount(b) >= 2 &&
-                                   (Hand.HasX(b) ||
-                                    Hand.HasK(b)))) &&
+                        .All(b => Hand.CardCount(b) >= 2 &&
+                                  (Hand.HasA(b) ||
+                                   Hand.HasX(b) ||
+                                   Hand.HasK(b))) &&
                     Hand.SuitCount() == Game.NumSuits)))) &&
                 ((_gameSimulations > 0 &&
                   _sevensAgainstBalance / (float)_gameSimulations >= sevenAgainstThreshold &&
