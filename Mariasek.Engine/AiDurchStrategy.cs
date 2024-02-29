@@ -441,9 +441,26 @@ namespace Mariasek.Engine
                 #endregion
             };
 
+
             yield return new AiRule()
             {
                 Order = 4,
+                Description = "hrát největší kartu, kterou chytám",
+                SkipSimulations = true,
+                #region ChooseCard3 Rule2
+                ChooseCard2 = (Card c1) =>
+                {
+                    var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => cardsToKeep.Keys.Contains(i.Suit) &&
+                                                                                cardsToKeep[i.Suit].All(j => i.BadValue > j.BadValue));
+
+                    return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+                }
+                #endregion
+            };
+
+            yield return new AiRule()
+            {
+                Order = 5,
                 Description = "hrát největší kartu, kterou nechytám",
                 SkipSimulations = true,
                 #region ChooseCard2 Rule4
@@ -487,7 +504,7 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 5,
+                Order = 6,
                 Description = "obětovat chytáka",
                 SkipSimulations = true,
                 #region ChooseCard2 Rule5
@@ -502,7 +519,7 @@ namespace Mariasek.Engine
                         //nejprve se pokus si nechat barvu, kterou spoluhrac dosud nehral
                         if (mySuits.Any(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i)))
                         {
-                            var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i.Suit));
+                            var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i.Suit));
 
                             return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                         }
@@ -516,6 +533,7 @@ namespace Mariasek.Engine
                                                         .FirstOrDefault())
                                         .Where(i => i != null)
                                         .OrderBy(i => i.BadValue)
+                                        .ThenByDescending(i => myInitialHand.CardCount(i.Suit))
                                         .FirstOrDefault();
                         if (minHole != null)
                         {
@@ -531,7 +549,7 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 6,
+                Order = 7,
                 Description = "hrát nejmenší kartu",
                 SkipSimulations = true,
                 #region ChooseCard2 Rule6
@@ -785,7 +803,7 @@ namespace Mariasek.Engine
                 {
                     var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => cardsToKeep.Keys.Contains(i.Suit) &&
                                                                                     cardsToKeep[i.Suit].All(j => i.BadValue > j.BadValue) &&
-                                                                                !myCardsPlayed.Any(j => j.Suit == i.Suit));
+                                                                                    !myCardsPlayed.Any(j => j.Suit == i.Suit));
 
                     return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                 }
@@ -837,6 +855,22 @@ namespace Mariasek.Engine
             yield return new AiRule()
             {
                 Order = 4,
+                Description = "hrát největší kartu, kterou chytám",
+                SkipSimulations = true,
+                #region ChooseCard3 Rule2
+                ChooseCard3 = (Card c1, Card c2) =>
+                {
+                    var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => cardsToKeep.Keys.Contains(i.Suit) &&
+                                                                                    cardsToKeep[i.Suit].All(j => i.BadValue > j.BadValue));
+
+                    return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+                }
+                #endregion
+            };
+
+            yield return new AiRule()
+            {
+                Order = 5,
                 Description = "hrát největší kartu, kterou nechytám",
                 SkipSimulations = true,
                 #region ChooseCard3 Rule4
@@ -874,7 +908,7 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 5,
+                Order = 6,
                 Description = "obětovat chytáka",
                 SkipSimulations = true,
                 #region ChooseCard3 Rule5
@@ -889,21 +923,22 @@ namespace Mariasek.Engine
                         //nejprve se pokus si nechat barvu, kterou spoluhrac dosud nehral
                         if (mySuits.Any(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i)))
                         {
-                            var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i.Suit));
+                            var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i.Suit));
 
                             return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                         }
 
                         //vezmeme barvu, kde je nejnizsi dira, tu drzi asi nejspis spoluhrac?
                         var minHole = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                        .Select(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                        .Select(h => new Card(b, h))
-                                                        .Where(i => _probabilities.CardProbability(player, i) > 0)
-                                                        .OrderBy(i => i.BadValue)
-                                                        .FirstOrDefault())
-                                        .Where(i => i != null)
-                                        .OrderBy(i => i.BadValue)
-                                        .FirstOrDefault();
+                                          .Select(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                           .Select(h => new Card(b, h))
+                                                           .Where(i => _probabilities.CardProbability(player, i) > 0)
+                                                           .OrderBy(i => i.BadValue)
+                                                           .FirstOrDefault())
+                                          .Where(i => i != null)
+                                          .OrderBy(i => i.BadValue)
+                                          .ThenByDescending(i => myInitialHand.CardCount(i.Suit))
+                                          .FirstOrDefault();
                         if (minHole != null)
                         {
                             var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit == minHole.Suit);
@@ -918,7 +953,7 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 6,
+                Order = 7,
                 Description = "hrát nejmenší kartu",
                 SkipSimulations = true,
                 #region ChooseCard3 Rule6

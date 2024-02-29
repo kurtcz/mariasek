@@ -2434,23 +2434,30 @@ namespace Mariasek.SharedClient
             //_hand.IsEnabled = false;
             _evt.Reset();
             _canSortTrump = true;
-            RunOnUiThread(() =>
+            if (validGameTypes != Hra.Durch)
             {
-                ChooseGameTypeInternal(validGameTypes);
-            });
-            WaitForUIThread();
-
-            _state = GameState.NotPlaying;
-            RunOnUiThread(() =>
-            {
-                HideMsgLabel();
-                this.ClearOperations();
-                foreach (var btn in gtButtons)
+                RunOnUiThread(() =>
                 {
-                    btn.Hide();
-                }
-                giveUpButton.Hide();
-            });
+                    ChooseGameTypeInternal(validGameTypes);
+                });
+                WaitForUIThread();
+
+                _state = GameState.NotPlaying;
+                RunOnUiThread(() =>
+                {
+                    HideMsgLabel();
+                    this.ClearOperations();
+                    foreach (var btn in gtButtons)
+                    {
+                        btn.Hide();
+                    }
+                    giveUpButton.Hide();
+                });
+            }
+            else
+            {
+                _gameTypeChosen = Hra.Durch;
+            }
 
             return _gameTypeChosen;
         }
