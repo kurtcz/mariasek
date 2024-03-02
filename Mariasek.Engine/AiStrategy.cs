@@ -7735,12 +7735,33 @@ namespace Mariasek.Engine
                 ChooseCard2 = (Card c1) =>
                 {
                     if (TeamMateIndex == player1 &&
-                        (_gameType & Hra.Sedma) != 0 &&
                         ValidCards(c1, hands[MyIndex]).HasA(c1.Suit) &&
-                        _probabilities.PotentialCards(player3).CardCount(c1.Suit) >= 2 &&
+                        (_probabilities.PotentialCards(player3).CardCount(c1.Suit) >= 3 ||
+                         ((!potentialGreaseCards.HasA(c1.Suit) ||
+                           myInitialHand.Count(i => i.Suit != _trump &&
+                                                    i.Value >= Hodnota.Desitka) >= 3) &&
+                          _probabilities.PotentialCards(player3).HasSuit(c1.Suit))) &&
                         myInitialHand.CardCount(_trump) <= 4)
                     {
                         var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Eso &&
+                                                                                    i.Suit == c1.Suit).ToList();
+
+                        if (cardsToPlay.Any())
+                        {
+                            return cardsToPlay.FirstOrDefault();
+                        }
+                    }
+                    if (TeamMateIndex == player1 &&
+                        ValidCards(c1, hands[MyIndex]).HasX(c1.Suit) &&
+                        !_probabilities.PotentialCards(player3).HasA(c1.Suit) &&
+                        (_probabilities.PotentialCards(player3).CardCount(c1.Suit) >= 3 ||
+                         ((!potentialGreaseCards.HasA(c1.Suit) ||
+                           myInitialHand.Count(i => i.Suit != _trump &&
+                                                    i.Value >= Hodnota.Desitka) >= 3) &&
+                          _probabilities.PotentialCards(player3).HasSuit(c1.Suit))) &&
+                        myInitialHand.CardCount(_trump) <= 4)
+                    {
+                        var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Value == Hodnota.Desitka &&
                                                                                     i.Suit == c1.Suit).ToList();
 
                         if (cardsToPlay.Any())
