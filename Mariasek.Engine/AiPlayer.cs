@@ -550,7 +550,9 @@ namespace Mariasek.Engine
                                           .ToList();
                 }
             }
-            else if (!holesByCard.Any(i => i.Item2 >= 6) &&   //CardCount
+            else if (!hand.Any(i => !talon.HasSuit(i.Suit) &&
+                                    holesByCard.Any(j => j.Item1 == i &&
+                                                         j.Item4 > 0)) &&
                      talon.Any(i => hand.CardCount(i.Suit) - talon.CardCount(i.Suit) == 1 &&
                                     hiCardsWithHoles.Contains(i) &&
                                     holesByCard.Any(j => j.Item1 == i &&
@@ -560,7 +562,7 @@ namespace Mariasek.Engine
                                                            j.Item4 > 0))    //holes
                           .SuitCount() == 1)
             {
-                //pokud nemam v zdne barve diru s 6 a vice kartama a
+                //pokud nemam diru v nejake jine barve ktera neni v talonu
                 //a pokud mam v nejake barve o jednu kartu vic nez kolik jich je v talonu
                 //a pokud souperi maji nejakou vyssi kartu v dane barve
                 //tak dej do talonu tyto barvy odspodu, tou nejvyssi potom vyjedu
