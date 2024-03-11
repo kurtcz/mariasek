@@ -3098,6 +3098,16 @@ namespace Mariasek.Engine
                                 .Where(b => b != _trump.Value &&
                                             hand.HasSuit(b))
                                 .Any(b => hand.HasA(b))))));
+
+        result |= hand.CardCount(_trump.Value) == 5 &&                 //   5 trumfu v obrane bez A nebo X+K
+                  TeamMateIndex != -1 &&                               //   a v aspon jedne barve mene nez 2 karty
+                  !_teamMateDoubledGame &&
+                  !hand.HasA(_trump.Value) ||
+                  (!hand.HasX(_trump.Value) &&
+                   !hand.HasK(_trump.Value)) &&
+                  Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                      .Any(b => hand.CardCount(b) <= 1);
+
         result |= hand.CardCount(_trump.Value) == 5 &&                  //4.  5 trumfu a nemam trumfove A+K+S
                   (TeamMateIndex == -1 ||
                    (!_teamMateDoubledGame ||
