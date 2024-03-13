@@ -2002,6 +2002,7 @@ namespace Mariasek.Engine
             //tak ji ma jiste (nebude prece davat hlasku do talonu)
             if (_trump.HasValue &&
                 _gameStarterIndex == roundStarterIndex &&
+                _myIndex == (roundStarterIndex + 2) % Game.NumPlayers &&
                 c1.Suit != _trump &&
                 c2.Suit == _trump &&
                 _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Kral] > 0 &&
@@ -2382,6 +2383,7 @@ namespace Mariasek.Engine
                 _gameStarterIndex == roundStarterIndex &&
                 c1.Suit != _trump &&
                 c3.Suit == _trump &&
+                _myIndex == (roundStarterIndex + 1) % Game.NumPlayers &&
                 _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Kral] > 0 &&
                 _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Kral] < 1 &&
                 _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Svrsek] > 0 &&

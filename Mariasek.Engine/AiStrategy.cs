@@ -735,6 +735,24 @@ namespace Mariasek.Engine
                                                  }
                                              }).ToList()
                                        : new List<Card>();
+            var actorPlayedCards = TeamMateIndex != -1
+                                      ? _rounds.Where(r => r != null && r.c3 != null)
+                                             .Select(r =>
+                                             {
+                                                 if (r.player1.PlayerIndex == opponent)
+                                                 {
+                                                     return r.c1;
+                                                 }
+                                                 else if (r.player2.PlayerIndex == opponent)
+                                                 {
+                                                     return r.c2;
+                                                 }
+                                                 else
+                                                 {
+                                                     return r.c3;
+                                                 }
+                                             }).ToList()
+                                       : new List<Card>();
             var teamMatePlayedWinningAXNonTrumpCards = TeamMateIndex != -1
                                                        ? _rounds.Where(r => r != null && r.c3 != null)
                                                                 .Select(r =>
@@ -811,10 +829,14 @@ namespace Mariasek.Engine
                                        ? hands[MyIndex].Where(i => i.Suit != _trump &&
                                                                    i.Value >= Hodnota.Desitka &&
                                                                    !(!_probabilities.PotentialCards(opponent).HasA(i.Suit) &&
-                                                                     _probabilities.CertainCards(opponent).Any(j => j.Suit == i.Suit &&
-                                                                                                                    j.Value < Hodnota.Desitka) ||
-                                                                     (!_probabilities.PotentialCards(TeamMateIndex).HasSuit(i.Suit) &&
-                                                                      _probabilities.PotentialCards(opponent).CardCount(i.Suit) > 2)))
+                                                                     (_probabilities.CertainCards(opponent).Any(j => j.Suit == i.Suit &&
+                                                                                                                     j.Value < Hodnota.Desitka) ||
+                                                                      (!_probabilities.PotentialCards(TeamMateIndex).HasSuit(i.Suit) &&
+                                                                       _probabilities.PotentialCards(opponent).CardCount(i.Suit) > 2) ||
+                                                                      (!_probabilities.PotentialCards(TeamMateIndex).HasSuit(i.Suit) &&
+                                                                       _probabilities.PotentialCards(opponent).HasSuit(i.Suit) &&
+                                                                       !actorPlayedCards.HasA(i.Suit) &&    //pokud akter hral kartu v barve a nemel ani nema eso
+                                                                       actorPlayedCards.HasSuit(i.Suit))))) //a pokud muze stale barvu mit, tak ji asi nedal do talonu
                                                        .ToList()
                                        : new List<Card>();
             #endregion
@@ -6877,6 +6899,25 @@ namespace Mariasek.Engine
             myInitialHand.AddRange((List<Card>)hands[MyIndex]);
             myInitialHand.AddRange(myPlayedCards);
 
+            var actorPlayedCards = TeamMateIndex != -1
+                          ? _rounds.Where(r => r != null && r.c3 != null)
+                                 .Select(r =>
+                                 {
+                                     if (r.player1.PlayerIndex == opponent)
+                                     {
+                                         return r.c1;
+                                     }
+                                     else if (r.player2.PlayerIndex == opponent)
+                                     {
+                                         return r.c2;
+                                     }
+                                     else
+                                     {
+                                         return r.c3;
+                                     }
+                                 }).ToList()
+                           : new List<Card>();
+
             var opponentCards = TeamMateIndex == -1
                     ? _probabilities.PotentialCards(player1).Concat(_probabilities.PotentialCards(player3)).Distinct().ToList()
                     : _probabilities.PotentialCards(opponent).ToList();
@@ -6891,10 +6932,14 @@ namespace Mariasek.Engine
                                        ? hands[MyIndex].Where(i => i.Suit != _trump &&
                                                                    i.Value >= Hodnota.Desitka &&
                                                                    !(!_probabilities.PotentialCards(opponent).HasA(i.Suit) &&
-                                                                     _probabilities.CertainCards(opponent).Any(j => j.Suit == i.Suit &&
-                                                                                                                    j.Value < Hodnota.Desitka) ||
-                                                                     (!_probabilities.PotentialCards(TeamMateIndex).HasSuit(i.Suit) &&
-                                                                      _probabilities.PotentialCards(opponent).CardCount(i.Suit) > 2)))
+                                                                     (_probabilities.CertainCards(opponent).Any(j => j.Suit == i.Suit &&
+                                                                                                                     j.Value < Hodnota.Desitka) ||
+                                                                      (!_probabilities.PotentialCards(TeamMateIndex).HasSuit(i.Suit) &&
+                                                                       _probabilities.PotentialCards(opponent).CardCount(i.Suit) > 2) ||
+                                                                      (!_probabilities.PotentialCards(TeamMateIndex).HasSuit(i.Suit) &&
+                                                                       _probabilities.PotentialCards(opponent).HasSuit(i.Suit) &&
+                                                                       !actorPlayedCards.HasA(i.Suit) &&    //pokud akter hral kartu v barve a nemel ani nema eso
+                                                                       actorPlayedCards.HasSuit(i.Suit))))) //a pokud muze stale barvu mit, tak ji asi nedal do talonu
                                                        .ToList()
                                        : new List<Card>();
             #endregion
