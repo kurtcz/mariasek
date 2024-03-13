@@ -489,6 +489,15 @@ namespace Mariasek.Engine
                                         hands[MyIndex].Any(j => j.Suit == _rounds[i].c2.Suit &&
                                                                 _probabilities.PotentialCards(opponent).CardCount(j.Suit) > 1))
                                     {
+                                        if (_probabilities.PotentialCards(opponent).Where(j => j.Suit == _rounds[i].c2.Suit)
+                                                                                   .All(j => j.BadValue > _rounds[i].c2.BadValue) &&
+                                            hands[MyIndex].Where(j => j.Suit == _rounds[i].c2.Suit)
+                                                          .Any(j => _probabilities.PotentialCards(opponent).Any(k => k.Suit == j.Suit &&
+                                                                                                                     k.BadValue > j.BadValue)))
+                                        {
+                                            //pokud kolega odmazal nejnizsi kartu tak uz asi zadne dalsi nema a muzu zkusit soupere chytit
+                                            return null;
+                                        }
                                         prefSuits.Add(_rounds[i].c2.Suit);
                                     }
                                     else if (_rounds[i].player3.PlayerIndex == TeamMateIndex &&
@@ -501,6 +510,15 @@ namespace Mariasek.Engine
                                              hands[MyIndex].Any(j => j.Suit == _rounds[i].c3.Suit &&
                                                                      _probabilities.PotentialCards(opponent).CardCount(j.Suit) > 1))
                                     {
+                                        if (_probabilities.PotentialCards(opponent).Where(j => j.Suit == _rounds[i].c3.Suit)
+                                                                                   .All(j => j.BadValue > _rounds[i].c3.BadValue) &&
+                                            hands[MyIndex].Where(j => j.Suit == _rounds[i].c3.Suit)
+                                                          .Any(j => _probabilities.PotentialCards(opponent).Any(k => k.Suit == j.Suit &&
+                                                                                                                     k.BadValue > j.BadValue)))
+                                        {
+                                            //pokud kolega odmazal nejnizsi kartu tak uz asi zadne dalsi nema a muzu zkusit soupere chytit
+                                            return null;
+                                        }
                                         prefSuits.Add(_rounds[i].c3.Suit);
                                     }
                                 }
