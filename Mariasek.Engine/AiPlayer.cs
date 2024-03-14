@@ -575,9 +575,9 @@ namespace Mariasek.Engine
                              .First();
 
                 cardsToReplace = hand.Where(i => i.Suit == b)
-                                        .OrderBy(i => i.BadValue)
-                                        .Take(talon.CardCount(b))
-                                        .ToList();
+                                     .OrderBy(i => i.BadValue)
+                                     .Take(talon.CardCount(b))
+                                     .ToList();
 
                 if (cardsToReplace.Any())
                 {
@@ -3102,11 +3102,15 @@ namespace Mariasek.Engine
         result |= hand.CardCount(_trump.Value) == 5 &&                 //   5 trumfu v obrane bez A nebo X+K
                   TeamMateIndex != -1 &&                               //   a v aspon jedne barve mene nez 2 karty
                   !_teamMateDoubledGame &&
-                  !hand.HasA(_trump.Value) ||
-                  (!hand.HasX(_trump.Value) &&
-                   !hand.HasK(_trump.Value)) &&
+                  !hand.HasA(_trump.Value) &&
+                  !hand.HasX(_trump.Value) &&
+                  !hand.HasK(_trump.Value) &&
                   Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                      .Any(b => hand.CardCount(b) <= 1);
+                      .Any(b => hand.CardCount(b) <= 1) &&
+                  !Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                       .Where(b => b != _trump &&
+                                   hand.HasSuit(b))
+                       .Any(b => hand.CardCount(b) == 5);
 
         result |= hand.CardCount(_trump.Value) == 5 &&                  //4.  5 trumfu a nemam trumfove A+K+S
                   (TeamMateIndex == -1 ||
@@ -3219,7 +3223,9 @@ namespace Mariasek.Engine
             var n = GetTotalHoles(hand, talon);
             var nn = GetTotalHoles(hand, talon, false);
             var sh = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                         .Where(b => GetTotalHoles(hand, talon, b) > 0)
+                         .Where(b => GetTotalHoles(hand, talon, b) > 0 &&
+                                     (!hand.HasA(b) ||
+                                      !hand.HasX(b)))
                          .ToList();
             var axCount = hand.Count(i => i.Value == Hodnota.Eso || i.Value == Hodnota.Desitka);
             var noKQsuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -3282,7 +3288,8 @@ namespace Mariasek.Engine
                                     (GetTotalHoles(hand, talon, b) > 2 ||
                                      (!hand.HasA(b) &&
                                       !hand.HasX(b) &&
-                                      GetTotalHoles(hand, talon, b) > 1)))) &&
+                                      GetTotalHoles(hand, talon, b) > 1 &&
+                                      hand.CardCount(b) > 2)))) &&
                 (n > nn ||                                          //a mam nejake male trumfy
                  sh.Count() > 2 ||   //nebo mam diry ve vic nez dvou barvach z nichz nektera je dlouha - takze na ni pujde asi mazat
                  !(hand.HasK(_trump.Value) &&                       //nebo nemam trumfovou hlasku
@@ -3385,6 +3392,13 @@ namespace Mariasek.Engine
                      .Any(b => !hand.HasA(b) &&
                                !(hand.HasX(b) &&
                                  hand.HasK(b))) &&
+                 Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                     .Where(b => b != _trump &&
+                                 hand.HasSuit(b) &&
+                                 !hand.HasA(b) &&
+                                 !(hand.HasX(b) &&
+                                   hand.HasK(b)))
+                     .Any(b => hand.CardCount(b) > 2) &&
                  !(hand.CardCount(Hodnota.Eso) == 3 &&
                    hand.HasK(_trump.Value) &&
                    hand.HasQ(_trump.Value) &&
@@ -3500,21 +3514,24 @@ namespace Mariasek.Engine
             //{
             //    return true;
             //}
-            var result = n > 4 ||                         //u vice nez 4 neodstranitelnych der kilo urcite neuhraju
-                         (n > 3 &&
-                          (//nn > 3 ||
-                           (nn >= 3 &&//nn == 3 &&
-                            sh.Count > 2 ||
+            var result = (n > 3 &&
+                          ((nn >= 3 &&//nn == 3 &&
+                            (sh.Count > 2 ||
+                             hand.Where(i => !hand.HasA(i.Suit) &&
+                                             !hand.HasX(i.Suit)).SuitCount() > 1 ||
+                             hand.Where(i => !hand.HasA(i.Suit) &&
+                                             !hand.HasX(i.Suit))
+                                 .Any(i => hand.CardCount(i.Suit) > 2)) ||
                            noKQsuits == 3) &&
-                          Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                              .Where(b => sh.Contains(b))
-                              .Any(b => (b == _trump.Value &&
-                                              GetTotalHoles(hand, talon, b) > 1) ||
-                                        (b != _trump.Value &&
-                                              (GetTotalHoles(hand, talon, b) > 2 ||
-                                               (!hand.HasA(b) &&
-                                                !hand.HasX(b) &&
-                                                GetTotalHoles(hand, talon, b) > 1)))))) ||
+                           Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                               .Where(b => sh.Contains(b))
+                               .Any(b => (b == _trump.Value &&
+                                               GetTotalHoles(hand, talon, b) > 1) ||
+                                         (b != _trump.Value &&
+                                               (GetTotalHoles(hand, talon, b) > 2 ||
+                                                (!hand.HasA(b) &&
+                                                 !hand.HasX(b) &&
+                                                 GetTotalHoles(hand, talon, b) > 1)))))) ||
                          (n == 3 &&                       //nebo u 3 neodstranitelnych der pokud nemam trumfove eso
                           (!hand.HasA(_trump.Value) ||    //a mam pet nebo mene trumfu
                            !hand.HasX(_trump.Value)) &&
@@ -4269,9 +4286,10 @@ namespace Mariasek.Engine
                                      Hand.Any(i => i.Suit == b &&
                                                    i.Value >= Hodnota.Kral))))) ||
                     (Hand.CardCount(_g.trump.Value) >= 4 &&         //ctyri trumfy
-                     Enum.GetValues(typeof(Barva)).Cast<Barva>()    //a k tomu nejaka dlouha barva
+                     Enum.GetValues(typeof(Barva)).Cast<Barva>()    //a k tomu nejaka dlouha barva a eso
                          .Any(b => b != _trump &&
-                                   Hand.CardCount(b) >= 5)) ||
+                                   Hand.CardCount(b) >= 5) &&
+                     Hand.CardCount(Hodnota.Eso) >= 1) ||
                     (Hand.CardCount(_g.trump.Value) >= 3 &&         //tri trumfy vcetne esa a jeste jednoho velkeho trumfu
                      Hand.HasA(_g.trump.Value) &&
                      (Hand.HasX(_g.trump.Value) ||
