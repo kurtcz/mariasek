@@ -38,6 +38,7 @@ namespace Mariasek.SharedClient
     {
         Never,
         AfterAutomaticVictory,
+        Daily,
         AfterRestart,
         Always
     }

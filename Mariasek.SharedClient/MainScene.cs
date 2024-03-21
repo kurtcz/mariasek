@@ -1579,6 +1579,12 @@ namespace Mariasek.SharedClient
                      {
                          _shouldShuffle = true;
                      }
+                     else if (Game.Settings.WhenToShuffle == ShuffleTrigger.Daily &&
+                              (!Game.Money.Any() ||
+                               Game.Money.Last().DateTime.Date < DateTime.Today))
+                     {
+                         _shouldShuffle = true;
+                     }
                      if (_shouldShuffle)
                      {
                          _deck.Shuffle();

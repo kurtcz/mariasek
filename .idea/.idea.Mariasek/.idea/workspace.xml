@@ -18,7 +18,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8dce6e89-1354-4217-a793-9e0f00156e7f" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Mariasek.Engine/AiPlayer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Mariasek.Engine/AiPlayer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Mariasek/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Mariasek/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,7 +138,7 @@
       <workItem from="1710604886280" duration="3990000" />
       <workItem from="1710621350023" duration="74000" />
       <workItem from="1710621467119" duration="3411000" />
-      <workItem from="1710668341089" duration="4097000" />
+      <workItem from="1710668341089" duration="4468000" />
     </task>
     <servers />
   </component>
