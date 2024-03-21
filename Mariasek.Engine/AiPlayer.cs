@@ -3995,11 +3995,9 @@ namespace Mariasek.Engine
         public override async Task<Hra> GetBidsAndDoubles(Bidding bidding)
         {
             Hra bid = 0;
-            const int MaxFlek = 3;
             var gameThreshold = bidding._gameFlek < Settings.GameThresholdsForGameType[Hra.Hra].Length ? Settings.GameThresholdsForGameType[Hra.Hra][bidding._gameFlek] : 1f;
             var gameThresholdPrevious = bidding._gameFlek > 1 && bidding._gameFlek - 1 < Settings.GameThresholdsForGameType[Hra.Hra].Length ? Settings.GameThresholdsForGameType[Hra.Hra][bidding._gameFlek - 1] : 1f;
             var gameThresholdNext = bidding._gameFlek < Settings.GameThresholdsForGameType[Hra.Hra].Length - 1 ? Settings.GameThresholdsForGameType[Hra.Hra][bidding._gameFlek + 1] : 1f;
-            var certaintyThreshold = Settings.GameThresholdsForGameType[Hra.KiloProti].Length > 0 ? Settings.GameThresholdsForGameType[Hra.KiloProti][0] : 1f; //kilo proti je obtizna hra, proto jeho prah beru jako "jistotu"
             var sevenThreshold = bidding._sevenFlek < Settings.GameThresholdsForGameType[Hra.Sedma].Length ? Settings.GameThresholdsForGameType[Hra.Sedma][bidding._sevenFlek] : 1f;
             var hundredThreshold = bidding._gameFlek < Settings.GameThresholdsForGameType[Hra.Kilo].Length ? Settings.GameThresholdsForGameType[Hra.Kilo][bidding._gameFlek] : 1f;
             var sevenAgainstThreshold = bidding._sevenAgainstFlek < Settings.GameThresholdsForGameType[Hra.SedmaProti].Length ? Settings.GameThresholdsForGameType[Hra.SedmaProti][bidding._sevenAgainstFlek] : 1f;
@@ -4460,9 +4458,7 @@ namespace Mariasek.Engine
             if ((bidding.Bids & Hra.Kilo) != 0 &&
                 Settings.CanPlayGameType[Hra.Kilo] &&
                 _hundredSimulations > 0 &&
-                (bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Kilo] ||
-                 (bidding._gameFlek <= MaxFlek &&
-                  _hundredsBalance / (float)_hundredSimulations >= certaintyThreshold)) &&
+                bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Kilo] &&
                 ((PlayerIndex == _g.GameStartingPlayerIndex &&
                   _hundredsBalance / (float)_hundredSimulations >= hundredThreshold &&
                   Enum.GetValues(typeof(Barva)).Cast<Barva>().Where(b => Hand.HasSuit(b)).All(b => Hand.HasA(b))) ||    //Re na kilo si dej jen pokud mas ve vsech barvach eso
@@ -4562,18 +4558,16 @@ namespace Mariasek.Engine
 
             //kilo proti flekuju jen pokud jsem hlasil sam kilo proti a v simulacich jsem ho uhral dost casto
             //nebo pokud jsem volil trumf a je nemozne aby meli protihraci kilo (nemaji hlas)
-            if ((bidding.Bids & Hra.KiloProti) != 0 &&
-                (bid & Hra.Sedma) == 0 &&
-                ((Settings.CanPlayGameType[Hra.KiloProti] &&
-                  estimatedFinalBasicScore >= 60 &&
-                  (bidding._hundredAgainstFlek <= Settings.MaxDoubleCountForGameType[Hra.KiloProti] ||
-                   (PlayerIndex == _g.GameStartingPlayerIndex &&
-                    (Probabilities.HlasProbability((PlayerIndex + 1) % Game.NumPlayers) == 0) &&
-                    (Probabilities.HlasProbability((PlayerIndex + 2) % Game.NumPlayers) == 0))) &&                  
-                  (PlayerIndex != _g.GameStartingPlayerIndex &&
-                   kqScore >= 20 &&
-                   _gameSimulations > 0 &&
-                   _hundredsAgainstBalance / (float)_gameSimulations >= hundredAgainstThreshold))))
+            if ((bidding.Bids & Hra.KiloProti) != 0 &&                
+                Settings.CanPlayGameType[Hra.KiloProti] &&
+                bidding._hundredAgainstFlek <= Settings.MaxDoubleCountForGameType[Hra.KiloProti] &&
+                _gameSimulations > 0 &&
+                _hundredsAgainstBalance / (float)_gameSimulations >= hundredAgainstThreshold &&
+                ((PlayerIndex == _g.GameStartingPlayerIndex &&
+                  kqMaxOpponentScore == 0) ||
+                 (PlayerIndex != _g.GameStartingPlayerIndex &&
+                  !IsHundredTooRisky() &&
+                  (bid & Hra.Sedma) == 0)))
             {
                 bid |= bidding.Bids & Hra.KiloProti;
                 bid &= (Hra)~Hra.Hra; //u kila proti uz nehlasime flek na hru
@@ -4586,9 +4580,7 @@ namespace Mariasek.Engine
             if ((bidding.Bids & Hra.Durch) != 0 &&
                 Settings.CanPlayGameType[Hra.Durch] &&
                 _durchSimulations > 0 && 
-                (bidding._betlDurchFlek <= Settings.MaxDoubleCountForGameType[Hra.Durch] ||
-                 (bidding._betlDurchFlek <= MaxFlek &&
-                  _durchBalance / (float)_durchSimulations >= certaintyThreshold)) &&
+                bidding._betlDurchFlek <= Settings.MaxDoubleCountForGameType[Hra.Durch] &&
                 ((PlayerIndex == _g.GameStartingPlayerIndex && _durchBalance / (float)_durchSimulations >= durchThreshold && IsDurchCertain()) ||
                  (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) >= 3)))
             {
@@ -4601,9 +4593,7 @@ namespace Mariasek.Engine
             if ((bidding.Bids & Hra.Betl) != 0 &&
                 Settings.CanPlayGameType[Hra.Betl] &&
                 _betlSimulations > 0 && 
-                (bidding._betlDurchFlek <= Settings.MaxDoubleCountForGameType[Hra.Betl] ||
-                 (bidding._betlDurchFlek <= MaxFlek &&
-                  _betlBalance / (float)_betlSimulations >= certaintyThreshold)) &&
+                bidding._betlDurchFlek <= Settings.MaxDoubleCountForGameType[Hra.Betl] &&
                 PlayerIndex == _g.GameStartingPlayerIndex &&
                 _betlBalance / (float)_betlSimulations >= betlThreshold &&
                 (TeamMateIndex != -1 ||     //pokud jsem volil betla, tak si dej re a vys jen kdyz mas jedn jednu diru (kterou vyjedes)

@@ -2539,9 +2539,9 @@ namespace Mariasek.Engine
                         if (!cardsToPlay.Any() &&
                             hands[MyIndex].CardCount(_trump) >= opponentTrumps.Count &&
                             (!Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                    .Where(b => hands[MyIndex].HasSuit(b) &&
-                                                b != _trump)
-                                    .Any(b => unwinnableLowCards.HasSuit(b))) &&
+                                  .Where(b => hands[MyIndex].HasSuit(b) &&
+                                              b != _trump)
+                                  .Any(b => unwinnableLowCards.HasSuit(b))) &&
                             !hands[MyIndex].Any(i => i.Suit != _trump &&    //nehraj pravidlo pokud muzes tlacit trumf ze soupere bocni barvou
                                                      i.Value < Hodnota.Desitka &&
                                                      ((!_probabilities.PotentialCards(player2).HasSuit(i.Suit) &&
@@ -2549,12 +2549,16 @@ namespace Mariasek.Engine
                                                       (!_probabilities.PotentialCards(player3).HasSuit(i.Suit) &&
                                                        _probabilities.PotentialCards(player3).HasSuit(_trump)))) &&
                             ((SevenValue < GameValue &&
+                              (_gameType & Hra.Kilo) == 0 &&
                               (hands[MyIndex].CardCount(_trump) > opponentTrumps.Count ||
                                (hands[MyIndex].CardCount(_trump) == opponentTrumps.Count &&
                                 _probabilities.PotentialCards(player2).HasSuit(_trump) &&
                                 _probabilities.PotentialCards(player3).HasSuit(_trump)))) ||
                              hands[MyIndex].CardCount(_trump) > opponentTrumps.Count + 1 ||
-                             (_gameType & Hra.Kilo) != 0))
+                             ((_gameType & Hra.Kilo) != 0 &&
+                              !(hands[MyIndex].CardCount(_trump) == opponentTrumps.Count &&
+                                topCards.CardCount(_trump) < opponentTrumps.Count &&
+                                hands[MyIndex].SuitCount < Game.NumSuits))))
                         {
                             if (topCards.HasSuit(_trump))
                             {
