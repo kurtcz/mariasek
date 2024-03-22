@@ -1821,7 +1821,7 @@ namespace Mariasek.Engine
                                     {
                                         hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
                                     }
-                                    if (hands[gameStartingPlayerIndex].Count() == 12)//_talon == null || !_talon.Any())
+                                    if (hands[gameStartingPlayerIndex].Count() == 12 || gameStartingPlayerIndex != PlayerIndex)//_talon == null || !_talon.Any())
                                     {
                                         UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
                                     }
@@ -1891,7 +1891,7 @@ namespace Mariasek.Engine
                                             hands[i] = new Hand(new List<Card>((List<Card>)hh[i]));   //naklonuj karty aby v pristich simulacich nebyl problem s talonem
                                         }
 
-                                        if (hands[gameStartingPlayerIndex].Count() == 12)//_talon == null || !_talon.Any())
+                                        if (hands[gameStartingPlayerIndex].Count() == 12 || gameStartingPlayerIndex != PlayerIndex)//_talon == null || !_talon.Any())
                                         {
                                             UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
                                         }
