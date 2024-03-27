@@ -1536,6 +1536,8 @@ namespace Mariasek.Engine
 
         public void UpdateProbabilitiesAfterBidMade(BidEventArgs e, Bidding bidding)
         {
+            const float epsilon = 0.01f;
+
             if (!_trump.HasValue)
             {
                 return;
@@ -1613,9 +1615,35 @@ namespace Mariasek.Engine
                         if (_cardProbabilityForPlayer[i][_trump.Value][h] > 0 &&
                             _cardProbabilityForPlayer[i][_trump.Value][h] < 1)
                         {
-                            const float epsilon = 0.01f;
-
                             _cardProbabilityForPlayer[i][_trump.Value][h] = i == e.Player.PlayerIndex ? 1 - epsilon : epsilon;
+                        }
+                    }
+                    var myLongSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                          .Where(b => b != _trump &&
+                                                      _cardProbabilityForPlayer[_myIndex][b].Sum(h => h.Value) >= 4)
+                                          .ToList();
+                    //u fleku na sedmu predpokladej ze ma souper zbyvajici trumfy, vysoke karty a karty v moji dlouhe barve
+                    foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>().Where(b => b != _trump))
+                    {
+                        var myHandCount = _cardProbabilityForPlayer[_myIndex][b].Sum(h => h.Value);
+                        var cardsLeft = myLongSuits.Contains(b) ? 8 - myHandCount : myLongSuits.Any() ? 1 : 2;
+
+                        if (_cardProbabilityForPlayer[i][b][Hodnota.Eso] == 1)
+                        {
+                            continue;
+                        }
+                        foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().OrderByDescending(h => h))
+                        {
+                            if (cardsLeft == 0)
+                            {
+                                break;
+                            }
+                            if (_cardProbabilityForPlayer[i][b][h] > 0 &&
+                                _cardProbabilityForPlayer[i][b][h] < 1)
+                            {
+                                _cardProbabilityForPlayer[i][b][h] = i == e.Player.PlayerIndex ? 1 - epsilon : epsilon;
+                                cardsLeft--;
+                            }
                         }
                     }
                     _initialExpectedTrumps[i] = i == _sevenIndex ? 8 - _initialExpectedTrumps[_myIndex] : 0;
@@ -1637,6 +1665,35 @@ namespace Mariasek.Engine
                         if (i != _myIndex && i != _sevenAgainstIndex && i != _gameStarterIndex && i != Game.TalonIndex)
                         {
                             _initialExpectedTrumps[i] = 8 - _initialExpectedTrumps[_gameStarterIndex] - _initialExpectedTrumps[_sevenAgainstIndex];
+                        }
+                        var myLongSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                              .Where(b => b != _trump &&
+                                                          _cardProbabilityForPlayer[_myIndex][b].Sum(h => h.Value) >= 4)
+                                              .ToList();
+                        //u sedmy proti predpokladej ze ma souper zbyvajici trumfy, vysoke karty a karty v moji dlouhe barve
+                        foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>().Where(b => b != _trump))
+                        {
+                            var myHandCount = _cardProbabilityForPlayer[_myIndex][b].Sum(h => h.Value);
+                            var cardsLeft = myLongSuits.Contains(b) ? 8 - myHandCount : myLongSuits.Any() ? 1 : 2;
+
+                            if (_cardProbabilityForPlayer[i][b][Hodnota.Eso] == 1)
+                            {
+                                continue;
+                            }
+
+                            foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().OrderByDescending(h => h))
+                            {
+                                if (cardsLeft == 0)
+                                {
+                                    break;
+                                }
+                                if (_cardProbabilityForPlayer[i][b][h] > 0 &&
+                                    _cardProbabilityForPlayer[i][b][h] < 1)
+                                {
+                                    _cardProbabilityForPlayer[i][b][h] = i == e.Player.PlayerIndex ? 1 - epsilon : epsilon;
+                                    cardsLeft--;
+                                }
+                            }
                         }
                     }
                 }

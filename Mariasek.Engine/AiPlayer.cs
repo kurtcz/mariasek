@@ -4328,44 +4328,12 @@ namespace Mariasek.Engine
                                          Hand.HasK(b)) ||
                                         (Hand.HasK(b) &&
                                          Hand.HasQ(b) &&
-                                         Hand.HasJ(b))) >= 3)) //||
-                      //(Hand.Count(i => i.Suit == _g.trump.Value &&
-                      //                 i.Value >= Hodnota.Svrsek) >= 3 &&
-                      // handSuits == Game.NumSuits &&
-                      // Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                      //     .All(b => Hand.Any(i => i.Suit == b &&
-                      //                             i.Value >= Hodnota.Kral))) ||
-                      //((Hand.CardCount(Hodnota.Eso) >= 2 ||
-                      //  (Hand.HasA(_g.trump.Value) &&
-                      //   kqScore >= 40)) &&
-                      // ((axCount >= 4 &&
-                      //   Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                      //       .All(b => Hand.CardCount(b) >= 2)) ||
-                      //  (axCount >= 3 &&
-                      //   Hand.HasA(_g.trump.Value) &&
-                      //   Hand.HasK(_g.trump.Value) &&
-                      //   (Hand.HasX(_g.trump.Value) ||
-                      //    Hand.HasQ(_g.trump.Value)) &&
-                      //   (kqScore >= 40 ||
-                      //    Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                      //        .All(b => Hand.CardCount(b) >= 2))) ||
-                      //  (axCount >= 4 &&                               //hodne ostrych karet a vsechny barvy
-                      //   estimatedFinalBasicScore >= 40 &&
-                      //   handSuits == Game.NumSuits) //||
-                      //  //(Hand.Any(i => i.Suit == _trump.Value &&
-                      //  //               i.Value >= Hodnota.Svrsek) &&
-                      //  // Hand.Count(i => i.Value >= Hodnota.Svrsek) >= 6 &&
-                      //  // Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                      //  //     .Where(b => Hand.HasSuit(b))
-                      //  //     .All(b => Hand.CardCount(b) >= 2)) ||
-                      //  //(Hand.HasA(_trump.Value) &&                    //trumfove eso a desitka
-                      //  // Hand.HasX(_trump.Value) &&
-                      //  // Hand.CardCount(Hodnota.Eso) >= 2 &&           //aspon dve esa a
-                      //  // Enum.GetValues(typeof(Barva)).Cast<Barva>()   //jedna dlouha barva
-                      //  //     .Where(b => b != _trump.Value)
-                      //  //     .Any(b => Hand.CardCount(b) >= 4))
-                      //      ))
-                            ))) ||
+                                         Hand.HasJ(b))) >= 3)) ||
+                      (Hand.HasA(_g.trump.Value) &&
+                       Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                           .Count(b => (Hand.HasA(b) ||
+                                        Hand.HasX(b)) &&
+                                        Hand.CardCount(b) >= 3) >= 2)))) ||
                    (_teamMateDoubledGame &&
                     !_g.MandatoryDouble &&
                     Hand.CardCount(_trump.Value) >= 3 &&
