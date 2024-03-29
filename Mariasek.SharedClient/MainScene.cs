@@ -1249,6 +1249,10 @@ namespace Mariasek.SharedClient
             sedmaBtn.Text = (g.GameType & Hra.Sedma) == 0 && (_bidding.SevenAgainstMultiplier == 0) ? "Sedma proti" : "Na sedmu";
             kiloBtn.Text = _bidding.HundredAgainstMultiplier == 0 ? "Kilo proti" : "Na kilo";
 
+            flekBtn.IsSelected = false;
+            sedmaBtn.IsSelected = false;
+            kiloBtn.IsSelected = false;
+
             flekBtn.Show();
             sedmaBtn.Show();
             kiloBtn.Show();

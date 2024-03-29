@@ -217,8 +217,8 @@ namespace Mariasek.Engine
                 }
                 foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
                 {
-                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _cardProbabilityForPlayer[ii][b][h] > epsilon &&
-                                                                                                 _cardProbabilityForPlayer[ii][b][h] < 1 - epsilon))
+                    foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().Where(h => _cardProbabilityForPlayer[ii][b][h] > small &&
+                                                                                                 _cardProbabilityForPlayer[ii][b][h] < 1 - small))
                     {
                         //totalUncertainCards is computed only over those players who can have such card (with probability 0.5)
                         var totalUncertainCards = _cardProbabilityForPlayer.Count(j => j[b][h] > 0f && j[b][h] < 1f);
@@ -1000,6 +1000,7 @@ namespace Mariasek.Engine
             //Pozor!!!: u vsech techto lokalnich promennych plati, ze index 0 == ja ale u _cardProbabilityForPlayer je _myIndex == ja
             var hands = new List<Card>[Game.NumPlayers + 1];
             var certainCards = new List<Card>[Game.NumPlayers + 1];
+            var likelyCards = new List<Card>[Game.NumPlayers + 1];
             var uncertainCards = new List<Card>[Game.NumPlayers + 1];
             var totalCards = new int[Game.NumPlayers + 1];
             var thresholds = new [] { 0f, 0f, 0f, 0f };// new float[Game.NumPlayers + 1];
@@ -1009,12 +1010,14 @@ namespace Mariasek.Engine
             for (int i = 0; i < Game.NumPlayers; i++)
             {
                 certainCards[i] = _cardProbabilityForPlayer[(_myIndex + i) % Game.NumPlayers].SelectMany(j => j.Value.Where(k => k.Value == 1f).Select(k => new Card(j.Key, k.Key))).ToList();
+                likelyCards[i] = _cardProbabilityForPlayer[(_myIndex + i) % Game.NumPlayers].SelectMany(j => j.Value.Where(k => k.Value == 0.99f).Select(k => new Card(j.Key, k.Key))).ToList();
                 uncertainCards[i] = _cardProbabilityForPlayer[(_myIndex + i) % Game.NumPlayers].SelectMany(j => j.Value.Where(k => k.Value > 0f && k.Value < 1f).Select(k => new Card(j.Key, k.Key))).ToList();
                 totalCards[i] = 10 - roundNumber + 1;
                 
                 hands[i] = new List<Card>();
             }
             certainCards[Game.TalonIndex] = _cardProbabilityForPlayer[Game.TalonIndex].SelectMany(j => j.Value.Where(k => k.Value == 1f).Select(k => new Card(j.Key, k.Key))).ToList();
+            likelyCards[Game.TalonIndex] = _cardProbabilityForPlayer[Game.TalonIndex].SelectMany(j => j.Value.Where(k => k.Value == 0.99f).Select(k => new Card(j.Key, k.Key))).ToList();
             uncertainCards[Game.TalonIndex] = _cardProbabilityForPlayer[Game.TalonIndex].SelectMany(j => j.Value.Where(k => k.Value > 0f && k.Value < 1f).Select(k => new Card(j.Key, k.Key))).ToList();
             totalCards[Game.TalonIndex] = 2;
             hands[Game.TalonIndex] = new List<Card>();
@@ -1032,123 +1035,142 @@ namespace Mariasek.Engine
 				_verboseString.AppendFormat("Player {0}: {1} total, {2} certain, {3} uncertain cards\n",
 					(_myIndex + i) % Game.NumPlayers + 1, totalCards[i], certainCards[i].Count(), uncertainCards[i].Count());
 			}
-			hands[Game.TalonIndex].AddRange(certainCards[Game.TalonIndex]);
-			foreach (var c in certainCards[Game.TalonIndex])
-			{
-				_verboseString.AppendFormat("Talon += {0} (certain)\n", c);
-			}
+            hands[Game.TalonIndex].AddRange(certainCards[Game.TalonIndex]);
+            foreach (var c in certainCards[Game.TalonIndex])
+            {
+                _verboseString.AppendFormat("Talon += {0} (certain)\n", c);
+            }
+
 			_verboseString.AppendFormat("Talon: {0} total, {1} certain, {2} uncertain cards\n",
                 totalCards[Game.TalonIndex], certainCards[Game.TalonIndex].Count(), uncertainCards[Game.TalonIndex].Count());
 			ReduceUncertainCardSet(hands, totalCards, uncertainCards);
-            //projdeme vsechny nejiste karty a zkusime je rozdelit podle pravdepodobnosti jednotlivym hracum (nebo do talonu)
-            foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().OrderByDescending(h => h))
+
+            //zacneme rozdelovat nejiste karty podle jejich pravdepodobnosti sestupne
+            foreach (var pmin in new[] { 0.9f, 0.5f, 0f })
             {
-                foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                _verboseString.AppendFormat("Dealing cards with prop >= {0} for at least one player\n", pmin);
+                //projdeme vsechny nejiste karty a zkusime je rozdelit podle pravdepodobnosti jednotlivym hracum (nebo do talonu)
+                foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>().OrderByDescending(h => h))
                 {
-                    var c = new Card(b, h);
-                    if (!uncertainCards.Any(i => i.Contains(c)))
+                    foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
                     {
-                        //toto neni karta na rozdeleni (je bud jista nebo odehrana)
-						_verboseString.AppendFormat("{0} skipped\n", c);
-                        continue;
-                    }
-                    //spocitame si pravdepodobnostni prahy
-                    //pokud se hands[i].Count == totalCards[i] pak uz pro hrace nemame generovat karty => nastavime prah stejne jako predchozi, jinak ho zvysime o aktualni pravdepodobnost
-                    for (int i = 0; i < Game.NumPlayers + 1; i++)
-                    {
-                        if (i > 0)
+                        var c = new Card(b, h);
+                        if (!uncertainCards.Any(i => i.Contains(c)))
                         {
-                            thresholds[i] = thresholds[i - 1];
+                            //toto neni karta na rozdeleni (je bud jista nebo odehrana)
+                            _verboseString.AppendFormat("{0} skipped\n", c);
+                            continue;
                         }
-                        else
+                        if (_cardProbabilityForPlayer.Where((i, idx) => idx != _myIndex)
+                                                     .All(i => i[b][h] < pmin))
                         {
-                            thresholds[i] = 0;
+                            //tuto kartu budu rozdelovat v pristi iteraci (je mene pravdepodobna nez iterace kterou prave rozdeluju)
+                            _verboseString.AppendFormat("{0} skipped\n", c);
+                            continue;
                         }
-                        if (hands[i].Count() < totalCards[i] && i > 0)
+                        if (hands.Any(hand => hand.Contains(c)))
                         {
-                            if (i == Game.TalonIndex)
+                            _verboseString.AppendFormat("{0} skipped\n", c);
+                            continue;
+                        }
+                        //spocitame si pravdepodobnostni prahy
+                        //pokud se hands[i].Count == totalCards[i] pak uz pro hrace nemame generovat karty => nastavime prah stejne jako predchozi, jinak ho zvysime o aktualni pravdepodobnost
+                        for (int i = 0; i < Game.NumPlayers + 1; i++)
+                        {
+                            if (i > 0)
                             {
-                                thresholds[i] += _cardProbabilityForPlayer[Game.TalonIndex][b][h];
+                                thresholds[i] = thresholds[i - 1];
                             }
                             else
                             {
-                                thresholds[i] += _cardProbabilityForPlayer[(_myIndex + i) % Game.NumPlayers][b][h];
-                            }                            
-                        } 
-                    }
-                    if (thresholds[Game.TalonIndex] != 1f)
-                    {
-                        //musime znormalizovat vsechny prahy, protoze nekomu uz jsme nagenerovali maximum moznych karet
-                        var sum = thresholds[Game.TalonIndex];
-
-                        for (int i = 0; i < Game.NumPlayers + 1; i++)
-                        {
-							if (thresholds[i] == sum)
-							{
-								thresholds[i] = 1f;
-							}
-							else
-							{
-								thresholds[i] /= sum;
-							}
-                        }
-                        //nyni by melo platit, ze thresholds[Game.TalonIndex] == 1f
-                    }
-
-                    //var n = r.NextDouble();
-                    var n = mt.RandomDouble();
-
-                    //podle toho do ktereho intervalu urceneho prahy se vejdeme pridelime kartu konkretnimu hraci
-                    for (int i = Game.NumPlayers; i >= 0; i--)
-                    {
-                        if (i == 0)
-                        {
-                            badThreshold += string.Format("Bad thresholds for card {0}:\n{1:0.000} {2:0.000} {3:0.000} {4:0.000}\n" +
-                                                          "card probabilities:\n{5:0.000} {6:0.000} {7:0.000} {8:0.000}\n" +
-                                                          "uncertain cards:\n[{9}]\n[{10}]\n[{11}]\n[{12}]\n",
-                                                          c, thresholds[0], thresholds[1], thresholds[2], thresholds[3],
-                                                          _cardProbabilityForPlayer[0][c.Suit][c.Value],
-                                                          _cardProbabilityForPlayer[1][c.Suit][c.Value],
-                                                          _cardProbabilityForPlayer[2][c.Suit][c.Value],
-                                                          _cardProbabilityForPlayer[3][c.Suit][c.Value],
-                                                          string.Join(" ", uncertainCards[0].Select(j => j.ToString())),
-                                                          string.Join(" ", uncertainCards[1].Select(j => j.ToString())),
-                                                          string.Join(" ", uncertainCards[2].Select(j => j.ToString())),
-                                                          string.Join(" ", uncertainCards[3].Select(j => j.ToString())));
-                        }
-                        if ((i == 0) || (n >= thresholds[i - 1] && n < thresholds[i]))
-                        {
-                            //i == 0 by nemelo nikdy nastat (thresholds[0] je prah pro me a ma byt == 0 (moje karty nejsou nezname)
-                            hands[i].Add(c);
-							if (i == Game.NumPlayers)
-							{
-                                _verboseString.AppendFormat("Talon += {0} (random) n = {1:0.000}; {2:0.000}:{3:0.000}:{4:0.000}:{5:0.000}\n",
-                                                            c, n, thresholds[0], thresholds[1], thresholds[2], thresholds[3]);
-							}
-							else
-							{
-                                _verboseString.AppendFormat("Hand{0} += {1} (random) n = {2:0.000}; {3:0.000}:{4:0.000}:{5:0.000}:{6:0.000}\n", 
-                                                            (_myIndex + i) % Game.NumPlayers + 1, c, n,
-                                                            thresholds[0], thresholds[1], thresholds[2], thresholds[3]);
-							}
-                            for (int j = 0; j < Game.NumPlayers + 1; j ++)
-                            {
-                                uncertainCards[j].Remove(c);
-								if (i == j)
-								{
-									continue;
-								}
-								if (j == Game.NumPlayers)
-								{
-									_verboseString.AppendFormat("Uncertain:Talon[{0}][{1}] = 0\n", c.Suit, c.Value);
-								}
-								else
-								{
-									_verboseString.AppendFormat("Uncertain:Player{0}[{1}][{2}] = 0\n", (_myIndex + j) % Game.NumPlayers + 1, c.Suit, c.Value);
-								}
+                                thresholds[i] = 0;
                             }
-                            ReduceUncertainCardSet(hands, totalCards, uncertainCards);
-                            break;
+                            if (hands[i].Count() < totalCards[i] && i > 0)
+                            {
+                                if (i == Game.TalonIndex)
+                                {
+                                    thresholds[i] += _cardProbabilityForPlayer[Game.TalonIndex][b][h];
+                                }
+                                else
+                                {
+                                    thresholds[i] += _cardProbabilityForPlayer[(_myIndex + i) % Game.NumPlayers][b][h];
+                                }
+                            }
+                        }
+                        if (thresholds[Game.TalonIndex] != 1f)
+                        {
+                            //musime znormalizovat vsechny prahy, protoze nekomu uz jsme nagenerovali maximum moznych karet
+                            var sum = thresholds[Game.TalonIndex];
+
+                            for (int i = 0; i < Game.NumPlayers + 1; i++)
+                            {
+                                if (thresholds[i] == sum)
+                                {
+                                    thresholds[i] = 1f;
+                                }
+                                else
+                                {
+                                    thresholds[i] /= sum;
+                                }
+                            }
+                            //nyni by melo platit, ze thresholds[Game.TalonIndex] == 1f
+                        }
+
+                        //var n = r.NextDouble();
+                        var n = mt.RandomDouble();
+
+                        //podle toho do ktereho intervalu urceneho prahy se vejdeme pridelime kartu konkretnimu hraci
+                        for (int i = Game.NumPlayers; i >= 0; i--)
+                        {
+                            if (i == 0)
+                            {
+                                badThreshold += string.Format("Bad thresholds for card {0}:\n{1:0.000} {2:0.000} {3:0.000} {4:0.000}\n" +
+                                                              "card probabilities:\n{5:0.000} {6:0.000} {7:0.000} {8:0.000}\n" +
+                                                              "uncertain cards:\n[{9}]\n[{10}]\n[{11}]\n[{12}]\n",
+                                                              c, thresholds[0], thresholds[1], thresholds[2], thresholds[3],
+                                                              _cardProbabilityForPlayer[0][c.Suit][c.Value],
+                                                              _cardProbabilityForPlayer[1][c.Suit][c.Value],
+                                                              _cardProbabilityForPlayer[2][c.Suit][c.Value],
+                                                              _cardProbabilityForPlayer[3][c.Suit][c.Value],
+                                                              string.Join(" ", uncertainCards[0].Select(j => j.ToString())),
+                                                              string.Join(" ", uncertainCards[1].Select(j => j.ToString())),
+                                                              string.Join(" ", uncertainCards[2].Select(j => j.ToString())),
+                                                              string.Join(" ", uncertainCards[3].Select(j => j.ToString())));
+                            }
+                            if ((i == 0) || (n >= thresholds[i - 1] && n < thresholds[i]))
+                            {
+                                //i == 0 by nemelo nikdy nastat (thresholds[0] je prah pro me a ma byt == 0 (moje karty nejsou nezname)
+                                hands[i].Add(c);
+                                if (i == Game.NumPlayers)
+                                {
+                                    _verboseString.AppendFormat("Talon += {0} (random) n = {1:0.000}; {2:0.000}:{3:0.000}:{4:0.000}:{5:0.000}\n",
+                                                                c, n, thresholds[0], thresholds[1], thresholds[2], thresholds[3]);
+                                }
+                                else
+                                {
+                                    _verboseString.AppendFormat("Hand{0} += {1} (random) n = {2:0.000}; {3:0.000}:{4:0.000}:{5:0.000}:{6:0.000}\n",
+                                                                (_myIndex + i) % Game.NumPlayers + 1, c, n,
+                                                                thresholds[0], thresholds[1], thresholds[2], thresholds[3]);
+                                }
+                                for (int j = 0; j < Game.NumPlayers + 1; j++)
+                                {
+                                    uncertainCards[j].Remove(c);
+                                    if (i == j)
+                                    {
+                                        continue;
+                                    }
+                                    if (j == Game.NumPlayers)
+                                    {
+                                        _verboseString.AppendFormat("Uncertain:Talon[{0}][{1}] = 0\n", c.Suit, c.Value);
+                                    }
+                                    else
+                                    {
+                                        _verboseString.AppendFormat("Uncertain:Player{0}[{1}][{2}] = 0\n", (_myIndex + j) % Game.NumPlayers + 1, c.Suit, c.Value);
+                                    }
+                                }
+                                ReduceUncertainCardSet(hands, totalCards, uncertainCards);
+                                break;
+                            }
                         }
                     }
                 }
@@ -1537,6 +1559,7 @@ namespace Mariasek.Engine
         public void UpdateProbabilitiesAfterBidMade(BidEventArgs e, Bidding bidding)
         {
             const float epsilon = 0.01f;
+            const float small = 0.1f;
 
             if (!_trump.HasValue)
             {
@@ -1553,7 +1576,6 @@ namespace Mariasek.Engine
                     {
                         continue;
                     }
-                    const float small = 0.1f;
 
                     if (_cardProbabilityForPlayer[i][_trump.Value][Hodnota.Svrsek] > 0 &&
                         _cardProbabilityForPlayer[i][_trump.Value][Hodnota.Svrsek] < 1)
@@ -1641,7 +1663,7 @@ namespace Mariasek.Engine
                             if (_cardProbabilityForPlayer[i][b][h] > 0 &&
                                 _cardProbabilityForPlayer[i][b][h] < 1)
                             {
-                                _cardProbabilityForPlayer[i][b][h] = i == e.Player.PlayerIndex ? 1 - epsilon : epsilon;
+                                _cardProbabilityForPlayer[i][b][h] = i == e.Player.PlayerIndex ? 1 - small : small;
                                 cardsLeft--;
                             }
                         }
@@ -1690,7 +1712,7 @@ namespace Mariasek.Engine
                                 if (_cardProbabilityForPlayer[i][b][h] > 0 &&
                                     _cardProbabilityForPlayer[i][b][h] < 1)
                                 {
-                                    _cardProbabilityForPlayer[i][b][h] = i == e.Player.PlayerIndex ? 1 - epsilon : epsilon;
+                                    _cardProbabilityForPlayer[i][b][h] = i == e.Player.PlayerIndex ? 1 - small : small;
                                     cardsLeft--;
                                 }
                             }
@@ -1749,6 +1771,21 @@ namespace Mariasek.Engine
             for (var i = 0; i < Game.NumPlayers + 1; i++)
             {
                 _cardProbabilityForPlayer[i][c1.Suit][c1.Value] = i == roundStarterIndex ? 1f : 0f;
+                //v prvnim kole vratime pripadne pravdepodobnosti upravene pri flekovani zpatky
+                if (roundNumber == 1 && i != _myIndex)
+                {
+                    foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+                    {
+                        foreach (var h in Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>())
+                        {
+                            if (_cardProbabilityForPlayer[i][b][h] == 0.9f ||
+                                _cardProbabilityForPlayer[i][b][h] == 0.1f)
+                            {
+                                _cardProbabilityForPlayer[i][b][h] = 0.5f;
+                            }
+                        }
+                    }
+                }
             }
             if (hlas1)
             {
