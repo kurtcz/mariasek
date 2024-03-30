@@ -2747,7 +2747,7 @@ namespace Mariasek.Engine
                 singleLowSuits = 0;
             }
             var axPotentialDeduction = GetTotalHoles(hand, talon, false) / 2;
-            var axWinPotential = Math.Min(2 * emptySuits + aceOnlySuits + (trumpCount >= 4 ? singleLowSuits : 0),
+            var axWinPotential = Math.Min(2 * emptySuits + aceOnlySuits + (trumpCount >= 4 ? singleLowSuits : 0) - 1,
                                           trumpCount == 4 ? 3 : (int)Math.Ceiling(trumpCount / 2f)); // ne kazdym trumfem prebiju a nebo x
 
             //pokud jsem nevolil a znam vsechny barvy a mam malo trumfu a
@@ -3449,26 +3449,26 @@ namespace Mariasek.Engine
             //    }
             //}
             //Pokud nevidis do vsech barev a mas barvu s vic nez 2 nizkyma kartama bez A nebo X tak kilo nehraj. Souperi by si mohli uhrat desitky
-            if (hand.SuitCount() < Game.NumSuits &&
-                n > 3 &&
-                Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                    .Where(b => b != _trump.Value)
-                    .Any(b => hand.CardCount(b) > 2 &&
-                              ((!hand.HasA(b) &&
-                                !hand.HasX(b)) ||
-                               (hand.HasX(b) &&
-                                !hand.HasA(b) &&
-                                !hand.HasK(b)))) &&
-               !(n == 4 &&
-                 nn == 3 &&
-                 sh.Count == 2) &&
-               !(n == 4 &&
-                 nn == 4 &&
-                 sh.Count == 1))
-            {
-                DebugInfo.HundredTooRisky = true;
-                return true;
-            }
+            //if (hand.SuitCount() < Game.NumSuits &&
+            //    n > 3 &&
+            //    Enum.GetValues(typeof(Barva)).Cast<Barva>()
+            //        .Where(b => b != _trump.Value)
+            //        .Any(b => hand.CardCount(b) > 2 &&
+            //                  ((!hand.HasA(b) &&
+            //                    !hand.HasX(b)) ||
+            //                   (hand.HasX(b) &&
+            //                    !hand.HasA(b) &&
+            //                    !hand.HasK(b)))) &&
+            //   !(n == 4 &&
+            //     nn == 3 &&
+            //     sh.Count == 2) &&
+            //   !(n == 4 &&
+            //     nn == 4 &&
+            //     sh.Count == 1))
+            //{
+            //    DebugInfo.HundredTooRisky = true;
+            //    return true;
+            //}
             //Pokud mas aspon 2 barvy bez A nebo X tak kilo nehraj. Souperi by si mohli uhrat desitky
             if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
                     .Where(b => b != _trump.Value)

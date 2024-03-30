@@ -1491,46 +1491,6 @@ namespace Mariasek.Engine
             yield return new AiRule()
             {
                 Order = 2,
-                Description = "zkus vytlačit eso nebo desítku",
-                SkipSimulations = true,
-                #region ChooseCard1 Rule 2
-                ChooseCard1 = () =>
-                {
-                    if (TeamMateIndex == player3 &&
-                        (GameValue > SevenValue ||
-                         !topCards.Any(i => i.Suit != _trump)) &&
-                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                            .Where(b => b != _trump)
-                            .Any(b => hands[MyIndex].Any(i => i.Suit == b &&
-                                                              i.Value >= Hodnota.Svrsek) &&
-                                      !myInitialHand.HasA(b) &&
-                                      !myInitialHand.HasX(b) &&
-                                      (_probabilities.PotentialCards(player3).HasA(b) ||
-                                       _probabilities.PotentialCards(player3).HasSuit(_trump)) &&
-                                      (_probabilities.PotentialCards(opponent).HasA(b) ||
-                                       _probabilities.PotentialCards(opponent).HasX(b))))
-                    {
-                        //pokud po me hraje akter snaz se nejprve vytlacit bodovanou kartu pres barvu kde nemam ani A ani X
-                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
-                                                                                i.Value >= Hodnota.Svrsek &&
-                                                                                !myInitialHand.HasA(i.Suit) &&
-                                                                                !myInitialHand.HasX(i.Suit) &&
-                                                                                (_probabilities.PotentialCards(player3).HasA(i.Suit) ||
-                                                                                 _probabilities.PotentialCards(player3).HasSuit(_trump)) &&
-                                                                                (_probabilities.PotentialCards(opponent).HasA(i.Suit) ||
-                                                                                 _probabilities.PotentialCards(opponent).HasX(i.Suit)));
-
-                        return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
-                    }
-
-                    return null;
-                }
-                #endregion
-            };
-
-            yield return new AiRule()
-            {
-                Order = 3,
                 Description = "zkus vytlačit eso",
                 SkipSimulations = true,
                 #region ChooseCard1 Rule3
@@ -1746,7 +1706,7 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 4,
+                Order = 3,
                 Description = "zkusit vytáhnout plonkovou X",
                 SkipSimulations = true,
                 #region ChooseCard1 Rule4
@@ -1809,7 +1769,7 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 5,
+                Order = 4,
                 Description = "vytáhnout trumf",
                 SkipSimulations = true,
                 #region ChooseCard1 Rule5
@@ -2297,7 +2257,7 @@ namespace Mariasek.Engine
 
             yield return new AiRule()
             {
-                Order = 6,
+                Order = 5,
                 Description = "vytlačit trumf",
                 SkipSimulations = true,
                 #region ChooseCard1 Rule6
@@ -3479,7 +3439,7 @@ namespace Mariasek.Engine
             {
                 yield return new AiRule()
                 {
-                    Order = 7,
+                    Order = 6,
                     Description = "šetřit trumfy nakonec",
                     SkipSimulations = true,
                     #region ChooseCard1 Rule7
@@ -3557,6 +3517,46 @@ namespace Mariasek.Engine
                     #endregion
                 };
             }
+
+            yield return new AiRule()
+            {
+                Order = 7,
+                Description = "zkus vytlačit eso nebo desítku",
+                SkipSimulations = true,
+                #region ChooseCard1 Rule 2
+                ChooseCard1 = () =>
+                {
+                    if (TeamMateIndex == player3 &&
+                        (GameValue > SevenValue ||
+                         !topCards.Any(i => i.Suit != _trump)) &&
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            .Where(b => b != _trump)
+                            .Any(b => hands[MyIndex].Any(i => i.Suit == b &&
+                                                              i.Value >= Hodnota.Svrsek) &&
+                                      !myInitialHand.HasA(b) &&
+                                      !myInitialHand.HasX(b) &&
+                                      (_probabilities.PotentialCards(player3).HasA(b) ||
+                                       _probabilities.PotentialCards(player3).HasSuit(_trump)) &&
+                                      (_probabilities.PotentialCards(opponent).HasA(b) ||
+                                       _probabilities.PotentialCards(opponent).HasX(b))))
+                    {
+                        //pokud po me hraje akter snaz se nejprve vytlacit bodovanou kartu pres barvu kde nemam ani A ani X
+                        var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                i.Value >= Hodnota.Svrsek &&
+                                                                                !myInitialHand.HasA(i.Suit) &&
+                                                                                !myInitialHand.HasX(i.Suit) &&
+                                                                                (_probabilities.PotentialCards(player3).HasA(i.Suit) ||
+                                                                                 _probabilities.PotentialCards(player3).HasSuit(_trump)) &&
+                                                                                (_probabilities.PotentialCards(opponent).HasA(i.Suit) ||
+                                                                                 _probabilities.PotentialCards(opponent).HasX(i.Suit)));
+
+                        return cardsToPlay.OrderByDescending(i => i.Value).FirstOrDefault();
+                    }
+
+                    return null;
+                }
+                #endregion
+            };
 
             yield return new AiRule()
             {
