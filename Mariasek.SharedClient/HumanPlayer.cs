@@ -678,8 +678,8 @@ namespace Mariasek.SharedClient
                 {
                     _aiPlayer.Probabilities.UpdateProbabilitiesAfterGameFlavourChosen(e);
                 }
-                Probabilities.UpdateProbabilitiesAfterGameFlavourChosen(e);
             }
+            Probabilities.UpdateProbabilitiesAfterGameFlavourChosen(e);
         }
 
         private void GameTypeChosen(object sender, GameTypeChosenEventArgs e)
@@ -698,8 +698,8 @@ namespace Mariasek.SharedClient
                     };
                     _aiPlayer.Probabilities.UpdateProbabilitiesAfterGameTypeChosen(e);
                 }
-                Probabilities.UpdateProbabilitiesAfterGameTypeChosen(e);
             }
+            Probabilities.UpdateProbabilitiesAfterGameTypeChosen(e);
         }
 
         private void CardPlayed(object sender, Round r)
@@ -744,6 +744,7 @@ namespace Mariasek.SharedClient
                                                                   .FirstOrDefault();
                 }
             }
+            Probabilities.UpdateProbabilitiesAfterBidMade(e, _g.Bidding);
         }
 
         private bool IsGameWinningRound(Round round, Round[] rounds, int playerIndex, int teamMateIndex, List<Card> hand, Probability prob)
