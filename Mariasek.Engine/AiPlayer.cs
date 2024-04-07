@@ -728,6 +728,11 @@ namespace Mariasek.Engine
                                             ? hand.CardCount(i.Suit) == 2       //v pripade stejne delky barev:
                                                 ? 2 : 0                         //u dvou karet dej prednost barve bez esa
                                             : 1)                                //u tri karet dej prednost barve s esem
+                               .ThenBy(i => (hand.HasK(trumpCard.Suit) &&
+                                             hand.HasQ(trumpCard.Suit) &&
+                                             hand.Count(i => i.Value >= Hodnota.Desitka) * 10 + kqScore >= 80)
+                                            ? i.Value
+                                            : 0)
                                .ThenBy(i=> i.Suit));
 
             //potom zkus vzit plivy od barvy kde mam A + X + plivu
@@ -957,7 +962,7 @@ namespace Mariasek.Engine
                   (hand.Count(i => i.Value >= Hodnota.Desitka) * 10 + kqScore <= 50 ||
                    (hand.HasK(trumpCard.Suit) &&
                     hand.HasQ(trumpCard.Suit) &&
-                    hand.Count(i => i.Value >= Hodnota.Desitka) * 10 + kqScore >= 70)) &&
+                    hand.Count(i => i.Value >= Hodnota.Desitka) * 10 + kqScore <= 70)) &&
                   (!hand.HasA(trumpCard.Suit) ||
                    !hand.HasX(trumpCard.Suit))) ||
                  (hand.CardCount(trumpCard.Suit) == 5 &&

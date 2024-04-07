@@ -5126,7 +5126,10 @@ namespace Mariasek.Engine
                          (!hands[MyIndex].HasX(_trump) &&
                           (hands[MyIndex].SuitCount < Game.NumSuits ||     //neodmazavej trumf pokud znas vsechny barvy a nehrajes kilo
                            (_gameType & Hra.Kilo) != 0))) &&
-                        hands[MyIndex].CardCount(_trump) <= 2 &&
+                        (hands[MyIndex].CardCount(_trump) <= 1 ||
+                         (hands[MyIndex].CardCount(_trump) <= 2 &&
+                          (_gameType & Hra.Kilo) != 0)) &&
+                        myInitialHand.CardCount(_trump) <= 2 &&
                         Enum.GetValues(typeof(Barva)).Cast<Barva>()
                             .Where(b => b != _trump &&
                                         hands[MyIndex].HasSuit(b))
@@ -5352,14 +5355,15 @@ namespace Mariasek.Engine
                                                                           hands[MyIndex].SuitCount == 2)) &&
                                                                         !hands[MyIndex].HasA(_trump) &&
                                                                         !hands[MyIndex].HasX(_trump) &&
+                                                                        potentialGreaseCards.Any() &&
                                                                         (Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                                                              .Where(b => b != _trump)
                                                                              .Any(b => (_probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Eso)) >= 1 - _epsilon ||
                                                                                         _probabilities.CardProbability(TeamMateIndex, new Card(b, Hodnota.Desitka)) >= 1 - _epsilon) &&
                                                                                        _probabilities.PotentialCards(opponent).Count(j => j.Suit == i.Suit &&
-                                                                                                                                             j.Value < Hodnota.Desitka) > 2) ||
+                                                                                                                                          j.Value < Hodnota.Desitka) > 2) ||
                                                                          _probabilities.CertainCards(opponent).Any(j => j.Suit == i.Suit &&
-                                                                                                                             j.Value < Hodnota.Desitka))))
+                                                                                                                        j.Value < Hodnota.Desitka))))
                                 {
                                     cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&
                                                                                         i.Value < Hodnota.Desitka &&
