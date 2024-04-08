@@ -2526,7 +2526,49 @@ namespace Mariasek.Engine
             {
                 SetCardProbabilitiesLowerThanCardToEpsilon((roundStarterIndex + 2) % Game.NumPlayers, c3);
             }
-
+            //pokud hrajeme v barve a ja hral na druhe pozici
+            //a zacinajici hrac nema jiste nizsi kartu v barve
+            //a vsichni prinali barvu a nikdo nehral desitku
+            //tak ma desitku pravdepodobne zacinajici hrac
+            if (_trump.HasValue &&
+                _myIndex == (roundStarterIndex + 1) % Game.NumPlayers &&
+                c1.Suit != _trump &&
+                c2.Suit == c1.Suit &&
+                c3.Suit == c1.Suit &&
+                c1.Value < Hodnota.Desitka &&
+                c2.Value < Hodnota.Desitka &&
+                c3.Value < Hodnota.Desitka &&
+                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit].Where(i => i.Key != c1.Value &&
+                                                                                 i.Key < Hodnota.Desitka)
+                                                                     .All(i => i.Value < 1) &&
+                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] > 0 &&
+                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] < 1)
+            {
+                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] = 1 - epsilon;
+                _cardProbabilityForPlayer[(roundStarterIndex + 2) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] = epsilon;
+            }
+            //pokud hrajeme v barve, zacinal akter a ja hral na treti pozici
+            //a zacinajici hrac nema jiste nizsi kartu v barve
+            //a vsichni prinali barvu a nikdo nehral desitku
+            //tak ma desitku pravdepodobne zacinajici hrac
+            if (_trump.HasValue &&
+                roundStarterIndex == _gameStarterIndex &&
+                _myIndex == (roundStarterIndex + 2) % Game.NumPlayers &&
+                c1.Suit != _trump &&
+                c2.Suit == c1.Suit &&
+                c3.Suit == c1.Suit &&
+                c1.Value < Hodnota.Desitka &&
+                c2.Value < Hodnota.Desitka &&
+                c3.Value < Hodnota.Desitka &&
+                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit].Where(i => i.Key != c1.Value &&
+                                                                                 i.Key < Hodnota.Desitka)
+                                                                     .All(i => i.Value < 1) &&
+                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] > 0 &&
+                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] < 1)
+            {
+                _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] = 1 - epsilon;
+                _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] = epsilon;
+            }
             _cardsPlayedByPlayer[(roundStarterIndex + 2) % Game.NumPlayers].Add(c3);
             ReduceUcertainCardSet();
             if (c2.Suit != c1.Suit || c2.IsLowerThan(c1, _trump))
