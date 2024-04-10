@@ -17,7 +17,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8dce6e89-1354-4217-a793-9e0f00156e7f" name="Changes" comment="" />
+    <list default="true" id="8dce6e89-1354-4217-a793-9e0f00156e7f" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Mariasek/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Mariasek/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mariasek.Engine/AiPlayer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Mariasek.Engine/AiPlayer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Mariasek.Engine/AiStrategy.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Mariasek.Engine/AiStrategy.cs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -42,7 +46,7 @@
   &quot;isMigrated&quot;: true
 }</component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="Toolset" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -53,29 +57,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Android.Mariasek.AndroidClient.executor": "Debug",
-    "Publish to folder.Publish Mariasek.iOSClient to folder.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "develop",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "rider.run.widget.enabled.cache": "false",
-    "settings.editor.selected.configurable": "preferences.keymap",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Android.Mariasek.AndroidClient.executor&quot;: &quot;Debug&quot;,
+    &quot;Publish to folder.Publish Mariasek.iOSClient to folder.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;develop&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;rider.run.widget.enabled.cache&quot;: &quot;false&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "rider.external.source.directories": [
-      "/Users/kurt/Library/Application Support/JetBrains/Rider2024.1/resharper-host/DecompilerCache",
-      "/Users/kurt/Library/Application Support/JetBrains/Rider2024.1/resharper-host/SourcesCache",
-      "/Users/kurt/Library/Application Support/Symbols/src"
+  &quot;keyToStringList&quot;: {
+    &quot;rider.external.source.directories&quot;: [
+      &quot;/Users/kurt/Library/Application Support/JetBrains/Rider2024.1/resharper-host/DecompilerCache&quot;,
+      &quot;/Users/kurt/Library/Application Support/JetBrains/Rider2024.1/resharper-host/SourcesCache&quot;,
+      &quot;/Users/kurt/Library/Application Support/Symbols/src&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="iOS.Mariasek.iOSClient">
     <configuration name="Publish Mariasek.iOSClient to folder" type="DotNetFolderPublish" factoryName="Publish to folder">
       <riderPublish configuration="Release" platform="Any CPU" runtime="Portable" target_folder="$PROJECT_DIR$/Mariasek.iOSClient/bin/Release/net7.0-ios16.0/publish" target_framework="net7.0-ios16.0" uuid_high="255933227113073704" uuid_low="-9203257176425343897" />
@@ -143,6 +147,7 @@
       <workItem from="1710621467119" duration="3411000" />
       <workItem from="1710668341089" duration="4468000" />
       <workItem from="1710947770629" duration="2046000" />
+      <workItem from="1712953429334" duration="804000" />
     </task>
     <servers />
   </component>
@@ -154,23 +159,6 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Mariasek.Engine/AiPlayer.cs</url>
-          <line>1761</line>
-          <properties documentPath="$PROJECT_DIR$/Mariasek.Engine/AiPlayer.cs" containingFunctionPresentation="Method 'RunGameSimulations'">
-            <startOffsets>
-              <option value="101208" />
-            </startOffsets>
-            <endOffsets>
-              <option value="101209" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
     <watches-manager>
       <configuration name="XamarinAndroidProject">
         <watch expression="PlayerIndex" language="C#" />

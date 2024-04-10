@@ -967,8 +967,9 @@ namespace Mariasek.Engine
                    !hand.HasX(trumpCard.Suit))) ||
                  (hand.CardCount(trumpCard.Suit) == 5 &&
                   !hand.HasA(trumpCard.Suit) &&
-                  !(hand.HasX(trumpCard.Suit) &&
-                    hand.HasK(trumpCard.Suit)))) &&
+                  (!(hand.HasX(trumpCard.Suit) &&
+                     hand.HasK(trumpCard.Suit)) ||
+                   hand.CardCount(Hodnota.Eso) == 0))) &&
                 //!(Enum.GetValues(typeof(Barva)).Cast<Barva>()
                 //      .Where(b => hand.HasSuit(b) &&
                 //                  b != _trump)
@@ -2716,7 +2717,8 @@ namespace Mariasek.Engine
                                              ((hand.CardCount(i.Suit) <= 3 || //nebo pokud mas 3 a mene karet v barve (jen v pripade aktera)
                                                hand.CardCount(trump.Value) >= 5 || //nebo pokud mas 5 a vice trumfu (jen v pripade aktera)
                                                (hand.CardCount(trump.Value) >= 4 &&
-                                                hand.HasA(trump.Value)) || //nebo pokud mas trumfove eso a 4 a vice trumfu (jen v pripade aktera)
+                                                (hand.HasA(trump.Value) ||
+                                                 hand.HasX(trump.Value))) || //nebo pokud mas trumfove eso nebo desitku a 4 a vice trumfu (jen v pripade aktera)
                                                TeamMateIndex != -1) &&
                                               (hand.HasA(i.Suit) ||          //(pokud jsem akter, mam v barve hodne karet a malo trumfu, tak asi X neuhraju)
                                                hand.HasK(i.Suit) ||          //netrumfovou desitku pocitej jen pokud ma k sobe A, K nebo filka+1
@@ -2823,7 +2825,13 @@ namespace Mariasek.Engine
                  (hand.HasA(trump.Value) ||
                   (hand.HasX(trump.Value) &&
                    ((PlayerIndex == _g.GameStartingPlayerIndex &&
-                     cardsPerSuit.All(i => i.Value > 0)) ||
+                     (cardsPerSuit.All(i => i.Value > 0) ||
+                      Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                          .Where(b => b != trump.Value &&
+                                      hand.HasSuit(b))
+                          .All(b => hand.HasA(b) ||
+                                    (hand.HasX(b) &&
+                                     hand.HasK(b))))) ||
                     hand.Average(i => (float)i.Value) >= (float)Hodnota.Kral)))))
             {
                 n += 10;
