@@ -2569,6 +2569,17 @@ namespace Mariasek.Engine
                 _cardProbabilityForPlayer[roundStarterIndex][c1.Suit][Hodnota.Desitka] = 1 - epsilon;
                 _cardProbabilityForPlayer[(roundStarterIndex + 1) % Game.NumPlayers][c1.Suit][Hodnota.Desitka] = epsilon;
             }
+            //pokud hrajeme v barve a akter vyjel desitkou kterou nekdo z obrany vzal trumfem nebo esem
+            //tak akter uz asi zadne dalsi karty v barve nema
+            if (_trump.HasValue &&
+                roundStarterIndex == _gameStarterIndex &&
+                c1.Suit != _trump.Value &&
+                c1.Value == Hodnota.Desitka &&
+                (c1.IsLowerThan(c2, _trump) ||
+                 c1.IsLowerThan(c3, _trump)))
+            {
+                SetCardProbabilitiesToEpsilon(roundStarterIndex, c1.Suit);
+            }
             _cardsPlayedByPlayer[(roundStarterIndex + 2) % Game.NumPlayers].Add(c3);
             ReduceUcertainCardSet();
             if (c2.Suit != c1.Suit || c2.IsLowerThan(c1, _trump))

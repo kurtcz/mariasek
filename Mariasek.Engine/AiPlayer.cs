@@ -978,29 +978,46 @@ namespace Mariasek.Engine
                 hand.Where(i => !talon.Take(2).Contains(i))
                     .Select(i => i.Suit).Distinct().Count() < hand.SuitCount())
             {
-                var topCardPerSuit = hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                         .Where(h => h > i.Value)
-                                                         .All(h => !hand.Contains(new Card(i.Suit, h))))
-                                         .ToDictionary(k => k.Suit, v => new { TopCard = v, CardCount = hand.CardCount(v.Suit) });
-
-                //u barvy kde mam dve karty se snaz si nechat tu nizsi
-                var reducedTalon = talon.Where(i => i.Suit != trumpCard.Suit &&
-                                                    i.Value < Hodnota.Desitka &&
-                                                    !(hand.HasK(i.Suit) &&
-                                                      i.Value == Hodnota.Svrsek) &&
-                                                    !(hand.HasQ(i.Suit) &&
-                                                      i.Value == Hodnota.Kral) &&
-                                                    (topCardPerSuit[i.Suit].CardCount > 2 ||
-                                                     (topCardPerSuit[i.Suit].CardCount == 2 &&
-                                                      topCardPerSuit[i.Suit].TopCard != i)))
-                                        .OrderBy(i => topCardPerSuit[i.Suit].CardCount)
-                                        .ThenByDescending(i => i.Value)
-                                        .ToList();
-                //pouze pokud mi po odebrani v talonu zustane dost karet
-                if (reducedTalon.Count >= 2 &&  //reducedTalon.Take(2) je zjednoduseni, nize muzu nekdy vybrat i jine karty
-                    !IsSevenTooRisky(hand.Where(i => !reducedTalon.Take(2).Contains(i)).ToList(), reducedTalon.Take(2).ToList()))
+                //pokud mas dve netrumfove barvy se 3 kartama tak vezmi od kazde tu nejnizsi
+                var lowCardPerSuit = hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                         .Where(h => h < i.Value)
+                                         .All(h => !hand.Contains(new Card(i.Suit, h))))
+                         .ToDictionary(k => k.Suit, v => v);
+                var sevenTalon = talon.Where(i => i.Suit != trumpCard.Suit &&
+                                                  hand.CardCount(i.Suit) >= 3 &&
+                                                  lowCardPerSuit[i.Suit] == i)
+                                      .ToList();
+                if (sevenTalon.Count >= 2 &&
+                    !IsSevenTooRisky(hand.Where(i => !sevenTalon.Take(2).Contains(i)).ToList(), sevenTalon.Take(2).ToList()))
                 {
-                    talon = reducedTalon;
+                    talon = sevenTalon.Take(2).ToList();
+                }
+                else
+                {
+                    var topCardPerSuit = hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                             .Where(h => h > i.Value)
+                                                             .All(h => !hand.Contains(new Card(i.Suit, h))))
+                                             .ToDictionary(k => k.Suit, v => new { TopCard = v, CardCount = hand.CardCount(v.Suit) });
+
+                    //u barvy kde mam dve karty se snaz si nechat tu nizsi
+                    var reducedTalon = talon.Where(i => i.Suit != trumpCard.Suit &&
+                                                        i.Value < Hodnota.Desitka &&
+                                                        !(hand.HasK(i.Suit) &&
+                                                          i.Value == Hodnota.Svrsek) &&
+                                                        !(hand.HasQ(i.Suit) &&
+                                                          i.Value == Hodnota.Kral) &&
+                                                        (topCardPerSuit[i.Suit].CardCount > 2 ||
+                                                         (topCardPerSuit[i.Suit].CardCount == 2 &&
+                                                          topCardPerSuit[i.Suit].TopCard != i)))
+                                            .OrderBy(i => topCardPerSuit[i.Suit].CardCount)
+                                            .ThenByDescending(i => i.Value)
+                                            .ToList();
+                    //pouze pokud mi po odebrani v talonu zustane dost karet
+                    if (reducedTalon.Count >= 2 &&  //reducedTalon.Take(2) je zjednoduseni, nize muzu nekdy vybrat i jine karty
+                        !IsSevenTooRisky(hand.Where(i => !reducedTalon.Take(2).Contains(i)).ToList(), reducedTalon.Take(2).ToList()))
+                    {
+                        talon = reducedTalon;
+                    }
                 }
             }
             //dej trumf do talonu pokud bys jinak prisel o hlas
@@ -1500,9 +1517,8 @@ namespace Mariasek.Engine
                                 (_maxMoneyLost < -2 * 2 * _g.BetlValue &&
                                  _avgWinForGame < -2 * _g.BetlValue &&
                                  !(Hand.Has7(_trump.Value) &&
-                                   Hand.HasA(_trump.Value) &&
                                    Hand.CardCount(_trump.Value) >= 4 &&
-                                   _avgWinForSeven > -2 * _g.BetlValue))))))
+                                   _avgWinForSeven >= -2 * _g.BetlValue))))))
                     {
                         if (_talon == null || !_talon.Any())
                         {
@@ -1644,11 +1660,12 @@ namespace Mariasek.Engine
                               (Hand.HasA(_trump.Value) &&                              
                                estimatedPointsWon >= 50) ||
                               estimatedPointsWon >= 70)))) ||
-                         (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
-                          _avgBasicPointsLost >= 50) ||
+                         _maxMoneyLost <= -Settings.SafetyBetlThreshold ||
                          (_maxMoneyLost < -2 * 2 * _g.BetlValue &&
                           _avgWinForGame < -2 * _g.BetlValue &&
-                          _avgBasicPointsLost >= 50))))))
+                          !(Hand.Has7(_trump.Value) &&
+                            Hand.CardCount(_trump.Value) >= 4 &&
+                            _avgWinForSeven >= -2 * _g.BetlValue)))))))
                 {
                     if ((_betlSimulations > 0 && 
                          (!Settings.CanPlayGameType[Hra.Durch] ||
@@ -1665,11 +1682,12 @@ namespace Mariasek.Engine
                               (Hand.HasA(_trump.Value) &&                              
                                estimatedPointsWon >= 50) ||
                               estimatedPointsWon >= 70)))) ||
-                          (_maxMoneyLost <= -Settings.SafetyBetlThreshold &&
-                           _avgBasicPointsLost >= 50) ||
-                          (_maxMoneyLost < -2 * 2 * _g.BetlValue &&
-                           _avgWinForGame < -2 * _g.BetlValue &&
-                           _avgBasicPointsLost >= 50))))
+                          _maxMoneyLost <= -Settings.SafetyBetlThreshold ||
+                         (_maxMoneyLost < -2 * 2 * _g.BetlValue &&
+                          _avgWinForGame < -2 * _g.BetlValue &&
+                          !(Hand.Has7(_trump.Value) &&
+                            Hand.CardCount(_trump.Value) >= 4 &&
+                            _avgWinForSeven >= -2 * _g.BetlValue)))))
                     {
                         _gameType = Hra.Betl;   //toto zajisti, ze si umysl nerozmysli po odhozeni talonu na betla
                                                 //(odhadovane skore se muze zmenit a s tim i odhodlani hrat betla,
@@ -3021,7 +3039,7 @@ namespace Mariasek.Engine
                              .Sum(b => hand.Count(i => i.Value >= Hodnota.Kral)) > 4) &&
                        (!hand.HasA(_trump.Value) ||                          //nemam trumfove A nebo X a
                         !hand.HasX(_trump.Value)) &&
-                       !(hand.HasK(_trump.Value) &&                          //nevidim do trumfoveho hlasu a
+                       !(hand.HasK(_trump.Value) ||                          //nevidim do trumfoveho hlasu a
                          hand.HasQ(_trump.Value)) &&
                        !(//Enum.GetValues(typeof(Barva)).Cast<Barva>()       //neni pravda ze
                          //    .Where(b => b != _trump &&                    //2a. mam dlouhou tlacnou barvu nebo
@@ -3052,8 +3070,8 @@ namespace Mariasek.Engine
                         hand.HasX(_trump.Value)) &&
                       !((hand.HasA(_trump.Value) ||
                          hand.HasX(_trump.Value)) &&
-                        hand.HasK(_trump.Value) &&
-                        hand.HasQ(_trump.Value)) &&
+                        (hand.HasK(_trump.Value) ||
+                         hand.HasQ(_trump.Value))) &&
                       !(Enum.GetValues(typeof(Barva)).Cast<Barva>()         //nemam v kazde netrumfove barve A nebo X+K nebo X+2 a jedno z
                             .Where(b => hand.HasSuit(b) &&
                                         b != _trump)
@@ -3068,12 +3086,12 @@ namespace Mariasek.Engine
                        (!_teamMateDoubledGame ||
                         _g.MandatoryDouble)) &&
                       !(hand.SuitCount() == 4 &&
-                        Enum.GetValues(typeof(Barva)).Cast<Barva>()         //nemam v kazde netrumfove barve A nebo X+1 nebo K+1
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()         //nemam ve vic nez jedne netrumfove barve A nebo X+1 nebo K+1
                             .Where(b => hand.HasSuit(b))
-                            .All(b => hand.HasA(b) ||
-                                      ((hand.HasX(b) ||
-                                        hand.HasK(b)) &&
-                                       hand.CardCount(b) >= 2))) &&
+                            .Count(b => hand.HasA(b) ||
+                                        ((hand.HasX(b) ||
+                                          hand.HasK(b)) &&
+                                         hand.CardCount(b) >= 2)) >= 3) &&
                       (hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||    //3a. mene nez 3 vysoke karty celkem
                        (!hand.HasA(_trump.Value) &&                         //3a2.mam 4 trumfy bez esa a aspon jednu dalsi barvu bez esa
                         hand.CardCount(Hodnota.Eso) < 2) ||
@@ -3088,9 +3106,12 @@ namespace Mariasek.Engine
                           Enum.GetValues(typeof(Barva)).Cast<Barva>()
                               .Where(b => hand.HasSuit(b) &&
                                           b != _trump.Value)
-                              .All(b => hand.CardCount(b) >= 2 &&
-                                        hand.Any(i => i.Suit == b &&
-                                                      i.Value >= Hodnota.Desitka))) &&
+                              .All(b => hand.CardCount(b) >= 2) &&
+                          Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                              .Where(b => hand.HasSuit(b) &&
+                                          b != _trump.Value)
+                              .Count(b => hand.Any(i => i.Suit == b &&
+                                                        i.Value >= Hodnota.Kral)) >= 2) &&
                         hand.Count(i => i.Value == Hodnota.Eso) +           //3b. nebo mene nez 2 (resp. 3) uhratelne A, X
                         Enum.GetValues(typeof(Barva)).Cast<Barva>()
                             .Count(b => (hand.HasX(b) &&
@@ -3904,9 +3925,8 @@ namespace Mariasek.Engine
                        _maxMoneyLost < -2 * 2 * _g.BetlValue &&
                        _avgWinForGame < -2 * _g.BetlValue &&
                        Hand.Has7(_trump.Value) &&
-                       Hand.HasA(_trump.Value) &&
                        Hand.CardCount(_trump.Value) >= 4 &&
-                       _avgWinForSeven > -2 * _g.BetlValue)))
+                       _avgWinForSeven >= -2 * _g.BetlValue)))
                 {
                     if (gameType == 0)
                     {
