@@ -5432,23 +5432,24 @@ namespace Mariasek.Engine
                                                         .CardCount(_g.trump.Value),
                                            10 - roundNumber + 1 - Probabilities.CertainCards(_g.GameStartingPlayerIndex).Count())
                                 : 0;
-
+            var gameStarterPlayedCards = _g.rounds.Where(r => r?.c1 != null && r.player1.PlayerIndex == _g.GameStartingPlayerIndex)
+                                      .Select(r => r.c1).ToList();
             try
             {
                 options.MaxDegreeOfParallelism = Settings.MaxDegreeOfParallelism > 0 ? Settings.MaxDegreeOfParallelism : Environment.ProcessorCount;
                 //source = new[] { _g.players.Select(i => new Hand(i.Hand)).ToArray() };
-                //foreach (var hands in source)
-                Parallel.ForEach(source, options, (hands, loopState) =>
+                foreach (var hands in source)
+                //Parallel.ForEach(source, options, (hands, loopState) =>
                 {
                     ThrowIfCancellationRequested();
                     try
                     {
-                        if ((DateTime.Now - start).TotalMilliseconds > maxtime || exceptionOccured)
-                        {
-                            prematureStop = true;
-                            loopState.Stop();
-                            //break;
-                        }
+                        //if ((DateTime.Now - start).TotalMilliseconds > maxtime || exceptionOccured)
+                        //{
+                        //    prematureStop = true;
+                        //    loopState.Stop();
+                        //    //break;
+                        //}
                         var gameStartedInitialCards = _g.rounds.Where(r => r != null && r.c3 != null)
                                                                .Select(r =>
                                                                {
@@ -5466,8 +5467,6 @@ namespace Mariasek.Engine
                                                                    }
                                                                }).ToList();
                         var initialHand = gameStartedInitialCards.Concat((List<Card>)hands[_g.GameStartingPlayerIndex]).Concat((List<Card>)hands[3]).ToList();
-                        var gameStarterPlayedCards = _g.rounds.Where(r => r?.c1 != null && r.player1.PlayerIndex == _g.GameStartingPlayerIndex)
-                                                              .Select(r => r.c1).ToList();
                         var maxPlayedSuitLength = gameStarterPlayedCards.Max(i => initialHand.CardCount(i.Suit));
                         var longUnplayedSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                                     .Where(b => b != _trump &&
@@ -5542,7 +5541,7 @@ namespace Mariasek.Engine
                         exceptionOccured = true;
                     }
                     OnGameComputationProgress(new GameComputationProgressEventArgs { Current = ++n, Max = estimatedCombinations, Message = "Generuju karty" });
-                });
+                }//);
             }
             catch(OperationCanceledException)
             {
@@ -5755,7 +5754,7 @@ namespace Mariasek.Engine
                                   ? initialHand
                                   : initialHand.Where(i => (i.Suit != _g.TrumpCard.Suit &&
                                                             ((!initialHand.HasX(i.Suit) &&
-                                                              initialHand.CardCount(i.Suit) - hands[Game.TalonIndex].CardCount(i.Suit) == 1) ||
+                                                              initialHand.CardCount(i.Suit) - hands[Game.TalonIndex].CardCount(i.Suit) <= 2) ||
                                                              !initialHand.HasSuit(i.Suit))) &&
                                                            (i.Value <= Hodnota.Spodek ||
                                                             (i.Value == Hodnota.Svrsek &&

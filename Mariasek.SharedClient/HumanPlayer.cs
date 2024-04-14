@@ -704,7 +704,7 @@ namespace Mariasek.SharedClient
 
         private void CardPlayed(object sender, Round r)
         {
-            var gameWinningRound = IsGameWinningRound(r, _g.rounds, PlayerIndex, TeamMateIndex, Hand, Probabilities);
+            var gameWinningRound = IsGameWinningRound(r, _g.rounds, PlayerIndex, TeamMateIndex, new List<Card>(Hand), Probabilities);
             UpdateProbabilitiesAfterCardPlayed(Probabilities, r.number, r.player1.PlayerIndex, r.c1, r.c2, r.c3, r.hlas1, r.hlas2, r.hlas3, TeamMateIndex, _trump, gameWinningRound);
         }
 

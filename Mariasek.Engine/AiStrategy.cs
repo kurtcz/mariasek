@@ -3652,6 +3652,19 @@ namespace Mariasek.Engine
                     {
                         return null;
                     }
+                    //pokud jsem vyjel esem od delsi bocni barvy, tak pokracuj hranim v barve, mela by vytlacit trumf
+                    if (TeamMateIndex != -1 &&
+                        ((_gameType & Hra.SedmaProti) == 0 ||
+                         myInitialHand.Has7(_trump)) &&
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            .Where(b => b != _trump &&
+                                        hands[MyIndex].HasSuit(b))
+                            .Any(b => myInitialHand.CardCount(b) >= 4 &&
+                                      myPlayedCards.HasA(b) &&
+                                      _probabilities.PotentialCards(TeamMateIndex).HasSuit(b)))
+                    {
+                        return null;
+                    }
                     //pokud jsem vyjel esem a desitkou od bocni barvy, tak pokracuj hranim v barve, mela by vytlacit trumf
                     if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
                             .Where(b => b != _trump &&
