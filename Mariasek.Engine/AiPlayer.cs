@@ -4660,7 +4660,10 @@ namespace Mariasek.Engine
                    opMidSuits >= 3 &&
                    minCardPerSuit.All(i => i.Value == null ||               //z nichz je kazda mensi nez desitka
                                            i.Value.BadValue < Card.GetBadValue(Hodnota.Desitka))
-                   ))))
+                   )) ||
+                  (Hand.SuitCount() == 2 &&                                 //3. flekuj pokud vidis jen 2 barvy
+                   Hand.CardCount(Hodnota.Eso) == 0 &&                      //a nemas zadne eso
+                   Hand.CardCount(Hodnota.Sedma) == 2)))                    //a mas obe sedmy
             {
                 bid |= bidding.Bids & Hra.Betl;
                 //minRuleCount = Math.Min(minRuleCount, _betlBalance);
@@ -5438,18 +5441,18 @@ namespace Mariasek.Engine
             {
                 options.MaxDegreeOfParallelism = Settings.MaxDegreeOfParallelism > 0 ? Settings.MaxDegreeOfParallelism : Environment.ProcessorCount;
                 //source = new[] { _g.players.Select(i => new Hand(i.Hand)).ToArray() };
-                foreach (var hands in source)
-                //Parallel.ForEach(source, options, (hands, loopState) =>
+                //foreach (var hands in source)
+                Parallel.ForEach(source, options, (hands, loopState) =>
                 {
                     ThrowIfCancellationRequested();
                     try
                     {
-                        //if ((DateTime.Now - start).TotalMilliseconds > maxtime || exceptionOccured)
-                        //{
-                        //    prematureStop = true;
-                        //    loopState.Stop();
-                        //    //break;
-                        //}
+                        if ((DateTime.Now - start).TotalMilliseconds > maxtime || exceptionOccured)
+                        {
+                            prematureStop = true;
+                            loopState.Stop();
+                            //break;
+                        }
                         var gameStartedInitialCards = _g.rounds.Where(r => r != null && r.c3 != null)
                                                                .Select(r =>
                                                                {
@@ -5541,7 +5544,7 @@ namespace Mariasek.Engine
                         exceptionOccured = true;
                     }
                     OnGameComputationProgress(new GameComputationProgressEventArgs { Current = ++n, Max = estimatedCombinations, Message = "Generuju karty" });
-                }//);
+                });
             }
             catch(OperationCanceledException)
             {

@@ -434,7 +434,8 @@ namespace Mariasek.SharedClient
                 Position = new Vector2(Game.VirtualScreenWidth / 2 + 190, Game.VirtualScreenHeight / 2 - 175),
                 Width = (int)Game.VirtualScreenWidth / 2 - 190,
                 Items = new SelectorItems() { { "Žádný", 0 }, { "32x základ", 32 }, { "40x základ", 40 }, { "48x základ", 48 },
-                                              { "56x základ", 56 }, { "64x základ", 64 }, { "128x zákl.", 128 }, { "256x zákl.", 256 } }
+                                              { "56x základ", 56 }, { "64x základ", 64 }, { "72x základ", 72 }, { "80x základ", 80 },
+                                              { "88x základ", 88 }, { "96x základ", 96 }, { "128x zákl.", 128 }, { "256x zákl.", 256 } }
 			};
             _safetyBetlSelector.SelectedIndex = 0;
             _safetyBetlSelector.SelectionChanged += SafetyBetlChanged;

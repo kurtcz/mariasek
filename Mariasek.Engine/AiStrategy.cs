@@ -1332,6 +1332,7 @@ namespace Mariasek.Engine
                                                                                         (!myInitialHand.HasA(i.Suit) ||
                                                                                          !myInitialHand.HasX(i.Suit)) &&
                                                                                         myInitialHand.CardCount(i.Suit) <=2 &&
+                                                                                        unwinnableLowCards.Contains(i) &&
                                                                                         ((_gameType & Hra.Kilo) == 0 ||
                                                                                          !unwinnableLowCards.Any(j => j.Suit != i.Suit &&
                                                                                                                       myInitialHand.CardCount(j.Suit) > myInitialHand.CardCount(i.Suit))))
@@ -1369,8 +1370,8 @@ namespace Mariasek.Engine
                                 hands[MyIndex].HasK(_trump) &&
                                 hands[MyIndex].HasQ(_trump) &&
                                 unwinnableLowCards.Any(i => i.Suit != _trump &&
-                                                  i.Value == Hodnota.Svrsek &&
-                                                  hands[MyIndex].HasK(i.Suit)))
+                                                            i.Value == Hodnota.Svrsek &&
+                                                            hands[MyIndex].HasK(i.Suit)))
                             {
                                 //toto zpusobi, ze se zahraje bocni hlaska, ktera se na konci PlayCard() zmeni na pravidlo "Hraj trumfovou hlášku"
                                 cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
