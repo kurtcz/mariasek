@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0-ios17.0</TargetFramework>
+    <TargetFramework>net8.0-ios17</TargetFramework>
     <OutputType>Exe</OutputType>
     <SupportedOSPlatformVersion>11.2</SupportedOSPlatformVersion>
     <ImplicitUsings>true</ImplicitUsings>
@@ -14,7 +14,6 @@
     <Version Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</Version>
     <PublishTrimmed Condition=" '$(Configuration)' == 'Release' ">true</PublishTrimmed>
     <TrimMode Condition=" '$(Configuration)' == 'Release' ">Link</TrimMode>
-    <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <MtouchLink>SdkOnly</MtouchLink>

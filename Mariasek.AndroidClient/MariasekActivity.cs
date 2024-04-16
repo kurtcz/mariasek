@@ -14,7 +14,7 @@ using Android.Views;
 using Microsoft.Xna.Framework;
 using Mariasek.SharedClient;
 
-#if NET6_0 || NET7_0
+#if NET6_0_OR_GREATER
 using AndroidX.Core.Content;
 using AndroidX.Core.View;
 

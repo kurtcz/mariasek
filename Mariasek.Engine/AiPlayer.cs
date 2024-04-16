@@ -4144,9 +4144,9 @@ namespace Mariasek.Engine
             if ((bidding.Bids & Hra.Hra) != 0 &&                //pokud byla zvolena hra (nebo hra a sedma]
                 Settings.CanPlayGameType[Hra.Hra] &&
                 bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Hra] &&
-                (bidding._gameFlek < 3 ||                      //ai nedava tutti pokud neflekoval i clovek
-                 PlayerIndex == 0 ||
-                 bidding.PlayerBids[0] != 0) &&
+                //(bidding._gameFlek < 3 ||                      //ai nedava tutti pokud neflekoval i clovek
+                // PlayerIndex == 0 ||
+                // bidding.PlayerBids[0] != 0) &&
                 _gameSimulations > 0 &&                         //pokud v simulacich vysla dost casto
                 _gamesBalance / (float)_gameSimulations >= gameThreshold &&
                 ((TeamMateIndex != -1 &&                        //Tutti: 50+ bodu na ruce nebo 40+ bodu se trema esama a dvema trumfy
