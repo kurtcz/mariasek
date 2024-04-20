@@ -208,31 +208,39 @@ namespace Mariasek.Engine
                     {
                         ban(r.c1.Suit);
                     }
-                    if (r.player3.TeamMateIndex == -1 &&
+                    if (r.player2.TeamMateIndex == -1 &&
+                        (r.c2.Value == Hodnota.Eso ||
+                         r.c2.Value == Hodnota.Desitka) &&
+                        r.roundWinner.PlayerIndex != r.player2.PlayerIndex)
+                    {
+                        _preferredSuits.Add(r.c2.Suit);
+                    }
+                    else if (r.player3.TeamMateIndex == -1 &&
                         (r.c3.Value == Hodnota.Eso ||
                          r.c3.Value == Hodnota.Desitka) &&
                         r.roundWinner.PlayerIndex != r.player3.PlayerIndex)
                     {
                         _preferredSuits.Add(r.c3.Suit);
                     }
-                    if (r.player1.TeamMateIndex == -1 &&
-                        r.player2.PlayerIndex == TeamMateIndex &&
-                        r.c1.Suit != r.c2.Suit &&
-                        r.c2.Suit != _trump &&
-                        r.c2.Value >= Hodnota.Desitka &&
-                        r.roundWinner.PlayerIndex != r.player1.PlayerIndex)
-                    {
-                        _preferredSuits.Add(r.c2.Suit);
-                    }
-                    else if (r.player1.TeamMateIndex == -1 &&
-                             r.player3.PlayerIndex == TeamMateIndex &&
-                             r.c1.Suit != r.c3.Suit &&
-                             r.c3.Suit != _trump &&
-                             r.c3.Value >= Hodnota.Desitka &&
-                             r.roundWinner.PlayerIndex != r.player1.PlayerIndex)
-                    {
-                        _preferredSuits.Add(r.c3.Suit);
-                    }
+                    //if (r.player1.TeamMateIndex == -1 &&
+                    //    r.player2.PlayerIndex == TeamMateIndex &&
+                    //    r.c1.Suit != r.c2.Suit &&
+                    //    r.c2.Suit != _trump &&
+                    //    r.c2.Value >= Hodnota.Desitka &&
+                    //    r.roundWinner.PlayerIndex != r.player1.PlayerIndex)
+                    //{
+                    //    _preferredSuits.Add(r.c2.Suit);
+                    //}
+                    //else if (r.player1.TeamMateIndex == -1 &&
+                    //         r.player3.PlayerIndex == TeamMateIndex &&
+                    //         r.c1.Suit != r.c3.Suit &&
+                    //         r.c3.Suit != _trump &&
+                    //         r.c3.Value >= Hodnota.Desitka &&
+                    //         r.roundWinner.PlayerIndex != r.player1.PlayerIndex)
+                    //{
+                    //    _preferredSuits.Add(r.c3.Suit);
+                    //}
+
                     //deje se v AiPlayer.UpdateProbabilitiesAfterCardPlayed()
                     //if (r.player1.TeamMateIndex == MyIndex)
                     //{

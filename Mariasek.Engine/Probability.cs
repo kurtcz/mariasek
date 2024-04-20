@@ -2108,6 +2108,18 @@ namespace Mariasek.Engine
                 _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Svrsek] = 1 - epsilon;
             }
 
+            //pokud hrajeme v barve a prvni hrac hral eso nebo trumf
+            //na ktere akter odevzdal desitku
+            //tak uz asi zadne dalsi karty v barve nema
+            if (_trump.HasValue &&
+                c2.Value == Hodnota.Desitka &&
+                c1.IsHigherThan(c2, _trump) &&                
+                _gameStarterIndex == (roundStarterIndex + 1) % Game.NumPlayers &&
+                _myIndex != (roundStarterIndex + 1) % Game.NumPlayers)
+            {
+                SetCardProbabilitiesToEpsilon((roundStarterIndex + 1) % Game.NumPlayers, c2.Suit);
+            }
+
             _cardsPlayedByPlayer[(roundStarterIndex + 1) % Game.NumPlayers].Add(c2);
             ReduceUcertainCardSet();
             if (c2.Suit != c1.Suit || c2.IsLowerThan(c1, _trump))
@@ -2579,6 +2591,32 @@ namespace Mariasek.Engine
                  c1.IsLowerThan(c3, _trump)))
             {
                 SetCardProbabilitiesToEpsilon(roundStarterIndex, c1.Suit);
+            }
+            //pokud hrajeme v barve a prvni hrac hral eso nebo trumf
+            //na ktere souper odevzdal desitku
+            //tak uz asi zadne dalsi karty v barve nema
+            if (_trump.HasValue &&                
+                c3.Value == Hodnota.Desitka &&
+                c1.IsHigherThan(c2, _trump) &&
+                c1.IsHigherThan(c3, _trump) &&
+                (_gameStarterIndex == roundStarterIndex ||
+                 _gameStarterIndex == (roundStarterIndex + 2) % Game.NumPlayers) &&
+                _myIndex != (roundStarterIndex + 2) % Game.NumPlayers)
+            {
+                SetCardProbabilitiesToEpsilon((roundStarterIndex + 2) % Game.NumPlayers, c3.Suit);
+            }
+            //pokud hrajeme v barve a druhy hrac hral eso nebo trumf
+            //na ktere souper odevzdal desitku
+            //tak uz asi zadne dalsi karty v barve nema
+            if (_trump.HasValue &&
+                c3.Value == Hodnota.Desitka &&
+                c1.IsLowerThan(c2, _trump) &&
+                c2.IsHigherThan(c3, _trump) &&
+                (_gameStarterIndex == (roundStarterIndex + 1) % Game.NumPlayers ||
+                 _gameStarterIndex == (roundStarterIndex + 2) % Game.NumPlayers) &&
+                _myIndex != (roundStarterIndex + 2) % Game.NumPlayers)
+            {
+                SetCardProbabilitiesToEpsilon((roundStarterIndex + 2) % Game.NumPlayers, c3.Suit);
             }
             _cardsPlayedByPlayer[(roundStarterIndex + 2) % Game.NumPlayers].Add(c3);
             ReduceUcertainCardSet();
