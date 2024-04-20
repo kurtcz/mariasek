@@ -4382,6 +4382,7 @@ namespace Mariasek.Engine
                                          Hand.HasJ(b))) >= 3)) ||
                       (Hand.HasA(_g.trump.Value) &&
                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                           //.Where(b => b != _trump)
                            .Count(b => (Hand.HasA(b) ||
                                         Hand.HasX(b)) &&
                                         Hand.CardCount(b) >= 3) >= 2)))) ||
