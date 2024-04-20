@@ -1502,6 +1502,10 @@ namespace Mariasek.Engine
             {
                 return true; //pokud je vyple flekovani, tak hrajeme vzdycky
             }
+            if (RoundNumber > 0)
+            {
+                return true; //pokud nahravame rozehranou hru, tak hrajeme vzdycky
+            }
             //if (GameType == Hra.Hra && Bidding.GameMultiplier == 1)
             if (GameType == Hra.Hra && 
                 Bidding.GameMultiplier < (1 << MinimalBidsForGame))

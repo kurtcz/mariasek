@@ -5412,6 +5412,11 @@ namespace Mariasek.Engine
             var maxResults = new Dictionary<Card, double>();
             var winCount = new Dictionary<Card, int>();
             var roundWinners = new Dictionary<Card, int>();
+            var likelyAverageResults = new Dictionary<Card, double>();
+            var likelyMinResults = new Dictionary<Card, double>();
+            var likelyMaxResults = new Dictionary<Card, double>();
+            var likelyWinCount = new Dictionary<Card, int>();
+            var likelyRoundWinners = new Dictionary<Card, int>();
             var n = 0;
             var start = DateTime.Now;
             var prematureStop = false;
@@ -5570,31 +5575,56 @@ namespace Mariasek.Engine
 
             foreach (var card in results.Select(i => i.Item1).Distinct())
             {
-                averageResults.Add(card, likelyResults.Where(i => i.Item1 == card)
+                likelyAverageResults.Add(card, likelyResults.Where(i => i.Item1 == card)
+                                                            .DefaultIfEmpty()
+                                                            .Average(i => i == null ? 0 :
+                                                                          100 * i.Item2.MoneyWon[PlayerIndex] +
+                                                                          (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
+                likelyMinResults.Add(card, likelyResults.Where(i => i.Item1 == card)
+                                                        .DefaultIfEmpty()
+                                                        .Min(i => i == null ? 0 :
+                                                                  100 * i.Item2.MoneyWon[PlayerIndex] +
+                                                                  (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
+                likelyMaxResults.Add(card, likelyResults.Where(i => i.Item1 == card)
+                                                        .DefaultIfEmpty()
+                                                        .Max(i => i == null ? 0 :
+                                                                  100 * i.Item2.MoneyWon[PlayerIndex] +
+                                                                  (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
+                likelyWinCount.Add(card, likelyResults.Where(i => i.Item1 == card)
                                                       .DefaultIfEmpty()
-                                                      .Average(i => i == null ? 0 :
-                                                                    100 * i.Item2.MoneyWon[PlayerIndex] +
-                                                                    (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
-                minResults.Add(card, likelyResults.Where(i => i.Item1 == card)
-                                                  .DefaultIfEmpty()
-                                                  .Min(i => i == null ? 0 :
-                                                            100 * i.Item2.MoneyWon[PlayerIndex] +
-                                                            (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
-                maxResults.Add(card, likelyResults.Where(i => i.Item1 == card)
-                                                  .DefaultIfEmpty()
-                                                  .Max(i => i == null ? 0 :
-                                                            100 * i.Item2.MoneyWon[PlayerIndex] +
-                                                            (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
-                winCount.Add(card, likelyResults.Where(i => i.Item1 == card)
-                                                .DefaultIfEmpty()
-                                                .Count(i => i == null ? false :
-                                                            i.Item2.MoneyWon[PlayerIndex] >= 0));
-                roundWinners.Add(card, likelyResults.Where(i => i.Item1 == card)
-                                                    .DefaultIfEmpty()
-                                                    .Count(i => i == null ? false :
-                                                                TeamMateIndex == -1
-                                                                ? i.Item3.Rounds[roundNumber].RoundWinnerIndex == PlayerIndex
-                                                                : i.Item3.Rounds[roundNumber].RoundWinnerIndex != _g.GameStartingPlayerIndex));
+                                                      .Count(i => i == null ? false :
+                                                                  i.Item2.MoneyWon[PlayerIndex] >= 0));
+                likelyRoundWinners.Add(card, likelyResults.Where(i => i.Item1 == card)
+                                                          .DefaultIfEmpty()
+                                                          .Count(i => i == null ? false :
+                                                                      TeamMateIndex == -1
+                                                                      ? i.Item3.Rounds[roundNumber].RoundWinnerIndex == PlayerIndex
+                                                                      : i.Item3.Rounds[roundNumber].RoundWinnerIndex != _g.GameStartingPlayerIndex));
+                averageResults.Add(card, results.Where(i => i.Item1 == card)
+                                                 .DefaultIfEmpty()
+                                                 .Average(i => i == null ? 0 :
+                                                               100 * i.Item2.MoneyWon[PlayerIndex] +
+                                                               (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
+                minResults.Add(card, results.Where(i => i.Item1 == card)
+                                            .DefaultIfEmpty()
+                                            .Min(i => i == null ? 0 :
+                                                      100 * i.Item2.MoneyWon[PlayerIndex] +
+                                                      (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
+                maxResults.Add(card, results.Where(i => i.Item1 == card)
+                                            .DefaultIfEmpty()
+                                            .Max(i => i == null ? 0 :
+                                                      100 * i.Item2.MoneyWon[PlayerIndex] +
+                                                      (TeamMateIndex == -1 ? i.Item2.BasicPointsWon : i.Item2.BasicPointsLost)));
+                winCount.Add(card, results.Where(i => i.Item1 == card)
+                                          .DefaultIfEmpty()
+                                          .Count(i => i == null ? false :
+                                                      i.Item2.MoneyWon[PlayerIndex] >= 0));
+                roundWinners.Add(card, results.Where(i => i.Item1 == card)
+                                              .DefaultIfEmpty()
+                                              .Count(i => i == null ? false :
+                                                          TeamMateIndex == -1
+                                                          ? i.Item3.Rounds[roundNumber].RoundWinnerIndex == PlayerIndex
+                                                          : i.Item3.Rounds[roundNumber].RoundWinnerIndex != _g.GameStartingPlayerIndex));
             }
 
             if (roundNumber == _g.FirstMinMaxRound)
@@ -5688,9 +5718,14 @@ namespace Mariasek.Engine
                                                 .FirstOrDefault();
                     break;
                 default:
-                    cardToPlay = minResults.Keys.OrderByDescending(i => minResults[i])
+                    cardToPlay = minResults.Keys.OrderByDescending(i => likelyMinResults[i])
+                                                .ThenByDescending(i => likelyAverageResults[i])
+                                                .ThenByDescending(i => likelyMaxResults[i])
+                                                .ThenByDescending(i => minResults[i])
                                                 .ThenByDescending(i => averageResults[i])
                                                 .ThenByDescending(i => maxResults[i])
+                                                .ThenBy(i => likelyRoundWinners[i] > 0
+                                                             ? -(int)i.Value : (i.Suit == _trump.Value ? 10 : 0) + (int)i.Value)
                                                 .ThenBy(i => roundWinners[i] > 0
                                                              ? -(int)i.Value : (i.Suit == _trump.Value ? 10 : 0) + (int)i.Value)
                                                 .FirstOrDefault();
