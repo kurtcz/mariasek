@@ -1502,7 +1502,8 @@ namespace Mariasek.Engine
             {
                 return true; //pokud je vyple flekovani, tak hrajeme vzdycky
             }
-            if (RoundNumber > 0)
+            if (rounds != null &&
+                rounds[0] != null)
             {
                 return true; //pokud nahravame rozehranou hru, tak hrajeme vzdycky
             }
