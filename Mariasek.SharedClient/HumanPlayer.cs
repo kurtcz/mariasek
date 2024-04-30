@@ -199,10 +199,11 @@ namespace Mariasek.SharedClient
                 {
                     _aiPlayer._gameType = null;
                 }
+                _aiPlayer.Hand = new List<Card>(Hand.Where(i => !_talon.Contains(i)));
                 _aiPlayer._talon = new List<Card>(_talon);
-                _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(Hand, _aiPlayer._talon);
+                _aiPlayer.Probabilities.UpdateProbabilitiesAfterTalon(_aiPlayer.Hand, _aiPlayer._talon);
             }
-            Probabilities.UpdateProbabilitiesAfterTalon(Hand, _talon);
+            Probabilities.UpdateProbabilitiesAfterTalon(Hand.Where(i => !_talon.Contains(i)).ToList(), _talon);
 
             return _talon;
         }
@@ -436,9 +437,6 @@ namespace Mariasek.SharedClient
             }
             if (_aiPlayer != null)
             {
-                //var gt2 = _aiPlayer.ChooseGameTypeNew(validGameTypes);
-                //_scene.SuggestGameTypeNew(gt2);
-
                 _t0 = Environment.TickCount;
                 _aiTask = Task.Run(async () =>
                 {

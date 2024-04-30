@@ -2048,12 +2048,13 @@ namespace Mariasek.Engine
             }
             if (players[playerIndex].TeamMateIndex == -1 && GameType != Hra.Durch)
             {
-                BiddingDebugInfo.AppendFormat("\nMinimální bodová ztráta: {0}", players[playerIndex].DebugInfo.MinBasicPointsLost);
-                BiddingDebugInfo.AppendFormat("\nMaximální bodová ztráta: {0}", players[playerIndex].DebugInfo.MaxEstimatedBasicPointsLost);
+                BiddingDebugInfo.AppendFormat("\nMinimální odhadovaná bodová ztráta: {0}", players[playerIndex].DebugInfo.MinBasicPointsLost);
+                BiddingDebugInfo.AppendFormat("\nMaximální odhadovaná bodová ztráta: {0}", players[playerIndex].DebugInfo.MaxEstimatedBasicPointsLost);
                 if (players[playerIndex].DebugInfo.MaxEstimatedHlasPointsLost > 0)
                 {
                     BiddingDebugInfo.AppendFormat("+{0}", players[playerIndex].DebugInfo.MaxEstimatedHlasPointsLost);
                 }
+                BiddingDebugInfo.AppendFormat("\nPrůměrný simulovaný bodový zisk: {0}", players[playerIndex].DebugInfo.AvgSimulatedPointsWon);
                 if (players[playerIndex].DebugInfo.MaxEstimatedMoneyLost < 0)
                 {
                     BiddingDebugInfo.AppendFormat("\nMaximální odhadovaná prohra: {0}", players[playerIndex].DebugInfo.MaxEstimatedMoneyLost);
@@ -2070,7 +2071,6 @@ namespace Mariasek.Engine
                 {
                     BiddingDebugInfo.AppendFormat("\nMaximální simulovaná prohra při kilu: {0}", players[playerIndex].DebugInfo.MaxSimulatedHundredLoss);
                 }
-                BiddingDebugInfo.AppendFormat("\nPrůměrný simulovaný bodový zisk: {0}", players[playerIndex].DebugInfo.AvgSimulatedPointsWon);
                 if (players[playerIndex].DebugInfo.AvgSimulatedGameLoss < 0)
                 {
                     BiddingDebugInfo.AppendFormat("\nPrůměrná simulovaná prohra při hře: {0}", players[playerIndex].DebugInfo.AvgSimulatedGameLoss);

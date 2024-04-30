@@ -28,6 +28,11 @@ namespace Mariasek.Engine
         }
         private const char ENUM_SEPERATOR_CHARACTER = ',';
 
+        public static int FindLastIndex<T>(this T[] array, Predicate<T> predicate)
+        {
+            return Array.FindLastIndex(array, predicate);
+        }
+
         public static string Description(this Enum value)
         {
             // Check for Enum that is marked with FlagAttribute

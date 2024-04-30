@@ -1292,6 +1292,10 @@ namespace Mariasek.Engine
                     catch(Exception ex)
                     {
                     }
+                    if (!AdvisorMode)
+                    {
+                        _rerunSimulations = false;
+                    }
                 }
                 //pokud je min. hra betl, zbyva uz jen talon na durcha
                 if (_g.GameType == Hra.Betl)
@@ -1301,14 +1305,36 @@ namespace Mariasek.Engine
                 }
                 else
                 {
+                    //pokud vysel pres prah betl i durch, tak vyber ten co vysel lepe (1. pres prahy, 2. procentuelne)
+                    if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations &&
+                        _durchSimulations > 0 &&
+                        _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations &&
+                        _betlSimulations > 0)
+                    {
+                        var durchIndex = Settings.GameThresholdsForGameType[Hra.Durch].FindLastIndex(threshold => _durchBalance >= threshold * _durchSimulations);
+                        var betlIndex = Settings.GameThresholdsForGameType[Hra.Betl].FindLastIndex(threshold => _betlBalance >= threshold * _betlSimulations);
+
+                        if (durchIndex > betlIndex ||
+                            (durchIndex == betlIndex &&
+                             (float)_durchBalance / (float)_durchSimulations >= (float)_betlBalance / (float)_betlSimulations))
+                        {
+                            _talon = ChooseDurchTalon(Hand, null);
+                            _durchTalonChosen = true;
+                        }
+                        else
+                        {
+                            _talon = ChooseBetlTalon(Hand, null);
+                            _betlTalonChosen = true;
+                        }
+                    }
                     //pokud vysel durch pres prah, vyber pro nej talon
-                    if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][1] * _durchSimulations && _durchSimulations > 0)
+                    else if (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && _durchSimulations > 0)
                     {
                         _talon = ChooseDurchTalon(Hand, null);
                         _durchTalonChosen = true;
                     }
                     //pokud vysel betl pres prah, vyber pro nej talon
-                    else if (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations && _betlSimulations > 0)
+                    else if (_betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && _betlSimulations > 0)
                     {
                         _talon = ChooseBetlTalon(Hand, null);
                         _betlTalonChosen = true;
@@ -2003,8 +2029,8 @@ namespace Mariasek.Engine
                         _debugString.AppendFormat("Simulating betl. Fast guess: {0}\n", ShouldChooseBetl());
                         try
                         {
-                            Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hh, loopState) =>
-                            //foreach (var hh in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType))
+                            //Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hh, loopState) =>
+                            foreach (var hh in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType))
                             {
                                 ThrowIfCancellationRequested();
                                 try
@@ -2045,14 +2071,14 @@ namespace Mariasek.Engine
                                 if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                                 {
                                     Probabilities.StopGeneratingHands();
-                                    loopState.Stop();
-                                    //break;
+                                    //loopState.Stop();
+                                    break;
                                 }
 
                                 var val = Interlocked.Increment(ref progress);
                                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju betl" });
                                 ThrowIfCancellationRequested();
-                            });
+                            }//);
                         }
                         catch (OperationCanceledException ex)
                         {
@@ -2099,7 +2125,8 @@ namespace Mariasek.Engine
                         _debugString.AppendFormat("Simulating durch. fast guess: {0}\n", ShouldChooseDurch());
                         try
                         {
-                            Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hands, loopState) =>
+                            //Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hands, loopState) =>
+                            foreach (var hands in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType))
                             {
                                 try
                                 {
@@ -2125,7 +2152,10 @@ namespace Mariasek.Engine
                                             UpdateGeneratedHandsByChoosingTrumpAndTalon(hands, ChooseNormalTalon, _g.GameStartingPlayerIndex);
                                         }
                                     }
-                                    UpdateGeneratedHandsByChoosingTalon(hands, ChooseDurchTalon, gameStartingPlayerIndex);
+                                    if (!AdvisorMode || _talon == null || !_talon.Any() || hands[gameStartingPlayerIndex].Count() == 12)
+                                    {
+                                        UpdateGeneratedHandsByChoosingTalon(hands, ChooseDurchTalon, gameStartingPlayerIndex);
+                                    }
 
                                     var durchComputationResult = ComputeGame(hands, null, null, null, Hra.Durch, 10, 1, true);
                                     durchComputationResults.Enqueue(durchComputationResult);
@@ -2134,7 +2164,8 @@ namespace Mariasek.Engine
                                     {
                                         OnGameComputationProgress(new GameComputationProgressEventArgs { Current = initialProgress + Settings.SimulationsPerGameType, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Neuhratelnej durch" });
                                         Probabilities.StopGeneratingHands();
-                                        loopState.Stop();
+                                        //loopState.Stop();
+                                        break;
                                     }
                                 }
                                 catch (Exception ex)
@@ -2149,9 +2180,10 @@ namespace Mariasek.Engine
                                 if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                                 {
                                     Probabilities.StopGeneratingHands();
-                                    loopState.Stop();
+                                    //loopState.Stop();
+                                    break;
                                 }
-                            });
+                            }//);
                         }
                         catch(OperationCanceledException ex)
                         {
@@ -3795,9 +3827,32 @@ namespace Mariasek.Engine
 
             if ((validGameTypes & (Hra.Betl | Hra.Durch)) != 0)
             {
+                if (AdvisorMode &&
+                    _rerunSimulations) //znovu sjed simulace se skutecnym talonem
+                {
+                    var bidding = new Bidding(_g);
+                    Probabilities = new Probability(PlayerIndex, PlayerIndex, new Hand(Hand), null,
+                                                    _g.AllowFakeSeven || _g.AllowFake107, _g.AllowAXTalon, _g.AllowTrumpTalon,
+                                                    _g.CancellationToken, _stringLoggerFactory, _talon)
+                    {
+                        ExternalDebugString = _debugString,
+                        UseDebugString = true
+                    };
+                    try
+                    {
+                        RunGameSimulations(bidding, PlayerIndex, false, true);
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                    _rerunSimulations = false;
+                }
+
                 if (Settings.CanPlayGameType[Hra.Durch] && 
                     (_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
                      _durchSimulations > 0 &&
+                     (AdvisorMode ||
+                      _durchTalonChosen) &&
                      !_hundredOverDurch) ||
                     validGameTypes == Hra.Durch)
                 {
@@ -3806,7 +3861,8 @@ namespace Mariasek.Engine
                     DebugInfo.TotalRuleCount = _durchSimulations;
                 }
                 else if (Settings.CanPlayGameType[Hra.Betl] && 
-                         _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations && _betlSimulations > 0 &&
+                         _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations &&
+                         _betlSimulations > 0 &&
                          !_hundredOverBetl &&
                          !_sevenOverBetl &&
                          !(_betlBalance < Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations &&
@@ -3820,7 +3876,9 @@ namespace Mariasek.Engine
                 {
                     //po posledni simulaci nevysel pres prah ani betl ani durch, zvolime tedy to, co vyslo lepe
                     if (_durchBalance > 0 &&
-                        _durchSimulations > 0 && 
+                        _durchSimulations > 0 &&
+                        (AdvisorMode ||
+                         _durchTalonChosen) &&
                         (_betlSimulations == 0 ||
                          (float)_durchBalance / (float)_durchSimulations > (float)_betlBalance  / (float)_betlSimulations))
                     {
