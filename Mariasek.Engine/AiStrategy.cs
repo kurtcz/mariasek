@@ -77,9 +77,33 @@ namespace Mariasek.Engine
                                 ? (MyIndex + 2) % Game.NumPlayers
                                 : (MyIndex + 1) % Game.NumPlayers;
 
-                //nehraj barvu pokud mam eso a souper muze mit desitku
+                var teamMateLackingSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                               .Where(b => b != _trump &&
+                                                           (_probabilities.PotentialCards(opponent).HasSuit(b) ||
+                                                            PlayerBids[TeamMateIndex] != 0 ||
+                                                            (_gameType & Hra.Kilo) != 0) &&
+                                                           !_probabilities.PotentialCards(TeamMateIndex).HasSuit(b) &&
+                                                           _probabilities.PotentialCards(TeamMateIndex).HasSuit(_trump) &&
+                                                           !(GameValue > SevenValue &&
+                                                             !_probabilities.PotentialCards(TeamMateIndex).HasSuit(b) &&
+                                                             _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) >= 1 - RiskFactor &&
+                                                             _probabilities.HasAOrXAndNothingElse(opponent, b, RoundNumber) == 1))
+                                               .ToList();
                 if (GameValue > SevenValue)
                 {
+
+                    if (PlayerBids[MyIndex] == 0)
+                    {
+                        var suits = ((List<Card>)hands[MyIndex]).Select(i => i.Suit).Distinct();
+
+                        if (suits.Where(i => i != _trump &&
+                                             !_bannedSuits.Contains(i))
+                                 .Any(i => !teamMateLackingSuits.Contains(i)))
+                        {
+                            banRange(teamMateLackingSuits);
+                        }
+                    }
+                    //nehraj barvu pokud mam eso a souper muze mit desitku
                     foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                          .Where(b => b != _trump &&
                                                      _probabilities.CardProbability(MyIndex, new Card(b, Hodnota.Eso)) == 1 &&
@@ -383,34 +407,43 @@ namespace Mariasek.Engine
                         //                                  _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) >= 1 - RiskFactor))
                         //                    .ToList();
                         // nehraj barvu kterou kolega nezna pokud muze mit trumfy
-                        var teamMateLackingSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                                       .Where(b => b != _trump &&
-                                                                   _probabilities.SuitProbability(_rounds[RoundNumber - 1].player3.PlayerIndex, b, RoundNumber) > 0 &&
-                                                                   _probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) == 0 &&
-                                                                   _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) > 0 &&
-                                                                   !(GameValue > SevenValue &&
-                                                                     _probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) == 0 &&
-                                                                     _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) >= 1 - RiskFactor &&
-                                                                     _probabilities.HasAOrXAndNothingElse(opponent, b, RoundNumber) == 1))
-                                                       .ToList();
+                        //var teamMateLackingSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                        //                               .Where(b => b != _trump &&
+                        //                                           _probabilities.SuitProbability(_rounds[RoundNumber - 1].player3.PlayerIndex, b, RoundNumber) > 0 &&
+                        //                                           _probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) == 0 &&
+                        //                                           _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) > 0 &&
+                        //                                           !(GameValue > SevenValue &&
+                        //                                             _probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) == 0 &&
+                        //                                             _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) >= 1 - RiskFactor &&
+                        //                                             _probabilities.HasAOrXAndNothingElse(opponent, b, RoundNumber) == 1))
+                        //                               .ToList();
                         var suits = ((List<Card>)hands[MyIndex]).Select(i => i.Suit).Distinct();
 
                         banRange(opponentXsuits);
+                        //if (suits.Where(i => i != _trump &&
+                        //                     !_bannedSuits.Contains(i))
+                        //         .Any(i => !teamMateLackingSuits.Contains(i)))
+                        //{
+                        //    banRange(teamMateLackingSuits);
+                        //}
                         if (!(SevenValue >= GameValue &&
                               (PlayerBids[TeamMateIndex] & (Hra.Sedma | Hra.SedmaProti)) != 0))
                         {
+                            //pokud mam nejakou barvu s ostryma, tak nehraj plonkove barvy
                             if (suits.Where(i => i != _trump &&
                                                  !_bannedSuits.Contains(i))
                                      .Any(i => !noAXsuits.Contains(i)))
                             {
                                 banRange(noAXsuits);
                             }
+                            //pokud nemusis, tak nehraj barvu kde mas AK bez X
                             if (suits.Where(i => i != _trump &&
                                                  !_bannedSuits.Contains(i))
                                      .Any(i => !AKnoXsuits.Contains(i)))
                             {
                                 banRange(AKnoXsuits);
                             }
+                            //pokud nemusis, tak nehraj barvu kde mas A bez X
                             if (suits.Where(i => i != _trump &&
                                                  !_bannedSuits.Contains(i))
                                      .Any(i => !AnoXsuits.Contains(i)))
@@ -424,12 +457,6 @@ namespace Mariasek.Engine
                             //    banRange(noAorXsuits);
                             //}
                         }
-                        if (suits.Where(i => i != _trump &&
-                                             !_bannedSuits.Contains(i))
-                                 .Any(i => !teamMateLackingSuits.Contains(i)))
-                        {
-                            banRange(teamMateLackingSuits);
-                        }
                     }
                     else
                     {
@@ -442,11 +469,11 @@ namespace Mariasek.Engine
                                                               _probabilities.CardProbability(_rounds[RoundNumber - 1].player2.PlayerIndex, new Card(b, Hodnota.Desitka)) >= 1 - _epsilon))
                                                  .ToList();
                         // nehraj barvu kterou kolega nezna pokud muze mit trumfy
-                        var teamMateLackingSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                                       .Where(b => b != _trump &&
-                                                                   _probabilities.SuitProbability(_rounds[RoundNumber - 1].player2.PlayerIndex, b, RoundNumber) > 0 &&
-                                                                   _probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) == 0 &&
-                                                                   _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) > 0);
+                        //var teamMateLackingSuits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                        //                               .Where(b => b != _trump &&
+                        //                                           _probabilities.SuitProbability(_rounds[RoundNumber - 1].player2.PlayerIndex, b, RoundNumber) > 0 &&
+                        //                                           _probabilities.SuitProbability(TeamMateIndex, b, RoundNumber) == 0 &&
+                        //                                           _probabilities.SuitProbability(TeamMateIndex, _trump, RoundNumber) > 0);
                         var suits = ((List<Card>)hands[MyIndex]).Select(i => i.Suit).Distinct();
 
                         banRange(opponentXsuits);
