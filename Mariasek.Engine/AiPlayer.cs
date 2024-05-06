@@ -20,6 +20,7 @@ namespace Mariasek.Engine
         private float _avgWinForHundred;
         private float _avgWinForSeven;
         private float _avgBasicPointsLost;
+        private float _avgPointsLost;
         private float _maxBasicPointsLost;
         private bool _hundredOverBetl;
         private bool _hundredOverDurch;
@@ -2304,6 +2305,9 @@ namespace Mariasek.Engine
                                                                 : (i.GameType & (Hra.Betl | Hra.Durch)) == 0)
                                                  .DefaultIfEmpty()
                                                  .Min(i => i?.MoneyWon?[gameStartingPlayerIndex] ?? 0);
+            _avgPointsLost = moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0)
+                                              .DefaultIfEmpty()
+                                              .Average(i => (float)(i?.PointsLost ?? 0));
             _avgBasicPointsLost = moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0)
                                                    .DefaultIfEmpty()
                                                    .Average(i => (float)(i?.BasicPointsLost ?? 0));
@@ -3895,6 +3899,7 @@ namespace Mariasek.Engine
                 }
                 var avgPointsWon = 90 - _avgBasicPointsLost + kqScore;
                 DebugInfo.AvgSimulatedPointsWon = (int)avgPointsWon;
+                DebugInfo.AvgSimulatedPointsLost = (int)_avgPointsLost;
             }
             else
             {
@@ -3965,6 +3970,7 @@ namespace Mariasek.Engine
                 }
                 var avgPointsWon = 90 - _avgBasicPointsLost + kqScore;
                 DebugInfo.AvgSimulatedPointsWon = (int)avgPointsWon;
+                DebugInfo.AvgSimulatedPointsLost = (int)_avgPointsLost;
                 if (Settings.CanPlayGameType[Hra.Sedma] &&
                     (((_g.AllowFakeSeven &&
                        (gameType & Hra.Hra) != 0 && //pri hre
@@ -4252,7 +4258,7 @@ namespace Mariasek.Engine
                        estimatedFinalBasicScore >= 10) ||
                       ((bidding.Bids & Hra.Sedma) == 0 &&
                        axCount >= 2 &&                          //aspon 2 ostre karty
-                       estimatedFinalBasicScore >= 10) ||
+                       estimatedFinalBasicScore >= 20) ||
                       ((bidding.Bids & Hra.Sedma) != 0 &&       //pri sedme
                        axCount >= 4 &&                          //aspon 4 ostre karty
                        estimatedFinalBasicScore >= 30) ||
@@ -4380,6 +4386,8 @@ namespace Mariasek.Engine
                   (((kqScore >= 100 &&                                //pokud mam vsechny hlasky flekuj i sedmu aby se hralo
                      !_g.PlayZeroSumGames &&
                      bidding._sevenFlek == 1) ||
+                    (Hand.CardCount(_g.trump.Value) >= 4 &&           //ctyri a vice trumfu a apson dve hlasky nebo
+                     kqScore >= 60) ||
                     (Hand.CardCount(_g.trump.Value) >= 4 &&           //ctyri a vice trumfu nebo
                      (Hand.HasA(_g.trump.Value) ||
                       Hand.CardCount(Hodnota.Eso) >= 2 ||

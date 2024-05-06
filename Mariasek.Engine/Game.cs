@@ -2054,7 +2054,7 @@ namespace Mariasek.Engine
                 {
                     BiddingDebugInfo.AppendFormat("+{0}", players[playerIndex].DebugInfo.MaxEstimatedHlasPointsLost);
                 }
-                BiddingDebugInfo.AppendFormat("\nPrůměrný simulovaný bodový zisk: {0}", players[playerIndex].DebugInfo.AvgSimulatedPointsWon);
+                BiddingDebugInfo.AppendFormat("\nPrůměrné simulované skóre: {0}:{1}", players[playerIndex].DebugInfo.AvgSimulatedPointsWon, players[playerIndex].DebugInfo.AvgSimulatedPointsLost);
                 if (players[playerIndex].DebugInfo.MaxEstimatedMoneyLost < 0)
                 {
                     BiddingDebugInfo.AppendFormat("\nMaximální odhadovaná prohra: {0}", players[playerIndex].DebugInfo.MaxEstimatedMoneyLost);

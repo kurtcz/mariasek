@@ -21,6 +21,7 @@ namespace Mariasek.Engine
         public int MaxEstimatedMoneyLost { get; set; }
         public int EstimatedHundredLoss { get; set; }
         public int AvgSimulatedPointsWon { get; set; }
+        public int AvgSimulatedPointsLost { get; set; }
         public int MaxSimulatedHundredLoss { get; set; }
         public int AvgSimulatedHundredLoss { get; set; }
         public int TotalHoles { get; set; }

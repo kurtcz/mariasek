@@ -3915,6 +3915,29 @@ namespace Mariasek.Engine
                             return cardsToPlay.OrderByDescending(i => i.Value).First();
                         }
 
+                        //pokud mas malo trumfu a zbyva jen jedna netrumfova barva kde mas A nebo X kterou souper muze mit
+                        //a v ostatnich netrumfovych barvach ma asi nejvyssi karty souper
+                        //tak zkus uhrat posledni teoretickou bodovanou kartu
+                        if (hands[MyIndex].CardCount(_trump) < opponentTrumps.Count &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => b != _trump)
+                                .Count(b => _probabilities.PotentialCards(opponent).HasSuit(b) &&
+                                            topCards.HasSuit(b) &&
+                                            (hands[MyIndex].HasA(b) ||
+                                             hands[MyIndex].HasX(b))) == 1 &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => b != _trump &&
+                                            hands[MyIndex].HasSuit(b) &&
+                                            !topCards.HasSuit(b))
+                                .All(b => _probabilities.PotentialCards(opponent).HasSuit(b)))
+                        {
+                            var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
+                                                                                    topCards.HasSuit(i.Suit) &&
+                                                                                    _probabilities.PotentialCards(opponent).HasSuit(i.Suit));
+
+                            return cardsToPlay.OrderByDescending(i => i.Value).First();
+                        }
+
                         if (SevenValue >= GameValue &&
                             Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                 .Where(b => b != _trump)
