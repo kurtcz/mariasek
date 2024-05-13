@@ -8207,7 +8207,7 @@ namespace Mariasek.Engine
                 {
                     if (TeamMateIndex == player1 &&
                         ValidCards(c1, hands[MyIndex]).HasA(c1.Suit) &&
-                        (_probabilities.PotentialCards(player3).CardCount(c1.Suit) >= 3 ||
+                        (_probabilities.PotentialCards(player3).CardCount(c1.Suit) >= 5 ||
                          ((!potentialGreaseCards.HasA(c1.Suit) ||
                            myInitialHand.Count(i => i.Suit != _trump &&
                                                     i.Value >= Hodnota.Desitka) >= 3) &&
@@ -8632,7 +8632,7 @@ namespace Mariasek.Engine
                                                                                      (RoundNumber >= 8 &&
                                                                                      !_probabilities.LikelyCards(player3).HasX(i.Suit) &&
                                                                                      _probabilities.PotentialCards(player3).Any(j => j.Suit == _trump &&
-                                                                                                                                        j != c1))) &&
+                                                                                                                                     j != c1))) &&
                                                                                     (!hiCards.Any() ||                   //spoluhrac hral nejvyssi kartu co ve hre zbyva
                                                                                      (c1.Suit == _trump &&                  //kolega by byl blazen kdyby se zbavoval trumfove desitky a nemel i eso
                                                                                       c1.Value == Hodnota.Desitka)) &&
@@ -8669,6 +8669,9 @@ namespace Mariasek.Engine
                                                                                  (c1.Suit == _trump &&                  //kolega by byl blazen kdyby se zbavoval trumfove desitky a nemel i eso
                                                                                   c1.Value == Hodnota.Desitka)) &&
                                                                                 _probabilities.NoSuitHigherThanCardProbability(player3, c1, RoundNumber) >= 1 - RiskFactor &&
+                                                                                (_probabilities.PotentialCards(player3).Where(j => j.Suit == c1.Suit)
+                                                                                                                       .All(j => j.Value < c1.Value) ||
+                                                                                 !_probabilities.PotentialCards(player3).HasSuit(c1.Suit)) &&
                                                                                 (_probabilities.SuitProbability(player3, _trump, RoundNumber) <= RiskFactor ||
                                                                                  _probabilities.SuitProbability(player3, c1.Suit, RoundNumber) >= 1 - RiskFactor ||
                                                                                  (_probabilities.PotentialCards(player3).HasSuit(c1.Suit) &&

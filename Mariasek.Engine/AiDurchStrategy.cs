@@ -524,6 +524,14 @@ namespace Mariasek.Engine
                             return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                         }
 
+                        //v nejake barve kde mam chytaka muze mit akter eso, zbav se barvy, kde uz eso nema
+                        if (mySuits.Any(i => _probabilities.PotentialCards(player1).HasA(i)) &&
+                            mySuits.Any(i => !_probabilities.PotentialCards(player1).HasA(i)))
+                        {
+                            var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => !_probabilities.PotentialCards(player1).HasA(i.Suit));
+
+                            return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+                        }
                         //vezmeme barvu, kde je nejnizsi dira, tu drzi asi nejspis spoluhrac?
                         var minHole = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                         .Select(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
@@ -923,11 +931,19 @@ namespace Mariasek.Engine
                         //nejprve se pokus si nechat barvu, kterou spoluhrac dosud nehral
                         if (mySuits.Any(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i)))
                         {
-                            var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i.Suit));
+                            var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i.Suit));
 
                             return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                         }
 
+                        //v nejake barve kde mam chytaka muze mit akter eso, zbav se barvy, kde uz eso nema
+                        if (mySuits.Any(i => _probabilities.PotentialCards(player1).HasA(i)) &&
+                            mySuits.Any(i => !_probabilities.PotentialCards(player1).HasA(i)))
+                        {
+                            var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => !_probabilities.PotentialCards(player1).HasA(i.Suit));
+
+                            return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+                        }
                         //vezmeme barvu, kde je nejnizsi dira, tu drzi asi nejspis spoluhrac?
                         var minHole = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                           .Select(b => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()

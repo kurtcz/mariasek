@@ -3292,6 +3292,13 @@ namespace Mariasek.Engine
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
+            if (hand.CardCount(_trump.Value) <= 3 &&
+                !hand.HasA(_trump.Value) &&
+                hand.SuitCount() == 2)
+            {
+                DebugInfo.HundredTooRisky = true;
+                return true;
+            }
 
             var maxBasicPointsLost = EstimateBasicPointsLost(hand, talon);
 
@@ -3968,29 +3975,31 @@ namespace Mariasek.Engine
                     DebugInfo.RuleCount = _gamesBalance;
                     DebugInfo.TotalRuleCount = _gameSimulations;
                 }
+
                 var avgPointsWon = 90 - _avgBasicPointsLost + kqScore;
                 DebugInfo.AvgSimulatedPointsWon = (int)avgPointsWon;
                 DebugInfo.AvgSimulatedPointsLost = (int)_avgPointsLost;
                 if (Settings.CanPlayGameType[Hra.Sedma] &&
-                    (((_g.AllowFakeSeven &&
-                       (gameType & Hra.Hra) != 0 && //pri hre
-                       avgPointsWon >= 115) ||      //110 bodu = plichta, 120+ = vyhra
-                      (_g.AllowFake107 &&
-                       _g.Calculate107Separately &&
-                       _g.Top107 &&
-                       (gameType & Hra.Kilo) != 0 && //pri kilu
-                       _avgWinForHundred > 2 * (_g.DurchValue + 2 * _g.SevenValue))) ||
+                    ((_g.AllowFakeSeven &&
+                      (gameType & Hra.Hra) != 0 && //pri hre
+                      avgPointsWon >= 115 &&       //110 bodu = plichta, 120+ = vyhra
+                      estimatedFinalBasicScore + kqScore >= 100) ||
+                     (_g.AllowFake107 &&
+                      _g.Calculate107Separately &&
+                      _g.Top107 &&
+                      (gameType & Hra.Kilo) != 0 && //pri kilu
+                      _avgWinForHundred > 2 * (_g.DurchValue + 2 * _g.SevenValue)) ||
                      (_trump.HasValue &&
                       Hand.Has7(_trump.Value) &&
                       _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations &&
                       _sevenSimulations > 0 &&
                       !IsSevenTooRisky()) ||
-                      (_trump.HasValue &&
-                       _maxMoneyLost < -2 * 2 * _g.BetlValue &&
-                       _avgWinForGame < -2 * _g.BetlValue &&
-                       Hand.Has7(_trump.Value) &&
-                       Hand.CardCount(_trump.Value) >= 4 &&
-                       _avgWinForSeven >= -2 * _g.BetlValue)))
+                     (_trump.HasValue &&
+                      _maxMoneyLost < -2 * 2 * _g.BetlValue &&
+                      _avgWinForGame < -2 * _g.BetlValue &&
+                      Hand.Has7(_trump.Value) &&
+                      Hand.CardCount(_trump.Value) >= 4 &&
+                      _avgWinForSeven >= -2 * _g.BetlValue)))
                 {
                     if (gameType == 0)
                     {

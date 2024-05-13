@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.tnemec.mariasek.android" android:installLocation="auto" android:versionName="1.6.258" android:versionCode="258">
-	<uses-sdk android:minSdkVersion="23" android:targetSdkVersion="33" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.tnemec.mariasek.android" android:installLocation="auto" android:versionName="1.6.259" android:versionCode="259">
+	<uses-sdk android:minSdkVersion="23" android:targetSdkVersion="34" />
 	<!-- Tell the system this app requires OpenGL ES 2.0. -->
 	<uses-feature android:glEsVersion="0x00020000" android:required="true" />
 	<application android:label="Mariášek" android:icon="@mipmap/ic_launcher">

@@ -2046,7 +2046,7 @@ namespace Mariasek.Engine
                 //BiddingDebugInfo.AppendFormat("\nSilná: {0}", players[playerIndex].DebugInfo.Strong);
                 BiddingDebugInfo.AppendFormat("\nPočet děr: {0}", players[playerIndex].DebugInfo.TotalHoles);
             }
-            if (players[playerIndex].TeamMateIndex == -1 && GameType != Hra.Durch)
+            if (players[playerIndex].TeamMateIndex == -1 && GameType != Hra.Durch && OriginalGameStartingPlayerIndex == playerIndex)
             {
                 BiddingDebugInfo.AppendFormat("\nMinimální odhadovaná bodová ztráta: {0}", players[playerIndex].DebugInfo.MinBasicPointsLost);
                 BiddingDebugInfo.AppendFormat("\nMaximální odhadovaná bodová ztráta: {0}", players[playerIndex].DebugInfo.MaxEstimatedBasicPointsLost);
