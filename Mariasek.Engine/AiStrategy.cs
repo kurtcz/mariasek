@@ -1224,6 +1224,44 @@ namespace Mariasek.Engine
                     #endregion
                 };
             }
+            else
+            {
+                yield return new AiRule()
+                {
+                    Order = 0,
+                    Description = "hrát trumfovou hlášku",
+                    #region ChooseCard1 Rule00
+                    ChooseCard1 = () =>
+                    {
+                        //pokud se hraje kilo na prvni hlasku a souper muze mit eso kterym mi vytahne bocni hlasku
+                        //tak radsi ihned zahraj trumfovou hlasku
+                        if (TeamMateIndex == -1 &&
+                            _hlasConsidered == HlasConsidered.First &&
+                            (_gameType & Hra.Kilo) != 0 &&
+                            hands[MyIndex].HasK(_trump) &&
+                            hands[MyIndex].HasQ(_trump) &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Where(b => b != _trump &&
+                                            hands[MyIndex].HasSuit(b))
+                                .Any(b => hands[MyIndex].HasK(b) &&
+                                          hands[MyIndex].HasQ(b) &&
+                                          hands[MyIndex].Where(j => j.Suit == b)
+                                                        .All(j => j.Value >= Hodnota.Svrsek) &&
+                                          (_probabilities.PotentialCards(player2).HasA(b) ||
+                                           _probabilities.PotentialCards(player3).HasA(b))))
+                        {
+                            var cardToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit == _trump &&
+                                                                                   i.Value == Hodnota.Svrsek)
+                                                                       .FirstOrDefault();
+
+                            return cardToPlay;
+                        }
+
+                        return null;
+                    }
+                    #endregion
+                };
+            }
 
             yield return new AiRule()
             {
