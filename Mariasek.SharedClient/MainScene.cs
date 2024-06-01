@@ -3799,15 +3799,12 @@ namespace Mariasek.SharedClient
             if (g != null)
             {
                 g.DebugString.AppendLine("ResumeGame");
+                return;
             }
             if (CanLoadGame() && !MessageBox.IsVisible)
             {
                 var buttonIndex = await MessageBox.Show("", $"Přejete si pokračovat v rozehrané hře?", new string[] { "Ne", "Ano" });
 
-                if (g != null)
-                {
-                    g.DebugString.AppendLine("ResumeGameCallback");
-                }
                 try
                 {
                     if (buttonIndex.HasValue && buttonIndex.Value == 1)

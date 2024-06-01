@@ -4249,8 +4249,14 @@ namespace Mariasek.Engine
                      (Hand.HasK(_trumpCard.Suit) ||                         //nebo vic bodu v ostrych nez souperi a k tomu trhak a
                       Hand.HasQ(_trumpCard.Suit)) &&
                      (Hand.CardCount(Hodnota.Eso) == Game.NumSuits) ||      //4 esa nebo
-                      (axCount >= 5 &&                                      //aspon 5 ostrych karet s potencialnim ziskem aspon 60 bodu
-                       estimatedFinalBasicScore >= 60))) &&
+                      axCount >= 5) ||
+                    (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
+                     kqScore > 0 &&
+                     Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                         .Where(b => Hand.HasSuit(b))
+                         .All(b => Hand.HasA(b) ||
+                                   (Hand.HasX(b) &&
+                                    Hand.HasK(b))))) &&
                    estimatedOpponentFinalBasicScore + kqLikelyOpponentScore < 100 &&
                    2 * _maxMoneyLost >= -Settings.SafetyGameThreshold &&    // simulace byly jen na flek, pro re vynasobim ztratu dvema
                    (Settings.SafetyGameThreshold == 0 ||
@@ -4297,7 +4303,11 @@ namespace Mariasek.Engine
                        Hand.HasA(_trumpCard.Suit) &&
                        axCount >= 2 &&
                        estimatedFinalBasicScore >= 20 &&
-                       !Is100AgainstPossible(120)))) ||
+                       !Is100AgainstPossible(120)) ||
+                      (Hand.CardCount(_trumpCard.Suit) >= 3 &&
+                       axCount >= 3 &&
+                       estimatedFinalBasicScore >= 30 &&
+                       kqMaxOpponentScore <= 20))) ||
                     (!Hand.HasK(_trumpCard.Suit) &&             //netrham a
                      !Hand.HasQ(_trumpCard.Suit) &&
                      Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
@@ -4321,6 +4331,10 @@ namespace Mariasek.Engine
                      estimatedFinalBasicScore + kqScore >= 50 &&//mam 40 bodu v hlasech plus aspon 10
                      kqScore >= 40 &&
                      axCount >= 1) ||
+                    (_teamMateDoubledSeven &&                   //kolega flekoval sedmu a
+                     estimatedFinalBasicScore + kqScore >= 50 &&//mam aspon 50 bodu
+                     (kqScore >= 40 ||
+                      axCount >= 3)) ||
                     (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
                      Hand.HasX(_trumpCard.Suit) &&
                      Hand.CardCount(_trumpCard.Suit) >= 3 &&    //a aspon 3 trumfy
