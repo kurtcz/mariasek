@@ -3174,12 +3174,13 @@ namespace Mariasek.Engine
                                             hand.HasSuit(b))
                                 .Any(b => hand.HasA(b))))));
 
-        result |= hand.CardCount(_trump.Value) == 5 &&                 //   5 trumfu v obrane bez A nebo X+K
+        result |= hand.CardCount(_trump.Value) == 5 &&                 //   5 trumfu v obrane bez A nebo X+KS
                   TeamMateIndex != -1 &&                               //   a v aspon jedne barve mene nez 2 karty
                   !_teamMateDoubledGame &&
                   !hand.HasA(_trump.Value) &&
                   !hand.HasX(_trump.Value) &&
-                  !hand.HasK(_trump.Value) &&
+                  !(hand.HasK(_trump.Value) &&
+                    hand.HasQ(_trump.Value)) &&
                   Enum.GetValues(typeof(Barva)).Cast<Barva>()
                       .Any(b => hand.CardCount(b) <= 1) &&
                   !Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -3982,7 +3983,7 @@ namespace Mariasek.Engine
                 if (Settings.CanPlayGameType[Hra.Sedma] &&
                     ((_g.AllowFakeSeven &&
                       (gameType & Hra.Hra) != 0 && //pri hre
-                      avgPointsWon >= 115 &&       //110 bodu = plichta, 120+ = vyhra
+                      avgPointsWon >= 120 &&       //110 bodu = plichta, 120+ = vyhra
                       estimatedFinalBasicScore + kqScore >= 100) ||
                      (_g.AllowFake107 &&
                       _g.Calculate107Separately &&
@@ -4612,7 +4613,7 @@ namespace Mariasek.Engine
                   ((Hand.Has7(_g.trump.Value) &&
                     !IsSevenTooRisky()) ||
                    (_g.AllowFakeSeven &&                                            //falesnou sedmu proti hlas jen pokud se bez re nehraje
-                    estimatedFinalBasicScore + kqScore >= 115 &&
+                    estimatedFinalBasicScore + kqScore >= 120 &&
                     (_g.MinimalBidsForGame > 1 ||
                      ((_g.GameStartingPlayerIndex == 0 &&                           //nebo kdyz muze akter hru zahodit
                        Settings.PlayerMayGiveUp) ||
@@ -4629,8 +4630,7 @@ namespace Mariasek.Engine
                         .All(b => Hand.CardCount(b) >= 2 &&
                                   (Hand.HasA(b) ||
                                    Hand.HasX(b) ||
-                                   Hand.HasK(b))) &&
-                    Hand.SuitCount() == Game.NumSuits)))) &&
+                                   Hand.HasK(b))))))) &&
                 ((_gameSimulations > 0 &&
                   _sevensAgainstBalance / (float)_gameSimulations >= sevenAgainstThreshold &&
                   (Hand.Has7(_g.trump.Value) ||
