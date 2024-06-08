@@ -30,9 +30,9 @@
   <ItemGroup>
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
     <PackageReference Include="MonoGame.Framework.Android" Version="3.8.1.303" />
-    <PackageReference Include="CsvHelper" Version="30.0.1" />
-    <PackageReference Include="System.ServiceModel.Primitives" Version="4.10.2" />
-    <PackageReference Include="Xamarin.AndroidX.Legacy.Support.V4" Version="1.0.0.22" />
+    <PackageReference Include="CsvHelper" Version="32.0.3" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="8.0.0" />
+    <PackageReference Include="Xamarin.AndroidX.Legacy.Support.V4" Version="1.0.0.24" />
   </ItemGroup>
 <!--  <ItemGroup>
     <None Remove="CsvHelper" />

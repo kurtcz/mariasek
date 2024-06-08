@@ -2106,6 +2106,15 @@ namespace Mariasek.Engine
             {
                 _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Kral] = 1 - epsilon;
                 _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Svrsek] = 1 - epsilon;
+
+                if (_cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Kral] > 0 &&
+                    _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Kral] < 1 &&
+                    _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Svrsek] > 0 &&
+                    _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Svrsek] < 1)
+                {
+                    _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Kral] = epsilon;
+                    _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Svrsek] = epsilon;
+                }
             }
 
             //pokud hrajeme v barve a prvni hrac hral eso nebo trumf
@@ -2497,12 +2506,22 @@ namespace Mariasek.Engine
             {
                 _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Kral] = 1 - epsilon;
                 _cardProbabilityForPlayer[_gameStarterIndex][c1.Suit][Hodnota.Svrsek] = 1 - epsilon;
+
+                if (_cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Kral] > 0 &&
+                    _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Kral] < 1 &&
+                    _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Svrsek] > 0 &&
+                    _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Svrsek] < 1)
+                {
+                    _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Kral] = epsilon;
+                    _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Svrsek] = epsilon;
+                }
             }
             if (_trump.HasValue &&
                 _gameStarterIndex == (roundStarterIndex + 1) % Game.NumPlayers &&
                 c1.Suit != _trump &&
                 c2.Suit == c1.Suit &&
                 c3.Suit == _trump &&
+                _myIndex == roundStarterIndex &&
                 _cardProbabilityForPlayer[_gameStarterIndex][c2.Suit][Hodnota.Kral] > 0 &&
                 _cardProbabilityForPlayer[_gameStarterIndex][c2.Suit][Hodnota.Kral] < 1 &&
                 _cardProbabilityForPlayer[_gameStarterIndex][c2.Suit][Hodnota.Svrsek] > 0 &&
@@ -2510,6 +2529,15 @@ namespace Mariasek.Engine
             {
                 _cardProbabilityForPlayer[_gameStarterIndex][c2.Suit][Hodnota.Kral] = 1 - epsilon;
                 _cardProbabilityForPlayer[_gameStarterIndex][c2.Suit][Hodnota.Svrsek] = 1 - epsilon;
+
+                if (_cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Kral] > 0 &&
+                    _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Kral] < 1 &&
+                    _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Svrsek] > 0 &&
+                    _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Svrsek] < 1)
+                {
+                    _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Kral] = epsilon;
+                    _cardProbabilityForPlayer[Game.TalonIndex][c1.Suit][Hodnota.Svrsek] = epsilon;
+                }
             }
 
             //pokud hrajeme v barve a zacina akter a nehral trumf
