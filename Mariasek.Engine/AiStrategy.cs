@@ -3891,6 +3891,8 @@ namespace Mariasek.Engine
                     //nehraj pokud si muzes odmazat trumfy a pozdeji ostre namazat
                     if (TeamMateIndex != -1 &&
                         SevenValue < GameValue &&
+                        (TeamMateIndex == player3 ||
+                         PlayerBids[TeamMateIndex] == 0) &&
                         !((_gameType & Hra.SedmaProti) != 0 &&
                           hands[MyIndex].Has7(_trump)) &&
                         //hands[MyIndex].SuitCount == 2 &&
@@ -5319,6 +5321,8 @@ namespace Mariasek.Engine
                         hands[MyIndex].HasSuit(_trump) &&
                         (topTrumps.Any() ||
                          (!hands[MyIndex].HasX(_trump) &&
+                          (TeamMateIndex == player3 ||
+                           PlayerBids[TeamMateIndex] == 0) &&
                           (hands[MyIndex].SuitCount < Game.NumSuits ||     //neodmazavej trumf pokud znas vsechny barvy a nehrajes kilo
                            (_gameType & Hra.Kilo) != 0))) &&
                         (hands[MyIndex].CardCount(_trump) <= 1 ||
@@ -5479,6 +5483,8 @@ namespace Mariasek.Engine
                                GameValue > SevenValue &&
                                (PlayerBids[TeamMateIndex] & Hra.Sedma) == 0 &&
                                potentialGreaseCards.Any() &&
+                               (TeamMateIndex == player3 ||
+                                PlayerBids[TeamMateIndex] == 0) &&
                                opponentTrumps.Count > 0 &&
                                //opponentTrumps <= 6 &&  //abych nehral trumfem hned ale az pozdeji
                                Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -5571,6 +5577,8 @@ namespace Mariasek.Engine
 
                                 if (!cardsToPlay.Any() &&
                                     PlayerBids[MyIndex] == 0 &&
+                                    (TeamMateIndex == player3 ||
+                                     PlayerBids[TeamMateIndex] == 0) &&
                                     myInitialHand.CardCount(_trump) <= 2 &&
                                     !(hands[MyIndex].CardCount(_trump) == 2 &&
                                       hands[MyIndex].HasX(_trump) &&
@@ -8852,14 +8860,14 @@ namespace Mariasek.Engine
                     {
                         //odmazat si barvu pokud nemam trumfy abych mohl mazat
                         var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => i.Suit != _trump &&
-                                                                         i.Suit != c1.Suit &&
-                                                                         i.Value != Hodnota.Eso &&
-                                                                         i.Value != Hodnota.Desitka &&
-                                                                         _probabilities.PotentialCards(TeamMateIndex).HasSuit(i.Suit) &&
-                                                                         !hands[MyIndex].HasSuit(_trump) &&
-                                                                         hands[MyIndex].Any(j => j.Value == Hodnota.Eso ||
-                                                                                                 j.Value == Hodnota.Desitka) &&
-                                                                         hands[MyIndex].CardCount(i.Suit) == 1)
+                                                                                    i.Suit != c1.Suit &&
+                                                                                    i.Value != Hodnota.Eso &&
+                                                                                    i.Value != Hodnota.Desitka &&
+                                                                                    _probabilities.PotentialCards(TeamMateIndex).HasSuit(i.Suit) &&
+                                                                                    !hands[MyIndex].HasSuit(_trump) &&
+                                                                                    hands[MyIndex].Any(j => j.Value == Hodnota.Eso ||
+                                                                                                            j.Value == Hodnota.Desitka) &&
+                                                                                    hands[MyIndex].CardCount(i.Suit) == 1)
                                                                         .ToList();
 
                         if ((TeamMateIndex == player3 &&
