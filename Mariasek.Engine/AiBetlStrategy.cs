@@ -462,7 +462,7 @@ namespace Mariasek.Engine
                     #region GetRules1 Rule5
                     ChooseCard1 = () =>
                     {
-                        var cardsToPlay = hands[MyIndex].Where(i => _probabilities.PotentialCards(opponent).CardCount(i.Suit) > 1 &&
+                        var cardsToPlay = hands[MyIndex].Where(i => _probabilities.PotentialCards(opponent).CardCount(i.Suit) >= 1 &&
                                                                     _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) == 0);
 
                         if (cardsToPlay.Any(i => _probabilities.PotentialCards(opponent).Any(j => j.Suit == i.Suit && j.BadValue > i.BadValue)))

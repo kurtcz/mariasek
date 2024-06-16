@@ -2031,8 +2031,8 @@ namespace Mariasek.Engine
                         _debugString.AppendFormat("Simulating betl. Fast guess: {0}\n", ShouldChooseBetl());
                         try
                         {
-                            //Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hh, loopState) =>
-                            foreach (var hh in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType))
+                            Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hh, loopState) =>
+                            //foreach (var hh in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType))
                             {
                                 ThrowIfCancellationRequested();
                                 try
@@ -2073,14 +2073,14 @@ namespace Mariasek.Engine
                                 if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                                 {
                                     Probabilities.StopGeneratingHands();
-                                    //loopState.Stop();
-                                    break;
+                                    loopState.Stop();
+                                    //break;
                                 }
 
                                 var val = Interlocked.Increment(ref progress);
                                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = val, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Simuluju betl" });
                                 ThrowIfCancellationRequested();
-                            }//);
+                            });
                         }
                         catch (OperationCanceledException ex)
                         {
@@ -2127,8 +2127,8 @@ namespace Mariasek.Engine
                         _debugString.AppendFormat("Simulating durch. fast guess: {0}\n", ShouldChooseDurch());
                         try
                         {
-                            //Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hands, loopState) =>
-                            foreach (var hands in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType))
+                            Parallel.ForEach(source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType), options, (hands, loopState) =>
+                            //foreach (var hands in source ?? Probabilities.GenerateHands(1, gameStartingPlayerIndex, maxSimulationsPerGameType))
                             {
                                 try
                                 {
@@ -2166,8 +2166,8 @@ namespace Mariasek.Engine
                                     {
                                         OnGameComputationProgress(new GameComputationProgressEventArgs { Current = initialProgress + Settings.SimulationsPerGameType, Max = Settings.SimulationsPerGameTypePerSecond > 0 ? totalGameSimulations : 0, Message = "Neuhratelnej durch" });
                                         Probabilities.StopGeneratingHands();
-                                        //loopState.Stop();
-                                        break;
+                                        loopState.Stop();
+                                        //break;
                                     }
                                 }
                                 catch (Exception ex)
@@ -2182,10 +2182,10 @@ namespace Mariasek.Engine
                                 if ((DateTime.Now - start).TotalMilliseconds > Settings.MaxSimulationTimeMs)
                                 {
                                     Probabilities.StopGeneratingHands();
-                                    //loopState.Stop();
-                                    break;
+                                    loopState.Stop();
+                                    //break;
                                 }
-                            }//);
+                            });
                         }
                         catch(OperationCanceledException ex)
                         {
@@ -4251,7 +4251,9 @@ namespace Mariasek.Engine
                      (Hand.HasK(_trumpCard.Suit) ||                         //nebo vic bodu v ostrych nez souperi a k tomu trhak a
                       Hand.HasQ(_trumpCard.Suit)) &&
                      (Hand.CardCount(Hodnota.Eso) == Game.NumSuits) ||      //4 esa nebo
-                      axCount >= 5) ||
+                      axCount >= 5 ||
+                      (kqScore >= 40 &&
+                       axCount >= 3)) ||
                     (estimatedFinalBasicScore + kqScore > estimatedOpponentFinalBasicScore &&
                      kqScore > 0 &&
                      Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -4349,7 +4351,7 @@ namespace Mariasek.Engine
                        axCount >= 3 &&                          //a aspon jeste jednu dalsi desitku
                        estimatedFinalBasicScore >= 30) ||
                       (kqScore >= 20 &&                         //mam aspon 20 bodu v hlasech
-                       axCount >= 3 &&                          //a aspon jeste dve dalsi desitky
+                       axCount >= 5 &&                          //a aspon jeste dve dalsi desitky
                        estimatedFinalBasicScore >= 50))) ||
                     (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove A a
                      Hand.CardCount(_trumpCard.Suit) >= 2 &&
@@ -4509,6 +4511,16 @@ namespace Mariasek.Engine
                    Enum.GetValues(typeof(Barva)).Cast<Barva>()
                        .Where(b => b != _g.trump.Value)
                        .Any(b => Hand.CardCount(b) >= 4)) ||
+                  (Hand.CardCount(_g.trump.Value) >= 5 &&       //5 trumfu, aspon 1 eso, 3+ barvy, vsechny vysoke
+                   Hand.SuitCount() >= 3 &&
+                   Hand.CardCount(Hodnota.Eso) >= 1 &&
+                   Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                       .Where(b => b != _g.trump.Value)
+                       .All(b => Hand.HasA(b) ||
+                                 Hand.HasK(b) ||
+                                 (Hand.HasX(b) &&
+                                  Hand.HasQ(b) &&
+                                  Hand.CardCount(b) >= 3))) ||
                   (Hand.CardCount(_g.trump.Value) >= 4 &&       //4-3-2-1 4-2-2-2 5-3-2 5-2-2-1 a dobiraky
                    Hand.HasA(_g.trump.Value) &&
                    Hand.SuitCount() == 4 &&
