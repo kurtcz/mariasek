@@ -1516,7 +1516,8 @@ namespace Mariasek.Engine
                                !(_hundredOverBetl &&
                                  !_hundredTooRisky) &&
                                !(_sevenOverBetl &&
-                                 !_sevenTooRisky) &&
+                                 !_sevenTooRisky &&
+                                 _g.MinimalBidsForSeven < 1) &&
                                !(_betlBalance < Settings.GameThresholdsForGameType[Hra.Betl][1] * _betlSimulations &&
                                  _sevensBalance >= Settings.GameThresholdsForGameType[Hra.Sedma][0] * _sevenSimulations && _sevenSimulations > 0)) ||
                               (Settings.SafetyBetlThreshold > 0 &&
@@ -4341,7 +4342,7 @@ namespace Mariasek.Engine
                      Hand.CardCount(_trumpCard.Suit) >= 3 &&    //a aspon 3 trumfy
                      (kqScore >= 20 &&                          //mam aspon 20 bodu v hlasech
                       axCount >= 4 &&                           //a aspon jeste dve dalsi desitky
-                      estimatedFinalBasicScore >= 40)) ||
+                      estimatedFinalBasicScore >= 30)) ||
                     (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove AX a
                      Hand.HasX(_trumpCard.Suit) &&
                      ((kqScore >= 40 &&                         //mam aspon 40 bodu v hlasech
@@ -4355,7 +4356,7 @@ namespace Mariasek.Engine
                      kqLikelyOpponentScore <= 40 &&
                      kqScore >= 20 &&                           //mam aspon 20 bodu v hlasech
                      axCount >= 3 &&                            //a aspon jeste dve dalsi desitky
-                     estimatedFinalBasicScore >= 40) ||
+                     estimatedFinalBasicScore >= 30) ||
                     (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove A a
                      Hand.CardCount(_trumpCard.Suit) >= 2 &&
                      axCount >= 5 &&                            //a aspon jeste ctyri dalsi desitky
