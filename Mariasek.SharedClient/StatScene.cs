@@ -498,12 +498,15 @@ namespace Mariasek.SharedClient
                 var gamesLost1 = games1.Count(j => j.MoneyWon[0] < 0);
                 var gamesLost2 = games2.Count(j => j.MoneyWon[1] < 0);
                 var gamesLost3 = games3.Count(j => j.MoneyWon[2] < 0);
-                var gamesPlayed1 = gamesWon1 + gamesLost1;
-                var gamesPlayed2 = gamesWon2 + gamesLost2;
-                var gamesPlayed3 = gamesWon3 + gamesLost3;
-                var gamesRatio1 = gamesPlayed1 > 0 ? gamesWon1 / (float)gamesPlayed1 : 0f;
-                var gamesRatio2 = gamesPlayed2 > 0 ? gamesWon2 / (float)gamesPlayed2 : 0f;
-                var gamesRatio3 = gamesPlayed3 > 0 ? gamesWon3 / (float)gamesPlayed3 : 0f;
+                var gamesTied1 = games1.Count(j => j.MoneyWon[0] == 0);
+                var gamesTied2 = games2.Count(j => j.MoneyWon[1] == 0);
+                var gamesTied3 = games3.Count(j => j.MoneyWon[2] == 0);
+                var gamesPlayed1 = gamesWon1 + gamesLost1 + gamesTied1;
+                var gamesPlayed2 = gamesWon2 + gamesLost2 + gamesTied2;
+                var gamesPlayed3 = gamesWon3 + gamesLost3 + gamesTied3;
+                var gamesRatio1 = gamesWon1 + gamesLost1 > 0 ? gamesWon1 / (float)(gamesWon1 + gamesLost1) : 0f;
+                var gamesRatio2 = gamesWon2 + gamesLost2 > 0 ? gamesWon2 / (float)(gamesWon2 + gamesLost2) : 0f;
+                var gamesRatio3 = gamesWon3 + gamesLost3 > 0 ? gamesWon3 / (float)(gamesWon3 + gamesLost3) : 0f;
                 var defencesPlayed1 = gamesPlayed2 + gamesPlayed3;
                 var defencesPlayed2 = gamesPlayed1 + gamesPlayed3;
                 var defencesPlayed3 = gamesPlayed1 + gamesPlayed2;
@@ -513,10 +516,9 @@ namespace Mariasek.SharedClient
                 var defencesLost1 = gamesWon2 + gamesWon3;
                 var defencesLost2 = gamesWon1 + gamesWon3;
                 var defencesLost3 = gamesWon1 + gamesWon2;
-                var defencesRatio1 = defencesPlayed1 > 0 ? defencesWon1 / (float)defencesPlayed1 : 0f;
-                var defencesRatio2 = defencesPlayed2 > 0 ? defencesWon2 / (float)defencesPlayed2 : 0f;
-                var defencesRatio3 = defencesPlayed3 > 0 ? defencesWon3 / (float)defencesPlayed3 : 0f;
-
+                var defencesRatio1 = defencesWon1 + defencesLost1 > 0 ? defencesWon1 / (float)(defencesWon1 + defencesLost1) : 0f;
+                var defencesRatio2 = defencesWon2 + defencesLost2 > 0 ? defencesWon2 / (float)(defencesWon2 + defencesLost2) : 0f;
+                var defencesRatio3 = defencesWon3 + defencesLost3 > 0 ? defencesWon3 / (float)(defencesWon3 + defencesLost3) : 0f;
 
                 if (maxValue < gamesRatio1)
                 {
@@ -635,12 +637,12 @@ namespace Mariasek.SharedClient
             var defencesLost1 = gamesWon2 + gamesWon3;
             var defencesLost2 = gamesWon1 + gamesWon3;
             var defencesLost3 = gamesWon1 + gamesWon2;
-            var gamesRatio1 = gamesPlayed1 > 0 ? gamesWon1 / (float)gamesPlayed1 : 0f;
-            var gamesRatio2 = gamesPlayed2 > 0 ? gamesWon2 / (float)gamesPlayed2 : 0f;
-            var gamesRatio3 = gamesPlayed3 > 0 ? gamesWon3 / (float)gamesPlayed3 : 0f;
-            var defencesRatio1 = defencesPlayed1 > 0 ? defencesWon1 / (float)defencesPlayed1 : 0f;
-            var defencesRatio2 = defencesPlayed2 > 0 ? defencesWon2 / (float)defencesPlayed2 : 0f;
-            var defencesRatio3 = defencesPlayed3 > 0 ? defencesWon3 / (float)defencesPlayed3 : 0f;
+            var gamesRatio1 = gamesWon1 + gamesLost1 > 0 ? gamesWon1 / (float)(gamesWon1 + gamesLost1) : 0f;
+            var gamesRatio2 = gamesWon2 + gamesLost2 > 0 ? gamesWon2 / (float)(gamesWon2 + gamesLost2) : 0f;
+            var gamesRatio3 = gamesWon3 + gamesLost3 > 0 ? gamesWon3 / (float)(gamesWon3 + gamesLost3) : 0f;
+            var defencesRatio1 = defencesWon1 + defencesLost1 > 0 ? defencesWon1 / (float)(defencesWon1 + defencesWon1) : 0f;
+            var defencesRatio2 = defencesWon2 + defencesLost2 > 0 ? defencesWon2 / (float)(defencesWon1 + defencesWon1) : 0f;
+            var defencesRatio3 = defencesWon3 + defencesLost3 > 0 ? defencesWon3 / (float)(defencesWon1 + defencesWon1) : 0f;
             var moneyBalance1 = games1.Sum(i => i.MoneyWon[0] * Game.Settings.BaseBet);
             var moneyBalance2 = games2.Sum(i => i.MoneyWon[1] * Game.Settings.BaseBet);
             var moneyBalance3 = games3.Sum(i => i.MoneyWon[2] * Game.Settings.BaseBet);
