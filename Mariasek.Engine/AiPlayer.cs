@@ -4517,10 +4517,13 @@ namespace Mariasek.Engine
                    Enum.GetValues(typeof(Barva)).Cast<Barva>()
                        .Where(b => b != _g.trump.Value)
                        .All(b => Hand.HasA(b) ||
-                                 Hand.HasK(b) ||
-                                 (Hand.HasX(b) &&
-                                  Hand.HasQ(b) &&
-                                  Hand.CardCount(b) >= 3))) ||
+                                 Hand.HasX(b) ||
+                                 Hand.HasK(b))) ||
+                  (Hand.CardCount(_g.trump.Value) >= 5 &&       //5 trumfu a ve vsech netrumfovych barvach (ktere mam) eso
+                   Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                       .Where(b => b != _trump &&
+                                   Hand.HasSuit(b))
+                       .All(b => Hand.HasA(b))) ||
                   (Hand.CardCount(_g.trump.Value) >= 4 &&       //4-3-2-1 4-2-2-2 5-3-2 5-2-2-1 a dobiraky
                    Hand.HasA(_g.trump.Value) &&
                    Hand.SuitCount() == 4 &&
