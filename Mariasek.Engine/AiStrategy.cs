@@ -4019,7 +4019,7 @@ namespace Mariasek.Engine
                                                                                     i.Value >= Hodnota.Desitka &&
                                                                                     _probabilities.PotentialCards(opponent).HasSuit(i.Suit));
 
-                            return cardsToPlay.OrderByDescending(i => _probabilities.PotentialCards(opponent).CardCount(i.Suit))
+                            return cardsToPlay.OrderBy(i => _probabilities.PotentialCards(opponent).CardCount(i.Suit))
                                               .ThenByDescending(i => i.Value).First();
                         }
 

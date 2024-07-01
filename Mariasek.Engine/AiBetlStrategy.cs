@@ -1298,9 +1298,9 @@ namespace Mariasek.Engine
                                                  .ToList();
                             }
                             //setrid pote podle poctu der a nakonec podle velikosti
-                            cardsToPlay = hiCards.Where(i => i.Item2 > 0 &&
-                                                             (i.Item2 <= 3 ||
-                                                              hands[MyIndex].CardCount(i.Item1.Suit) <= 3))
+                            cardsToPlay = hiCards//.Where(i => i.Item2 > 0 &&
+                                                 //            (i.Item2 <= 3 ||
+                                                 //             hands[MyIndex].CardCount(i.Item1.Suit) <= 3))
                                                  .OrderByDescending(i => i.Item2)
                                                  .ThenByDescending(i => i.Item1.BadValue)
                                                  .Select(i => i.Item1);
