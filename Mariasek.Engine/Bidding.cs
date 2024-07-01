@@ -315,9 +315,10 @@ namespace Mariasek.Engine
             {
                 var hand = new List<Card>(_g.players[playerIndex].Hand);
 
-                if (hand.Has7(_g.trump.Value) ||
-                    (_g.AllowFakeSeven &&
-                     (PlayerBids[_g.GameStartingPlayerIndex] & Hra.Sedma) == 0))
+                if ((PlayerBids[_g.players[playerIndex].TeamMateIndex] & Hra.SedmaProti) == 0 &&
+                    (hand.Has7(_g.trump.Value) ||
+                     (_g.AllowFakeSeven &&
+                      (PlayerBids[_g.GameStartingPlayerIndex] & Hra.Sedma) == 0)))
                 {
                     Bids |= Hra.SedmaProti;
                 }
