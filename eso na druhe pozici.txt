@@ -251,6 +251,23 @@ Obecne pro K <= 2 a T>1:
 Sance namazat kartu: 0
 
 Jaka je sance ze spoluhrac ma vyssi kartu nez akter?
+Predpoklad je ze akter hraje odshora.
+Pokud ma spoluhrac vic karet v barve nebo
+
+ox ano
+xo ne
+xoo ne
+xooo ne
+xoox ano
+xoxo ano
+xxoo ne
+xxxooo ne
+xxooxo ano
+xxooox ano
+xxoxoo ano
+xoxoxo ano
+xxxxoooo
+
 
 Finalni verdikt:
 Eso hrat pokud je sance na jeho uhrani vyssi nez sance kartu namazat

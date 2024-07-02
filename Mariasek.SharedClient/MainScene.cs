@@ -1950,6 +1950,7 @@ namespace Mariasek.SharedClient
             {
                 //RefreshReview(true);
                 _review.UpdateReview(g);
+
 #if !__IOS__
                 using (var fs = GetFileStream(Path.GetFileName(_screenPath)))
                 {

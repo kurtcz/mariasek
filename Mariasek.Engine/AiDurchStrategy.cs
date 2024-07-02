@@ -255,26 +255,42 @@ namespace Mariasek.Engine
             {
                 var numCardsToKeep = 0;
 
-                //if (myInitialHand.HasA(b))
-                if (myInitialHand.Any(i => i.Suit == b && i.Value == topCardPerSuit[b].Value))
+                ////
+                var myTopCard = hands[MyIndex].FirstOrDefault(i => i.Suit == b &&
+                                                                   hands[MyIndex].Where(j => j.Suit == b &&
+                                                                                             j != i)
+                                                                                 .All(j => j.BadValue < i.BadValue));
+
+                if (myTopCard == null)
                 {
-                    numCardsToKeep = 1;
+                    continue;
                 }
-                //else if (myInitialHand.HasK(b))
-                else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 1))
-                {
-                    numCardsToKeep = 2;
-                }
-                //else if (myInitialHand.HasQ(b))
-                else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 2))
-                {
-                    numCardsToKeep = 3;
-                }
-                //else if (myInitialHand.HasJ(b))
-                else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 3))
-                {
-                    numCardsToKeep = 4;
-                }
+                var opponentPotentialTopCards = _probabilities.PotentialCards(player1)
+                                                              .Where(i => i.Suit == b &&
+                                                                          i.BadValue > myTopCard.BadValue);
+
+                numCardsToKeep = opponentPotentialTopCards.Count() + 1;
+                ////
+                ////if (myInitialHand.HasA(b))
+                //if (myInitialHand.Any(i => i.Suit == b && i.Value == topCardPerSuit[b].Value))
+                //{
+                //    numCardsToKeep = 1;
+                //}
+                ////else if (myInitialHand.HasK(b))
+                //else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 1))
+                //{
+                //    numCardsToKeep = 2;
+                //}
+                ////else if (myInitialHand.HasQ(b))
+                //else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 2))
+                //{
+                //    numCardsToKeep = 3;
+                //}
+                ////else if (myInitialHand.HasJ(b))
+                //else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 3))
+                //{
+                //    numCardsToKeep = 4;
+                //}
                 if (numCardsToKeep > 0 &&
                     hands[MyIndex].CardCount(b) >= numCardsToKeep)
                 {
@@ -671,31 +687,47 @@ namespace Mariasek.Engine
                                                                                   //(i.Value == Hodnota.Spodek &&
                                                                                    hands[MyIndex].CardCount(i.Suit) >= 4))));
             var cardsToKeep = new Dictionary<Barva, IEnumerable<Card>>();
-
+            
             foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
             {
                 var numCardsToKeep = 0;
+                ////
+                var myTopCard = hands[MyIndex].FirstOrDefault(i => i.Suit == b &&
+                                                                   hands[MyIndex].Where(j => j.Suit == b &&
+                                                                                             j != i)
+                                                                                 .All(j => j.BadValue < i.BadValue));
 
+                if (myTopCard == null)
+                {
+                    continue;
+                }
+                var opponentPotentialTopCards = _probabilities.PotentialCards(player1)
+                                                              .Where(i => i.Suit == b &&
+                                                                          i.BadValue > myTopCard.BadValue);
+
+                numCardsToKeep = opponentPotentialTopCards.Count() + 1;
+
+                ////
                 //if (myInitialHand.HasA(b))
-                if (myInitialHand.Any(i => i.Suit == b && i.Value == topCardPerSuit[b].Value))
-                {
-                    numCardsToKeep = 1;
-                }
-                //else if (myInitialHand.HasK(b))
-                else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 1))
-                {
-                    numCardsToKeep = 2;
-                }
-                //else if (myInitialHand.HasQ(b))
-                else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 2))
-                {
-                    numCardsToKeep = 3;
-                }
-                //else if (myInitialHand.HasJ(b))
-                else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 3))
-                {
-                    numCardsToKeep = 4;
-                }
+                //if (myInitialHand.Any(i => i.Suit == b && i.Value == topCardPerSuit[b].Value))
+                //{
+                //    numCardsToKeep = 1;
+                //}
+                ////else if (myInitialHand.HasK(b))
+                //else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 1))
+                //{
+                //    numCardsToKeep = 2;
+                //}
+                ////else if (myInitialHand.HasQ(b))
+                //else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 2))
+                //{
+                //    numCardsToKeep = 3;
+                //}
+                ////else if (myInitialHand.HasJ(b))
+                //else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 3))
+                //{
+                //    numCardsToKeep = 4;
+                //}
                 if (numCardsToKeep > 0 &&
                     hands[MyIndex].CardCount(b) >= numCardsToKeep)
                 {

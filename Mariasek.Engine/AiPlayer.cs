@@ -3020,6 +3020,12 @@ namespace Mariasek.Engine
 
             if (TeamMateIndex != -1 &&
                 hand.CardCount(_trump.Value) < 5 &&
+                hand.SuitCount() < Game.NumSuits)
+            {
+                return true;
+            }
+            if (TeamMateIndex != -1 &&
+                hand.CardCount(_trump.Value) < 5 &&
                 !Enum.GetValues(typeof(Barva)).Cast<Barva>()
                      .Where(b => hand.HasSuit(b))
                      .All(b => hand.CardCount(b) >= 2))
@@ -3374,15 +3380,19 @@ namespace Mariasek.Engine
                 Enum.GetValues(typeof(Barva)).Cast<Barva>()
                     .Where(b => sh.Contains(b))
                     .Any(b => (b == _trump.Value &&
-                                    GetTotalHoles(hand, talon, b) > 1) ||
+                                    (GetTotalHoles(hand, talon, b) >= 2 ||
+                                     (GetTotalHoles(hand, talon, b) >= 1 &&
+                                      hand.CardCount(b) + talon.CardCount(b) >= 5))) ||
                               (b != _trump.Value &&
-                                    (GetTotalHoles(hand, talon, b) > 2 ||
+                                    (GetTotalHoles(hand, talon, b) >= 3 ||
                                      (!hand.HasA(b) &&
                                       !hand.HasX(b) &&
-                                      GetTotalHoles(hand, talon, b) > 1 &&
-                                      hand.CardCount(b) > 2)))) &&
+                                      GetTotalHoles(hand, talon, b) >= 2 &&
+                                      hand.CardCount(b) + talon.CardCount(b) >= 3)))) &&
                 (n > nn ||                                          //a mam nejake male trumfy
-                 sh.Count() > 2 ||   //nebo mam diry ve vic nez dvou barvach z nichz nektera je dlouha - takze na ni pujde asi mazat
+                 sh.Count() > 2 ||
+                 (sh.Count() >= 2 &&                                //nebo mam diry ve vic nez dvou barvach
+                  sh.Any(b => hand.CardCount(b) + talon.CardCount(b) >= 5)) ||   //nebo mam diry ve dvou barvach z nichz nektera je dlouha - takze na ni pujde asi mazat
                  !(hand.HasK(_trump.Value) &&                       //nebo nemam trumfovou hlasku
                    hand.HasQ(_trump.Value))))
             {
