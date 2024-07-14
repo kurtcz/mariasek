@@ -1946,42 +1946,51 @@ namespace Mariasek.SharedClient
 
         public void SendBtnClicked(object sender)
         {
-            if (Game.EmailSender != null)
+            _ = Task.Run(async () =>
             {
-                //RefreshReview(true);
-                _review.UpdateReview(g);
-
-#if !__IOS__
-                using (var fs = GetFileStream(Path.GetFileName(_screenPath)))
+                if (Game.EmailSender != null)
                 {
-                    var target = _review.SaveTexture();
-                    target.SaveAsPng(fs, target.Width, target.Height);
-                }
-#endif
-
-                var subject = $"Mariášek: komentář v{MariasekMonoGame.Version} ({MariasekMonoGame.Platform})";
-                if (g != null && g.IsRunning)
-                {
-                    using (var fs = GetFileStream(Path.GetFileName(_savedGameFilePath)))
+                    if (await MessageBox.Show("Potvrzení", "Přejete si okomentovat tuto hru a pomoci tak vylepšit herní strategii? Můžete též autorovi napsat libovoný vzkaz nebo dotaz k aplikaci.", new[] { "Storno", "OK" }) == 1)
                     {
-                        g.SaveGame(fs, saveDebugInfo: true);
-                    }
-                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Napište svůj komentář k této hře\n:",
-                                               new[] { _screenPath, _newGameFilePath, _savedGameFilePath, SettingsScene._settingsFilePath });
-                }
-                else
-                {
-                    Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Napište svůj komentář k této hře\n:",
-                                               new[]
-                                               {
-                                                   _screenPath,
+                        RunOnUiThread(() =>
+                        {
+                            //_review.UpdateReview(g);
+
+//#if !__IOS__
+//                            using (var fs = GetFileStream(Path.GetFileName(_screenPath)))
+//                            {
+//                                var target = _review.SaveTexture();
+//                                target.SaveAsJpeg(fs, target.Width, target.Height);
+//                            }
+//#endif
+
+                            var subject = $"Mariášek: komentář v{MariasekMonoGame.Version} ({MariasekMonoGame.Platform})";
+                            if (g != null && g.IsRunning)
+                            {
+                                using (var fs = GetFileStream(Path.GetFileName(_savedGameFilePath)))
+                                {
+                                    g.SaveGame(fs, saveDebugInfo: true);
+                                }
+                                Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Napište svůj komentář k této hře\n:",
+                                                           new[] { //_screenPath,
+                                                                   _newGameFilePath, _savedGameFilePath, SettingsScene._settingsFilePath });
+                            }
+                            else
+                            {
+                                Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Napište svůj komentář k této hře\n:",
+                                                           new[]
+                                                           {
+                                                   //_screenPath,
                                                    _newGameArchivePath ?? _newGameFilePath,
                                                    _endGameArchivePath ?? _endGameFilePath,
                                                    _minMaxFilePath,
                                                    SettingsScene._settingsFilePath
-                                               });
+                                                           });
+                            }
+                        });
+                    }
                 }
-            }
+            });
         }
 
         public void HintBtnClicked(object sender)
@@ -1990,7 +1999,10 @@ namespace Mariasek.SharedClient
             {
                 return;
             }
-            HintBtnFunc();
+            if (HintBtnFunc != null)
+            {
+                HintBtnFunc();
+            }
             _hintBtn.IsEnabled = false;
         }
 
@@ -3687,18 +3699,18 @@ namespace Mariasek.SharedClient
                         }
                         if (r.hlas2)
                         {
-                            var rect = r.c1.ToTextureRect();
+                            var rect = r.c2.ToTextureRect();
 
-                            _hlasy[r.player1.PlayerIndex][hlasy2].Sprite.SpriteRectangle = rect;
-                            _hlasy[r.player1.PlayerIndex][hlasy2].Show();
+                            _hlasy[r.player2.PlayerIndex][hlasy2].Sprite.SpriteRectangle = rect;
+                            _hlasy[r.player2.PlayerIndex][hlasy2].Show();
                             hlasy2++;
                         }
                         if (r.hlas3)
                         {
-                            var rect = r.c1.ToTextureRect();
+                            var rect = r.c3.ToTextureRect();
 
-                            _hlasy[r.player1.PlayerIndex][hlasy3].Sprite.SpriteRectangle = rect;
-                            _hlasy[r.player1.PlayerIndex][hlasy3].Show();
+                            _hlasy[r.player3.PlayerIndex][hlasy3].Sprite.SpriteRectangle = rect;
+                            _hlasy[r.player3.PlayerIndex][hlasy3].Show();
                             hlasy3++;
                         }
                     }

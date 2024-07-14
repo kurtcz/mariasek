@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0-ios17</TargetFramework>
+    <RuntimeIdentifiers>ios-arm64</RuntimeIdentifiers>
     <OutputType>Exe</OutputType>
     <SupportedOSPlatformVersion>11.2</SupportedOSPlatformVersion>
     <ImplicitUsings>true</ImplicitUsings>
@@ -28,6 +29,9 @@
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
     <CodesignProvision>Automatic</CodesignProvision>
     <CodesignKey>iPhone Distribution</CodesignKey>
+    <DebugSymbols>true</DebugSymbols>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>anycpu</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />

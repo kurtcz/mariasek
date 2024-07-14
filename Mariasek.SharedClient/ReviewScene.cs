@@ -395,17 +395,18 @@ namespace Mariasek.SharedClient
         {
             if (Game.EmailSender != null)
             {
-                using (var fs = Game.MainScene.GetFileStream(Path.GetFileName(_screenPath)))
-                {
-                    var target = _review.SaveTexture();
-#if !__IOS__
-                    target.SaveAsJpeg(fs, target.Width, target.Height);
-#endif
-                }
+//                using (var fs = Game.MainScene.GetFileStream(Path.GetFileName(_screenPath)))
+//                {
+//                    var target = _review.SaveTexture();
+//#if !__IOS__
+//                    target.SaveAsJpeg(fs, target.Width, target.Height);
+//#endif
+//                }
 
                 var subject = $"Mariášek: komentář v{MariasekMonoGame.Version} ({MariasekMonoGame.Platform})";
                 Game.EmailSender.SendEmail(new[] { "mariasek.app@gmail.com" }, subject, "Napište svůj komentář k této hře\n:",
-                                           new[] { _screenPath, _newGamePath, _endGamePath, SettingsScene._settingsFilePath });
+                                           new[] { //_screenPath,
+                                                   _newGamePath, _endGamePath, SettingsScene._settingsFilePath });
             }
         }
     }
