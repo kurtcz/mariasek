@@ -482,7 +482,11 @@ namespace Mariasek.Engine
                 #region ChooseCard2 Rule4
                 ChooseCard2 = (Card c1) =>
                 {
-                    var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0);
+                    var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0 ||
+                                                                                Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                    .Where(h => Card.GetBadValue(h) < i.BadValue)
+                                                                                    .Select(h => new Card(i.Suit, h))
+                                                                                    .All(j => _probabilities.CardProbability(player1, j) == 0));
 
                     if (cardsToPlay.Any())
                     {
@@ -916,7 +920,11 @@ namespace Mariasek.Engine
                 #region ChooseCard3 Rule4
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
-                    var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0);
+                    var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0 ||
+                                                                                Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                    .Where(h => Card.GetBadValue(h) < i.BadValue)
+                                                                                    .Select(h => new Card(i.Suit, h))
+                                                                                    .All(j => _probabilities.CardProbability(player1, j) == 0));
 
                     if (cardsToPlay.Any())
                     {
