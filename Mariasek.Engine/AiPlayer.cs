@@ -980,7 +980,11 @@ namespace Mariasek.Engine
                   !hand.HasA(trumpCard.Suit) &&
                   (!(hand.HasX(trumpCard.Suit) &&
                      hand.HasK(trumpCard.Suit)) ||
-                   hand.CardCount(Hodnota.Eso) == 0))) &&
+                   //hand.CardCount(Hodnota.Eso) == 0 &&
+                   !Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                        .Any(b => hand.HasA(b) ||
+                                  (hand.HasX(b) &&
+                                   hand.HasK(b)))))) &&
                 //!(Enum.GetValues(typeof(Barva)).Cast<Barva>()
                 //      .Where(b => hand.HasSuit(b) &&
                 //                  b != _trump)
@@ -2841,7 +2845,7 @@ namespace Mariasek.Engine
                 singleLowSuits = 0;
             }
             var axPotentialDeduction = GetTotalHoles(hand, talon, false) / 2;
-            var axWinPotential = Math.Min(Math.Max(2 * emptySuits + aceOnlySuits + (trumpCount >= 4 ? singleLowSuits : 0) - 1, 0),
+            var axWinPotential = Math.Min(Math.Max(2 * emptySuits + aceOnlySuits + (trumpCount >= 4 ? singleLowSuits : 0) - (emptySuits == 1 ? 0 : 1), 0),
                                           trumpCount == 4 ? 3 : (int)Math.Ceiling(trumpCount / 2f)); // ne kazdym trumfem prebiju a nebo x
 
             //pokud jsem nevolil a znam vsechny barvy a mam malo trumfu a
@@ -3341,6 +3345,14 @@ namespace Mariasek.Engine
             {
                 DebugInfo.HundredTooRisky = false;
                 return false;
+            }
+            if (hand.CardCount(_trump.Value) >= 6 &&
+                !hand.HasA(_trump.Value) &&
+                hand.Has7(_trump.Value) &&
+                maxBasicPointsLost > maxAllowedPointsLost)
+            {
+                DebugInfo.HundredTooRisky = true;
+                return true;
             }
 
             var handPlusTalon = hand.Concat(talon).ToList();
@@ -4348,6 +4360,11 @@ namespace Mariasek.Engine
                       (Hand.CardCount(_trumpCard.Suit) >= 3 &&
                        axCount >= 3 &&
                        estimatedFinalBasicScore >= 30 &&
+                       kqMaxOpponentScore <= 20) ||
+                      (Hand.CardCount(_trumpCard.Suit) >= 3 &&
+                       axCount >= 2 &&
+                       kqScore >= 20 &&
+                       estimatedFinalBasicScore >= 20 &&
                        kqMaxOpponentScore <= 20))) ||
                     (!Hand.HasK(_trumpCard.Suit) &&             //netrham a
                      !Hand.HasQ(_trumpCard.Suit) &&
@@ -4698,7 +4715,13 @@ namespace Mariasek.Engine
                         .All(b => Hand.CardCount(b) >= 2 &&
                                   (Hand.HasA(b) ||
                                    Hand.HasX(b) ||
-                                   Hand.HasK(b))))))) &&
+                                   Hand.HasK(b)))) ||
+                   (Hand.CardCount(_g.trump.Value) >= 3 &&
+                    (Hand.HasA(_g.trump.Value) ||
+                     Hand.HasX(_g.trump.Value)) &&
+                    axCount >= 4 &&
+                    Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                        .All(b => Hand.CardCount(b) >= 2))))) &&
                 ((_gameSimulations > 0 &&
                   _sevensAgainstBalance / (float)_gameSimulations >= sevenAgainstThreshold &&
                   (Hand.Has7(_g.trump.Value) ||
