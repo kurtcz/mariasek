@@ -319,16 +319,16 @@ namespace Mariasek.Engine
 
             if (talon.Count < 2)
             {
-                //pak vezmi karty od barev kde mas 2-3 prostredni karty s 2 dirama
+                //pak vezmi karty od barev kde mas 2-4 prostredni karty s 2 dirama
                 var temp = holesByCard.Where(i => !talon.Contains(i.Item1) &&
                                                   i.Item2 >= 2 &&			    //CardCount
-                                                  i.Item2 <= 3 &&			    //CardCount
+                                                  i.Item2 <= 4 &&			    //CardCount
                                                   i.Item4 >= 2)			        //holes
                                       .Select(i => i.Item1)                     //Card
-                                      .ToList();    //
+                                      .ToList();
                 temp = holesByCard.Where(i => !talon.Contains(i.Item1) &&
                                               i.Item2 >= 2 &&               //CardCount
-                                              i.Item2 <= 3 &&               //CardCount
+                                              i.Item2 <= 4 &&               //CardCount
                                               i.Item4 >= 2)                 //holes
                                   .OrderByDescending(i => temp.CardCount(i.Item1.Suit))     //snaz se vybrat barvu kde je vic karet kde me muzou chytit
                                   .ThenByDescending(i => i.Item1.BadValue)
@@ -2379,7 +2379,14 @@ namespace Mariasek.Engine
                                 : moneyCalculations.Count(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0);
             _hundredsBalance =  PlayerIndex == gameStartingPlayerIndex
                                 ? moneyCalculations.Where(i => (i.GameType & Hra.Kilo) != 0).Count(i => i.HundredWon)
-                                : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.HundredWon);
+                                : moneyCalculations.Any(i => (i.GameType & Hra.Kilo) != 0)
+                                  ? moneyCalculations.Where(i => (i.GameType & Hra.Kilo) != 0).Count(i => i.HundredWon)
+                                  : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.HundredWon);
+            _hundredSimulations = PlayerIndex == gameStartingPlayerIndex
+                                  ? moneyCalculations.Count(i => (i.GameType & Hra.Kilo) != 0)
+                                  : moneyCalculations.Any(i => (i.GameType & Hra.Kilo) != 0)
+                                    ? moneyCalculations.Count(i => (i.GameType & Hra.Kilo) != 0)
+                                    : moneyCalculations.Count(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0);
             _hundredsAgainstBalance = PlayerIndex == gameStartingPlayerIndex
                                         ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.HundredAgainstWon)
                                         : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.HundredAgainstWon);
@@ -3162,7 +3169,10 @@ namespace Mariasek.Engine
                                        (hand.HasK(b) ||
                                         hand.CardCount(b) > 2)) ||
                                       (hand.HasK(b) &&
-                                       hand.HasQ(b))));
+                                       hand.HasQ(b)))) &&
+                      !(Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            .All(b => hand.CardCount(b) >= 2) &&
+                        hand.Count(i => i.Value >= Hodnota.Desitka) >= 5);
             result |= hand.CardCount(_trump.Value) == 4 &&                  //3. nebo 4 trumfy a
                       (TeamMateIndex == -1 ||
                        (!_teamMateDoubledGame ||

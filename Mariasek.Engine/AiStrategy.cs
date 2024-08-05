@@ -8154,7 +8154,7 @@ namespace Mariasek.Engine
                     {
                         //-c-
                         //nehraj pokud ma prvni hrac jiste dalsi male karty v barve a muzes hrat i neco jineho
-                        if (ValidCards(c1, hands[MyIndex]).Count >= 2 &&
+                        if (ValidCards(c1, hands[MyIndex]).Count > 2 &&
                             ValidCards(c1, hands[MyIndex]).HasX(_trump) &&
                             !(_probabilities.CertainCards(player1).HasA(_trump) &&
                               !_probabilities.PotentialCards(player3).HasSuit(_trump) &&
