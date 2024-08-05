@@ -1937,10 +1937,13 @@ namespace Mariasek.Engine
                     source = tempSource.ToArray();
                 }
                 var trump = _trump ?? _g.trump ?? Barva.Cerveny;
-                if (PlayerIndex == _g.GameStartingPlayerIndex && 
-                    (Hand.Has7(trump) ||
-                     (Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                          .Any(b => Hand.HasK(b) && Hand.HasQ(b)))))
+                if ((PlayerIndex == _g.GameStartingPlayerIndex && 
+                     (Hand.Has7(trump) ||
+                      (Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                           .Any(b => Hand.HasK(b) && Hand.HasQ(b))))) ||
+                   (PlayerIndex != _g.GameStartingPlayerIndex &&
+                    _gameType != null &&
+                    (_gameType & (Hra.Kilo | Hra.Sedma)) != 0))
                 {
                     var start7 = DateTime.Now;
 
@@ -1987,11 +1990,12 @@ namespace Mariasek.Engine
                                                      .Any(b => hands[PlayerIndex].HasK(b) && hands[PlayerIndex].HasQ(b))
                                                      ? Hra.Kilo
                                                      : Hra.Hra;
-                                        if (hands[PlayerIndex].Has7(trump))
+
+                                        if (hands[gameStartingPlayerIndex].Has7(trump))
                                         {
                                             gt |= Hra.Sedma;
                                         }
-                                        var gameComputationResult = ComputeGame(hands, null, null, trump, AdvisorMode ? gt : _gameType ?? gt, 10, 1);
+                                        var gameComputationResult = ComputeGame(hands, null, null, trump, _gameType ?? gt, 10, 1);
                                         gameComputationResults.Enqueue(gameComputationResult);
                                     }
                                     var val = Interlocked.Increment(ref progress);
@@ -2379,12 +2383,16 @@ namespace Mariasek.Engine
             _hundredsAgainstBalance = PlayerIndex == gameStartingPlayerIndex
                                         ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.HundredAgainstWon)
                                         : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.HundredAgainstWon);
-            _sevensBalance = PlayerIndex == gameStartingPlayerIndex
+            _sevensBalance = PlayerIndex == gameStartingPlayerIndex 
                                 ? moneyCalculations.Where(i => (i.GameType & Hra.Sedma) != 0).Count(i => i.SevenWon)
-                                : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.SevenWon);
+                                : moneyCalculations.Any(i => (i.GameType & Hra.Sedma) != 0)
+                                  ? moneyCalculations.Where(i => (i.GameType & Hra.Sedma) != 0).Count(i => !i.SevenWon)
+                                  : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.SevenWon);
             _sevenSimulations = PlayerIndex == gameStartingPlayerIndex
                                 ? moneyCalculations.Count(i => (i.GameType & Hra.Sedma) != 0)
-                                : moneyCalculations.Count(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0);
+                                : moneyCalculations.Any(i => (i.GameType & Hra.Sedma) != 0)
+                                  ? moneyCalculations.Count(i => (i.GameType & Hra.Sedma) != 0)
+                                  : moneyCalculations.Count(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0);
             _sevensAgainstBalance = PlayerIndex == gameStartingPlayerIndex
                                         ? moneyCalculations.Where(i => (i.GameType & Hra.Hra) != 0).Count(i => !i.SevenAgainstWon)
                                         : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => i.SevenAgainstWon);
