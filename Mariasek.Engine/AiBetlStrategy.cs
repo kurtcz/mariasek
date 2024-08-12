@@ -342,7 +342,9 @@ namespace Mariasek.Engine
                                                                         .Any(j => _probabilities.CardProbability(player2, j) > 0 ||
                                                                                   _probabilities.CardProbability(player3, j) > 0));
 
-                        return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+                        return cardsToPlay.OrderBy(i => hands[MyIndex].HasA(i.Suit) ? 0 : 1)
+                                          .ThenByDescending(i => i.BadValue)
+                                          .FirstOrDefault();
                     }
                     #endregion
                 };
@@ -379,12 +381,13 @@ namespace Mariasek.Engine
                                                                     (_probabilities.SuitHigherThanCardProbability(player2, i, RoundNumber, false) > 0 ||
                                                                      _probabilities.SuitHigherThanCardProbability(player3, i, RoundNumber, false) > 0) &&
                                                                     hiCards.Any(j => j.Item1 == i) &&   //nehraj plonka pokud jina karta odmaze vic der
-                                                                    i == hiCards.OrderByDescending(j => j.Item2)
+                                                                    i == hiCards.OrderBy(j => _probabilities.SuitHigherThanCardProbability(player2, j.Item1, RoundNumber, false))
+                                                                                .ThenByDescending(j => j.Item2)
                                                                                 .ThenByDescending(j => j.Item1.BadValue)
                                                                                 .Select(j => j.Item1)
                                                                                 .First());
 
-                        return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
+                        return cardsToPlay.FirstOrDefault();
                     }
                     #endregion
                 };
