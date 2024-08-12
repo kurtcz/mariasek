@@ -340,8 +340,12 @@ namespace Mariasek.Engine
                         var list = new List<Card>() { topCard };
                         list.AddRange(bottomCards);
 
+                        if (!bottomCards.Any())
+                        {
+                            cardsToKeep.Add(topCard.Suit, list);
+                        }
                         //jen pokud danou barvu nechyta spoluhrac a pokud akter muze mit nejake nizsi karty
-                        if (!teamMatesCatchingCards.Any(i => i.Suit == b) &&
+                        else if (!teamMatesCatchingCards.Any(i => i.Suit == b) &&
                             list.Any(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                               .Where(h => Card.GetBadValue(h) < i.BadValue)
                                               .Select(h => new Card(b, h))
@@ -781,8 +785,12 @@ namespace Mariasek.Engine
                         var list = new List<Card>() { topCard };
                         list.AddRange(bottomCards);
 
+                        if (!bottomCards.Any())
+                        {
+                            cardsToKeep.Add(topCard.Suit, list);
+                        }
                         //jen pokud danou barvu nechyta spoluhrac a pokud akter muze mit nejake nizsi karty
-                        if (!teamMatesCatchingCards.Any(i => i.Suit == b) &&
+                        else if (!teamMatesCatchingCards.Any(i => i.Suit == b) &&
                             list.Any(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                               .Where(h => Card.GetBadValue(h) < i.BadValue)
                                               .Select(h => new Card(b, h))
