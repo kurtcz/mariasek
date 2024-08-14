@@ -3351,7 +3351,7 @@ namespace Mariasek.Engine
             }
             if (hand.CardCount(_trump.Value) <= 3 &&
                 !hand.HasA(_trump.Value) &&
-                hand.SuitCount() == 2)
+                hand.SuitCount() < Game.NumSuits)
             {
                 DebugInfo.HundredTooRisky = true;
                 return true;
