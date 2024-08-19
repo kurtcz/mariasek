@@ -4406,6 +4406,8 @@ namespace Mariasek.Engine
                     (Hand.HasA(_trumpCard.Suit) &&              //mam trumfove A a
                      Hand.CardCount(_trumpCard.Suit) >= 2 &&    //a mam aspon dva trumfy
                      Hand.CardCount(Hodnota.Eso) >= 3 &&        //a aspon 3 esa
+                     axCount >= 4 &&                            //a aspon 4 ostre celkem
+                     estimatedFinalBasicScore >= 40 &&
                      kqScore >= 20) ||                          //a aspon jednu hlasku
                     ((_gameType & Hra.SedmaProti) != 0 &&       //kolega hlasil sedmu proti a
                      estimatedFinalBasicScore + kqScore >= 50 &&//mam 40 bodu v hlasech plus aspon 10
