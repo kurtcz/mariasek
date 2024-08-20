@@ -52,6 +52,15 @@ namespace Mariasek.Engine
                                                                .Where(j => j.BadValue > i.BadValue)
                                                                .All(j => myInitialHand.Contains(j)))
                                                .ToList();
+            var hiCardsWithHoles = hands[MyIndex].Where(i => (_probabilities.PotentialCards(player2).Any(j => j.Suit == i.Suit &&
+                                                                                                              j.BadValue < i.BadValue) &&
+                                                              _probabilities.PotentialCards(player2).Any(j => j.Suit == i.Suit &&
+                                                                                                              j.BadValue > i.BadValue)) ||
+                                                             (_probabilities.PotentialCards(player3).Any(j => j.Suit == i.Suit &&
+                                                                                                              j.BadValue < i.BadValue) &&
+                                                              _probabilities.PotentialCards(player3).Any(j => j.Suit == i.Suit &&
+                                                                                                              j.BadValue > i.BadValue)))
+                                                 .ToList();
 
             if (TeamMateIndex != -1 && _rounds != null && _rounds[0] != null)
             {
@@ -312,7 +321,16 @@ namespace Mariasek.Engine
                                                                         .Any(j => _probabilities.CardProbability(player2, j) > 0 ||
                                                                                   _probabilities.CardProbability(player3, j) > 0));
 
-                        return cardsToPlay.ToList().RandomOneOrDefault();
+                        if (cardsToPlay.Any())
+                        {
+                            return cardsToPlay.ToList().RandomOneOrDefault();
+                        }
+                        cardsToPlay = hands[MyIndex].Where(i => hiCardsWithHoles.Contains(i) &&
+                                                                hiCardsWithHoles.CardCount(i.Suit) == 1 &&
+                                                                hands[MyIndex].CardCount(i.Suit) > 1 &&
+                                                                i.BadValue >= Card.GetBadValue(Hodnota.Svrsek));
+
+                        return cardsToPlay.OrderByDescending(i => hands[MyIndex].CardCount(i.Suit)).FirstOrDefault();
                     }
                     #endregion
                 };
