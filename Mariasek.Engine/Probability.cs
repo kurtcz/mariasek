@@ -747,7 +747,7 @@ namespace Mariasek.Engine
         //    return CNK(uncertainCards - n, unknownCards) / (float)CNK(uncertainCards, unknownCards);
         //}
 
-        private long CNK(int n, int k)
+        public static long CNK(int n, int k)
         {
             long numerator = 1;
             long denominator = 1;

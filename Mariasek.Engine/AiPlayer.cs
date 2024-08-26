@@ -1002,8 +1002,9 @@ namespace Mariasek.Engine
                                                   hand.CardCount(i.Suit) >= 3 &&
                                                   lowCardPerSuit[i.Suit] == i)
                                       .ToList();
-                if (Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                        .All(b => hand.CardCount(b) >= 2) &&
+                if (hand.SuitCount() == Game.NumSuits &&
+                    Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                        .Count(b => hand.CardCount(b) >= 2) >= 3 &&
                     Enum.GetValues(typeof(Barva)).Cast<Barva>()
                         .Where(b => b != trumpCard.Suit)
                         .Any(b => hand.CardCount(b) >= 4 &&
@@ -3096,9 +3097,17 @@ namespace Mariasek.Engine
                                                             !talon.Any(i => i.Suit == trump &&
                                                                           i.Value == h));
                 var ogc = opponentGreaseCards.Count(i => i.Suit != b);
+
+                if (ogc == 0)
+                {
+                    continue;
+                }
                 //pravdepodobnost namazu aspon jedne karty:
                 //jeden hrac ma vsechny trumfy i karty v barve
-                var p = 1f / (1 << (opponentCards + opponentTrumpCards - 1));
+                var allCases = 1 << (opponentCards + opponentTrumpCards);
+                var positiveCases = 2 * Enumerable.Range(0, Math.Min(ogc, holes))
+                                                  .Sum(i => Probability.CNK(opponentCards + opponentTrumpCards, i));
+                var p = (float)positiveCases / allCases;
 
                 //a druhy hrac ma aspon jednu kartu aby mohl namazat
                 p *= 1 - 1f / (1 << ogc);
@@ -3289,12 +3298,16 @@ namespace Mariasek.Engine
                        (!_teamMateDoubledGame ||
                         _g.MandatoryDouble)) &&
                       !(hand.SuitCount() == 4 &&
-                        Enum.GetValues(typeof(Barva)).Cast<Barva>()         //nemam ve vic nez jedne netrumfove barve A nebo X+1 nebo K+1
-                            .Where(b => hand.HasSuit(b))
-                            .Count(b => hand.HasA(b) ||
-                                        ((hand.HasX(b) ||
-                                          hand.HasK(b)) &&
-                                         hand.CardCount(b) >= 2)) >= 3) &&
+                        (Enum.GetValues(typeof(Barva)).Cast<Barva>()         //nemam ve vic nez jedne netrumfove barve A nebo X+1 nebo K+1
+                             .Where(b => hand.HasSuit(b))
+                             .All(b => hand.HasA(b) ||
+                                         ((hand.HasX(b) ||
+                                           hand.HasK(b)) &&
+                                          hand.CardCount(b) >= 2)) ||
+                         (hand.HasA(_trump.Value) &&
+                          Enum.GetValues(typeof(Barva)).Cast<Barva>()         //nemam trumfove eso a rozlohu 4-3-2-1 nebo 4-2-2-2
+                              .Where(b => hand.HasSuit(b))
+                              .Count(b => hand.CardCount(b) >= 2) >= 3))) &&
                       (hand.Count(i => i.Value >= Hodnota.Svrsek) < 3 ||    //3a. mene nez 3 vysoke karty celkem
                        (!hand.HasA(_trump.Value) &&                         //3a2.mam 4 trumfy bez esa a aspon jednu dalsi barvu bez esa
                         hand.CardCount(Hodnota.Eso) < 2) ||
@@ -3447,6 +3460,12 @@ namespace Mariasek.Engine
             {
                 return true;
             }
+
+            DebugInfo.EstimatedGreaseProbability = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                       .Select(b => new Tuple<Barva, int>(b, (int)Math.Round(EstimateGreaseProbability(hand, talon, b) * 100)))
+                                                       .Where(i => i.Item2 > 0)
+                                                       .ToDictionary(k => k.Item1, v => v.Item2);
+
             if (minBasicPointsLost == maxAllowedPointsLost &&
                 _avgWinForHundred <= 0)
             {

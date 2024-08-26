@@ -27,11 +27,13 @@ namespace Mariasek.Engine
         public int TotalHoles { get; set; }
         public bool SevenTooRisky { get; set; }
         public bool HundredTooRisky { get; set; }
+        public Dictionary<Barva, int> EstimatedGreaseProbability { get; set; }
         public string ProbDebugInfo { get; set; }
 
         public PlayerDebugInfo()
         {
             AllChoices = new RuleDebugInfo[0];
+            EstimatedGreaseProbability = new Dictionary<Barva, int>();
         }
     }
 

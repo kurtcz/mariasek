@@ -2143,6 +2143,13 @@ namespace Mariasek.Engine
                 {
                     BiddingDebugInfo.AppendFormat("\nPříliš riskantní na sedmu");
                 }
+                if (players[playerIndex].DebugInfo.EstimatedGreaseProbability.Any())
+                {
+                    foreach (var kvp in players[playerIndex].DebugInfo.EstimatedGreaseProbability)
+                    {
+                        BiddingDebugInfo.AppendFormat("\nPravděpodobnost námazu na {0}: {1}%", kvp.Key.Description(), kvp.Value);
+                    }
+                }
                 if (kqScore > 0 &&
                     players[playerIndex].DebugInfo.HundredTooRisky)
                 {
