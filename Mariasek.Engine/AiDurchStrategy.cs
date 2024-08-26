@@ -260,16 +260,17 @@ namespace Mariasek.Engine
                                                                    hands[MyIndex].Where(j => j.Suit == b &&
                                                                                              j != i)
                                                                                  .All(j => j.BadValue < i.BadValue));
-
                 if (myTopCard == null)
                 {
                     continue;
                 }
+
                 var opponentPotentialTopCards = _probabilities.PotentialCards(player1)
                                                               .Where(i => i.Suit == b &&
                                                                           i.BadValue > myTopCard.BadValue);
 
                 numCardsToKeep = opponentPotentialTopCards.Count() + 1;
+
                 ////
                 ////if (myInitialHand.HasA(b))
                 //if (myInitialHand.Any(i => i.Suit == b && i.Value == topCardPerSuit[b].Value))
@@ -487,10 +488,12 @@ namespace Mariasek.Engine
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0 ||
-                                                                                Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                                    .Where(h => Card.GetBadValue(h) < i.BadValue)
-                                                                                    .Select(h => new Card(i.Suit, h))
-                                                                                    .All(j => _probabilities.CardProbability(player1, j) == 0));
+                                                                                ((!cardsToKeep.ContainsKey(i.Suit) ||
+                                                                                  !cardsToKeep[i.Suit].Contains(i)) &&
+                                                                                 Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                     .Where(h => Card.GetBadValue(h) < i.BadValue)
+                                                                                     .Select(h => new Card(i.Suit, h))
+                                                                                     .All(j => _probabilities.CardProbability(player1, j) == 0)));
 
                     if (cardsToPlay.Any())
                     {
@@ -704,38 +707,17 @@ namespace Mariasek.Engine
                                                                    hands[MyIndex].Where(j => j.Suit == b &&
                                                                                              j != i)
                                                                                  .All(j => j.BadValue < i.BadValue));
-
                 if (myTopCard == null)
                 {
                     continue;
                 }
+
                 var opponentPotentialTopCards = _probabilities.PotentialCards(player1)
                                                               .Where(i => i.Suit == b &&
                                                                           i.BadValue > myTopCard.BadValue);
 
                 numCardsToKeep = opponentPotentialTopCards.Count() + 1;
 
-                ////
-                //if (myInitialHand.HasA(b))
-                //if (myInitialHand.Any(i => i.Suit == b && i.Value == topCardPerSuit[b].Value))
-                //{
-                //    numCardsToKeep = 1;
-                //}
-                ////else if (myInitialHand.HasK(b))
-                //else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 1))
-                //{
-                //    numCardsToKeep = 2;
-                //}
-                ////else if (myInitialHand.HasQ(b))
-                //else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 2))
-                //{
-                //    numCardsToKeep = 3;
-                //}
-                ////else if (myInitialHand.HasJ(b))
-                //else if (myInitialHand.Any(i => i.Suit == b && topCardPerSuit[b].BadValue - i.BadValue == 3))
-                //{
-                //    numCardsToKeep = 4;
-                //}
                 if (numCardsToKeep > 0 &&
                     hands[MyIndex].CardCount(b) >= numCardsToKeep)
                 {
@@ -929,10 +911,12 @@ namespace Mariasek.Engine
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0 ||
-                                                                                Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                                    .Where(h => Card.GetBadValue(h) < i.BadValue)
-                                                                                    .Select(h => new Card(i.Suit, h))
-                                                                                    .All(j => _probabilities.CardProbability(player1, j) == 0));
+                                                                                ((!cardsToKeep.ContainsKey(i.Suit) ||
+                                                                                  !cardsToKeep[i.Suit].Contains(i)) &&
+                                                                                 Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                                                     .Where(h => Card.GetBadValue(h) < i.BadValue)
+                                                                                     .Select(h => new Card(i.Suit, h))
+                                                                                     .All(j => _probabilities.CardProbability(player1, j) == 0)));
 
                     if (cardsToPlay.Any())
                     {

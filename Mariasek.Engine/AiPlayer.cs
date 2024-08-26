@@ -1912,8 +1912,14 @@ namespace Mariasek.Engine
                                     {
                                         UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
                                     }
+                                    var gt = Hra.Hra;
 
-                                    var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, (Hra.Hra | Hra.SedmaProti), 10, 1);
+                                    if ((gameStartingPlayerIndex == PlayerIndex && !hands[PlayerIndex].Has7(_trump ?? _g.trump ?? Barva.Cerveny)) ||
+                                        (gameStartingPlayerIndex != PlayerIndex && hands[PlayerIndex].Has7(_trump ?? _g.trump ?? Barva.Cerveny)))
+                                    {
+                                        gt |= Hra.SedmaProti;
+                                    }
+                                    var gameComputationResult = ComputeGame(hands, null, null, _trump ?? _g.trump, gt, 10, 1);
                                     gameComputationResults.Enqueue(gameComputationResult);
                                 }
                             }
@@ -2279,7 +2285,14 @@ namespace Mariasek.Engine
                 var calc = GetMoneyCalculator(Hra.Hra, _trump ?? _g.trump, gameStartingPlayerIndex, gameBidding, i);
 
                 calc.CalculateMoney();
-                //_gameStrings.Add(GetComputationResultString(i, calc));
+
+                if (_g.SaveSimulations)
+                {
+                    using (var fs = _g.GetFileStream($"Simulations/p{PlayerIndex + 1}-hra-{idx}.hra"))
+                    {
+                        _g.SaveGame(fs, saveDebugInfo: true, simulatedHands: i.Hands, simulatedGameType: i.GameType, simulatedRounds: i.Rounds, simulatedResult: calc);
+                    }
+                }
 
                 return calc;
             }).Union(gameComputationResults.Where(i => (i.GameType & Hra.Sedma) != 0).Select((i, idx) =>
@@ -2287,7 +2300,14 @@ namespace Mariasek.Engine
                 var calc = GetMoneyCalculator(Hra.Hra | Hra.Sedma, _trump ?? _g.trump, gameStartingPlayerIndex, sevenBidding, i);
 
                 calc.CalculateMoney();
-                //_sevenStrings.Add(GetComputationResultString(i, calc));
+
+                if (_g.SaveSimulations)
+                {
+                    using (var fs = _g.GetFileStream($"Simulations/p{PlayerIndex + 1}-sedma-{idx}.hra"))
+                    {
+                        _g.SaveGame(fs, saveDebugInfo: true, simulatedHands: i.Hands, simulatedGameType: i.GameType, simulatedRounds: i.Rounds, simulatedResult: calc);
+                    }
+                }
 
                 return calc;
             }).Union(gameComputationResults.Where(i => (i.GameType & Hra.Kilo) != 0).Select((i, idx) =>
@@ -2295,23 +2315,43 @@ namespace Mariasek.Engine
                 var calc = GetMoneyCalculator(Hra.Kilo, _trump ?? _g.trump, gameStartingPlayerIndex, sevenBidding, i);
 
                 calc.CalculateMoney();
-                //_sevenStrings.Add(GetComputationResultString(i, calc));
+
+                if (_g.SaveSimulations)
+                { using (var fs = _g.GetFileStream($"Simulations/p{PlayerIndex + 1}-kilo-{idx}.hra"))
+                    {
+                        _g.SaveGame(fs, saveDebugInfo: true, simulatedHands: i.Hands, simulatedGameType: i.GameType, simulatedRounds: i.Rounds, simulatedResult: calc);
+                    }
+                }
 
                 return calc;
-            }).Union(durchComputationResults.Select(i =>
+            }).Union(durchComputationResults.Select((i, idx) =>
             {
                 var calc = GetMoneyCalculator(Hra.Durch, null, gameStartingPlayerIndex, durchBidding, i);
-                //_durchStrings.Add(GetComputationResultString(i, calc));
+
+                if (_g.SaveSimulations)
+                {
+                    using (var fs = _g.GetFileStream($"Simulations/p{PlayerIndex + 1}-durch-{idx}.hra"))
+                    {
+                        _g.SaveGame(fs, saveDebugInfo: true, simulatedHands: i.Hands, simulatedGameType: i.GameType, simulatedRounds: i.Rounds, simulatedResult: calc);
+                    }
+                }
 
                 calc.CalculateMoney();
 
                 return calc;
-            })).Union(betlComputationResults.Select(i =>
+            })).Union(betlComputationResults.Select((i, idx) =>
             {
                 var calc = GetMoneyCalculator(Hra.Betl, null, gameStartingPlayerIndex, betlBidding, i);
 
                 calc.CalculateMoney();
-                //_betlStrings.Add(GetComputationResultString(i, calc));
+
+                if (_g.SaveSimulations)
+                {
+                    using (var fs = _g.GetFileStream($"Simulations/p{PlayerIndex + 1}-betl-{idx}.hra"))
+                    {
+                        _g.SaveGame(fs, saveDebugInfo: true, simulatedHands: i.Hands, simulatedGameType: i.GameType, simulatedRounds: i.Rounds, simulatedResult: calc);
+                    }
+                }
 
                 return calc;
             })))).ToList();
@@ -2380,7 +2420,7 @@ namespace Mariasek.Engine
             _hundredsBalance =  PlayerIndex == gameStartingPlayerIndex
                                 ? moneyCalculations.Where(i => (i.GameType & Hra.Kilo) != 0).Count(i => i.HundredWon)
                                 : moneyCalculations.Any(i => (i.GameType & Hra.Kilo) != 0)
-                                  ? moneyCalculations.Where(i => (i.GameType & Hra.Kilo) != 0).Count(i => i.HundredWon)
+                                  ? moneyCalculations.Where(i => (i.GameType & Hra.Kilo) != 0).Count(i => !i.HundredWon)
                                   : moneyCalculations.Where(i => (i.GameType & (Hra.Betl | Hra.Durch)) == 0).Count(i => !i.HundredWon);
             _hundredSimulations = PlayerIndex == gameStartingPlayerIndex
                                   ? moneyCalculations.Count(i => (i.GameType & Hra.Kilo) != 0)
@@ -2996,6 +3036,77 @@ namespace Mariasek.Engine
             _debugString.AppendFormat("MaxEstimatedLoss: {0} pts\n", estimatedPointsLost);
 
             return estimatedPointsLost;
+        }
+
+        public float EstimateGreaseProbability(List<Card> hand = null, List<Card> talon = null, Barva? suit = null)
+        {
+            hand = hand ?? Hand;
+            talon = talon ?? _talon ?? new List<Card>();
+
+            var trump = _trump ?? _g.trump;
+            var probability = 0f;
+
+            if (trump == null)
+            {
+                return 0f;
+            }
+
+            var opponentGreaseCards = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                          .Where(b => !hand.Any(i => i.Suit == b &&
+                                                                     i.Value == Hodnota.Desitka) &&
+                                                      !talon.Any(i => i.Suit == b &&
+                                                                      i.Value == Hodnota.Desitka))
+                                          .Select(b => new Card(b, Hodnota.Desitka))
+                                          .Concat(Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                                      .Where(b => !hand.Any(i => i.Suit == b &&
+                                                                                 i.Value == Hodnota.Eso) &&
+                                                                  !talon.Any(i => i.Suit == b &&
+                                                                                  i.Value == Hodnota.Eso))
+                                                      .Select(b => new Card(b, Hodnota.Eso)))
+                                          .Where(i => i.Suit != _trump)
+                                          .ToList();
+
+            if (opponentGreaseCards.Count == 0)
+            {
+                return 0f;
+            }
+
+            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            {
+                if (suit != null && suit.Value != b)
+                {
+                    continue;
+                }
+                var holes = GetTotalHoles(hand, talon, b);
+
+                if (holes == 0)
+                {
+                    continue;
+                }
+                var opponentCards = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                        .Count(h => !hand.Any(i => i.Suit == b &&
+                                                                   i.Value == h) &&
+                                                    !talon.Any(i => i.Suit == b &&
+                                                                   i.Value == h));
+                var opponentTrumpCards = b == trump
+                                         ? 0
+                                         : Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                .Count(h => !hand.Any(i => i.Suit == trump &&
+                                                                           i.Value == h) &&
+                                                            !talon.Any(i => i.Suit == trump &&
+                                                                          i.Value == h));
+                var ogc = opponentGreaseCards.Count(i => i.Suit != b);
+                //pravdepodobnost namazu aspon jedne karty:
+                //jeden hrac ma vsechny trumfy i karty v barve
+                var p = 1f / (1 << (opponentCards + opponentTrumpCards - 1));
+
+                //a druhy hrac ma aspon jednu kartu aby mohl namazat
+                p *= 1 - 1f / (1 << ogc);
+
+                probability = Math.Max(p, probability);
+            }
+
+            return probability;
         }
 
         public int EstimateBasicPointsLost(List<Card> hand = null, List<Card> talon = null, bool estimateMaxPointsLost = true)
@@ -3715,8 +3826,9 @@ namespace Mariasek.Engine
                             hand.HasQ(_trump.Value)) &&
                           hand.Any(i => i.Value == Hodnota.Desitka &&   //a mam desitku bez esa
                                         !hand.HasA(i.Suit) &&
-                                        hand.CardCount(i.Suit) +
-                                        _talon?.CardCount(i.Suit) >= 4 &&  //od delsi barvy (souper muze mit eso i vsechny zbyle trumfy)
+                                        //hand.CardCount(i.Suit) +
+                                        //_talon?.CardCount(i.Suit) >= 4 &&  //od delsi barvy (souper muze mit eso i vsechny zbyle trumfy)
+                                        EstimateGreaseProbability(hand, talon, i.Suit) >= Settings.RiskFactorHundred &&
                                         hand.CardCount(_trump.Value) < 8 &&
                                         hand.CardCount(Hodnota.Eso) +
                                         hand.CardCount(Hodnota.Desitka) < 7));
@@ -6824,6 +6936,7 @@ namespace Mariasek.Engine
                     var roundScore = Round.ComputePointsWon(c1, c2, c3, aiStrategy.RoundNumber);
                     result.Rounds.Add(new RoundDebugContext
                     {
+                        number = aiStrategy.RoundNumber,
                         RoundStarterIndex = roundStarterIndex,
                         c1 = c1,
                         c2 = c2,

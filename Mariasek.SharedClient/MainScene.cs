@@ -190,6 +190,7 @@ namespace Mariasek.SharedClient
                 SigmaMultiplier = 0,
                 GameFlavourSelectionStrategy = GameFlavourSelectionStrategy.Fast,
                 RiskFactor = Game.Settings.RiskFactor,
+                RiskFactorHundred = Game.Settings.RiskFactorHundred,
                 RiskFactorSevenDefense = Game.Settings.RiskFactorSevenDefense,
                 SolitaryXThreshold = Game.Settings.SolitaryXThreshold,
                 SolitaryXThresholdDefense = Game.Settings.SolitaryXThresholdDefense,
@@ -3544,7 +3545,10 @@ namespace Mariasek.SharedClient
                         OptimisticAutoFinish = Game.Settings.OptimisticAutoFinish,
                         PreGameHook = () => _preGameEvent.WaitOne(),
                         CurrencyFormat = Game.CurrencyFormat,
-                        LogProbDebugInfo = Game.Settings.LogProbabilities
+                        LogProbDebugInfo = Game.Settings.LogProbabilities,
+#if DEBUG
+                        SaveSimulations = true
+#endif
                     };
                     g.RegisterPlayers(
                         new HumanPlayer(g, _aiSettings, this, Game.Settings.HintEnabled) { Name = Game.Settings.PlayerNames[0] },

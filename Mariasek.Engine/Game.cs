@@ -105,6 +105,7 @@ namespace Mariasek.Engine
         public Bidding Bidding { get; private set; }
         public string Author { get; set; }
         public bool LogProbDebugInfo { get; set; }
+        public bool SaveSimulations { get; set; }
         //public bool DoSort { get; set; }
         public bool AutoDisable100Against { get; set; }
 #if !PORTABLE
@@ -744,7 +745,7 @@ namespace Mariasek.Engine
         }
 #endif
 
-        public void SaveGame(Stream fileStream, bool saveDebugInfo = false, bool saveFromEditor = false, bool logAiModel = false)
+        public void SaveGame(Stream fileStream, bool saveDebugInfo = false, bool saveFromEditor = false, bool logAiModel = false, Hra? simulatedGameType = null, Hand[] simulatedHands = null, List<RoundDebugContext> simulatedRounds = null, MoneyCalculatorBase simulatedResult = null)
         {
             try
             {
@@ -838,7 +839,7 @@ namespace Mariasek.Engine
                             (i.Hra & (Hra.SedmaProti)) != 0 ||
                             (i.Hra & (Hra.KiloProti)) != 0)
                 .ToArray();
-                var hands = new[]
+                var hands = simulatedHands != null ? simulatedHands.Select(i => (List<Card>)i).ToArray() : new[]
                 {
                     new List<Card>(players[0].Hand),
                     new List<Card>(players[1].Hand),
@@ -849,10 +850,27 @@ namespace Mariasek.Engine
                 {
                     rounds = new Round[NumRounds];
                 }
+
+                var roundsToSave = simulatedRounds ?? rounds.Select(r => r == null ? null : new RoundDebugContext
+                {
+                    number = r.number,
+                    c1 = r.c1,
+                    c2 = r.c2,
+                    c3 = r.c3,
+                    hlas1 = r.hlas1,
+                    hlas2 = r.hlas2,
+                    hlas3 = r.hlas3,
+                    r1 = r.debugNote1,
+                    r2 = r.debugNote2,
+                    r3 = r.debugNote3
+                }).ToList();
+                var result = simulatedResult ?? Results;
+
                 if (!IsRunning &&
+                    simulatedRounds == null &&
                     rounds[0] != null &&
                     ((GameType & (Hra.Betl | Hra.Durch)) == 0 ||
-                     Results.MoneyWon[GameStartingPlayerIndex] > 0))
+                     result.MoneyWon[GameStartingPlayerIndex] > 0))
                 {
                     hands[0].Clear();
                     hands[1].Clear();
@@ -868,12 +886,13 @@ namespace Mariasek.Engine
                     hands[(GameStartingPlayerIndex + 2) % NumPlayers].Sort(SortMode.SuitsOnly);
                 }
                 var hraci = new[] { Hrac.Hrac1, Hrac.Hrac2, Hrac.Hrac3 };
+                var gameType = simulatedGameType ?? GameType;
                 var gameDto = new GameDto
                 {
                     Kolo = roundNumber,
                     Voli = hraci[GameStartingPlayerIndex],
-                    Trumf = GameType != 0 ? trump : null,
-                    Typ = GameType != 0 ? (Hra?)GameType : null,
+                    Trumf = gameType != 0 ? trump : null,
+                    Typ = gameType != 0 ? (Hra?)gameType : null,
                     Zacina = hraci[startingPlayerIndex],
                     Autor = Author,
                     Verze = Version.ToString(),
@@ -898,13 +917,13 @@ namespace Mariasek.Engine
                             Hodnota = i.Value
                         }).ToArray(),
                     Fleky = fleky,
-                    Stychy = rounds.Where(r => r != null)
+                    Stychy = roundsToSave.Where(r => r != null)
                         .Select(r => new Stych
                         {
                             Kolo = r.number,
-                            Zacina = hraci[r.player1.PlayerIndex]
+                            Zacina = hraci[r.RoundStarterIndex]
                         }).ToArray(),
-                    Talon = talon
+                    Talon = (simulatedHands?[Game.TalonIndex] ?? talon)
                         ?.Select(i => new Karta
                         {
                             Barva = i.Suit,
@@ -913,6 +932,36 @@ namespace Mariasek.Engine
                 };
                 foreach (var stych in gameDto.Stychy.Where(i => i != null))
                 {
+                    if (simulatedRounds != null)
+                    {
+                        var sr = simulatedRounds[stych.Kolo - 1];
+                        var scards = new[] { sr.c1, sr.c2, sr.c3 };
+                        var sdebugInfo = new[] { sr.r1, sr.r2, sr.r3 };
+                        var splayerIndices = new[] { sr.RoundStarterIndex, (sr.RoundStarterIndex + 1) % Game.NumPlayers, (sr.RoundStarterIndex + 2 ) % Game.NumPlayers };
+
+                        var sindex = Array.IndexOf(splayerIndices, 0);
+                        stych.Hrac1 = new Karta
+                        {
+                            Barva = scards[sindex].Suit,
+                            Hodnota = scards[sindex].Value,
+                            Poznamka = sdebugInfo[sindex]
+                        };
+                        sindex = Array.IndexOf(splayerIndices, 1);
+                        stych.Hrac2 = new Karta
+                        {
+                            Barva = scards[sindex].Suit,
+                            Hodnota = scards[sindex].Value,
+                            Poznamka = sdebugInfo[sindex]
+                        };
+                        sindex = Array.IndexOf(splayerIndices, 2);
+                        stych.Hrac3 = new Karta
+                        {
+                            Barva = scards[sindex].Suit,
+                            Hodnota = scards[sindex].Value,
+                            Poznamka = sdebugInfo[sindex]
+                        };
+                        continue;
+                    }
                     var r = rounds[stych.Kolo - 1];
                     if (r == null)
                     {
@@ -961,24 +1010,24 @@ namespace Mariasek.Engine
                         };
                     }
                 }
-                if (Results != null)
+                if (result != null)
                 {
                     gameDto.Zuctovani = new Zuctovani
                     {
                         Hrac1 = new Skore
                         {
-                            Body = GameStartingPlayerIndex == 0 ? Results.PointsWon : Results.PointsLost,
-                            Zisk = Results.MoneyWon[0]
+                            Body = GameStartingPlayerIndex == 0 ? result.PointsWon : result.PointsLost,
+                            Zisk = result.MoneyWon[0]
                         },
                         Hrac2 = new Skore
                         {
-                            Body = GameStartingPlayerIndex == 1 ? Results.PointsWon : Results.PointsLost,
-                            Zisk = Results.MoneyWon[1]
+                            Body = GameStartingPlayerIndex == 1 ? result.PointsWon : result.PointsLost,
+                            Zisk = result.MoneyWon[1]
                         },
                         Hrac3 = new Skore
                         {
-                            Body = GameStartingPlayerIndex == 2 ? Results.PointsWon : Results.PointsLost,
-                            Zisk = Results.MoneyWon[2]
+                            Body = GameStartingPlayerIndex == 2 ? result.PointsWon : result.PointsLost,
+                            Zisk = result.MoneyWon[2]
                         }
                     };
                 }
@@ -1017,10 +1066,20 @@ namespace Mariasek.Engine
                 LogHands();
                 //zahajeni hry
                 PreGameHook();
+
+                if (SaveSimulations && Directory.Exists("Simulations"))
+                {
+                    foreach (var file in Directory.GetFiles("Simulations"))
+                    {
+                        File.Delete(file);
+                    }
+                }
+
                 if (RoundNumber == 0)
                 {
                     GameType = Hra.Hra; //docasne nastavena nejaka minimalni hra
                     Bidding = new Bidding(this);
+
                     await ChooseGame();
                     RoundNumber++;
                 }
@@ -2100,6 +2159,14 @@ namespace Mariasek.Engine
             {
                 BiddingDebugInfo.AppendFormat("\n{0} ({1}/{2})", choice.Rule, choice.RuleCount, choice.TotalRuleCount);
             }
+#if DEBUG && SAVE_SIMULATIONS
+            using (var fs = GetFileStream($"Simulations/summary.txt"))
+            {
+                var str = BiddingDebugInfo.ToString();
+                var buffer = Encoding.UTF8.GetBytes(str);
+                fs.Write(buffer, 0, buffer.Length);
+            }
+#endif
         }
         #endregion
     }

@@ -7,4 +7,8 @@
     <DefineConstants>PORTABLE</DefineConstants>
   </PropertyGroup>
   
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DefineConstants>PORTABLE;DEBUG;NET;NET8_0;NETCOREAPP;SAVE_SIMULATIONS</DefineConstants>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
 </Project>

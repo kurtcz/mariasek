@@ -48,6 +48,7 @@ namespace Mariasek.Engine
         public int SigmaMultiplier { get; set; }
 		public GameFlavourSelectionStrategy GameFlavourSelectionStrategy { get; set; }
         public float RiskFactor { get; set; }
+        public float RiskFactorHundred { get; set; }
         public float RiskFactorSevenDefense { get; set; }
         public float SolitaryXThreshold { get; set; }
         public float SolitaryXThresholdDefense { get; set; }

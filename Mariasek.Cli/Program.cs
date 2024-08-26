@@ -439,6 +439,7 @@ namespace Mariasek.Cli
                 SigmaMultiplier = 0,
                 GameFlavourSelectionStrategy = GameFlavourSelectionStrategy.Fast,
                 RiskFactor = Settings.RiskFactor,
+                RiskFactorHundred = Settings.RiskFactorHundred,
                 RiskFactorSevenDefense = Settings.RiskFactorSevenDefense,
                 SolitaryXThreshold = Settings.SolitaryXThreshold,
                 SolitaryXThresholdDefense = Settings.SolitaryXThresholdDefense,

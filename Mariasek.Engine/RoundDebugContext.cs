@@ -8,6 +8,7 @@ namespace Mariasek.Engine
 {
     public class RoundDebugContext
     {
+        public int number;
         public int RoundStarterIndex;
         public Card c1;
         public Card c2;
