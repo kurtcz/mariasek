@@ -4199,7 +4199,7 @@ namespace Mariasek.Engine
                       _avgWinForGame < -2 * _g.BetlValue &&
                       Hand.Has7(_trump.Value) &&
                       Hand.CardCount(_trump.Value) >= 4 &&
-                      _avgWinForSeven >= -2 * _g.BetlValue)))
+                      _avgWinForSeven >= -_g.BetlValue)))
                 {
                     if (gameType == 0)
                     {
@@ -4493,6 +4493,10 @@ namespace Mariasek.Engine
                       (Hand.CardCount(_trumpCard.Suit) >= 4 &&
                        kqScore >= 20 &&
                        !Is100AgainstPossible(120)) ||
+                      (Hand.CardCount(_trumpCard.Suit) >= 2 &&
+                       Hand.CardCount(Hodnota.Eso) >= 2 &&
+                       estimatedFinalBasicScore >= 20 &&
+                       kqMaxOpponentScore <= 20) ||
                       (Hand.CardCount(_trumpCard.Suit) >= 3 &&
                        (bidding.Bids & Hra.Sedma) == 0 &&
                        axCount >= 1 &&

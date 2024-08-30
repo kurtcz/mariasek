@@ -3361,6 +3361,7 @@ namespace Mariasek.Engine
                                           //a ve zbyvajici barve mas vyssi karty nez souper
                                           !(cardsToPlay.All(i => i.Value >= Hodnota.Desitka) &&
                                             hands[MyIndex].SuitCount == 2 &&
+                                            !hands[MyIndex].HasSuit(_trump) &&
                                             hands[MyIndex].All(i => (cardsToPlay.HasSuit(i.Suit) &&
                                                                      cardsToPlay.CardCount(i.Suit) == hands[MyIndex].CardCount(i.Suit)) ||
                                                                     (topCards.HasSuit(i.Suit) &&
@@ -3687,6 +3688,35 @@ namespace Mariasek.Engine
                                     if (temp.Any())
                                     {
                                         cardsToPlay = temp;
+                                    }
+                                    //nezbavuj se zbytecne ostrych karet, pokud muzes hrat nejakou nizkou
+                                    if ((_gameType & (Hra.Sedma | Hra.Kilo | Hra.KiloProti)) == 0 &&
+                                        (cardsToPlay.All(j => j.Value == Hodnota.Kral && //pokud bys kralem tlacil z kolegy ostrou
+                                                              (_probabilities.PotentialCards(TeamMateIndex).HasA(j.Suit) ||
+                                                               _probabilities.PotentialCards(TeamMateIndex).HasX(j.Suit))) ||
+                                         (hands[MyIndex].Any(i => i.Suit != _trump &&
+                                                                  !_bannedSuits.Contains(i.Suit) &&
+                                                                  i.Value < Hodnota.Desitka &&
+                                                                  ((_probabilities.PotentialCards(player2).Where(j => j.Suit == i.Suit)
+                                                                                                          .Any(j => j.Value > i.Value &&
+                                                                                                                    j.Value < Hodnota.Desitka) &&
+                                                                    _probabilities.LikelyCards(player3).Where(j => j.Suit == i.Suit)
+                                                                                                       .All(j => j.Value < Hodnota.Desitka)) ||
+                                                                    (GameValue > SevenValue &&
+                                                                     _probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0 &&
+                                                                     _probabilities.SuitProbability(player2, _trump, RoundNumber) >= 1 - RiskFactor &&
+                                                                     _probabilities.HasAOrXAndNothingElse(player3, i.Suit, RoundNumber) == 1)))) &&
+                                          //vytlac trumf ostrou kartou pokud mas jen dve barvy
+                                          //a ve zbyvajici barve mas vyssi karty nez souper
+                                          !(cardsToPlay.All(i => i.Value >= Hodnota.Desitka) &&
+                                            hands[MyIndex].SuitCount == 2 &&
+                                            !hands[MyIndex].HasSuit(_trump) &&
+                                            hands[MyIndex].All(i => (cardsToPlay.HasSuit(i.Suit) &&
+                                                                     cardsToPlay.CardCount(i.Suit) == hands[MyIndex].CardCount(i.Suit)) ||
+                                                                    (topCards.HasSuit(i.Suit) &&
+                                                                     _probabilities.SuitProbability(opponent, i.Suit, RoundNumber) >= 0.95f)))))
+                                    {
+                                        cardsToPlay = Enumerable.Empty<Card>();
                                     }
                                 }
                             }
