@@ -3345,7 +3345,7 @@ namespace Mariasek.Engine
                                         (cardsToPlay.All(j => j.Value == Hodnota.Kral && //pokud bys kralem tlacil z kolegy ostrou
                                                               (_probabilities.PotentialCards(player2).HasA(j.Suit) ||
                                                                _probabilities.PotentialCards(player2).HasX(j.Suit))) ||
-                                         hands[MyIndex].Any(i => i.Suit != _trump &&
+                                         (hands[MyIndex].Any(i => i.Suit != _trump &&
                                                                   !_bannedSuits.Contains(i.Suit) &&
                                                                   i.Value < Hodnota.Desitka &&
                                                                   ((_probabilities.PotentialCards(player2).Where(j => j.Suit == i.Suit)
@@ -3356,7 +3356,15 @@ namespace Mariasek.Engine
                                                                     (GameValue > SevenValue &&
                                                                      _probabilities.SuitProbability(player2, i.Suit, RoundNumber) == 0 &&
                                                                      _probabilities.SuitProbability(player2, _trump, RoundNumber) >= 1 - RiskFactor &&
-                                                                     _probabilities.HasAOrXAndNothingElse(player3, i.Suit, RoundNumber) == 1)))))
+                                                                     _probabilities.HasAOrXAndNothingElse(player3, i.Suit, RoundNumber) == 1)))) &&
+                                          //vytlac trumf ostrou kartou pokud mas jen dve barvy
+                                          //a ve zbyvajici barve mas vyssi karty nez souper
+                                          !(cardsToPlay.All(i => i.Value >= Hodnota.Desitka) &&
+                                            hands[MyIndex].SuitCount == 2 &&
+                                            hands[MyIndex].All(i => (cardsToPlay.HasSuit(i.Suit) &&
+                                                                     cardsToPlay.CardCount(i.Suit) == hands[MyIndex].CardCount(i.Suit)) ||
+                                                                    (topCards.HasSuit(i.Suit) &&
+                                                                     _probabilities.SuitProbability(opponent, i.Suit, RoundNumber) >= 0.95f)))))
                                     {
                                         cardsToPlay = Enumerable.Empty<Card>();
                                     }
