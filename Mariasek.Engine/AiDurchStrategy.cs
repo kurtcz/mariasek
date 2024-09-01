@@ -172,15 +172,14 @@ namespace Mariasek.Engine
             var player3 = (MyIndex + 1) % Game.NumPlayers;
             var player1 = (MyIndex + 2) % Game.NumPlayers;
 
+            var actorCardsPlayed = _rounds.Where(r => r != null && r.c3 != null)
+                                          .Select(r => r.c1)
+                                          .ToList();
             var teamMatesCardsPlayed = _rounds.Where(r => r != null && r.c3 != null)
-                                              .Select(r => r.player2.PlayerIndex == TeamMateIndex
-                                                            ? r.c2
-                                                            : r.c3)
+                                              .Select(r => r.c3)
                                               .ToList();
             var myCardsPlayed = _rounds.Where(r => r != null && r.c3 != null)
-                                       .Select(r => r.player2.PlayerIndex == MyIndex
-                                                            ? r.c2
-                                                            : r.c3)
+                                       .Select(r => r.c2)
                                        .ToList();
             var myInitialHand = new Hand(myCardsPlayed.Concat((List<Card>)hands[MyIndex]).Distinct());
             var spodek = new Card(Barva.Cerveny, Hodnota.Spodek);
@@ -236,6 +235,13 @@ namespace Mariasek.Engine
                                                                         _probabilities.CardProbability(player1, i) > 0 ||
                                                                         _probabilities.CardProbability(player3, i) > 0)
                                                    ?? new Card(b, Hodnota.Sedma));
+            var lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                     .Where(h => Card.GetBadValue(h) <= i.BadValue)
+                                                     .All(h => !_probabilities.PotentialCards(player1).Any(j => j.Suit == i.Suit &&
+                                                                                                                j.Value == h) &&
+                                                               !_probabilities.PotentialCards(player3).Any(j => j.Suit == i.Suit &&
+                                                                                                                j.Value == h)))
+                                         .ToList();
             var myCatchingCards = catchingCards.Where(i => myInitialHand.Any(j => j == i))  //pripocti chytaky, ktere mam v ruce
                                                .Concat(hands[MyIndex].Where(i => teamMatesCatchingCards.All(j => j.Suit != i.Suit) &&
                                                                                  (topCardPerSuit[i.Suit].BadValue - i.BadValue == 0 ||
@@ -375,7 +381,6 @@ namespace Mariasek.Engine
                 #endregion
             };
 
-
             yield return new AiRule()
             {
                 Order = 1,
@@ -419,7 +424,6 @@ namespace Mariasek.Engine
                 #endregion
             };
 
-
             yield return new AiRule()
             {
                 Order = 3,
@@ -462,13 +466,12 @@ namespace Mariasek.Engine
                 #endregion
             };
 
-
             yield return new AiRule()
             {
                 Order = 4,
                 Description = "hrát největší kartu, kterou chytám",
                 SkipSimulations = true,
-                #region ChooseCard3 Rule2
+                #region ChooseCard3 Rule4
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => cardsToKeep.Keys.Contains(i.Suit) &&
@@ -484,16 +487,18 @@ namespace Mariasek.Engine
                 Order = 5,
                 Description = "hrát největší kartu, kterou nechytám",
                 SkipSimulations = true,
-                #region ChooseCard2 Rule4
+                #region ChooseCard2 Rule5
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0 ||
                                                                                 ((!cardsToKeep.ContainsKey(i.Suit) ||
                                                                                   !cardsToKeep[i.Suit].Contains(i)) &&
-                                                                                 Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                                     .Where(h => Card.GetBadValue(h) < i.BadValue)
-                                                                                     .Select(h => new Card(i.Suit, h))
-                                                                                     .All(j => _probabilities.CardProbability(player1, j) == 0)));
+                                                                                 !lowCards.Contains(i)));
+
+                    //pokud uz jsi ukazal stejnou barvu v minulem kole a muzes ukazat jeste jinou nizkou barvu, tak pravidlo nehraj
+                    cardsToPlay = cardsToPlay.Where(i => !myCardsPlayed.HasSuit(i.Suit) ||
+                                                         !lowCards.Any(j => j.Suit != i.Suit &&
+                                                                            !actorCardsPlayed.HasSuit(j.Suit)));
 
                     if (cardsToPlay.Any())
                     {
@@ -504,10 +509,7 @@ namespace Mariasek.Engine
                          Enum.GetValues(typeof(Barva)).Cast<Barva>()
                              .Any(b => //hands[MyIndex].CardCount(b) >= 4 &&
                                        hands[MyIndex].Where(i => i.Suit == b)
-                                                     .All(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                   .Select(h => new Card(b, h))
-                                                                   .Where(j => j.BadValue < i.BadValue)
-                                                                   .All(j => _probabilities.CardProbability(player1, j) == 0)))))
+                                                     .All(i => !lowCards.Contains(i)))))
                     {
                         cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => cardsToKeep.SelectMany(j => j.Value)
                                                                                            .All(j => i != j));
@@ -522,6 +524,11 @@ namespace Mariasek.Engine
                                                                  hands[MyIndex].CardCount(i.Suit) == 1);
                         }
 
+                        //pokud uz jsi ukazal stejnou barvu v minulem kole a muzes ukazat jeste jinou nizkou barvu, tak pravidlo nehraj
+                        cardsToPlay = cardsToPlay.Where(i => !myCardsPlayed.HasSuit(i.Suit) ||
+                                                             !lowCards.Any(j => j.Suit != i.Suit &&
+                                                                                !actorCardsPlayed.HasSuit(j.Suit)));
+
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
                     return null;
@@ -534,7 +541,7 @@ namespace Mariasek.Engine
                 Order = 6,
                 Description = "obětovat chytáka",
                 SkipSimulations = true,
-                #region ChooseCard2 Rule5
+                #region ChooseCard2 Rule6
                 ChooseCard2 = (Card c1) =>
                 {
                     var mySuits = ValidCards(c1, hands[MyIndex]).Select(i => i.Suit).Distinct();
@@ -587,7 +594,7 @@ namespace Mariasek.Engine
                 Order = 7,
                 Description = "hrát nejmenší kartu",
                 SkipSimulations = true,
-                #region ChooseCard2 Rule6
+                #region ChooseCard2 Rule7
                 ChooseCard2 = (Card c1) =>
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]);
@@ -614,10 +621,11 @@ namespace Mariasek.Engine
             #region InitVariables
             var player1 = (MyIndex + 1) % Game.NumPlayers;
             var player2 = (MyIndex + 2) % Game.NumPlayers;
+            var actorCardsPlayed = _rounds.Where(r => r != null && r.c3 != null)
+                              .Select(r => r.c1)
+                              .ToList();
             var teamMatesCardsPlayed = _rounds.Where(r => r != null && r.c3 != null)
-                                              .Select(r => r.player2.PlayerIndex == TeamMateIndex
-                                                            ? r.c2
-                                                            : r.c3)
+                                              .Select(r => r.c2)
                                               .ToList();
             if (_rounds[RoundNumber - 1] != null &&
                 _rounds[RoundNumber - 1].player2.PlayerIndex == TeamMateIndex &&
@@ -626,9 +634,7 @@ namespace Mariasek.Engine
                 teamMatesCardsPlayed.Add(_rounds[RoundNumber - 1].c2);
             }
             var myCardsPlayed = _rounds.Where(r => r != null && r.c3 != null)
-                                       .Select(r => r.player2.PlayerIndex == MyIndex
-                                                            ? r.c2
-                                                            : r.c3)
+                                       .Select(r => r.c3)
                                        .ToList();
             var myInitialHand = new Hand(myCardsPlayed.Concat((List<Card>)hands[MyIndex]).Distinct());
             var spodek = new Card(Barva.Cerveny, Hodnota.Spodek);
@@ -684,6 +690,13 @@ namespace Mariasek.Engine
                                                                      _probabilities.CardProbability(player1, i) > 0 ||
                                                                      _probabilities.CardProbability(player2, i) > 0)
                                             ?? new Card(b, Hodnota.Sedma));
+            var lowCards = hands[MyIndex].Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                         .Where(h => Card.GetBadValue(h) <= i.BadValue)
+                                         .All(h => !_probabilities.PotentialCards(player1).Any(j => j.Suit == i.Suit &&
+                                                                                                    j.Value == h) &&
+                                                   !_probabilities.PotentialCards(player2).Any(j => j.Suit == i.Suit &&
+                                                                                                    j.Value == h)))
+                                         .ToList();
             var myCatchingCards = catchingCards.Where(i => myInitialHand.Any(j => j == i))  //pripocti chytaky, ktere mam v ruce
                                                .Concat(hands[MyIndex].Where(i => teamMatesCatchingCards.All(j => j.Suit != i.Suit) &&
                                                                                  (topCardPerSuit[i.Suit].BadValue - i.BadValue == 0 ||
@@ -891,7 +904,7 @@ namespace Mariasek.Engine
                 Order = 4,
                 Description = "hrát největší kartu, kterou chytám",
                 SkipSimulations = true,
-                #region ChooseCard3 Rule2
+                #region ChooseCard3 Rule4
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => cardsToKeep.Keys.Contains(i.Suit) &&
@@ -907,17 +920,17 @@ namespace Mariasek.Engine
                 Order = 5,
                 Description = "hrát největší kartu, kterou nechytám",
                 SkipSimulations = true,
-                #region ChooseCard3 Rule4
+                #region ChooseCard3 Rule5
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => _probabilities.SuitProbability(player1, i.Suit, RoundNumber) == 0 ||
                                                                                 ((!cardsToKeep.ContainsKey(i.Suit) ||
                                                                                   !cardsToKeep[i.Suit].Contains(i)) &&
-                                                                                 Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                                     .Where(h => Card.GetBadValue(h) < i.BadValue)
-                                                                                     .Select(h => new Card(i.Suit, h))
-                                                                                     .All(j => _probabilities.CardProbability(player1, j) == 0)));
-
+                                                                                 lowCards.Contains(i)));
+                    //pokud uz jsi ukazal stejnou barvu v minulem kole a muzes ukazat jeste jinou nizkou barvu, tak pravidlo nehraj
+                    cardsToPlay = cardsToPlay.Where(i => !myCardsPlayed.HasSuit(i.Suit) ||
+                                                         !lowCards.Any(j => j.Suit != i.Suit &&
+                                                                            !actorCardsPlayed.HasSuit(j.Suit)));
                     if (cardsToPlay.Any())
                     {
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
@@ -927,10 +940,7 @@ namespace Mariasek.Engine
                          Enum.GetValues(typeof(Barva)).Cast<Barva>()
                              .Any(b => //hands[MyIndex].CardCount(b) >= 4 &&
                                        hands[MyIndex].Where(i => i.Suit == b)
-                                                     .All(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
-                                                                   .Select(h => new Card(b, h))
-                                                                   .Where(j => j.BadValue < i.BadValue)
-                                                                   .All(j => _probabilities.CardProbability(player1, j) == 0)))))
+                                                     .All(i => lowCards.Contains(i)))))
                     {
                         cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => cardsToKeep.SelectMany(j => j.Value)
                                                                                                .All(j => i != j));
@@ -938,6 +948,10 @@ namespace Mariasek.Engine
                         {
                             cardsToPlay = cardsToPlay.Where(i => !cardsToKeep.ContainsKey(i.Suit));
                         }
+                        //pokud uz jsi ukazal stejnou barvu v minulem kole a muzes ukazat jeste jinou nizkou barvu, tak pravidlo nehraj
+                        cardsToPlay = cardsToPlay.Where(i => !myCardsPlayed.HasSuit(i.Suit) ||
+                                                             !lowCards.Any(j => j.Suit != i.Suit &&
+                                                                                !actorCardsPlayed.HasSuit(j.Suit)));
 
                         return cardsToPlay.OrderByDescending(i => i.BadValue).FirstOrDefault();
                     }
@@ -951,7 +965,7 @@ namespace Mariasek.Engine
                 Order = 6,
                 Description = "obětovat chytáka",
                 SkipSimulations = true,
-                #region ChooseCard3 Rule5
+                #region ChooseCard3 Rule6
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var mySuits = ValidCards(c1, hands[MyIndex]).Select(i => i.Suit).Distinct();
@@ -1004,7 +1018,7 @@ namespace Mariasek.Engine
                 Order = 7,
                 Description = "hrát nejmenší kartu",
                 SkipSimulations = true,
-                #region ChooseCard3 Rule6
+                #region ChooseCard3 Rule7
                 ChooseCard3 = (Card c1, Card c2) =>
                 {
                     var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]);

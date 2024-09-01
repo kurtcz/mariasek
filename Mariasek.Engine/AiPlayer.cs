@@ -4954,9 +4954,10 @@ namespace Mariasek.Engine
                 _betlBalance / (float)_betlSimulations >= betlThreshold &&
                 (TeamMateIndex != -1 ||     //pokud jsem volil betla, tak si dej re a vys jen kdyz mas jedn jednu diru (kterou vyjedes)
                  GetBetlHoles() <= 1 ||
-                 (GetBetlHoles() == 2 &&    //nebo pokud mas 2 diry z nichz jedna je samotna osmicka
+                 (GetBetlHoles() == 2 &&    //nebo pokud mas 2 diry z nichz aspon jedna je samotna osmicka nebo devitka
                   Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                      .Any(b => (Hand.Has8(b) &&
+                      .Any(b => ((Hand.Has8(b) ||
+                                  Hand.Has9(b)) &&
                                  Hand.CardCount(b) == 1)))))
             {
                 bid |= bidding.Bids & Hra.Betl;
