@@ -6887,6 +6887,8 @@ namespace Mariasek.Engine
                 _g.Bidding, _g.GameValue, _g.HundredValue, _g.SevenValue);
             var aiStrategies = new[] { aiStrategy1, aiStrategy2, aiStrategy3 };
             var aiStrategy = aiStrategies[player1];
+            var hh = new[] { new Hand(hands[0]), new Hand(hands[1]), new Hand(hands[2]), new Hand(hands[3]) };
+            Card c3 = null;
 
             try
             {
@@ -6951,7 +6953,7 @@ namespace Mariasek.Engine
                     ruleDictionary = aiStrategy.GetApplicableRules3(c1, c2);
 
                     r3 = ruleDictionary.Keys.OrderBy(i => i.Order).FirstOrDefault();
-                    var c3 = ruleDictionary.OrderBy(i => i.Key.Order).Select(i => i.Value).FirstOrDefault();
+                    c3 = ruleDictionary.OrderBy(i => i.Key.Order).Select(i => i.Value).FirstOrDefault();
 
                     //if (c1 == null || c2 == null || c3 == null)
                     //    c3 = c3; //investigate
@@ -7043,6 +7045,15 @@ namespace Mariasek.Engine
                 try
                 {
                     _g.DebugString.AppendLine($"ComputeGame for player{PlayerIndex + 1} and round {aiStrategy.RoundNumber} threw an exception {ex.Message}");
+                    foreach(var h in hh)
+                    {
+                        _g.DebugString.AppendLine(h.ToString());
+                    }
+                    foreach(var h in hands)
+                    {
+                        _g.DebugString.AppendLine(h.ToString());
+                    }
+                    _g.DebugString.Append($"{c1?.ToString() ?? "null"} {c2?.ToString() ?? "null"} {c3?.ToString() ?? "null"}");
                     _g.DebugString.Append(aiStrategy._debugString.ToString());
                 }
                 catch { }

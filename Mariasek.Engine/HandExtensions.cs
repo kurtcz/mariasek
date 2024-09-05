@@ -225,6 +225,10 @@ namespace Mariasek.Engine
             Update();
         }
 
+        public Hand(Hand hand) : this(hand._hand)
+        {
+        }
+
         public void AddRange(List<Card> list)
         {
             _hand.AddRange(list);
