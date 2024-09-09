@@ -115,6 +115,7 @@ namespace Mariasek.SharedClient
         public int CurrentStartingPlayerIndex = -1;
         private AiPlayerSettings _aiSettings;
         private string _archivePath = Path.Combine(MariasekMonoGame.RootPath, "Archive");
+        private string _simulationsPath = Path.Combine(MariasekMonoGame.RootPath, "Simulations");
         private string _historyFilePath = Path.Combine(MariasekMonoGame.RootPath, "Mariasek.history");
         private string _deckFilePath = Path.Combine(MariasekMonoGame.RootPath, "Mariasek.deck");
         private string _minMaxFilePath = Path.Combine(MariasekMonoGame.RootPath, "_minmax.csv");
@@ -3560,6 +3561,7 @@ namespace Mariasek.SharedClient
                     {
                         //g.DoSort = Game.Settings.SortMode != SortMode.None;
                         Game.StorageAccessor.GetStorageAccess();
+                        DeleteSimulationsFolder();
                         using (var fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
                             g.LoadGame(fs, impersonationPlayerIndex: ImpersonationPlayerIndex);
@@ -4375,6 +4377,24 @@ namespace Mariasek.SharedClient
                 }
             }
             catch(Exception ex)
+            {
+                ShowMsgLabel(ex.Message, false);
+            }
+        }
+
+        public void DeleteSimulationsFolder()
+        {
+            try
+            {
+                if (Directory.Exists(_simulationsPath))
+                {
+                    foreach (var game in Directory.GetFiles(_simulationsPath))
+                    {
+                        File.Delete(game);
+                    }
+                }
+            }
+            catch (Exception ex)
             {
                 ShowMsgLabel(ex.Message, false);
             }

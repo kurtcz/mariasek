@@ -270,7 +270,14 @@ namespace Mariasek.SharedClient
                                     {
                                         if (debugInfo.TotalRuleCount > 0)
                                         {
-                                            msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (k++) % 2 == 1 ? "\n" : "\t"));
+                                            if (debugInfo.Rule.StartsWith("Kilo"))
+                                            {
+                                                msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, _aiPlayer.DebugInfo.EstimatedHundredWinProbability, (k++) % 2 == 1 ? "\n" : "\t"));
+                                            }
+                                            else
+                                            {
+                                                msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (k++) % 2 == 1 ? "\n" : "\t"));
+                                            }
                                         }
                                         else
                                         {
@@ -456,7 +463,14 @@ namespace Mariasek.SharedClient
                             {
                                 if (debugInfo.TotalRuleCount > 0)
                                 {
-                                    msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (k++) % 2 == 1 ? "\n" : "\t"));
+                                    if (debugInfo.Rule.StartsWith("Kilo"))
+                                    {
+                                        msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, _aiPlayer.DebugInfo.EstimatedHundredWinProbability, (k++) % 2 == 1 ? "\n" : "\t"));
+                                    }
+                                    else
+                                    {
+                                        msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (k++) % 2 == 1 ? "\n" : "\t"));
+                                    }
                                 }
                                 else
                                 {

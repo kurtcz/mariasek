@@ -1067,14 +1067,6 @@ namespace Mariasek.Engine
                 //zahajeni hry
                 PreGameHook();
 
-                if (SaveSimulations && Directory.Exists("Simulations"))
-                {
-                    foreach (var file in Directory.GetFiles("Simulations"))
-                    {
-                        File.Delete(file);
-                    }
-                }
-
                 if (RoundNumber == 0)
                 {
                     GameType = Hra.Hra; //docasne nastavena nejaka minimalni hra
@@ -2143,13 +2135,29 @@ namespace Mariasek.Engine
                 {
                     BiddingDebugInfo.AppendFormat("\nPříliš riskantní na sedmu");
                 }
-                if (players[playerIndex].DebugInfo.EstimatedGreaseProbability.Any())
+                if (players[playerIndex].DebugInfo.EstimatedGreaseProbabilityDictionary.Any())
                 {
-                    foreach (var kvp in players[playerIndex].DebugInfo.EstimatedGreaseProbability)
+                    foreach (var kvp in players[playerIndex].DebugInfo.EstimatedGreaseProbabilityDictionary)
                     {
                         BiddingDebugInfo.AppendFormat("\nPravděpodobnost námazu na {0}: {1}%", kvp.Key.Description(), kvp.Value);
                     }
                 }
+                //if (players[playerIndex].DebugInfo.EstimatedGreaseProbabilityList.Any())
+                //{
+                //    for(var i = 0; i < players[playerIndex].DebugInfo.EstimatedGreaseProbabilityList.Count; i++)
+                //    {
+                //        BiddingDebugInfo.AppendFormat("\nPravděpodobnost námazu {0} bodů: {1}%", (i+1)*10, players[playerIndex].DebugInfo.EstimatedGreaseProbabilityList[i]);
+                //    }
+                //}
+                if (players[playerIndex].DebugInfo.EstimatedHundredWinProbability > 0)
+                {
+                    BiddingDebugInfo.AppendFormat("\nPravděpodobnost výhry kila: {0}%", players[playerIndex].DebugInfo.EstimatedHundredWinProbability);
+                }
+                if (players[playerIndex].DebugInfo.EstimatedAverageHundredMoneyWon < 0)
+                {
+                    BiddingDebugInfo.AppendFormat("\nOdhadovaná průměrná prohra u kila: {0.0}", players[playerIndex].DebugInfo.EstimatedAverageHundredMoneyWon);
+                }
+
                 if (kqScore > 0 &&
                     players[playerIndex].DebugInfo.HundredTooRisky)
                 {

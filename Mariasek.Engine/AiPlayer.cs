@@ -3039,7 +3039,7 @@ namespace Mariasek.Engine
             return estimatedPointsLost;
         }
 
-        public float EstimateGreaseProbability(List<Card> hand = null, List<Card> talon = null, Barva? suit = null)
+        public float EstimateGreaseProbability(List<Card> hand = null, List<Card> talon = null, Barva? suit = null, int minGreaseCardCount = 1)
         {
             hand = hand ?? Hand;
             talon = talon ?? _talon ?? new List<Card>();
@@ -3072,6 +3072,11 @@ namespace Mariasek.Engine
                 return 0f;
             }
 
+            if (minGreaseCardCount > opponentGreaseCards.Count)
+            {
+                return 0f;
+            }
+
             foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
             {
                 if (suit != null && suit.Value != b)
@@ -3080,7 +3085,7 @@ namespace Mariasek.Engine
                 }
                 var holes = GetTotalHoles(hand, talon, b);
 
-                if (holes == 0)
+                if (holes < minGreaseCardCount)
                 {
                     continue;
                 }
@@ -3095,22 +3100,52 @@ namespace Mariasek.Engine
                                                 .Count(h => !hand.Any(i => i.Suit == trump &&
                                                                            i.Value == h) &&
                                                             !talon.Any(i => i.Suit == trump &&
-                                                                          i.Value == h));
+                                                                            i.Value == h));
                 var ogc = opponentGreaseCards.Count(i => i.Suit != b);
 
                 if (ogc == 0)
                 {
                     continue;
                 }
+                if (minGreaseCardCount > ogc)
+                {
+                    continue;
+                }
+
                 //pravdepodobnost namazu aspon jedne karty:
-                //jeden hrac ma vsechny trumfy i karty v barve
                 var allCases = 1 << (opponentCards + opponentTrumpCards);
-                var positiveCases = 2 * Enumerable.Range(0, Math.Min(ogc, holes))
-                                                  .Sum(i => Probability.CNK(opponentCards + opponentTrumpCards, i));
+                var positiveCases = 0L;
+
+                for(var i = 0;
+                    i < Math.Min(ogc, holes) &&
+                    i < opponentCards + opponentTrumpCards - i &&
+                    i < opponentCards - minGreaseCardCount + 1;
+                    i++)
+                {
+                    positiveCases += 2 * Probability.CNK(opponentCards + opponentTrumpCards, i);
+                    //positiveCases += Probability.CNK(opponentCards + opponentTrumpCards, i);
+                    //positiveCases += Probability.CNK(opponentCards + opponentTrumpCards, opponentCards + opponentTrumpCards - i);
+                }
+                //vyjimka: pokud maji oba souperi stejne karet v barve a muzu ze souperu vytahnout trumfy, tak namazat nepujde
+                if (opponentCards % 2 == 0 &&
+                    opponentCards / 2 < Math.Min(ogc, holes) &&
+                    opponentCards / 2 < opponentCards - minGreaseCardCount + 1)
+                {
+                    var topTrumps = hand.Where(i => i.Suit == trump)
+                                        .Count(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                                                        .Where(h => h > i.Value)
+                                                        .All(h => hand.Any(j => j.Suit == i.Suit &&
+                                                                                j.Value == h)));
+                    if (topTrumps > opponentTrumpCards)
+                    {
+                        positiveCases -= 2 * Probability.CNK(opponentCards, opponentCards / 2);
+                    }
+                }
                 var p = (float)positiveCases / allCases;
 
-                //a druhy hrac ma aspon jednu kartu aby mohl namazat
-                p *= 1 - 1f / (1 << ogc);
+                //a druhy hrac ma aspon minGreaseCardCount karet aby mohl namazat
+                p *= (float)Enumerable.Range(minGreaseCardCount, ogc - minGreaseCardCount + 1)
+                                      .Sum(i => Probability.CNK(ogc, i)) / (1 << ogc);
 
                 probability = Math.Max(p, probability);
             }
@@ -3451,7 +3486,7 @@ namespace Mariasek.Engine
                                         ? 30 : 10;
             var kqScore = _g.trump.HasValue
                 ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                      .Where(b => Hand.HasK(b) && Hand.HasQ(b))
+                      .Where(b => hand.HasK(b) && hand.HasQ(b))
                       .Sum(b => b == _trump.Value ? 40 : 20)
                 : 0;
 
@@ -3461,7 +3496,7 @@ namespace Mariasek.Engine
                 return true;
             }
 
-            DebugInfo.EstimatedGreaseProbability = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+            DebugInfo.EstimatedGreaseProbabilityDictionary = Enum.GetValues(typeof(Barva)).Cast<Barva>()
                                                        .Select(b => new Tuple<Barva, int>(b, (int)Math.Round(EstimateGreaseProbability(hand, talon, b) * 100)))
                                                        .Where(i => i.Item2 > 0)
                                                        .ToDictionary(k => k.Item1, v => v.Item2);
@@ -3491,9 +3526,39 @@ namespace Mariasek.Engine
 
             if (maxBasicPointsLost <= maxAllowedPointsLost)
             {
+                DebugInfo.EstimatedHundredWinProbability = 100;
                 DebugInfo.HundredTooRisky = false;
                 return false;
             }
+
+            //DebugInfo.EstimatedGreaseProbabilityList.Clear();
+            var estimatedGreaseProbabilityList = new List<int>();
+
+            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
+            {
+                for (var i = 0; i < maxBasicPointsLost / 10; i++)
+                {
+                    var p = EstimateGreaseProbability(hand, talon, b, i+1);
+
+                    if (p < 0.005f)
+                    {
+                        break;
+                    }
+                    estimatedGreaseProbabilityList.Add((int)Math.Round(p * 100));
+                }
+            }
+            estimatedGreaseProbabilityList = estimatedGreaseProbabilityList.OrderByDescending(i => i).ToList();
+            var idx = (maxAllowedPointsLost - minBasicPointsLost) / 10;
+
+            if (estimatedGreaseProbabilityList.Count > idx)
+            {
+                DebugInfo.EstimatedHundredWinProbability = 100 - estimatedGreaseProbabilityList[idx];
+            }
+            else
+            {
+                DebugInfo.EstimatedHundredWinProbability = 100;
+            }
+
             if (hand.CardCount(_trump.Value) >= 6 &&
                 !hand.HasA(_trump.Value) &&
                 hand.Has7(_trump.Value) &&
@@ -3539,13 +3604,101 @@ namespace Mariasek.Engine
                                                                  (_trump.Value == Barva.Cerveny
                                                                   ? 4
                                                                   : 2));
+            var estimatedPointsLost = new Dictionary<int, int>();
+
+            for(var i = estimatedGreaseProbabilityList.Count - 1; i >=0; i--)
+            {
+                var p = estimatedGreaseProbabilityList[i];
+
+                if (i < estimatedGreaseProbabilityList.Count - 1)
+                {
+                    p -= estimatedGreaseProbabilityList[i + 1];
+                }
+                estimatedPointsLost.Add(minBasicPointsLost + (i + 1) * 10, p);
+            }
+            estimatedPointsLost.Add(minBasicPointsLost, 100 - estimatedGreaseProbabilityList[0]);
+
+            var kqOppponentPotentialPoints = new List<int>();
+
+            foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                  .Where(b => !hand.HasK(b) && !hand.HasQ(b) &&
+                                              !talon.HasK(b) && !talon.HasQ(b)))
+            {
+                kqOppponentPotentialPoints.Add(b == _trump.Value ? 40 : 20);
+            }
+
+            //TODO: Fix probabilities with opponent kqScore combinations
+            var kqOpponentCombinations = new Dictionary<int, int>();
+
+            for (var i = 0; i <= kqOppponentPotentialPoints.Count; i++)
+            {
+                var combinations = new Combinatorics.Collections.Combinations<int>(kqOppponentPotentialPoints, i);
+
+                foreach (var tuple in combinations)
+                {
+                    var sum = tuple.Sum();
+
+                    if (!kqOpponentCombinations.ContainsKey(sum))
+                    {
+                        kqOpponentCombinations.Add(sum, 0);
+                    }
+                    kqOpponentCombinations[sum]++;
+                }
+            }
+            var estimatedPointsLostTemp = new Dictionary<int, float>();
+
+            foreach(var kq in kqOpponentCombinations)
+            {
+                foreach (var kvp in estimatedPointsLost)
+                {
+                    if (kvp.Key <= maxAllowedPointsLost)
+                    {
+                        if (!estimatedPointsLostTemp.ContainsKey(kvp.Key))
+                        {
+                            estimatedPointsLostTemp.Add(kvp.Key, kvp.Value);
+                        }
+                    }
+                    else
+                    {
+                        if (!estimatedPointsLostTemp.ContainsKey(kvp.Key + kq.Key))
+                        {
+                            estimatedPointsLostTemp.Add(kvp.Key + kq.Key, 0);
+                        }
+                        estimatedPointsLostTemp[kvp.Key + kq.Key] = estimatedPointsLostTemp[kvp.Key + kq.Key] + (float)kvp.Value * kq.Value / kqOpponentCombinations.Sum(kvp => kvp.Value);
+                    }
+                }
+            }
+            estimatedPointsLost = estimatedPointsLostTemp.ToDictionary(kvp => kvp.Key, kvp => (int)kvp.Value);
+
+            var winPerPointsLost = Enumerable.Range(minBasicPointsLost / 10, (maxAllowedPointsLost - minBasicPointsLost + 10)/ 10)
+                                             .Select(i => i * 10)
+                                             .ToDictionary(k => k,
+                                                           v => (_g.CalculationStyle == CalculationStyle.Adding
+                                                                 ? (kqScore - v) / 10 * _g.HundredValue
+                                                                 : (1 << (kqScore - v - 10) / 10) * _g.HundredValue) *
+                                                                (_trump.Value == Barva.Cerveny
+                                                                 ? 4
+                                                                 : 2));
+            var estimatedMoneyWon = estimatedPointsLost.OrderBy(kvp => kvp.Key)
+                                                       .ToDictionary(kvp => winPerPointsLost.ContainsKey(kvp.Key)
+                                                                            ? winPerPointsLost[kvp.Key]
+                                                                            : -lossPerPointsLost[kvp.Key],
+                                                                     kvp => kvp.Value);
+
+            DebugInfo.EstimatedAverageHundredMoneyWon = estimatedMoneyWon.Sum(kvp => kvp.Key * kvp.Value) / 100f;
+            if (DebugInfo.EstimatedAverageHundredMoneyWon < 0)
+            {
+                DebugInfo.HundredTooRisky = true;
+                return true;
+            }
+
             if (maxBasicPointsLost > basicPointsLostThreshold &&
                 lossPerPointsLost.ContainsKey(maxBasicPointsLost + kqLikelyOpponentScore))
             {
                 DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
             }
             //pokud hrozi vysoka prohra, tak do kila nejdi
-            if (maxBasicPointsLost > basicPointsLostThreshold &&
+                if (maxBasicPointsLost > basicPointsLostThreshold &&
                 lossPerPointsLost.ContainsKey(maxBasicPointsLost + kqLikelyOpponentScore) &&
                  lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore] > Settings.SafetyHundredThreshold)
             {
@@ -3560,6 +3713,8 @@ namespace Mariasek.Engine
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
+
+            return false;
 
             if (minBasicPointsLost == maxAllowedPointsLost &&       //urcite uhraju max. 100 bodu
                 maxBasicPointsLost >= maxAllowedPointsLost + 20 &&  //ale potencialne muzu prohrat hodne
@@ -3788,7 +3943,8 @@ namespace Mariasek.Engine
 
             if (axCount <= 2 &&
                 hand.CardCount(_trump.Value) == 7 &&
-                n >= 3)
+                n >= 3 &&
+                DebugInfo.EstimatedHundredWinProbability < Settings.GameThresholdsForGameType[Hra.Kilo][0] * 100)
             {
                 DebugInfo.HundredTooRisky = true;
                 return true;
@@ -4142,9 +4298,10 @@ namespace Mariasek.Engine
                 var estimatedPointsLost = _trump.HasValue ? EstimateMaxTotalPointsLost(Hand, _talon) : 0;
 
                 if (Settings.CanPlayGameType[Hra.Kilo] && 
-                    _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&
+                    //_hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&
                     _hundredSimulations > 0 &&
-                    !IsHundredTooRisky())
+                    !IsHundredTooRisky() &&
+                    DebugInfo.EstimatedHundredWinProbability >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * 100)
                 {
                     gameType = Hra.Kilo;
                     DebugInfo.RuleCount = _hundredsBalance;
@@ -4811,8 +4968,9 @@ namespace Mariasek.Engine
                 _hundredSimulations > 0 &&
                 bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Kilo] &&
                 ((PlayerIndex == _g.GameStartingPlayerIndex &&
-                  _hundredsBalance / (float)_hundredSimulations >= hundredThreshold &&
-                  Enum.GetValues(typeof(Barva)).Cast<Barva>().Where(b => Hand.HasSuit(b)).All(b => Hand.HasA(b))) ||    //Re na kilo si dej jen pokud mas ve vsech barvach eso
+                  DebugInfo.EstimatedHundredWinProbability >= hundredThreshold) ||
+                  //_hundredsBalance / (float)_hundredSimulations >= hundredThreshold &&
+                  //Enum.GetValues(typeof(Barva)).Cast<Barva>().Where(b => Hand.HasSuit(b)).All(b => Hand.HasA(b))) ||    //Re na kilo si dej jen pokud mas ve vsech barvach eso
                  (PlayerIndex != _g.GameStartingPlayerIndex &&                                                          //Flek na kilo si dej jen pokud akter nema hlas
                   _hundredsBalance / (float)_hundredSimulations >= hundredThreshold &&
                   (Probabilities.HlasProbability(_g.GameStartingPlayerIndex) == 0 ||
