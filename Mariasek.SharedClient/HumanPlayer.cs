@@ -714,17 +714,26 @@ namespace Mariasek.SharedClient
             Probabilities.UpdateProbabilitiesAfterGameTypeChosen(e);
         }
 
+        private bool ShouldComputeBestCard(int roundNumber)
+        {
+            return _g.FirstMinMaxRound > 0 &&
+                   roundNumber >= _g.FirstMinMaxRound &&
+                   roundNumber < Game.NumRounds &&
+                   //r.c1 == null &&
+                   _g.GameType != Hra.Durch;
+        }
+
         private void CardPlayed(object sender, Round r)
         {
             var gameWinningRound = IsGameWinningRound(r, _g.rounds, PlayerIndex, TeamMateIndex, new List<Card>(Hand), Probabilities);
-            UpdateProbabilitiesAfterCardPlayed(Probabilities, r.number, r.player1.PlayerIndex, r.c1, r.c2, r.c3, r.hlas1, r.hlas2, r.hlas3, TeamMateIndex, _trump, gameWinningRound);
+            UpdateProbabilitiesAfterCardPlayed(Probabilities, r.number, r.player1.PlayerIndex, r.c1, r.c2, r.c3, r.hlas1, r.hlas2, r.hlas3, TeamMateIndex, _trump, gameWinningRound, ShouldComputeBestCard(r.number));
         }
 
-        private static void UpdateProbabilitiesAfterCardPlayed(Probability probabilities, int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas1, bool hlas2, bool hlas3, int teamMateIndex, Barva? trump, bool gameWinningRound)
+        private static void UpdateProbabilitiesAfterCardPlayed(Probability probabilities, int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas1, bool hlas2, bool hlas3, int teamMateIndex, Barva? trump, bool gameWinningRound, bool shouldComputeBestCard)
         {
             if (c3 != null)
             {
-                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, c2, c3, hlas3, gameWinningRound);
+                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, c2, c3, hlas3, gameWinningRound, shouldComputeBestCard);
             }
             else if (c2 != null)
             {

@@ -2157,7 +2157,7 @@ namespace Mariasek.Engine
             }
         }
 
-        public void UpdateProbabilities(int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas3, bool gameWinningRound)
+        public void UpdateProbabilities(int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas3, bool gameWinningRound, bool shouldComputeBestCard)
         {
             if (UseDebugString)
             {
@@ -2611,8 +2611,10 @@ namespace Mariasek.Engine
             }
             //pokud hrajeme v barve a akter vyjel desitkou kterou nekdo z obrany vzal trumfem nebo esem
             //tak akter uz asi zadne dalsi karty v barve nema
+            //neplati pokud se pocita nejlepsi koncovka
             if (_trump.HasValue &&
                 roundStarterIndex == _gameStarterIndex &&
+                !shouldComputeBestCard &&
                 c1.Suit != _trump.Value &&
                 c1.Value == Hodnota.Desitka &&
                 (c1.IsLowerThan(c2, _trump) ||

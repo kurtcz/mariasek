@@ -3762,12 +3762,6 @@ namespace Mariasek.Engine
             {
                 return true;
             }
-
-            DebugInfo.EstimatedGreaseProbability = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                                       .Select(b => new Tuple<Barva, int>(b, (int)Math.Round(EstimateGreaseProbability(hand, talon, b) * 100)))
-                                                       .Where(i => i.Item2 > 0)
-                                                       .ToDictionary(k => k.Item1, v => v.Item2);
-
             if (minBasicPointsLost == maxAllowedPointsLost &&
                 _avgWinForHundred <= 0)
             {
@@ -5705,7 +5699,7 @@ namespace Mariasek.Engine
         private void CardPlayed(object sender, Round r)
         {
             var gameWinningRound = IsGameWinningRound(r, _g.rounds, PlayerIndex, TeamMateIndex, Hand, Probabilities);
-            UpdateProbabilitiesAfterCardPlayed(Probabilities, r.number, r.player1.PlayerIndex, r.c1, r.c2, r.c3, r.hlas1, r.hlas2, r.hlas3, TeamMateIndex, _teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound);
+            UpdateProbabilitiesAfterCardPlayed(Probabilities, r.number, r.player1.PlayerIndex, r.c1, r.c2, r.c3, r.hlas1, r.hlas2, r.hlas3, TeamMateIndex, _teamMatesSuits, _trump, _teamMateDoubledGame, gameWinningRound, ShouldComputeBestCard(r.number));
 
             if (_g.RoundNumber > 0 &&           //pri vlastni hre
                 r.number < Game.NumRounds &&    //pred posledim kolem
@@ -5719,11 +5713,11 @@ namespace Mariasek.Engine
             }
         }
 
-        private static void UpdateProbabilitiesAfterCardPlayed(Probability probabilities, int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas1, bool hlas2, bool hlas3, int teamMateIndex, List<Barva> teamMatesSuits, Barva? trump, bool teamMateDoubledGame, bool gameWinningRound)
+        private static void UpdateProbabilitiesAfterCardPlayed(Probability probabilities, int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas1, bool hlas2, bool hlas3, int teamMateIndex, List<Barva> teamMatesSuits, Barva? trump, bool teamMateDoubledGame, bool gameWinningRound, bool shouldComputeBestCard = false)
         {
             if (c3 != null)
             {
-                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, c2, c3, hlas3, gameWinningRound);
+                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, c2, c3, hlas3, gameWinningRound, shouldComputeBestCard);
             }
             else if (c2 != null)
             {
@@ -5742,11 +5736,11 @@ namespace Mariasek.Engine
             }
         }
 
-        private bool ShouldComputeBestCard(Round r)
+        private bool ShouldComputeBestCard(int roundNumber)
         {
             return _g.FirstMinMaxRound > 0 &&
-                   r.number >= _g.FirstMinMaxRound &&
-                   r.number < Game.NumRounds &&
+                   roundNumber >= _g.FirstMinMaxRound &&
+                   roundNumber < Game.NumRounds &&
                    //r.c1 == null &&
                    _g.GameType != Hra.Durch;
         }
@@ -5872,7 +5866,7 @@ namespace Mariasek.Engine
                              Probabilities.PossibleCombinations((PlayerIndex + 2) % Game.NumPlayers, r.number))) * 3;
                 OnGameComputationProgress(new GameComputationProgressEventArgs { Current = 0, Max = Settings.SimulationsPerRoundPerSecond > 0 ? simulations : 0, Message = "Generuju karty"});
                 var source = goodGame && _g.CurrentRound != null
-                               ? ShouldComputeBestCard(r)
+                               ? ShouldComputeBestCard(r.number)
                                     ? Probabilities.GenerateAllHandCombinations(r.number)
                                     : Probabilities.GenerateHands(r.number, roundStarterIndex, 1)
                                : Probabilities.GenerateHands(r.number, roundStarterIndex, simulations);
@@ -5889,7 +5883,7 @@ namespace Mariasek.Engine
                     };
                 }
                 var exceptions = new ConcurrentQueue<Exception>();
-                if (ShouldComputeBestCard(r))
+                if (ShouldComputeBestCard(r.number))
                 {
                     System.Diagnostics.Debug.WriteLine("Uhraj co nejlepší výsledek");
                     cardToPlay = ComputeBestCardToPlay(source, r.number);
