@@ -862,7 +862,8 @@ namespace Mariasek.Engine
                     hlas3 = r.hlas3,
                     r1 = r.debugNote1,
                     r2 = r.debugNote2,
-                    r3 = r.debugNote3
+                    r3 = r.debugNote3,
+                    RoundStarterIndex = r.player1.PlayerIndex
                 }).ToList();
                 var result = simulatedResult ?? Results;
 
@@ -2162,6 +2163,10 @@ namespace Mariasek.Engine
                     players[playerIndex].DebugInfo.HundredTooRisky)
                 {
                     BiddingDebugInfo.AppendFormat("\nPříliš riskantní na kilo");
+                }
+                if (players[playerIndex].DebugInfo.EstimatedDurchWinProbability > 50)
+                {
+                    BiddingDebugInfo.AppendFormat("\nPravděpodobnost výhry durcha: {0}%", players[playerIndex].DebugInfo.EstimatedDurchWinProbability);
                 }
             }
             BiddingDebugInfo.Append("\nVšechny simulace:");

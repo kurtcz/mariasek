@@ -30,6 +30,7 @@ namespace Mariasek.Engine
         public Dictionary<Barva, int> EstimatedGreaseProbabilityDictionary { get; set; }
         //public List<int> EstimatedGreaseProbabilityList { get; set; }
         public int EstimatedHundredWinProbability { get; set; }
+        public int EstimatedDurchWinProbability { get; set; }
         public float EstimatedAverageHundredMoneyWon { get; set; }
         public string ProbDebugInfo { get; set; }
 
