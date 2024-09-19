@@ -2164,7 +2164,7 @@ namespace Mariasek.Engine
                 {
                     BiddingDebugInfo.AppendFormat("\nPříliš riskantní na kilo");
                 }
-                if (players[playerIndex].DebugInfo.EstimatedDurchWinProbability > 50)
+                if (players[playerIndex].DebugInfo.EstimatedDurchWinProbability > 0)
                 {
                     BiddingDebugInfo.AppendFormat("\nPravděpodobnost výhry durcha: {0}%", players[playerIndex].DebugInfo.EstimatedDurchWinProbability);
                 }

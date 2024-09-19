@@ -3480,7 +3480,8 @@ namespace Mariasek.Engine
 
             foreach (var b in Enum.GetValues(typeof(Barva)).Cast<Barva>())
             {
-                var topCards = hand.Where(i => Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
+                var topCards = hand.Where(i => i.Suit == b &&
+                                               Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                    .Where(h => Card.GetBadValue(h) > i.BadValue)
                                                    .All(h => hand.Any(j => j.Suit == i.Suit &&
                                                                            j.BadValue == Card.GetBadValue(h)) ||
@@ -3494,7 +3495,7 @@ namespace Mariasek.Engine
                 var riskyCases = 0;
                 var allCases = 0;
 
-                for (var i = 0; i < opponentCards.Count; i++)
+                for (var i = 0; i <= opponentCards.Count; i++)
                 {
                     var combinations = new Combinatorics.Collections.Combinations<Card>(opponentCards, i);
 
@@ -3516,11 +3517,14 @@ namespace Mariasek.Engine
                         allCases++;
                     }
                 }
-                ratio = Math.Max(ratio, (float)riskyCases / allCases);
+                if (allCases > 0)
+                {
+                    ratio = Math.Max(ratio, (float)riskyCases / allCases);
+                }
             }
 
-            DebugInfo.EstimatedDurchWinProbability = (int)(100 * ratio);
-            if (DebugInfo.EstimatedDurchWinProbability > Settings.GameThresholdsForGameType[Hra.Durch][0])
+            DebugInfo.EstimatedDurchWinProbability = 100 - (int)(100 * ratio);
+            if (DebugInfo.EstimatedDurchWinProbability < 100 * Settings.GameThresholdsForGameType[Hra.Durch][0])
             {
                 return true;
             }
@@ -4442,7 +4446,7 @@ namespace Mariasek.Engine
                     //_hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&
                     _hundredSimulations > 0 &&
                     !IsHundredTooRisky() &&
-                    DebugInfo.EstimatedHundredWinProbability >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * 100)
+                    DebugInfo.EstimatedHundredWinProbability >= 100 * Settings.GameThresholdsForGameType[Hra.Kilo][0])
                 {
                     gameType = Hra.Kilo;
                     DebugInfo.RuleCount = _hundredsBalance;
@@ -5109,7 +5113,7 @@ namespace Mariasek.Engine
                 _hundredSimulations > 0 &&
                 bidding._gameFlek <= Settings.MaxDoubleCountForGameType[Hra.Kilo] &&
                 ((PlayerIndex == _g.GameStartingPlayerIndex &&
-                  DebugInfo.EstimatedHundredWinProbability >= hundredThreshold) ||
+                  DebugInfo.EstimatedHundredWinProbability >= 100 * hundredThreshold) ||
                   //_hundredsBalance / (float)_hundredSimulations >= hundredThreshold &&
                   //Enum.GetValues(typeof(Barva)).Cast<Barva>().Where(b => Hand.HasSuit(b)).All(b => Hand.HasA(b))) ||    //Re na kilo si dej jen pokud mas ve vsech barvach eso
                  (PlayerIndex != _g.GameStartingPlayerIndex &&                                                          //Flek na kilo si dej jen pokud akter nema hlas
@@ -5237,7 +5241,7 @@ namespace Mariasek.Engine
                 _durchSimulations > 0 && 
                 bidding._betlDurchFlek <= Settings.MaxDoubleCountForGameType[Hra.Durch] &&
                 ((PlayerIndex == _g.GameStartingPlayerIndex &&
-                  DebugInfo.EstimatedDurchWinProbability >= durchThreshold) ||
+                  DebugInfo.EstimatedDurchWinProbability >= 100 * durchThreshold) ||
                   //_durchBalance / (float)_durchSimulations >= durchThreshold && IsDurchCertain()) ||
                  (PlayerIndex != _g.GameStartingPlayerIndex && Hand.Count(i => i.Value == Hodnota.Eso) >= 3)))
             {
@@ -5713,11 +5717,11 @@ namespace Mariasek.Engine
             }
         }
 
-        private static void UpdateProbabilitiesAfterCardPlayed(Probability probabilities, int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas1, bool hlas2, bool hlas3, int teamMateIndex, List<Barva> teamMatesSuits, Barva? trump, bool teamMateDoubledGame, bool gameWinningRound, bool shouldComputeBestCard = false)
+        private static void UpdateProbabilitiesAfterCardPlayed(Probability probabilities, int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas1, bool hlas2, bool hlas3, int teamMateIndex, List<Barva> teamMatesSuits, Barva? trump, bool teamMateDoubledGame, bool gameWinningRound, bool minMaxRound = false)
         {
             if (c3 != null)
             {
-                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, c2, c3, hlas3, gameWinningRound, shouldComputeBestCard);
+                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, c2, c3, hlas3, gameWinningRound, minMaxRound);
             }
             else if (c2 != null)
             {

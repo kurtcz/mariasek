@@ -274,6 +274,10 @@ namespace Mariasek.SharedClient
                                             {
                                                 msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, _aiPlayer.DebugInfo.EstimatedHundredWinProbability, (k++) % 2 == 1 ? "\n" : "\t"));
                                             }
+                                            else if (debugInfo.Rule.Equals("Durch"))
+                                            {
+                                                msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, _aiPlayer.DebugInfo.EstimatedDurchWinProbability, (k++) % 2 == 1 ? "\n" : "\t"));
+                                            }
                                             else
                                             {
                                                 msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, 100 * debugInfo.RuleCount / debugInfo.TotalRuleCount, (k++) % 2 == 1 ? "\n" : "\t"));
@@ -466,6 +470,10 @@ namespace Mariasek.SharedClient
                                     if (debugInfo.Rule.StartsWith("Kilo"))
                                     {
                                         msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, _aiPlayer.DebugInfo.EstimatedHundredWinProbability, (k++) % 2 == 1 ? "\n" : "\t"));
+                                    }
+                                    else if (debugInfo.Rule.Equals("Durch"))
+                                    {
+                                        msg.AppendFormat(string.Format("{0}: {1}%{2}", debugInfo.Rule, _aiPlayer.DebugInfo.EstimatedDurchWinProbability, (k++) % 2 == 1 ? "\n" : "\t"));
                                     }
                                     else
                                     {
@@ -729,11 +737,11 @@ namespace Mariasek.SharedClient
             UpdateProbabilitiesAfterCardPlayed(Probabilities, r.number, r.player1.PlayerIndex, r.c1, r.c2, r.c3, r.hlas1, r.hlas2, r.hlas3, TeamMateIndex, _trump, gameWinningRound, ShouldComputeBestCard(r.number));
         }
 
-        private static void UpdateProbabilitiesAfterCardPlayed(Probability probabilities, int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas1, bool hlas2, bool hlas3, int teamMateIndex, Barva? trump, bool gameWinningRound, bool shouldComputeBestCard)
+        private static void UpdateProbabilitiesAfterCardPlayed(Probability probabilities, int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas1, bool hlas2, bool hlas3, int teamMateIndex, Barva? trump, bool gameWinningRound, bool minMaxRound)
         {
             if (c3 != null)
             {
-                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, c2, c3, hlas3, gameWinningRound, shouldComputeBestCard);
+                probabilities.UpdateProbabilities(roundNumber, roundStarterIndex, c1, c2, c3, hlas3, gameWinningRound, minMaxRound);
             }
             else if (c2 != null)
             {

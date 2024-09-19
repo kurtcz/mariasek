@@ -2157,7 +2157,7 @@ namespace Mariasek.Engine
             }
         }
 
-        public void UpdateProbabilities(int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas3, bool gameWinningRound, bool shouldComputeBestCard)
+        public void UpdateProbabilities(int roundNumber, int roundStarterIndex, Card c1, Card c2, Card c3, bool hlas3, bool gameWinningRound, bool minMaxRound)
         {
             if (UseDebugString)
             {
@@ -2614,7 +2614,7 @@ namespace Mariasek.Engine
             //neplati pokud se pocita nejlepsi koncovka
             if (_trump.HasValue &&
                 roundStarterIndex == _gameStarterIndex &&
-                !shouldComputeBestCard &&
+                !minMaxRound &&
                 c1.Suit != _trump.Value &&
                 c1.Value == Hodnota.Desitka &&
                 (c1.IsLowerThan(c2, _trump) ||
