@@ -2156,7 +2156,7 @@ namespace Mariasek.Engine
                 }
                 if (players[playerIndex].DebugInfo.EstimatedAverageHundredMoneyWon < 0)
                 {
-                    BiddingDebugInfo.AppendFormat("\nOdhadovaná průměrná prohra u kila: {0.0}", players[playerIndex].DebugInfo.EstimatedAverageHundredMoneyWon);
+                    BiddingDebugInfo.AppendFormat("\nOdhadovaná průměrná prohra u kila: {0:0.0}", players[playerIndex].DebugInfo.EstimatedAverageHundredMoneyWon);
                 }
 
                 if (kqScore > 0 &&

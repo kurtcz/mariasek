@@ -3709,7 +3709,7 @@ namespace Mariasek.Engine
                                                                                         : -lossPerPointsLost[kvp.Key],
                                                                                  kvp => kvp.Value);
 
-            DebugInfo.EstimatedAverageHundredMoneyWon = estimatedMoneyWon.Sum(kvp => kvp.Key * kvp.Value) / 100f;
+            DebugInfo.EstimatedAverageHundredMoneyWon = (int)Math.Round(estimatedMoneyWon.Sum(kvp => kvp.Key * kvp.Value) / 100f);
 
             //pokud hrozi vysoka prohra nebo je prumerna vyhra mensi nez nula, tak do kila nejdi
             if (DebugInfo.EstimatedAverageHundredMoneyWon < 0)
@@ -6141,20 +6141,24 @@ namespace Mariasek.Engine
 
                         foreach (var res in result)
                         {
-                            var opponentBidders = _g.Bidding.PlayerBids
+                            var opponentBidders = _g.Bidding.AllPlayerBids
                                                             .Select((i, idx) => new { bid = i, idx })
                                                             .Where(i => i.idx != PlayerIndex &&
                                                                         i.bid != 0)
                                                             .Select(i => i.idx)
                                                             .ToList();
                             var teamMateDoubledGame = TeamMateIndex != -1 &&
-                                                      (_g.Bidding.PlayerBids[TeamMateIndex] & Hra.Hra) != 0;
+                                                      (_g.Bidding.AllPlayerBids[TeamMateIndex] & Hra.Hra) != 0;
                             const float epsilon = 0.01f;
 
                             results.Enqueue(new Tuple<Card, MoneyCalculatorBase, GameComputationResult, Hand[]>(res.Item1, res.Item2, res.Item3, hh));
                             if (!_g.trump.HasValue ||
-                                (!hands[player2].Any(i => Probabilities.CardProbability(player2, new Card(i.Suit, i.Value)) <= epsilon) && //neber v potaz rozlohy s malou pravdepodobnosti na zaklade predchozi hry
-                                 !hands[player3].Any(i => Probabilities.CardProbability(player3, new Card(i.Suit, i.Value)) <= epsilon) &&
+                                (((TeamMateIndex != -1 &&
+                                   (_g.Bidding.AllPlayerBids[TeamMateIndex] & Hra.SedmaProti) != 0 &&
+                                   Probabilities.PotentialCards(TeamMateIndex).CardCount(_g.trump.Value) > 1 &&
+                                   hands[TeamMateIndex].CardCount(_g.trump.Value) > 1) ||
+                                  (!hands[player2].Any(i => Probabilities.CardProbability(player2, new Card(i.Suit, i.Value)) <= epsilon) && //neber v potaz rozlohy s malou pravdepodobnosti na zaklade predchozi hry
+                                   !hands[player3].Any(i => Probabilities.CardProbability(player3, new Card(i.Suit, i.Value)) <= epsilon))) &&
                                  ((PlayerIndex == _g.GameStartingPlayerIndex &&
                                    (!opponentBidders.Any() ||
                                     opponentBidders.Any(i => Probabilities.SuitProbability(i, _g.trump.Value, roundNumber) == 0 ||
@@ -6235,7 +6239,7 @@ namespace Mariasek.Engine
                 likelyWinCount.Add(card, likelyResults.Where(i => i.Item1 == card)
                                                       .DefaultIfEmpty()
                                                       .Count(i => i == null ? false :
-                                                                  i.Item2.MoneyWon[PlayerIndex] >= 0));
+                                                                  i.Item2.MoneyWon[PlayerIndex] > 0));
                 likelyRoundWinners.Add(card, likelyResults.Where(i => i.Item1 == card)
                                                           .DefaultIfEmpty()
                                                           .Count(i => i == null ? false :
@@ -6260,7 +6264,7 @@ namespace Mariasek.Engine
                 winCount.Add(card, results.Where(i => i.Item1 == card)
                                           .DefaultIfEmpty()
                                           .Count(i => i == null ? false :
-                                                      i.Item2.MoneyWon[PlayerIndex] >= 0));
+                                                      i.Item2.MoneyWon[PlayerIndex] > 0));
                 roundWinners.Add(card, results.Where(i => i.Item1 == card)
                                               .DefaultIfEmpty()
                                               .Count(i => i == null ? false :
@@ -6344,33 +6348,54 @@ namespace Mariasek.Engine
             switch(_g.GameType)
             {
                 case Hra.Durch:
-                    cardToPlay = minResults.Keys.OrderByDescending(i => winCount[i])
+                    if (likelyWinCount.Count(i => i.Value > 0) == 1)
+                    {
+                        cardToPlay = likelyWinCount.First(i => i.Value > 0).Key;
+                    }
+                    else
+                    {
+                        cardToPlay = minResults.Keys.OrderByDescending(i => winCount[i])
                                                 .ThenByDescending(i => minResults[i])
                                                 .ThenByDescending(i => averageResults[i])
                                                 .ThenByDescending(i => maxResults[i])
                                                 .ThenByDescending(i => i.BadValue)
                                                 .FirstOrDefault();
+                    }
                     break;
                 case Hra.Betl:
-                    cardToPlay = minResults.Keys.OrderByDescending(i => winCount[i])
+                    if (likelyWinCount.Count(i => i.Value > 0) == 1)
+                    {
+                        cardToPlay = likelyWinCount.First(i => i.Value > 0).Key;
+                    }
+                    else
+                    {
+                        cardToPlay = minResults.Keys.OrderByDescending(i => winCount[i])
                                                 .ThenByDescending(i => minResults[i])
                                                 .ThenByDescending(i => averageResults[i])
                                                 .ThenByDescending(i => maxResults[i])
                                                 .ThenBy(i => i.BadValue)
                                                 .FirstOrDefault();
+                    }
                     break;
                 default:
-                    cardToPlay = minResults.Keys.OrderByDescending(i => likelyMinResults[i])
-                                                .ThenByDescending(i => likelyAverageResults[i])
-                                                .ThenByDescending(i => likelyMaxResults[i])
-                                                .ThenByDescending(i => minResults[i])
-                                                .ThenByDescending(i => averageResults[i])
-                                                .ThenByDescending(i => maxResults[i])
-                                                .ThenBy(i => likelyRoundWinners[i] > 0
-                                                             ? -(int)i.Value : (i.Suit == _trump.Value ? 10 : 0) + (int)i.Value)
-                                                .ThenBy(i => roundWinners[i] > 0
-                                                             ? -(int)i.Value : (i.Suit == _trump.Value ? 10 : 0) + (int)i.Value)
-                                                .FirstOrDefault();
+                    if (likelyWinCount.Count(i => i.Value > 0) == 1)
+                    {
+                        cardToPlay = likelyWinCount.First(i => i.Value > 0).Key;
+                    }
+                    else
+                    {
+                        cardToPlay = minResults.Keys.OrderByDescending(i => likelyMinResults[i])
+                                                    .ThenByDescending(i => likelyAverageResults[i])
+                                                    .ThenByDescending(i => likelyMaxResults[i])
+                                                    .ThenByDescending(i => minResults[i])
+                                                    .ThenByDescending(i => averageResults[i])
+                                                    .ThenByDescending(i => maxResults[i])
+                                                    .ThenBy(i => likelyRoundWinners[i] > 0
+                                                                 ? -(int)i.Value : (i.Suit == _trump.Value ? 10 : 0) + (int)i.Value)
+                                                    .ThenBy(i => roundWinners[i] > 0
+                                                                 ? -(int)i.Value : (i.Suit == _trump.Value ? 10 : 0) + (int)i.Value)
+                                                    .FirstOrDefault();
+                    }
                     break;
             }
             DebugInfo.Card = cardToPlay;

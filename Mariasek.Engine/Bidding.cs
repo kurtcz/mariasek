@@ -85,7 +85,7 @@ namespace Mariasek.Engine
             PlayerBids = new Hra[Game.NumPlayers];
             AllPlayerBids = new Hra[Game.NumPlayers];
             GivenUp = _g.GivenUp;
-            SetLastBidder(_g.GameStartingPlayer, _g.GameType);
+            SetLastBidder(_g.GameStartingPlayer, _g.GameType & ~(Hra.SedmaProti | Hra.KiloProti));
         }
 
         public Bidding Clone()
