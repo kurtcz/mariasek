@@ -1417,7 +1417,7 @@ namespace Mariasek.Engine
                                                                             .ToList();
                                 }
                                 if (!cardsToPlay.Any())
-                                {
+                                {   //je tohle dobre? proc hraju plonkovou desitku pokud muzu hrat i jinou nizkou?
                                     cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                         i.Value == Hodnota.Desitka &&
                                                                                         hands[MyIndex].CardCount(i.Suit) == 1 &&
@@ -1429,7 +1429,7 @@ namespace Mariasek.Engine
                                                                             .ToList();
                                 }
                                 if (!cardsToPlay.Any())
-                                {
+                                {   //zbav se kratke plonkove barvy pokud neni nejaka delsi barva s nizkymi kartami
                                     cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
                                                                                         (!myInitialHand.HasA(i.Suit) ||
                                                                                          !myInitialHand.HasX(i.Suit)) &&

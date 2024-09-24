@@ -1895,7 +1895,20 @@ namespace Mariasek.Engine
                     validGameTypes = GetValidGameTypesForPlayer(nextPlayer, gameFlavour, minimalBid);
                     DebugString.AppendFormat("Player {0} ChooseGameType()\n", GameStartingPlayer.PlayerIndex + 1);
                     GameType = await GameStartingPlayer.ChooseGameType(validGameTypes);
-                    GameTypeConfidence = GameStartingPlayer.DebugInfo.TotalRuleCount > 0 ? (float)GameStartingPlayer.DebugInfo.RuleCount / (float)GameStartingPlayer.DebugInfo.TotalRuleCount : -1f;
+                    if ((GameType & Hra.Kilo) != 0 &&
+                        GameStartingPlayer.DebugInfo.EstimatedHundredWinProbability > 0)
+                    {
+                        GameTypeConfidence = GameStartingPlayer.DebugInfo.EstimatedHundredWinProbability;
+                    }
+                    else if (GameType == Hra.Durch &&
+                             GameStartingPlayer.DebugInfo.EstimatedDurchWinProbability > 0)
+                    {
+                        GameTypeConfidence = GameStartingPlayer.DebugInfo.EstimatedDurchWinProbability;
+                    }
+                    else
+                    {
+                        GameTypeConfidence = GameStartingPlayer.DebugInfo.TotalRuleCount > 0 ? (float)GameStartingPlayer.DebugInfo.RuleCount / (float)GameStartingPlayer.DebugInfo.TotalRuleCount : -1f;
+                    }
                     DebugString.AppendFormat("ChooseGameType: {0}\n", GameType);
                     if (GameType == 0)
                     {
@@ -2156,7 +2169,7 @@ namespace Mariasek.Engine
                 }
                 if (players[playerIndex].DebugInfo.EstimatedAverageHundredMoneyWon < 0)
                 {
-                    BiddingDebugInfo.AppendFormat("\nOdhadovaná průměrná prohra u kila: {0:0.0}", players[playerIndex].DebugInfo.EstimatedAverageHundredMoneyWon);
+                    BiddingDebugInfo.AppendFormat("\nOdhadovaná průměrná prohra u kila: {0}", players[playerIndex].DebugInfo.EstimatedAverageHundredMoneyWon);
                 }
 
                 if (kqScore > 0 &&
@@ -2164,6 +2177,13 @@ namespace Mariasek.Engine
                 {
                     BiddingDebugInfo.AppendFormat("\nPříliš riskantní na kilo");
                 }
+                if (players[playerIndex].DebugInfo.EstimatedDurchWinProbability > 0)
+                {
+                    BiddingDebugInfo.AppendFormat("\nPravděpodobnost výhry durcha: {0}%", players[playerIndex].DebugInfo.EstimatedDurchWinProbability);
+                }
+            }
+            else if (players[playerIndex].TeamMateIndex == -1 && GameType == Hra.Durch)
+            {
                 if (players[playerIndex].DebugInfo.EstimatedDurchWinProbability > 0)
                 {
                     BiddingDebugInfo.AppendFormat("\nPravděpodobnost výhry durcha: {0}%", players[playerIndex].DebugInfo.EstimatedDurchWinProbability);

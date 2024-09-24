@@ -550,19 +550,19 @@ namespace Mariasek.Engine
                     if (mySuits.All(i => myCatchingCards.Any(j => j.Suit == i)))
                     {
                         //v každé barvě mám chytáka, musím se jednoho zbavit
-                        //nejprve se pokus si nechat barvu, kterou spoluhrac dosud nehral
-                        if (mySuits.Any(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i)))
-                        {
-                            var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i.Suit));
-
-                            return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
-                        }
-
                         //v nejake barve kde mam chytaka muze mit akter eso, zbav se barvy, kde uz eso nema
                         if (mySuits.Any(i => _probabilities.PotentialCards(player1).HasA(i)) &&
                             mySuits.Any(i => !_probabilities.PotentialCards(player1).HasA(i)))
                         {
                             var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => !_probabilities.PotentialCards(player1).HasA(i.Suit));
+
+                            return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+                        }
+
+                        //pokus si nechat barvu, kterou spoluhrac dosud nehral
+                        if (mySuits.Any(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i)))
+                        {
+                            var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i.Suit));
 
                             return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                         }
@@ -974,19 +974,19 @@ namespace Mariasek.Engine
                     if (mySuits.All(i => myCatchingCards.Any(j => j.Suit == i)))
                     {
                         //v každé barvě mám chytáka, musím se jednoho bavit
-                        //nejprve se pokus si nechat barvu, kterou spoluhrac dosud nehral
-                        if (mySuits.Any(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i)))
-                        {
-                            var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i.Suit));
-
-                            return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
-                        }
-
                         //v nejake barve kde mam chytaka muze mit akter eso, zbav se barvy, kde uz eso nema
                         if (mySuits.Any(i => _probabilities.PotentialCards(player1).HasA(i)) &&
                             mySuits.Any(i => !_probabilities.PotentialCards(player1).HasA(i)))
                         {
                             var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => !_probabilities.PotentialCards(player1).HasA(i.Suit));
+
+                            return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
+                        }
+
+                        //pokus si nechat barvu, kterou spoluhrac dosud nehral
+                        if (mySuits.Any(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i)))
+                        {
+                            var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i.Suit));
 
                             return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                         }

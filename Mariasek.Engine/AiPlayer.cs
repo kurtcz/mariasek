@@ -1526,8 +1526,9 @@ namespace Mariasek.Engine
                     _sevenTooRisky = IsSevenTooRisky(tempHand, tempTalon);
                     _initialSimulation = false;
                     if (Settings.CanPlayGameType[Hra.Durch] && 
-                        _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
+                        //_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
                         _durchSimulations > 0 &&
+                        !IsDurchTooRisky() &&
                         !(_hundredOverDurch &&
                           !_hundredTooRisky))
                     {
@@ -1615,6 +1616,7 @@ namespace Mariasek.Engine
                 }
                 else
                 {
+                    //nevolil jsem, simuluju spatnou barvu a nasledneho betla ci durcha
                     try
                     {
                         RunGameSimulations(bidding, PlayerIndex, false, true);
@@ -1686,8 +1688,11 @@ namespace Mariasek.Engine
                 var betlThresholdIndex = 0;// PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Betl].Length - 1, 1);     //85%
                 var durchThresholdIndex = 0;// PlayerIndex == _g.GameStartingPlayerIndex ? 0 : Math.Min(Settings.GameThresholdsForGameType[Hra.Durch].Length - 1, 1);    //85%
                 if ((Settings.CanPlayGameType[Hra.Durch] &&
-                     _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][durchThresholdIndex] * _durchSimulations &&
                      _durchSimulations > 0 &&
+                     ((TeamMateIndex != -1 &&
+                       _durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][durchThresholdIndex] * _durchSimulations) ||
+                      (TeamMateIndex == -1 &&
+                       !IsDurchTooRisky())) &&
                      (TeamMateIndex != -1 ||
                       !(_hundredOverDurch &&
                         !_hundredTooRisky))) ||
@@ -1730,7 +1735,10 @@ namespace Mariasek.Engine
                     if ((_betlSimulations > 0 && 
                          (!Settings.CanPlayGameType[Hra.Durch] ||
                           _durchSimulations == 0 || 
-                          (float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations)) ||
+                          (TeamMateIndex != -1 &&
+                           (float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations) ||
+                          (TeamMateIndex == -1 &&
+                           (float)_betlBalance / (float)_betlSimulations > 100 * DebugInfo.EstimatedDurchWinProbability))) ||
                         (Settings.SafetyBetlThreshold > 0 &&
                          ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                            lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
@@ -4392,7 +4400,8 @@ namespace Mariasek.Engine
                         (AdvisorMode ||
                          _durchTalonChosen) &&
                         (_betlSimulations == 0 ||
-                         (float)_durchBalance / (float)_durchSimulations > (float)_betlBalance  / (float)_betlSimulations))
+                         //(float)_durchBalance / (float)_durchSimulations > (float)_betlBalance  / (float)_betlSimulations))
+                         DebugInfo.EstimatedDurchWinProbability > 100f * _betlBalance / _betlSimulations))
                     {
                         gameType = Hra.Durch;
                         DebugInfo.RuleCount = _durchBalance;
