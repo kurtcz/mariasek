@@ -21,6 +21,7 @@ namespace Mariasek.SharedClient
         Button _replayOptionButton;
         Button _replayAsPlayer2Button;
         Button _replayAsPlayer3Button;
+        Button _replayFromButton;
         ToggleButton _rawButton;
         Button _editButton;
         Button _sendButton;
@@ -134,6 +135,16 @@ namespace Mariasek.SharedClient
                 Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
             };
             _replayAsPlayer3Button.Click += ReplayAsPlayer3ButtonClicked;
+            _replayFromButton = new Button(this)
+            {
+                Position = new Vector2(640, (int)Game.VirtualScreenHeight - 180),
+                Width = 200,
+                Height = 50,
+                Text = "Vyber štych",
+                ZIndex = 95,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
+            };
+            _replayFromButton.Click += ReplayFromButtonClicked;
             _review = new GameReview(this, (int)_origPosition.X + 40)
             {
                 Position = _origPosition,
@@ -184,6 +195,7 @@ namespace Mariasek.SharedClient
             _replayOptionButton.IsEnabled = _replayButton.IsEnabled;
             _replayAsPlayer2Button.Hide();
             _replayAsPlayer3Button.Hide();
+            _replayFromButton.Hide();
             Task.Run(() =>
             {
                 try
@@ -230,7 +242,7 @@ namespace Mariasek.SharedClient
                         Game.StorageAccessor.GetStorageAccess();
                         using (var fs = File.Open(endGamePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
-                            g.LoadGame(fs, calculateMoney: true, forceLoadToLastRound: true);
+                            g.LoadGame(fs, calculateMoney: true, initialRound: 11);
                         }
                         _rawData.Text = string.Format("{0}\n\n", File.ReadAllText(endGamePath));
                     }
@@ -320,7 +332,7 @@ namespace Mariasek.SharedClient
         void ReplayButtonClicked(object sender)
         {
             Game.MainScene.ImpersonationPlayerIndex = 0;
-            Game.MainScene.ReplayGame(_newGamePath);
+            Game.MainScene.ReplayGame(_newGamePath, 0);
         }
 
         void ReplayOptionButtonClicked(object sender)
@@ -329,14 +341,18 @@ namespace Mariasek.SharedClient
             var hiddenPosition2 = _replayButton.Position;
             var origPosition3 = _replayAsPlayer3Button.Position;
             var hiddenPosition3 = _replayButton.Position;
+            var origPositionFrom = _replayFromButton.Position;
+            var hiddenPositionFrom = _replayButton.Position;
 
             _replayAsPlayer2Button.Text = string.Format("Jako {0}", Game.Settings.PlayerNames[1]);
             _replayAsPlayer3Button.Text = string.Format("Jako {0}", Game.Settings.PlayerNames[2]);
             _replayOptionButton.Hide();
             _replayAsPlayer2Button.Position = hiddenPosition2;
             _replayAsPlayer3Button.Position = hiddenPosition3;
+            _replayFromButton.Position = hiddenPositionFrom;
             _replayAsPlayer2Button.Show();
             _replayAsPlayer3Button.Show();
+            _replayFromButton.Show();
             _replayAsPlayer2Button.MoveTo(origPosition2, 2000)
                                   .Wait(2000)
                                   .MoveTo(hiddenPosition2, 2000)
@@ -354,18 +370,40 @@ namespace Mariasek.SharedClient
                                       _replayAsPlayer3Button.Position = origPosition3;
                                       _replayOptionButton.Show();
                                   });
+            _replayFromButton.MoveTo(origPositionFrom, 2000)
+                             .Wait(2000)
+                             .MoveTo(hiddenPositionFrom, 2000)
+                             .Invoke(() =>
+                             {
+                                 _replayFromButton.Hide();
+                                 _replayFromButton.Position = origPositionFrom;
+                                 _replayOptionButton.Show();
+                             });
         }
 
         void ReplayAsPlayer2ButtonClicked(object sender)
         {
             Game.MainScene.ImpersonationPlayerIndex = 1;
-            Game.MainScene.ReplayGame(_newGamePath);
+            Game.MainScene.ReplayGame(_newGamePath, 0);
         }
 
         void ReplayAsPlayer3ButtonClicked(object sender)
         {
             Game.MainScene.ImpersonationPlayerIndex = 2;
-            Game.MainScene.ReplayGame(_newGamePath);
+            Game.MainScene.ReplayGame(_newGamePath, 0);
+        }
+
+        async void ReplayFromButtonClicked(object sender)
+        {
+            var text = await KeyboardInput.Show("Vyber počáteční štych", $"Od jakého kola chceš hru opakovat? (1-9)", "1");
+
+            if (int.TryParse(text, out int initialRound) &&
+                initialRound >= 1 &&
+                initialRound < Mariasek.Engine.Game.NumRounds)
+            {
+                Game.MainScene.ImpersonationPlayerIndex = 0;
+                Game.MainScene.ReplayGame(_endGamePath, initialRound);
+            }
         }
 
         void RawButtonClicked(object sender)

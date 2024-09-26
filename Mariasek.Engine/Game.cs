@@ -428,7 +428,7 @@ namespace Mariasek.Engine
         }
 #endif
 
-        public void LoadGame(Stream fileStream, bool calculateMoney = false, int impersonationPlayerIndex = 0, bool forceLoadToLastRound = false)
+        public void LoadGame(Stream fileStream, bool calculateMoney = false, int impersonationPlayerIndex = 0, bool forceLoadToLastRound = false, int initialRound = -1)
         {
             _log.Init();
             _log.Info("********");
@@ -454,9 +454,23 @@ namespace Mariasek.Engine
             string[] tmpcomments = null;
             var comment = 0;
 
-            if (forceLoadToLastRound)
+            if (initialRound == 0 ||
+                ((initialRound == 1 ||
+                  initialRound == Game.NumRounds + 1) &&
+                 gameData.Typ != null))
             {
-                gameData.Kolo = Game.NumRounds + 1;
+                gameData.Kolo = initialRound;
+                gameData.Zacina = gameData.Voli;
+            }
+            else if (initialRound > 1 &&
+                     initialRound <= Game.NumRounds &&
+                     gameData.Stychy != null &&
+                     gameData.Stychy.Count(i => i.Hrac1 != null &&
+                                                i.Hrac2 != null &&
+                                                i.Hrac3 != null) >= initialRound)
+            {
+                gameData.Kolo = initialRound;
+                gameData.Zacina = gameData.Stychy[initialRound - 1].Zacina;
             }
             while (xmlrdr.Read())
             {

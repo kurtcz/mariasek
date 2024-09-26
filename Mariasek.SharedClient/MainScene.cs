@@ -57,6 +57,7 @@ namespace Mariasek.SharedClient
         private Button _repeatGameOptionBtn;
         private Button _repeatGameAsPlayer2Btn;
         private Button _repeatGameAsPlayer3Btn;
+        private Button _repeatFromBtn;
         private Button _reviewGameBtn;
         private Button _editGameBtn;
         private ToggleButton _infoBtn;
@@ -357,6 +358,16 @@ namespace Mariasek.SharedClient
             };
             _repeatGameAsPlayer3Btn.Click += RepeatGameAsPlayer3BtnClicked;
             _repeatGameAsPlayer3Btn.Hide();
+            _repeatFromBtn = new Button(this)
+            {
+                Text = "Vyber štych",
+                Position = new Vector2(590, Game.VirtualScreenHeight / 2f - 90),
+                ZIndex = 100,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main,
+                Width = 200
+            };
+            _repeatFromBtn.Click += RepeatFromBtnClicked;
+            _repeatFromBtn.Hide();
             _menuBtn = new Button(this)
             {
                 Text = "Menu",
@@ -1392,7 +1403,7 @@ namespace Mariasek.SharedClient
 
         public void RepeatGameBtnClicked(object sender)
         {
-            ReplayGame(_newGameFilePath);
+            ReplayGame(_newGameFilePath, 0);
         }
 
         //public void RepeatGameOptionBtnClicked(object sender)
@@ -1402,46 +1413,75 @@ namespace Mariasek.SharedClient
             var hiddenPosition2 = _repeatGameBtn.Position;
             var origPosition3 = _repeatGameAsPlayer3Btn.Position;
             var hiddenPosition3 = _repeatGameBtn.Position;
+            var origPositionFrom = _repeatFromBtn.Position;
+            var hiddenPositionFrom = _repeatGameBtn.Position;
 
             _repeatGameAsPlayer2Btn.Text = string.Format("Jako {0}", Game.Settings.PlayerNames[1]);
             _repeatGameAsPlayer3Btn.Text = string.Format("Jako {0}", Game.Settings.PlayerNames[2]);
             _repeatGameOptionBtn.Hide();
             _repeatGameAsPlayer2Btn.Position = hiddenPosition2;
             _repeatGameAsPlayer3Btn.Position = hiddenPosition3;
+            _repeatFromBtn.Position = hiddenPositionFrom; 
             _repeatGameAsPlayer2Btn.Show();
             _repeatGameAsPlayer3Btn.Show();
+            _repeatFromBtn.Show();
             _repeatGameAsPlayer2Btn.MoveTo(origPosition2, 2000)
-                                  .Wait(2000)
-                                  .MoveTo(hiddenPosition2, 2000)
-                                  .Invoke(() =>
-                                  {
-                                      _repeatGameAsPlayer2Btn.Hide();
-                                      _repeatGameAsPlayer2Btn.Position = origPosition2;
-                                  });
+                                   .Wait(2000)
+                                   .MoveTo(hiddenPosition2, 2000)
+                                   .Invoke(() =>
+                                   {
+                                       _repeatGameAsPlayer2Btn.Hide();
+                                       _repeatGameAsPlayer2Btn.Position = origPosition2;
+                                   });
             _repeatGameAsPlayer3Btn.MoveTo(origPosition3, 2000)
-                                  .Wait(2000)
-                                  .MoveTo(hiddenPosition3, 2000)
-                                  .Invoke(() =>
-                                  {
-                                      _repeatGameAsPlayer3Btn.Hide();
-                                      _repeatGameAsPlayer3Btn.Position = origPosition3;
-                                      if (_repeatGameBtn.IsVisible)
-                                      {
-                                          _repeatGameOptionBtn.Show();
-                                      }
-                                  });
+                                   .Wait(2000)
+                                   .MoveTo(hiddenPosition3, 2000)
+                                   .Invoke(() =>
+                                   {
+                                       _repeatGameAsPlayer3Btn.Hide();
+                                       _repeatGameAsPlayer3Btn.Position = origPosition3;
+                                       if (_repeatGameBtn.IsVisible)
+                                       {
+                                           _repeatGameOptionBtn.Show();
+                                       }
+                                   });
+            _repeatFromBtn.MoveTo(origPositionFrom, 2000)
+                          .Wait(2000)
+                          .MoveTo(hiddenPositionFrom, 2000)
+                          .Invoke(() =>
+                          {
+                              _repeatFromBtn.Hide();
+                              _repeatFromBtn.Position = origPositionFrom;
+                              if (_repeatGameBtn.IsVisible)
+                              {
+                                  _repeatGameOptionBtn.Show();
+                              }
+                          });
         }
 
         public void RepeatGameAsPlayer2BtnClicked(object sender)
         {
             ImpersonationPlayerIndex = (ImpersonationPlayerIndex + 1) % Mariasek.Engine.Game.NumPlayers;
-            ReplayGame(_newGameFilePath);
+            ReplayGame(_newGameFilePath, 0);
         }
 
         public void RepeatGameAsPlayer3BtnClicked(object sender)
         {
             ImpersonationPlayerIndex = (ImpersonationPlayerIndex + 2) % Mariasek.Engine.Game.NumPlayers;
-            ReplayGame(_newGameFilePath);
+            ReplayGame(_newGameFilePath, 0);
+        }
+
+        public async void RepeatFromBtnClicked(object sender)
+        {
+            var text = await KeyboardInput.Show("Vyber počáteční štych", $"Od jakého kola chceš hru opakovat? (1-9)", "1");
+
+            if (int.TryParse(text, out int initialRound) &&
+                initialRound >= 1 &&
+                initialRound < Mariasek.Engine.Game.NumRounds)
+            {
+                ImpersonationPlayerIndex = 0;
+                ReplayGame(_endGameFilePath, initialRound);
+            }
         }
 
         //vola se z menu (micha vzdy)
@@ -1493,6 +1533,7 @@ namespace Mariasek.SharedClient
             _repeatGameOptionBtn.Hide();
             _repeatGameAsPlayer2Btn.Hide();
             _repeatGameAsPlayer3Btn.Hide();
+            _repeatFromBtn.Hide();
             _testGame = false;
             _newGameArchivePath = null;
             _endGameArchivePath = null;
@@ -3483,7 +3524,7 @@ namespace Mariasek.SharedClient
             return false;
         }
 
-        public void LoadGame(string path, bool testGame)
+        public void LoadGame(string path, bool testGame, int initialRound = -1)
         {
             _testGame = testGame;
             if (!_gameSemaphore.Wait(0))
@@ -3502,6 +3543,7 @@ namespace Mariasek.SharedClient
             _repeatGameOptionBtn.Hide();
             _repeatGameAsPlayer2Btn.Hide();
             _repeatGameAsPlayer3Btn.Hide();
+            _repeatFromBtn.Hide();
             SetActive();
             var cancellationTokenSource = new CancellationTokenSource();
             _gameTask = Task.Run(() => CancelRunningTask(gameTask))
@@ -3564,7 +3606,7 @@ namespace Mariasek.SharedClient
                         DeleteSimulationsFolder();
                         using (var fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
-                            g.LoadGame(fs, impersonationPlayerIndex: ImpersonationPlayerIndex);
+                            g.LoadGame(fs, impersonationPlayerIndex: ImpersonationPlayerIndex, initialRound: initialRound);
                         }
                     }
                     catch (Exception ex)
@@ -3842,7 +3884,7 @@ namespace Mariasek.SharedClient
             }
         }
 
-        public void ReplayGame(string gamePath)
+        public void ReplayGame(string gamePath, int initialRound)
         {
             CancelRunningTask(_gameTask);
             CleanUpOldGame();
@@ -3856,7 +3898,7 @@ namespace Mariasek.SharedClient
                         //aby fungovalo opetovne prehravani
                         File.Copy(gamePath, _newGameFilePath, true);
                     }
-                    LoadGame(gamePath, true);
+                    LoadGame(gamePath, true, initialRound);
                 }
                 catch (Exception ex)
                 {
