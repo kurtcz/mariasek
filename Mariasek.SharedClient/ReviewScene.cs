@@ -182,7 +182,7 @@ namespace Mariasek.SharedClient
             Game.EditorScene.SetActive();
         }
 
-        public void ShowGame(HistoryItem results, string newGamePath, string endGamePath)
+        public void ShowGame(HistoryItem results, string newGamePath, string endGamePath, bool simulatedGame = false)
         {
             _review.Hide();
             _rawData.Hide();
@@ -258,7 +258,9 @@ namespace Mariasek.SharedClient
                     var description = string.Format("{0}\n{1} {2}\n{3}\n{4}\t{5}\n{6}\t{7}\n{8}\t{9}",
                                                       gameDate.ToString("dd.MM.yyyy HH:mm"),
                                                       Path.GetFileName(endGamePath).Split('-')[0],
-                                                      Game.MainScene.AmendSuitNameIfNeeded(g.GameType.ToDescription(g.trump)),
+                                                      simulatedGame
+                                                      ? $"{Path.GetFileName(endGamePath).Split('-')[1]}.{Game.MainScene.AmendSuitNameIfNeeded(g.GameType.ToDescription(g.trump))}"
+                                                      : Game.MainScene.AmendSuitNameIfNeeded(g.GameType.ToDescription(g.trump)),
                                                       string.Join("\n", resultStr.Take(resultStr.Length - 3)
                                                                                  .Select(i => i.Split('\t')[0]
                                                                                                .Replace(" (", "\n(")

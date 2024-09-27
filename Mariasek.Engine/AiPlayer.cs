@@ -68,7 +68,8 @@ namespace Mariasek.Engine
         public string _minMaxDebugString { get; set; }
         public Probability Probabilities { get; set; }
         public AiPlayerSettings Settings { get; set; }
-        
+        public List<MoneyCalculatorBase> Simulations { get; set; }
+
         public Action ThrowIfCancellationRequested;
 
         public AiPlayer(Game g) : base(g)
@@ -130,6 +131,7 @@ namespace Mariasek.Engine
             _debugString = g.GetStringLogger();//g.DebugString;
             _teamMatesSuits = new List<Barva>();
             DebugInfo = new PlayerDebugInfo();
+            Simulations = new List<MoneyCalculatorBase>();
             g.GameLoaded += GameLoaded;
             g.GameFlavourChosen += GameFlavourChosen;
             g.GameTypeChosen += GameTypeChosen;
@@ -1878,6 +1880,7 @@ namespace Mariasek.Engine
             //pokud nevolim hru, tak bud simuluju betl a durch nebo konkretni typ hry
             //tak ci tak nevim co je/bude v talonu
             _log.DebugFormat("Running game simulations for {0} ...", Name);
+
             if (simulateGoodGames)
             {
                 var start = DateTime.Now;
@@ -1923,8 +1926,16 @@ namespace Mariasek.Engine
                                     }
                                     var gt = Hra.Hra;
 
-                                    if ((gameStartingPlayerIndex == PlayerIndex && !hands[PlayerIndex].Has7(_trump ?? _g.trump ?? Barva.Cerveny)) ||
-                                        (gameStartingPlayerIndex != PlayerIndex && hands[PlayerIndex].Has7(_trump ?? _g.trump ?? Barva.Cerveny)))
+                                    //if ((gameStartingPlayerIndex == PlayerIndex && !hands[PlayerIndex].Has7(_trump ?? _g.trump ?? Barva.Cerveny)) ||
+                                    //    (gameStartingPlayerIndex != PlayerIndex && hands[PlayerIndex].Has7(_trump ?? _g.trump ?? Barva.Cerveny)))
+                                    if ((gameStartingPlayerIndex == PlayerIndex &&
+                                         ((hands[(PlayerIndex + 1) % Game.NumPlayers].Has7(_trump ?? _g.trump ?? Barva.Cerveny) &&
+                                           !IsSevenTooRisky(hands[(PlayerIndex + 1) % Game.NumPlayers])) ||
+                                          (hands[(PlayerIndex + 2) % Game.NumPlayers].Has7(_trump ?? _g.trump ?? Barva.Cerveny) &&
+                                           !IsSevenTooRisky(hands[(PlayerIndex + 2) % Game.NumPlayers])))) ||
+                                        (gameStartingPlayerIndex != PlayerIndex &&
+                                         hands[PlayerIndex].Has7(_trump ?? _g.trump ?? Barva.Cerveny) &&
+                                         !IsSevenTooRisky(hands[PlayerIndex])))
                                     {
                                         gt |= Hra.SedmaProti;
                                     }
@@ -2000,9 +2011,9 @@ namespace Mariasek.Engine
                                         {
                                             UpdateGeneratedHandsByChoosingTalon(hands, ChooseNormalTalon, gameStartingPlayerIndex);
                                         }
-                                        var gt = EstimateBasicPointsLost(hands[PlayerIndex], hands[Game.TalonIndex], false) <= 30 &&
+                                        var gt = EstimateBasicPointsLost(hands[gameStartingPlayerIndex], hands[Game.TalonIndex], false) <= 30 &&
                                                  Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                                     .Any(b => hands[PlayerIndex].HasK(b) && hands[PlayerIndex].HasQ(b))
+                                                     .Any(b => hands[gameStartingPlayerIndex].HasK(b) && hands[gameStartingPlayerIndex].HasQ(b))
                                                      ? Hra.Kilo
                                                      : Hra.Hra;
 
@@ -2070,7 +2081,9 @@ namespace Mariasek.Engine
                 catch
                 {                    
                 }
-                if (!fastSelection || shouldChooseBetl)
+                if ((!fastSelection || shouldChooseBetl) &&
+                    !(_gameType == Hra.Betl &&  //pokud nekdo jiny hlasil betla tak uz ho nema smysl simulovat
+                      gameStartingPlayerIndex == PlayerIndex))
                 {
                     if (_g.CancellationToken.IsCancellationRequested)
                     {
@@ -2289,7 +2302,7 @@ namespace Mariasek.Engine
 
             //bidding nema zadne zavazky, cili CalculateMoney() nic nespocita
             var moneyCalculations = gameComputationResults.Where(i => (i.GameType & Hra.Hra) != 0 &&
-                                                                      (i.GameType & Hra.Sedma) == 0).Select((i, idx) =>
+                                                                      (i.GameType & Hra.Sedma) == 0).Select(i =>
             {
                 var calc = GetMoneyCalculator(Hra.Hra, _trump ?? _g.trump, gameStartingPlayerIndex, gameBidding, i);
 
@@ -2297,14 +2310,16 @@ namespace Mariasek.Engine
 
                 if (_g.SaveSimulations)
                 {
-                    using (var fs = _g.GetFileStream($"Simulations/p{PlayerIndex + 1}-hra-{idx}.hra"))
+                    calc.GameId = ++_g.SimulatedGameId;
+                    Simulations.Add(calc);
+                    using (var fs = _g.GetFileStream($"Simulations/{calc.GameId:000}-p{PlayerIndex + 1}-hra.hra"))
                     {
-                        _g.SaveGame(fs, saveDebugInfo: true, simulatedHands: i.Hands, simulatedGameType: i.GameType, simulatedRounds: i.Rounds, simulatedResult: calc);
+                        _g.SaveGame(fs, saveDebugInfo: true, simulatedHands: i.Hands, simulatedGameStartingPlayer: gameStartingPlayerIndex, simulatedGameType: i.GameType, simulatedRounds: i.Rounds, simulatedResult: calc);
                     }
                 }
 
                 return calc;
-            }).Union(gameComputationResults.Where(i => (i.GameType & Hra.Sedma) != 0).Select((i, idx) =>
+            }).Union(gameComputationResults.Where(i => (i.GameType & Hra.Sedma) != 0).Select(i =>
             {
                 var calc = GetMoneyCalculator(Hra.Hra | Hra.Sedma, _trump ?? _g.trump, gameStartingPlayerIndex, sevenBidding, i);
 
@@ -2312,43 +2327,50 @@ namespace Mariasek.Engine
 
                 if (_g.SaveSimulations)
                 {
-                    using (var fs = _g.GetFileStream($"Simulations/p{PlayerIndex + 1}-sedma-{idx}.hra"))
+                    calc.GameId = ++_g.SimulatedGameId;
+                    Simulations.Add(calc);
+                    using (var fs = _g.GetFileStream($"Simulations/{calc.GameId:000}-p{PlayerIndex + 1}-sedma.hra"))
                     {
-                        _g.SaveGame(fs, saveDebugInfo: true, simulatedHands: i.Hands, simulatedGameType: i.GameType, simulatedRounds: i.Rounds, simulatedResult: calc);
+                        _g.SaveGame(fs, saveDebugInfo: true, simulatedHands: i.Hands, simulatedGameStartingPlayer: gameStartingPlayerIndex, simulatedGameType: i.GameType, simulatedRounds: i.Rounds, simulatedResult: calc);
                     }
                 }
 
                 return calc;
-            }).Union(gameComputationResults.Where(i => (i.GameType & Hra.Kilo) != 0).Select((i, idx) =>
+            }).Union(gameComputationResults.Where(i => (i.GameType & Hra.Kilo) != 0).Select(i =>
             {
                 var calc = GetMoneyCalculator(Hra.Kilo, _trump ?? _g.trump, gameStartingPlayerIndex, sevenBidding, i);
 
                 calc.CalculateMoney();
 
                 if (_g.SaveSimulations)
-                { using (var fs = _g.GetFileStream($"Simulations/p{PlayerIndex + 1}-kilo-{idx}.hra"))
+                {
+                    calc.GameId = ++_g.SimulatedGameId;
+                    Simulations.Add(calc);
+                    using (var fs = _g.GetFileStream($"Simulations/{calc.GameId:000}-p{PlayerIndex + 1}-kilo.hra"))
                     {
-                        _g.SaveGame(fs, saveDebugInfo: true, simulatedHands: i.Hands, simulatedGameType: i.GameType, simulatedRounds: i.Rounds, simulatedResult: calc);
+                        _g.SaveGame(fs, saveDebugInfo: true, simulatedHands: i.Hands, simulatedGameStartingPlayer: gameStartingPlayerIndex, simulatedGameType: i.GameType, simulatedRounds: i.Rounds, simulatedResult: calc);
                     }
                 }
 
                 return calc;
-            }).Union(durchComputationResults.Select((i, idx) =>
+            }).Union(durchComputationResults.Select(i =>
             {
                 var calc = GetMoneyCalculator(Hra.Durch, null, gameStartingPlayerIndex, durchBidding, i);
 
+                calc.CalculateMoney();
+
                 if (_g.SaveSimulations)
                 {
-                    using (var fs = _g.GetFileStream($"Simulations/p{PlayerIndex + 1}-durch-{idx}.hra"))
+                    calc.GameId = ++_g.SimulatedGameId;
+                    Simulations.Add(calc);
+                    using (var fs = _g.GetFileStream($"Simulations/{calc.GameId:000}-p{PlayerIndex + 1}-durch.hra"))
                     {
-                        _g.SaveGame(fs, saveDebugInfo: true, simulatedHands: i.Hands, simulatedGameType: i.GameType, simulatedRounds: i.Rounds, simulatedResult: calc);
+                        _g.SaveGame(fs, saveDebugInfo: true, simulatedHands: i.Hands, simulatedGameStartingPlayer: gameStartingPlayerIndex, simulatedGameType: i.GameType, simulatedRounds: i.Rounds, simulatedResult: calc);
                     }
                 }
 
-                calc.CalculateMoney();
-
                 return calc;
-            })).Union(betlComputationResults.Select((i, idx) =>
+            })).Union(betlComputationResults.Select(i =>
             {
                 var calc = GetMoneyCalculator(Hra.Betl, null, gameStartingPlayerIndex, betlBidding, i);
 
@@ -2356,9 +2378,11 @@ namespace Mariasek.Engine
 
                 if (_g.SaveSimulations)
                 {
-                    using (var fs = _g.GetFileStream($"Simulations/p{PlayerIndex + 1}-betl-{idx}.hra"))
+                    calc.GameId = ++_g.SimulatedGameId;
+                    Simulations.Add(calc);
+                    using (var fs = _g.GetFileStream($"Simulations/{calc.GameId:000}-p{PlayerIndex + 1}-betl.hra"))
                     {
-                        _g.SaveGame(fs, saveDebugInfo: true, simulatedHands: i.Hands, simulatedGameType: i.GameType, simulatedRounds: i.Rounds, simulatedResult: calc);
+                        _g.SaveGame(fs, saveDebugInfo: true, simulatedHands: i.Hands, simulatedGameStartingPlayer: gameStartingPlayerIndex, simulatedGameType: i.GameType, simulatedRounds: i.Rounds, simulatedResult: calc);
                     }
                 }
 

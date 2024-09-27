@@ -254,6 +254,7 @@ namespace Mariasek.SharedClient
         public Vector2 CardScaleFactor { get; set; }
 
         public SynchronizedCollection<HistoryItem> Money = new SynchronizedCollection<HistoryItem>();
+        public List<HistoryItem> Simulations = new List<HistoryItem>();
 
         private Stopwatch sw = new Stopwatch();
         public MariasekMonoGame()

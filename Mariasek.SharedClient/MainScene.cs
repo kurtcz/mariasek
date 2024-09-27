@@ -117,6 +117,7 @@ namespace Mariasek.SharedClient
         private AiPlayerSettings _aiSettings;
         private string _archivePath = Path.Combine(MariasekMonoGame.RootPath, "Archive");
         private string _simulationsPath = Path.Combine(MariasekMonoGame.RootPath, "Simulations");
+        private string _simHistoryFilePath = Path.Combine(MariasekMonoGame.RootPath, "Mariasek.simulations");
         private string _historyFilePath = Path.Combine(MariasekMonoGame.RootPath, "Mariasek.history");
         private string _deckFilePath = Path.Combine(MariasekMonoGame.RootPath, "Mariasek.deck");
         private string _minMaxFilePath = Path.Combine(MariasekMonoGame.RootPath, "_minmax.csv");
@@ -806,6 +807,7 @@ namespace Mariasek.SharedClient
             Task.Run(() =>
             {
                 LoadHistory();
+                LoadSimulationsHistory();
                 TryFixGameIdsIfNeeded();
                 Game.LoadGameSettings(false);
                 SettingsChanged(this, new SettingsChangedEventArgs() { Settings = Game.Settings });
@@ -845,6 +847,50 @@ namespace Mariasek.SharedClient
             {
                 Directory.CreateDirectory(dir);
             }
+        }
+
+        public void LoadSimulationsHistory()
+        {
+#if DEBUG
+            Game.StorageAccessor.GetStorageAccess();
+            if (!File.Exists(_simHistoryFilePath))
+            {
+                return;
+            }
+            using (var reader = new StreamReader(_simHistoryFilePath))
+            {
+                var csvConfiguration = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    MissingFieldFound = (args) =>
+                    {
+                        if (args.Index < 6) //ignore missing DateTime (at index 6)
+                        {
+                            throw new CsvHelper.MissingFieldException(args.Context);
+                        }
+                    }
+                };
+                using (var csv = new CsvReader(reader, csvConfiguration))
+                {
+                    csv.Read();
+                    csv.ReadHeader();
+                    while (csv.Read())
+                    {
+                        var money = new HistoryItem();
+
+                        money.GameId = csv.GetField<int>(0);
+                        money.GameTypeString = csv.GetField<string>(1);
+                        money.GameTypeConfidence = csv.GetField<float>(2);
+                        money.MoneyWon1 = csv.GetField<int>(3);
+                        money.MoneyWon2 = csv.GetField<int>(4);
+                        money.MoneyWon3 = csv.GetField<int>(5);
+                        money.DateTime = csv.GetField<DateTime>(6);
+                        money.DateTicks = money.DateTime.Date.Ticks;
+
+                        Game.Simulations.Add(money);
+                    }
+                }
+            }
+#endif
         }
 
         public void LoadHistory()
@@ -999,6 +1045,38 @@ namespace Mariasek.SharedClient
                     System.Diagnostics.Debug.WriteLine("Error in FixGameIdsIfNeeded\n{0}", ex.Message);
                 }
             }
+        }
+
+        public void SaveSimulationHistory()
+        {
+#if DEBUG
+            Game.StorageAccessor.GetStorageAccess();
+            using (var sw = new StreamWriter(_simHistoryFilePath))
+            {
+                using (var csv = new CsvWriter(sw, CultureInfo.InvariantCulture))
+                {
+                    csv.WriteField("GameId");
+                    csv.WriteField("GameTypeString");
+                    csv.WriteField("GameTypeConfidence");
+                    csv.WriteField("MoneyWon1");
+                    csv.WriteField("MoneyWon2");
+                    csv.WriteField("MoneyWon3");
+                    csv.WriteField("DateTime");
+                    csv.NextRecord();
+                    foreach (var money in Game.Simulations)
+                    {
+                        csv.WriteField(money.GameId);
+                        csv.WriteField(money.GameTypeString.TrimEnd());
+                        csv.WriteField(money.GameTypeConfidence);
+                        csv.WriteField(money.MoneyWon[0]);
+                        csv.WriteField(money.MoneyWon[1]);
+                        csv.WriteField(money.MoneyWon[2]);
+                        csv.WriteField(money.DateTime);
+                        csv.NextRecord();
+                    }
+                }
+            }
+#endif
         }
 
         public void SaveHistory()
@@ -1432,6 +1510,10 @@ namespace Mariasek.SharedClient
                                    {
                                        _repeatGameAsPlayer2Btn.Hide();
                                        _repeatGameAsPlayer2Btn.Position = origPosition2;
+                                       if (_repeatGameBtn.IsVisible)
+                                       {
+                                           _repeatGameOptionBtn.Show();
+                                       }
                                    });
             _repeatGameAsPlayer3Btn.MoveTo(origPosition3, 2000)
                                    .Wait(2000)
@@ -1593,7 +1675,7 @@ namespace Mariasek.SharedClient
                          PreGameHook = () => _preGameEvent.WaitOne(),
                          CurrencyFormat = Game.CurrencyFormat,
                          LogProbDebugInfo = Game.Settings.LogProbabilities
-                     };
+                     };                     
                      g.RegisterPlayers(
                          new HumanPlayer(g, _aiSettings, this, Game.Settings.HintEnabled) { Name = Game.Settings.PlayerNames[0] },
                          new AiPlayer(g, _aiSettings) { Name = Game.Settings.PlayerNames[1] },
@@ -1610,6 +1692,7 @@ namespace Mariasek.SharedClient
 #endif
                      Game.Settings.CurrentStartingPlayerIndex = CurrentStartingPlayerIndex;
                      Game.SaveGameSettings();
+                     DeleteSimulationsFolder();
                      if (_deck == null) 
                      {
                          LoadDeck();
@@ -3056,6 +3139,28 @@ namespace Mariasek.SharedClient
         public void RoundStarted(object sender, Round r)
         {
             g.ThrowIfCancellationRequested();
+#if DEBUG
+            if (g.SaveSimulations && r.number == 1)
+            {
+                Game.Simulations = g.players.SelectMany(i =>
+                                                {
+                                                    var ai = i as AiPlayer;
+                                                    if (ai != null)
+                                                    {
+                                                        return ai.Simulations.Select(j => new HistoryItem(j));
+                                                    }
+                                                    var h = i as HumanPlayer;
+                                                    if (h?._aiPlayer?.Simulations != null)
+                                                    {
+                                                        return h._aiPlayer.Simulations.Select(j => new HistoryItem(j));
+                                                    }
+                                                    return Enumerable.Empty<HistoryItem>();
+                                                })
+                                            .OrderBy(i => i.GameId)
+                                            .ToList();
+                SaveSimulationHistory();
+            }
+#endif
             if (r.player1.PlayerIndex != 0)
             {
                 ShowThinkingMessage(r.player1.PlayerIndex);
@@ -4428,6 +4533,11 @@ namespace Mariasek.SharedClient
         {
             try
             {
+                Game.Simulations.Clear();
+                if (File.Exists(_simHistoryFilePath))
+                {
+                    File.Delete(_simHistoryFilePath);
+                }
                 if (Directory.Exists(_simulationsPath))
                 {
                     foreach (var game in Directory.GetFiles(_simulationsPath))

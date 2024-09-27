@@ -559,10 +559,11 @@ namespace Mariasek.Engine
                             return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                         }
 
-                        //pokus si nechat barvu, kterou spoluhrac dosud nehral
-                        if (mySuits.Any(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i)))
+                        //pokus si nechat barvu, kterou spoluhrac uz hral
+                        if (mySuits.Any(i => teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i)) &&
+                            mySuits.Any(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i)))
                         {
-                            var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i.Suit));
+                            var cardsToPlay = ValidCards(c1, hands[MyIndex]).Where(i => teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i.Suit));
 
                             return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                         }
@@ -983,10 +984,11 @@ namespace Mariasek.Engine
                             return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                         }
 
-                        //pokus si nechat barvu, kterou spoluhrac dosud nehral
-                        if (mySuits.Any(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i)))
+                        //pokus si nechat barvu, kterou spoluhrac uz hral
+                        if (mySuits.Any(i => teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i) &&
+                            mySuits.Any(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i))))
                         {
-                            var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => !teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i.Suit));
+                            var cardsToPlay = ValidCards(c1, c2, hands[MyIndex]).Where(i => teamMatesCardsPlayed.Select(j => j.Suit).Distinct().Contains(i.Suit));
 
                             return cardsToPlay.OrderBy(i => i.BadValue).FirstOrDefault();
                         }

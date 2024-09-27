@@ -106,6 +106,7 @@ namespace Mariasek.Engine
         public string Author { get; set; }
         public bool LogProbDebugInfo { get; set; }
         public bool SaveSimulations { get; set; }
+        public int SimulatedGameId { get; set; }
         //public bool DoSort { get; set; }
         public bool AutoDisable100Against { get; set; }
 #if !PORTABLE
@@ -759,11 +760,15 @@ namespace Mariasek.Engine
         }
 #endif
 
-        public void SaveGame(Stream fileStream, bool saveDebugInfo = false, bool saveFromEditor = false, bool logAiModel = false, Hra? simulatedGameType = null, Hand[] simulatedHands = null, List<RoundDebugContext> simulatedRounds = null, MoneyCalculatorBase simulatedResult = null)
+        public void SaveGame(Stream fileStream, bool saveDebugInfo = false, bool saveFromEditor = false, bool logAiModel = false, int simulatedGameStartingPlayer = -1, Hra? simulatedGameType = null, Hand[] simulatedHands = null, List<RoundDebugContext> simulatedRounds = null, MoneyCalculatorBase simulatedResult = null)
         {
             try
             {
-                var startingPlayerIndex = GameStartingPlayerIndex;
+                if (simulatedGameStartingPlayer < 0)
+                {
+                    simulatedGameStartingPlayer = GameStartingPlayerIndex;
+                }
+                var startingPlayerIndex = simulatedGameStartingPlayer;
                 var roundNumber = RoundNumber;
 
                 if (CurrentRound != null)
@@ -829,15 +834,15 @@ namespace Mariasek.Engine
                         (gt & (Hra.SedmaProti)) == 0 &&
                         (gt & (Hra.KiloProti)) == 0)
                     {
-                        if (GameStartingPlayerIndex == 0)
+                        if (simulatedGameStartingPlayer == 0)
                         {
                             flekoval &= ~Hrac.Hrac1;
                         }
-                        if (GameStartingPlayerIndex == 1)
+                        if (simulatedGameStartingPlayer == 1)
                         {
                             flekoval &= ~Hrac.Hrac2;
                         }
-                        if (GameStartingPlayerIndex == 2)
+                        if (simulatedGameStartingPlayer == 2)
                         {
                             flekoval &= ~Hrac.Hrac3;
                         }
@@ -885,7 +890,7 @@ namespace Mariasek.Engine
                     simulatedRounds == null &&
                     rounds[0] != null &&
                     ((GameType & (Hra.Betl | Hra.Durch)) == 0 ||
-                     result.MoneyWon[GameStartingPlayerIndex] > 0))
+                     result.MoneyWon[simulatedGameStartingPlayer] > 0))
                 {
                     hands[0].Clear();
                     hands[1].Clear();
@@ -893,19 +898,19 @@ namespace Mariasek.Engine
                 }
                 if (RoundNumber > 0)
                 {
-                    hands[GameStartingPlayerIndex].Sort(SortMode.SuitsOnly);
+                    hands[simulatedGameStartingPlayer].Sort(SortMode.SuitsOnly);
                 }
                 if (!saveFromEditor)
                 {
-                    hands[(GameStartingPlayerIndex + 1) % NumPlayers].Sort(SortMode.SuitsOnly);
-                    hands[(GameStartingPlayerIndex + 2) % NumPlayers].Sort(SortMode.SuitsOnly);
+                    hands[(simulatedGameStartingPlayer + 1) % NumPlayers].Sort(SortMode.SuitsOnly);
+                    hands[(simulatedGameStartingPlayer + 2) % NumPlayers].Sort(SortMode.SuitsOnly);
                 }
                 var hraci = new[] { Hrac.Hrac1, Hrac.Hrac2, Hrac.Hrac3 };
                 var gameType = simulatedGameType ?? GameType;
                 var gameDto = new GameDto
                 {
                     Kolo = roundNumber,
-                    Voli = hraci[GameStartingPlayerIndex],
+                    Voli = hraci[simulatedGameStartingPlayer],
                     Trumf = gameType != 0 ? trump : null,
                     Typ = gameType != 0 ? (Hra?)gameType : null,
                     Zacina = hraci[startingPlayerIndex],
@@ -1031,17 +1036,17 @@ namespace Mariasek.Engine
                     {
                         Hrac1 = new Skore
                         {
-                            Body = GameStartingPlayerIndex == 0 ? result.PointsWon : result.PointsLost,
+                            Body = simulatedGameStartingPlayer == 0 ? result.PointsWon : result.PointsLost,
                             Zisk = result.MoneyWon[0]
                         },
                         Hrac2 = new Skore
                         {
-                            Body = GameStartingPlayerIndex == 1 ? result.PointsWon : result.PointsLost,
+                            Body = simulatedGameStartingPlayer == 1 ? result.PointsWon : result.PointsLost,
                             Zisk = result.MoneyWon[1]
                         },
                         Hrac3 = new Skore
                         {
-                            Body = GameStartingPlayerIndex == 2 ? result.PointsWon : result.PointsLost,
+                            Body = simulatedGameStartingPlayer == 2 ? result.PointsWon : result.PointsLost,
                             Zisk = result.MoneyWon[2]
                         }
                     };

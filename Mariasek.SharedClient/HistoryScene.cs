@@ -15,8 +15,10 @@ namespace Mariasek.SharedClient
     public class HistoryScene : Scene
     {
         private string _archivePath = Path.Combine(MariasekMonoGame.RootPath, "Archive");
+        private string _simulationsPath = Path.Combine(MariasekMonoGame.RootPath, "Simulations");
 
         private Button _menuButton;
+        private ToggleButton _simButton;
         private Button _viewGameButton;
         private ToggleButton _tableButton;
         private ToggleButton _chartButton;
@@ -38,7 +40,9 @@ namespace Mariasek.SharedClient
 		private TouchLocation _touchHeldLocation;
         private bool _moneyDataFixupStarted;
         private Func<HistoryItem, bool> _filter;
-        private HistoryItem[] _filteredItems; 
+        private HistoryItem[] _filteredItems;
+
+        private int _lastHistorySize;
 
         public HistoryScene(MariasekMonoGame game)
             : base(game)
@@ -219,6 +223,19 @@ namespace Mariasek.SharedClient
                 UseCommonScissorRect = false
             };
             _historyBox.Hide();
+            _simButton = new ToggleButton(this)
+            {
+                Position = new Vector2(10, (int)Game.VirtualScreenHeight - 240),
+                Width = 95,
+                Height = 50,
+                Text = " Simulace ",
+                IsSelected = false,
+                Anchor = Game.RealScreenGeometry == ScreenGeometry.Wide ? AnchorType.Left : AnchorType.Main
+            };
+            _simButton.Click += SimButtonClicked;
+#if !DEBUG
+            _simButton.Hide();
+#endif
             _viewGameButton = new Button(this)
             {
                 Position = new Vector2(115, (int)Game.VirtualScreenHeight - 240),
@@ -266,7 +283,22 @@ namespace Mariasek.SharedClient
 
             _filter = (HistoryItem i) => Game.Settings.HistoryDaysToShow <= 0 ||
                                          DateTime.Today.Ticks - i.DateTime.Date.Ticks < ticksToShow;
-            _filteredItems = Game.Money.Where(_filter).ToArray();
+
+            _simButton.IsEnabled = Game.Simulations.Any();
+            if (_simButton.IsSelected)
+            {
+                _filteredItems = Game.Simulations.ToArray();
+            }
+            else
+            {
+                _filteredItems = Game.Money.Where(_filter).ToArray();
+
+                if (_filteredItems.Length > 0 &&
+                    _filteredItems.Length == _lastHistorySize)
+                {
+                    return;
+                }
+            }
 
             var sb = new StringBuilder();
             int played = 0, wins = 0, total = 0;
@@ -350,6 +382,8 @@ namespace Mariasek.SharedClient
             //{
             //    _historyChart.MaxValue = new Vector2(_historyChart.Data[0].Length, maxWon);
             //};
+            var files = _simButton.IsSelected ? Directory.GetFiles(_simulationsPath, "*.hra").OrderBy(i => i).ToArray() : null;
+            
             foreach (var historyItem in _filteredItems)
             {
                 if (Game.Settings.MaxHistoryTableLength <= 0 ||
@@ -359,7 +393,9 @@ namespace Mariasek.SharedClient
                     var format = lastGameId < 10000 ? " {0:D4}\t{1}\t{2}\t{3}\t{4}\n" : " {0:D5}\t{1}\t{2}\t{3}\t{4}\n";
                     sb.AppendFormat(format,
                                     (historyItem.GameIdSpecified ? (historyItem.GameId % 100000).ToString(lastGameId < 10000 ? "D4" : "D5") : "-----"),
-                                    (string.IsNullOrWhiteSpace(historyItem.GameTypeString) ? "?" : historyItem.GameTypeString),
+                                    _simButton.IsSelected
+                                    ? $"{files[historyItem.GameId - 1].Split("-")[1]}.{historyItem.GameTypeString}"
+                                    : (string.IsNullOrWhiteSpace(historyItem.GameTypeString) ? "?" : historyItem.GameTypeString),
                                     (historyItem.MoneyWon[0] * Game.Settings.BaseBet).ToString("C", numFormat),
                                     (historyItem.MoneyWon[1] * Game.Settings.BaseBet).ToString("C", numFormat),
                                     (historyItem.MoneyWon[2] * Game.Settings.BaseBet).ToString("C", numFormat));
@@ -391,66 +427,9 @@ namespace Mariasek.SharedClient
                 var sum3 = _filteredItems.Sum(i => i.MoneyWon[2] * Game.Settings.BaseBet).ToString("C", numFormat);
 
                 _footer.Text = string.Format("Součet:\t{0}\t{1}\t{2}", sum1, sum2, sum3);
+
+                _lastHistorySize = _filteredItems.Length;
             }
-            //Elements of _archiveGames hold GameId or 0 if the game is not archived
-            //var noidGames = Game.Money.Count(i => i.GameId == 0);
-
-            //if (noidGames > Game.Money.Count() / 2 && !_moneyDataFixupStarted)
-            //{
-            //    _moneyDataFixupStarted = true;
-            //    Task.Run(() =>
-            //    {
-            //        try
-            //        {
-
-            //            var k = 0;
-            //            for (var i = 0; i < Game.Money.Count(); i++)
-            //            {
-            //                if (Game.Money[i].IsArchived)
-            //                {
-            //                    var n = Game.Money[i].GameId == 0 ? k + 1 : Game.Money[i].GameId;
-            //                    var files = Directory.GetFiles(_archivePath, string.Format("{0:0000}-{1}*.hra", n, Game.Money[i].GameTypeString.Trim().ToLower()));
-
-            //                    if (files.Length == 2)
-            //                    {
-            //                        if (Game.Money[i].GameId == 0)
-            //                        {
-            //                            Game.Money[i].GameId = n;
-            //                            k = n;
-            //                        }
-            //                    }
-            //                    else
-            //                    {
-            //                        Game.Money[i].GameId = 0;
-            //                    }
-            //                }
-            //            }
-            //            //chci ziskat ostre rostouci posloupnost (nuly ignoruju)
-            //            //vyhodime duplikaty, nechavam si vzdy posledni vyskyt, ostatni mazu
-            //            //zbavime se zaroven i pripadnych nesetridenych prvku
-            //            var minimum = int.MaxValue;
-            //            for (var i = Game.Money.Count() - 1; i >= 0; i--)
-            //            {
-            //                if (Game.Money[i].GameId > 0)
-            //                {
-            //                    if (Game.Money[i].GameId < minimum)
-            //                    {
-            //                        minimum = Game.Money[i].GameId;
-            //                    }
-            //                    else
-            //                    {
-            //                        Game.Money[i].GameId = 0;
-            //                    }
-            //                }
-            //            }
-            //            Game.MainScene.SaveHistory();
-            //        }
-            //        catch (Exception ex)
-            //        {
-            //            System.Diagnostics.Debug.WriteLine(string.Format("Cannot fixup history\n{0}", ex.Message));
-            //        }
-            //    });
-            //}
         }
 
         private Vector2[][] AdjustChartData(int[][] data, int buckets)
@@ -595,6 +574,12 @@ namespace Mariasek.SharedClient
             }
         }
 
+        private void SimButtonClicked(object sender)
+        {
+            _lastHistorySize = -1;  //force invalidate
+            PopulateControls();
+        }
+
         private void ViewGameButtonClicked(object sender)
         {
             try
@@ -608,19 +593,36 @@ namespace Mariasek.SharedClient
                         return;
                     }
                     Game.StorageAccessor.GetStorageAccess();
-                    var pattern = string.Format("{0:0000}-*.hra", historicGame.GameId);
-                    var files = Directory.GetFiles(_archivePath, pattern).OrderBy(i => i).ToArray();
-                    if (historicGame.GameId > 0 &&
-                        files.Length == 2)
+                    if (_simButton.IsSelected)
                     {
-                        var newGameFilePath = files[0];
-                        var endGameFilePath = files[1];
-
-                        if (File.Exists(newGameFilePath) &&
-                            File.Exists(endGameFilePath))
+                        var files = Directory.GetFiles(_simulationsPath, "*.hra").OrderBy(i => i).ToArray();
+                        if (historicGame.GameId > 0)
                         {
-                            Game.ReviewScene.ShowGame(historicGame, newGameFilePath, endGameFilePath);
-                            Game.ReviewScene.SetActive();
+                            var endGameFilePath = files[_historyBox.HighlightedLine];
+
+                            if (File.Exists(endGameFilePath))
+                            {
+                                Game.ReviewScene.ShowGame(historicGame, endGameFilePath, endGameFilePath, true);
+                                Game.ReviewScene.SetActive();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var pattern = string.Format("{0:0000}-*.hra", historicGame.GameId);
+                        var files = Directory.GetFiles(_archivePath, pattern).OrderBy(i => i).ToArray();
+                        if (historicGame.GameId > 0 &&
+                            files.Length == 2)
+                        {
+                            var newGameFilePath = files[0];
+                            var endGameFilePath = files[1];
+
+                            if (File.Exists(newGameFilePath) &&
+                                File.Exists(endGameFilePath))
+                            {
+                                Game.ReviewScene.ShowGame(historicGame, newGameFilePath, endGameFilePath);
+                                Game.ReviewScene.SetActive();
+                            }
                         }
                     }
                 }
