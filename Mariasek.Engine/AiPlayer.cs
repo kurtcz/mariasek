@@ -3586,6 +3586,7 @@ namespace Mariasek.Engine
             if (kqScore == 0 ||
                 minBasicPointsLost > maxAllowedPointsLost)
             {
+                DebugInfo.EstimatedHundredWinProbability = 0;
                 return true;
             }
 
@@ -3627,12 +3628,37 @@ namespace Mariasek.Engine
             {
                 DebugInfo.EstimatedHundredWinProbability = 100 - estimatedGreaseProbabilityList[idx];
             }
-            else
+            else //neni co mazat, ale souperi si muzou uhrat desitky v barve. Pridam to na seznam
             {
-                DebugInfo.EstimatedHundredWinProbability = 100;
+                var n = (maxBasicPointsLost - minBasicPointsLost) / 10;
+
+                if (n == 1)
+                {
+                    estimatedGreaseProbabilityList.Add(50); //20 pointslost
+                    //10 lost points: 50%
+                    //20 lost points: 50%
+                }
+                else if (n == 2)
+                {
+                    estimatedGreaseProbabilityList.Add(25); //40 points lost
+                    //20 lost points: 25%
+                    //30 lost points: 50%
+                    //40 lost points: 25%
+                }
+                else //n == 3
+                {
+                    estimatedGreaseProbabilityList.Add(88); //40+ points lost
+                    estimatedGreaseProbabilityList.Add(50); //50+ points lost
+                    estimatedGreaseProbabilityList.Add(13); //60 points lost
+                    //30 lost points: 12.5%
+                    //40 lost points: 37.5%
+                    //50 lost points: 37.5%
+                    //60 lost points: 12.5%
+                }
+                DebugInfo.EstimatedHundredWinProbability = 100 - estimatedGreaseProbabilityList[0];
             }
 
-            //spocitej dirtibuci pravdepodobnosti prohranych bodu
+            //spocitej distribuci pravdepodobnosti prohranych bodu
             //klic: prohrane body, hodnota: pravdepodobnost (0-100)
             var estimatedLostPointsDistribution = new Dictionary<int, int>();
 
@@ -3646,7 +3672,14 @@ namespace Mariasek.Engine
                 }
                 estimatedLostPointsDistribution.Add(minBasicPointsLost + (i + 1) * 10, p);
             }
-            estimatedLostPointsDistribution.Add(minBasicPointsLost, 100 - estimatedGreaseProbabilityList[0]);
+            if (!estimatedGreaseProbabilityList.Any())
+            {
+                estimatedLostPointsDistribution.Add(minBasicPointsLost, 100);
+            }
+            else
+            {
+                estimatedLostPointsDistribution.Add(minBasicPointsLost, 100 - estimatedGreaseProbabilityList[0]);
+            }
 
             //dopln distribuci o mozne hlasky souperu
             var kqOppponentPotentialPoints = new List<int>();

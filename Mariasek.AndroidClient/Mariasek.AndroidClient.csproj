@@ -20,7 +20,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>TRACE;NET6_0;RELEASE;NET;NET7_0;NET8_0;NETCOREAPP</DefineConstants>
+    <DefineConstants>TRACE;NET6_0;NET7_0;RELEASE;NET;NET8_0;NETCOREAPP</DefineConstants>
     <WarningLevel>4</WarningLevel>
     <AndroidLinkTool>r8</AndroidLinkTool>
     <AndroidPackageFormat>aab</AndroidPackageFormat>

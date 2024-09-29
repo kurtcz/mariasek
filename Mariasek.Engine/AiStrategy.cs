@@ -1616,7 +1616,7 @@ namespace Mariasek.Engine
                     if (TeamMateIndex == -1)
                     {
                         //c--
-                        //pokuud mas vsechny trumfy vyjma desitky, tak pravidlo nehraj a radsi vytahni trumfovou X
+                        //pokud mas vsechny trumfy vyjma desitky, tak pravidlo nehraj a radsi vytahni trumfovou X
                         if (hands[MyIndex].HasA(_trump) &&
                             _probabilities.PotentialCards(player2).CardCount(_trump) <= 1 &&
                             _probabilities.PotentialCards(player3).CardCount(_trump) <= 1 &&
@@ -1637,12 +1637,31 @@ namespace Mariasek.Engine
                         {
                             return null;
                         }
+                        //pokud mas stejne trumfu jako souperi, z toho jeden nejvyssi a k tomu barvu co souperi nemaji
+                        //a jeden ze souperu muze mit stejne trumfu jako ty a navic ma nejakou barvu kterou nemas
+                        //tak nejdriv vytahni jeden trumf ze soupere a nasledne muzes vytlacit trumf bocni barvou
+                        if (GameValue > SevenValue &&
+                            topCards.HasSuit(_trump) &&
+                            hands[MyIndex].CardCount(_trump) == opponentTrumps.Count &&
+                            Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                                .Any(b => !hands[MyIndex].HasSuit(b) &&
+                                          ((_probabilities.PotentialCards(player2).HasSuit(b) &&
+                                            _probabilities.PotentialCards(player2).HasSuit(_trump) &&
+                                            _probabilities.PotentialCards(player2).CardCount(_trump) == hands[MyIndex].CardCount(_trump) &&
+                                            hands[MyIndex].Any(i => !_probabilities.PotentialCards(player2).HasSuit(i.Suit))) ||
+                                           (_probabilities.PotentialCards(player3).HasSuit(b) &&
+                                            _probabilities.PotentialCards(player3).HasSuit(_trump) &&
+                                            _probabilities.PotentialCards(player3).CardCount(_trump) == hands[MyIndex].CardCount(_trump) &&
+                                            hands[MyIndex].Any(i => !_probabilities.PotentialCards(player3).HasSuit(i.Suit))))))
+                        {
+                            return null;
+                        }
                         var suits = Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                                        .Where(b => b != _trump &&
-                                                    hands[MyIndex].HasX(b) &&
-                                                    hands[MyIndex].CardCount(b) > 1 &&
-                                                    (_probabilities.CardProbability(player2, new Card(b, Hodnota.Eso)) > _epsilon ||
-                                                     _probabilities.CardProbability(player3, new Card(b, Hodnota.Eso)) > _epsilon));
+                                    .Where(b => b != _trump &&
+                                                hands[MyIndex].HasX(b) &&
+                                                hands[MyIndex].CardCount(b) > 1 &&
+                                                (_probabilities.CardProbability(player2, new Card(b, Hodnota.Eso)) > _epsilon ||
+                                                    _probabilities.CardProbability(player3, new Card(b, Hodnota.Eso)) > _epsilon));
                         if (suits.Any())
                         {
                             var cardsToPlay = ValidCards(hands[MyIndex]).Where(i => suits.Contains(i.Suit) &&
@@ -1926,9 +1945,31 @@ namespace Mariasek.Engine
                     {
                         return null;
                     }
+                    //pokud mas stejne trumfu jako souperi, z toho jeden nejvyssi a k tomu barvu co souperi nemaji
+                    //a jeden ze souperu muze mit stejne trumfu jako ty a navic ma nejakou barvu kterou nemas
+                    //tak nejdriv vytahni jeden trumf ze soupere a nasledne muzes vytlacit trumf bocni barvou
+                    if (TeamMateIndex == -1 &&
+                        GameValue > SevenValue &&
+                        topCards.HasSuit(_trump) &&
+                        hands[MyIndex].CardCount(_trump) == opponentTrumps.Count &&
+                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                            .Any(b => !hands[MyIndex].HasSuit(b) &&
+                                      ((_probabilities.PotentialCards(player2).HasSuit(b) &&
+                                        _probabilities.PotentialCards(player2).HasSuit(_trump) &&
+                                        _probabilities.PotentialCards(player2).CardCount(_trump) == hands[MyIndex].CardCount(_trump) &&
+                                        hands[MyIndex].Any(i => !_probabilities.PotentialCards(player2).HasSuit(i.Suit))) ||
+                                       (_probabilities.PotentialCards(player3).HasSuit(b) &&
+                                        _probabilities.PotentialCards(player3).HasSuit(_trump) &&
+                                        _probabilities.PotentialCards(player3).CardCount(_trump) == hands[MyIndex].CardCount(_trump) &&
+                                        hands[MyIndex].Any(i => !_probabilities.PotentialCards(player3).HasSuit(i.Suit))))))
+                    {
+                        cardsToPlay = ValidCards(hands[MyIndex]).Where(i => topTrumps.Contains(i))
+                                                                .ToList();
+                    }
                     //pokud mas dost trumfu na ruce a zadnou dloubou bocni barvu,
                     //tak zkus nejdriv vytahnout trumfy ze souperu abys neohrozil vlastni bodovane karty
-                    if (GameValue > SevenValue &&
+                    if (!cardsToPlay.Any() &&
+                        GameValue > SevenValue &&
                         topCards.Any(i => i.Suit != _trump &&
                                           i.Value >= Hodnota.Desitka) &&
                         topTrumps.Count >= 2 &&
