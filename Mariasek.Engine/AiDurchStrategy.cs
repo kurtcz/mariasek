@@ -190,7 +190,6 @@ namespace Mariasek.Engine
                                                         if (r != null && r.c3 != null)
                                                         {
                                                             if (r.c2.Suit == b &&
-                                                                r.c2.BadValue > spodek.BadValue &&
                                                                 r.c1.Suit != r.c2.Suit &&
                                                                 (!myCardsPlayed.Any(i => i.Suit == r.c2.Suit &&
                                                                                          i.BadValue <= spodek.BadValue) ||
@@ -198,19 +197,32 @@ namespace Mariasek.Engine
                                                                                           i.BadValue <= spodek.BadValue)  //pokud jsem hral v barve driv nizkou nez vysokou, tak se o chytaka nejedna
                                                                               .All(i => myCardsPlayed.IndexOf(i) > myCardsPlayed.IndexOf(r.c2))) &&
 
-                                                                myInitialHand.CardCount(r.c2.Suit) >= 9 - r.c2.BadValue)
+                                                                ((r.c2.Value == Hodnota.Eso &&
+                                                                  myInitialHand.HasK(r.c2.Suit)) ||
+                                                                 (r.c2.Value == Hodnota.Kral &&
+                                                                  myInitialHand.HasQ(r.c2.Suit) &&
+                                                                  myInitialHand.CardCount(r.c2.Suit) >= 3) ||
+                                                                 (r.c2.Value == Hodnota.Svrsek &&
+                                                                  myInitialHand.HasJ(r.c2.Suit) &&
+                                                                  myInitialHand.CardCount(r.c2.Suit) >= 4)))
                                                             {
                                                                 return r.c2;
                                                             }
                                                             if (r.c3.Suit == b &&
                                                                 r.c1.Suit != r.c3.Suit &&
-                                                                r.c3.BadValue > spodek.BadValue &&
                                                                 (!teamMatesCardsPlayed.Any(i => i.Suit == r.c3.Suit &&
                                                                                                 i.BadValue <= spodek.BadValue) ||
                                                                  teamMatesCardsPlayed.Where(i => i.Suit == r.c3.Suit &&
                                                                                                  i.BadValue <= spodek.BadValue)  //pokud hral v barve kolega driv nizkou nez vysokou, tak se o chytaka nejedna
                                                                                      .All(i => teamMatesCardsPlayed.IndexOf(i) > teamMatesCardsPlayed.IndexOf(r.c3))) &&
-                                                                myInitialHand.CardCount(r.c3.Suit) < r.c3.BadValue)
+                                                                ((r.c3.Value == Hodnota.Eso &&
+                                                                  !myInitialHand.HasK(r.c3.Suit)) ||
+                                                                 (r.c3.Value == Hodnota.Kral &&
+                                                                  !myInitialHand.HasQ(r.c3.Suit) &&
+                                                                  myInitialHand.CardCount(r.c3.Suit) <= 4) ||
+                                                                 (r.c3.Value == Hodnota.Svrsek &&
+                                                                  !myInitialHand.HasJ(r.c3.Suit) &&
+                                                                  myInitialHand.CardCount(r.c3.Suit) <= 2)))
                                                             {
                                                                 return r.c3;
                                                             }
@@ -646,27 +658,39 @@ namespace Mariasek.Engine
                                                         if (r != null && r.c2 != null)
                                                         {
                                                             if (r.c2.Suit == b &&
-                                                                r.c2.BadValue > spodek.BadValue &&
                                                                 r.c1.Suit != r.c2.Suit &&
                                                                 (!teamMatesCardsPlayed.Any(i => i.Suit == r.c2.Suit &&
                                                                                          i.BadValue <= spodek.BadValue) ||
                                                                  teamMatesCardsPlayed.Where(i => i.Suit == r.c2.Suit &&
                                                                                           i.BadValue <= spodek.BadValue)  //pokud jsem hral v barve driv nizkou nez vysokou, tak se o chytaka nejedna
-                                                                              .All(i => teamMatesCardsPlayed.IndexOf(i) > teamMatesCardsPlayed.IndexOf(r.c2))) &&
-                                                                myInitialHand.CardCount(r.c2.Suit) < r.c2.BadValue)
+                                                                                     .All(i => teamMatesCardsPlayed.IndexOf(i) > teamMatesCardsPlayed.IndexOf(r.c2))) &&
+                                                                ((r.c2.Value == Hodnota.Eso &&
+                                                                  !myInitialHand.HasK(r.c2.Suit)) ||
+                                                                 (r.c2.Value == Hodnota.Kral &&
+                                                                  !myInitialHand.HasQ(r.c2.Suit) &&
+                                                                  myInitialHand.CardCount(r.c2.Suit) <= 4) ||
+                                                                 (r.c2.Value == Hodnota.Svrsek &&
+                                                                  !myInitialHand.HasJ(r.c2.Suit) &&
+                                                                  myInitialHand.CardCount(r.c2.Suit) <= 2)))
                                                             {
                                                                 return r.c2;
                                                             }
                                                             if (r.c3 != null &&
                                                                 r.c3.Suit == b &&
                                                                 r.c1.Suit != r.c3.Suit &&
-                                                                r.c3.BadValue > spodek.BadValue &&
                                                                 (!myCardsPlayed.Any(i => i.Suit == r.c3.Suit &&
                                                                                          i.BadValue <= spodek.BadValue) ||
                                                                  myCardsPlayed.Where(i => i.Suit == r.c3.Suit &&
                                                                                           i.BadValue <= spodek.BadValue)  //pokud jsem hral v barve driv nizkou nez vysokou, tak se o chytaka nejedna
                                                                               .All(i => myCardsPlayed.IndexOf(i) > myCardsPlayed.IndexOf(r.c3))) &&
-                                                                myInitialHand.CardCount(r.c3.Suit) >= 9 - r.c3.BadValue)
+                                                                ((r.c3.Value == Hodnota.Eso &&
+                                                                  myInitialHand.HasK(r.c3.Suit)) ||
+                                                                 (r.c3.Value == Hodnota.Kral &&
+                                                                  myInitialHand.HasQ(r.c3.Suit) &&
+                                                                  myInitialHand.CardCount(r.c3.Suit) >= 3) ||
+                                                                 (r.c3.Value == Hodnota.Svrsek &&
+                                                                  !myInitialHand.HasJ(r.c3.Suit) &&
+                                                                  myInitialHand.CardCount(r.c3.Suit) >= 4)))
                                                             {
                                                                 return r.c3;
                                                             }
