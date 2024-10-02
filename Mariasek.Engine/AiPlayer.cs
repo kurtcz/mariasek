@@ -1740,7 +1740,7 @@ namespace Mariasek.Engine
                           (TeamMateIndex != -1 &&
                            (float)_betlBalance / (float)_betlSimulations > (float)_durchBalance / (float)_durchSimulations) ||
                           (TeamMateIndex == -1 &&
-                           (float)_betlBalance / (float)_betlSimulations > 100 * DebugInfo.EstimatedDurchWinProbability))) ||
+                           100 * (float)_betlBalance / (float)_betlSimulations > DebugInfo.EstimatedDurchWinProbability))) ||
                         (Settings.SafetyBetlThreshold > 0 &&
                          ((lossPerPointsLost.ContainsKey(estimatedPointsLost) &&
                            lossPerPointsLost[estimatedPointsLost] >= Settings.SafetyBetlThreshold &&
@@ -3538,11 +3538,11 @@ namespace Mariasek.Engine
                         if (opponentHand.OrderBy(i => i.BadValue)
                                         .Skip(topCards.Count)
                                         .Any(i => hand.Any(j => j.Suit == i.Suit &&
-                                                                j.BadValue > i.BadValue)) ||
+                                                                j.BadValue < i.BadValue)) ||
                             opponentHand2.OrderBy(i => i.BadValue)
                                          .Skip(topCards.Count)
                                          .Any(i => hand.Any(j => j.Suit == i.Suit &&
-                                                                 j.BadValue > i.BadValue)))
+                                                                 j.BadValue < i.BadValue)))
                         {
                             riskyCases++;
                         }
@@ -3577,16 +3577,21 @@ namespace Mariasek.Engine
             var maxAllowedPointsLost = hand.HasK(_trump.Value) &&
                                        hand.HasQ(_trump.Value)
                                         ? 30 : 10;
-            var kqScore = _g.trump.HasValue
-                ? Enum.GetValues(typeof(Barva)).Cast<Barva>()
-                      .Where(b => hand.HasK(b) && hand.HasQ(b))
-                      .Sum(b => b == _trump.Value ? 40 : 20)
-                : 0;
+            var kqScore = Enum.GetValues(typeof(Barva)).Cast<Barva>()
+                              .Where(b => hand.HasK(b) && hand.HasQ(b))
+                              .Sum(b => b == _trump.Value ? 40 : 20);
 
             if (kqScore == 0 ||
                 minBasicPointsLost > maxAllowedPointsLost)
             {
                 DebugInfo.EstimatedHundredWinProbability = 0;
+                DebugInfo.HundredTooRisky = true;
+                return true;
+            }
+
+            if (hand.CardCount(_trump.Value) <= 3)
+            {
+                DebugInfo.HundredTooRisky = true;
                 return true;
             }
 

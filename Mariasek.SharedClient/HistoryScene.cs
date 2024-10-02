@@ -285,6 +285,10 @@ namespace Mariasek.SharedClient
                                          DateTime.Today.Ticks - i.DateTime.Date.Ticks < ticksToShow;
 
             _simButton.IsEnabled = Game.Simulations.Any();
+            if (!_simButton.IsEnabled && _simButton.IsSelected)
+            {
+                _simButton.IsSelected = false;
+            }
             if (_simButton.IsSelected)
             {
                 _filteredItems = Game.Simulations.ToArray();

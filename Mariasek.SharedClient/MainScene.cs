@@ -1779,6 +1779,7 @@ namespace Mariasek.SharedClient
                      {
                          bubble.Hide();
                      }
+                     _probabilityBox.Hide();
                      AmendCardScaleFactor();
                      RunOnUiThread(() =>
                      {
@@ -3795,6 +3796,7 @@ namespace Mariasek.SharedClient
                     {
                         bubble.Hide();
                     }
+                    _probabilityBox.Hide();
                     AmendCardScaleFactor();
                     RunOnUiThread(() =>
                     {

@@ -1917,12 +1917,12 @@ namespace Mariasek.Engine
                     if ((GameType & Hra.Kilo) != 0 &&
                         GameStartingPlayer.DebugInfo.EstimatedHundredWinProbability > 0)
                     {
-                        GameTypeConfidence = GameStartingPlayer.DebugInfo.EstimatedHundredWinProbability;
+                        GameTypeConfidence = GameStartingPlayer.DebugInfo.EstimatedHundredWinProbability / 100f;
                     }
                     else if (GameType == Hra.Durch &&
                              GameStartingPlayer.DebugInfo.EstimatedDurchWinProbability > 0)
                     {
-                        GameTypeConfidence = GameStartingPlayer.DebugInfo.EstimatedDurchWinProbability;
+                        GameTypeConfidence = GameStartingPlayer.DebugInfo.EstimatedDurchWinProbability / 100f;
                     }
                     else
                     {
