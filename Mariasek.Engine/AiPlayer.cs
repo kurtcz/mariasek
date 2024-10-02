@@ -5292,12 +5292,13 @@ namespace Mariasek.Engine
                 Settings.CanPlayGameType[Hra.KiloProti] &&
                 bidding._hundredAgainstFlek <= Settings.MaxDoubleCountForGameType[Hra.KiloProti] &&
                 _gameSimulations > 0 &&
-                _hundredsAgainstBalance / (float)_gameSimulations >= hundredAgainstThreshold &&
+                //_hundredsAgainstBalance / (float)_gameSimulations >= hundredAgainstThreshold &&
                 ((PlayerIndex == _g.GameStartingPlayerIndex &&
                   kqMaxOpponentScore == 0) ||
                  (PlayerIndex != _g.GameStartingPlayerIndex &&
                   !IsHundredTooRisky() &&
-                  (bid & Hra.Sedma) == 0)))
+                  (bid & Hra.Sedma) == 0)) &&
+                DebugInfo.EstimatedHundredWinProbability >= 100 * hundredAgainstThreshold)
             {
                 bid |= bidding.Bids & Hra.KiloProti;
                 bid &= (Hra)~Hra.Hra; //u kila proti uz nehlasime flek na hru

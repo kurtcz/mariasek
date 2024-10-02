@@ -948,6 +948,15 @@ namespace Mariasek.Engine
                                                                             j.Value > i.Value))
                                          .ToList();
 
+            var bannedHlasCards = hands[MyIndex].Where(i => _hlasConsidered == HlasConsidered.First &&
+                                                            (_gameType & (Hra.Kilo | Hra.KiloProti)) != 0 &&
+                                                            i.Suit != _trump &&
+                                                            i.Value == Hodnota.Svrsek &&
+                                                            hands[MyIndex].HasK(i.Suit) &&
+                                                            hands[MyIndex].HasK(_trump) &&
+                                                            hands[MyIndex].HasQ(_trump))
+                                                .ToList();
+
             var potentialGreaseCards = TeamMateIndex != -1 &&
                                        hands[MyIndex].CardCount(_trump) <= 1 &&
                                        Enum.GetValues(typeof(Barva)).Cast<Barva>()
@@ -1354,7 +1363,8 @@ namespace Mariasek.Engine
                                 unwinnableLowCards.Any() &&
                                 !topCards.Any())
                             {
-                                cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump).ToList();
+                                cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump)
+                                                                        .ToList();
                             }
                             if (myInitialHand.CardCount(_trump) >= 4 &&
                                 unwinnableLowCards.Any() &&
@@ -1467,13 +1477,15 @@ namespace Mariasek.Engine
                                                                                     unwinnableLowCards.Contains(i))
                                                                         .ToList();
                             }
-                            if ((_gameType & Hra.Kilo) != 0 &&
+                            if ((_gameType & (Hra.Kilo | Hra.KiloProti)) != 0 &&
                                 _hlasConsidered == HlasConsidered.First &&
                                 hands[MyIndex].HasK(_trump) &&
                                 hands[MyIndex].HasQ(_trump) &&
                                 unwinnableLowCards.Any(i => i.Suit != _trump &&
-                                                            i.Value == Hodnota.Svrsek &&
-                                                            hands[MyIndex].HasK(i.Suit)))
+                                                            ((i.Value == Hodnota.Svrsek &&
+                                                              hands[MyIndex].HasK(i.Suit)) ||
+                                                             (i.Value == Hodnota.Kral &&
+                                                              hands[MyIndex].HasQ(i.Suit)))))
                             {
                                 //toto zpusobi, ze se zahraje bocni hlaska, ktera se na konci PlayCard() zmeni na pravidlo "Hraj trumfovou hlášku"
                                 cardsToPlay = ValidCards(hands[MyIndex]).Where(i => i.Suit != _trump &&
