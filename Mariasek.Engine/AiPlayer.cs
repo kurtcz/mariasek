@@ -3627,6 +3627,7 @@ namespace Mariasek.Engine
                 }
             }
             estimatedGreaseProbabilityList = estimatedGreaseProbabilityList.OrderByDescending(i => i).ToList();
+            //idx udava pocet namazu vedoucich k prohranemu kilu
             var idx = (maxAllowedPointsLost - minBasicPointsLost) / 10;
 
             if (estimatedGreaseProbabilityList.Count > idx)
@@ -3635,38 +3636,43 @@ namespace Mariasek.Engine
             }
             else //neni co mazat, ale souperi si muzou uhrat desitky v barve. Pridam to na seznam
             {
-                var n = (maxBasicPointsLost - minBasicPointsLost) / 10;
+                //var n = (maxBasicPointsLost - minBasicPointsLost) / 10;
 
-                if (n == 1)
+                estimatedGreaseProbabilityList.Clear();
+                if (minBasicPointsLost == 10)//(n == 1)
                 {
-                    estimatedGreaseProbabilityList.Add(50); //20 pointslost
-                    //10 lost points: 50%
-                    //20 lost points: 50%
+                    //10 ztracenych bodu (0 namazu): 50%
+                    //20 ztracenych bodu (1 namaz):  50%
+                    estimatedGreaseProbabilityList.Add(50); //1 namaz vede k prohre
+                    DebugInfo.EstimatedHundredWinProbability = 100 - estimatedGreaseProbabilityList[0];
                 }
-                else if (n == 2)
+                else if (minBasicPointsLost == 20)//(n == 2)
                 {
-                    estimatedGreaseProbabilityList.Add(25); //40 points lost
-                    //20 lost points: 25%
-                    //30 lost points: 50%
-                    //40 lost points: 25%
+                    //20 ztracenych bodu (0 namazu): 25%
+                    //30 ztracenych bodu (1 namaz):  50%
+                    //40 ztracenych body (2 namazy): 25%
+                    estimatedGreaseProbabilityList.Add(75); //1 namaz vede k vyhre
+                    estimatedGreaseProbabilityList.Add(25); //2 namazy vedou k prohre
+                    DebugInfo.EstimatedHundredWinProbability = 100 - estimatedGreaseProbabilityList[1];
                 }
-                else //n == 3
+                else //minBasicPointsLost == 30//n == 3
                 {
-                    estimatedGreaseProbabilityList.Add(88); //40+ points lost
-                    estimatedGreaseProbabilityList.Add(50); //50+ points lost
-                    estimatedGreaseProbabilityList.Add(13); //60 points lost
-                    //30 lost points: 12.5%
-                    //40 lost points: 37.5%
-                    //50 lost points: 37.5%
-                    //60 lost points: 12.5%
+                    //30 ztracenych bodu (0 namazu): 12.5%
+                    //40 ztracenych bodu (1 namaz):  37.5%
+                    //50 ztracenych bodu (2 namazy): 37.5%
+                    //60 ztracenych bodu (3 namazy): 12.5%
+                    estimatedGreaseProbabilityList.Add(88); //1 namaz vede k prohre
+                    estimatedGreaseProbabilityList.Add(50); //2 namazy vedou k prohre
+                    estimatedGreaseProbabilityList.Add(13); //3 namazy vedou k prohre
+                    DebugInfo.EstimatedHundredWinProbability = 100 - estimatedGreaseProbabilityList[0];
                 }
-                DebugInfo.EstimatedHundredWinProbability = 100 - estimatedGreaseProbabilityList[0];
             }
 
             //spocitej distribuci pravdepodobnosti prohranych bodu
             //klic: prohrane body, hodnota: pravdepodobnost (0-100)
             var estimatedLostPointsDistribution = new Dictionary<int, int>();
 
+            //vezmi jiste prohrane body a pricti k nim body prohrane namazem
             for (var i = estimatedGreaseProbabilityList.Count - 1; i >= 0; i--)
             {
                 var p = estimatedGreaseProbabilityList[i];
