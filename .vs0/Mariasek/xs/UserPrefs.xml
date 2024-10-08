@@ -1,0 +1,44 @@
+﻿<Properties StartupConfiguration="{E110A59F-F0F1-42C3-BFF2-2A1256246167}|Default">
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Catchpoint enabled="false" exceptionName="System.Exception" includeSubclasses="True" />
+      <Catchpoint exceptionName="System.ArgumentNullException" includeSubclasses="True" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.ItemProperties.Mariasek.Cli PreferredExecutionTarget="MonoDevelop.Default" />
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Mariasek.AndroidClient PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.ItemProperties.Mariasek.Server PreferredExecutionTarget="/Applications/Firefox.app" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Mariasek.Engine/AiStrategy.cs">
+    <Files>
+      <File FileName="Mariasek.Engine/AiStrategy.cs" Line="6" Column="23" />
+      <File FileName="Mariasek.Engine/AiPlayer.cs" />
+      <File FileName="Mariasek.SharedClient/MainScene.cs" />
+      <File FileName="Mariasek.Engine/Game.cs" />
+      <File FileName="Mariasek.Engine/Probability.cs" />
+      <File FileName="Mariasek.Engine/AiDurchStrategy.cs" />
+      <File FileName="Mariasek.Engine/PlayerDebugInfo.cs" />
+      <File FileName="Mariasek.SharedClient/HumanPlayer.cs" />
+      <File FileName="Mariasek.SharedClient/HistoryScene.cs" />
+      <File FileName="Mariasek.SharedClient/GameComponents/GameReview.cs" />
+      <File FileName="Mariasek.Engine/Bidding.cs" />
+      <File FileName="Mariasek.Engine/AiStrategyBase.cs" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="Mariasek" expanded="True">
+            <Node name="Mariasek.AndroidClient" selected="True" />
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.MonoDroid LastDeploySdkVersion="34.0.138" />
+  <MonoDevelop.Ide.ItemProperties.Mariasek.iOSClient PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.Mariasek.Desktop PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.ItemProperties.Mariasek.DesktopClient FirstBuild="True" />
+  <Xamarin.Addins.Core.Project ActiveDebugTarget="Android.Android_Accelerated_x86" />
+</Properties>

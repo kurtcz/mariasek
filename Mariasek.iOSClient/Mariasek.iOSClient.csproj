@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0-ios17</TargetFramework>
-    <RuntimeIdentifiers>ios-arm64</RuntimeIdentifiers>
     <OutputType>Exe</OutputType>
     <SupportedOSPlatformVersion>11.2</SupportedOSPlatformVersion>
+    <RuntimeIdentifiers>ios-arm64</RuntimeIdentifiers>
     <ImplicitUsings>true</ImplicitUsings>
     <CodesignKey>iPhone Developer</CodesignKey>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
