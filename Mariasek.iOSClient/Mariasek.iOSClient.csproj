@@ -3,7 +3,8 @@
     <TargetFramework>net8.0-ios17</TargetFramework>
     <OutputType>Exe</OutputType>
     <SupportedOSPlatformVersion>11.2</SupportedOSPlatformVersion>
-    <RuntimeIdentifiers>ios-arm64</RuntimeIdentifiers>
+    <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
+    <!--<RuntimeIdentifier>iossimulator-x64</RuntimeIdentifier>-->
     <ImplicitUsings>true</ImplicitUsings>
     <CodesignKey>iPhone Developer</CodesignKey>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -22,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
     <CodesignProvision>Automatic</CodesignProvision>
+    <DeviceSpecificBuild>true</DeviceSpecificBuild>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <MtouchLink>Full</MtouchLink>
