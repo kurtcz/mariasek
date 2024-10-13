@@ -1534,7 +1534,7 @@ namespace Mariasek.Engine
                     if (Settings.CanPlayGameType[Hra.Durch] && 
                         //_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations && 
                         _durchSimulations > 0 &&
-                        !IsDurchTooRisky() &&
+                        !IsDurchTooRisky(tempHand, tempTalon) &&
                         !(_hundredOverDurch &&
                           !_hundredTooRisky))
                     {
