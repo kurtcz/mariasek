@@ -3713,7 +3713,7 @@ namespace Mariasek.Engine
             DebugInfo.EstimatedAverageHundredMoneyWon = (int)Math.Round(estimatedMoneyWon.Sum(kvp => kvp.Key * kvp.Value) / 100f);
 
             //pokud hrozi vysoka prohra nebo je prumerna vyhra mensi nez nula, tak do kila nejdi
-            if (DebugInfo.EstimatedAverageHundredMoneyWon < 0)
+            if (DebugInfo.EstimatedAverageHundredMoneyWon <= 0)
             {
                 DebugInfo.HundredTooRisky = true;
                 return true;
@@ -3725,20 +3725,27 @@ namespace Mariasek.Engine
                 DebugInfo.EstimatedHundredLoss = -lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore];
             }
             if (maxBasicPointsLost > basicPointsLostThreshold &&
-            lossPerPointsLost.ContainsKey(maxBasicPointsLost + kqLikelyOpponentScore) &&
-             lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore] > Settings.SafetyHundredThreshold)
+            lossPerPointsLost.ContainsKey(maxBasicPointsLost + kqMaxOpponentScore) &&
+             lossPerPointsLost[maxBasicPointsLost + kqMaxOpponentScore] > Settings.SafetyHundredThreshold)
             {
                 DebugInfo.HundredTooRisky = true;
                 return true;
             }
-            if (potentialBasicPointsLost > basicPointsLostThreshold &&
-                lossPerPointsLost.ContainsKey(potentialBasicPointsLost + kqMaxOpponentScore) &&
-                lossPerPointsLost[potentialBasicPointsLost + kqMaxOpponentScore] > Settings.SafetyHundredThreshold)
-            {
-                DebugInfo.EstimatedHundredLoss = Math.Min(DebugInfo.EstimatedHundredLoss, -lossPerPointsLost[potentialBasicPointsLost + kqMaxOpponentScore]);
-                DebugInfo.HundredTooRisky = true;
-                return true;
-            }
+            //if (maxBasicPointsLost > basicPointsLostThreshold &&
+            //lossPerPointsLost.ContainsKey(maxBasicPointsLost + kqLikelyOpponentScore) &&
+            // lossPerPointsLost[maxBasicPointsLost + kqLikelyOpponentScore] > Settings.SafetyHundredThreshold)
+            //{
+            //    DebugInfo.HundredTooRisky = true;
+            //    return true;
+            //}
+            //if (potentialBasicPointsLost > basicPointsLostThreshold &&
+            //    lossPerPointsLost.ContainsKey(potentialBasicPointsLost + kqMaxOpponentScore) &&
+            //    lossPerPointsLost[potentialBasicPointsLost + kqMaxOpponentScore] > Settings.SafetyHundredThreshold)
+            //{
+            //    DebugInfo.EstimatedHundredLoss = Math.Min(DebugInfo.EstimatedHundredLoss, -lossPerPointsLost[potentialBasicPointsLost + kqMaxOpponentScore]);
+            //    DebugInfo.HundredTooRisky = true;
+            //    return true;
+            //}
 
             return false;
         }
