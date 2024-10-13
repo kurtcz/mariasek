@@ -1985,7 +1985,20 @@ namespace Mariasek.Engine
                         GivenUp = true;
                     }
                 }
-                GameTypeConfidence = GameStartingPlayer.DebugInfo.TotalRuleCount > 0 ? (float)GameStartingPlayer.DebugInfo.RuleCount / (float)GameStartingPlayer.DebugInfo.TotalRuleCount : -1f;
+                if ((GameType & Hra.Kilo) != 0 &&
+                    GameStartingPlayer.DebugInfo.EstimatedHundredWinProbability > 0)
+                {
+                    GameTypeConfidence = GameStartingPlayer.DebugInfo.EstimatedHundredWinProbability / 100f;
+                }
+                else if (GameType == Hra.Durch &&
+                         GameStartingPlayer.DebugInfo.EstimatedDurchWinProbability > 0)
+                {
+                    GameTypeConfidence = GameStartingPlayer.DebugInfo.EstimatedDurchWinProbability / 100f;
+                }
+                else
+                {
+                    GameTypeConfidence = GameStartingPlayer.DebugInfo.TotalRuleCount > 0 ? (float)GameStartingPlayer.DebugInfo.RuleCount / (float)GameStartingPlayer.DebugInfo.TotalRuleCount : -1f;
+                }
                 DebugString.AppendFormat("ChooseGameType: {0}\n", GameType);
                 OnGameTypeChosen(new GameTypeChosenEventArgs
                 {
@@ -2004,7 +2017,9 @@ namespace Mariasek.Engine
                 }
                 if (Bidding.SevenMultiplier * SevenValue > 0 &&
                     Bidding.SevenMultiplier * SevenValue < Bidding.GameMultiplier * GameValue &&
-                    GameStartingPlayer.DebugInfo.TotalRuleCount > 0)
+                    GameStartingPlayer.DebugInfo.TotalRuleCount > 0 &&
+                    !((GameType & Hra.Kilo) != 0 &&
+                      GameStartingPlayer.DebugInfo.EstimatedHundredWinProbability > 0))
                 {
                     GameTypeConfidence = (float)GameStartingPlayer.DebugInfo.RuleCount / (float)GameStartingPlayer.DebugInfo.TotalRuleCount;
                 }
