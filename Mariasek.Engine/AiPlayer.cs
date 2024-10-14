@@ -4535,7 +4535,7 @@ namespace Mariasek.Engine
                     _hundredSimulations > 0 &&
                     !IsHundredTooRisky() &&
                     DebugInfo.EstimatedHundredWinProbability >= 100 * Settings.GameThresholdsForGameType[Hra.Kilo][0] &&
-                    DebugInfo.MaxSimulatedHundredLoss > Settings.SafetyHundredThreshold)
+                    DebugInfo.MaxSimulatedHundredLoss <= Settings.SafetyHundredThreshold)
                 {
                     gameType = Hra.Kilo;
                     DebugInfo.RuleCount = _hundredsBalance;
