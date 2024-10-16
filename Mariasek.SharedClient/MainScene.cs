@@ -1049,7 +1049,23 @@ namespace Mariasek.SharedClient
 
         public void SaveSimulationHistory()
         {
-#if DEBUG
+            Game.Simulations = g.players.SelectMany(i =>
+            {
+                var ai = i as AiPlayer;
+                if (ai != null)
+                {
+                    return ai.Simulations.Select(j => new HistoryItem(j));
+                }
+                var h = i as HumanPlayer;
+                if (h?._aiPlayer?.Simulations != null)
+                {
+                    return h._aiPlayer.Simulations.Select(j => new HistoryItem(j));
+                }
+                return Enumerable.Empty<HistoryItem>();
+            })
+            .OrderBy(i => i.GameId)
+            .ToList();
+
             Game.StorageAccessor.GetStorageAccess();
             using (var sw = new StreamWriter(_simHistoryFilePath))
             {
@@ -1076,7 +1092,6 @@ namespace Mariasek.SharedClient
                     }
                 }
             }
-#endif
         }
 
         public void SaveHistory()
@@ -3140,28 +3155,12 @@ namespace Mariasek.SharedClient
         public void RoundStarted(object sender, Round r)
         {
             g.ThrowIfCancellationRequested();
-#if DEBUG
             if (g.SaveSimulations && r.number == 1)
             {
-                Game.Simulations = g.players.SelectMany(i =>
-                                                {
-                                                    var ai = i as AiPlayer;
-                                                    if (ai != null)
-                                                    {
-                                                        return ai.Simulations.Select(j => new HistoryItem(j));
-                                                    }
-                                                    var h = i as HumanPlayer;
-                                                    if (h?._aiPlayer?.Simulations != null)
-                                                    {
-                                                        return h._aiPlayer.Simulations.Select(j => new HistoryItem(j));
-                                                    }
-                                                    return Enumerable.Empty<HistoryItem>();
-                                                })
-                                            .OrderBy(i => i.GameId)
-                                            .ToList();
                 SaveSimulationHistory();
             }
-#endif
+
+
             if (r.player1.PlayerIndex != 0)
             {
                 ShowThinkingMessage(r.player1.PlayerIndex);
@@ -3266,6 +3265,10 @@ namespace Mariasek.SharedClient
             _probabilityBox.Hide();
             EnsureBubblesHidden();
             g.ThrowIfCancellationRequested();
+            if (g.SaveSimulations && g.rounds?[0] == null)
+            {
+                SaveSimulationHistory();
+            }
 
             results.SimulatedSuccessRate = SimulatedSuccessRate;
             if (!_testGame)

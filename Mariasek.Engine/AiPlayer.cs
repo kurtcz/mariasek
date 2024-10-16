@@ -3215,13 +3215,19 @@ namespace Mariasek.Engine
                                                 hand.HasK(b) ||
                                                 (hand.HasQ(b) &&
                                                  hand.HasJ(b)) ||
-                                                ((hand.HasQ(b) ||
-                                                  hand.HasJ(b)) &&
-                                                 hand.Has9(b) &&
-                                                 hand.Has8(b) &&
-                                                 hand.CardCount(trump.Value) >= 3) ||
-                                                (hand.CardCount(b) >= 5 &&
-                                                 hand.CardCount(trump.Value) >= 4)))))
+                                                ((!estimateMaxPointsLost &&
+                                                  ((hand.HasQ(b) &&
+                                                    hand.CardCount(b) >= 3) ||
+                                                   (hand.HasJ(b) &&
+                                                    hand.CardCount(b) >= 4))) ||
+                                                 (estimateMaxPointsLost &&
+                                                  ((hand.HasQ(b) ||
+                                                    hand.HasJ(b)) &&
+                                                   hand.Has9(b) &&
+                                                   hand.Has8(b) &&
+                                                   hand.CardCount(trump.Value) >= 3) ||
+                                                  (hand.CardCount(b) >= 5 &&
+                                                   hand.CardCount(trump.Value) >= 4)))))))
                                 .ToList();
 
             var estimatedBasicPointsLost = Enum.GetValues(typeof(Barva)).Cast<Barva>()
