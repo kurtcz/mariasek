@@ -11,4 +11,10 @@
     <DefineConstants>PORTABLE;DEBUG;NET;NET8_0;NETCOREAPP;SAVE_SIMULATIONS</DefineConstants>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Strategy\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Strategy\" />
+  </ItemGroup>
 </Project>
