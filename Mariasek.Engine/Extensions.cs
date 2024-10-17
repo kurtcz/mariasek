@@ -128,5 +128,35 @@ namespace Mariasek.Engine
 
             return text;
         }
+
+        /// <summary>
+        /// this will ignore duplicate keys, for each key only its first corresponding value will be inserted
+        /// </summary>
+        public static Dictionary<TKey, TValue> ToDistinctDictionary<TSource, TKey, TValue>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> valueSelector)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+            if (keySelector == null)
+            {
+                throw new ArgumentNullException(nameof(keySelector));
+            }
+            if (valueSelector == null)
+            {
+                throw new ArgumentNullException(nameof(valueSelector));
+            }
+            var result = new Dictionary<TKey, TValue>();
+
+            foreach(var element in source)
+            {
+                if (!result.ContainsKey(keySelector(element)))
+                {
+                    result.Add(keySelector(element), valueSelector(element));
+                }
+            }
+
+            return result;
+        }
     }
 }

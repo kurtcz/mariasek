@@ -456,7 +456,7 @@ namespace Mariasek.SharedClient.GameComponents
                 Position = new Vector2(Game.VirtualScreenWidth - 300, page2Offset + 190),
                 Width = 270,
                 Group = 1,
-                Items = new SelectorItems() { { "Sčítat", CalculationStyle.Adding }, { "Násobit", CalculationStyle.Multiplying } },
+                Items = new SelectorItems() { { "Sčítat", CalculationStyle.Adding }, { "Násobit", CalculationStyle.Multiplying }, { "Fixní", CalculationStyle.Fixed } },
                 UseCommonScissorRect = true
             };
             _kiloCountingSelector.SelectedIndex = _kiloCountingSelector.Items.FindIndex(Game.Settings.CalculationStyle);

@@ -12,7 +12,8 @@ namespace Mariasek.Engine
     public enum CalculationStyle
     {
         Adding,
-        Multiplying
+        Multiplying,
+        Fixed
     }
 
     public enum HlasConsidered
@@ -22,6 +23,7 @@ namespace Mariasek.Engine
         Each
     }
 
+    [XmlInclude(typeof(FixedMoneyCalculator))]
     [XmlInclude(typeof(AddingMoneyCalculator))]
     [XmlInclude(typeof(MultiplyingMoneyCalculator))]
     [XmlRoot(ElementName = "Money")]

@@ -123,7 +123,9 @@ namespace Mariasek.Engine
                 SolitaryXThresholdDefense = 0.5f,
                 SafetyGameThreshold = 40,
                 SafetyHundredThreshold = 80,
-                SafetyBetlThreshold = g.CalculationStyle == CalculationStyle.Adding ? 48 : 128
+                SafetyBetlThreshold = g.CalculationStyle == CalculationStyle.Adding ? 48 :
+                                      g.CalculationStyle == CalculationStyle.Multiplying ? 128 :
+                                      0
             };
             _log.InfoFormat("AiPlayerSettings:\n{0}", Settings);
 
@@ -1473,7 +1475,9 @@ namespace Mariasek.Engine
                                     ? Enumerable.Range(0, 10)
                                               .Select(i => 100 + i * 10)
                                               .ToDictionary(k => k,
-                                                            v => ((_g.CalculationStyle == CalculationStyle.Adding
+                                                            v => ((_g.CalculationStyle == CalculationStyle.Fixed
+                                                                   ? gameValue
+                                                                   : _g.CalculationStyle == CalculationStyle.Adding
                                                                    ? (v - 90) / 10 * gameValue
                                                                    : (1 << (v - 100) / 10) * gameValue) -
                                                                   (Hand.CardCount(TrumpCard.Suit) >= 5 &&
@@ -2583,6 +2587,8 @@ namespace Mariasek.Engine
             {
                 case CalculationStyle.Multiplying:
                     return new MultiplyingMoneyCalculator(gameType, trump, gameStartingPlayerIndex, bidding, _g, _g.Calculate107Separately, _g.HlasConsidered, _g.CountHlasAgainst, result);
+                case CalculationStyle.Fixed:
+                    return new FixedMoneyCalculator(gameType, trump, gameStartingPlayerIndex, bidding, _g, _g.Calculate107Separately, _g.HlasConsidered, _g.CountHlasAgainst, result);
                 case CalculationStyle.Adding:
                 default:
                     return new AddingMoneyCalculator(gameType, trump, gameStartingPlayerIndex, bidding, _g, _g.Calculate107Separately, _g.HlasConsidered, _g.CountHlasAgainst, result);
@@ -3678,7 +3684,9 @@ namespace Mariasek.Engine
             var winPerPointsLost = Enumerable.Range(minBasicPointsLost / 10, (maxAllowedPointsLost - minBasicPointsLost + 10) / 10)
                                              .Select(i => i * 10)
                                              .ToDictionary(k => k,
-                                                           v => (_g.CalculationStyle == CalculationStyle.Adding
+                                                           v => (_g.CalculationStyle == CalculationStyle.Fixed
+                                                                 ? _g.HundredValue
+                                                                 : _g.CalculationStyle == CalculationStyle.Adding
                                                                  ? (kqScore - v) / 10 * _g.HundredValue
                                                                  : (1 << (kqScore - v - 10) / 10) * _g.HundredValue) *
                                                                 (_trump.Value == Barva.Cerveny
@@ -3702,7 +3710,9 @@ namespace Mariasek.Engine
             var lossPerPointsLost = Enumerable.Range(1, maxAllowedPointsLost == 30 ? 16 : 18)
                                               .Select(i => maxAllowedPointsLost + i * 10)
                                               .ToDictionary(k => k,
-                                                            v => (_g.CalculationStyle == CalculationStyle.Adding
+                                                            v => (_g.CalculationStyle == CalculationStyle.Fixed
+                                                                  ? _g.HundredValue
+                                                                  : _g.CalculationStyle == CalculationStyle.Adding
                                                                   ? (v - maxAllowedPointsLost) / 10 * _g.HundredValue
                                                                   : (1 << (v - maxAllowedPointsLost - 10) / 10) * _g.HundredValue) *
                                                                  (_trump.Value == Barva.Cerveny
@@ -3711,10 +3721,10 @@ namespace Mariasek.Engine
             //distribuce moznych vyher
             //klic: vyhra, hodnota: pravdepodobnost
             var estimatedMoneyWon = estimatedLostPointsDistribution.OrderBy(kvp => kvp.Key)
-                                                                   .ToDictionary(kvp => winPerPointsLost.ContainsKey(kvp.Key)
-                                                                                        ? winPerPointsLost[kvp.Key]
-                                                                                        : -lossPerPointsLost[kvp.Key],
-                                                                                 kvp => kvp.Value);
+                                                                   .ToDistinctDictionary(kvp => winPerPointsLost.ContainsKey(kvp.Key)
+                                                                                                ? winPerPointsLost[kvp.Key]
+                                                                                                : -lossPerPointsLost[kvp.Key],
+                                                                                         kvp => kvp.Value);
 
             DebugInfo.EstimatedAverageHundredMoneyWon = (int)Math.Round(estimatedMoneyWon.Sum(kvp => kvp.Key * kvp.Value) / 100f);
 
@@ -3926,7 +3936,9 @@ namespace Mariasek.Engine
             var lossPerPointsLost = Enumerable.Range(1, maxAllowedPointsLost == 30 ? 16 : 18)
                                               .Select(i => maxAllowedPointsLost + i * 10)
                                               .ToDictionary(k => k,
-                                                            v => (_g.CalculationStyle == CalculationStyle.Adding
+                                                            v => (_g.CalculationStyle == CalculationStyle.Fixed
+                                                                  ? _g.HundredValue
+                                                                  : _g.CalculationStyle == CalculationStyle.Adding
                                                                   ? (v - maxAllowedPointsLost) / 10 * _g.HundredValue
                                                                   : (1 << (v - maxAllowedPointsLost - 10) / 10) * _g.HundredValue) *
                                                                  (_trump.Value == Barva.Cerveny
@@ -4523,7 +4535,9 @@ namespace Mariasek.Engine
                                         ? Enumerable.Range(0, 10)
                                                     .Select(i => 100 + i * 10)
                                                     .ToDictionary(k => k,
-                                                                  v => ((_g.CalculationStyle == CalculationStyle.Adding
+                                                                  v => ((_g.CalculationStyle == CalculationStyle.Fixed
+                                                                         ? gameValue
+                                                                         : _g.CalculationStyle == CalculationStyle.Adding
                                                                          ? (v - 90) / 10 * gameValue 
                                                                          : (1 << (v - 100) / 10) * gameValue) -
                                                                         (Hand.CardCount(_trump.Value) >= 5 &&
@@ -4800,7 +4814,9 @@ namespace Mariasek.Engine
                                     ? Enumerable.Range(0, 10)
                                                 .Select(i => 100 + i * 10)
                                                 .ToDictionary(k => k,
-                                                              v => ((_g.CalculationStyle == CalculationStyle.Adding
+                                                              v => ((_g.CalculationStyle == CalculationStyle.Fixed
+                                                                     ? gameValue
+                                                                     : _g.CalculationStyle == CalculationStyle.Adding
                                                                      ? (v - 90) / 10 * gameValue
                                                                      : (1 << (v - 100) / 10) * gameValue) -
                                                                     (Hand.CardCount(_trump.Value) >= 5 &&

@@ -1554,6 +1554,8 @@ namespace Mariasek.Engine
         {
             switch (CalculationStyle)
             {
+                case CalculationStyle.Fixed:
+                    return new FixedMoneyCalculator(this, CurrencyFormat);
                 case CalculationStyle.Adding:
                     return new AddingMoneyCalculator(this, CurrencyFormat);
                 case CalculationStyle.Multiplying:
