@@ -124,6 +124,44 @@ namespace Mariasek.Engine
 
                     for (var i = 1; i < RoundNumber - 1; i++)
                     {
+                        //pokud v nejakem kole kolega odmazaval barvu uz vyssi mit nemuze
+                        //nebo pokud barvu mazat prestal, tak uz asi zadne dalsi vysoke karty v barve nema
+                        //zkus na teto barve soupere chytit
+                        if (_rounds[i].player2.PlayerIndex == TeamMateIndex &&
+                            _rounds[i].c2.Suit != _rounds[i].c1.Suit &&
+                            hands[MyIndex].Where(j => j.Suit == _rounds[i].c2.Suit)
+                                          .Any(j => _probabilities.SuitHigherThanCardProbability(opponent, j, RoundNumber) > 0 &&
+                                                    (_probabilities.SuitHigherThanCardProbability(TeamMateIndex, j, RoundNumber) == 0 ||
+                                                     _rounds.Where(r => r?.c3 != null)
+                                                            .Any(r => r.number > _rounds[i].number &&
+                                                                      ((r.player2.PlayerIndex == TeamMateIndex &&
+                                                                        r.c2.Suit != r.c1.Suit &&
+                                                                        r.c2.Suit != _rounds[i].c2.Suit) ||
+                                                                       (r.player3.PlayerIndex == TeamMateIndex &&
+                                                                        r.c3.Suit != r.c1.Suit &&
+                                                                        r.c3.Suit != _rounds[i].c2.Suit))))))
+                        {
+                            preferredSuits.Add(_rounds[i].c2.Suit);
+                        }
+                        if (_rounds[i].player3.PlayerIndex == TeamMateIndex &&
+                            _rounds[i].c3.Suit != _rounds[i].c1.Suit &&
+                            hands[MyIndex].Where(j => j.Suit == _rounds[i].c3.Suit)
+                                          .Any(j => _probabilities.SuitHigherThanCardProbability(opponent, j, RoundNumber) > 0 &&
+                                                    (_probabilities.SuitHigherThanCardProbability(TeamMateIndex, j, RoundNumber) == 0 ||
+                                                     _rounds.Where(r => r?.c3 != null)
+                                                            .Any(r => r.number > _rounds[i].number &&
+                                                                      ((r.player2.PlayerIndex == TeamMateIndex &&
+                                                                        r.c2.Suit != r.c1.Suit &&
+                                                                        r.c2.Suit != _rounds[i].c3.Suit) ||
+                                                                       (r.player3.PlayerIndex == TeamMateIndex &&
+                                                                        r.c3.Suit != r.c1.Suit &&
+                                                                        r.c3.Suit != _rounds[i].c3.Suit))))))
+                        {
+                            preferredSuits.Add(_rounds[i].c3.Suit);
+                        }
+                    }
+                    for (var i = 1; i < RoundNumber - 1; i++)
+                    {
                         //pokud v nejakem kole zahral akter nejnizsi kartu v barve a ja nemam nizkyho chytaka, tak predpokladej, ze barvu nezna
                         var minPossibleOpponentCardInSuit = Enum.GetValues(typeof(Hodnota)).Cast<Hodnota>()
                                                                 .Select(h => new Card(_rounds[i].c1.Suit, h))
@@ -141,7 +179,7 @@ namespace Mariasek.Engine
                                 _rounds[i].c1.BadValue > _rounds[i].c3.BadValue &&
                                 _rounds[i].c3.BadValue == minPossibleOpponentCardInSuit.BadValue &&
                                 hands[MyIndex].Where(j => j.Suit == _rounds[i].c1.Suit &&
-                                                           j.BadValue < Card.GetBadValue(Hodnota.Spodek))
+                                                          j.BadValue < Card.GetBadValue(Hodnota.Spodek))
                                                .All(j => _probabilities.SuitHigherThanCardProbability(_rounds[i].player3.PlayerIndex, j, RoundNumber) == 0))
                             {
                                 bannedSuits.Add(_rounds[i].c1.Suit);
@@ -651,8 +689,8 @@ namespace Mariasek.Engine
                             //v 2.kole zkus rovnou zahrat preferovanou barvu. Pokud takova je, tak je to vitezna barva
                             cardsToPlay = hands[MyIndex].Where(i => i.Suit == preferredSuits.First() &&
                                                                     _probabilities.SuitProbability(opponent, i.Suit, RoundNumber) > 0 &&
-                                                                    (_probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) == 0 ||
-                                                                     (_probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) < 1 - RiskFactor &&
+                                                                    (_probabilities.SuitHigherThanCardProbability(TeamMateIndex, i, RoundNumber) == 0 ||
+                                                                     (_probabilities.SuitHigherThanCardProbability(TeamMateIndex, i, RoundNumber) < 1 - RiskFactor &&
                                                                       _probabilities.PotentialCards(opponent).Any(j => j.Suit == i.Suit &&
                                                                                                                        j.BadValue > i.BadValue)) ||
                                                                      _probabilities.PotentialCards(opponent).Count(j => j.Suit == i.Suit &&
@@ -664,17 +702,17 @@ namespace Mariasek.Engine
                             }
                         }
                         else if (RoundNumber > 2 &&
-                            preferredSuits.Any() &&
-                            !cardsToPlay.Any())
+                                 preferredSuits.Any() &&
+                                 !cardsToPlay.Any())
                         {
                             cardsToPlay = hands[MyIndex].Where(i => i.Suit == preferredSuits.First() &&
-                                                                    _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) < 1 - RiskFactor &&
+                                                                    _probabilities.SuitHigherThanCardProbability(TeamMateIndex, i, RoundNumber) < 1 - RiskFactor &&
                                                                     _probabilities.PotentialCards(opponent).Any(j => j.Suit == i.Suit &&
                                                                                                                      j.BadValue > i.BadValue));
                         }
                         if (!cardsToPlay.Any())
                         {
-                            cardsToPlay = hands[MyIndex].Where(i => _probabilities.SuitProbability(TeamMateIndex, i.Suit, RoundNumber) == 0 &&
+                            cardsToPlay = hands[MyIndex].Where(i => _probabilities.SuitHigherThanCardProbability(TeamMateIndex, i, RoundNumber) == 0 &&
                                                                 _probabilities.PotentialCards(opponent).Any(j => j.Suit == i.Suit &&
                                                                                                                  j.BadValue > i.BadValue));
                         }
