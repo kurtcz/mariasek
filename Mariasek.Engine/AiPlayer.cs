@@ -1058,7 +1058,7 @@ namespace Mariasek.Engine
                     }
                 }
             }
-            //dej trumf do talonu pokud bys jinak prisel o hlas
+            //dej trumf do talonu pokud bys jinak prisel o hlas nebo plonkovou X
             if (_g.AllowTrumpTalon &&
                 //hand.CardCount(trumpCard.Suit) >= 5 &&
                 hand.Any(i => i != trumpCard &&
@@ -1069,7 +1069,10 @@ namespace Mariasek.Engine
                                        ((i.Value == Hodnota.Kral &&
                                          hand.HasQ(i.Suit)) ||
                                         (i.Value == Hodnota.Svrsek &&
-                                       hand.HasK(i.Suit)))) &&
+                                         hand.HasK(i.Suit)) ||
+                                        (hand.HasX(i.Suit) &&   //ignoruj barvu kde mam X+2 plivy
+                                         !hand.HasA(i.Suit) &&
+                                         hand.CardCount(i.Suit) <= 3))) &&
                 talon.Count(i => i.Suit != trumpCard.Suit &&
                                  ((i.Value < Hodnota.Svrsek &&
                                    !(hand.HasX(i.Suit) &&   //ignoruj barvu kde mam X+2 plivy
