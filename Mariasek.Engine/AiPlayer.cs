@@ -1344,8 +1344,12 @@ namespace Mariasek.Engine
                 }
                 else
                 {
+                    var tempTalon = ChooseDurchTalon(Hand, null);
+                    var tempHand = new List<Card>(Hand.Where(i => !tempTalon.Contains(i)));
+
                     //pokud vysel pres prah betl i durch, tak vyber ten co vysel lepe (1. pres prahy, 2. procentuelne)
                     if (//_durchBalance >= Settings.GameThresholdsForGameType[Hra.Durch][0] * _durchSimulations &&
+                        !IsDurchTooRisky(tempHand, tempTalon) &&
                         DebugInfo.EstimatedDurchWinProbability >= 100 * Settings.GameThresholdsForGameType[Hra.Durch][0] &&
                         _durchSimulations > 0 &&
                         _betlBalance >= Settings.GameThresholdsForGameType[Hra.Betl][0] * _betlSimulations &&
@@ -1359,7 +1363,7 @@ namespace Mariasek.Engine
                             DebugInfo.EstimatedDurchWinProbability >= 100 * (float)_betlBalance / (float)_betlSimulations))
                              //(float)_durchBalance / (float)_durchSimulations >= (float)_betlBalance / (float)_betlSimulations))
                         {
-                            _talon = ChooseDurchTalon(Hand, null);
+                            _talon = tempTalon;//ChooseDurchTalon(Hand, null);
                             _durchTalonChosen = true;
                         }
                         else
@@ -1767,9 +1771,12 @@ namespace Mariasek.Engine
                             Hand.CardCount(_trump.Value) >= 4 &&
                             _avgWinForSeven >= -2 * _g.BetlValue)))))
                     {
-                        _gameType = Hra.Betl;   //toto zajisti, ze si umysl nerozmysli po odhozeni talonu na betla
-                                                //(odhadovane skore se muze zmenit a s tim i odhodlani hrat betla,
-                                                //ale protoze talon uz byl odhozen na betla, tak si zde vynutime ho sehrat)
+                        if (PlayerIndex == _g.GameStartingPlayerIndex)
+                        {
+                            _gameType = Hra.Betl;   //toto zajisti, ze si umysl nerozmysli po odhozeni talonu na betla
+                                                    //(odhadovane skore se muze zmenit a s tim i odhodlani hrat betla,
+                                                    //ale protoze talon uz byl odhozen na betla, tak si zde vynutime ho sehrat)
+                        }
                         DebugInfo.RuleCount = _betlBalance;
                         DebugInfo.TotalRuleCount = _betlSimulations;
                     }
