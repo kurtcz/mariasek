@@ -735,26 +735,10 @@ namespace Mariasek.Engine
                                                                         .ToList();
                             }
                         }
-                        //nejdrive zkusime nizke karty kde mam A a X, tim zustane teoreticka sance,
-                        //ze v dalsim stychu budu hrat nizkou kartu kde A,X nemam a souperi si nenamazou nebo si namazou mene
-                        if (cardsToPlay.Any(i => hands[MyIndex].HasA(i.Suit) &&
-                                                 hands[MyIndex].HasX(i.Suit)))
-                        {
-                            cardsToPlay = cardsToPlay.Where(i => hands[MyIndex].HasA(i.Suit) &&
-                                                                 hands[MyIndex].HasX(i.Suit))
-                                                     .ToList();
-                        }
-                        //potom delam stejnou uvahu pro karty kde mam A ale ne X
-                        else if (cardsToPlay.Any(i => hands[MyIndex].HasA(i.Suit)))
-                        {
-                            cardsToPlay = cardsToPlay.Where(i => hands[MyIndex].HasA(i.Suit))
-                                                     .ToList();
-                        }
-
                         if (cardsToPlay.Any(i => i.Value != Hodnota.Desitka &&
-                                                 hands[MyIndex].CardCount(i.Suit) == 2 &&
-                                                 hands[MyIndex].HasX(i.Suit) &&
-                                                 !myInitialHand.HasA(i.Suit)))
+                            //hands[MyIndex].CardCount(i.Suit) == 2 &&
+                            hands[MyIndex].HasX(i.Suit) &&
+                            !myInitialHand.HasA(i.Suit)))
                         {
                             if (cardsToPlay.Any(i => !myInitialHand.HasA(i.Suit) &&
                                                      !myInitialHand.HasX(i.Suit)))
@@ -766,7 +750,7 @@ namespace Mariasek.Engine
                             else
                             {
                                 cardsToPlay = cardsToPlay.Where(i => i.Value != Hodnota.Desitka &&
-                                                                     hands[MyIndex].CardCount(i.Suit) == 2 &&
+                                                                     //hands[MyIndex].CardCount(i.Suit) == 2 &&
                                                                      hands[MyIndex].HasX(i.Suit) &&
                                                                      !myInitialHand.HasA(i.Suit))
                                                          .OrderByDescending(i => i.Value)
@@ -777,6 +761,26 @@ namespace Mariasek.Engine
                                 }
                             }
                         }
+                        //nejdrive zkusime nizke karty kde mam A a X, tim zustane teoreticka sance,
+                        //ze v dalsim stychu budu hrat nizkou kartu kde A,X nemam a souperi si nenamazou nebo si namazou mene
+                        else if (cardsToPlay.Any(i => hands[MyIndex].HasA(i.Suit) &&
+                                                 hands[MyIndex].HasX(i.Suit)) &&
+                            cardsToPlay.Any(i => !myInitialHand.HasA(i.Suit) &&
+                                                 !myInitialHand.HasX(i.Suit)))
+                        {
+                            cardsToPlay = cardsToPlay.Where(i => hands[MyIndex].HasA(i.Suit) &&
+                                                                 hands[MyIndex].HasX(i.Suit))
+                                                     .ToList();
+                        }
+                        //potom delam stejnou uvahu pro karty kde mam A ale ne X
+                        else if (cardsToPlay.Any(i => hands[MyIndex].HasA(i.Suit)) &&
+                                 cardsToPlay.Any(i => !myInitialHand.HasA(i.Suit) &&
+                                                      !myInitialHand.HasX(i.Suit)))
+                        {
+                            cardsToPlay = cardsToPlay.Where(i => hands[MyIndex].HasA(i.Suit))
+                                                     .ToList();
+                        }
+
                         if (cardsToPlay.Any(i => i.Value == Hodnota.Desitka &&
                                                  ((TeamMateIndex == -1 &&
                                                    (_probabilities.PotentialCards(player2).HasA(i.Suit) ||
@@ -4827,6 +4831,26 @@ namespace Mariasek.Engine
                     if (TeamMateIndex != -1 &&
                         (PlayerBids[TeamMateIndex] & Hra.Sedma) != 0 &&
                         hands[MyIndex].Any(i => _teamMatesSuits.Contains(i.Suit)))
+                    {
+                        return null;
+                    }
+                    if (TeamMateIndex == -1 &&
+                        hands[MyIndex].Any(i => i.Value >= Hodnota.Desitka &&
+                                                i.Suit != _trump &&
+                                                opponentTrumps.Count == 0 &&
+                                                !_probabilities.PotentialCards(player2).HasA(i.Suit) &&
+                                                !_probabilities.PotentialCards(player3).HasA(i.Suit) &&
+                                                !_probabilities.PotentialCards(player2).HasX(i.Suit) &&
+                                                !_probabilities.PotentialCards(player3).HasX(i.Suit)))
+                    {
+                        return null;
+                    }
+                    if (TeamMateIndex != -1 &&
+                        hands[MyIndex].Any(i => i.Value >= Hodnota.Desitka &&
+                                                i.Suit != _trump &&
+                                                opponentTrumps.Count == 0 &&
+                                                !_probabilities.PotentialCards(opponent).HasA(i.Suit) &&
+                                                !_probabilities.PotentialCards(opponent).HasX(i.Suit)))
                     {
                         return null;
                     }
