@@ -4854,6 +4854,21 @@ namespace Mariasek.Engine
                     {
                         return null;
                     }
+                    if (TeamMateIndex == -1 &&
+                        hands[MyIndex].Any(i => i.Suit != _trump &&
+                                                opponentTrumps.Count == 0 &&
+                                                !_probabilities.PotentialCards(player2).HasHigherCardThan(i) &&
+                                                !_probabilities.PotentialCards(player3).HasHigherCardThan(i)))
+                    {
+                        return null;
+                    }
+                    if (TeamMateIndex != -1 &&
+                        hands[MyIndex].Any(i => i.Suit != _trump &&
+                                                opponentTrumps.Count == 0 &&
+                                                !_probabilities.PotentialCards(opponent).HasHigherCardThan(i)))
+                    {
+                        return null;
+                    }
                     if (TeamMateIndex != -1 &&
                         SevenValue >= GameValue &&                           //pri sedme se nezbavuj plonka (abych si udrzel trumfy)
                         hands[MyIndex].HasSuit(_trump) &&

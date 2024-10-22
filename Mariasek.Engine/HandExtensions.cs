@@ -175,6 +175,12 @@ namespace Mariasek.Engine
             return hand.Any(i => i.Suit == suit);
         }
 
+        public static bool HasHigherCardThan(this IEnumerable<Card> hand, Card c)
+        {
+            return hand.Any(i => i.Suit == c.Suit &&
+                                 i.Value > c.Value);
+        }
+
         public static int CardCount(this IEnumerable<Card> hand, Barva suit)
         {
             return hand.Count(i => i.Suit == suit);
