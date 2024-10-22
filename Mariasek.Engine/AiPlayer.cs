@@ -1820,9 +1820,10 @@ namespace Mariasek.Engine
                     _g.AllowFake107 &&
                     _g.Calculate107Separately &&
                     _g.Top107 &&
-                    _hundredSimulations > 0 &&
-                    _hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&
+                    //_hundredSimulations > 0 &&
+                    //_hundredsBalance >= Settings.GameThresholdsForGameType[Hra.Kilo][0] * _hundredSimulations &&
                     !_hundredTooRisky &&
+                    DebugInfo.EstimatedHundredWinProbability >= 100f * Settings.GameThresholdsForGameType[Hra.Kilo][0] &&
                     _avgWinForHundred > 2 * (_g.DurchValue + 2 * _g.SevenValue))
                 {
                     return GameFlavour.Good107;
